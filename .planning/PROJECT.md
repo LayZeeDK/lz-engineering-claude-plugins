@@ -42,6 +42,7 @@ lz-tpp skill:
 - [ ] Reference behavior: explains the transformations and their priority ordering on demand
 - [ ] Skill description tuned for accurate triggering (TDD / transformation / TPP contexts) without over-triggering
 - [ ] Guidance is language-agnostic with concrete TypeScript examples in BOTH functional and imperative styles, showing how transformation-priority choices shift by paradigm (e.g. recursion/expressions vs iteration/assignment)
+- [ ] JS/TS references cover TCO-alternative patterns (trampolines, generators-as-state-machines, CPS) for recursion-based transformations, since JS engines other than JavaScriptCore/Safari lack proper tail calls
 - [ ] Bundles the full transformation priority list as reference material
 - [ ] Grounded in authoritative sources (2 Clean Code blog posts + NDC 2011 talk transcript)
 
@@ -67,6 +68,7 @@ Distribution + hygiene:
   - The Transformation Priority Premise -- https://blog.cleancoder.com/uncle-bob/2013/05/27/TheTransformationPriorityPremise.html
   - Fib. The T-P Premise. -- https://blog.cleancoder.com/uncle-bob/2013/05/27/FibTPP.html
   - Robert C Martin -- The Transformation Priority Premise, NDC 2011 -- https://youtu.be/B93QezwTQpI (video id `B93QezwTQpI`)
+- JS/TS tail-call caveat: ES6 proper tail calls are implemented only in JavaScriptCore (Safari); V8 (Node/Chrome) and SpiderMonkey (Firefox) do not optimize tail recursion. Recursion-based transformations therefore need stack-safe alternatives in JS/TS -- trampolines, generators-as-state-machines, Continuation-Passing Style (CPS) -- or a switch to the iterative transformation. The skill must teach this explicitly.
 - TPP subject matter: an ordered list of "transformations" (for example `{}->nil`, `nil->constant`, `constant->variable`, `statement->statements`, `unconditional->if`, `...->recursion`, `...->while`) applied simplest-first during TDD. Higher-priority (simpler) transformations are preferred to avoid premature complexity and to escape local maxima where a test forces a large leap.
 - Build tooling already installed: `skill-creator` plugin (create/optimize the skill and run evals), `plugin-dev` plugin (scaffold marketplace/plugin, validate structure).
 - Transcription tooling (local):

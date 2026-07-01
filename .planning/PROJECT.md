@@ -41,7 +41,7 @@ lz-tpp skill:
 - [ ] Coach behavior: recommends the next code transformation by TPP priority order during TDD
 - [ ] Reference behavior: explains the transformations and their priority ordering on demand
 - [ ] Skill description tuned for accurate triggering (TDD / transformation / TPP contexts) without over-triggering
-- [ ] Guidance is language-agnostic with concrete TypeScript examples
+- [ ] Guidance is language-agnostic with concrete TypeScript examples in BOTH functional and imperative styles, showing how transformation-priority choices shift by paradigm (e.g. recursion/expressions vs iteration/assignment)
 - [ ] Bundles the full transformation priority list as reference material
 - [ ] Grounded in authoritative sources (2 Clean Code blog posts + NDC 2011 talk transcript)
 
@@ -93,7 +93,7 @@ Distribution + hygiene:
 | First plugin is `lz-tdd` (TDD-focused) | Groups TDD skills; `lz-tpp` is its first skill | -- Pending |
 | First skill is `lz-tpp` (`/lz-tdd:lz-tpp`) | TPP is the initial high-value TDD capability | -- Pending |
 | Skill is coach + reference | Drives next-transformation choice during TDD and explains the premise on demand | -- Pending |
-| Language-agnostic principles with TypeScript examples | Broad applicability, grounded in the user's primary stack | -- Pending |
+| Language-agnostic principles with TypeScript examples (functional + imperative) | Broad applicability, grounded in the user's primary stack; paradigm pairing shows how transformation priority shifts (recursion/expressions vs iteration/assignment), per Martin's language-specificity note | -- Pending |
 | Public GitHub, MIT license | Open-source distribution via `/plugin marketplace add` | -- Pending |
 | Build via `skill-creator` + `plugin-dev` | Follow first-party authoring workflows and guidelines | -- Pending |
 

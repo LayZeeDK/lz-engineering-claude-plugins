@@ -154,7 +154,7 @@ Phases likely needing deeper research during planning:
 
 Phases with standard patterns (skip research-phase):
 - **Phase 1 (scaffold):** Well-documented, mechanical; STACK + ARCHITECTURE are HIGH with copy-ready manifests.
-- **Phase 3 (skill authoring):** Established skill-creator/plugin-dev patterns; the coach procedure is already sketched.
+- **Phase 3 (skill authoring):** Established skill-creator/plugin-dev patterns; the coach procedure is already sketched. The added functional/imperative + TCO scope (TPP-05/TPP-07) is now pre-researched at HIGH confidence in `TPP-TYPESCRIPT.md` (verified TCO engine status, trampoline/generator/CPS patterns, and a recurse-vs-iterate decision guide) -- no further research-phase needed for it.
 - **Phase 4 (eval/tune + docs):** The eval loop is a documented, empirical/iterative skill-creator workflow -- it needs *iteration and dogfooding*, not documentation research.
 
 ## Confidence Assessment
@@ -185,6 +185,7 @@ Phases with standard patterns (skip research-phase):
 - Anthropic skill-authoring best practices + Agent Skills overview -- description = what + when, third-person, size targets, three-level progressive disclosure.
 - Installed manifests: `claude-plugins-official/.claude-plugin/marketplace.json` (Anthropic's own) and the maintainer's `lz-advisor-claude-plugins` repo -- real-world confirmation of the co-located single-repo layout and `source` forms.
 - Local first-party `plugin-dev` (plugin-structure, skill-development, manifest-reference, plugin-validator, skill-reviewer, create-plugin) and `skill-creator` SKILL.md -- authoring conventions, triggering mechanism, description-optimization loop.
+- `TPP-TYPESCRIPT.md` (targeted subject-matter research) -- TCO engine-status verified empirically on Node v24 (V8 lacks proper tail calls; only JavaScriptCore/Safari implements them), plus `--strict`-clean trampoline / generator-as-state-machine / CPS+trampoline / iterative patterns and a transformation-vs-refactoring decision guide. Feeds TPP-05/TPP-07.
 
 ### Secondary (MEDIUM confidence)
 - Robert C. Martin, "The Transformation Priority Premise", NDC 2011 talk (video id `B93QezwTQpI`) -- authoritative but not yet transcribed; to be produced in Phase 2.

@@ -70,40 +70,47 @@ Explicitly excluded. Documented to prevent scope creep.
 
 ## Traceability
 
-Populated during roadmap creation (each requirement maps to exactly one phase).
+Each requirement maps to exactly one phase (see .planning/ROADMAP.md).
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| MKT-01 | TBD | Pending |
-| MKT-02 | TBD | Pending |
-| MKT-03 | TBD | Pending |
-| MKT-04 | TBD | Pending |
-| MKT-05 | TBD | Pending |
-| SKILL-01 | TBD | Pending |
-| SKILL-02 | TBD | Pending |
-| SKILL-03 | TBD | Pending |
-| SKILL-04 | TBD | Pending |
-| SKILL-05 | TBD | Pending |
-| SKILL-06 | TBD | Pending |
-| TPP-01 | TBD | Pending |
-| TPP-02 | TBD | Pending |
-| TPP-03 | TBD | Pending |
-| TPP-04 | TBD | Pending |
-| TPP-05 | TBD | Pending |
-| TPP-06 | TBD | Pending |
-| TPP-07 | TBD | Pending |
-| EVAL-01 | TBD | Pending |
-| EVAL-02 | TBD | Pending |
-| DIST-01 | TBD | Pending |
-| DIST-02 | TBD | Pending |
-| DIST-03 | TBD | Pending |
-| DIST-04 | TBD | Pending |
+| MKT-01 | Phase 1 | Pending |
+| MKT-02 | Phase 1 | Pending |
+| MKT-03 | Phase 1 | Pending |
+| MKT-04 | Phase 1 | Pending |
+| MKT-05 | Phase 1 | Pending |
+| SKILL-01 | Phase 3 | Pending |
+| SKILL-02 | Phase 3 | Pending |
+| SKILL-03 | Phase 3 | Pending |
+| SKILL-04 | Phase 3 | Pending |
+| SKILL-05 | Phase 3 | Pending |
+| SKILL-06 | Phase 3 | Pending |
+| TPP-01 | Phase 2 | Pending |
+| TPP-02 | Phase 2 | Pending |
+| TPP-03 | Phase 2 | Pending |
+| TPP-04 | Phase 2 | Pending |
+| TPP-05 | Phase 3 | Pending |
+| TPP-06 | Phase 3 | Pending |
+| TPP-07 | Phase 3 | Pending |
+| EVAL-01 | Phase 5 | Pending |
+| EVAL-02 | Phase 5 | Pending |
+| DIST-01 | Phase 4 | Pending |
+| DIST-02 | Phase 4 | Pending |
+| DIST-03 | Phase 4 | Pending |
+| DIST-04 | Phase 1 | Pending |
 
 **Coverage:**
 - 0.0.1 requirements: 24 total
-- Mapped to phases: 0 (roadmap pending)
-- Unmapped: 24 (filled by roadmap)
+- Mapped to phases: 24 (100%)
+- Unmapped: 0
+
+**Per-phase counts:**
+- Phase 1 (Marketplace & Plugin Scaffold): 6 (MKT-01, MKT-02, MKT-03, MKT-04, MKT-05, DIST-04)
+- Phase 2 (TPP Source Distillation): 4 (TPP-01, TPP-02, TPP-03, TPP-04)
+- Phase 3 (lz-tpp Skill Authoring): 9 (SKILL-01, SKILL-02, SKILL-03, SKILL-04, SKILL-05, SKILL-06, TPP-05, TPP-06, TPP-07)
+- Phase 4 (Distribution & Hygiene): 3 (DIST-01, DIST-02, DIST-03)
+- Phase 5 (Skill Effectiveness Evals): 2 (EVAL-01, EVAL-02)
 
 ---
 *Requirements defined: 2026-07-02*
-*Last updated: 2026-07-02 after initial definition*
+*Last updated: 2026-07-02 after roadmap creation (traceability filled, 24/24 mapped)*

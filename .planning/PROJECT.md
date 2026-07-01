@@ -56,11 +56,11 @@ Distribution + hygiene:
 
 <!-- Explicit boundaries. Includes reasoning to prevent re-adding. -->
 
-- Additional plugins beyond `lz-tdd` in v1 -- start with one plugin, keep structure extensible
-- Commands / agents / hooks inside `lz-tdd` for v1 -- skill-first; add later if a real need appears
-- npm packaging/distribution -- git-based marketplace install is sufficient for v1
-- Deep language-specific guides beyond TypeScript examples -- agnostic principles + TS examples cover v1
-- Additional TDD skills under `lz-tdd` (e.g., test naming, triangulation) -- future skills, not v1
+- Additional plugins beyond `lz-tdd` in 0.0.1 -- start with one plugin, keep structure extensible
+- Commands / agents / hooks inside `lz-tdd` for 0.0.1 -- skill-first; add later if a real need appears
+- npm packaging/distribution -- git-based marketplace install is sufficient for 0.0.1
+- Deep language-specific guides beyond TypeScript examples -- agnostic principles + TS examples cover 0.0.1
+- Additional TDD skills under `lz-tdd` (e.g., test naming, triangulation) -- future skills, not 0.0.1
 
 ## Context
 
@@ -71,6 +71,7 @@ Distribution + hygiene:
 - JS/TS tail-call caveat: ES6 proper tail calls are implemented only in JavaScriptCore (Safari); V8 (Node/Chrome) and SpiderMonkey (Firefox) do not optimize tail recursion. Recursion-based transformations therefore need stack-safe alternatives in JS/TS -- trampolines, generators-as-state-machines, Continuation-Passing Style (CPS) -- or a switch to the iterative transformation. The skill must teach this explicitly.
 - TPP subject matter: an ordered list of "transformations" (for example `{}->nil`, `nil->constant`, `constant->variable`, `statement->statements`, `unconditional->if`, `...->recursion`, `...->while`) applied simplest-first during TDD. Higher-priority (simpler) transformations are preferred to avoid premature complexity and to escape local maxima where a test forces a large leap.
 - Build tooling already installed: `skill-creator` plugin (create/optimize the skill and run evals), `plugin-dev` plugin (scaffold marketplace/plugin, validate structure).
+- Research artifacts in `.planning/research/`: STACK, FEATURES (incl. canonical transformation list), ARCHITECTURE, PITFALLS, SUMMARY, and TPP-TYPESCRIPT.md (verified TCO status + trampoline/generator/CPS patterns + functional-vs-imperative decision guide for TPP-05/TPP-07).
 - Transcription tooling (local):
   - Primary: `node D:\projects\github\LayZeeDK\lz-cybernetics-ai-plugins\tools\youtube-to-markdown\youtube-to-markdown.mjs B93QezwTQpI --output <prefix>`
   - Fallback (if transcript quality is poor): markitdown CLI at `C:\Users\LarsGyrupBrinkNielse\AppData\Local\Temp\markitdown-mcp-npx\venv\Scripts\markitdown`
@@ -98,6 +99,7 @@ Distribution + hygiene:
 | Language-agnostic principles with TypeScript examples (functional + imperative) | Broad applicability, grounded in the user's primary stack; paradigm pairing shows how transformation priority shifts (recursion/expressions vs iteration/assignment), per Martin's language-specificity note | -- Pending |
 | Public GitHub, MIT license | Open-source distribution via `/plugin marketplace add` | -- Pending |
 | Build via `skill-creator` + `plugin-dev` | Follow first-party authoring workflows and guidelines | -- Pending |
+| First milestone is version 0.0.1 (pre-1.0) | Signals early/experimental status; `plugin.json` version 0.0.1 | -- Pending |
 
 ## Evolution
 

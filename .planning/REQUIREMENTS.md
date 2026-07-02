@@ -26,10 +26,10 @@ Requirements for the initial release (version 0.0.1). Each maps to a roadmap pha
 
 ### TPP Subject-Matter Content (TPP)
 
-- [ ] **TPP-01**: `references/transformations.md` contains the canonical transformation priority list transcribed verbatim-faithfully from the primary sources, with citations
-- [ ] **TPP-02**: The reference resolves the 12-item vs 14-item discrepancy explicitly (uses the revised FibTPP list as canonical; notes the original list and secondary-source drift)
-- [ ] **TPP-03**: The NDC 2011 talk (video id `B93QezwTQpI`) is transcribed via the local `youtube-to-markdown` tool (fallback: markitdown) and reconciled against the blog list; the transcript is retained as source material
-- [ ] **TPP-04**: Content distinguishes transformations (behavior-changing, green) from refactorings (behavior-preserving) and frames TPP as a provisional heuristic, not rigid law
+- [x] **TPP-01**: `references/transformations.md` contains the canonical transformation priority list transcribed verbatim-faithfully from the primary sources, with citations
+- [x] **TPP-02**: The reference resolves the 12-item vs 14-item discrepancy explicitly (uses the revised FibTPP list as canonical; notes the original list and secondary-source drift)
+- [x] **TPP-03**: The NDC 2011 talk (video id `B93QezwTQpI`) is transcribed via the local `youtube-to-markdown` tool (fallback: markitdown) and reconciled against the blog list; the transcript is retained as source material
+- [x] **TPP-04**: Content distinguishes transformations (behavior-changing, green) from refactorings (behavior-preserving) and frames TPP as a provisional heuristic, not rigid law
 - [ ] **TPP-05**: Includes paired TypeScript examples in BOTH functional and imperative styles, demonstrating how transformation-priority choices shift by paradigm (recursion/expressions vs iteration/assignment)
 - [ ] **TPP-06**: At least one full worked example (e.g. Fibonacci or word-wrap) shows the transformations applied test-by-test in monotonic priority order
 - [ ] **TPP-07**: JS/TS references address the lack of reliable tail-call optimization in JavaScript engines (only JavaScriptCore/Safari implements ES6 proper tail calls; V8 and SpiderMonkey do not) and cover TCO-alternative patterns for recursion-based transformations -- trampolines, generators-as-state-machines, and Continuation-Passing Style (CPS) -- so functional-style examples stay stack-safe, and clarify when to prefer the iterative transformation instead
@@ -85,10 +85,10 @@ Each requirement maps to exactly one phase (see .planning/ROADMAP.md).
 | SKILL-04 | Phase 3 | Pending |
 | SKILL-05 | Phase 3 | Pending |
 | SKILL-06 | Phase 3 | Pending |
-| TPP-01 | Phase 2 | Pending |
-| TPP-02 | Phase 2 | Pending |
-| TPP-03 | Phase 2 | Pending |
-| TPP-04 | Phase 2 | Pending |
+| TPP-01 | Phase 2 | Complete |
+| TPP-02 | Phase 2 | Complete |
+| TPP-03 | Phase 2 | Complete |
+| TPP-04 | Phase 2 | Complete |
 | TPP-05 | Phase 3 | Pending |
 | TPP-06 | Phase 3 | Pending |
 | TPP-07 | Phase 3 | Pending |

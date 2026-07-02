@@ -150,10 +150,10 @@ list with three changes (FibTPP post):
 3. Moved plain `(statement -> recursion)` to position 11, now BELOW `(if -> while)` (it was
    at position 9, above `(if -> while)`, in the original 12-item list).
 
-Explicit resolution (D-03): this reference adopts the revised 14-item FibTPP list as the
-canonical source of truth, and retains the original 12-item list plus these three revisions
-solely for provenance. The recursion/iteration reordering is a deliberate within-source
-evolution by the author, not a transcription error.
+This reference adopts the revised 14-item FibTPP list as the canonical source of truth, and
+retains the original 12-item list plus these three revisions solely for provenance. The
+recursion/iteration reordering is a deliberate within-source evolution by the author, not a
+transcription error.
 
 The author also notes that the ordering is language-dependent. Captured here as provenance
 for that evolution -- not as a coaching default (FibTPP post):
@@ -201,10 +201,9 @@ What the talk corroborates: the core distinction (refactorings preserve behavior
 transformations change behavior), the direction (specific -> generic), and the premise
 (prefer transformations higher on the list to derive better algorithms).
 
-Precedence (D-06): the two Clean Coder blog posts take precedence over the NDC 2011 talk,
-which in turn takes precedence over secondary sources -- blogs > talk > secondary. Where the
-talk differs from the blogs, the canonical verbatim list and definitions above come from the
-blogs.
+The two Clean Coder blog posts take precedence over the NDC 2011 talk, which in turn takes
+precedence over secondary sources -- blogs > talk > secondary. Where the talk differs from the
+blogs, the canonical verbatim list and definitions above come from the blogs.
 
 ## Sources / citations
 
@@ -220,7 +219,6 @@ blogs.
   ordering example.
 - NDC 2011 talk -- Robert C. Martin, "The Transformation Priority Premise", NDC 2011 (video
   id `B93QezwTQpI`): https://youtu.be/B93QezwTQpI
-  Retained transcript (source material for the reconciliation section above, not shipped):
-  `.planning/phases/02-tpp-source-distillation/ndc-2011-tpp-transcript.md`
+  A transcript was retained as unshipped source material for the reconciliation section above.
 - Secondary sources (Wikipedia and similar): cross-check only; known to drift (see
   Secondary-source drift). Never used as the canonical list.

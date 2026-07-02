@@ -1,23 +1,32 @@
 #!/usr/bin/env node
-// Deterministic grader for lz-tpp BEHAVIOR evals (EVAL-02).
+// Deterministic PRE-FILTER grader for lz-tpp BEHAVIOR evals (EVAL-02).
 //
-// Design (05-CONTEXT.md D-04): grade deterministically FIRST -- objective checks are
-// transformation-name presence (tolerant of spacing / hyphen-vs-space / optional parens /
-// "#N" numbering) and the "coach, don't drive" tool-use check. Nuanced/rejection checks
-// (e.g. "explicitly rejects plain recursion", "raises stack-safety unprompted") are
-// best-effort regex heuristics, marked "(heuristic)" in evidence so a human / LLM-judge can
-// confirm the borderline ones. This keeps grading reusable across iterations without an LLM.
+// Reviewed 2026-07-02 by two independent agents. Key finding: a regex grader can reliably
+// check only OBJECTIVE facts -- (a) that a specific transformation NAME is present, and
+// (b) that the coach did not edit code / run tests ("coach, don't drive", via a metrics.json).
+// It CANNOT reliably judge nuance: "does NOT recommend X" (a good coach names X to warn
+// against it -> false-fail; a bad coach does X in code without naming it -> false-pass),
+// "raises an insight unprompted" (prompt-echo free passes), or "allows a deviation vs a rigid
+// refusal" (negation scope). Those are DELEGATED to the LLM judge (skill-creator agents/grader.md).
 //
-// Emits grading.json in the EXACT shape skill-creator's aggregate_benchmark.py + eval-viewer
-// require: { expectations: [{text, passed, evidence}], summary: {passed, failed, total, pass_rate} }.
+// So each expectation is one of:
+//   { names: ["a -> b", ...] }  -> SCORED: ALL canonical transform names present (tolerant match)
+//   { anyRe: [/re/, ...] }      -> SCORED: at least one regex matches (only for stable, discriminating tokens)
+//   { nodrive: true }           -> SCORED: metrics.json shows edits=writes=testRuns=0 (fail-safe false without metrics)
+//   { judge: "question" }       -> UNSCORED: emitted passed:null; the LLM judge must resolve it
+//
+// grading.json shape stays exactly what aggregate_benchmark.py + the eval-viewer read:
+//   { expectations:[{text,passed,evidence}], summary:{passed,failed,total,pass_rate} }
+// plus extra (ignored-by-consumer) fields: preliminary:true, judge_required:[texts].
+// IMPORTANT: summary here is PRELIMINARY (scored checks only). The EVAL-02 run flow MUST run
+// the LLM judge on judge_required, merge those verdicts into expectations, and recompute the
+// summary before Pass@k / Pass^k is taken (a run "fully passes" only when ALL expectations do).
 //
 // Usage:
 //   node grade-run.mjs --eval-id <0-9> --output <coach-response.(txt|md)> [--metrics <metrics.json>] --out <grading.json>
 //   node grade-run.mjs --selfcheck
 //
-// --metrics json (optional) drives the "coach, don't drive" check; shape:
-//   { "edits": 0, "writes": 0, "testRuns": 0 }   (any > 0 => the coach drove => that check fails)
-// Without --metrics, the no-drive check is reported passed:false with evidence asking for metrics.
+// --metrics json shape: { "edits": 0, "writes": 0, "testRuns": 0 }  (any > 0 => coach drove => nodrive fails)
 
 import fs from "node:fs";
 
@@ -31,75 +40,77 @@ function transformRe(canonical) {
       .replace(/-/g, "[- ]"); // hyphen OR space
   return new RegExp(`\\(?\\s*${esc(a)}\\s*->\\s*${esc(b)}\\s*\\)?`, "i");
 }
-function numRe(n) {
-  return new RegExp(`#\\s*${n}\\b`);
-}
 const T = transformRe;
 
-// ---- per-eval rubric. kinds: all(regex[]) | any(regex[]) | none(regex[]) | nodrive. soft => heuristic ----
+// ---- per-eval rubric. SCORED: names/anyRe/nodrive. UNSCORED: judge. ----
 const RUBRICS = {
   0: [
-    { text: "Names ({} -> nil) then (nil -> constant)", all: [T("{} -> nil"), T("nil -> constant")] },
-    { text: "Presents minimal `return 0`, not a full algorithm", any: [/return\s+0\b/i] },
-    { text: "Coach, don't drive (no edit / no test run)", nodrive: true },
+    { names: ["{} -> nil", "nil -> constant"] },
+    { judge: "Presents only minimal code (e.g. `return 0`), NOT a full Fibonacci algorithm" },
+    { nodrive: true, text: "Coach, don't drive (no edit / no test run)" },
   ],
   1: [
-    { text: "Names (unconditional -> if) + (constant -> scalar)", all: [T("unconditional -> if"), T("constant -> scalar")] },
-    { text: "Does NOT jump to recursion", none: [/->\s*(tail[- ])?recursion/i, /\buse\s+recursion\b/i], soft: true },
-    { text: "Coach, don't drive (no edit / no test run)", nodrive: true },
+    { names: ["unconditional -> if", "constant -> scalar"] },
+    { judge: "Does NOT recommend jumping to a recursion transformation as the next move (naming recursion only to warn against it is fine)" },
+    { nodrive: true, text: "Coach, don't drive (no edit / no test run)" },
   ],
   2: [
-    { text: "Names (statement -> tail-recursion) #9", any: [T("statement -> tail-recursion"), numRe(9)] },
-    { text: "Explicitly rejects plain (statement -> recursion) #11", any: [/(not|avoid|don't|do not|instead of|rather than|premature)[^.\n]{0,60}(plain\s+)?(statement\s*->\s*recursion|#\s*11)/i], soft: true },
-    { text: "Coach, don't drive (no edit / no test run)", nodrive: true },
+    { names: ["statement -> tail-recursion"] },
+    { judge: "Explicitly prefers (statement -> tail-recursion) #9 OVER plain (statement -> recursion) #11 as the pick (rejects #11 as the next move)" },
+    { nodrive: true, text: "Coach, don't drive (no edit / no test run)" },
   ],
   3: [
-    { text: "Raises that stack-safety is BEHAVIORAL (deep-input test)", any: [/stack[- ]saf/i, /behaviou?ral/i, /overflow/i], soft: true },
-    { text: "Names (if -> while) + (variable -> assignment), or a trampoline", any: [/((if\s*->\s*while)[^.\n]{0,80}(variable\s*->\s*assignment))|((variable\s*->\s*assignment)[^.\n]{0,80}(if\s*->\s*while))/i, /\btrampoline\b/i] },
-    { text: "Does NOT offer a plain V8 tail-recursive final answer", none: [/proper\s+tail\s+call/i], soft: true },
-    { text: "Coach, don't drive (no edit / no test run)", nodrive: true },
+    { judge: "Raises, UNPROMPTED, that the deep-input test makes stack-safety BEHAVIORAL -- a transformation, not merely a refactoring (do not credit an echo of the word 'overflow' from the prompt)" },
+    { judge: "Recommends the stack-safe form: (if -> while) + (variable -> assignment), or an explicitly-named trampoline" },
+    { judge: "Does NOT offer a plain (V8) tail-recursive solution as the FINAL answer" },
+    { nodrive: true, text: "Coach, don't drive (no edit / no test run)" },
   ],
   4: [
-    { text: "States tail-recursion (#9) is NOT available for tree recursion", any: [/(no|not|isn't|cannot|can't|un-?available)[^.\n]{0,60}tail/i], soft: true },
-    { text: "Recommends explicit-stack (if -> while) or a generator", any: [T("if -> while"), /\bgenerator\b/i, /explicit\s+stack/i] },
-    { text: "Coach, don't drive (no edit / no test run)", nodrive: true },
+    { judge: "States (statement -> tail-recursion) #9 is NOT available for this tree recursion (no single tail call)" },
+    { anyRe: [T("if -> while"), /\bgenerator\b/i, /explicit\s+stack/i], text: "Recommends an explicit-stack (if -> while) iteration or a generator-as-state-machine" },
+    { nodrive: true, text: "Coach, don't drive (no edit / no test run)" },
   ],
   5: [
-    { text: "Recommends BACKTRACKING (simpler test / structure-only refactor)", any: [/backtrack/i, /simpler\s+test/i, /smaller\s+(test|step)/i, /structure[- ]only/i] },
-    { text: "Does NOT immediately apply (expression -> function) / write the whole algorithm", none: [T("expression -> function")], soft: true },
-    { text: "Coach, don't drive (no edit / no test run)", nodrive: true },
+    { judge: "Recommends BACKTRACKING: pose a simpler intermediate test (or a structure-only refactor first) instead of writing the whole algorithm now" },
+    { judge: "Does NOT just write the whole wrap algorithm / apply the low-priority (expression -> function) #12 now" },
+    { nodrive: true, text: "Coach, don't drive (no edit / no test run)" },
   ],
   6: [
-    { text: "Identifies this as a REFACTORING (not a transformation)", any: [/refactor/i] },
-    { text: "Declines to name a numbered transformation", none: [/#\s*\d+/], soft: true },
-    { text: "Coach, don't drive (no edit / no test run)", nodrive: true },
+    { anyRe: [/\brefactor/i], text: "Identifies this as a REFACTORING (structure-only)" },
+    { judge: "Declines to assign a numbered / priority-ranked transformation (treats it as a refactoring, not priority-ranked)" },
+    { nodrive: true, text: "Coach, don't drive (no edit / no test run)" },
   ],
   7: [
-    { text: "Corrects to (unconditional -> if) + (constant -> scalar)", all: [T("unconditional -> if"), T("constant -> scalar")] },
-    { text: "Explains recursion is premature / lower-priority", any: [/premature/i, /higher[- ]priority/i, /too\s+early/i, /lower[- ]priority/i], soft: true },
-    { text: "Coach, don't drive (no edit / no test run)", nodrive: true },
+    { names: ["unconditional -> if", "constant -> scalar"] },
+    { judge: "Corrects the user's premature jump: explains recursion is premature / lower-priority here and the base-case split is preferred" },
+    { nodrive: true, text: "Coach, don't drive (no edit / no test run)" },
   ],
   8: [
-    { text: "Cites the author's hedges (informal / roughly ordered / not likely / language specific)", any: [/informal/i, /roughly\s+ordered/i, /not\s+likely/i, /language[- ]specific/i] },
-    { text: "Frames TPP as a heuristic, not a law", any: [/heuristic/i, /not\s+a\s+law/i, /guideline/i, /thinking\s+aid/i], soft: true },
-    { text: "No edit / no test run", nodrive: true },
+    { judge: "Cites the author's own hedges (informal / roughly ordered / not likely / language-specific) and that the list is ordered by increasing complexity -- the coach's own explanation, not a bare echo of the quoted 'not likely' in the prompt" },
+    { judge: "Frames TPP as a heuristic / thinking aid, NOT a rigid law" },
+    { nodrive: true, text: "No edit / no test run" },
   ],
   9: [
-    { text: "Notes strict priority prefers the smaller (constant -> scalar) step", any: [T("constant -> scalar")] },
-    { text: "Allows the reasoned deviation (heuristic, not rigid 'no')", any: [/heuristic/i, /deviat/i, /with a (stated )?reason/i, /that'?s fine|you can|reasonable|go ahead/i], soft: true },
-    { text: "Coach, don't drive (no edit / no test run)", nodrive: true },
+    { judge: "Notes strict priority prefers the smaller (constant -> scalar) step first (the coach's own framing, not just an echo of the prompt token)" },
+    { judge: "ALLOWS the reasoned deviation to (scalar -> array) as a heuristic with a stated reason -- does NOT rigidly refuse ('no, take the higher-priority move')" },
+    { nodrive: true, text: "Coach, don't drive (no edit / no test run)" },
   ],
 };
 
-function runCheck(check, resp, metrics) {
+function scoreCheck(check, resp, metrics) {
+  if (check.judge) {
+    return { text: check.judge, passed: null, evidence: "LLM-JUDGE REQUIRED (not deterministically checkable)" };
+  }
+
   if (check.nodrive) {
     if (!metrics) {
-      return { passed: false, evidence: "no metrics.json provided; run with --metrics to verify no Edit/Write/test-run" };
+      return { text: check.text, passed: false, evidence: "no metrics.json provided; run with --metrics to verify no Edit/Write/test-run" };
     }
 
     const drove = (metrics.edits | 0) > 0 || (metrics.writes | 0) > 0 || (metrics.testRuns | 0) > 0;
 
     return {
+      text: check.text,
       passed: !drove,
       evidence: drove
         ? `coach DROVE: edits=${metrics.edits || 0} writes=${metrics.writes || 0} testRuns=${metrics.testRuns || 0}`
@@ -107,39 +118,33 @@ function runCheck(check, resp, metrics) {
     };
   }
 
-  const firstHit = (list) => {
-    for (const re of list) {
+  if (check.names) {
+    const misses = check.names.filter((c) => !resp.match(T(c)));
+    const passed = misses.length === 0;
+
+    return {
+      text: `Names ${check.names.map((c) => `(${c})`).join(" + ")}`,
+      passed,
+      evidence: passed ? "all required transformation names present" : `missing: ${misses.map((c) => `(${c})`).join(", ")}`,
+    };
+  }
+
+  if (check.anyRe) {
+    let hit = null;
+
+    for (const re of check.anyRe) {
       const m = resp.match(re);
 
       if (m) {
-        return m[0];
+        hit = m[0];
+        break;
       }
     }
 
-    return null;
-  };
-  const tag = check.soft ? " (heuristic; confirm if borderline)" : "";
-
-  if (check.all) {
-    const misses = check.all.filter((re) => !resp.match(re));
-    const passed = misses.length === 0;
-
-    return { passed, evidence: (passed ? `matched all required patterns` : `missing ${misses.length} of ${check.all.length} required pattern(s)`) + tag };
+    return { text: check.text, passed: !!hit, evidence: hit ? `matched: ${hit}` : "no required pattern found" };
   }
 
-  if (check.any) {
-    const hit = firstHit(check.any);
-
-    return { passed: !!hit, evidence: (hit ? `matched: ${hit}` : "no required pattern found") + tag };
-  }
-
-  if (check.none) {
-    const bad = firstHit(check.none);
-
-    return { passed: !bad, evidence: (bad ? `found disallowed: ${bad}` : "no disallowed pattern") + tag };
-  }
-
-  return { passed: false, evidence: "unknown check kind" };
+  return { text: check.text || "(unknown)", passed: false, evidence: "unknown check kind" };
 }
 
 function grade(evalId, resp, metrics) {
@@ -149,17 +154,17 @@ function grade(evalId, resp, metrics) {
     throw new Error(`no rubric for eval-id ${evalId} (have 0..9)`);
   }
 
-  const expectations = rubric.map((c) => {
-    const { passed, evidence } = runCheck(c, resp, metrics);
-
-    return { text: c.text, passed, evidence };
-  });
-  const passed = expectations.filter((e) => e.passed).length;
-  const total = expectations.length;
+  const expectations = rubric.map((c) => scoreCheck(c, resp, metrics));
+  const scored = expectations.filter((e) => e.passed !== null);
+  const passed = scored.filter((e) => e.passed).length;
+  const total = scored.length;
+  const judge_required = expectations.filter((e) => e.passed === null).map((e) => e.text);
 
   return {
     expectations,
     summary: { passed, failed: total - passed, total, pass_rate: total ? passed / total : 0 },
+    preliminary: true,
+    judge_required,
   };
 }
 
@@ -172,26 +177,35 @@ function selfcheck() {
     }
   };
 
-  // eval 2: a good coach response should pass the "names #9" check regardless of arrow spacing.
-  const good2 = grade(2, "Apply ( statement->tail recursion ) #9 with an accumulator; do NOT jump to plain (statement -> recursion) #11 yet.", { edits: 0, writes: 0, testRuns: 0 });
-  assert(good2.expectations[0].passed, "eval2 tail-recursion name should match tolerant spacing");
-  assert(good2.expectations[1].passed, "eval2 rejection heuristic should match 'do NOT jump to plain (statement -> recursion)'");
-  assert(good2.expectations[2].passed, "eval2 no-drive should pass with zero edits/writes/testRuns");
-  assert(good2.summary.pass_rate === 1, "eval2 clean response should be 3/3");
+  // names: tolerant of spacing / hyphen-vs-space / parens.
+  const g0 = grade(0, "write `return 0` -- that's ( {}->nil ) then (nil -> constant)", { edits: 0, writes: 0, testRuns: 0 });
+  assert(g0.expectations[0].passed === true, "eval0 names both transformations with varied spacing");
+  assert(g0.expectations[1].passed === null, "eval0 'not a full algorithm' is judge-only (passed:null)");
+  assert(g0.expectations[2].passed === true, "eval0 nodrive passes with zero edits/writes/testRuns");
+  assert(g0.summary.total === 2, "eval0 summary counts only the 2 SCORED checks, not the judge one");
+  assert(g0.judge_required.length === 1, "eval0 reports 1 judge_required item");
 
-  // no-drive must FAIL when the coach edited code.
-  const drove = grade(0, "return 0 for ({} -> nil) then (nil -> constant)", { edits: 2, writes: 1, testRuns: 0 });
-  assert(drove.expectations[2].passed === false, "eval0 no-drive must fail when edits>0");
+  // names FAILS when a required transformation is absent.
+  const g0miss = grade(0, "just `return 0` for the base case", { edits: 0, writes: 0, testRuns: 0 });
+  assert(g0miss.expectations[0].passed === false, "eval0 names must FAIL when (nil -> constant) is absent");
 
-  // no-drive without metrics => not verified (fail-safe).
-  const noMetrics = grade(0, "return 0 for ({}->nil) then (nil->constant)", null);
-  assert(noMetrics.expectations[2].passed === false, "no-drive without metrics must be reported false");
-  assert(noMetrics.expectations[0].passed, "eval0 names both transformations without spaces");
+  // nodrive fails when the coach edited code, and is fail-safe without metrics.
+  const drove = grade(2, "apply (statement -> tail-recursion)", { edits: 2, writes: 1, testRuns: 0 });
+  assert(drove.expectations[2].passed === false, "eval2 nodrive must fail when edits>0");
+  const noMetrics = grade(2, "apply ( statement -> tail recursion )", null);
+  assert(noMetrics.expectations[2].passed === false, "nodrive without metrics reports false (fail-safe)");
+  assert(noMetrics.expectations[0].passed === true, "eval2 tail-recursion name matches hyphen-or-space form");
 
-  // eval 6: classifies refactoring, declines a numbered transformation.
-  const ref = grade(6, "That's a refactoring (structure-only); it is not priority-ranked, so no numbered transformation applies.", { edits: 0, writes: 0, testRuns: 0 });
-  assert(ref.expectations[0].passed, "eval6 should detect 'refactoring'");
-  assert(ref.expectations[1].passed, "eval6 declines a numbered transformation (no #N present)");
+  // anyRe: eval4 c2 matches (if -> while) OR generator OR explicit stack.
+  const g4 = grade(4, "use an explicit stack while-loop here", { edits: 0, writes: 0, testRuns: 0 });
+  assert(g4.expectations[1].passed === true, "eval4 anyRe matches 'explicit stack'");
+  const g4gen = grade(4, "convert it to a generator-as-state-machine", { edits: 0, writes: 0, testRuns: 0 });
+  assert(g4gen.expectations[1].passed === true, "eval4 anyRe matches 'generator'");
+
+  // judge checks never autonomously pass/fail (no false signal from inverted heuristics).
+  const g9 = grade(9, "no, you can't skip, take the higher-priority move", { edits: 0, writes: 0, testRuns: 0 });
+  assert(g9.expectations[1].passed === null, "eval9 anti-dogma check is judge-only, so a rigid refusal is NOT wrongly passed");
+  assert(g9.summary.total === 1, "eval9 has exactly 1 scored check (nodrive); the two nuance checks are judged");
 
   console.log(ok ? "SELFCHECK OK" : "SELFCHECK FAILED");
   process.exit(ok ? 0 : 1);
@@ -227,11 +241,36 @@ function main() {
     process.exit(2);
   }
 
-  const resp = fs.readFileSync(args.output, "utf8");
-  const metrics = args.metrics ? JSON.parse(fs.readFileSync(args.metrics, "utf8")) : null;
+  let resp;
+
+  try {
+    resp = fs.readFileSync(args.output, "utf8");
+  } catch (e) {
+    console.error(`cannot read --output ${args.output}: ${e.message}`);
+    process.exit(2);
+  }
+
+  let metrics = null;
+
+  if (args.metrics) {
+    try {
+      metrics = JSON.parse(fs.readFileSync(args.metrics, "utf8"));
+    } catch (e) {
+      console.error(`cannot read/parse --metrics ${args.metrics}: ${e.message}`);
+      process.exit(2);
+    }
+  }
+
   const result = grade(Number(args["eval-id"]), resp, metrics);
-  fs.writeFileSync(args.out, JSON.stringify(result, null, 2) + "\n");
-  console.log(`graded eval-${args["eval-id"]}: ${result.summary.passed}/${result.summary.total} -> ${args.out}`);
+
+  try {
+    fs.writeFileSync(args.out, JSON.stringify(result, null, 2) + "\n");
+  } catch (e) {
+    console.error(`cannot write --out ${args.out}: ${e.message}`);
+    process.exit(2);
+  }
+
+  console.log(`graded eval-${args["eval-id"]}: ${result.summary.passed}/${result.summary.total} scored, ${result.judge_required.length} need LLM-judge -> ${args.out}`);
 }
 
 main();

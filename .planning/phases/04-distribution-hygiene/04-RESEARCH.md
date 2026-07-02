@@ -473,10 +473,14 @@ load-bearing and is surfaced explicitly here (full detail in Pitfall 1):
 literal and plain work-domain (uses the escaped `@consensus\.dk` form) so it does not itself
 trip the DIST-02/DIST-03 gates when committed under `.planning/`.
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **What is the correct scope for the DIST-02 work-email guard, given the literal already
-   exists in two tracked `.planning/` files of a PUBLIC repo?**
+   exists in two tracked `.planning/` files of a PUBLIC repo?** [RESOLVED: adopted the
+   redact-and-full-tree-guard recommendation; the two `.planning/` files were redacted and the
+   unpushed commit `3c313a9` rewritten during planning -- full-tree `git grep -qE '@consensus\.dk'`
+   now returns rc=1. Pre-existing PUBLIC Phase-1 history exposure flagged separately as a
+   user-gated, out-of-scope decision.]
    - What we know: Full-tree `git grep -qE '@consensus\.dk'` returns FOUND today (2 hits in
      `04-CONTEXT.md`, `04-DISCUSSION-LOG.md`); publishable-scope (excluding `.planning/`)
      returns absent. D-04 wants "zero hits across tracked files"; DIST-02 wants "appears
@@ -490,6 +494,8 @@ trip the DIST-02/DIST-03 gates when committed under `.planning/`.
      operation) unless the user requests it.
 
 2. **`AGENTS.md` is 0 bytes but imported by `CLAUDE.md` via `@AGENTS.md` -- fix in Phase 4?**
+   [RESOLVED: left OUT of Phase 4 scope (respects roadmap traceability); surfaced to the user as
+   an optional one-line fix, not a ship blocker.]
    - What we know: Confirmed 0 bytes [VERIFIED: `ls` + read]. CONTEXT explicitly defers it as
      a separate hygiene task, NOT DIST-01/02/03 scope.
    - Recommendation: Leave out of Phase 4 scope (respect roadmap traceability). Surface to the

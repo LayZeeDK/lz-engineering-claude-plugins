@@ -46,15 +46,17 @@ lz-tpp dual-mode skill (Phase 3: lz-tpp Skill Authoring, 2026-07-02):
 - [x] Paired functional/imperative TypeScript examples (Kata 1 sum, Kata 2 flatten) showing how transformation-priority choices shift by paradigm, plus the Fibonacci worked example test-by-test in monotonic priority order (TPP-05, TPP-06)
 - [x] TS/JS TCO-alternative guidance (trampoline, generator-as-state-machine, CPS-with-trampoline, fold) + when to prefer the iterative transformation; tsc --strict-clean (TPP-07)
 
+Distribution & hygiene (Phase 4: Distribution & Hygiene, 2026-07-02):
+
+- [x] `README.md` documents install via `/plugin marketplace add LayZeeDK/lz-engineering-claude-plugins` then `/plugin install lz-tdd@lz-engineering-claude-plugins`, plus what the skill does and how to invoke it (`/lz-tdd:lz-tpp`) (DIST-01)
+- [x] MIT `LICENSE` at repo root with public contact `larsbrinknielsen@gmail.com`; the work email is absent from the shippable tree (DIST-02)
+- [x] Passes first-party authoring review -- plugin-validator + skill-reviewer both PASS, `claude plugin validate . --strict` exits 0, findings triaged per D-06 (DIST-03)
+
 ### Active
 
 <!-- Current scope. Hypotheses until shipped and validated. -->
 
-Distribution + hygiene:
-
-- [ ] README documents install via `/plugin marketplace add LayZeeDK/lz-engineering-claude-plugins`
-- [ ] MIT LICENSE and public contact (`larsbrinknielsen@gmail.com`)
-- [ ] Complies with skill-creator and plugin-dev authoring guidelines
+The 0.0.1 public ship is complete (Phases 1-4: scaffold -> source distillation -> skill authoring -> distribution & hygiene). Remaining for the milestone: Phase 5 (Skill Effectiveness Evals) -- optional-final, non-blocking triggering + coaching-accuracy evals (EVAL-01/02); it does not gate the public ship.
 
 ### Out of Scope
 
@@ -123,4 +125,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-07-02 after Phase 3 (lz-tpp Skill Authoring) completion*
+*Last updated: 2026-07-02 after Phase 4 (Distribution & Hygiene) completion*

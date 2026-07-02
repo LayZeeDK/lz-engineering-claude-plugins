@@ -30,6 +30,13 @@ Marketplace + plugin scaffold (Phase 1: Marketplace & Plugin Scaffold, 2026-07-0
 - [x] Structure stays extensible (skills auto-discovery; adding a second skill/plugin needs no edits to existing manifests)
 - [x] Placeholder `lz-tpp` skill exists at `plugins/lz-tdd/skills/lz-tpp/SKILL.md`; repo passes `claude plugin validate .` (local marketplace add/list loop verified; remote name resolution deferred to ship-time)
 
+Canonical TPP source reference (Phase 2: TPP Source Distillation, 2026-07-02):
+
+- [x] `plugins/lz-tdd/skills/lz-tpp/references/transformations.md` locks the canonical 14-item FibTPP transformation priority list -- verbatim-faithful and cited -- with the 12-vs-14 discrepancy resolved and the original 12-item list + secondary-source drift documented for provenance (TPP-01, TPP-02)
+- [x] The NDC 2011 talk (`B93QezwTQpI`) is transcribed via the local `youtube-to-markdown` tool, retained as source material under `.planning/`, and reconciled against the blog list with discrepancies noted rather than silently resolved (TPP-03)
+- [x] The reference states the transformations-vs-refactorings distinction and frames TPP as a provisional heuristic with the author's own hedges, not rigid law (TPP-04)
+- [x] Bundles the full transformation priority list as reference material, grounded in the authoritative sources (2 Clean Code blog posts + NDC 2011 talk transcript)
+
 ### Active
 
 <!-- Current scope. Hypotheses until shipped and validated. -->
@@ -42,8 +49,6 @@ lz-tpp skill:
 - [ ] Skill description tuned for accurate triggering (TDD / transformation / TPP contexts) without over-triggering
 - [ ] Guidance is language-agnostic with concrete TypeScript examples in BOTH functional and imperative styles, showing how transformation-priority choices shift by paradigm (e.g. recursion/expressions vs iteration/assignment)
 - [ ] JS/TS references cover TCO-alternative patterns (trampolines, generators-as-state-machines, CPS) for recursion-based transformations, since JS engines other than JavaScriptCore/Safari lack proper tail calls
-- [ ] Bundles the full transformation priority list as reference material
-- [ ] Grounded in authoritative sources (2 Clean Code blog posts + NDC 2011 talk transcript)
 
 Distribution + hygiene:
 
@@ -118,4 +123,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-07-02 after Phase 1 (Marketplace & Plugin Scaffold) completion*
+*Last updated: 2026-07-02 after Phase 2 (TPP Source Distillation) completion*

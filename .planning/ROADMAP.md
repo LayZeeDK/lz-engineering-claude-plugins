@@ -90,10 +90,14 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
+**Wave 1**
 
-- [ ] 03-01: Author the lean `SKILL.md` -- tuned `description`, dual-mode frontmatter, coach decision procedure, impasse/backtrack guidance, and reference pointers.
-- [ ] 03-02: Build the `references/` catalog (annotated full list) and the worked Fibonacci example applied test-by-test in priority order.
-- [ ] 03-03: Author paired functional/imperative TypeScript examples and the TS/JS TCO-alternative guidance (trampoline / generator / CPS + recurse-vs-iterate decision guide).
+- [ ] 03-02-PLAN.md - Author the TypeScript Fibonacci worked-example reference file, applied test-by-test in monotonic TPP priority order (TPP-06).
+- [ ] 03-03-PLAN.md - Author the paired functional/imperative TypeScript examples plus the JS/TS TCO reality and stack-safe recursion guidance reference file (TPP-05, TPP-07).
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [ ] 03-01-PLAN.md - Author the lean dual-mode `SKILL.md` (scoped `description`, default frontmatter, 7-step coach decision procedure, impasse/backtrack heuristic, reference pointers) that wires the two new reference files plus the LOCKED transformations.md (SKILL-01..06).
 
 ### Phase 4: Distribution & Hygiene
 

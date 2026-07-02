@@ -37,18 +37,18 @@ Canonical TPP source reference (Phase 2: TPP Source Distillation, 2026-07-02):
 - [x] The reference states the transformations-vs-refactorings distinction and frames TPP as a provisional heuristic with the author's own hedges, not rigid law (TPP-04)
 - [x] Bundles the full transformation priority list as reference material, grounded in the authoritative sources (2 Clean Code blog posts + NDC 2011 talk transcript)
 
+lz-tpp dual-mode skill (Phase 3: lz-tpp Skill Authoring, 2026-07-02):
+
+- [x] `lz-tpp` lives at `plugins/lz-tdd/skills/lz-tpp/SKILL.md`, invocable as `/lz-tdd:lz-tpp`, with default dual-mode frontmatter (SKILL-01, SKILL-02)
+- [x] Coach behavior: a 7-step decision procedure recommends the next NAMED transformation by TPP priority during red-green-refactor, with impasse/backtrack (pose a simpler test) guidance (SKILL-03)
+- [x] Reference behavior: on-demand explanation of the transformations and their priority ordering, routed to the locked `references/transformations.md` (SKILL-04)
+- [x] Lean `SKILL.md` (87 lines / 702 words; 750-char scoped description) via progressive disclosure, heavy material in bundled `references/` (SKILL-05, SKILL-06); empirical trigger/coaching tuning deferred to Phase 5 (EVAL-01/02)
+- [x] Paired functional/imperative TypeScript examples (Kata 1 sum, Kata 2 flatten) showing how transformation-priority choices shift by paradigm, plus the Fibonacci worked example test-by-test in monotonic priority order (TPP-05, TPP-06)
+- [x] TS/JS TCO-alternative guidance (trampoline, generator-as-state-machine, CPS-with-trampoline, fold) + when to prefer the iterative transformation; tsc --strict-clean (TPP-07)
+
 ### Active
 
 <!-- Current scope. Hypotheses until shipped and validated. -->
-
-lz-tpp skill:
-
-- [ ] `lz-tpp` skill lives under the `lz-tdd` plugin, invocable as `/lz-tdd:lz-tpp`
-- [ ] Coach behavior: recommends the next code transformation by TPP priority order during TDD
-- [ ] Reference behavior: explains the transformations and their priority ordering on demand
-- [ ] Skill description tuned for accurate triggering (TDD / transformation / TPP contexts) without over-triggering
-- [ ] Guidance is language-agnostic with concrete TypeScript examples in BOTH functional and imperative styles, showing how transformation-priority choices shift by paradigm (e.g. recursion/expressions vs iteration/assignment)
-- [ ] JS/TS references cover TCO-alternative patterns (trampolines, generators-as-state-machines, CPS) for recursion-based transformations, since JS engines other than JavaScriptCore/Safari lack proper tail calls
 
 Distribution + hygiene:
 
@@ -123,4 +123,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-07-02 after Phase 2 (TPP Source Distillation) completion*
+*Last updated: 2026-07-02 after Phase 3 (lz-tpp Skill Authoring) completion*

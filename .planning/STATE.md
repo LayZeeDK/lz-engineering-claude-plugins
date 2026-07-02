@@ -75,7 +75,7 @@ None yet.
 
 ### Blockers/Concerns
 
-- Physical folder + GitHub rename to plural `lz-engineering-claude-plugins` is a ship-time step OUTSIDE an active session (renaming the cwd mid-session breaks tooling); committed manifests/docs use the plural name from the start.
+- RESOLVED (2026-07-02): Local folder renamed to plural `lz-engineering-claude-plugins`, GitHub repo `LayZeeDK/lz-engineering-claude-plugins` created, `origin` remote wired, and `main` pushed (in sync). Remote resolution VERIFIED -- `claude plugin marketplace add LayZeeDK/lz-engineering-claude-plugins` clones + validates the marketplace and resolves `./plugins/lz-tdd`, so Phase 1 success criterion 2 is now fully met (closes D-13's ship-time deferral).
 - Triggering accuracy (SKILL-05 / EVAL-01) is empirically resolvable only -- via the skill-creator eval loop in Phase 5, not by intuition in earlier phases.
 
 ## Deferred Items

@@ -9,6 +9,14 @@ created: 2026-07-02
 
 # Phase 5 -- Validation Strategy
 
+> **POST-PIVOT -- see `05-CONTEXT.md` D-09.** Two corrections supersede the tables below:
+> (1) **EVAL-01 runs NATIVELY**, not under WSL2 -- the WSL2 `run_loop`/`run_eval` commands below
+> are superseded by the native `python -m scripts.run_eval` invocation via the vendored harness
+> in `05-03-PLAN.md` / `.claude/skills/lz-tpp-workspace/tools/skill-creator-eval/README.md`
+> (upstream select()/detection bugs #3548/#3041 made WSL insufficient). (2) All eval artifact
+> paths are `.claude/skills/lz-tpp-workspace/` (NOT `.planning/`). The Wave-0 eval sets are
+> already committed; bulky outputs are dropped by generic root `.gitignore` rules.
+
 > Per-phase validation contract for feedback sampling during execution.
 > NOTE: the "test framework" here IS the skill-creator eval harness; the phase's
 > own deliverables (the trigger-eval set + behavior evals) ARE the tests that prove

@@ -114,7 +114,7 @@ Plans:
 
 Plans:
 
-- [ ] 04-01: Write `README.md` (install + usage) and MIT `LICENSE` with public contact, verify ASCII-only output, then run plugin-validator + skill-reviewer and resolve findings.
+- [ ] 04-01-PLAN.md - Author root `README.md` (install + usage + `/lz-tdd:lz-tpp`) and MIT `LICENSE` (verbatim, `Copyright (c) 2026 Lars Gyrup Brink Nielsen`) plus an optional per-plugin pointer README, then run the scriptable hygiene gates + `claude plugin validate . --strict` + plugin-validator + skill-reviewer and triage findings per D-06.
 
 ### Phase 5: Skill Effectiveness Evals
 

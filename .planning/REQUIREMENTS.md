@@ -41,9 +41,9 @@ Requirements for the initial release (version 0.0.1). Each maps to a roadmap pha
 
 ### Distribution & Hygiene (DIST)
 
-- [ ] **DIST-01**: `README.md` documents install via `/plugin marketplace add LayZeeDK/lz-engineering-claude-plugins` then `/plugin install lz-tdd@lz-engineering-claude-plugins`, plus what the skill does and how to invoke it
-- [ ] **DIST-02**: Repo has an MIT `LICENSE` and public contact `larsbrinknielsen@gmail.com`; the work email appears nowhere
-- [ ] **DIST-03**: Authoring complies with skill-creator and plugin-dev guidelines (passes skill-reviewer / plugin-validator without significant findings)
+- [x] **DIST-01**: `README.md` documents install via `/plugin marketplace add LayZeeDK/lz-engineering-claude-plugins` then `/plugin install lz-tdd@lz-engineering-claude-plugins`, plus what the skill does and how to invoke it
+- [x] **DIST-02**: Repo has an MIT `LICENSE` and public contact `larsbrinknielsen@gmail.com`; the work email appears nowhere
+- [x] **DIST-03**: Authoring complies with skill-creator and plugin-dev guidelines (passes skill-reviewer / plugin-validator without significant findings)
 - [x] **DIST-04**: A `.gitignore` appropriate to the repo (Node / OS noise) is present
 
 ## Later (post-0.0.1)
@@ -94,9 +94,9 @@ Each requirement maps to exactly one phase (see .planning/ROADMAP.md).
 | TPP-07 | Phase 3 | Complete |
 | EVAL-01 | Phase 5 | Pending |
 | EVAL-02 | Phase 5 | Pending |
-| DIST-01 | Phase 4 | Pending |
-| DIST-02 | Phase 4 | Pending |
-| DIST-03 | Phase 4 | Pending |
+| DIST-01 | Phase 4 | Complete |
+| DIST-02 | Phase 4 | Complete |
+| DIST-03 | Phase 4 | Complete |
 | DIST-04 | Phase 1 | Complete |
 
 **Coverage:**

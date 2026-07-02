@@ -401,7 +401,12 @@ Report per-eval (that eval's n) AND overall (sum of runs across evals). Use k = 
 | A3 | The lz-tpp plugin stays NOT-enabled in the environment where `claude -p` runs during EVAL-01 | Pitfall 2 | If it becomes enabled, the real skill can steal the trigger -> false negatives. Re-verify config.json/settings.json at run time. |
 | A4 | The Word Wrap impasse scenario (5) can be posed with a compact code snippet WITHOUT authoring a new full worked-example reference file | Behavior scenarios | Authoring a new reference would violate D-07/deferred scope; keep the scenario inline in evals.json only. |
 
-## Open Questions
+## Open Questions (RESOLVED)
+
+All three are (D discretion) planning choices, resolved during planning. The substantive technical unknowns (A1 WSL interop streaming, A2 model-id validity) live in the Assumptions Log and are gated by the [BLOCKING] smoke test, not left open here.
+- RESOLVED (Q1): 4 plans -- 05-01 (author eval data + grader), 05-02 (behavior/native), 05-03 (trigger/WSL2, smoke-gated), 05-04 (combine + gated D-07 tuning). The WSL-vs-native split + blocking gates warranted the split over a single 05-01.
+- RESOLVED (Q2): parallel with a series/batch fallback if spawn limits bite; wait-for-all-notifications before grading.
+- RESOLVED (Q3): yes -- a one-shot run_eval.py before/after is offered inside 05-04's D-07 apply.
 
 1. **One plan or two?** (D discretion) Given the WSL/native split (EVAL-01 must run under WSL; EVAL-02 native), splitting into 05-01 (behavior, native) and 05-02 (trigger, WSL) may reduce environment friction, but the roadmap sketches a single 05-01. Recommendation: keep one plan with clearly separated EVAL-01 (WSL) and EVAL-02 (native) task groups, since they share the results summary and the D-07 gate.
 2. **Behavior runs parallel vs series?** (D discretion) Start parallel (all subagents same turn per SKILL.md); fall back to series only if timeouts bite. With 7 scenarios x 2 configs x 3 runs = 42 subagent runs, series is slow -- prefer parallel batches, but respect the wait-for-all-notifications rule before grading.

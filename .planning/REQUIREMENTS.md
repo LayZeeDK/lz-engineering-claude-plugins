@@ -17,12 +17,12 @@ Requirements for the initial release (version 0.0.1). Each maps to a roadmap pha
 
 ### lz-tpp Skill Behavior (SKILL)
 
-- [ ] **SKILL-01**: `lz-tpp` lives at `plugins/lz-tdd/skills/lz-tpp/SKILL.md` and is invocable as `/lz-tdd:lz-tpp`
-- [ ] **SKILL-02**: The skill auto-triggers as a coach during red-green-refactor TDD (default frontmatter, not disabled) AND is explicitly invocable as a reference
-- [ ] **SKILL-03**: Coach behavior -- given a failing test and current code, it recommends the next transformation by TPP priority via a concrete decision procedure, including backtracking / posing a simpler test at an impasse
-- [ ] **SKILL-04**: Reference behavior -- on demand it explains the transformations and their priority ordering with rationale
-- [ ] **SKILL-05**: The `description` frontmatter is tuned to trigger on TDD / transformation / TPP contexts without over-triggering, and stays within the field limit (<= 1024 chars)
-- [ ] **SKILL-06**: `SKILL.md` stays lean via progressive disclosure (body well under the ~500-line / ~1.5-2k-word guidance); heavy material lives in bundled `references/`
+- [x] **SKILL-01**: `lz-tpp` lives at `plugins/lz-tdd/skills/lz-tpp/SKILL.md` and is invocable as `/lz-tdd:lz-tpp`
+- [x] **SKILL-02**: The skill auto-triggers as a coach during red-green-refactor TDD (default frontmatter, not disabled) AND is explicitly invocable as a reference
+- [x] **SKILL-03**: Coach behavior -- given a failing test and current code, it recommends the next transformation by TPP priority via a concrete decision procedure, including backtracking / posing a simpler test at an impasse
+- [x] **SKILL-04**: Reference behavior -- on demand it explains the transformations and their priority ordering with rationale
+- [x] **SKILL-05**: The `description` frontmatter is tuned to trigger on TDD / transformation / TPP contexts without over-triggering, and stays within the field limit (<= 1024 chars)
+- [x] **SKILL-06**: `SKILL.md` stays lean via progressive disclosure (body well under the ~500-line / ~1.5-2k-word guidance); heavy material lives in bundled `references/`
 
 ### TPP Subject-Matter Content (TPP)
 
@@ -30,9 +30,9 @@ Requirements for the initial release (version 0.0.1). Each maps to a roadmap pha
 - [x] **TPP-02**: The reference resolves the 12-item vs 14-item discrepancy explicitly (uses the revised FibTPP list as canonical; notes the original list and secondary-source drift)
 - [x] **TPP-03**: The NDC 2011 talk (video id `B93QezwTQpI`) is transcribed via the local `youtube-to-markdown` tool (fallback: markitdown) and reconciled against the blog list; the transcript is retained as source material
 - [x] **TPP-04**: Content distinguishes transformations (behavior-changing, green) from refactorings (behavior-preserving) and frames TPP as a provisional heuristic, not rigid law
-- [ ] **TPP-05**: Includes paired TypeScript examples in BOTH functional and imperative styles, demonstrating how transformation-priority choices shift by paradigm (recursion/expressions vs iteration/assignment)
-- [ ] **TPP-06**: At least one full worked example (e.g. Fibonacci or word-wrap) shows the transformations applied test-by-test in monotonic priority order
-- [ ] **TPP-07**: JS/TS references address the lack of reliable tail-call optimization in JavaScript engines (only JavaScriptCore/Safari implements ES6 proper tail calls; V8 and SpiderMonkey do not) and cover TCO-alternative patterns for recursion-based transformations -- trampolines, generators-as-state-machines, and Continuation-Passing Style (CPS) -- so functional-style examples stay stack-safe, and clarify when to prefer the iterative transformation instead
+- [x] **TPP-05**: Includes paired TypeScript examples in BOTH functional and imperative styles, demonstrating how transformation-priority choices shift by paradigm (recursion/expressions vs iteration/assignment)
+- [x] **TPP-06**: At least one full worked example (e.g. Fibonacci or word-wrap) shows the transformations applied test-by-test in monotonic priority order
+- [x] **TPP-07**: JS/TS references address the lack of reliable tail-call optimization in JavaScript engines (only JavaScriptCore/Safari implements ES6 proper tail calls; V8 and SpiderMonkey do not) and cover TCO-alternative patterns for recursion-based transformations -- trampolines, generators-as-state-machines, and Continuation-Passing Style (CPS) -- so functional-style examples stay stack-safe, and clarify when to prefer the iterative transformation instead
 
 ### Skill Evaluation (EVAL) -- late / optional-final
 
@@ -79,19 +79,19 @@ Each requirement maps to exactly one phase (see .planning/ROADMAP.md).
 | MKT-03 | Phase 1 | Complete |
 | MKT-04 | Phase 1 | Complete |
 | MKT-05 | Phase 1 | Complete |
-| SKILL-01 | Phase 3 | Pending |
-| SKILL-02 | Phase 3 | Pending |
-| SKILL-03 | Phase 3 | Pending |
-| SKILL-04 | Phase 3 | Pending |
-| SKILL-05 | Phase 3 | Pending |
-| SKILL-06 | Phase 3 | Pending |
+| SKILL-01 | Phase 3 | Complete |
+| SKILL-02 | Phase 3 | Complete |
+| SKILL-03 | Phase 3 | Complete |
+| SKILL-04 | Phase 3 | Complete |
+| SKILL-05 | Phase 3 | Complete |
+| SKILL-06 | Phase 3 | Complete |
 | TPP-01 | Phase 2 | Complete |
 | TPP-02 | Phase 2 | Complete |
 | TPP-03 | Phase 2 | Complete |
 | TPP-04 | Phase 2 | Complete |
-| TPP-05 | Phase 3 | Pending |
-| TPP-06 | Phase 3 | Pending |
-| TPP-07 | Phase 3 | Pending |
+| TPP-05 | Phase 3 | Complete |
+| TPP-06 | Phase 3 | Complete |
+| TPP-07 | Phase 3 | Complete |
 | EVAL-01 | Phase 5 | Pending |
 | EVAL-02 | Phase 5 | Pending |
 | DIST-01 | Phase 4 | Pending |

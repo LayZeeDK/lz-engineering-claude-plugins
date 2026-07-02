@@ -23,7 +23,7 @@ empirically tune triggering and coaching accuracy with skill-creator evals.
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Marketplace & Plugin Scaffold** - Installable, validating manifest hierarchy + repo-hygiene skeleton
+- [x] **Phase 1: Marketplace & Plugin Scaffold** - Installable, validating manifest hierarchy + repo-hygiene skeleton (completed 2026-07-02)
 - [ ] **Phase 2: TPP Source Distillation** - Lock the cited, canonical transformation reference before authoring
 - [ ] **Phase 3: lz-tpp Skill Authoring** - Dual-mode coach + reference skill with paired TS examples and TCO guidance
 - [ ] **Phase 4: Distribution & Hygiene** - README, MIT license, contact, and first-party authoring review
@@ -44,7 +44,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans**: 1 plan
 
 Plans:
-- [ ] 01-01-PLAN.md - Create the three-level manifest hierarchy (marketplace.json, plugin.json, placeholder SKILL.md) + .gitignore, then gate on `claude plugin validate .` and the plugin-dev validator.
+- [x] 01-01-PLAN.md - Create the three-level manifest hierarchy (marketplace.json, plugin.json, placeholder SKILL.md) + .gitignore, then gate on `claude plugin validate .` and the plugin-dev validator.
 
 ### Phase 2: TPP Source Distillation
 **Goal**: A correct, cited, canonical TPP reference locked as the source of truth before any skill behavior is authored on top of it.
@@ -111,7 +111,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Marketplace & Plugin Scaffold | 0/1 | Not started | - |
+| 1. Marketplace & Plugin Scaffold | 1/1 | Complete   | 2026-07-02 |
 | 2. TPP Source Distillation | 0/2 | Not started | - |
 | 3. lz-tpp Skill Authoring | 0/3 | Not started | - |
 | 4. Distribution & Hygiene | 0/1 | Not started | - |

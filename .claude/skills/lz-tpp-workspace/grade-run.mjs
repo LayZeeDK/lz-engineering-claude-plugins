@@ -1,37 +1,46 @@
 #!/usr/bin/env node
 // Deterministic PRE-FILTER grader for lz-tpp BEHAVIOR evals (EVAL-02).
 //
-// Reviewed 2026-07-02 by two independent agents. Key finding: a regex grader can reliably
-// check only OBJECTIVE facts -- (a) that a specific transformation NAME is present, and
-// (b) that the coach did not edit code / run tests ("coach, don't drive", via a metrics.json).
-// It CANNOT reliably judge nuance: "does NOT recommend X" (a good coach names X to warn
-// against it -> false-fail; a bad coach does X in code without naming it -> false-pass),
-// "raises an insight unprompted" (prompt-echo free passes), or "allows a deviation vs a rigid
-// refusal" (negation scope). Those are DELEGATED to the LLM judge (skill-creator agents/grader.md).
+// A regex grader can reliably check only OBJECTIVE facts -- (a) that a specific transformation
+// NAME is present, and (b) that the coach did not edit code / run tests ("coach, don't drive",
+// from a per-run metrics.json). It CANNOT reliably judge nuance ("does NOT recommend X" --
+// a good coach names X to warn against it -> false-fail; a bad coach does X in code without
+// naming it -> false-pass), unprompted insight, or deviation-vs-refusal. Those are DELEGATED to
+// the LLM judge (skill-creator agents/grader.md).
 //
-// So each expectation is one of:
-//   { names: ["a -> b", ...] }  -> SCORED: ALL canonical transform names present (tolerant match)
-//   { anyRe: [/re/, ...] }      -> SCORED: at least one regex matches (only for stable, discriminating tokens)
-//   { nodrive: true }           -> SCORED: metrics.json shows edits=writes=testRuns=0 (fail-safe false without metrics)
+// Each expectation is one of:
+//   { names: ["a -> b", ...] }  -> SCORED: ALL canonical transform names present (tolerant, word-bounded)
+//   { anyRe: [/re/, ...] }      -> SCORED: at least one regex matches (only stable, discriminating tokens)
+//   { nodrive: true }           -> SCORED: metrics show no mutating/exec tool use (fail-safe/fail-loud, see below)
 //   { judge: "question" }       -> UNSCORED: emitted passed:null; the LLM judge must resolve it
 //
-// grading.json shape stays exactly what aggregate_benchmark.py + the eval-viewer read:
+// metrics.json (--metrics) shape for the nodrive check -- BOTH accepted:
+//   canonical (skill-creator schemas.md):  { "tool_calls": { "Edit": N, "Write": N, "Bash": N, ... } }
+//   flat convenience:                       { "edits": N, "writes": N, "testRuns": N }
+// "drove" = any of Edit/Write/MultiEdit/NotebookEdit/Bash (or edits/writes/testRuns) > 0.
+// Fail-safe: no --metrics -> nodrive fails (can't verify). Fail-LOUD: --metrics present but NO
+// recognized keys -> nodrive fails with an explicit "unrecognized shape" evidence (never a
+// silent pass). Bash counts as driving (running the tests/commands is not coaching).
+//
+// grading.json shape stays exactly what aggregate_benchmark.py + the viewer read:
 //   { expectations:[{text,passed,evidence}], summary:{passed,failed,total,pass_rate} }
-// plus extra (ignored-by-consumer) fields: preliminary:true, judge_required:[texts].
-// IMPORTANT: summary here is PRELIMINARY (scored checks only). The EVAL-02 run flow MUST run
-// the LLM judge on judge_required, merge those verdicts into expectations, and recompute the
-// summary before Pass@k / Pass^k is taken (a run "fully passes" only when ALL expectations do).
+// plus (consumer-ignored) preliminary:true, judge_required:[texts].
+// The summary is PRELIMINARY (SCORED checks only). The EVAL-02 run flow MUST run the LLM judge on
+// judge_required, merge those verdicts into expectations, and RECOMPUTE summary before Pass@k
+// (a run "fully passes" only when ALL expectations pass). To make that non-optional, this script
+// STRUCTURALLY refuses to emit grading.json while judge items remain -- it writes
+// grading.preliminary.json instead; aggregate_benchmark.py then skips that run dir (fail-closed)
+// rather than counting an unmerged scored-only summary as a false pass.
 //
 // Usage:
 //   node grade-run.mjs --eval-id <0-9> --output <coach-response.(txt|md)> [--metrics <metrics.json>] --out <grading.json>
 //   node grade-run.mjs --selfcheck
-//
-// --metrics json shape: { "edits": 0, "writes": 0, "testRuns": 0 }  (any > 0 => coach drove => nodrive fails)
 
 import fs from "node:fs";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 
-// ---- transform-name matcher: tolerant of spacing, hyphen/space, optional parens ----
+// ---- transform-name matcher: tolerant of spacing / hyphen-vs-space / optional parens, but word-bounded ----
 function transformRe(canonical) {
   const [a, b] = canonical.split("->").map((s) => s.trim());
   const esc = (s) =>
@@ -39,11 +48,44 @@ function transformRe(canonical) {
       .replace(/[.*+?^${}()|[\]\\]/g, "\\$&") // escape regex metacharacters
       .replace(/\\\{\\\}/g, "\\{\\s*\\}") // {} -> { \s* }
       .replace(/-/g, "[- ]"); // hyphen OR space
-  return new RegExp(`\\(?\\s*${esc(a)}\\s*->\\s*${esc(b)}\\s*\\)?`, "i");
+  // (?<![\w+]) / (?![\w+]) stop a token from sub-matching a different transformation,
+  // e.g. `nil -> constant` must NOT match `(nil -> constant+)` (#3) or `inconstant -> scalar`.
+  return new RegExp(`(?<![\\w+])\\(?\\s*${esc(a)}\\s*->\\s*${esc(b)}(?![\\w+])\\s*\\)?`, "i");
 }
 const T = transformRe;
 
-// ---- per-eval rubric. SCORED: names/anyRe/nodrive. UNSCORED: judge. ----
+// ---- metrics -> "coach drove?" (accepts nested tool_calls OR flat keys; reports if unrecognized) ----
+function toolDrive(metrics) {
+  if (!metrics || typeof metrics !== "object") {
+    return { recognized: false };
+  }
+
+  const pos = (v) => {
+    const n = Number(v);
+
+    return Number.isFinite(n) && n > 0;
+  };
+  const tc = metrics.tool_calls;
+
+  if (tc && typeof tc === "object") {
+    const keys = ["Edit", "Write", "MultiEdit", "NotebookEdit", "Bash"];
+    const hits = keys.filter((k) => pos(tc[k])).map((k) => `${k}=${tc[k]}`);
+
+    return { recognized: true, drove: hits.length > 0, detail: hits.join(", ") || "none" };
+  }
+
+  const flat = ["edits", "writes", "testRuns"];
+
+  if (flat.some((k) => k in metrics)) {
+    const hits = flat.filter((k) => pos(metrics[k])).map((k) => `${k}=${metrics[k]}`);
+
+    return { recognized: true, drove: hits.length > 0, detail: hits.join(", ") || "none" };
+  }
+
+  return { recognized: false };
+}
+
+// ---- per-eval rubric. SCORED: names/anyRe/nodrive. UNSCORED: judge. (Count must match evals.json expectations.) ----
 const RUBRICS = {
   0: [
     { names: ["{} -> nil", "nil -> constant"] },
@@ -77,7 +119,8 @@ const RUBRICS = {
     { nodrive: true, text: "Coach, don't drive (no edit / no test run)" },
   ],
   6: [
-    { judge: "Identifies this as a REFACTORING (structure-only, behavior-preserving) and declines to assign a numbered / priority-ranked transformation" },
+    { judge: "Identifies this as a REFACTORING (structure-only, behavior-preserving), not a transformation" },
+    { judge: "Declines to name a numbered / priority-ranked transformation (it belongs to the refactor step)" },
     { nodrive: true, text: "Coach, don't drive (no edit / no test run)" },
   ],
   7: [
@@ -107,14 +150,20 @@ function scoreCheck(check, resp, metrics) {
       return { text: check.text, passed: false, evidence: "no metrics.json provided; run with --metrics to verify no Edit/Write/test-run" };
     }
 
-    const drove = (metrics.edits | 0) > 0 || (metrics.writes | 0) > 0 || (metrics.testRuns | 0) > 0;
+    const d = toolDrive(metrics);
+
+    if (!d.recognized) {
+      return {
+        text: check.text,
+        passed: false,
+        evidence: "metrics.json present but NO recognized tool-call keys (expected tool_calls.{Edit,Write,Bash,...} or edits/writes/testRuns) -- cannot verify no-drive",
+      };
+    }
 
     return {
       text: check.text,
-      passed: !drove,
-      evidence: drove
-        ? `coach DROVE: edits=${metrics.edits || 0} writes=${metrics.writes || 0} testRuns=${metrics.testRuns || 0}`
-        : "no Edit/Write/test-run recorded",
+      passed: !d.drove,
+      evidence: d.drove ? `coach DROVE: ${d.detail}` : "no Edit/Write/MultiEdit/NotebookEdit/Bash recorded",
     };
   }
 
@@ -168,6 +217,11 @@ function grade(evalId, resp, metrics) {
   };
 }
 
+// Structural guard: never emit a FINAL-looking grading.json while judge items remain.
+function finalOutPath(outArg, judgeCount) {
+  return judgeCount > 0 ? path.join(path.dirname(outArg), "grading.preliminary.json") : outArg;
+}
+
 function selfcheck() {
   let ok = true;
   const assert = (cond, msg) => {
@@ -176,40 +230,67 @@ function selfcheck() {
       console.error("SELFCHECK FAIL:", msg);
     }
   };
+  const zero = { tool_calls: { Edit: 0, Write: 0, Bash: 0 } };
 
-  // names: tolerant of spacing / hyphen-vs-space / parens.
-  const g0 = grade(0, "write `return 0` -- that's ( {}->nil ) then (nil -> constant)", { edits: 0, writes: 0, testRuns: 0 });
+  // names: tolerant of spacing / hyphen-vs-space / parens; FAILS on absence.
+  const g0 = grade(0, "write `return 0` -- that's ( {}->nil ) then (nil -> constant)", zero);
   assert(g0.expectations[0].passed === true, "eval0 names both transformations with varied spacing");
   assert(g0.expectations[1].passed === null, "eval0 'not a full algorithm' is judge-only (passed:null)");
-  assert(g0.expectations[2].passed === true, "eval0 nodrive passes with zero edits/writes/testRuns");
-  assert(g0.summary.total === 2, "eval0 summary counts only the 2 SCORED checks, not the judge one");
+  assert(g0.expectations[2].passed === true, "eval0 nodrive passes with zero tool calls");
+  assert(g0.summary.total === 2, "eval0 summary counts only the 2 SCORED checks");
   assert(g0.judge_required.length === 1, "eval0 reports 1 judge_required item");
-
-  // names FAILS when a required transformation is absent.
-  const g0miss = grade(0, "just `return 0` for the base case", { edits: 0, writes: 0, testRuns: 0 });
+  const g0miss = grade(0, "just `return 0` for the base case", zero);
   assert(g0miss.expectations[0].passed === false, "eval0 names must FAIL when (nil -> constant) is absent");
 
-  // nodrive fails when the coach edited code, and is fail-safe without metrics.
-  const drove = grade(2, "apply (statement -> tail-recursion)", { edits: 2, writes: 1, testRuns: 0 });
-  assert(drove.expectations[2].passed === false, "eval2 nodrive must fail when edits>0");
+  // transformRe word boundary: must not sub-match a different transformation.
+  assert(!T("nil -> constant").test("recommend (nil -> constant+)"), "T('nil -> constant') must NOT match (nil -> constant+) [#3]");
+  assert(T("nil -> constant").test("recommend (nil -> constant)"), "T('nil -> constant') still matches the exact token");
+  assert(T("statement -> tail-recursion").test("( statement -> tail recursion )"), "T tolerant of hyphen-vs-space + spacing");
+
+  // nodrive: nested (canonical) shape now DETECTED as drove; flat shape works; unrecognized fails loud; missing fails safe.
+  const droveNested = grade(2, "apply (statement -> tail-recursion)", { tool_calls: { Edit: 3, Write: 2, Bash: 1 } });
+  assert(droveNested.expectations[2].passed === false, "nested tool_calls with edits>0 must FAIL nodrive (the bug fresh review caught)");
+  const droveFlat = grade(2, "apply (statement -> tail-recursion)", { edits: 1 });
+  assert(droveFlat.expectations[2].passed === false, "flat edits>0 must FAIL nodrive");
+  const miskeyed = grade(2, "apply (statement -> tail-recursion)", { foo: 1, bar: 2 });
+  assert(miskeyed.expectations[2].passed === false, "unrecognized metrics shape must FAIL nodrive (no silent pass)");
+  assert(/unrecognized|no recognized/i.test(miskeyed.expectations[2].evidence), "miskeyed metrics evidence names the shape problem");
   const noMetrics = grade(2, "apply ( statement -> tail recursion )", null);
   assert(noMetrics.expectations[2].passed === false, "nodrive without metrics reports false (fail-safe)");
   assert(noMetrics.expectations[0].passed === true, "eval2 tail-recursion name matches hyphen-or-space form");
 
-  // anyRe: eval4 c2 matches (if -> while) OR generator OR explicit stack.
-  const g4 = grade(4, "use an explicit stack while-loop here", { edits: 0, writes: 0, testRuns: 0 });
-  assert(g4.expectations[1].passed === true, "eval4 anyRe matches 'explicit stack'");
-  const g4gen = grade(4, "convert it to a generator-as-state-machine", { edits: 0, writes: 0, testRuns: 0 });
-  assert(g4gen.expectations[1].passed === true, "eval4 anyRe matches 'generator'");
-  const g4tf = grade(4, "switch to an ( if -> while ) loop", { edits: 0, writes: 0, testRuns: 0 });
+  // anyRe: matches T('if -> while') / generator / explicit stack; FAILS on none.
+  const g4tf = grade(4, "switch to an ( if -> while ) loop", zero);
   assert(g4tf.expectations[1].passed === true, "eval4 anyRe matches the T('if -> while') entry (tolerant)");
-  const g4none = grade(4, "just memoize the results", { edits: 0, writes: 0, testRuns: 0 });
+  const g4gen = grade(4, "convert it to a generator-as-state-machine", zero);
+  assert(g4gen.expectations[1].passed === true, "eval4 anyRe matches 'generator'");
+  const g4none = grade(4, "just memoize the results", zero);
   assert(g4none.expectations[1].passed === false, "eval4 anyRe must FAIL when no required pattern is present");
 
   // judge checks never autonomously pass/fail (no false signal from inverted heuristics).
-  const g9 = grade(9, "no, you can't skip, take the higher-priority move", { edits: 0, writes: 0, testRuns: 0 });
-  assert(g9.expectations[1].passed === null, "eval9 anti-dogma check is judge-only, so a rigid refusal is NOT wrongly passed");
-  assert(g9.summary.total === 1, "eval9 has exactly 1 scored check (nodrive); the two nuance checks are judged");
+  const g9 = grade(9, "no, you can't skip, take the higher-priority move", zero);
+  assert(g9.expectations[1].passed === null, "eval9 anti-dogma check is judge-only; a rigid refusal is NOT wrongly passed");
+  assert(g9.summary.total === 1, "eval9 has exactly 1 scored check (nodrive)");
+
+  // fail-closed output path: judge items remain -> grading.preliminary.json, NOT grading.json.
+  assert(finalOutPath("x/grading.json", 1).endsWith("grading.preliminary.json"), "judge items remaining -> preliminary path");
+  assert(finalOutPath("x/grading.json", 0) === "x/grading.json", "no judge items -> honor --out path");
+
+  // RUBRICS <-> evals.json alignment (catches drift like the eval-6 count mismatch fresh review found).
+  try {
+    const evalsPath = path.join(path.dirname(fileURLToPath(import.meta.url)), "evals", "evals.json");
+    const doc = JSON.parse(fs.readFileSync(evalsPath, "utf8"));
+
+    for (const e of doc.evals) {
+      assert(Array.isArray(RUBRICS[e.id]), `RUBRICS is missing an entry for eval ${e.id}`);
+      assert(
+        RUBRICS[e.id] && RUBRICS[e.id].length === e.expectations.length,
+        `eval ${e.id}: RUBRICS has ${RUBRICS[e.id] ? RUBRICS[e.id].length : 0} checks but evals.json has ${e.expectations.length} expectations (drift)`,
+      );
+    }
+  } catch (e) {
+    assert(false, `alignment check could not read evals.json: ${e.message}`);
+  }
 
   console.log(ok ? "SELFCHECK OK" : "SELFCHECK FAILED");
   process.exit(ok ? 0 : 1);
@@ -223,6 +304,9 @@ function parseArgs(argv) {
 
     if (k === "--selfcheck") {
       a.selfcheck = true;
+    } else if (k.startsWith("--") && k.includes("=")) {
+      const idx = k.indexOf("=");
+      a[k.slice(2, idx)] = k.slice(idx + 1); // support --flag=value
     } else if (k.startsWith("--")) {
       a[k.slice(2)] = argv[++i];
     }
@@ -245,10 +329,11 @@ function main() {
     process.exit(2);
   }
 
+  const validIds = Object.keys(RUBRICS).map(Number);
   const evalId = Number(args["eval-id"]);
 
-  if (!Number.isInteger(evalId) || evalId < 0 || evalId > 9) {
-    console.error(`--eval-id must be an integer 0..9 (got "${args["eval-id"]}")`);
+  if (!validIds.includes(evalId)) {
+    console.error(`--eval-id must be one of ${validIds.join(", ")} (got "${args["eval-id"]}")`);
     process.exit(2);
   }
 
@@ -273,19 +358,7 @@ function main() {
   }
 
   const result = grade(evalId, resp, metrics);
-
-  // Structural guard (grader re-review HIGH): a preliminary grading.json is schema-identical to a
-  // final one, and aggregate_benchmark.py reads summary.pass_rate directly and IGNORES our
-  // `preliminary` / `judge_required` fields -- so an unmerged pre-filter would silently report an
-  // inflated scored-only pass rate. Therefore, whenever judge items remain, write to
-  // grading.preliminary.json (NEVER grading.json). Only the LLM-judge MERGE step may produce the
-  // final grading.json that aggregate / Pass@k consume; a run dir with only grading.preliminary.json
-  // is skipped by aggregate (fail-closed) rather than counted as a false 100%.
-  let outPath = args.out;
-
-  if (result.judge_required.length > 0) {
-    outPath = path.join(path.dirname(args.out), "grading.preliminary.json");
-  }
+  const outPath = finalOutPath(args.out, result.judge_required.length);
 
   try {
     fs.writeFileSync(outPath, JSON.stringify(result, null, 2) + "\n");

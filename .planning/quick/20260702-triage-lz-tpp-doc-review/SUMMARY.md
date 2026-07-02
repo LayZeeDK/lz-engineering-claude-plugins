@@ -25,15 +25,17 @@ nuance the report missed.
   contradiction of the canonical list") into coach step 5. Detail pointer survives in the
   Reference material list.
 
-## Deferred -- awaiting user decision (trap quadrant: shipped content / stated project value)
+## Decisions
+
+- **#5 RESOLVED (2026-07-02): keep `.planning/` committed.** GSD shared state + convention;
+  history already public; the leak was fixed by #2 independently. No file change required.
+
+## Awaiting user decision
 
 - **#3** Provenance trim of `transformations.md`. Report's "60% meta" is overstated: FibTPP
   revisions (`:140-166`) are the ordering rationale Reference mode cites; secondary-drift
   (`:168-178`) is an operational guard; Sources (`:209-226`) is the project's faithful-citation
   value. Only the production-note blockquote (`:3-13`) and NDC-transcript reconciliation
-  (`:180-207`) are true audit-trail. Recommendation: minimal trim (move those two to
-  `.planning/`), NOT the aggressive cut. Held for user.
-- **#5** Keep vs gitignore `.planning/` (59 files, 83% of tracked repo). Not coupled to the
-  #2/#3 leak (fixed independently). Gitignore stops future tracking only -- existing files stay
-  in history unless separately scrubbed -- and breaks GSD shared state on clone. Recommendation:
-  keep committed. Held for user.
+  (`:180-207`) are true audit-trail. Preview of minimal-vs-aggressive presented to user
+  2026-07-02; awaiting pick. Recommendation: minimal trim (move those two sections to a
+  `.planning/` companion), NOT the aggressive cut.

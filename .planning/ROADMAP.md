@@ -27,7 +27,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 1: Marketplace & Plugin Scaffold** - Installable, validating manifest hierarchy + repo-hygiene skeleton (completed 2026-07-02)
 - [x] **Phase 2: TPP Source Distillation** - Lock the cited, canonical transformation reference before authoring (completed 2026-07-02)
 - [x] **Phase 3: lz-tpp Skill Authoring** - Dual-mode coach + reference skill with paired TS examples and TCO guidance (completed 2026-07-02)
-- [ ] **Phase 4: Distribution & Hygiene** - README, MIT license, contact, and first-party authoring review
+- [x] **Phase 4: Distribution & Hygiene** - README, MIT license, contact, and first-party authoring review (completed 2026-07-02)
 - [ ] **Phase 5: Skill Effectiveness Evals** - Optional-final, non-blocking triggering + coaching eval and tune
 
 ## Phase Details
@@ -114,7 +114,7 @@ Plans:
 
 Plans:
 
-- [ ] 04-01-PLAN.md - Author root `README.md` (install + usage + `/lz-tdd:lz-tpp`) and MIT `LICENSE` (verbatim, `Copyright (c) 2026 Lars Gyrup Brink Nielsen`) plus an optional per-plugin pointer README, then run the scriptable hygiene gates + `claude plugin validate . --strict` + plugin-validator + skill-reviewer and triage findings per D-06.
+- [x] 04-01-PLAN.md - Author root `README.md` (install + usage + `/lz-tdd:lz-tpp`) and MIT `LICENSE` (verbatim, `Copyright (c) 2026 Lars Gyrup Brink Nielsen`) plus an optional per-plugin pointer README, then run the scriptable hygiene gates + `claude plugin validate . --strict` + plugin-validator + skill-reviewer and triage findings per D-06.
 
 ### Phase 5: Skill Effectiveness Evals
 
@@ -143,7 +143,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
 | 1. Marketplace & Plugin Scaffold | 1/1 | Complete    | 2026-07-02 |
 | 2. TPP Source Distillation | 2/2 | Complete    | 2026-07-02 |
 | 3. lz-tpp Skill Authoring | 3/3 | Complete    | 2026-07-02 |
-| 4. Distribution & Hygiene | 0/1 | Not started | - |
+| 4. Distribution & Hygiene | 1/1 | Complete   | 2026-07-02 |
 | 5. Skill Effectiveness Evals | 0/1 | Not started | - |
 
 ---

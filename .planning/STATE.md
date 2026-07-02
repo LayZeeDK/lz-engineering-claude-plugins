@@ -93,7 +93,7 @@ Items acknowledged and carried forward from previous milestone close:
 
 | Date | Slug | Status | Notes |
 |------|------|--------|-------|
-| 2026-07-02 | triage-lz-tpp-doc-review | complete | Applied findings 1/2/4 (+ `:223-224` leak); #5 resolved (keep `.planning/` committed); #3 provenance-trim awaiting user pick (minimal recommended) |
+| 2026-07-02 | triage-lz-tpp-doc-review | complete | All 5 findings resolved: 1/2/4 applied (+ `:223-224` leak); #3 aggressive trim (provenance -> `.planning/` companion, 224->116 lines); #5 keep `.planning/` committed |
 
 ## Session Continuity
 

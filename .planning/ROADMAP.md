@@ -127,11 +127,21 @@ Plans:
   2. A skill-creator behavior/effectiveness eval confirms the coach recommends the correct next transformation on sample failing-test scenarios.
   3. Eval findings feed at most a description/behavior tuning pass on the already-shipped skill; earlier phases remain complete regardless of eval outcomes (non-blocking).
 
-**Plans**: 1 plan
+**Plans**: 4 plans
 
 Plans:
+**Wave 1**
 
-- [ ] 05-01: Build the skill-creator trigger + behavior eval sets, run held-out scoring, and apply an optional description/behavior tuning pass.
+- [ ] 05-01-PLAN.md - Author all eval data (trigger sets, 7 behavior scenarios + eval_metadata) and the deterministic grader; raise .gitignore for raw transcripts.
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [ ] 05-02-PLAN.md - Run the EVAL-02 behavior benchmark natively (with_skill vs baseline, >=3 runs), grade + aggregate, compute behavior Pass@k/Pass^k.
+- [ ] 05-03-PLAN.md - Run the EVAL-01 trigger eval under WSL2 (blocking interop smoke gate + run_loop held-out scoring); capture best_description.
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
+- [ ] 05-04-PLAN.md - Combine both evals into EVAL-RESULTS.md (Pass@k/Pass^k + D-06 verdict) and apply at most one bounded D-07 tuning pass (or none).
 
 ## Progress
 
@@ -144,7 +154,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
 | 2. TPP Source Distillation | 2/2 | Complete    | 2026-07-02 |
 | 3. lz-tpp Skill Authoring | 3/3 | Complete    | 2026-07-02 |
 | 4. Distribution & Hygiene | 1/1 | Complete    | 2026-07-02 |
-| 5. Skill Effectiveness Evals | 0/1 | Not started | - |
+| 5. Skill Effectiveness Evals | 0/4 | Not started | - |
 
 ---
 *Roadmap created: 2026-07-02*

@@ -89,6 +89,12 @@ Items acknowledged and carried forward from previous milestone close:
 |----------|------|--------|-------------|
 | *(none)* | | | |
 
+## Quick Tasks Completed
+
+| Date | Slug | Status | Notes |
+|------|------|--------|-------|
+| 2026-07-02 | triage-lz-tpp-doc-review | complete | Applied review findings 1/2/4 (+ `:223-224` leak); findings 3 & 5 deferred pending user decision |
+
 ## Session Continuity
 
 Last session: 2026-07-02T12:34:17.440Z

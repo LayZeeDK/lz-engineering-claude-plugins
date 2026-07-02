@@ -44,7 +44,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans**: 1 plan
 
 Plans:
-- [ ] 01-01: Create root `marketplace.json`, `plugins/lz-tdd/.claude-plugin/plugin.json`, placeholder `SKILL.md`, and `.gitignore`; confirm `claude plugin validate .` passes.
+- [ ] 01-01-PLAN.md - Create the three-level manifest hierarchy (marketplace.json, plugin.json, placeholder SKILL.md) + .gitignore, then gate on `claude plugin validate .` and the plugin-dev validator.
 
 ### Phase 2: TPP Source Distillation
 **Goal**: A correct, cited, canonical TPP reference locked as the source of truth before any skill behavior is authored on top of it.

@@ -568,7 +568,7 @@ Source: [CITED: TPP-TYPESCRIPT.md, executed on local Node v24.18.0].
 in this research are VERIFIED (in-repo primary-sourced research) or CITED (docs.claude.com
 fetched 2026-07-02). Only the three items above are assumptions, and all are low-risk.
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Should the fenced TS examples be mechanically extracted-and-type-checked in this phase?**
    - What we know: The exact verification toolchain is present (Node v24.18.0, tsc 6.0.3),
@@ -578,12 +578,16 @@ fetched 2026-07-02). Only the three items above are assumptions, and all are low
    - Recommendation: Offer it as an OPTIONAL confirmatory check in Validation Architecture,
      not a blocker. If included, keep it a mechanical one-off (extract fenced ```ts blocks to
      a temp file, `tsc --strict --noEmit`), not a shipped test harness.
+   - RESOLVED: plans adopt "optional confirmatory, not a hard gate" (03-02 T1, 03-03 T3). The
+     prior TPP-TYPESCRIPT.md verification on this exact toolchain is treated as sufficient.
 
 2. **Does the coach procedure stay entirely in the body, or partly in a small reference file?**
    - What we know: D-02 requires the operational summary in the body; the discretion note
      allows offloading detail to a small `references/` file if the body strains budget.
    - Recommendation: Keep the full 7-step procedure in the body (it is the Core Value and is
      compact). Only offload if the body approaches the line/word budget.
+   - RESOLVED: the full 7-step procedure stays in the SKILL.md body (03-01 T1), consistent
+     with D-02.
 
 ## Environment Availability
 

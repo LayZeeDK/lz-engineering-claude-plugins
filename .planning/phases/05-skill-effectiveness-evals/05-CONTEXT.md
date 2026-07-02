@@ -119,6 +119,35 @@ any earlier phase.
   gitignored). The shipped skill stays lean (progressive-disclosure hygiene). Any tuning
   pass (D-07) is the only change that touches `plugins/`.
 
+### D-09 [POST-RESEARCH PIVOT -- supersedes the WSL framing in D-01 and the `.planning/` location in D-08]
+Web + GitHub research (see 05-RESEARCH.md and issues `anthropics/claude-plugins-official#3548,
+#3041, #2678`) established two things the original plan got wrong:
+- **The trigger harness is broken beyond Windows.** Upstream `run_eval.py` has 3 bugs: (1)
+  `select.select()` on a pipe is socket-only on Windows (`WinError 10038/10093`); (2)
+  detection quits at the first message boundary; (3) it probes a `.claude/commands/`
+  slash-command, which current Claude Code does NOT auto-trigger, so recall is ~0 on EVERY
+  OS. **WSL fixes only bug 1** -- so the WSL/interop approach (old D-01 + 05-03) would still
+  produce a meaningless all-zero signal. WSL is therefore ABANDONED.
+- **Fix = a locally vendored, bug-fixed harness run NATIVELY.** We reimplemented
+  `run_single_query` (reader-thread+queue instead of select; whole-turn detection; real
+  ephemeral `.claude/skills/<id>/SKILL.md` + shared-prefix match) as reviewable first-party
+  code (design: #3041). It runs on native Windows with the already-authenticated `claude` --
+  no WSL, no interop, no separate auth. EVAL-01 uses `run_eval` for measurement; the
+  auto-improve `run_loop` is optional (D-07 tuning stays human-gated).
+- **Artifact location (supersedes D-08):** eval sets, workspace (iteration runs), EVAL
+  results, AND the vendored harness live under **`.claude/skills/lz-tpp-workspace/`**
+  (skill-creator's own workspace convention). Explicitly NOT under
+  `plugins/lz-tdd/skills/lz-tpp-workspace/` (that ships with the plugin) and NOT under
+  `.planning/`. The vendored harness is a non-distributed dev tool at
+  `.claude/skills/lz-tpp-workspace/tools/skill-creator-eval/` (MIT provenance +
+  `run_eval` reimplementation noted in its README). **Generic root-`.gitignore` rules for
+  `.claude/skills/*-workspace/`** track the eval record (sets, benchmark, results, tools) and
+  drop bulky raw outputs/transcripts/caches -- reusable for ANY future skill's eval workspace,
+  not just lz-tpp (honors D-08's hygiene intent at the new location). EVAL-02 (behavior,
+  subagent-driven) is unaffected by any of this.
+- **Plan docs to re-sync:** 05-03 (WSL steps), 05-VALIDATION (WSL commands), and the
+  `.planning/` paths in 05-01/02/04 are now stale and must be reconciled to this pivot.
+
 ### Claude's Discretion
 - Exact eval-query wording and the exact scenario count within the D-02 / D-03 posture
   (>= the skill-creator minimums; edge-case-focused).

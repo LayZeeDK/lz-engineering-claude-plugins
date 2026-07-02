@@ -17,3 +17,15 @@ Thumbs.db
 # Editor
 .idea/
 *.swp
+
+# Skill-creator eval workspaces (.claude/skills/<skill-name>-workspace/).
+# Keep the eval RECORD tracked -- eval sets, eval_metadata.json, benchmark.json/.md,
+# grading.json, EVAL-RESULTS.md, and the vendored tools/ harness. Ignore only caches
+# and bulky raw run byproducts (produced outputs, stream transcripts, loop dumps).
+# (run_loop_stderr.log is already covered by *.log above.)
+.claude/skills/*-workspace/**/__pycache__/
+.claude/skills/*-workspace/**/*.pyc
+.claude/skills/*-workspace/**/outputs/
+.claude/skills/*-workspace/**/*.stream.jsonl
+.claude/skills/*-workspace/**/run_loop_stdout.json
+.claude/skills/*-workspace/**/trigger-workspace/

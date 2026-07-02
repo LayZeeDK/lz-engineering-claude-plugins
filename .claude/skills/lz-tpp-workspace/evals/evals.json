@@ -1,0 +1,116 @@
+{
+  "skill_name": "lz-tpp",
+  "evals": [
+    {
+      "id": 0,
+      "prompt": "just starting a fibonacci `of(n)` in TS, no code written yet, first test is `expect(of(0)).toBe(0)`. whats the smallest thing i can write to pass this one test? don't want the full algo yet",
+      "expected_output": "Names ({} -> nil) then (nil -> constant); shows minimal `return 0`, not a full algorithm. (Jargon-free prompt.)",
+      "files": [],
+      "expectations": [
+        "Recommends `({} -> nil)` (#1) followed by `(nil -> constant)` (#2) as the first transformations",
+        "Presents minimal code returning the constant 0 (e.g. `return 0`), not a full Fibonacci algorithm",
+        "Does not edit any source file and does not run tests (coach, don't drive)"
+      ]
+    },
+    {
+      "id": 1,
+      "prompt": "continuing the fibonacci `of(n)` kata. current code is `function of(n: number): number { return 0; }` and all tests pass. new failing test: `expect(of(1)).toBe(1)`. whats the next move and the minimal change? i don't want to jump to recursion yet",
+      "expected_output": "Names (unconditional -> if) + (constant -> scalar); does not jump to recursion.",
+      "files": [],
+      "expectations": [
+        "Recommends `(unconditional -> if)` (#6) to split a base case plus `(constant -> scalar)` (#4) to return n in that branch",
+        "Does NOT jump to a recursion transformation",
+        "Does not edit any source file and does not run tests (coach, don't drive)"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "fibonacci `of(n)` in typescript. base cases 0 and 1 are handled; code returns 1 for every n>1. new failing test: `expect(of(3)).toBe(2)`. whats the correct next move, and should i prefer tail-recursion or plain recursion here?",
+      "expected_output": "Names (statement -> tail-recursion) #9; rejects plain (statement -> recursion) #11 as the pick.",
+      "files": [],
+      "expectations": [
+        "Recommends `(statement -> tail-recursion)` (#9), e.g. via an accumulator helper",
+        "Explicitly does NOT pick plain `(statement -> recursion)` (#11) as the next move, and explains the higher-priority choice",
+        "Does not edit any source file and does not run tests (coach, don't drive)"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "sum(n) adds 1..n, base case done. new test `expect(sum(1_000_000)).toBe(500000500000)` and my recursive version blows the stack. whats the next move to make it pass?",
+      "expected_output": "Coach itself raises stack-safety (not told about TCO); names (if -> while)+(variable -> assignment) or a trampoline; not a plain V8 tail-recursive answer.",
+      "files": [],
+      "expectations": [
+        "Raises, on its own (WITHOUT being told JS lacks TCO), that the deep-input test makes stack safety BEHAVIORAL -- a transformation, not merely a refactoring",
+        "Recommends the stack-safe form: `(if -> while)` (#10) + `(variable -> assignment)` (#13), or an explicitly-named trampoline",
+        "Does NOT offer a plain (V8) tail-recursive solution as the final answer",
+        "Does not edit any source file and does not run tests (coach, don't drive)"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "flatten(list) flattens arbitrarily nested arrays. it passes for shallow input like [1,[2,3]] via naive recursion, but a new failing test on deeply nested input overflows the stack. whats the next move?",
+      "expected_output": "Says (statement -> tail-recursion) #9 is unavailable for tree recursion; recommends explicit-stack (if -> while) #10 or a generator.",
+      "files": [],
+      "expectations": [
+        "States that `(statement -> tail-recursion)` (#9) is NOT available for this tree recursion (no single tail call)",
+        "Recommends an explicit-stack `(if -> while)` (#10) iteration or a generator-as-state-machine",
+        "Does not edit any source file and does not run tests (coach, don't drive)"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "stuck. red test is `expect(wrap('word wrap', 8)).toEqual(['word','wrap'])` and my code is empty. seems like i have to write the whole wrap algorithm to pass this. is there a smaller move or am i just stuck?",
+      "expected_output": "Recommends backtracking to a simpler test / structure-only refactor; does not immediately write the whole algorithm.",
+      "files": [],
+      "expectations": [
+        "Recommends BACKTRACKING: pose a simpler intermediate test passable by a higher-priority transformation (and/or a structure-only refactor first)",
+        "Does NOT immediately apply the low-priority `(expression -> function)` (#12) by writing the whole algorithm",
+        "Does not edit any source file and does not run tests (coach, don't drive)"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "all my tests are green. i'd like to extract a helper and clean up this 40-line `of(n)` function. whats the next move here?",
+      "expected_output": "Classifies this as a refactoring (structure-only), not a transformation; declines to priority-rank it. (Jargon-free prompt.)",
+      "files": [],
+      "expectations": [
+        "Identifies this as a REFACTORING (structure-only, behavior-preserving), not a transformation",
+        "Declines to name a numbered transformation / does not priority-rank it (it belongs to the refactor step)",
+        "Does not edit any source file and does not run tests (coach, don't drive)"
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "i'm at green on `of(n)`, base case done, new test `expect(of(1)).toBe(1)`. i'll just add the recursion now - that's `(statement -> recursion)`, right?",
+      "expected_output": "Coach corrects the premature recursion jump to the higher-priority base-case split.",
+      "files": [],
+      "expectations": [
+        "Corrects the user: recursion is premature here; recommends `(unconditional -> if)` (#6) + `(constant -> scalar)` (#4) instead",
+        "Explains WHY the higher-priority (lower-numbered) move is preferred over jumping straight to recursion",
+        "Does not edit any source file and does not run tests (coach, don't drive)"
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "explain the transformation ordering rationale, and why does uncle bob say it's 'not likely' the order is perfectly correct?",
+      "expected_output": "Reference mode: draws the author's hedges from transformations.md; frames TPP as a heuristic, not a law.",
+      "files": [],
+      "expectations": [
+        "Explains the list is ordered by increasing complexity and cites the author's own hedges (e.g. 'informal at best', 'roughly ordered', 'not likely' perfectly correct, 'language specific')",
+        "Frames TPP as a heuristic / thinking aid, NOT a rigid law, and does not invent a mandatory rule",
+        "Does not edit any source file and does not run tests"
+      ]
+    },
+    {
+      "id": 9,
+      "prompt": "strictly the next move looks like `(constant -> scalar)` but i can see the next three tests will all need a list. can i jump straight to `(scalar -> array)` now instead?",
+      "expected_output": "Coach allows the reasoned deviation while noting strict priority prefers the smaller step -- anti-dogma.",
+      "files": [],
+      "expectations": [
+        "Notes strict priority prefers the smaller `(constant -> scalar)` step, but ALLOWS the deviation to `(scalar -> array)` because the user gave a stated reason (the upcoming tests)",
+        "Frames TPP as a heuristic that permits deviation with a stated reason -- does NOT issue a rigid 'no, you must take the higher-priority move'",
+        "Does not edit any source file and does not run tests (coach, don't drive)"
+      ]
+    }
+  ]
+}

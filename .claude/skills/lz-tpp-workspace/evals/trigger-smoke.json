@@ -1,0 +1,4 @@
+[
+  {"query": "explain the transformation priority premise and the list of transformations in order", "should_trigger": true},
+  {"query": "refactor this 80-line `processOrder` function to be cleaner - extract some helpers, all tests already pass", "should_trigger": false}
+]

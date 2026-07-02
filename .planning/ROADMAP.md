@@ -111,7 +111,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Marketplace & Plugin Scaffold | 1/1 | Complete   | 2026-07-02 |
+| 1. Marketplace & Plugin Scaffold | 1/1 | Complete    | 2026-07-02 |
 | 2. TPP Source Distillation | 0/2 | Not started | - |
 | 3. lz-tpp Skill Authoring | 0/3 | Not started | - |
 | 4. Distribution & Hygiene | 0/1 | Not started | - |

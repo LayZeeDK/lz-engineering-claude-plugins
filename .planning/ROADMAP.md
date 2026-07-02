@@ -58,8 +58,8 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 02-01: Transcribe the NDC 2011 talk via `youtube-to-markdown` (markitdown fallback); retain the transcript as cited source material.
-- [ ] 02-02: Distill the cited canonical `references/transformations.md` (14-item FibTPP list, 12-vs-14 resolution, transformations-vs-refactorings, provisional-heuristic framing), reconciled against the transcript.
+- [ ] 02-01-PLAN.md - Transcribe the NDC 2011 talk (video id B93QezwTQpI) via youtube-to-markdown (markitdown fallback) and retain it git-tracked as reconciliation source material.
+- [ ] 02-02-PLAN.md - Distill the cited canonical references/transformations.md: verbatim 14-item FibTPP list, explicit 12-vs-14 resolution and provenance, transformations-vs-refactorings, provisional-heuristic framing, amended red-green-refactor, and NDC reconciliation.
 
 ### Phase 3: lz-tpp Skill Authoring
 **Goal**: A working dual-mode skill -- auto-triggering TDD coach plus on-demand reference -- built on the distilled source, with paired TypeScript examples and TCO-safe recursion guidance.

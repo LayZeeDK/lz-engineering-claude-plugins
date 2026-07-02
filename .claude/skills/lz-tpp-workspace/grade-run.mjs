@@ -29,6 +29,7 @@
 // --metrics json shape: { "edits": 0, "writes": 0, "testRuns": 0 }  (any > 0 => coach drove => nodrive fails)
 
 import fs from "node:fs";
+import path from "node:path";
 
 // ---- transform-name matcher: tolerant of spacing, hyphen/space, optional parens ----
 function transformRe(canonical) {
@@ -76,8 +77,7 @@ const RUBRICS = {
     { nodrive: true, text: "Coach, don't drive (no edit / no test run)" },
   ],
   6: [
-    { anyRe: [/\brefactor/i], text: "Identifies this as a REFACTORING (structure-only)" },
-    { judge: "Declines to assign a numbered / priority-ranked transformation (treats it as a refactoring, not priority-ranked)" },
+    { judge: "Identifies this as a REFACTORING (structure-only, behavior-preserving) and declines to assign a numbered / priority-ranked transformation" },
     { nodrive: true, text: "Coach, don't drive (no edit / no test run)" },
   ],
   7: [
@@ -201,6 +201,10 @@ function selfcheck() {
   assert(g4.expectations[1].passed === true, "eval4 anyRe matches 'explicit stack'");
   const g4gen = grade(4, "convert it to a generator-as-state-machine", { edits: 0, writes: 0, testRuns: 0 });
   assert(g4gen.expectations[1].passed === true, "eval4 anyRe matches 'generator'");
+  const g4tf = grade(4, "switch to an ( if -> while ) loop", { edits: 0, writes: 0, testRuns: 0 });
+  assert(g4tf.expectations[1].passed === true, "eval4 anyRe matches the T('if -> while') entry (tolerant)");
+  const g4none = grade(4, "just memoize the results", { edits: 0, writes: 0, testRuns: 0 });
+  assert(g4none.expectations[1].passed === false, "eval4 anyRe must FAIL when no required pattern is present");
 
   // judge checks never autonomously pass/fail (no false signal from inverted heuristics).
   const g9 = grade(9, "no, you can't skip, take the higher-priority move", { edits: 0, writes: 0, testRuns: 0 });
@@ -241,6 +245,13 @@ function main() {
     process.exit(2);
   }
 
+  const evalId = Number(args["eval-id"]);
+
+  if (!Number.isInteger(evalId) || evalId < 0 || evalId > 9) {
+    console.error(`--eval-id must be an integer 0..9 (got "${args["eval-id"]}")`);
+    process.exit(2);
+  }
+
   let resp;
 
   try {
@@ -261,16 +272,30 @@ function main() {
     }
   }
 
-  const result = grade(Number(args["eval-id"]), resp, metrics);
+  const result = grade(evalId, resp, metrics);
+
+  // Structural guard (grader re-review HIGH): a preliminary grading.json is schema-identical to a
+  // final one, and aggregate_benchmark.py reads summary.pass_rate directly and IGNORES our
+  // `preliminary` / `judge_required` fields -- so an unmerged pre-filter would silently report an
+  // inflated scored-only pass rate. Therefore, whenever judge items remain, write to
+  // grading.preliminary.json (NEVER grading.json). Only the LLM-judge MERGE step may produce the
+  // final grading.json that aggregate / Pass@k consume; a run dir with only grading.preliminary.json
+  // is skipped by aggregate (fail-closed) rather than counted as a false 100%.
+  let outPath = args.out;
+
+  if (result.judge_required.length > 0) {
+    outPath = path.join(path.dirname(args.out), "grading.preliminary.json");
+  }
 
   try {
-    fs.writeFileSync(args.out, JSON.stringify(result, null, 2) + "\n");
+    fs.writeFileSync(outPath, JSON.stringify(result, null, 2) + "\n");
   } catch (e) {
-    console.error(`cannot write --out ${args.out}: ${e.message}`);
+    console.error(`cannot write ${outPath}: ${e.message}`);
     process.exit(2);
   }
 
-  console.log(`graded eval-${args["eval-id"]}: ${result.summary.passed}/${result.summary.total} scored, ${result.judge_required.length} need LLM-judge -> ${args.out}`);
+  const note = result.judge_required.length > 0 ? " [PRELIMINARY -- run the LLM-judge merge to produce grading.json]" : "";
+  console.log(`graded eval-${evalId}: ${result.summary.passed}/${result.summary.total} scored, ${result.judge_required.length} need LLM-judge -> ${outPath}${note}`);
 }
 
 main();

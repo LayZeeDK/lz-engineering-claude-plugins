@@ -12,8 +12,10 @@ This repository is a Claude Code plugin marketplace:
 - **Plugin:** `lz-tdd` -- a plugin for test-driven-development skills
 - **Skill:** `lz-tpp` -- invoked as `/lz-tdd:lz-tpp`
 
-The layout is extensible: additional skills and plugins are pure additions and
-require no changes to existing files.
+The layout is extensible: a new skill under `lz-tdd` is auto-discovered from its
+`skills/` directory with no manifest changes, and a new plugin is added by
+registering an entry in `.claude-plugin/marketplace.json` -- neither requires
+restructuring existing files.
 
 ## Installation
 

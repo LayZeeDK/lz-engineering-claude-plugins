@@ -90,7 +90,7 @@ behavior (Phase 3), distill TPP content (Phase 2), or write README/LICENSE files
   traceability. No `commands/`, `agents/`, `hooks/`, or `.mcp.json` (out of scope). No
   `package.json` / build / lint tooling in this phase -- the repo is pure JSON + Markdown
   with no build step; `claude plugin validate` is the gate, not npm.
-- **D-13 (verification caveat):** Success criterion 2 (`/plugin marketplace add LayZeeDK/lz-engineering-claude-plugins`
+- **D-13 [informational]:** (verification caveat) Success criterion 2 (`/plugin marketplace add LayZeeDK/lz-engineering-claude-plugins`
   resolves) can only be FULLY confirmed after the physical rename + GitHub push, which is a
   ship-time step outside this session. In Phase 1, validate structurally via
   `claude plugin validate .` and a LOCAL `/plugin marketplace add ./` (offline add ->

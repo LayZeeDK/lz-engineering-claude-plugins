@@ -346,56 +346,13 @@ widen to `void`/`any` when the generator is under-specified.
 
 ### Pattern 3: CPS with a trampoline (MENTION)
 
-Continuation-passing style (CPS) threads an explicit continuation (a "what to do next"
-callback) through every call so that every call is in tail position. On its own this does NOT
-help in JS: invoking the continuation is still a nested call, so the stack still grows.
-Verified: "naked" CPS overflows at the same roughly 10,000 threshold as naive recursion. Do
-NOT present naked CPS as a fix.
-
-```ts
-// NAKED CPS -- STILL OVERFLOWS on V8. Do not present this as a fix.
-function sumCpsNaked(n: number, k: (value: number) => number): number {
-  if (n === 0) {
-    return k(0);
-  }
-
-  return sumCpsNaked(n - 1, (rest) => k(n + rest)); // k(...) is a nested call
-}
-// sumCpsNaked(10000, x => x) -> RangeError
-```
-
-CPS becomes stack-safe ONLY when paired with a trampoline: the continuations are RETURNED as
-thunks and bounced off the driver loop (verified safe at 1,000,000). In other words, CPS
-requires a trampoline; it is never a standalone stack-safety fix.
-
-```ts
-type Thunk<T> = () => Trampoline<T>;
-type Trampoline<T> = T | Thunk<T>;
-type Cont<T> = (value: T) => Trampoline<T>;
-
-function trampoline<T>(initial: Trampoline<T>): T {
-  let result = initial;
-
-  while (typeof result === 'function') {
-    result = (result as Thunk<T>)();
-  }
-
-  return result;
-}
-
-function sumCps(n: number, k: Cont<number>): Trampoline<number> {
-  if (n === 0) {
-    return k(0);
-  }
-
-  return () => sumCps(n - 1, (rest) => () => k(n + rest));
-}
-
-trampoline(sumCps(1_000_000, (x) => x)); // safe
-```
-
-Its real niche is transforming already-CPS code (async pipelines, parser combinators,
-interpreters), not first-choice stack safety. Steer readers to Patterns 1, 2, or 4 instead.
+Continuation-passing style threads an explicit "what to do next" callback through every call.
+Naked CPS is NOT a fix: invoking the continuation is still a nested call, so it overflows at
+the same roughly 10,000 threshold as naive recursion. CPS is stack-safe ONLY when its
+continuations are returned as thunks and bounced off a trampoline (Pattern 1) -- it is never a
+standalone stack-safety fix. Its real niche is transforming code that is ALREADY in CPS (async
+pipelines, parser combinators, interpreters); for first-choice stack safety, use Patterns 1,
+2, or 4 instead.
 
 ### Pattern 4: The iterative (if -> while) route (TEACH, default)
 

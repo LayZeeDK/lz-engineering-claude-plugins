@@ -468,20 +468,23 @@ All other claims are LOCKED decisions (CONTEXT.md), CITED from HIGH-confidence l
 research (ARCHITECTURE.md, PITFALLS.md, STACK.md), or VERIFIED against the installed
 `claude` CLI 2.1.198.
 
-## Open Questions
+## Open Questions (RESOLVED)
+
+Both questions below are LOW-risk empirical assumptions with both branches handled by the
+plan; recorded here as resolved for the research-resolution gate.
 
 1. **Does `--strict` reject the placeholder SKILL.md's short non-triggering description?**
    - What we know: `--strict` fails on "unrecognized fields, missing metadata." A short but
      present `description` is valid frontmatter.
    - What's unclear: whether strict warns on a description it deems too generic/short.
-   - Recommendation: run `claude plugin validate . --strict` during execution; if it warns
+   - RESOLVED: run `claude plugin validate . --strict` during execution; if it warns
      only (not errors) on the placeholder, that is acceptable for Phase 1 (D-09 keeps it a
      stub intentionally). Treat a strict ERROR here as a real gate; a strict WARNING on the
-     placeholder is expected and non-blocking.
+     placeholder is expected and non-blocking. (Assumption A1; confirm empirically at execution.)
 
 2. **Optional stub `README.md` (discretion).**
    - What we know: full README is Phase 4 (DIST-01); a one-line stub is low-impact.
-   - Recommendation: OMIT for Phase 1 to keep the phase boundary clean (DIST-01 is
+   - RESOLVED: OMIT for Phase 1 to keep the phase boundary clean (DIST-01 is
      explicitly Phase 4). If GitHub presentability matters before the ship-time push, a
      one-line stub is harmless -- but it is not required and adds a Phase-4-owned artifact.
 

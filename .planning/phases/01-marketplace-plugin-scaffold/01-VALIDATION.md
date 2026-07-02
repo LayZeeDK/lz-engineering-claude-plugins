@@ -49,7 +49,7 @@ created: 2026-07-02
 | 4. Second skill/plugin addable by new dirs only | MKT-04 | -- | N/A | source assertion | plugin.json has NO `skills`/`commands` path fields; one marketplace entry per plugin (inspection) | yes | pending |
 | 5. `.gitignore` present + valid placeholder SKILL.md frontmatter; repo commits clean | DIST-04 | -- | N/A | source assertion | `.gitignore` at root, does NOT list `.planning/`; SKILL.md has valid `name`+`description` frontmatter (via `validate .`); `git status` clean after commit | yes | pending |
 | (cross-cutting) JSON well-formedness | MKT-01/MKT-02 | -- | N/A | CLI | both manifests parse as strict JSON (validate fails fast on comments/trailing commas) | yes | pending |
-| (hygiene) public gmail contact only; ASCII-only content | DIST-04 | public-repo hygiene | no work email anywhere; `->`/`--` not Unicode | source assertion | `git grep -n 'larsbrinknielsen@gmail.com'` returns nothing; all committed files ASCII | yes | pending |
+| (hygiene) public gmail contact only; ASCII-only content | DIST-04 | public-repo hygiene | only the public gmail appears; no work email anywhere; `->`/`--` not Unicode | source assertion | allowlist check: `rg -uNo -e '[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]+' .claude-plugin plugins .gitignore \| rg -v 'larsbrinknielsen@gmail.com'` returns nothing (the only email is the public gmail; the work-email literal is never written into a committed file); all committed files ASCII | yes | pending |
 
 *Status: pending / green / red / flaky*
 

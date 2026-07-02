@@ -1,0 +1,43 @@
+{
+  "version": "1.0",
+  "timestamp": "2026-07-02T22:36:08.636Z",
+  "phase": "5",
+  "phase_name": "Skill Effectiveness Evals",
+  "phase_dir": ".planning/phases/05-skill-effectiveness-evals",
+  "plan": 2,
+  "task": 1,
+  "total_tasks": 4,
+  "status": "paused",
+  "note": "ALL non-running prep is complete + committed. What remains are the token-spending eval RUNS + the LLM-judge merge step. This handoff message explicitly AUTHORIZES the fresh session to run both evals (overrides the standing eval-run approval gate for this work).",
+  "completed_tasks": [
+    {"id": 1, "name": "discuss-phase (--auto) + CONTEXT.md incl. D-09 native pivot", "status": "done", "commit": "b64b358"},
+    {"id": 2, "name": "research (found upstream run_eval Windows+all-OS bugs #3548/#3041/#2678) + pattern map + VALIDATION", "status": "done", "commit": "7eadead"},
+    {"id": 3, "name": "plans 05-01..04 + plan-checker (0 blockers) + re-sync to native/.claude paths", "status": "done", "commit": "7eadead"},
+    {"id": 4, "name": "vendored native-fixed run_eval harness + generic root .gitignore for .claude/skills/*-workspace", "status": "done", "commit": "b64b358"},
+    {"id": 5, "name": "eval sets (trigger-eval 27, trigger-smoke 2, evals 10) -- review-revised for jargon-free positives + broken separability", "status": "done", "commit": "d85ffeb"},
+    {"id": 6, "name": "deterministic pre-filter grader grade-run.mjs + 10 eval_metadata.json", "status": "done", "commit": "6b32f77"},
+    {"id": 7, "name": "grader hardened over 3 review rounds; fresh unbiased review caught+fixed CRITICAL nodrive metrics-shape false-pass, word-bounded transformRe, eval-6 realign, drift-guard + fail-closed selfcheck", "status": "done", "commit": "bd02e44"}
+  ],
+  "remaining_tasks": [
+    {"id": 8, "name": "Build the fail-closed LLM-judge MERGE step (part of 05-02): resolve judge_required, recompute summary over ALL expectations, produce final grading.json; refuse any grading.json with judge_required != [] or preliminary:true; treat aggregate 'grading.json not found' as an error", "status": "not_started"},
+    {"id": 9, "name": "RUN EVAL-01 (05-03) NATIVELY: smoke (trigger-smoke.json, run_eval --runs-per-query 1) must read the should-trigger at 1/1; then full 27-query run --runs-per-query 3 -> .claude/skills/lz-tpp-workspace/trigger-results.json; report recall/specificity vs ~90% D-06 bar", "status": "not_started"},
+    {"id": 10, "name": "RUN EVAL-02 (05-02): 10 scenarios x (with_skill + baseline) x >=3 runs; emit per-run metrics.json (nested tool_calls) + coach output; grade-run pre-filter -> LLM-judge merge -> aggregate_benchmark -> Pass@k/Pass^k", "status": "not_started"},
+    {"id": 11, "name": "Combine -> EVAL-RESULTS.md (Pass@k/Pass^k + D-06 verdict) at .claude/skills/lz-tpp-workspace/EVAL-RESULTS.md; then the at-most-one, human-gated D-07 tuning decision (only write into plugins/)", "status": "not_started"}
+  ],
+  "blockers": [
+    {"description": "Upstream skill-creator run_eval is unusable: select() on a pipe crashes on native Windows (WinError 10038/10093) AND its slash-command probe mis-detects triggers on EVERY OS -> ~0 recall. WSL fixes only the crash, not the detection.", "type": "technical", "workaround": "Use the VENDORED native-fixed harness at .claude/skills/lz-tpp-workspace/tools/skill-creator-eval/ (run `python -m scripts.run_eval` from there). NEVER the installed upstream, NEVER WSL."},
+    {"description": "grade-run.mjs is a deterministic PRE-FILTER only; it fail-closes to grading.preliminary.json while judge items remain. Final grading.json REQUIRES the LLM-judge merge step (task 8), which is not yet built.", "type": "technical", "workaround": "Build task 8 before aggregating EVAL-02 / taking Pass@k."}
+  ],
+  "human_actions_pending": [
+    {"action": "None required for the native path -- the native-Windows `claude` is already authenticated. Re-verify A3 (lz-tpp NOT enabled as a project skill in ~/.claude) at EVAL-01 run time so the real skill cannot steal the trigger.", "context": "A3 / Pitfall 2 from 05-RESEARCH.md", "blocking": false}
+  ],
+  "decisions": [
+    {"decision": "D-09 native pivot: run EVAL-01 natively via a vendored, bug-fixed run_eval; abandon WSL; artifacts under .claude/skills/lz-tpp-workspace/ (NOT plugins/, NOT .planning/)", "rationale": "WSL fixes only the select() crash; the trigger-detection bugs are OS-independent (#3548/#3041/#2678)", "phase": "5"},
+    {"decision": "Grader = deterministic pre-filter (transformation-name presence + nodrive) + LLM-judge for all nuance; fail-closed output", "rationale": "regex cannot reliably judge 'does NOT do X'/insight/deviation without inverting the signal (D-04)", "phase": "5"},
+    {"decision": "metrics.json per run = canonical nested {tool_calls:{Edit,Write,Bash,...}} (flat {edits,writes,testRuns} also accepted); any mutating/exec tool >0 = drove; wrong shape fails LOUD", "rationale": "fresh review caught a silent false-pass when the grader read a flat shape but the harness/schema produce nested", "phase": "5"},
+    {"decision": "At most ONE human-gated D-07 tuning pass; non-blocking; Phases 1-4 stay complete regardless", "rationale": "roadmap SC3 + CONTEXT D-06/D-07", "phase": "5"}
+  ],
+  "uncommitted_files": [".planning/config.json (pre-existing modification from before this session; NOT part of this work -- left as-is)"],
+  "next_action": "Build the fail-closed LLM-judge merge step (task 8), then run the EVAL-01 native smoke test (task 9). Both eval runs are AUTHORIZED by the pause message.",
+  "context_notes": "Extremely hands-on session: the user gated every eval run and demanded independent review at each step. The load-bearing artifact is grade-run.mjs (now reviewed 3x, incl. one FRESH/unbiased round that caught a CRITICAL the primed rounds missed -- always include an unbiased reviewer). Run commands + exact flags are in 05-03-PLAN.md (trigger) and 05-02-PLAN.md (behavior) and the tool README. The whole phase is optional-final + non-blocking; the public ship (Phases 1-4) is already complete."
+}

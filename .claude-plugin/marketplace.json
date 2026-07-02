@@ -1,0 +1,17 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "lz-engineering-claude-plugins",
+  "description": "Engineering-focused plugins for Claude Code.",
+  "owner": {
+    "name": "Lars Gyrup Brink Nielsen",
+    "email": "larsbrinknielsen@gmail.com"
+  },
+  "plugins": [
+    {
+      "name": "lz-tdd",
+      "source": "./plugins/lz-tdd",
+      "description": "Test-driven development guidance for Claude Code, including Transformation Priority Premise (TPP) coaching.",
+      "category": "development"
+    }
+  ]
+}

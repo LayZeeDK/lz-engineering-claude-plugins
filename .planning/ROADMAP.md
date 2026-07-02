@@ -68,7 +68,7 @@ Plans:
 Plans:
 **Wave 1**
 
-- [ ] 02-01-PLAN.md - Transcribe the NDC 2011 talk (video id B93QezwTQpI) via youtube-to-markdown (markitdown fallback) and retain it git-tracked as reconciliation source material.
+- [x] 02-01-PLAN.md - Transcribe the NDC 2011 talk (video id B93QezwTQpI) via youtube-to-markdown (markitdown fallback) and retain it git-tracked as reconciliation source material.
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
@@ -137,7 +137,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Marketplace & Plugin Scaffold | 1/1 | Complete    | 2026-07-02 |
-| 2. TPP Source Distillation | 0/2 | Not started | - |
+| 2. TPP Source Distillation | 1/2 | In Progress|  |
 | 3. lz-tpp Skill Authoring | 0/3 | Not started | - |
 | 4. Distribution & Hygiene | 0/1 | Not started | - |
 | 5. Skill Effectiveness Evals | 0/1 | Not started | - |

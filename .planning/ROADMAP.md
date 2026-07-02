@@ -25,7 +25,7 @@ empirically tune triggering and coaching accuracy with skill-creator evals.
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Marketplace & Plugin Scaffold** - Installable, validating manifest hierarchy + repo-hygiene skeleton (completed 2026-07-02)
-- [ ] **Phase 2: TPP Source Distillation** - Lock the cited, canonical transformation reference before authoring
+- [x] **Phase 2: TPP Source Distillation** - Lock the cited, canonical transformation reference before authoring (completed 2026-07-02)
 - [ ] **Phase 3: lz-tpp Skill Authoring** - Dual-mode coach + reference skill with paired TS examples and TCO guidance
 - [ ] **Phase 4: Distribution & Hygiene** - README, MIT license, contact, and first-party authoring review
 - [ ] **Phase 5: Skill Effectiveness Evals** - Optional-final, non-blocking triggering + coaching eval and tune
@@ -72,7 +72,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 02-02-PLAN.md - Distill the cited canonical references/transformations.md: verbatim 14-item FibTPP list, explicit 12-vs-14 resolution and provenance, transformations-vs-refactorings, provisional-heuristic framing, amended red-green-refactor, and NDC reconciliation.
+- [x] 02-02-PLAN.md - Distill the cited canonical references/transformations.md: verbatim 14-item FibTPP list, explicit 12-vs-14 resolution and provenance, transformations-vs-refactorings, provisional-heuristic framing, amended red-green-refactor, and NDC reconciliation.
 
 ### Phase 3: lz-tpp Skill Authoring
 
@@ -137,7 +137,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Marketplace & Plugin Scaffold | 1/1 | Complete    | 2026-07-02 |
-| 2. TPP Source Distillation | 1/2 | In Progress|  |
+| 2. TPP Source Distillation | 2/2 | Complete   | 2026-07-02 |
 | 3. lz-tpp Skill Authoring | 0/3 | Not started | - |
 | 4. Distribution & Hygiene | 0/1 | Not started | - |
 | 5. Skill Effectiveness Evals | 0/1 | Not started | - |

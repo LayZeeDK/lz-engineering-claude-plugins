@@ -1,0 +1,10 @@
+{
+  "eval_id": 1,
+  "eval_name": "fib-split-base-case",
+  "prompt": "continuing the fibonacci `of(n)` kata. current code is `function of(n: number): number { return 0; }` and all tests pass. new failing test: `expect(of(1)).toBe(1)`. whats the next move and the minimal change? i don't want to jump to recursion yet",
+  "assertions": [
+    "Recommends `(unconditional -> if)` (#6) to split a base case plus `(constant -> scalar)` (#4) to return n in that branch",
+    "Does NOT jump to a recursion transformation",
+    "Does not edit any source file and does not run tests (coach, don't drive)"
+  ]
+}

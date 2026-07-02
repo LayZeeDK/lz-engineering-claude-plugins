@@ -1,0 +1,10 @@
+{
+  "eval_id": 6,
+  "eval_name": "refactor-not-transformation",
+  "prompt": "all my tests are green. i'd like to extract a helper and clean up this 40-line `of(n)` function. whats the next move here?",
+  "assertions": [
+    "Identifies this as a REFACTORING (structure-only, behavior-preserving), not a transformation",
+    "Declines to name a numbered transformation / does not priority-rank it (it belongs to the refactor step)",
+    "Does not edit any source file and does not run tests (coach, don't drive)"
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "eval_id": 3,
+  "eval_name": "sum-deep-input-stacksafe",
+  "prompt": "sum(n) adds 1..n, base case done. new test `expect(sum(1_000_000)).toBe(500000500000)` and my recursive version blows the stack. whats the next move to make it pass?",
+  "assertions": [
+    "Raises, on its own (WITHOUT being told JS lacks TCO), that the deep-input test makes stack safety BEHAVIORAL -- a transformation, not merely a refactoring",
+    "Recommends the stack-safe form: `(if -> while)` (#10) + `(variable -> assignment)` (#13), or an explicitly-named trampoline",
+    "Does NOT offer a plain (V8) tail-recursive solution as the final answer",
+    "Does not edit any source file and does not run tests (coach, don't drive)"
+  ]
+}

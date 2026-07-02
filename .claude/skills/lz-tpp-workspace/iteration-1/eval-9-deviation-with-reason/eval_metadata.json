@@ -1,0 +1,10 @@
+{
+  "eval_id": 9,
+  "eval_name": "deviation-with-reason",
+  "prompt": "strictly the next move looks like `(constant -> scalar)` but i can see the next three tests will all need a list. can i jump straight to `(scalar -> array)` now instead?",
+  "assertions": [
+    "Notes strict priority prefers the smaller `(constant -> scalar)` step, but ALLOWS the deviation to `(scalar -> array)` because the user gave a stated reason (the upcoming tests)",
+    "Frames TPP as a heuristic that permits deviation with a stated reason -- does NOT issue a rigid 'no, you must take the higher-priority move'",
+    "Does not edit any source file and does not run tests (coach, don't drive)"
+  ]
+}

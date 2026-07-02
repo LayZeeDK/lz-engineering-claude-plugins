@@ -1,0 +1,10 @@
+{
+  "eval_id": 2,
+  "eval_name": "fib-prefer-tail-recursion",
+  "prompt": "fibonacci `of(n)` in typescript. base cases 0 and 1 are handled; code returns 1 for every n>1. new failing test: `expect(of(3)).toBe(2)`. whats the correct next move, and should i prefer tail-recursion or plain recursion here?",
+  "assertions": [
+    "Recommends `(statement -> tail-recursion)` (#9), e.g. via an accumulator helper",
+    "Explicitly does NOT pick plain `(statement -> recursion)` (#11) as the next move, and explains the higher-priority choice",
+    "Does not edit any source file and does not run tests (coach, don't drive)"
+  ]
+}

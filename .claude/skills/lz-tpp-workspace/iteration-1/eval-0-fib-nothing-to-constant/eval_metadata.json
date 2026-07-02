@@ -1,0 +1,10 @@
+{
+  "eval_id": 0,
+  "eval_name": "fib-nothing-to-constant",
+  "prompt": "just starting a fibonacci `of(n)` in TS, no code written yet, first test is `expect(of(0)).toBe(0)`. whats the smallest thing i can write to pass this one test? don't want the full algo yet",
+  "assertions": [
+    "Recommends `({} -> nil)` (#1) followed by `(nil -> constant)` (#2) as the first transformations",
+    "Presents minimal code returning the constant 0 (e.g. `return 0`), not a full Fibonacci algorithm",
+    "Does not edit any source file and does not run tests (coach, don't drive)"
+  ]
+}

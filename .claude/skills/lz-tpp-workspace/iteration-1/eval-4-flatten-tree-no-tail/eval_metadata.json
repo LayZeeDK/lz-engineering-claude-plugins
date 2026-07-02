@@ -1,0 +1,10 @@
+{
+  "eval_id": 4,
+  "eval_name": "flatten-tree-no-tail",
+  "prompt": "flatten(list) flattens arbitrarily nested arrays. it passes for shallow input like [1,[2,3]] via naive recursion, but a new failing test on deeply nested input overflows the stack. whats the next move?",
+  "assertions": [
+    "States that `(statement -> tail-recursion)` (#9) is NOT available for this tree recursion (no single tail call)",
+    "Recommends an explicit-stack `(if -> while)` (#10) iteration or a generator-as-state-machine",
+    "Does not edit any source file and does not run tests (coach, don't drive)"
+  ]
+}

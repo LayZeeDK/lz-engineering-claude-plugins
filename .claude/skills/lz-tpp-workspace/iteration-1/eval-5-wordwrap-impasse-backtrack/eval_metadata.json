@@ -1,0 +1,10 @@
+{
+  "eval_id": 5,
+  "eval_name": "wordwrap-impasse-backtrack",
+  "prompt": "stuck. red test is `expect(wrap('word wrap', 8)).toEqual(['word','wrap'])` and my code is empty. seems like i have to write the whole wrap algorithm to pass this. is there a smaller move or am i just stuck?",
+  "assertions": [
+    "Recommends BACKTRACKING: pose a simpler intermediate test passable by a higher-priority transformation (and/or a structure-only refactor first)",
+    "Does NOT immediately apply the low-priority `(expression -> function)` (#12) by writing the whole algorithm",
+    "Does not edit any source file and does not run tests (coach, don't drive)"
+  ]
+}

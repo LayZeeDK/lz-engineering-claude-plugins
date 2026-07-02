@@ -1,0 +1,10 @@
+{
+  "eval_id": 7,
+  "eval_name": "wrong-proposal-correction",
+  "prompt": "i'm at green on `of(n)`, base case done, new test `expect(of(1)).toBe(1)`. i'll just add the recursion now - that's `(statement -> recursion)`, right?",
+  "assertions": [
+    "Corrects the user: recursion is premature here; recommends `(unconditional -> if)` (#6) + `(constant -> scalar)` (#4) instead",
+    "Explains WHY the higher-priority (lower-numbered) move is preferred over jumping straight to recursion",
+    "Does not edit any source file and does not run tests (coach, don't drive)"
+  ]
+}

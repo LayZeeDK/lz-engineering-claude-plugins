@@ -1,0 +1,10 @@
+{
+  "eval_id": 8,
+  "eval_name": "reference-mode-ordering-hedges",
+  "prompt": "explain the transformation ordering rationale, and why does uncle bob say it's 'not likely' the order is perfectly correct?",
+  "assertions": [
+    "Explains the list is ordered by increasing complexity and cites the author's own hedges (e.g. 'informal at best', 'roughly ordered', 'not likely' perfectly correct, 'language specific')",
+    "Frames TPP as a heuristic / thinking aid, NOT a rigid law, and does not invent a mandatory rule",
+    "Does not edit any source file and does not run tests"
+  ]
+}

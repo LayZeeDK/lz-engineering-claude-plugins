@@ -52,7 +52,8 @@ belongs to the refactor step). Classify every candidate change before ranking it
    (for example, use `(constant -> scalar)`: replace the literal 1 with the parameter n).
 5. Apply the TS/JS overlay when it changes the pick: prefer `(if -> while)` and
    `(variable -> assignment)` above the recursion transformations, because JS/TS lacks
-   reliable tail-call optimization. State this whenever it changes the recommendation.
+   reliable tail-call optimization -- a source-sanctioned heuristic, not a contradiction of the
+   canonical list. State this whenever it changes the recommendation.
 6. Impasse check. If the only transformation that passes is low-priority
    (`(expression -> function)` or `(case)`): (a) pose a different, simpler test passable by a
    higher-priority transformation (optionally skip the hard test for now); (b) check whether a
@@ -69,13 +70,6 @@ The ordering is informal, roughly ordered by complexity, and language-specific; 
 himself hedges it. Treat it as a heuristic and a thinking aid: explain WHY a transformation is
 preferred, and allow deviation with a stated reason. Do not frame any transformation as
 mandatory.
-
-## TypeScript/JavaScript overlay (one line)
-
-Prefer `(if -> while)` and `(variable -> assignment)` above the recursion transformations
-because JS/TS has no reliable tail-call optimization -- a source-sanctioned heuristic with a
-stated reason, not a contradiction of the canonical list. Details in
-references/typescript-and-tco.md.
 
 ## Reference material
 

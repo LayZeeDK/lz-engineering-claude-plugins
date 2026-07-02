@@ -92,8 +92,8 @@ Plans:
 Plans:
 **Wave 1**
 
-- [ ] 03-02-PLAN.md - Author the TypeScript Fibonacci worked-example reference file, applied test-by-test in monotonic TPP priority order (TPP-06).
-- [ ] 03-03-PLAN.md - Author the paired functional/imperative TypeScript examples plus the JS/TS TCO reality and stack-safe recursion guidance reference file (TPP-05, TPP-07).
+- [x] 03-02-PLAN.md - Author the TypeScript Fibonacci worked-example reference file, applied test-by-test in monotonic TPP priority order (TPP-06).
+- [x] 03-03-PLAN.md - Author the paired functional/imperative TypeScript examples plus the JS/TS TCO reality and stack-safe recursion guidance reference file (TPP-05, TPP-07).
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
@@ -142,7 +142,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
 |-------|----------------|--------|-----------|
 | 1. Marketplace & Plugin Scaffold | 1/1 | Complete    | 2026-07-02 |
 | 2. TPP Source Distillation | 2/2 | Complete    | 2026-07-02 |
-| 3. lz-tpp Skill Authoring | 0/3 | Not started | - |
+| 3. lz-tpp Skill Authoring | 2/3 | In Progress|  |
 | 4. Distribution & Hygiene | 0/1 | Not started | - |
 | 5. Skill Effectiveness Evals | 0/1 | Not started | - |
 

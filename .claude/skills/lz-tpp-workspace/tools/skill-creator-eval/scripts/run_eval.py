@@ -28,6 +28,7 @@ Everything else in this file is unchanged upstream code.
 import argparse
 import json
 import os
+import shutil
 import subprocess
 import sys
 import time
@@ -100,8 +101,21 @@ def run_single_query(
         )
         skill_file.write_text(skill_content, encoding="utf-8")
 
+        # Resolve the CLI to a concrete path. A bare "claude" fails on native
+        # Windows: CreateProcess appends ".exe" to an extensionless name and the
+        # installed binary is "claude.CMD" (there is no "claude.exe") -> WinError 2,
+        # which the per-query handler would silently record as a non-trigger.
+        # shutil.which resolves "claude.CMD" on Windows and the shim on POSIX;
+        # keep shell=False so backticks/quotes in the query are never re-parsed.
+        claude_exe = shutil.which("claude")
+        if not claude_exe:
+            raise FileNotFoundError(
+                "could not resolve the 'claude' CLI on PATH (shutil.which returned None); "
+                "ensure Claude Code is installed and on PATH"
+            )
+
         cmd = [
-            "claude",
+            claude_exe,
             "-p", query,
             "--output-format", "stream-json",
             "--verbose",

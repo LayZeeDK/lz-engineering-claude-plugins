@@ -1,9 +1,9 @@
 ---
 phase: 1
 slug: marketplace-plugin-scaffold
-status: draft
-nyquist_compliant: false
-wave_0_complete: false
+status: validated
+nyquist_compliant: true
+wave_0_complete: true
 created: 2026-07-02
 ---
 
@@ -43,13 +43,13 @@ created: 2026-07-02
 
 | Success Criterion | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
 |-------------------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
-| 1. validate + plugin-dev validator report no errors | MKT-03 | -- | N/A | CLI | `claude plugin validate .` exits 0; `claude plugin validate . --strict` clean; plugin-validator agent no findings | yes | pending |
-| 2. Marketplace resolves + lists `lz-tdd` via `./plugins/lz-tdd` (LOCAL proxy) | MKT-01 | -- | N/A | CLI | `claude plugin marketplace add .` succeeds; `marketplace list` shows `lz-engineering-claude-plugins`; `plugin list` surfaces `lz-tdd`; then `marketplace remove lz-engineering-claude-plugins` | yes | pending |
-| 3. `version 0.0.1` in plugin.json ONLY, absent from marketplace entry | MKT-05 | -- | N/A | source assertion | `git grep -n '"version"'` shows version in plugin.json only; `validate . --strict` emits no version-mask warning | yes | pending |
-| 4. Second skill/plugin addable by new dirs only | MKT-04 | -- | N/A | source assertion | plugin.json has NO `skills`/`commands` path fields; one marketplace entry per plugin (inspection) | yes | pending |
-| 5. `.gitignore` present + valid placeholder SKILL.md frontmatter; repo commits clean | DIST-04 | -- | N/A | source assertion | `.gitignore` at root, does NOT list `.planning/`; SKILL.md has valid `name`+`description` frontmatter (via `validate .`); `git status` clean after commit | yes | pending |
-| (cross-cutting) JSON well-formedness | MKT-01/MKT-02 | -- | N/A | CLI | both manifests parse as strict JSON (validate fails fast on comments/trailing commas) | yes | pending |
-| (hygiene) public gmail contact only; ASCII-only content | DIST-04 | public-repo hygiene | only the public gmail appears; no work email anywhere; `->`/`--` not Unicode | source assertion | allowlist check: `rg -uNo -e '[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]+' .claude-plugin plugins .gitignore \| rg -v 'larsbrinknielsen@gmail.com'` returns nothing (the only email is the public gmail; the work-email literal is never written into a committed file); all committed files ASCII | yes | pending |
+| 1. validate + plugin-dev validator report no errors | MKT-03 | -- | N/A | CLI | `claude plugin validate .` exits 0; `claude plugin validate . --strict` clean; plugin-validator agent no findings | yes | green |
+| 2. Marketplace resolves + lists `lz-tdd` via `./plugins/lz-tdd` (LOCAL proxy) | MKT-01 | -- | N/A | CLI | `claude plugin marketplace add .` succeeds; `marketplace list` shows `lz-engineering-claude-plugins`; `plugin list` surfaces `lz-tdd`; then `marketplace remove lz-engineering-claude-plugins` | yes | green |
+| 3. `version 0.0.1` in plugin.json ONLY, absent from marketplace entry | MKT-05 | -- | N/A | source assertion | `git grep -n '"version"'` shows version in plugin.json only; `validate . --strict` emits no version-mask warning | yes | green |
+| 4. Second skill/plugin addable by new dirs only | MKT-04 | -- | N/A | source assertion | plugin.json has NO `skills`/`commands` path fields; one marketplace entry per plugin (inspection) | yes | green |
+| 5. `.gitignore` present + valid placeholder SKILL.md frontmatter; repo commits clean | DIST-04 | -- | N/A | source assertion | `.gitignore` at root, does NOT list `.planning/`; SKILL.md has valid `name`+`description` frontmatter (via `validate .`); `git status` clean after commit | yes | green |
+| (cross-cutting) JSON well-formedness | MKT-01/MKT-02 | -- | N/A | CLI | both manifests parse as strict JSON (validate fails fast on comments/trailing commas) | yes | green |
+| (hygiene) public gmail contact only; ASCII-only content | DIST-04 | public-repo hygiene | only the public gmail appears; no work email anywhere; `->`/`--` not Unicode | source assertion | allowlist check: `rg -uNo -e '[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]+' .claude-plugin plugins .gitignore \| rg -v 'larsbrinknielsen@gmail.com'` returns nothing (the only email is the public gmail; the work-email literal is never written into a committed file); all committed files ASCII | yes | green |
 
 *Status: pending / green / red / flaky*
 
@@ -74,13 +74,31 @@ created: 2026-07-02
 
 ---
 
+## Validation Audit 2026-07-02
+
+| Metric | Count |
+|--------|-------|
+| Gaps found | 0 |
+| Resolved | 0 |
+| Escalated (manual-only) | 1 (remote install resolution -- ship-time, D-13) |
+
+State A audit. No code-testable gaps: this phase ships only static JSON + Markdown (D-12), so the
+Nyquist sampling instrument is the `claude plugin validate` CLI gate + the local marketplace
+add/list/remove loop, not a unit-test framework. Every success criterion in the Per-Task
+Verification Map ran GREEN during execution and independent phase verification (all executed, not
+claimed). Wave 0 has no gaps (no framework to install). No test files were generated -- generating
+unit tests for static manifests would violate the phase's scope fence (D-12) and there is no runtime
+behavior to exercise. `nyquist_compliant` and `wave_0_complete` set true.
+
+---
+
 ## Validation Sign-Off
 
-- [ ] All success criteria have an automated `claude plugin validate` / CLI / source-assertion verify
-- [ ] Sampling continuity: single-plan phase; validate runs after all four files exist
-- [ ] Wave 0 covers all MISSING references (none -- no framework needed)
-- [ ] No watch-mode flags
-- [ ] Feedback latency < 15s
-- [ ] `nyquist_compliant: true` set in frontmatter (flipped post-execution by validate-phase)
+- [x] All success criteria have an automated `claude plugin validate` / CLI / source-assertion verify
+- [x] Sampling continuity: single-plan phase; validate runs after all four files exist
+- [x] Wave 0 covers all MISSING references (none -- no framework needed)
+- [x] No watch-mode flags
+- [x] Feedback latency < 15s
+- [x] `nyquist_compliant: true` set in frontmatter (flipped post-execution by validate-phase)
 
-**Approval:** pending
+**Approval:** validated 2026-07-02

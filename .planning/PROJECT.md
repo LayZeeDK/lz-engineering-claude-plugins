@@ -22,18 +22,17 @@ usable.
 
 <!-- Shipped and confirmed valuable. -->
 
-(None yet -- ship to validate)
+Marketplace + plugin scaffold (Phase 1: Marketplace & Plugin Scaffold, 2026-07-02):
+
+- [x] Repo is a valid Claude Code marketplace (root `.claude-plugin/marketplace.json`) named `lz-engineering-claude-plugins`
+- [x] Marketplace lists the `lz-tdd` plugin via a relative `./plugins/lz-tdd` source
+- [x] `lz-tdd` plugin has a valid `.claude-plugin/plugin.json` (name `lz-tdd`, version `0.0.1`, MIT)
+- [x] Structure stays extensible (skills auto-discovery; adding a second skill/plugin needs no edits to existing manifests)
+- [x] Placeholder `lz-tpp` skill exists at `plugins/lz-tdd/skills/lz-tpp/SKILL.md`; repo passes `claude plugin validate .` (local marketplace add/list loop verified; remote name resolution deferred to ship-time)
 
 ### Active
 
 <!-- Current scope. Hypotheses until shipped and validated. -->
-
-Marketplace + plugin scaffold:
-
-- [ ] Repo is a valid Claude Code marketplace (root `.claude-plugin/marketplace.json`) named `lz-engineering-claude-plugins`
-- [ ] Marketplace lists the `lz-tdd` plugin
-- [ ] `lz-tdd` plugin has a valid `.claude-plugin/plugin.json`
-- [ ] Structure stays extensible for additional plugins and additional skills under `lz-tdd`
 
 lz-tpp skill:
 
@@ -119,4 +118,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-07-02 after initialization*
+*Last updated: 2026-07-02 after Phase 1 (Marketplace & Plugin Scaffold) completion*

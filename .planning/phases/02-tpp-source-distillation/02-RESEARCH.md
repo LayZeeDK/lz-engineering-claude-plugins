@@ -462,7 +462,7 @@ them only as cross-checks / drift examples, never as the list source.
 | A2 | Secondary-source drift specifics (Wikipedia renders `constant->variable`, "tail recursion" mislabel, 12-item only) | State of the Art / TPP-02 | Carried from FEATURES.md/PITFALLS; NOT re-verified against Wikipedia this session. If a specific drift example is quoted in transformations.md, the executor should re-confirm the exact secondary rendering, or phrase it as "secondary sources such as Wikipedia commonly ..." without pinning an exact quote. Blogs remain canonical regardless. |
 | A3 | markitdown fallback can transcribe a YouTube URL/audio if invoked | Tooling & Inputs | markitdown's YouTube support depends on its build; if it cannot fetch the video it may need a downloaded audio/caption file. Only relevant IF the primary tool fails (A1). Verify at fallback time. |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Does `B93QezwTQpI` expose a caption track to the InnerTube tool?**
    - What we know: the tool prefers an English caption track, falls back to `getTranscript()`;
@@ -473,11 +473,16 @@ them only as cross-checks / drift examples, never as the list source.
    - Recommendation: the transcript plan's first task runs the tool and checks the segment
      count; branch to markitdown on 0 segments / metadata-only (D-07). Treat a low-quality
      transcript as acceptable (reconciliation material, not shipped).
+   - RESOLVED: handled by design in Plan 02-01 Task 1 (run tool -> check segment count ->
+     markitdown fallback on 0-segment/metadata-only; if both fail, retain metadata and have
+     02-02 honestly note "no usable transcript track"). Not a blocker -- the canonical
+     reference does not depend on transcript quality (blogs are canonical).
 
 2. **Preserve or correct the source "it's" typo in the transformations-vs-refactorings quote?**
    - What we know: the source verbatim reads "without changing it's behavior".
    - Recommendation: quote faithfully (optionally "[sic]"); do not silently correct-and-quote.
      A discretion call for the planner, but flag it so it is a decision, not an accident.
+   - RESOLVED: Plan 02-02 `<context>` decides to quote verbatim with `[sic]`.
 
 ## Environment Availability
 

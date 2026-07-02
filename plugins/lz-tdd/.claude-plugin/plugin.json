@@ -1,0 +1,21 @@
+{
+  "name": "lz-tdd",
+  "version": "0.0.1",
+  "description": "Test-driven development guidance for Claude Code. Includes the lz-tpp skill operationalizing Robert C. Martin's Transformation Priority Premise (TPP).",
+  "author": {
+    "name": "Lars Gyrup Brink Nielsen",
+    "email": "larsbrinknielsen@gmail.com"
+  },
+  "homepage": "https://github.com/LayZeeDK/lz-engineering-claude-plugins",
+  "repository": "https://github.com/LayZeeDK/lz-engineering-claude-plugins",
+  "license": "MIT",
+  "keywords": [
+    "tdd",
+    "test-driven-development",
+    "transformation-priority-premise",
+    "tpp",
+    "red-green-refactor",
+    "clean-code",
+    "typescript"
+  ]
+}

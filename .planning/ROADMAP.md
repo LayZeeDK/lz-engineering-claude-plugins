@@ -26,7 +26,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Marketplace & Plugin Scaffold** - Installable, validating manifest hierarchy + repo-hygiene skeleton (completed 2026-07-02)
 - [x] **Phase 2: TPP Source Distillation** - Lock the cited, canonical transformation reference before authoring (completed 2026-07-02)
-- [ ] **Phase 3: lz-tpp Skill Authoring** - Dual-mode coach + reference skill with paired TS examples and TCO guidance
+- [x] **Phase 3: lz-tpp Skill Authoring** - Dual-mode coach + reference skill with paired TS examples and TCO guidance (completed 2026-07-02)
 - [ ] **Phase 4: Distribution & Hygiene** - README, MIT license, contact, and first-party authoring review
 - [ ] **Phase 5: Skill Effectiveness Evals** - Optional-final, non-blocking triggering + coaching eval and tune
 
@@ -97,7 +97,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 03-01-PLAN.md - Author the lean dual-mode `SKILL.md` (scoped `description`, default frontmatter, 7-step coach decision procedure, impasse/backtrack heuristic, reference pointers) that wires the two new reference files plus the LOCKED transformations.md (SKILL-01..06).
+- [x] 03-01-PLAN.md - Author the lean dual-mode `SKILL.md` (scoped `description`, default frontmatter, 7-step coach decision procedure, impasse/backtrack heuristic, reference pointers) that wires the two new reference files plus the LOCKED transformations.md (SKILL-01..06).
 
 ### Phase 4: Distribution & Hygiene
 
@@ -142,7 +142,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
 |-------|----------------|--------|-----------|
 | 1. Marketplace & Plugin Scaffold | 1/1 | Complete    | 2026-07-02 |
 | 2. TPP Source Distillation | 2/2 | Complete    | 2026-07-02 |
-| 3. lz-tpp Skill Authoring | 2/3 | In Progress|  |
+| 3. lz-tpp Skill Authoring | 3/3 | Complete   | 2026-07-02 |
 | 4. Distribution & Hygiene | 0/1 | Not started | - |
 | 5. Skill Effectiveness Evals | 0/1 | Not started | - |
 

@@ -120,6 +120,20 @@ def run_single_query(
             "--output-format", "stream-json",
             "--verbose",
             "--include-partial-messages",
+            # The probe only tests whether the ephemeral skill is routed to. It does NOT
+            # need any MCP servers -- loading the user's (13+) MCP servers into every probe's
+            # system prompt is a large, pointless input-token cost per session. --strict-mcp-config
+            # with an empty --mcp-config loads ZERO MCP servers, cutting per-probe tokens sharply.
+            # Token-cost trims for the probe (measured, canary-verified to still fire):
+            #   --strict-mcp-config  : drop the user's MCP servers (small: ~3%).
+            #   --setting-sources project : drop USER-level plugins/commands (~40K tokens) while
+            #     keeping PROJECT settings -- the ephemeral probe skill is a project skill, so it
+            #     still loads. Combined effect: ~68K -> ~31K input+cache tokens/probe (~-54%).
+            #   Do NOT use --setting-sources "" (strips the skill too -> probe reads 0) or --bare
+            #   (also strips auth). Verified 2026-07-03.
+            "--strict-mcp-config",
+            "--mcp-config", '{"mcpServers":{}}',
+            "--setting-sources", "project",
         ]
         if model:
             cmd.extend(["--model", model])
@@ -250,10 +264,8 @@ def run_single_query(
         return triggered
     finally:
         try:
-            if skill_file.exists():
-                skill_file.unlink()
             if project_skills_dir.exists():
-                project_skills_dir.rmdir()
+                shutil.rmtree(project_skills_dir, ignore_errors=True)
         except OSError:
             pass
 

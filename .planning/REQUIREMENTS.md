@@ -36,8 +36,8 @@ Requirements for the initial release (version 0.0.1). Each maps to a roadmap pha
 
 ### Skill Evaluation (EVAL) -- late / optional-final
 
-- [ ] **EVAL-01**: A skill-creator trigger-eval set validates the `description` fires on in-scope prompts and stays quiet on out-of-scope prompts (optional-final effectiveness check, run late)
-- [ ] **EVAL-02**: A skill-creator behavior/effectiveness eval checks the coach recommends correct next transformations on sample scenarios (optional-final, run late)
+- [x] **EVAL-01**: A skill-creator trigger-eval set validates the `description` fires on in-scope prompts and stays quiet on out-of-scope prompts (optional-final effectiveness check, run late)
+- [x] **EVAL-02**: A skill-creator behavior/effectiveness eval checks the coach recommends correct next transformations on sample scenarios (optional-final, run late)
 
 ### Distribution & Hygiene (DIST)
 
@@ -92,8 +92,8 @@ Each requirement maps to exactly one phase (see .planning/ROADMAP.md).
 | TPP-05 | Phase 3 | Complete |
 | TPP-06 | Phase 3 | Complete |
 | TPP-07 | Phase 3 | Complete |
-| EVAL-01 | Phase 5 | Pending |
-| EVAL-02 | Phase 5 | Pending |
+| EVAL-01 | Phase 5 | Complete |
+| EVAL-02 | Phase 5 | Complete |
 | DIST-01 | Phase 4 | Complete |
 | DIST-02 | Phase 4 | Complete |
 | DIST-03 | Phase 4 | Complete |
@@ -113,4 +113,4 @@ Each requirement maps to exactly one phase (see .planning/ROADMAP.md).
 
 ---
 *Requirements defined: 2026-07-02*
-*Last updated: 2026-07-02 after roadmap creation (traceability filled, 24/24 mapped)*
+*Last updated: 2026-07-03 during milestone audit (EVAL-01/EVAL-02 flipped Pending -> Complete; Phase 5 verified 100%/100% recall/spec + 29/30 behavior; 24/24 satisfied)*

@@ -1,0 +1,12 @@
+[
+  {
+    "text": "Notes strict priority prefers the smaller (constant -> scalar) step first (the coach's own framing, not just an echo of the prompt token)",
+    "passed": true,
+    "evidence": "'(scalar -> array) sits below (constant -> scalar) because it's a bigger jump in generality. The whole point of picking the highest-priority transformation that passes is to keep each step small.'"
+  },
+  {
+    "text": "ALLOWS the reasoned deviation to (scalar -> array) as a heuristic with a stated reason -- does NOT rigidly refuse ('no, take the higher-priority move')",
+    "passed": false,
+    "evidence": "Never frames TPP as a heuristic permitting reasoned deviation. Only exception given is 'if the current test can't be satisfied by a scalar' (= correct transformation, not deviation); 'let a red test, not a forecast, be the thing that reaches for it' rigidly forbids the foresight-based jump."
+  }
+]

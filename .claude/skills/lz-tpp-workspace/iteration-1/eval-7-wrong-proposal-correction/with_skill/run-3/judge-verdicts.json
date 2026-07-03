@@ -1,0 +1,7 @@
+[
+  {
+    "text": "Corrects the user's premature jump: explains recursion is premature / lower-priority here and the base-case split is preferred",
+    "passed": true,
+    "evidence": "'it's the wrong move for this test'; recursion #11 near bottom, lower priority than #4/#6; steers to the if-split (unconditional->if + constant->scalar); 'Recursion waits for the test that actually needs it'"
+  }
+]

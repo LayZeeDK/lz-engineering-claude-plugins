@@ -1,0 +1,12 @@
+[
+  {
+    "text": "Cites the author's own hedges (informal / roughly ordered / not likely / language-specific) and that the list is ordered by increasing complexity -- the coach's own explanation, not a bare echo of the quoted 'not likely' in the prompt",
+    "passed": true,
+    "evidence": "Calls it a complexity-and-risk ranking ordered by increasing complexity; surfaces hedges 'roughly ordered', 'informal at best', 'probably not', 'might be more complicated', 'language specific' with its own analysis (e.g. TCO/language relativity)."
+  },
+  {
+    "text": "Frames TPP as a heuristic / thinking aid, NOT a rigid law",
+    "passed": true,
+    "evidence": "'Treat the ranking as a thinking aid, not a rulebook'; 'provisional heuristic, not a law'; 'Don't frame any transformation as mandatory'."
+  }
+]

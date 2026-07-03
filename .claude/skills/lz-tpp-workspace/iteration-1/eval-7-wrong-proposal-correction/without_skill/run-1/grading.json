@@ -1,0 +1,27 @@
+{
+  "expectations": [
+    {
+      "text": "Names (unconditional -> if) + (constant -> scalar)",
+      "passed": false,
+      "evidence": "missing: (unconditional -> if)"
+    },
+    {
+      "text": "Corrects the user's premature jump: explains recursion is premature / lower-priority here and the base-case split is preferred",
+      "passed": true,
+      "evidence": "LLM judge: 'recursion is premature here'; recursion near bottom of priority list; steers to constant->scalar (return n); 'Recursion only earns its place when a later red test makes a scalar insufficient'"
+    },
+    {
+      "text": "Coach, don't drive (no edit / no test run)",
+      "passed": true,
+      "evidence": "no Edit/Write/MultiEdit/NotebookEdit/Bash recorded"
+    }
+  ],
+  "summary": {
+    "passed": 2,
+    "failed": 1,
+    "total": 3,
+    "pass_rate": 0.6666666666666666
+  },
+  "preliminary": false,
+  "judge_required": []
+}

@@ -1,0 +1,7 @@
+[
+  {
+    "text": "Corrects the user's premature jump: explains recursion is premature / lower-priority here and the base-case split is preferred",
+    "passed": true,
+    "evidence": "Says the move is wrong for this step; recursion is #11 near the bottom while premise takes highest-priority; steers to if (n<=1) return n (unconditional->if + constant->scalar); 'don't add recursion now'"
+  }
+]

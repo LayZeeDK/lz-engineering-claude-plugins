@@ -1,0 +1,7 @@
+[
+  {
+    "text": "Presents only minimal code (e.g. `return 0`), NOT a full Fibonacci algorithm",
+    "passed": true,
+    "evidence": "Recommends only `return 0;`; recursion mentioned solely as the #11 move to avoid, no algorithm written"
+  }
+]

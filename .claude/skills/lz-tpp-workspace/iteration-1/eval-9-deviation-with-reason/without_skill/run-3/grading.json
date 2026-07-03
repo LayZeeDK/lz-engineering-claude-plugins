@@ -1,0 +1,27 @@
+{
+  "expectations": [
+    {
+      "text": "Notes strict priority prefers the smaller (constant -> scalar) step first (the coach's own framing, not just an echo of the prompt token)",
+      "passed": true,
+      "evidence": "LLM judge: 'TPP orders transformations simple-to-complex so you pick the highest-priority one that turns the current red test green. constant -> scalar outranks scalar -> array.'"
+    },
+    {
+      "text": "ALLOWS the reasoned deviation to (scalar -> array) as a heuristic with a stated reason -- does NOT rigidly refuse ('no, take the higher-priority move')",
+      "passed": false,
+      "evidence": "LLM judge: Rigid framing; the only 'legitimate exception' is when a scalar 'genuinely cannot make [the current test] pass' (= correct transformation, not a deviation). Never treats TPP as a heuristic permitting a reasoned foresight-based jump."
+    },
+    {
+      "text": "Coach, don't drive (no edit / no test run)",
+      "passed": true,
+      "evidence": "no Edit/Write/MultiEdit/NotebookEdit/Bash recorded"
+    }
+  ],
+  "summary": {
+    "passed": 2,
+    "failed": 1,
+    "total": 3,
+    "pass_rate": 0.6666666666666666
+  },
+  "preliminary": false,
+  "judge_required": []
+}

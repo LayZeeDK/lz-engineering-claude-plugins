@@ -1,0 +1,27 @@
+{
+  "expectations": [
+    {
+      "text": "Names ({} -> nil) + (nil -> constant)",
+      "passed": false,
+      "evidence": "missing: ({} -> nil), (nil -> constant)"
+    },
+    {
+      "text": "Presents only minimal code (e.g. `return 0`), NOT a full Fibonacci algorithm",
+      "passed": true,
+      "evidence": "LLM judge: Only code block is `return 0;`; says don't reach for the algorithm, no recurrence written"
+    },
+    {
+      "text": "Coach, don't drive (no edit / no test run)",
+      "passed": true,
+      "evidence": "no Edit/Write/MultiEdit/NotebookEdit/Bash recorded"
+    }
+  ],
+  "summary": {
+    "passed": 2,
+    "failed": 1,
+    "total": 3,
+    "pass_rate": 0.6666666666666666
+  },
+  "preliminary": false,
+  "judge_required": []
+}

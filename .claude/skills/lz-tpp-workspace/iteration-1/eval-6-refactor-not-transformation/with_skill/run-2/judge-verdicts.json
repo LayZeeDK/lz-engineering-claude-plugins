@@ -1,0 +1,12 @@
+[
+  {
+    "text": "Identifies this as a REFACTORING (structure-only, behavior-preserving), not a transformation",
+    "passed": true,
+    "evidence": "Says 'this isn't a TPP move at all. You're in the refactor step' and 'structure-only change that preserves behavior. That's a refactoring'."
+  },
+  {
+    "text": "Declines to name a numbered / priority-ranked transformation (it belongs to the refactor step)",
+    "passed": true,
+    "evidence": "Explicitly: 'there's no next transformation for me to name -- picking one would be the wrong tool.' No numbered transformation assigned."
+  }
+]

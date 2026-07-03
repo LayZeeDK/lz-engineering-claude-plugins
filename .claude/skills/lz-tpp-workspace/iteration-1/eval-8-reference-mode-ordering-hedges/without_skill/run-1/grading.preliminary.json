@@ -1,0 +1,30 @@
+{
+  "expectations": [
+    {
+      "text": "Cites the author's own hedges (informal / roughly ordered / not likely / language-specific) and that the list is ordered by increasing complexity -- the coach's own explanation, not a bare echo of the quoted 'not likely' in the prompt",
+      "passed": null,
+      "evidence": "LLM-JUDGE REQUIRED (not deterministically checkable)"
+    },
+    {
+      "text": "Frames TPP as a heuristic / thinking aid, NOT a rigid law",
+      "passed": null,
+      "evidence": "LLM-JUDGE REQUIRED (not deterministically checkable)"
+    },
+    {
+      "text": "No edit / no test run",
+      "passed": true,
+      "evidence": "no Edit/Write/MultiEdit/NotebookEdit/Bash recorded"
+    }
+  ],
+  "summary": {
+    "passed": 1,
+    "failed": 0,
+    "total": 1,
+    "pass_rate": 1
+  },
+  "preliminary": true,
+  "judge_required": [
+    "Cites the author's own hedges (informal / roughly ordered / not likely / language-specific) and that the list is ordered by increasing complexity -- the coach's own explanation, not a bare echo of the quoted 'not likely' in the prompt",
+    "Frames TPP as a heuristic / thinking aid, NOT a rigid law"
+  ]
+}

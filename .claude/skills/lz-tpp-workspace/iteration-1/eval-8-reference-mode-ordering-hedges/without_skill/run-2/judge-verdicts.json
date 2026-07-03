@@ -1,0 +1,12 @@
+[
+  {
+    "text": "Cites the author's own hedges (informal / roughly ordered / not likely / language-specific) and that the list is ordered by increasing complexity -- the coach's own explanation, not a bare echo of the quoted 'not likely' in the prompt",
+    "passed": true,
+    "evidence": "Ordering described simple-to-complex (least to most conceptually expensive); surfaces hedges as own explanation -- heuristic not theorem/subjective, may be only a partial order not total, context/language dependence, a proposal not a decree."
+  },
+  {
+    "text": "Frames TPP as a heuristic / thinking aid, NOT a rigid law",
+    "passed": true,
+    "evidence": "'It is a heuristic, not a theorem'; 'earns its keep as a tie-breaker and a smell detector, not as a strict algorithm'; 'Do not treat the number... as gospel'."
+  }
+]

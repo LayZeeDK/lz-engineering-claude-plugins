@@ -1,0 +1,27 @@
+{
+  "expectations": [
+    {
+      "text": "Identifies this as a REFACTORING (structure-only, behavior-preserving), not a transformation",
+      "passed": true,
+      "evidence": "LLM judge: Says 'this is not a TPP transformation... that's the refactor step' and 'change structure while preserving behavior'; calls it Extract Method, a refactoring."
+    },
+    {
+      "text": "Declines to name a numbered / priority-ranked transformation (it belongs to the refactor step)",
+      "passed": true,
+      "evidence": "LLM judge: States 'refactorings aren't priority-ranked' and does not assign any numbered TPP transformation; mentions TPP only to say it is silent here."
+    },
+    {
+      "text": "Coach, don't drive (no edit / no test run)",
+      "passed": true,
+      "evidence": "no Edit/Write/MultiEdit/NotebookEdit/Bash recorded"
+    }
+  ],
+  "summary": {
+    "passed": 3,
+    "failed": 0,
+    "total": 3,
+    "pass_rate": 1
+  },
+  "preliminary": false,
+  "judge_required": []
+}

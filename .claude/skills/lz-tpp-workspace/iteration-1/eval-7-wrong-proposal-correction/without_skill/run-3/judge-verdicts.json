@@ -1,0 +1,7 @@
+[
+  {
+    "text": "Corrects the user's premature jump: explains recursion is premature / lower-priority here and the base-case split is preferred",
+    "passed": true,
+    "evidence": "'Hold on before you reach for recursion'; 'It's premature', recursion near bottom of list; steers to constant->scalar (return n) / a small if guard; 'Let the tests drag you there; don't jump ahead'"
+  }
+]

@@ -1,0 +1,29 @@
+{
+  "expectations": [
+    {
+      "text": "Names (unconditional -> if) + (constant -> scalar)",
+      "passed": true,
+      "evidence": "all required transformation names present"
+    },
+    {
+      "text": "Does NOT recommend jumping to a recursion transformation as the next move (naming recursion only to warn against it is fine)",
+      "passed": null,
+      "evidence": "LLM-JUDGE REQUIRED (not deterministically checkable)"
+    },
+    {
+      "text": "Coach, don't drive (no edit / no test run)",
+      "passed": true,
+      "evidence": "no Edit/Write/MultiEdit/NotebookEdit/Bash recorded"
+    }
+  ],
+  "summary": {
+    "passed": 2,
+    "failed": 0,
+    "total": 2,
+    "pass_rate": 1
+  },
+  "preliminary": true,
+  "judge_required": [
+    "Does NOT recommend jumping to a recursion transformation as the next move (naming recursion only to warn against it is fine)"
+  ]
+}

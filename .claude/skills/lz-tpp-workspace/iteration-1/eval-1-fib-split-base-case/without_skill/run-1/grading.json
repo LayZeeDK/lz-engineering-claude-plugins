@@ -1,0 +1,27 @@
+{
+  "expectations": [
+    {
+      "text": "Names (unconditional -> if) + (constant -> scalar)",
+      "passed": false,
+      "evidence": "missing: (unconditional -> if), (constant -> scalar)"
+    },
+    {
+      "text": "Does NOT recommend jumping to a recursion transformation as the next move (naming recursion only to warn against it is fine)",
+      "passed": true,
+      "evidence": "LLM judge: Recommends 'return n' (constant -> scalar); explicitly 'No recursion', deferring the branch/recurrence to the next test."
+    },
+    {
+      "text": "Coach, don't drive (no edit / no test run)",
+      "passed": true,
+      "evidence": "no Edit/Write/MultiEdit/NotebookEdit/Bash recorded"
+    }
+  ],
+  "summary": {
+    "passed": 2,
+    "failed": 1,
+    "total": 3,
+    "pass_rate": 0.6666666666666666
+  },
+  "preliminary": false,
+  "judge_required": []
+}

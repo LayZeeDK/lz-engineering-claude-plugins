@@ -1,0 +1,27 @@
+{
+  "expectations": [
+    {
+      "text": "Cites the author's own hedges (informal / roughly ordered / not likely / language-specific) and that the list is ordered by increasing complexity -- the coach's own explanation, not a bare echo of the quoted 'not likely' in the prompt",
+      "passed": true,
+      "evidence": "LLM judge: Ranks transformations by complexity and risk; lists hedges 'not likely', 'probably not', 'might be more complicated', 'roughly ordered', 'informal at best', 'language specific' and explains three concrete reasons behind them."
+    },
+    {
+      "text": "Frames TPP as a heuristic / thinking aid, NOT a rigid law",
+      "passed": true,
+      "evidence": "LLM judge: 'provisional heuristic, not a law'; 'Treat the list as a thinking aid and a default, not a rulebook'; 'use the premise, don't worship the numbering'."
+    },
+    {
+      "text": "No edit / no test run",
+      "passed": true,
+      "evidence": "no Edit/Write/MultiEdit/NotebookEdit/Bash recorded"
+    }
+  ],
+  "summary": {
+    "passed": 3,
+    "failed": 0,
+    "total": 3,
+    "pass_rate": 1
+  },
+  "preliminary": false,
+  "judge_required": []
+}

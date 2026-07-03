@@ -1,0 +1,12 @@
+[
+  {
+    "text": "Identifies this as a REFACTORING (structure-only, behavior-preserving), not a transformation",
+    "passed": true,
+    "evidence": "Says 'You're in the refactor step... extraction is behavior-preserving, not new behavior. It's plain refactoring', distinct from reaching for a transformation."
+  },
+  {
+    "text": "Declines to name a numbered / priority-ranked transformation (it belongs to the refactor step)",
+    "passed": true,
+    "evidence": "'the next move isn't to write a new test or reach for a next transformation'; no numbered/priority-ranked transformation is assigned to the cleanup."
+  }
+]

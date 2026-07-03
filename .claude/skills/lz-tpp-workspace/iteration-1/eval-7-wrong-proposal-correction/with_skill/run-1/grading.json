@@ -1,0 +1,27 @@
+{
+  "expectations": [
+    {
+      "text": "Names (unconditional -> if) + (constant -> scalar)",
+      "passed": true,
+      "evidence": "all required transformation names present"
+    },
+    {
+      "text": "Corrects the user's premature jump: explains recursion is premature / lower-priority here and the base-case split is preferred",
+      "passed": true,
+      "evidence": "LLM judge: Says the move is wrong for this step; recursion is #11 near the bottom while premise takes highest-priority; steers to if (n<=1) return n (unconditional->if + constant->scalar); 'don't add recursion now'"
+    },
+    {
+      "text": "Coach, don't drive (no edit / no test run)",
+      "passed": true,
+      "evidence": "no Edit/Write/MultiEdit/NotebookEdit/Bash recorded"
+    }
+  ],
+  "summary": {
+    "passed": 3,
+    "failed": 0,
+    "total": 3,
+    "pass_rate": 1
+  },
+  "preliminary": false,
+  "judge_required": []
+}

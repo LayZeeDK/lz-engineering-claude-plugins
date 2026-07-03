@@ -1,0 +1,12 @@
+[
+  {
+    "text": "Cites the author's own hedges (informal / roughly ordered / not likely / language-specific) and that the list is ordered by increasing complexity -- the coach's own explanation, not a bare echo of the quoted 'not likely' in the prompt",
+    "passed": true,
+    "evidence": "Ordering runs specific/simple to general/complex (generality gradient); explains hedges in its own words -- derived by induction from katas not proof, partial order dressed up as total, set may be incomplete, invited empirical refinement. Substantive explanation, not an echo."
+  },
+  {
+    "text": "Frames TPP as a heuristic / thinking aid, NOT a rigid law",
+    "passed": true,
+    "evidence": "Posed as 'a premise -- a conjecture inviting refutation -- not a proven law'; the exact sequence is 'a useful default to reach for, not a spec to obey literally'."
+  }
+]

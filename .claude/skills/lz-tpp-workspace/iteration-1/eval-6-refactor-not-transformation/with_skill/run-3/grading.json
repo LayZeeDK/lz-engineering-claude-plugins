@@ -1,0 +1,27 @@
+{
+  "expectations": [
+    {
+      "text": "Identifies this as a REFACTORING (structure-only, behavior-preserving), not a transformation",
+      "passed": true,
+      "evidence": "LLM judge: Says 'you are not in a transformation step, so TPP does not apply' and 'extracting a helper is a refactoring -- structure-only, behavior-preserving'."
+    },
+    {
+      "text": "Declines to name a numbered / priority-ranked transformation (it belongs to the refactor step)",
+      "passed": true,
+      "evidence": "LLM judge: 'Do not try to map extract a helper onto a numbered transformation; there is no match by design.' Names Extract Function (Fowler refactoring), not a TPP transformation."
+    },
+    {
+      "text": "Coach, don't drive (no edit / no test run)",
+      "passed": true,
+      "evidence": "no Edit/Write/MultiEdit/NotebookEdit/Bash recorded"
+    }
+  ],
+  "summary": {
+    "passed": 3,
+    "failed": 0,
+    "total": 3,
+    "pass_rate": 1
+  },
+  "preliminary": false,
+  "judge_required": []
+}

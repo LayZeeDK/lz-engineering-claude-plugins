@@ -1,0 +1,12 @@
+[
+  {
+    "text": "Identifies this as a REFACTORING (structure-only, behavior-preserving), not a transformation",
+    "passed": true,
+    "evidence": "Says 'this is not a TPP transformation... that's the refactor step' and 'change structure while preserving behavior'; calls it Extract Method, a refactoring."
+  },
+  {
+    "text": "Declines to name a numbered / priority-ranked transformation (it belongs to the refactor step)",
+    "passed": true,
+    "evidence": "States 'refactorings aren't priority-ranked' and does not assign any numbered TPP transformation; mentions TPP only to say it is silent here."
+  }
+]

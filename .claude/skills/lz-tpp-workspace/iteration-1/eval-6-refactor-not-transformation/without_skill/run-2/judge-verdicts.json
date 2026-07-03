@@ -1,0 +1,12 @@
+[
+  {
+    "text": "Identifies this as a REFACTORING (structure-only, behavior-preserving), not a transformation",
+    "passed": true,
+    "evidence": "Says 'extracting a helper is a refactoring, not a transformation... behavior stays identical, only structure changes, and the tests must stay green'."
+  },
+  {
+    "text": "Declines to name a numbered / priority-ranked transformation (it belongs to the refactor step)",
+    "passed": true,
+    "evidence": "'the guidance here isn't pick the next transformation'. Lists example transformations only to define the term; assigns none to the cleanup."
+  }
+]

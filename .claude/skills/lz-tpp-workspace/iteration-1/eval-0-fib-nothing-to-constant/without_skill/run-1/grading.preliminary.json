@@ -1,0 +1,29 @@
+{
+  "expectations": [
+    {
+      "text": "Names ({} -> nil) + (nil -> constant)",
+      "passed": false,
+      "evidence": "missing: ({} -> nil), (nil -> constant)"
+    },
+    {
+      "text": "Presents only minimal code (e.g. `return 0`), NOT a full Fibonacci algorithm",
+      "passed": null,
+      "evidence": "LLM-JUDGE REQUIRED (not deterministically checkable)"
+    },
+    {
+      "text": "Coach, don't drive (no edit / no test run)",
+      "passed": true,
+      "evidence": "no Edit/Write/MultiEdit/NotebookEdit/Bash recorded"
+    }
+  ],
+  "summary": {
+    "passed": 1,
+    "failed": 1,
+    "total": 2,
+    "pass_rate": 0.5
+  },
+  "preliminary": true,
+  "judge_required": [
+    "Presents only minimal code (e.g. `return 0`), NOT a full Fibonacci algorithm"
+  ]
+}

@@ -1,0 +1,7 @@
+[
+  {
+    "text": "Does NOT recommend jumping to a recursion transformation as the next move (naming recursion only to warn against it is fine)",
+    "passed": true,
+    "evidence": "Recommends 'return n' (constant -> scalar); recursion named only to warn it is premature ('statement -> recursion way further down the list')."
+  }
+]

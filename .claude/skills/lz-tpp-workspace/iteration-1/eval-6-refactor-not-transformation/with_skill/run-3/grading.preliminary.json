@@ -1,0 +1,30 @@
+{
+  "expectations": [
+    {
+      "text": "Identifies this as a REFACTORING (structure-only, behavior-preserving), not a transformation",
+      "passed": null,
+      "evidence": "LLM-JUDGE REQUIRED (not deterministically checkable)"
+    },
+    {
+      "text": "Declines to name a numbered / priority-ranked transformation (it belongs to the refactor step)",
+      "passed": null,
+      "evidence": "LLM-JUDGE REQUIRED (not deterministically checkable)"
+    },
+    {
+      "text": "Coach, don't drive (no edit / no test run)",
+      "passed": true,
+      "evidence": "no Edit/Write/MultiEdit/NotebookEdit/Bash recorded"
+    }
+  ],
+  "summary": {
+    "passed": 1,
+    "failed": 0,
+    "total": 1,
+    "pass_rate": 1
+  },
+  "preliminary": true,
+  "judge_required": [
+    "Identifies this as a REFACTORING (structure-only, behavior-preserving), not a transformation",
+    "Declines to name a numbered / priority-ranked transformation (it belongs to the refactor step)"
+  ]
+}

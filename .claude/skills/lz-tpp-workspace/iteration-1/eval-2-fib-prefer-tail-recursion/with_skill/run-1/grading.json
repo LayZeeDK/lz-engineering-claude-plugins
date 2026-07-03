@@ -1,0 +1,27 @@
+{
+  "expectations": [
+    {
+      "text": "Names (statement -> tail-recursion)",
+      "passed": true,
+      "evidence": "all required transformation names present"
+    },
+    {
+      "text": "Explicitly prefers (statement -> tail-recursion) #9 OVER plain (statement -> recursion) #11 as the pick (rejects #11 as the next move)",
+      "passed": true,
+      "evidence": "LLM judge: Explicitly recommends (statement -> tail-recursion) #9 and rejects plain (statement -> recursion) #11 as lower-priority (then adds the TS/JS no-TCO overlay); prefers #9 over #11 as asked."
+    },
+    {
+      "text": "Coach, don't drive (no edit / no test run)",
+      "passed": true,
+      "evidence": "no Edit/Write/MultiEdit/NotebookEdit/Bash recorded"
+    }
+  ],
+  "summary": {
+    "passed": 3,
+    "failed": 0,
+    "total": 3,
+    "pass_rate": 1
+  },
+  "preliminary": false,
+  "judge_required": []
+}

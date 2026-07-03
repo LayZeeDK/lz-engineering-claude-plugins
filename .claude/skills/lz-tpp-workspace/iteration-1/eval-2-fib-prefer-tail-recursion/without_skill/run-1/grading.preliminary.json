@@ -1,0 +1,29 @@
+{
+  "expectations": [
+    {
+      "text": "Names (statement -> tail-recursion)",
+      "passed": false,
+      "evidence": "missing: (statement -> tail-recursion)"
+    },
+    {
+      "text": "Explicitly prefers (statement -> tail-recursion) #9 OVER plain (statement -> recursion) #11 as the pick (rejects #11 as the next move)",
+      "passed": null,
+      "evidence": "LLM-JUDGE REQUIRED (not deterministically checkable)"
+    },
+    {
+      "text": "Coach, don't drive (no edit / no test run)",
+      "passed": true,
+      "evidence": "no Edit/Write/MultiEdit/NotebookEdit/Bash recorded"
+    }
+  ],
+  "summary": {
+    "passed": 1,
+    "failed": 1,
+    "total": 2,
+    "pass_rate": 0.5
+  },
+  "preliminary": true,
+  "judge_required": [
+    "Explicitly prefers (statement -> tail-recursion) #9 OVER plain (statement -> recursion) #11 as the pick (rejects #11 as the next move)"
+  ]
+}

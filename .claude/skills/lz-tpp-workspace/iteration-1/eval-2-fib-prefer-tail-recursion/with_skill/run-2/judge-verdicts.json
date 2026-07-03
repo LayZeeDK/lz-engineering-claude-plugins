@@ -1,0 +1,7 @@
+[
+  {
+    "text": "Explicitly prefers (statement -> tail-recursion) #9 OVER plain (statement -> recursion) #11 as the pick (rejects #11 as the next move)",
+    "passed": true,
+    "evidence": "Explicitly recommends (statement -> tail-recursion) #9 and rejects plain (statement -> recursion) #11 as lower-priority (then adds the TS/JS no-TCO overlay); prefers #9 over #11 as asked."
+  }
+]

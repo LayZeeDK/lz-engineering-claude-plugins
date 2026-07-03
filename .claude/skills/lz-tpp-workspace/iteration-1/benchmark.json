@@ -1,0 +1,261 @@
+{
+  "metadata": {
+    "skill_name": "lz-tpp",
+    "skill_path": "<path/to/skill>",
+    "executor_model": "<model-name>",
+    "analyzer_model": "<model-name>",
+    "timestamp": "2026-07-02T23:51:43Z",
+    "evals_run": [
+      2
+    ],
+    "runs_per_configuration": 3
+  },
+  "runs": [
+    {
+      "eval_id": 2,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1,
+        "passed": 3,
+        "failed": 0,
+        "total": 3,
+        "time_seconds": 0,
+        "tokens": 0,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Names (statement -> tail-recursion)",
+          "passed": true,
+          "evidence": "all required transformation names present"
+        },
+        {
+          "text": "Explicitly prefers (statement -> tail-recursion) #9 OVER plain (statement -> recursion) #11 as the pick (rejects #11 as the next move)",
+          "passed": true,
+          "evidence": "LLM judge: Explicitly recommends (statement -> tail-recursion) #9 and rejects plain (statement -> recursion) #11 as lower-priority (then adds the TS/JS no-TCO overlay); prefers #9 over #11 as asked."
+        },
+        {
+          "text": "Coach, don't drive (no edit / no test run)",
+          "passed": true,
+          "evidence": "no Edit/Write/MultiEdit/NotebookEdit/Bash recorded"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 2,
+      "configuration": "with_skill",
+      "run_number": 2,
+      "result": {
+        "pass_rate": 1,
+        "passed": 3,
+        "failed": 0,
+        "total": 3,
+        "time_seconds": 0,
+        "tokens": 0,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Names (statement -> tail-recursion)",
+          "passed": true,
+          "evidence": "all required transformation names present"
+        },
+        {
+          "text": "Explicitly prefers (statement -> tail-recursion) #9 OVER plain (statement -> recursion) #11 as the pick (rejects #11 as the next move)",
+          "passed": true,
+          "evidence": "LLM judge: Explicitly recommends (statement -> tail-recursion) #9 and rejects plain (statement -> recursion) #11 as lower-priority (then adds the TS/JS no-TCO overlay); prefers #9 over #11 as asked."
+        },
+        {
+          "text": "Coach, don't drive (no edit / no test run)",
+          "passed": true,
+          "evidence": "no Edit/Write/MultiEdit/NotebookEdit/Bash recorded"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 2,
+      "configuration": "with_skill",
+      "run_number": 3,
+      "result": {
+        "pass_rate": 1,
+        "passed": 3,
+        "failed": 0,
+        "total": 3,
+        "time_seconds": 0,
+        "tokens": 0,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Names (statement -> tail-recursion)",
+          "passed": true,
+          "evidence": "all required transformation names present"
+        },
+        {
+          "text": "Explicitly prefers (statement -> tail-recursion) #9 OVER plain (statement -> recursion) #11 as the pick (rejects #11 as the next move)",
+          "passed": true,
+          "evidence": "LLM judge: Explicitly recommends (statement -> tail-recursion) #9 and rejects plain (statement -> recursion) #11 as lower-priority (then adds the TS/JS no-TCO overlay); prefers #9 over #11 as asked."
+        },
+        {
+          "text": "Coach, don't drive (no edit / no test run)",
+          "passed": true,
+          "evidence": "no Edit/Write/MultiEdit/NotebookEdit/Bash recorded"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 2,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.3333333333333333,
+        "passed": 1,
+        "failed": 2,
+        "total": 3,
+        "time_seconds": 0,
+        "tokens": 0,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Names (statement -> tail-recursion)",
+          "passed": false,
+          "evidence": "missing: (statement -> tail-recursion)"
+        },
+        {
+          "text": "Explicitly prefers (statement -> tail-recursion) #9 OVER plain (statement -> recursion) #11 as the pick (rejects #11 as the next move)",
+          "passed": false,
+          "evidence": "LLM judge: Recommends plain recursion of(n-1)+of(n-2) and explicitly declines to prefer tail-recursion (argues no TCO in V8); does not pick #9 over #11 -- run-3 names the #9 string only to reject it."
+        },
+        {
+          "text": "Coach, don't drive (no edit / no test run)",
+          "passed": true,
+          "evidence": "no Edit/Write/MultiEdit/NotebookEdit/Bash recorded"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 2,
+      "configuration": "without_skill",
+      "run_number": 2,
+      "result": {
+        "pass_rate": 0.3333333333333333,
+        "passed": 1,
+        "failed": 2,
+        "total": 3,
+        "time_seconds": 0,
+        "tokens": 0,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Names (statement -> tail-recursion)",
+          "passed": false,
+          "evidence": "missing: (statement -> tail-recursion)"
+        },
+        {
+          "text": "Explicitly prefers (statement -> tail-recursion) #9 OVER plain (statement -> recursion) #11 as the pick (rejects #11 as the next move)",
+          "passed": false,
+          "evidence": "LLM judge: Recommends plain recursion of(n-1)+of(n-2) and explicitly declines to prefer tail-recursion (argues no TCO in V8); does not pick #9 over #11 -- run-3 names the #9 string only to reject it."
+        },
+        {
+          "text": "Coach, don't drive (no edit / no test run)",
+          "passed": true,
+          "evidence": "no Edit/Write/MultiEdit/NotebookEdit/Bash recorded"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 2,
+      "configuration": "without_skill",
+      "run_number": 3,
+      "result": {
+        "pass_rate": 0.6666666666666666,
+        "passed": 2,
+        "failed": 1,
+        "total": 3,
+        "time_seconds": 0,
+        "tokens": 0,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Names (statement -> tail-recursion)",
+          "passed": true,
+          "evidence": "all required transformation names present"
+        },
+        {
+          "text": "Explicitly prefers (statement -> tail-recursion) #9 OVER plain (statement -> recursion) #11 as the pick (rejects #11 as the next move)",
+          "passed": false,
+          "evidence": "LLM judge: Recommends plain recursion of(n-1)+of(n-2) and explicitly declines to prefer tail-recursion (argues no TCO in V8); does not pick #9 over #11 -- run-3 names the #9 string only to reject it."
+        },
+        {
+          "text": "Coach, don't drive (no edit / no test run)",
+          "passed": true,
+          "evidence": "no Edit/Write/MultiEdit/NotebookEdit/Bash recorded"
+        }
+      ],
+      "notes": []
+    }
+  ],
+  "run_summary": {
+    "with_skill": {
+      "pass_rate": {
+        "mean": 1.0,
+        "stddev": 0.0,
+        "min": 1,
+        "max": 1
+      },
+      "time_seconds": {
+        "mean": 0.0,
+        "stddev": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "tokens": {
+        "mean": 0.0,
+        "stddev": 0.0,
+        "min": 0,
+        "max": 0
+      }
+    },
+    "without_skill": {
+      "pass_rate": {
+        "mean": 0.4444,
+        "stddev": 0.1925,
+        "min": 0.3333,
+        "max": 0.6667
+      },
+      "time_seconds": {
+        "mean": 0.0,
+        "stddev": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "tokens": {
+        "mean": 0.0,
+        "stddev": 0.0,
+        "min": 0,
+        "max": 0
+      }
+    },
+    "delta": {
+      "pass_rate": "+0.56",
+      "time_seconds": "+0.0",
+      "tokens": "+0"
+    }
+  },
+  "notes": []
+}

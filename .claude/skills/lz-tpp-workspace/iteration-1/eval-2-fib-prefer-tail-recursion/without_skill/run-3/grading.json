@@ -1,0 +1,27 @@
+{
+  "expectations": [
+    {
+      "text": "Names (statement -> tail-recursion)",
+      "passed": true,
+      "evidence": "all required transformation names present"
+    },
+    {
+      "text": "Explicitly prefers (statement -> tail-recursion) #9 OVER plain (statement -> recursion) #11 as the pick (rejects #11 as the next move)",
+      "passed": false,
+      "evidence": "LLM judge: Recommends plain recursion of(n-1)+of(n-2) and explicitly declines to prefer tail-recursion (argues no TCO in V8); does not pick #9 over #11 -- run-3 names the #9 string only to reject it."
+    },
+    {
+      "text": "Coach, don't drive (no edit / no test run)",
+      "passed": true,
+      "evidence": "no Edit/Write/MultiEdit/NotebookEdit/Bash recorded"
+    }
+  ],
+  "summary": {
+    "passed": 2,
+    "failed": 1,
+    "total": 3,
+    "pass_rate": 0.6666666666666666
+  },
+  "preliminary": false,
+  "judge_required": []
+}

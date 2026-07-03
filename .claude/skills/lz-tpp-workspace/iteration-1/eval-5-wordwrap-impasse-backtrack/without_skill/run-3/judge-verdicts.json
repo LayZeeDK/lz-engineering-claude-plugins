@@ -1,0 +1,12 @@
+[
+  {
+    "text": "Recommends BACKTRACKING: pose a simpler intermediate test (or a structure-only refactor first) instead of writing the whole algorithm now",
+    "passed": true,
+    "evidence": "Offers two smaller moves and leans toward the smaller-test one: 'Move 2 - back up to a smaller test... shrink the red test to the fits-in-width case first'; also fake-it + triangulate. Both are smaller moves the criteria allows."
+  },
+  {
+    "text": "Does NOT just write the whole wrap algorithm / apply the low-priority (expression -> function) #12 now",
+    "passed": true,
+    "evidence": "'one failing test rarely justifies the whole solution'; recommends faking the return or shrinking the test rather than implementing the full algorithm now; multi-break loop is deferred to a later step."
+  }
+]

@@ -1,0 +1,27 @@
+{
+  "expectations": [
+    {
+      "text": "Recommends BACKTRACKING: pose a simpler intermediate test (or a structure-only refactor first) instead of writing the whole algorithm now",
+      "passed": true,
+      "evidence": "LLM judge: Header 'The move: backtrack, don't power through'; 'park this test... and pose smaller tests you can pass with higher-priority transformations'; provides a smaller-test ladder (empty, single word, then original)."
+    },
+    {
+      "text": "Does NOT just write the whole wrap algorithm / apply the low-priority (expression -> function) #12 now",
+      "passed": true,
+      "evidence": "LLM judge: Explicitly avoids the '(expression -> function) (#12)' leap; 'Same destination, safer route'; by the hard case only '(unconditional -> if) (#6) plus a small split expression' is needed."
+    },
+    {
+      "text": "Coach, don't drive (no edit / no test run)",
+      "passed": true,
+      "evidence": "no Edit/Write/MultiEdit/NotebookEdit/Bash recorded"
+    }
+  ],
+  "summary": {
+    "passed": 3,
+    "failed": 0,
+    "total": 3,
+    "pass_rate": 1
+  },
+  "preliminary": false,
+  "judge_required": []
+}

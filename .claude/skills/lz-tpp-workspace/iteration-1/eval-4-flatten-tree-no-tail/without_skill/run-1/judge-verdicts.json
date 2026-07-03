@@ -1,0 +1,7 @@
+[
+  {
+    "text": "States (statement -> tail-recursion) #9 is NOT available for this tree recursion (no single tail call)",
+    "passed": true,
+    "evidence": "\"flatten over a tree makes multiple recursive calls per frame (one per nested array), so it's non-tail recursion. Even in an engine with TCO, tail-call elimination can't save a call that isn't in tail position. This is the crux -- you can't rescue tree recursion with a tail-call trick.\" -- explicitly the branching/no-tail-position structure, separate from the TCO point."
+  }
+]

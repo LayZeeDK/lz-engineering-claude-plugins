@@ -1,0 +1,17 @@
+[
+  {
+    "text": "Raises, UNPROMPTED, that the deep-input test makes stack-safety BEHAVIORAL -- a transformation, not merely a refactoring (do not credit an echo of the word 'overflow' from the prompt)",
+    "passed": true,
+    "evidence": "\"The test is doing exactly what a good failing test should: forcing you off an implementation that doesn't scale.\" Frames the red test as forcing the recursion -> iteration transformation (the higher-priority move), not an optional cleanup. Weaker than gold (leans on 'doesn't scale' rather than the word 'behavioral') but does not treat the fix as mere optimization."
+  },
+  {
+    "text": "Recommends the stack-safe form: (if -> while) + (variable -> assignment), or an explicitly-named trampoline",
+    "passed": true,
+    "evidence": "Primary move is the iterative accumulator: \"replace the recursion with an iterative accumulator (a for/while that adds 1..n into a running total)\" / \"if -> while\". Closed-form offered only as \"one rung further\", so iteration is given as the stack-safe form."
+  },
+  {
+    "text": "Does NOT offer a plain (V8) tail-recursive solution as the FINAL answer",
+    "passed": true,
+    "evidence": "No tail-recursion offered; final answer is the loop (or optional closed form). It even warns against patching the recursion: \"don't 'fix' the recursion by raising the stack size or adding a trampoline.\""
+  }
+]

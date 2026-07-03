@@ -1,0 +1,7 @@
+[
+  {
+    "text": "States (statement -> tail-recursion) #9 is NOT available for this tree recursion (no single tail call)",
+    "passed": true,
+    "evidence": "\"(statement -> tail-recursion) #9 is not available for this shape ... flatten is tree recursion: you recurse per element and combine results after the recursive call returns ... The recursive call is not in tail position, so there's no tail-recursion form to convert to. #9 simply doesn't apply.\""
+  }
+]

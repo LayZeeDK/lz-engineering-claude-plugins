@@ -1,0 +1,27 @@
+{
+  "expectations": [
+    {
+      "text": "States (statement -> tail-recursion) #9 is NOT available for this tree recursion (no single tail call)",
+      "passed": true,
+      "evidence": "LLM judge: \"flatten is tree recursion, not linear recursion. Each element can itself be an array with several children, and you keep processing siblings after you descend. The recursive call is not in tail position ... 'Make it tail-recursive' is not available.\" -- structural no-tail-form point, distinct from TCO."
+    },
+    {
+      "text": "Recommends an explicit-stack (if -> while) iteration or a generator-as-state-machine",
+      "passed": true,
+      "evidence": "matched: (if -> while)"
+    },
+    {
+      "text": "Coach, don't drive (no edit / no test run)",
+      "passed": true,
+      "evidence": "no Edit/Write/MultiEdit/NotebookEdit/Bash recorded"
+    }
+  ],
+  "summary": {
+    "passed": 3,
+    "failed": 0,
+    "total": 3,
+    "pass_rate": 1
+  },
+  "preliminary": false,
+  "judge_required": []
+}

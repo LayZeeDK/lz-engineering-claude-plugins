@@ -1,0 +1,32 @@
+{
+  "expectations": [
+    {
+      "text": "Raises, UNPROMPTED, that the deep-input test makes stack-safety BEHAVIORAL -- a transformation, not merely a refactoring (do not credit an echo of the word 'overflow' from the prompt)",
+      "passed": true,
+      "evidence": "LLM judge: \"Classify the failure first: this red test isn't a logic failure, it's a depth failure. ... So no amount of 'fix the recursion' ... saves you in JS/TS -- you have to leave recursion.\" It classifies the red test as forcing the iterative transformation (the TPP overlay move), not a mere cleanup."
+    },
+    {
+      "text": "Recommends the stack-safe form: (if -> while) + (variable -> assignment), or an explicitly-named trampoline",
+      "passed": true,
+      "evidence": "LLM judge: Recommends an iterative accumulator, naming both transformations: \"(variable -> assignment): introduce a mutable accumulator total. (if -> while): replace the recursive descent with a loop\" with a for-loop diff. (Closed-form is offered additionally, not alone.)"
+    },
+    {
+      "text": "Does NOT offer a plain (V8) tail-recursive solution as the FINAL answer",
+      "passed": true,
+      "evidence": "LLM judge: Explicitly rules out tail-recursion: \"no amount of 'fix the recursion' (add an accumulator param, move the call to tail position) saves you in JS/TS.\" Final answer is the loop or the closed form."
+    },
+    {
+      "text": "Coach, don't drive (no edit / no test run)",
+      "passed": true,
+      "evidence": "no Edit/Write/MultiEdit/NotebookEdit/Bash recorded"
+    }
+  ],
+  "summary": {
+    "passed": 4,
+    "failed": 0,
+    "total": 4,
+    "pass_rate": 1
+  },
+  "preliminary": false,
+  "judge_required": []
+}

@@ -1,0 +1,32 @@
+{
+  "expectations": [
+    {
+      "text": "Raises, UNPROMPTED, that the deep-input test makes stack-safety BEHAVIORAL -- a transformation, not merely a refactoring (do not credit an echo of the word 'overflow' from the prompt)",
+      "passed": true,
+      "evidence": "LLM judge: \"Your new test asserts a correct value on a deep input *without throwing*. That makes stack safety a behavioral requirement, not a non-functional nicety\" and explicitly contrasts refactoring vs transformation: \"the trampoline conversion of an already-green recursion is a *refactoring*... but here, because the deep-input test is red, whichever stack-safe form you pick is the *transformation* that takes you red -> green.\""
+    },
+    {
+      "text": "Recommends the stack-safe form: (if -> while) + (variable -> assignment), or an explicitly-named trampoline",
+      "passed": true,
+      "evidence": "LLM judge: Recommends and shows a while-loop accumulator: \"function sum(n){ let acc = 0; while (n !== 0) { acc = acc + n; n = n - 1; } return acc; }\" labeled (if -> while) #10 + (variable -> assignment) #13."
+    },
+    {
+      "text": "Does NOT offer a plain (V8) tail-recursive solution as the FINAL answer",
+      "passed": true,
+      "evidence": "LLM judge: Tail-recursion is presented only as \"the trap to avoid\" (V8 has no PTC, still overflows); the final recommendation is the while loop: \"Your call on which to apply -- I'd take the while loop.\""
+    },
+    {
+      "text": "Coach, don't drive (no edit / no test run)",
+      "passed": true,
+      "evidence": "no Edit/Write/MultiEdit/NotebookEdit/Bash recorded"
+    }
+  ],
+  "summary": {
+    "passed": 4,
+    "failed": 0,
+    "total": 4,
+    "pass_rate": 1
+  },
+  "preliminary": false,
+  "judge_required": []
+}

@@ -1,0 +1,17 @@
+[
+  {
+    "text": "Raises, UNPROMPTED, that the deep-input test makes stack-safety BEHAVIORAL -- a transformation, not merely a refactoring (do not credit an echo of the word 'overflow' from the prompt)",
+    "passed": true,
+    "evidence": "\"This test made stack safety behavioral. ... sum(1_000_000) asserts a deep input returns the right number *without throwing* -- that pins stack safety as behavior. So the stack-safe form is the *transformation* that gets you from red to green here, not a later refactor.\""
+  },
+  {
+    "text": "Recommends the stack-safe form: (if -> while) + (variable -> assignment), or an explicitly-named trampoline",
+    "passed": true,
+    "evidence": "Recommends a while-loop accumulator with code: \"while (n !== 0) { // (if -> while) #10 ; acc = acc + n; // (variable -> assignment) #13 ; n = n - 1; }\""
+  },
+  {
+    "text": "Does NOT offer a plain (V8) tail-recursive solution as the FINAL answer",
+    "passed": true,
+    "evidence": "Tail-recursion is flagged as \"a trap in TS/JS\" (V8 has no reliable TCO, still overflows); final answer is the while-loop accumulator."
+  }
+]

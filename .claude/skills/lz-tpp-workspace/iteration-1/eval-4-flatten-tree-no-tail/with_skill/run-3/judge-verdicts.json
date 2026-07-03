@@ -1,0 +1,7 @@
+[
+  {
+    "text": "States (statement -> tail-recursion) #9 is NOT available for this tree recursion (no single tail call)",
+    "passed": true,
+    "evidence": "\"flatten is tree recursion: you recurse per element and combine results after the call, so the recursive call is not in tail position ... (statement -> tail-recursion) #9 is simply not available here. There's no tail form to reach for.\""
+  }
+]

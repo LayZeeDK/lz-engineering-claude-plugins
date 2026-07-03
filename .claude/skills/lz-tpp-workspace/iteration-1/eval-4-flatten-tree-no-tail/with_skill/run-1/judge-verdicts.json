@@ -1,0 +1,7 @@
+[
+  {
+    "text": "States (statement -> tail-recursion) #9 is NOT available for this tree recursion (no single tail call)",
+    "passed": true,
+    "evidence": "\"flatten is tree recursion, not linear recursion. Each element can itself be an array with several children, and you keep processing siblings after you descend. The recursive call is not in tail position ... 'Make it tail-recursive' is not available.\" -- structural no-tail-form point, distinct from TCO."
+  }
+]

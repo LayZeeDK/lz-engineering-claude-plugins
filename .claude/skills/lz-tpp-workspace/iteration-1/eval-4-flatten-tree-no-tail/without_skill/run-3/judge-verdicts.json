@@ -1,0 +1,7 @@
+[
+  {
+    "text": "States (statement -> tail-recursion) #9 is NOT available for this tree recursion (no single tail call)",
+    "passed": false,
+    "evidence": "Rests solely on TCO: \"Most languages (JS included) don't do tail-call elimination, so recursion depth == nesting depth == live stack frames. No tweak to the recursive call saves an input...\" It never explains tree/branching recursion has more than one recursive call / no single tail position; no no-tail-form structural point."
+  }
+]

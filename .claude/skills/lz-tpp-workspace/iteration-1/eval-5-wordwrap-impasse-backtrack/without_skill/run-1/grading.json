@@ -1,0 +1,27 @@
+{
+  "expectations": [
+    {
+      "text": "Recommends BACKTRACKING: pose a simpler intermediate test (or a structure-only refactor first) instead of writing the whole algorithm now",
+      "passed": true,
+      "evidence": "LLM judge: Recommends the fake-it-then-triangulate smaller move: 'fake the result with a constant' (return ['word','wrap']), then 'Add a triangulating test that breaks the constant' and generalize step by step -- explicitly allowed by the criteria as a smaller move."
+    },
+    {
+      "text": "Does NOT just write the whole wrap algorithm / apply the low-priority (expression -> function) #12 now",
+      "passed": true,
+      "evidence": "LLM judge: 'no, you don't need the whole algorithm yet'; the smallest move is a constant return; 'You are not obligated to generalize until a test forces you to.' Does not implement the full wrap algorithm now."
+    },
+    {
+      "text": "Coach, don't drive (no edit / no test run)",
+      "passed": true,
+      "evidence": "no Edit/Write/MultiEdit/NotebookEdit/Bash recorded"
+    }
+  ],
+  "summary": {
+    "passed": 3,
+    "failed": 0,
+    "total": 3,
+    "pass_rate": 1
+  },
+  "preliminary": false,
+  "judge_required": []
+}

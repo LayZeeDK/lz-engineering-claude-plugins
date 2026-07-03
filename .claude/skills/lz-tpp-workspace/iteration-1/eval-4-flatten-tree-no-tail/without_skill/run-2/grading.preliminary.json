@@ -1,0 +1,29 @@
+{
+  "expectations": [
+    {
+      "text": "States (statement -> tail-recursion) #9 is NOT available for this tree recursion (no single tail call)",
+      "passed": null,
+      "evidence": "LLM-JUDGE REQUIRED (not deterministically checkable)"
+    },
+    {
+      "text": "Recommends an explicit-stack (if -> while) iteration or a generator-as-state-machine",
+      "passed": false,
+      "evidence": "no required pattern found"
+    },
+    {
+      "text": "Coach, don't drive (no edit / no test run)",
+      "passed": true,
+      "evidence": "no Edit/Write/MultiEdit/NotebookEdit/Bash recorded"
+    }
+  ],
+  "summary": {
+    "passed": 1,
+    "failed": 1,
+    "total": 2,
+    "pass_rate": 0.5
+  },
+  "preliminary": true,
+  "judge_required": [
+    "States (statement -> tail-recursion) #9 is NOT available for this tree recursion (no single tail call)"
+  ]
+}

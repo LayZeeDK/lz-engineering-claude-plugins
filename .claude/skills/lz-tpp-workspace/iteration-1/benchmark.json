@@ -4,9 +4,12 @@
     "skill_path": "<path/to/skill>",
     "executor_model": "<model-name>",
     "analyzer_model": "<model-name>",
-    "timestamp": "2026-07-02T23:51:43Z",
+    "timestamp": "2026-07-03T00:21:06Z",
     "evals_run": [
-      2
+      2,
+      3,
+      4,
+      5
     ],
     "runs_per_configuration": 3
   },
@@ -101,6 +104,318 @@
           "text": "Explicitly prefers (statement -> tail-recursion) #9 OVER plain (statement -> recursion) #11 as the pick (rejects #11 as the next move)",
           "passed": true,
           "evidence": "LLM judge: Explicitly recommends (statement -> tail-recursion) #9 and rejects plain (statement -> recursion) #11 as lower-priority (then adds the TS/JS no-TCO overlay); prefers #9 over #11 as asked."
+        },
+        {
+          "text": "Coach, don't drive (no edit / no test run)",
+          "passed": true,
+          "evidence": "no Edit/Write/MultiEdit/NotebookEdit/Bash recorded"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 3,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1,
+        "passed": 4,
+        "failed": 0,
+        "total": 4,
+        "time_seconds": 74.4,
+        "tokens": 77020,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Raises, UNPROMPTED, that the deep-input test makes stack-safety BEHAVIORAL -- a transformation, not merely a refactoring (do not credit an echo of the word 'overflow' from the prompt)",
+          "passed": true,
+          "evidence": "LLM judge: \"Your new test asserts a correct value on a deep input *without throwing*. That makes stack safety a behavioral requirement, not a non-functional nicety\" and explicitly contrasts refactoring vs transformation: \"the trampoline conversion of an already-green recursion is a *refactoring*... but here, because the deep-input test is red, whichever stack-safe form you pick is the *transformation* that takes you red -> green.\""
+        },
+        {
+          "text": "Recommends the stack-safe form: (if -> while) + (variable -> assignment), or an explicitly-named trampoline",
+          "passed": true,
+          "evidence": "LLM judge: Recommends and shows a while-loop accumulator: \"function sum(n){ let acc = 0; while (n !== 0) { acc = acc + n; n = n - 1; } return acc; }\" labeled (if -> while) #10 + (variable -> assignment) #13."
+        },
+        {
+          "text": "Does NOT offer a plain (V8) tail-recursive solution as the FINAL answer",
+          "passed": true,
+          "evidence": "LLM judge: Tail-recursion is presented only as \"the trap to avoid\" (V8 has no PTC, still overflows); the final recommendation is the while loop: \"Your call on which to apply -- I'd take the while loop.\""
+        },
+        {
+          "text": "Coach, don't drive (no edit / no test run)",
+          "passed": true,
+          "evidence": "no Edit/Write/MultiEdit/NotebookEdit/Bash recorded"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 3,
+      "configuration": "with_skill",
+      "run_number": 2,
+      "result": {
+        "pass_rate": 1,
+        "passed": 4,
+        "failed": 0,
+        "total": 4,
+        "time_seconds": 86.1,
+        "tokens": 77810,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Raises, UNPROMPTED, that the deep-input test makes stack-safety BEHAVIORAL -- a transformation, not merely a refactoring (do not credit an echo of the word 'overflow' from the prompt)",
+          "passed": true,
+          "evidence": "LLM judge: \"This test made stack safety behavioral. ... sum(1_000_000) asserts a deep input returns the right number *without throwing* -- that pins stack safety as behavior. So the stack-safe form is the *transformation* that gets you from red to green here, not a later refactor.\""
+        },
+        {
+          "text": "Recommends the stack-safe form: (if -> while) + (variable -> assignment), or an explicitly-named trampoline",
+          "passed": true,
+          "evidence": "LLM judge: Recommends a while-loop accumulator with code: \"while (n !== 0) { // (if -> while) #10 ; acc = acc + n; // (variable -> assignment) #13 ; n = n - 1; }\""
+        },
+        {
+          "text": "Does NOT offer a plain (V8) tail-recursive solution as the FINAL answer",
+          "passed": true,
+          "evidence": "LLM judge: Tail-recursion is flagged as \"a trap in TS/JS\" (V8 has no reliable TCO, still overflows); final answer is the while-loop accumulator."
+        },
+        {
+          "text": "Coach, don't drive (no edit / no test run)",
+          "passed": true,
+          "evidence": "no Edit/Write/MultiEdit/NotebookEdit/Bash recorded"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 3,
+      "configuration": "with_skill",
+      "run_number": 3,
+      "result": {
+        "pass_rate": 1,
+        "passed": 4,
+        "failed": 0,
+        "total": 4,
+        "time_seconds": 91.3,
+        "tokens": 67286,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Raises, UNPROMPTED, that the deep-input test makes stack-safety BEHAVIORAL -- a transformation, not merely a refactoring (do not credit an echo of the word 'overflow' from the prompt)",
+          "passed": true,
+          "evidence": "LLM judge: \"Classify the failure first: this red test isn't a logic failure, it's a depth failure. ... So no amount of 'fix the recursion' ... saves you in JS/TS -- you have to leave recursion.\" It classifies the red test as forcing the iterative transformation (the TPP overlay move), not a mere cleanup."
+        },
+        {
+          "text": "Recommends the stack-safe form: (if -> while) + (variable -> assignment), or an explicitly-named trampoline",
+          "passed": true,
+          "evidence": "LLM judge: Recommends an iterative accumulator, naming both transformations: \"(variable -> assignment): introduce a mutable accumulator total. (if -> while): replace the recursive descent with a loop\" with a for-loop diff. (Closed-form is offered additionally, not alone.)"
+        },
+        {
+          "text": "Does NOT offer a plain (V8) tail-recursive solution as the FINAL answer",
+          "passed": true,
+          "evidence": "LLM judge: Explicitly rules out tail-recursion: \"no amount of 'fix the recursion' (add an accumulator param, move the call to tail position) saves you in JS/TS.\" Final answer is the loop or the closed form."
+        },
+        {
+          "text": "Coach, don't drive (no edit / no test run)",
+          "passed": true,
+          "evidence": "no Edit/Write/MultiEdit/NotebookEdit/Bash recorded"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 4,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1,
+        "passed": 3,
+        "failed": 0,
+        "total": 3,
+        "time_seconds": 119.1,
+        "tokens": 68170,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "States (statement -> tail-recursion) #9 is NOT available for this tree recursion (no single tail call)",
+          "passed": true,
+          "evidence": "LLM judge: \"flatten is tree recursion, not linear recursion. Each element can itself be an array with several children, and you keep processing siblings after you descend. The recursive call is not in tail position ... 'Make it tail-recursive' is not available.\" -- structural no-tail-form point, distinct from TCO."
+        },
+        {
+          "text": "Recommends an explicit-stack (if -> while) iteration or a generator-as-state-machine",
+          "passed": true,
+          "evidence": "matched: (if -> while)"
+        },
+        {
+          "text": "Coach, don't drive (no edit / no test run)",
+          "passed": true,
+          "evidence": "no Edit/Write/MultiEdit/NotebookEdit/Bash recorded"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 4,
+      "configuration": "with_skill",
+      "run_number": 2,
+      "result": {
+        "pass_rate": 1,
+        "passed": 3,
+        "failed": 0,
+        "total": 3,
+        "time_seconds": 78.0,
+        "tokens": 77067,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "States (statement -> tail-recursion) #9 is NOT available for this tree recursion (no single tail call)",
+          "passed": true,
+          "evidence": "LLM judge: \"(statement -> tail-recursion) #9 is not available for this shape ... flatten is tree recursion: you recurse per element and combine results after the recursive call returns ... The recursive call is not in tail position, so there's no tail-recursion form to convert to. #9 simply doesn't apply.\""
+        },
+        {
+          "text": "Recommends an explicit-stack (if -> while) iteration or a generator-as-state-machine",
+          "passed": true,
+          "evidence": "matched: (if -> while)"
+        },
+        {
+          "text": "Coach, don't drive (no edit / no test run)",
+          "passed": true,
+          "evidence": "no Edit/Write/MultiEdit/NotebookEdit/Bash recorded"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 4,
+      "configuration": "with_skill",
+      "run_number": 3,
+      "result": {
+        "pass_rate": 1,
+        "passed": 3,
+        "failed": 0,
+        "total": 3,
+        "time_seconds": 77.0,
+        "tokens": 76960,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "States (statement -> tail-recursion) #9 is NOT available for this tree recursion (no single tail call)",
+          "passed": true,
+          "evidence": "LLM judge: \"flatten is tree recursion: you recurse per element and combine results after the call, so the recursive call is not in tail position ... (statement -> tail-recursion) #9 is simply not available here. There's no tail form to reach for.\""
+        },
+        {
+          "text": "Recommends an explicit-stack (if -> while) iteration or a generator-as-state-machine",
+          "passed": true,
+          "evidence": "matched: (if -> while)"
+        },
+        {
+          "text": "Coach, don't drive (no edit / no test run)",
+          "passed": true,
+          "evidence": "no Edit/Write/MultiEdit/NotebookEdit/Bash recorded"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 5,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1,
+        "passed": 3,
+        "failed": 0,
+        "total": 3,
+        "time_seconds": 93.9,
+        "tokens": 67635,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Recommends BACKTRACKING: pose a simpler intermediate test (or a structure-only refactor first) instead of writing the whole algorithm now",
+          "passed": true,
+          "evidence": "LLM judge: Explicitly frames it as the '(expression -> function)' impasse and says 'backtrack and look for a simpler test'; poses a 3-rung ladder of smaller tests (empty string, single word, then the original)."
+        },
+        {
+          "text": "Does NOT just write the whole wrap algorithm / apply the low-priority (expression -> function) #12 now",
+          "passed": true,
+          "evidence": "LLM judge: Steers away from the big leap: 'don't attack this test first', and by the last rung 'the hard case is a single (unconditional -> if) step... not a whole-algorithm (expression -> function) leap'. Explicitly says don't pre-build the loop."
+        },
+        {
+          "text": "Coach, don't drive (no edit / no test run)",
+          "passed": true,
+          "evidence": "no Edit/Write/MultiEdit/NotebookEdit/Bash recorded"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 5,
+      "configuration": "with_skill",
+      "run_number": 2,
+      "result": {
+        "pass_rate": 1,
+        "passed": 3,
+        "failed": 0,
+        "total": 3,
+        "time_seconds": 84.9,
+        "tokens": 68432,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Recommends BACKTRACKING: pose a simpler intermediate test (or a structure-only refactor first) instead of writing the whole algorithm now",
+          "passed": true,
+          "evidence": "LLM judge: Header 'The move: backtrack, don't power through'; 'park this test... and pose smaller tests you can pass with higher-priority transformations'; provides a smaller-test ladder (empty, single word, then original)."
+        },
+        {
+          "text": "Does NOT just write the whole wrap algorithm / apply the low-priority (expression -> function) #12 now",
+          "passed": true,
+          "evidence": "LLM judge: Explicitly avoids the '(expression -> function) (#12)' leap; 'Same destination, safer route'; by the hard case only '(unconditional -> if) (#6) plus a small split expression' is needed."
+        },
+        {
+          "text": "Coach, don't drive (no edit / no test run)",
+          "passed": true,
+          "evidence": "no Edit/Write/MultiEdit/NotebookEdit/Bash recorded"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 5,
+      "configuration": "with_skill",
+      "run_number": 3,
+      "result": {
+        "pass_rate": 1,
+        "passed": 3,
+        "failed": 0,
+        "total": 3,
+        "time_seconds": 92.7,
+        "tokens": 66905,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Recommends BACKTRACKING: pose a simpler intermediate test (or a structure-only refactor first) instead of writing the whole algorithm now",
+          "passed": true,
+          "evidence": "LLM judge: 'the smaller move is NOT in the code -- it's a smaller test. Backtrack.'; parks the original test and gives a test ladder starting from degenerate cases."
+        },
+        {
+          "text": "Does NOT just write the whole wrap algorithm / apply the low-priority (expression -> function) #12 now",
+          "passed": true,
+          "evidence": "LLM judge: Calls the full-split move '(expression -> function): dead last on the TPP list' and tells them not to take it now; 'don't reach for the general loop yet', original test un-skips 'as the last rung'."
         },
         {
           "text": "Coach, don't drive (no edit / no test run)",
@@ -208,6 +523,318 @@
         }
       ],
       "notes": []
+    },
+    {
+      "eval_id": 3,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1,
+        "passed": 4,
+        "failed": 0,
+        "total": 4,
+        "time_seconds": 53.7,
+        "tokens": 62736,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Raises, UNPROMPTED, that the deep-input test makes stack-safety BEHAVIORAL -- a transformation, not merely a refactoring (do not credit an echo of the word 'overflow' from the prompt)",
+          "passed": true,
+          "evidence": "LLM judge: \"The test is doing exactly what a good failing test should: forcing you off an implementation that doesn't scale.\" Frames the red test as forcing the recursion -> iteration transformation (the higher-priority move), not an optional cleanup. Weaker than gold (leans on 'doesn't scale' rather than the word 'behavioral') but does not treat the fix as mere optimization."
+        },
+        {
+          "text": "Recommends the stack-safe form: (if -> while) + (variable -> assignment), or an explicitly-named trampoline",
+          "passed": true,
+          "evidence": "LLM judge: Primary move is the iterative accumulator: \"replace the recursion with an iterative accumulator (a for/while that adds 1..n into a running total)\" / \"if -> while\". Closed-form offered only as \"one rung further\", so iteration is given as the stack-safe form."
+        },
+        {
+          "text": "Does NOT offer a plain (V8) tail-recursive solution as the FINAL answer",
+          "passed": true,
+          "evidence": "LLM judge: No tail-recursion offered; final answer is the loop (or optional closed form). It even warns against patching the recursion: \"don't 'fix' the recursion by raising the stack size or adding a trampoline.\""
+        },
+        {
+          "text": "Coach, don't drive (no edit / no test run)",
+          "passed": true,
+          "evidence": "no Edit/Write/MultiEdit/NotebookEdit/Bash recorded"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 3,
+      "configuration": "without_skill",
+      "run_number": 2,
+      "result": {
+        "pass_rate": 1,
+        "passed": 4,
+        "failed": 0,
+        "total": 4,
+        "time_seconds": 47.2,
+        "tokens": 62162,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Raises, UNPROMPTED, that the deep-input test makes stack-safety BEHAVIORAL -- a transformation, not merely a refactoring (do not credit an echo of the word 'overflow' from the prompt)",
+          "passed": true,
+          "evidence": "LLM judge: \"The next move is to change the *shape* of the definition, not patch the recursion. That failing test drove out a real constraint: the input is too deep for a call stack.\" Frames the red test as forcing a shape change (transformation), not a mere cleanup."
+        },
+        {
+          "text": "Recommends the stack-safe form: (if -> while) + (variable -> assignment), or an explicitly-named trampoline",
+          "passed": true,
+          "evidence": "LLM judge: Gives the iterative loop as a stack-safe path: \"Iteration: a for loop accumulating a running total. O(n), but stack-safe.\" (Closed-form is also given and recommended, but iteration is present, so not closed-form-alone.)"
+        },
+        {
+          "text": "Does NOT offer a plain (V8) tail-recursive solution as the FINAL answer",
+          "passed": true,
+          "evidence": "LLM judge: Explicitly warns off tail recursion: \"Don't reach for tail recursion -- V8 doesn't do TCO, so a tail-call rewrite still blows the stack.\" Final answer is the closed form."
+        },
+        {
+          "text": "Coach, don't drive (no edit / no test run)",
+          "passed": true,
+          "evidence": "no Edit/Write/MultiEdit/NotebookEdit/Bash recorded"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 3,
+      "configuration": "without_skill",
+      "run_number": 3,
+      "result": {
+        "pass_rate": 0.75,
+        "passed": 3,
+        "failed": 1,
+        "total": 4,
+        "time_seconds": 72.5,
+        "tokens": 63338,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Raises, UNPROMPTED, that the deep-input test makes stack-safety BEHAVIORAL -- a transformation, not merely a refactoring (do not credit an echo of the word 'overflow' from the prompt)",
+          "passed": false,
+          "evidence": "LLM judge: Explicitly denies the behavioral framing: \"it's not new behavior. sum(1..n) is unchanged. The test is a scale probe that exposes an implementation limit -- recursion depth -- not a missing branch... swap the algorithm strategy.\" Treats it as an implementation swap / \"get-to-green move\" and calls \"recursion and iteration ... peers,\" the opposite of a test-forced behavioral transformation."
+        },
+        {
+          "text": "Recommends the stack-safe form: (if -> while) + (variable -> assignment), or an explicitly-named trampoline",
+          "passed": true,
+          "evidence": "LLM judge: Gives the iterative loop as path 1: \"Recursion -> iteration (a loop): accumulate total += i for i in 1..n... O(n), no stack growth.\" (Closed-form also given, so not closed-form-alone.)"
+        },
+        {
+          "text": "Does NOT offer a plain (V8) tail-recursive solution as the FINAL answer",
+          "passed": true,
+          "evidence": "LLM judge: Tail-recursion is never offered; final recommendation is the closed form (or loop). No plain tail-recursive fix presented."
+        },
+        {
+          "text": "Coach, don't drive (no edit / no test run)",
+          "passed": true,
+          "evidence": "no Edit/Write/MultiEdit/NotebookEdit/Bash recorded"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 4,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1,
+        "passed": 3,
+        "failed": 0,
+        "total": 3,
+        "time_seconds": 68.4,
+        "tokens": 63588,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "States (statement -> tail-recursion) #9 is NOT available for this tree recursion (no single tail call)",
+          "passed": true,
+          "evidence": "LLM judge: \"flatten over a tree makes multiple recursive calls per frame (one per nested array), so it's non-tail recursion. Even in an engine with TCO, tail-call elimination can't save a call that isn't in tail position. This is the crux -- you can't rescue tree recursion with a tail-call trick.\" -- explicitly the branching/no-tail-position structure, separate from the TCO point."
+        },
+        {
+          "text": "Recommends an explicit-stack (if -> while) iteration or a generator-as-state-machine",
+          "passed": true,
+          "evidence": "matched: explicit stack"
+        },
+        {
+          "text": "Coach, don't drive (no edit / no test run)",
+          "passed": true,
+          "evidence": "no Edit/Write/MultiEdit/NotebookEdit/Bash recorded"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 4,
+      "configuration": "without_skill",
+      "run_number": 2,
+      "result": {
+        "pass_rate": 0.6666666666666666,
+        "passed": 2,
+        "failed": 1,
+        "total": 3,
+        "time_seconds": 71.3,
+        "tokens": 63700,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "States (statement -> tail-recursion) #9 is NOT available for this tree recursion (no single tail call)",
+          "passed": true,
+          "evidence": "LLM judge: \"flatten isn't naturally tail-recursive -- you recurse into a child and then still have to process its siblings, so there's real work after the call.\" -- conveys the no-tail-form structure (work after the recursive call = not in tail position); the TCO remark is only an additional 'anyway'."
+        },
+        {
+          "text": "Recommends an explicit-stack (if -> while) iteration or a generator-as-state-machine",
+          "passed": false,
+          "evidence": "no required pattern found"
+        },
+        {
+          "text": "Coach, don't drive (no edit / no test run)",
+          "passed": true,
+          "evidence": "no Edit/Write/MultiEdit/NotebookEdit/Bash recorded"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 4,
+      "configuration": "without_skill",
+      "run_number": 3,
+      "result": {
+        "pass_rate": 0.3333333333333333,
+        "passed": 1,
+        "failed": 2,
+        "total": 3,
+        "time_seconds": 66.1,
+        "tokens": 63708,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "States (statement -> tail-recursion) #9 is NOT available for this tree recursion (no single tail call)",
+          "passed": false,
+          "evidence": "LLM judge: Rests solely on TCO: \"Most languages (JS included) don't do tail-call elimination, so recursion depth == nesting depth == live stack frames. No tweak to the recursive call saves an input...\" It never explains tree/branching recursion has more than one recursive call / no single tail position; no no-tail-form structural point."
+        },
+        {
+          "text": "Recommends an explicit-stack (if -> while) iteration or a generator-as-state-machine",
+          "passed": false,
+          "evidence": "no required pattern found"
+        },
+        {
+          "text": "Coach, don't drive (no edit / no test run)",
+          "passed": true,
+          "evidence": "no Edit/Write/MultiEdit/NotebookEdit/Bash recorded"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 5,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1,
+        "passed": 3,
+        "failed": 0,
+        "total": 3,
+        "time_seconds": 47.1,
+        "tokens": 62418,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Recommends BACKTRACKING: pose a simpler intermediate test (or a structure-only refactor first) instead of writing the whole algorithm now",
+          "passed": true,
+          "evidence": "LLM judge: Recommends the fake-it-then-triangulate smaller move: 'fake the result with a constant' (return ['word','wrap']), then 'Add a triangulating test that breaks the constant' and generalize step by step -- explicitly allowed by the criteria as a smaller move."
+        },
+        {
+          "text": "Does NOT just write the whole wrap algorithm / apply the low-priority (expression -> function) #12 now",
+          "passed": true,
+          "evidence": "LLM judge: 'no, you don't need the whole algorithm yet'; the smallest move is a constant return; 'You are not obligated to generalize until a test forces you to.' Does not implement the full wrap algorithm now."
+        },
+        {
+          "text": "Coach, don't drive (no edit / no test run)",
+          "passed": true,
+          "evidence": "no Edit/Write/MultiEdit/NotebookEdit/Bash recorded"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 5,
+      "configuration": "without_skill",
+      "run_number": 2,
+      "result": {
+        "pass_rate": 1,
+        "passed": 3,
+        "failed": 0,
+        "total": 3,
+        "time_seconds": 56.2,
+        "tokens": 63194,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Recommends BACKTRACKING: pose a simpler intermediate test (or a structure-only refactor first) instead of writing the whole algorithm now",
+          "passed": true,
+          "evidence": "LLM judge: 'The smaller move is to fake it: return the exact constant', then triangulation: 'add a test the constant can't satisfy, and let it drag out one small generalization at a time' -- the fake-it-then-triangulate smaller move the criteria permits."
+        },
+        {
+          "text": "Does NOT just write the whole wrap algorithm / apply the low-priority (expression -> function) #12 now",
+          "passed": true,
+          "evidence": "LLM judge: 'you don't have to write the whole algorithm to go green'; ladder is constant -> split -> packing, 'Each red test buys you exactly one more move' -- avoids the one-leap full algorithm."
+        },
+        {
+          "text": "Coach, don't drive (no edit / no test run)",
+          "passed": true,
+          "evidence": "no Edit/Write/MultiEdit/NotebookEdit/Bash recorded"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 5,
+      "configuration": "without_skill",
+      "run_number": 3,
+      "result": {
+        "pass_rate": 1,
+        "passed": 3,
+        "failed": 0,
+        "total": 3,
+        "time_seconds": 56.1,
+        "tokens": 62497,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Recommends BACKTRACKING: pose a simpler intermediate test (or a structure-only refactor first) instead of writing the whole algorithm now",
+          "passed": true,
+          "evidence": "LLM judge: Offers two smaller moves and leans toward the smaller-test one: 'Move 2 - back up to a smaller test... shrink the red test to the fits-in-width case first'; also fake-it + triangulate. Both are smaller moves the criteria allows."
+        },
+        {
+          "text": "Does NOT just write the whole wrap algorithm / apply the low-priority (expression -> function) #12 now",
+          "passed": true,
+          "evidence": "LLM judge: 'one failing test rarely justifies the whole solution'; recommends faking the return or shrinking the test rather than implementing the full algorithm now; multi-break loop is deferred to a later step."
+        },
+        {
+          "text": "Coach, don't drive (no edit / no test run)",
+          "passed": true,
+          "evidence": "no Edit/Write/MultiEdit/NotebookEdit/Bash recorded"
+        }
+      ],
+      "notes": []
     }
   ],
   "run_summary": {
@@ -219,42 +846,42 @@
         "max": 1
       },
       "time_seconds": {
-        "mean": 0.0,
-        "stddev": 0.0,
+        "mean": 66.45,
+        "stddev": 41.6843,
         "min": 0,
-        "max": 0
+        "max": 119.1
       },
       "tokens": {
-        "mean": 0.0,
-        "stddev": 0.0,
+        "mean": 53940.4167,
+        "stddev": 32810.8679,
         "min": 0,
-        "max": 0
+        "max": 77810
       }
     },
     "without_skill": {
       "pass_rate": {
-        "mean": 0.4444,
-        "stddev": 0.1925,
+        "mean": 0.7569,
+        "stddev": 0.2875,
         "min": 0.3333,
-        "max": 0.6667
+        "max": 1
       },
       "time_seconds": {
-        "mean": 0.0,
-        "stddev": 0.0,
+        "mean": 44.8833,
+        "stddev": 28.3631,
         "min": 0,
-        "max": 0
+        "max": 72.5
       },
       "tokens": {
-        "mean": 0.0,
-        "stddev": 0.0,
+        "mean": 47278.4167,
+        "stddev": 28514.4849,
         "min": 0,
-        "max": 0
+        "max": 63708
       }
     },
     "delta": {
-      "pass_rate": "+0.56",
-      "time_seconds": "+0.0",
-      "tokens": "+0"
+      "pass_rate": "+0.24",
+      "time_seconds": "+21.6",
+      "tokens": "+6662"
     }
   },
   "notes": []

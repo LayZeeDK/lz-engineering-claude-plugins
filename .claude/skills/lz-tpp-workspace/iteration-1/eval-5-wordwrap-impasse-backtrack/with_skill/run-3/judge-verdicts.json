@@ -1,0 +1,12 @@
+[
+  {
+    "text": "Recommends BACKTRACKING: pose a simpler intermediate test (or a structure-only refactor first) instead of writing the whole algorithm now",
+    "passed": true,
+    "evidence": "'the smaller move is NOT in the code -- it's a smaller test. Backtrack.'; parks the original test and gives a test ladder starting from degenerate cases."
+  },
+  {
+    "text": "Does NOT just write the whole wrap algorithm / apply the low-priority (expression -> function) #12 now",
+    "passed": true,
+    "evidence": "Calls the full-split move '(expression -> function): dead last on the TPP list' and tells them not to take it now; 'don't reach for the general loop yet', original test un-skips 'as the last rung'."
+  }
+]

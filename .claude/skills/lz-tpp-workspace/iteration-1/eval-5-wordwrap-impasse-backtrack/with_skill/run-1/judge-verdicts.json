@@ -1,0 +1,12 @@
+[
+  {
+    "text": "Recommends BACKTRACKING: pose a simpler intermediate test (or a structure-only refactor first) instead of writing the whole algorithm now",
+    "passed": true,
+    "evidence": "Explicitly frames it as the '(expression -> function)' impasse and says 'backtrack and look for a simpler test'; poses a 3-rung ladder of smaller tests (empty string, single word, then the original)."
+  },
+  {
+    "text": "Does NOT just write the whole wrap algorithm / apply the low-priority (expression -> function) #12 now",
+    "passed": true,
+    "evidence": "Steers away from the big leap: 'don't attack this test first', and by the last rung 'the hard case is a single (unconditional -> if) step... not a whole-algorithm (expression -> function) leap'. Explicitly says don't pre-build the loop."
+  }
+]

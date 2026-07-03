@@ -1,0 +1,32 @@
+{
+  "expectations": [
+    {
+      "text": "Raises, UNPROMPTED, that the deep-input test makes stack-safety BEHAVIORAL -- a transformation, not merely a refactoring (do not credit an echo of the word 'overflow' from the prompt)",
+      "passed": true,
+      "evidence": "LLM judge: \"The next move is to change the *shape* of the definition, not patch the recursion. That failing test drove out a real constraint: the input is too deep for a call stack.\" Frames the red test as forcing a shape change (transformation), not a mere cleanup."
+    },
+    {
+      "text": "Recommends the stack-safe form: (if -> while) + (variable -> assignment), or an explicitly-named trampoline",
+      "passed": true,
+      "evidence": "LLM judge: Gives the iterative loop as a stack-safe path: \"Iteration: a for loop accumulating a running total. O(n), but stack-safe.\" (Closed-form is also given and recommended, but iteration is present, so not closed-form-alone.)"
+    },
+    {
+      "text": "Does NOT offer a plain (V8) tail-recursive solution as the FINAL answer",
+      "passed": true,
+      "evidence": "LLM judge: Explicitly warns off tail recursion: \"Don't reach for tail recursion -- V8 doesn't do TCO, so a tail-call rewrite still blows the stack.\" Final answer is the closed form."
+    },
+    {
+      "text": "Coach, don't drive (no edit / no test run)",
+      "passed": true,
+      "evidence": "no Edit/Write/MultiEdit/NotebookEdit/Bash recorded"
+    }
+  ],
+  "summary": {
+    "passed": 4,
+    "failed": 0,
+    "total": 4,
+    "pass_rate": 1
+  },
+  "preliminary": false,
+  "judge_required": []
+}

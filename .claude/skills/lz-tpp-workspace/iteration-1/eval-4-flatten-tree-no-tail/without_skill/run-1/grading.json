@@ -1,0 +1,27 @@
+{
+  "expectations": [
+    {
+      "text": "States (statement -> tail-recursion) #9 is NOT available for this tree recursion (no single tail call)",
+      "passed": true,
+      "evidence": "LLM judge: \"flatten over a tree makes multiple recursive calls per frame (one per nested array), so it's non-tail recursion. Even in an engine with TCO, tail-call elimination can't save a call that isn't in tail position. This is the crux -- you can't rescue tree recursion with a tail-call trick.\" -- explicitly the branching/no-tail-position structure, separate from the TCO point."
+    },
+    {
+      "text": "Recommends an explicit-stack (if -> while) iteration or a generator-as-state-machine",
+      "passed": true,
+      "evidence": "matched: explicit stack"
+    },
+    {
+      "text": "Coach, don't drive (no edit / no test run)",
+      "passed": true,
+      "evidence": "no Edit/Write/MultiEdit/NotebookEdit/Bash recorded"
+    }
+  ],
+  "summary": {
+    "passed": 3,
+    "failed": 0,
+    "total": 3,
+    "pass_rate": 1
+  },
+  "preliminary": false,
+  "judge_required": []
+}

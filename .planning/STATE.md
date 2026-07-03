@@ -5,7 +5,7 @@ milestone_name: First Release
 status: Awaiting next milestone
 stopped_at: v0.0.1 milestone complete -- all 5 phases shipped
 last_updated: "2026-07-03T22:54:01.763Z"
-last_activity: 2026-07-04 -- Milestone v0.0.1 completed and archived
+last_activity: 2026-07-04 -- Quick task: CHANGELOG.md + v0.0.1 GitHub Release
 progress:
   total_phases: 5
   completed_phases: 5
@@ -94,6 +94,7 @@ Items acknowledged and carried forward from previous milestone close:
 | Date | Slug | Status | Notes |
 |------|------|--------|-------|
 | 2026-07-02 | triage-lz-tpp-doc-review | complete | All 5 findings resolved: 1/2/4 applied (+ `:223-224` leak); #3 aggressive trim (provenance -> `.planning/` companion, 224->116 lines); #5 keep `.planning/` committed |
+| 2026-07-04 | changelog-and-github-release | complete | Added root CHANGELOG.md (v0.0.1 entry, commit 003219b) + pushed; published GitHub Release v0.0.1 "First Release" on the v0.0.1 tag |
 
 ## Session Continuity
 

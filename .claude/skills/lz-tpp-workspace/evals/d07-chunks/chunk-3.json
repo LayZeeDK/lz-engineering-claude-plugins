@@ -1,0 +1,38 @@
+[
+  {
+    "query": "write a fibonacci function in typescript that memoizes results",
+    "should_trigger": false
+  },
+  {
+    "query": "my test `expect(parseDate('2026-02-30')).toBeNull()` is failing and I can't figure out why - help me debug it",
+    "should_trigger": false
+  },
+  {
+    "query": "rename the variable `d` to `dueDate` everywhere in src/scheduler.ts and its tests",
+    "should_trigger": false
+  },
+  {
+    "query": "add pagination support to the GET /users endpoint in this express app",
+    "should_trigger": false
+  },
+  {
+    "query": "what's the time and space complexity of this recursive merge sort implementation",
+    "should_trigger": false
+  },
+  {
+    "query": "transform this array of user objects into a map keyed by id - cleanest way in typescript?",
+    "should_trigger": false
+  },
+  {
+    "query": "implement a priority queue backed by a binary heap in typescript",
+    "should_trigger": false
+  },
+  {
+    "query": "whats the simplest way to implement a debounce helper in typescript?",
+    "should_trigger": false
+  },
+  {
+    "query": "my CSV transformation step throws on empty rows and one test is failing - help me find the bug",
+    "should_trigger": false
+  }
+]

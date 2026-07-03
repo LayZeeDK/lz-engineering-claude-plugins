@@ -1,0 +1,22 @@
+[
+  {
+    "query": "write a jest test for this `formatCurrency(cents)` helper covering negative values and zero",
+    "should_trigger": false
+  },
+  {
+    "query": "refactor this 80-line `processOrder` function to be cleaner - extract some helpers, all tests already pass",
+    "should_trigger": false
+  },
+  {
+    "query": "can you explain the SOLID principles with a short typescript example for each",
+    "should_trigger": false
+  },
+  {
+    "query": "how do I mock the `fetch` call in this test so it doesn't hit the network? using vitest",
+    "should_trigger": false
+  },
+  {
+    "query": "what does the transformation `(constant -> scalar)` actually mean and when would I reach for it?",
+    "should_trigger": true
+  }
+]

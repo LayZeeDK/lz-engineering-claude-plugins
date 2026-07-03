@@ -1,0 +1,54 @@
+[
+  {
+    "query": "red test `expect(of(2)).toBe(1)`, my `of` is `return n <= 1 ? n : 1;`. whats the smallest edit to get it passing? doing tdd, trying not to over-build",
+    "should_trigger": true
+  },
+  {
+    "query": "ok fib(3) should be 2 but my code just returns 1 for anything above 1. don't want to write the recursion yet - is there a smaller step first?",
+    "should_trigger": true
+  },
+  {
+    "query": "only thing my code does right now is `return 0` and now theres a test wanting 1 when n is 1. whats the least i can change to green it",
+    "should_trigger": true
+  },
+  {
+    "query": "here's my failing test `expect(romanNumeral(4)).toBe('IV')` and my code just returns 'I'. whats the smallest change to make this pass without writing the whole converter? tdd",
+    "should_trigger": true
+  },
+  {
+    "query": "pytest: `assert to_roman(1) == 'I'` is red and the function body is just `pass`. simplest possible edit to green it, not the full converter?",
+    "should_trigger": true
+  },
+  {
+    "query": "here's my whole test file - `describe('stack', () => { it('starts empty', () => expect(s.size).toBe(0)); it('push adds one', () => { s.push('a'); expect(s.size).toBe(1); }); it('pop returns last pushed', () => expect(s.pop()).toBe('a')); })` - the third test is red, first two pass. least code to make it green?",
+    "should_trigger": true
+  },
+  {
+    "query": "my flatten() passes for [1,[2,3]] but the new test on a deeply nested input blows the stack. whats the minimal change to make it pass - tail recursion or a while loop?",
+    "should_trigger": true
+  },
+  {
+    "query": "is there that uncle bob rule about always taking the simplest code change to pass a failing test? whats the order of moves youre supposed to prefer?",
+    "should_trigger": true
+  },
+  {
+    "query": "what does the transformation `(constant -> scalar)` actually mean and when would I reach for it",
+    "should_trigger": true
+  },
+  {
+    "query": "why is `({} -> nil)` first on the transformation priority list? explain the ordering rationale",
+    "should_trigger": true
+  },
+  {
+    "query": "i'm at green on fib and the next test forces recursion. should I prefer (statement -> tail-recursion) or (if -> while) in typescript, and why does the language matter",
+    "should_trigger": true
+  },
+  {
+    "query": "explain the transformation priority premise and the list of transformations in order",
+    "should_trigger": true
+  },
+  {
+    "query": "stuck: red test `expect(wrap('word wrap', 8)).toEqual(['word','wrap'])` and my code's empty. only way i see to pass is writing the whole wrap algorithm. is there a smaller move or am i just stuck?",
+    "should_trigger": true
+  }
+]

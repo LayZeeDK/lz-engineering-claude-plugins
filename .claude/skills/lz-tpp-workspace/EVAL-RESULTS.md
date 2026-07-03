@@ -7,19 +7,28 @@ it feeds at most a single gated D-07 description-tuning pass.
 
 Model: claude-opus-4-8 (the session model users experience). Runs: 3 per query/scenario/config (D-05).
 
-## EVAL-01 -- Trigger accuracy (native, 27 queries x3)
+## EVAL-01 -- Trigger accuracy (native)
 
 | Metric | Result | D-06 bar (~90%) |
 |--------|--------|-----------------|
-| Should-trigger RECALL (rate >= 0.5) | **1/13 = 8%** | MISS (large gap) |
+| Should-trigger RECALL (rate >= 0.5) | **13/13 = 100%** | PASS |
 | Near-miss SPECIFICITY (rate < 0.5) | **14/14 = 100%** | PASS |
 
-The `description` fires only on explicit TPP jargon (transformation names, "transformation priority
-premise") and stays silent on the 9 jargon-free red-green-refactor situations it's meant for
-(a failing `expect(of(2)).toBe(1)` with trivial code, a Roman-numeral kata at `return`, etc.).
-Specificity is perfect precisely because it is so narrow. Run verified trustworthy (7.4 min /
-81 sessions excludes throttling; the rolling usage limit was hit AFTER completion). Details:
-`.planning/phases/05-skill-effectiveness-evals/05-03-SUMMARY.md`; raw: `trigger-results.json`.
+**Trigger accuracy is a clean PASS.** The shipped `description` fires on all 13 should-trigger
+queries -- including the 9 jargon-free red-green-refactor situations (a failing
+`expect(of(2)).toBe(1)` with trivial code, a Roman-numeral kata at `return`, etc.) -- and stays
+quiet on all 14 near-misses.
+
+> **CORRECTION (2026-07-03).** An earlier version of this file reported recall as **8% ("too
+> narrow")**. That was a **measurement artifact, not a real result.** The trigger probe was run at
+> `--num-workers 3`; concurrent `claude -p` probes under a tight rate window produced spurious
+> non-triggers, collapsing recall to ~8%. Re-measured correctly -- **serial (`--num-workers 1`),
+> Ponytail disabled (`PONYTAIL_DEFAULT_MODE=off`), MCP servers stripped from the probe -- recall is
+> 100%** for BOTH the shipped description AND a widened variant (they tied), which is why the widened
+> variant was NOT adopted (no benefit). Specificity 100% is corroborated by two independent runs
+> (the num-workers-3 run and a 15.1-min real serial run). Raw: `trigger-results-d07-recall-old.json`
+> (shipped desc, recall 13/13), `trigger-results-d07-spec.json` (spec 14/14). Harness fixes:
+> commit `5f586da` (num-workers reliability + ~54% probe token cut). Details: `05-03-SUMMARY.md`.
 
 ## EVAL-02 -- Behavior / next-transformation (all 10 scenarios)
 
@@ -68,19 +77,32 @@ false-fails; details in 05-02-SUMMARY.md.
   next-transformation choice vs baseline (full-pass Pass@1 0.97 vs 0.50; 7/10 scenarios
   discriminate). The load-bearing core -- "recommend the correct next transformation by priority" --
   holds.
-- **Trigger (EVAL-01): MISS.** Recall 8% is far below the ~90% bar; the description is too narrow.
-  Specificity is perfect (100%). This is the classic under-triggering failure -- the skill is
-  excellent when it fires but rarely fires without explicit TPP jargon.
+- **Trigger (EVAL-01): PASS.** Recall 100% (13/13) and specificity 100% (14/14), measured cleanly.
+  The shipped description triggers on jargon-free red-test situations and stays quiet on near-misses.
+  (The earlier "8% MISS" was a num-workers-3 measurement artifact -- see the EVAL-01 correction above.)
 
-## D-07 recommendation (gated, NOT yet applied)
+## D-07 tuning -- NOT NEEDED (resolved 2026-07-03)
 
-Widen the `description` so it also triggers on jargon-free red-green-refactor situations (a failing
-test + current code + "what's the smallest change / next move") WITHOUT sacrificing the 100%
-specificity (must stay quiet on plain refactor / write-a-function / test-authoring / complexity
-questions). skill-creator guidance: make the description a bit "pushy" about TDD/red-test contexts.
-Re-measure EVAL-01 after any edit; only edit `plugins/lz-tdd/skills/lz-tpp/SKILL.md`. This is the
-single allowed, human-gated tuning pass -- deferred here (needs approval + token spend for
-re-measurement). Phases 1-4 (the public ship) remain complete regardless.
+D-07 was the gated allowance to widen the `description` for jargon-free trigger recall. It turned
+out to be **unnecessary**: once EVAL-01 was measured cleanly, the shipped description already scores
+**100% recall / 100% specificity**. A widened variant was drafted and tested serially -- it also
+scored 100% recall (a tie, no benefit) -- so it was **reverted** and NOT shipped. The apparent need
+for D-07 was an artifact of the num-workers-3 measurement bug, not the description. No skill change
+ships from Phase 5; the shipped `lz-tpp` description stands as-is.
+
+## Harness lessons (for future eval runs)
+
+- **Run the trigger probe serially (`--num-workers 1`).** Concurrent `claude -p` probes throttle
+  under a tight rate window and read as spurious non-triggers.
+- **`PONYTAIL_DEFAULT_MODE=off`** for probe subprocesses (the SessionStart lazy-mode hook otherwise
+  leaks into eval sessions).
+- **Probe cost:** each `claude -p` loads the full environment (~68K input+cache tokens). `--strict-mcp-config`
+  drops MCP servers (~3%); the bulk is user plugins. `--setting-sources project` drops user plugins
+  while keeping the project ephemeral skill -> ~54% cut (~31K/probe). Do NOT use `--setting-sources ""`
+  or `--bare` (they strip the ephemeral skill / auth -> broken probe). All in commit `5f586da`.
+- **Specificity is throttle-robust; recall is not.** A throttled probe reads as a non-trigger, which
+  for a negative looks like a (possibly false) pass -- so validate recall with self-evident triggering
+  and corroborate specificity across independent runs.
 
 ## Reproduce / resume
 

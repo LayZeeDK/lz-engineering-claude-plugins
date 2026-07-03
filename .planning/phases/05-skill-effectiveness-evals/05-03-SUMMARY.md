@@ -4,26 +4,34 @@ plan: 03
 type: execute
 status: complete
 requirements: [EVAL-01]
-result: measured -- recall 8% (1/13), specificity 100% (14/14); below the ~90% D-06 bar, feeds 05-04 D-07 tuning (non-blocking)
+result: CORRECTED 2026-07-03 -- recall 100% (13/13), specificity 100% (14/14) measured cleanly = EVAL-01 PASS. The earlier "8%" was a num-workers-3 measurement artifact; D-07 tuning not needed.
 ---
 
 # 05-03 SUMMARY -- EVAL-01 (trigger accuracy), native run
 
-## Outcome
+## Outcome (CORRECTED 2026-07-03)
 
-EVAL-01 ran NATIVELY on Windows via the vendored bug-fixed harness. The current
-`lz-tpp` `description` is highly SPECIFIC but has very low RECALL: it fires only
-when the user uses explicit TPP jargon and stays silent on genuine jargon-free
-red-green-refactor situations.
+> **The original conclusion in this file ("8% recall, description too narrow") was WRONG -- a
+> measurement artifact.** The trigger probe was run at `--num-workers 3`; concurrent `claude -p`
+> probes under a tight rate window silently failed and read as non-triggers, collapsing recall to
+> ~8%. Re-measured cleanly -- **serial (`--num-workers 1`), `PONYTAIL_DEFAULT_MODE=off`, MCP servers
+> stripped** -- the shipped `description` scores **100% recall / 100% specificity = PASS**. A widened
+> variant was drafted + tested and also hit 100% recall (a tie), so it was **reverted, not shipped**.
+> No skill change comes out of Phase 5.
 
-| Metric | Result | D-06 soft bar (~90%) |
-|--------|--------|----------------------|
-| Should-trigger RECALL (rate >= 0.5) | **1/13 = 8%** | MISS (large gap) |
-| Near-miss SPECIFICITY (rate < 0.5) | **14/14 = 100%** | PASS |
-| Overall | 15/27 = 56% | MISS |
+| Metric | Corrected result (clean) | D-06 bar (~90%) | Original (artifact) |
+|--------|--------------------------|-----------------|---------------------|
+| Should-trigger RECALL (rate >= 0.5) | **13/13 = 100%** | PASS | 1/13 = 8% (num-workers-3 artifact) |
+| Near-miss SPECIFICITY (rate < 0.5) | **14/14 = 100%** | PASS | 14/14 = 100% (corroborated) |
 
-Non-blocking: EVAL-01 is optional-final. This result feeds at most the single
-gated D-07 tuning pass in 05-04; it does NOT reopen Phases 1-4 (the public ship).
+Evidence: recall 13/13 for the shipped description in `trigger-results-d07-recall-old.json` (serial)
+and equally 13/13 for a widened variant in `trigger-results-d07-recall-new.json` + `-retry3.json`;
+specificity 14/14 in two independent runs (`trigger-results.json` num-workers-3 and
+`trigger-results-d07-spec.json` serial, 15.1-min real). Harness fixes in commit `5f586da`.
+
+Non-blocking: EVAL-01 is optional-final; it does NOT reopen Phases 1-4 (the public ship).
+The per-query table + analysis BELOW reflect the ORIGINAL num-workers-3 artifact run and are
+retained only for provenance -- they do not reflect the corrected 100%/100% result.
 
 ## Smoke gate + A3 (Task 1)
 

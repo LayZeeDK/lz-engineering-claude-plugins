@@ -1,0 +1,123 @@
+{
+  "skill_name": "lz-tpp",
+  "description": "This skill should be used during red-green-refactor TDD to recommend the next code transformation by Transformation Priority Premise (TPP) priority, and to explain the transformations and their ordering on demand. Use it as a coach when a failing test and the current code are present and the question is which minimal change makes the failing test pass, and when the user mentions TPP, transformation priority, the transformation priority list, the next transformation, or asks what a transformation such as (constant -> scalar) or ({} -> nil) means or why the ordering is what it is. Do not use it for generic write-a-function, write-code, add-a-feature, or plain refactoring requests that are not about choosing the next transformation during TDD.",
+  "results": [
+    {
+      "query": "write a jest test for this `formatCurrency(cents)` helper covering negative values and zero",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "refactor this 80-line `processOrder` function to be cleaner - extract some helpers, all tests already pass",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "can you explain the SOLID principles with a short typescript example for each",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "how do I mock the `fetch` call in this test so it doesn't hit the network? using vitest",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "this function has a cyclomatic complexity of 14 per eslint. help me reduce it",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "write a fibonacci function in typescript that memoizes results",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "my test `expect(parseDate('2026-02-30')).toBeNull()` is failing and I can't figure out why - help me debug it",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "rename the variable `d` to `dueDate` everywhere in src/scheduler.ts and its tests",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "add pagination support to the GET /users endpoint in this express app",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "what's the time and space complexity of this recursive merge sort implementation",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "transform this array of user objects into a map keyed by id - cleanest way in typescript?",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "implement a priority queue backed by a binary heap in typescript",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "whats the simplest way to implement a debounce helper in typescript?",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "my CSV transformation step throws on empty rows and one test is failing - help me find the bug",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": true
+    }
+  ],
+  "summary": {
+    "total": 14,
+    "passed": 14,
+    "failed": 0
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "skill_name": "lz-tpp",
+  "description": "Coach for choosing the next code change during test-driven development (TDD), using Robert C. Martin's Transformation Priority Premise (TPP). Use this skill whenever a developer has a FAILING test plus their current code and asks what the SMALLEST or NEXT change is to make that test pass, or how to make forward progress on a red-green-refactor kata -- EVEN IF they never say \"TPP\", \"transformation\", or \"priority\" (for example: \"my code returns 0 and a new test wants 1, what's the smallest thing to write?\"; \"fib(3) should be 2 but I return 1 for everything above 1, what's the next move?\"; \"the deeply nested input overflows the stack, what's the next move to pass it?\"). Also use it in reference mode to explain the TPP transformations and their ordering, what a transformation such as (constant -> scalar) or ({} -> nil) means, or on an explicit /lz-tdd:lz-tpp invocation. Do NOT use it for: debugging WHY a test fails or hunting a bug (the developer wants a diagnosis, not the next transformation); writing or implementing a whole function or feature from scratch; plain refactoring or cleanup when all tests already pass; authoring tests or mocking; or general code-quality, complexity, or architecture questions.",
+  "results": [
+    {
+      "query": "i'm at green on fib and the next test forces recursion. should I prefer (statement -> tail-recursion) or (if -> while) in typescript, and why does the language matter",
+      "should_trigger": true,
+      "trigger_rate": 0.6666666666666666,
+      "triggers": 2,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "explain the transformation priority premise and the list of transformations in order",
+      "should_trigger": true,
+      "trigger_rate": 1.0,
+      "triggers": 3,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "stuck: red test `expect(wrap('word wrap', 8)).toEqual(['word','wrap'])` and my code's empty. only way i see to pass is writing the whole wrap algorithm. is there a smaller move or am i just stuck?",
+      "should_trigger": true,
+      "trigger_rate": 1.0,
+      "triggers": 3,
+      "runs": 3,
+      "pass": true
+    }
+  ],
+  "summary": {
+    "total": 3,
+    "passed": 3,
+    "failed": 0
+  }
+}

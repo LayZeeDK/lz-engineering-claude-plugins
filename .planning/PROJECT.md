@@ -52,11 +52,16 @@ Distribution & hygiene (Phase 4: Distribution & Hygiene, 2026-07-02):
 - [x] MIT `LICENSE` at repo root with public contact `larsbrinknielsen@gmail.com`; the work email is absent from the shippable tree (DIST-02)
 - [x] Passes first-party authoring review -- plugin-validator + skill-reviewer both PASS, `claude plugin validate . --strict` exits 0, findings triaged per D-06 (DIST-03)
 
+Skill effectiveness evals (Phase 5: Skill Effectiveness Evals, 2026-07-03):
+
+- [x] EVAL-01 trigger eval: the `description` fires on in-scope TDD / red-green-refactor / TPP / transformation-priority prompts and stays quiet on near-misses -- 100% recall (13/13) and 100% specificity (14/14) on the shipped description, run natively (EVAL-01)
+- [x] EVAL-02 behavior eval: the coach recommends the correct next transformation -- with_skill 29/30 (Pass@1 0.97, Pass@3 1.00) vs 15/30 baseline; no tuning applied, shipped skill unchanged (EVAL-02)
+
 ### Active
 
 <!-- Current scope. Hypotheses until shipped and validated. -->
 
-The 0.0.1 public ship is complete (Phases 1-4: scaffold -> source distillation -> skill authoring -> distribution & hygiene). Remaining for the milestone: Phase 5 (Skill Effectiveness Evals) -- optional-final, non-blocking triggering + coaching-accuracy evals (EVAL-01/02); it does not gate the public ship.
+Milestone 0.0.1 is fully shipped and validated (Phases 1-5). No active requirements -- the next milestone (post-0.0.1) defines fresh scope. Candidate directions tracked as NEXT-01..04: additional TDD skills under `lz-tdd` (test naming, triangulation, red-green discipline), additional plugins in the marketplace, npm packaging/distribution, and multi-language example sets beyond TypeScript.
 
 ### Out of Scope
 
@@ -70,6 +75,7 @@ The 0.0.1 public ship is complete (Phases 1-4: scaffold -> source distillation -
 
 ## Context
 
+- **Current state (v0.0.1 shipped 2026-07-04):** first public release complete -- marketplace + `lz-tdd` plugin + dual-mode `lz-tpp` skill, ~909 LOC under `plugins/` (Markdown / JSON / TS), MIT-licensed, `claude plugin validate .` clean. All 24 milestone requirements satisfied; evals confirm 100%/100% trigger recall/specificity and 29/30 coaching accuracy. Next: define the post-0.0.1 milestone via `/gsd-new-milestone`.
 - Authoritative sources (from the brief):
   - The Transformation Priority Premise -- https://blog.cleancoder.com/uncle-bob/2013/05/27/TheTransformationPriorityPremise.html
   - Fib. The T-P Premise. -- https://blog.cleancoder.com/uncle-bob/2013/05/27/FibTPP.html
@@ -81,8 +87,8 @@ The 0.0.1 public ship is complete (Phases 1-4: scaffold -> source distillation -
 - Transcription tooling (local):
   - Primary: `node D:\projects\github\LayZeeDK\lz-cybernetics-ai-plugins\tools\youtube-to-markdown\youtube-to-markdown.mjs B93QezwTQpI --output <prefix>`
   - Fallback (if transcript quality is poor): markitdown CLI at `C:\Users\LarsGyrupBrinkNielse\AppData\Local\Temp\markitdown-mcp-npx\venv\Scripts\markitdown`
-- Naming change (2026-07-02): repo -> `lz-engineering-claude-plugins` (plural), first plugin -> `lz-tdd`, first skill -> `lz-tpp` (`/lz-tdd:lz-tpp`). The local working directory is still `lz-engineering-claude-plugin`; the physical folder and GitHub repo rename is pending and is safer to perform outside an active session (renaming the cwd mid-session breaks tooling).
-- Remote (target): https://github.com/LayZeeDK/lz-engineering-claude-plugins -- to be created and pushed during execution/ship (not created yet; no git remote configured). Owner `LayZeeDK`, repo `lz-engineering-claude-plugins`, public.
+- Naming (finalized 2026-07-02): repo `lz-engineering-claude-plugins` (plural), first plugin `lz-tdd`, first skill `lz-tpp` (`/lz-tdd:lz-tpp`). The physical folder rename and GitHub repo creation are complete; the working directory and `origin` remote both use `lz-engineering-claude-plugins`.
+- Remote: https://github.com/LayZeeDK/lz-engineering-claude-plugins (created, public, owner `LayZeeDK`; `origin` wired, `main` in sync). `claude plugin marketplace add LayZeeDK/lz-engineering-claude-plugins` resolves and validates the marketplace and its `./plugins/lz-tdd` source.
 
 ## Constraints
 
@@ -98,14 +104,14 @@ The 0.0.1 public ship is complete (Phases 1-4: scaffold -> source distillation -
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| Repo is a marketplace named `lz-engineering-claude-plugins` (plural) | Hosts multiple engineering plugins over time; name matches intent | -- Pending |
-| First plugin is `lz-tdd` (TDD-focused) | Groups TDD skills; `lz-tpp` is its first skill | -- Pending |
-| First skill is `lz-tpp` (`/lz-tdd:lz-tpp`) | TPP is the initial high-value TDD capability | -- Pending |
-| Skill is coach + reference | Drives next-transformation choice during TDD and explains the premise on demand | -- Pending |
-| Language-agnostic principles with TypeScript examples (functional + imperative) | Broad applicability, grounded in the user's primary stack; paradigm pairing shows how transformation priority shifts (recursion/expressions vs iteration/assignment), per Martin's language-specificity note | -- Pending |
-| Public GitHub, MIT license | Open-source distribution via `/plugin marketplace add` | -- Pending |
-| Build via `skill-creator` + `plugin-dev` | Follow first-party authoring workflows and guidelines | -- Pending |
-| First milestone is version 0.0.1 (pre-1.0) | Signals early/experimental status; `plugin.json` version 0.0.1 | -- Pending |
+| Repo is a marketplace named `lz-engineering-claude-plugins` (plural) | Hosts multiple engineering plugins over time; name matches intent | Good -- shipped v0.0.1; marketplace resolves + validates from the public repo |
+| First plugin is `lz-tdd` (TDD-focused) | Groups TDD skills; `lz-tpp` is its first skill | Good -- `lz-tdd` ships with `lz-tpp`; additive layout ready for more TDD skills |
+| First skill is `lz-tpp` (`/lz-tdd:lz-tpp`) | TPP is the initial high-value TDD capability | Good -- shipped; evals confirm strong triggering + coaching accuracy |
+| Skill is coach + reference | Drives next-transformation choice during TDD and explains the premise on demand | Good -- dual-mode verified: auto-triggers as coach, answers on demand as reference |
+| Language-agnostic principles with TypeScript examples (functional + imperative) | Broad applicability, grounded in the user's primary stack; paradigm pairing shows how transformation priority shifts (recursion/expressions vs iteration/assignment), per Martin's language-specificity note | Good -- paired FP/imperative TS examples + Fibonacci walk + TCO guidance shipped, tsc-clean |
+| Public GitHub, MIT license | Open-source distribution via `/plugin marketplace add` | Good -- MIT LICENSE + public repo; marketplace-add install loop verified |
+| Build via `skill-creator` + `plugin-dev` | Follow first-party authoring workflows and guidelines | Good -- passed plugin-validator + skill-reviewer + `validate --strict` (exit 0) |
+| First milestone is version 0.0.1 (pre-1.0) | Signals early/experimental status; `plugin.json` version 0.0.1 | Good -- shipped as 0.0.1; GSD milestone id reconciled to v0.0.1 at complete-milestone |
 
 ## Evolution
 
@@ -125,4 +131,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-07-02 after Phase 4 (Distribution & Hygiene) completion*
+*Last updated: 2026-07-04 after v0.0.1 milestone completion*

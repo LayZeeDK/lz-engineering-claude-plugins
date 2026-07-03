@@ -1,11 +1,11 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.0
-milestone_name: milestone
-status: complete
-stopped_at: Phase 5 complete -- all phases done
-last_updated: "2026-07-03T00:00:00.000Z"
-last_activity: 2026-07-03 -- Phase 5 complete (EVAL-01 + EVAL-02 both PASS; D-07 not needed)
+milestone: v0.0.1
+milestone_name: First Release
+status: Awaiting next milestone
+stopped_at: v0.0.1 milestone complete -- all 5 phases shipped
+last_updated: "2026-07-03T22:54:01.763Z"
+last_activity: 2026-07-04 -- Milestone v0.0.1 completed and archived
 progress:
   total_phases: 5
   completed_phases: 5
@@ -18,20 +18,18 @@ progress:
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-07-02)
+See: .planning/PROJECT.md (updated 2026-07-04)
 
 **Core value:** `lz-tpp` helps Claude choose the next code transformation by TPP priority during red-green-refactor TDD, and explains the premise on demand.
-**Current focus:** Phase 5 — skill effectiveness evals
-**Milestone:** 0.0.1 (first release)
+**Current focus:** Planning the next milestone (post-0.0.1)
+**Milestone:** v0.0.1 (First Release) -- SHIPPED 2026-07-04
 
 ## Current Position
 
-Phase: 5 of 5 -- COMPLETE
-Plan: 4 of 4 complete
-Status: Phase complete (EVAL-01 + EVAL-02 both PASS; D-07 tuning not needed). All milestone phases done.
-Last activity: 2026-07-03 -- Phase 5 execution + closure complete
-
-Progress: [██████████] 100%
+Phase: Milestone v0.0.1 complete
+Plan: --
+Status: Awaiting next milestone
+Last activity: 2026-07-04 -- Milestone v0.0.1 completed and archived
 
 ## Performance Metrics
 
@@ -78,8 +76,10 @@ None yet.
 
 ### Blockers/Concerns
 
-- RESOLVED (2026-07-02): Local folder renamed to plural `lz-engineering-claude-plugins`, GitHub repo `LayZeeDK/lz-engineering-claude-plugins` created, `origin` remote wired, and `main` pushed (in sync). Remote resolution VERIFIED -- `claude plugin marketplace add LayZeeDK/lz-engineering-claude-plugins` clones + validates the marketplace and resolves `./plugins/lz-tdd`, so Phase 1 success criterion 2 is now fully met (closes D-13's ship-time deferral).
-- Triggering accuracy (SKILL-05 / EVAL-01) is empirically resolvable only -- via the skill-creator eval loop in Phase 5, not by intuition in earlier phases.
+None open. v0.0.1 shipped with all prior concerns resolved:
+
+- RESOLVED (2026-07-02): repo renamed to plural `lz-engineering-claude-plugins`, GitHub repo created, `origin` wired, `main` in sync; `claude plugin marketplace add LayZeeDK/lz-engineering-claude-plugins` clones + validates the marketplace and resolves `./plugins/lz-tdd` (closed D-13's ship-time deferral).
+- RESOLVED (2026-07-03): triggering accuracy (SKILL-05 / EVAL-01) validated empirically via the native eval harness -- 100% recall / 100% specificity on the shipped description.
 
 ## Deferred Items
 
@@ -100,3 +100,7 @@ Items acknowledged and carried forward from previous milestone close:
 Last session: 2026-07-02T19:14:33.229Z
 Stopped at: Phase 5 context gathered
 Resume file: .planning/phases/05-skill-effectiveness-evals/05-CONTEXT.md
+
+## Operator Next Steps
+
+- Start the next milestone with /gsd-new-milestone

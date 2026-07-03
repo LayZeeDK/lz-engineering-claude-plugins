@@ -4,7 +4,7 @@
 Tests whether a skill's description causes Claude to trigger (invoke the skill)
 for a set of queries. Outputs results as JSON.
 
-PROVENANCE: this file is upstream skill-creator (Anthropic, MIT). The
+PROVENANCE: this file is upstream skill-creator (Anthropic, Apache-2.0). The
 `run_single_query` function below has been REIMPLEMENTED locally to fix three
 bugs that make the upstream probe unusable (crashes on Windows + reports ~0
 triggers on every OS). Design source: anthropics/claude-plugins-official#3041.

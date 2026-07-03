@@ -8,7 +8,7 @@ distributed.
 ## Provenance and license
 
 - `scripts/__init__.py`, `scripts/utils.py` -- verbatim from Anthropic's `skill-creator`
-  plugin (MIT). See `LICENSE.upstream.txt`.
+  plugin (Apache-2.0). See `LICENSE.upstream.txt`.
 - `scripts/run_eval.py` -- upstream `skill-creator` base with the `run_single_query`
   function **reimplemented locally** to fix three trigger-probe bugs that make the upstream
   version unusable. Everything else in the file is unchanged upstream code.

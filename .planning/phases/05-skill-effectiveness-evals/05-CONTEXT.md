@@ -139,7 +139,7 @@ Web + GitHub research (see 05-RESEARCH.md and issues `anthropics/claude-plugins-
   (skill-creator's own workspace convention). Explicitly NOT under
   `plugins/lz-tdd/skills/lz-tpp-workspace/` (that ships with the plugin) and NOT under
   `.planning/`. The vendored harness is a non-distributed dev tool at
-  `.claude/skills/lz-tpp-workspace/tools/skill-creator-eval/` (MIT provenance +
+  `.claude/skills/lz-tpp-workspace/tools/skill-creator-eval/` (Apache-2.0 provenance +
   `run_eval` reimplementation noted in its README). **Generic root-`.gitignore` rules for
   `.claude/skills/*-workspace/`** track the eval record (sets, benchmark, results, tools) and
   drop bulky raw outputs/transcripts/caches -- reusable for ANY future skill's eval workspace,

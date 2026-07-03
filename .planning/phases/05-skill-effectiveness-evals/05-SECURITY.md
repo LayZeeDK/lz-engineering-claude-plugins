@@ -85,8 +85,9 @@ threats_open = 0.
   FILE is correct (matches upstream Apache-2.0 and is retained, so the mitigation
   control holds); only the "MIT" LABEL in the register/docstring is inaccurate.
   Apache-2.0 is permissively compatible with this MIT-licensed public repo and
-  the license text is preserved. Action: correct "MIT" -> "Apache-2.0" in the
-  docstring and any register text. No security impact.
+  the license text is preserved. RESOLVED 2026-07-04: corrected "MIT" ->
+  "Apache-2.0" in the `run_eval.py` + README.md provenance and the 05-03 PLAN
+  register / 05-CONTEXT provenance note. No security impact.
 
 - T-05-05 robustness (informational, not open): 05-03-SUMMARY documents a false
   outcome (recall read ~8%) from the FIRST full run at `--num-workers 3` --

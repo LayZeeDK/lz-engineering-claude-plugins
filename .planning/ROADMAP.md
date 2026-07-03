@@ -28,7 +28,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 2: TPP Source Distillation** - Lock the cited, canonical transformation reference before authoring (completed 2026-07-02)
 - [x] **Phase 3: lz-tpp Skill Authoring** - Dual-mode coach + reference skill with paired TS examples and TCO guidance (completed 2026-07-02)
 - [x] **Phase 4: Distribution & Hygiene** - README, MIT license, contact, and first-party authoring review (completed 2026-07-02)
-- [ ] **Phase 5: Skill Effectiveness Evals** - Optional-final, non-blocking triggering + coaching eval and tune
+- [x] **Phase 5: Skill Effectiveness Evals** - Optional-final, non-blocking triggering + coaching eval and tune (completed 2026-07-03; EVAL-01 + EVAL-02 both PASS, no tuning needed)
 
 ## Phase Details
 
@@ -132,16 +132,16 @@ Plans:
 Plans:
 **Wave 1**
 
-- [ ] 05-01-PLAN.md - Author all eval data (trigger sets, 7 behavior scenarios + eval_metadata) and the deterministic grader; raise .gitignore for raw transcripts.
+- [x] 05-01-PLAN.md - Author all eval data (trigger sets, 10 behavior scenarios + eval_metadata) and the deterministic grader; raise .gitignore for raw transcripts.
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 05-02-PLAN.md - Run the EVAL-02 behavior benchmark natively (with_skill vs baseline, >=3 runs), grade + aggregate, compute behavior Pass@k/Pass^k.
-- [ ] 05-03-PLAN.md - Run the EVAL-01 trigger eval under WSL2 (blocking interop smoke gate + run_loop held-out scoring); capture best_description.
+- [x] 05-02-PLAN.md - Run the EVAL-02 behavior benchmark natively (with_skill vs baseline, >=3 runs), grade + aggregate, compute behavior Pass@k/Pass^k.
+- [x] 05-03-PLAN.md - Run the EVAL-01 trigger eval NATIVELY (D-09 pivot; serial num-workers 1, Ponytail off); recall 100% / specificity 100%.
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 05-04-PLAN.md - Combine both evals into EVAL-RESULTS.md (Pass@k/Pass^k + D-06 verdict) and apply at most one bounded D-07 tuning pass (or none).
+- [x] 05-04-PLAN.md - Combine both evals into EVAL-RESULTS.md (Pass@k/Pass^k + D-06 verdict) and apply at most one bounded D-07 tuning pass (D-07: none needed).
 
 ## Progress
 
@@ -154,7 +154,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
 | 2. TPP Source Distillation | 2/2 | Complete    | 2026-07-02 |
 | 3. lz-tpp Skill Authoring | 3/3 | Complete    | 2026-07-02 |
 | 4. Distribution & Hygiene | 1/1 | Complete    | 2026-07-02 |
-| 5. Skill Effectiveness Evals | 0/4 | Not started | - |
+| 5. Skill Effectiveness Evals | 4/4 | Complete    | 2026-07-03 |
 
 ---
 *Roadmap created: 2026-07-02*

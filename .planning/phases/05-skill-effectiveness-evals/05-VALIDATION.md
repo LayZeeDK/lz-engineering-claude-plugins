@@ -1,13 +1,23 @@
 ---
 phase: 5
 slug: skill-effectiveness-evals
-status: draft
-nyquist_compliant: false
-wave_0_complete: false
+status: complete
+nyquist_compliant: true
+wave_0_complete: true
 created: 2026-07-02
+validated: 2026-07-03
 ---
 
 # Phase 5 -- Validation Strategy
+
+> **POST-EXECUTION (2026-07-03): Nyquist-compliant, Wave 0 complete.** For an eval phase the evals
+> ARE the validation coverage, and both requirements are covered + passing: EVAL-01 (trigger, 27
+> queries x3 serial -> recall 100% / specificity 100%) and EVAL-02 (behavior, 10 scenarios x
+> with_skill/baseline x >=3 runs = 60 runs -> with_skill Pass@1 0.97 vs baseline 0.50, plus the
+> "coach, don't drive" assertion 0/60 drove). Evidence under `.claude/skills/lz-tpp-workspace/`
+> (trigger-results-d07-*.json, iteration-1/benchmark.json, EVAL-RESULTS.md). No additional test
+> generation applies -- the phase's deliverable IS measurement. Tables below are the pre-execution
+> strategy, retained for provenance.
 
 > **POST-PIVOT -- see `05-CONTEXT.md` D-09.** Two corrections supersede the tables below:
 > (1) **EVAL-01 runs NATIVELY**, not under WSL2 -- the WSL2 `run_loop`/`run_eval` commands below

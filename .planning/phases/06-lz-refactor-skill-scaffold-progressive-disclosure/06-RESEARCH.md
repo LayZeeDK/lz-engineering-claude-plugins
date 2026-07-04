@@ -457,19 +457,20 @@ All other claims are VERIFIED against local authoritative sources (in-repo shipp
 lz-tpp; installed skill-creator + plugin-dev skills; on-disk angular-developer clone; the
 `claude` CLI present this session) or CITED to those sources.
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Beck principle-backing file placement (D-03).**
    - What we know: it folds into the principles group or a sibling `principles-*` file.
    - What's unclear: exact file(s) -- fold into `principles.md` vs. a separate `principles-beck.md`.
-   - Recommendation: scaffold a single `principles.md` stub now (Claude's discretion, D-09);
+   - RESOLVED: scaffold a single `principles.md` stub now (Claude's discretion, D-09);
      Phase 9 finalizes placement. Do not over-split at scaffold time.
 
 2. **Intra-catalog split axis (D-04) -- intentionally deferred.**
    - What we know: subdir + thin index admits any axis; Fowler tag-groups and chapter grouping
      are the candidates.
    - What's unclear: which axis -- resolved in Phase 7/8 with the owner oracle.
-   - Recommendation: ship the subdir + index only; do NOT create per-axis leaf files in Phase 6.
+   - RESOLVED: for Phase 6, ship the subdir + index only; do NOT create per-axis leaf files
+     (the split axis is intentionally deferred to Phase 7/8 per D-04).
 
 ## Environment Availability
 

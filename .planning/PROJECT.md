@@ -85,6 +85,13 @@ Skill effectiveness evals (Phase 5: Skill Effectiveness Evals, 2026-07-03):
 - [x] EVAL-01 trigger eval: the `description` fires on in-scope TDD / red-green-refactor / TPP / transformation-priority prompts and stays quiet on near-misses -- 100% recall (13/13) and 100% specificity (14/14) on the shipped description, run natively (EVAL-01)
 - [x] EVAL-02 behavior eval: the coach recommends the correct next transformation -- with_skill 29/30 (Pass@1 0.97, Pass@3 1.00) vs 15/30 baseline; no tuning applied, shipped skill unchanged (EVAL-02)
 
+lz-refactor skill scaffold (Phase 6: lz-refactor Skill Scaffold & Progressive Disclosure, 2026-07-04):
+
+- [x] SKEL-01: `/lz-tdd:lz-refactor` invocable; skill at `plugins/lz-tdd/skills/lz-refactor/SKILL.md` with dual-mode-by-omission frontmatter (name + description only; `name` == dir)
+- [x] SKEL-02: lean 69-line router (< 500) lazy-loading five `references/` task-area groups (Fowler catalog, smell taxonomy, principles, Kerievsky patterns, refactoring-without-tests), each a one-level-deep pointer -- modeled on angular-developer sectioning + lz-tpp dual-mode framing
+- [x] SKEL-03: 774-char seam-aware `description` (should-be-used + Do-not-use near-miss + lz-tpp green/refactor seam), within the char cap; empirical trigger tuning deferred to Phase 11 (EVL-01)
+- [x] SKEL-04: heavy catalog material bundled, not inlined -- two splittable catalog subdirs behind thin index stubs; every `references/` stub carries its per-entry content contract; catalog stubs carry the D-09 Phase 7/8 oracle-access checkpoint note. Verified: Wave-0 checker + `claude plugin validate .` both exit 0
+
 ### Active
 
 <!-- Current scope. Hypotheses until shipped and validated. -->
@@ -159,4 +166,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-07-04 after starting the lz-tdd@0.0.2 (lz-refactor Skill) milestone*
+*Last updated: 2026-07-04 after completing Phase 6 (lz-refactor skill scaffold) of the lz-tdd@0.0.2 milestone*

@@ -22,7 +22,7 @@ Requirements for this milestone. Each maps to exactly one roadmap phase.
 - [ ] **FWL-01**: The reference covers all 66 Fowler refactorings -- each with name, motivation, distilled mechanics (original words), and an original TS/JS before/after example -- provenance-labeled (the 5 print-absent entries and Split Phase's online-only examples marked as such)
 - [ ] **FWL-02**: A unified smell-taxonomy reference covers the 24 Fowler bad smells, each mapped to its candidate refactorings (the coach's trigger table)
 - [ ] **FWL-03**: A principles reference distills Ch.2 (definition, the two hats, when-to-refactor: rule of three / preparatory / comprehension / litter-pickup, performance, YAGNI) in original words with correct attributions
-- [ ] **FWL-04**: All Fowler TS/JS samples are `tsc --strict`-clean and behavior-preserving, verified against the owner's e-book/web oracle (refactoring.com for the 5 print-absent entries)
+- [ ] **FWL-04**: All Fowler TS/JS samples are `tsc --strict`-clean and behavior-preserving, verified against the owner's e-book/web oracle (which includes all 66, the print-absent entries included)
 
 ### Kerievsky Catalog (Refactoring to Patterns)
 
@@ -87,38 +87,38 @@ Which phase covers which requirement. Populated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| SKEL-01 | (pending roadmap) | Pending |
-| SKEL-02 | (pending roadmap) | Pending |
-| SKEL-03 | (pending roadmap) | Pending |
-| SKEL-04 | (pending roadmap) | Pending |
-| FWL-01 | (pending roadmap) | Pending |
-| FWL-02 | (pending roadmap) | Pending |
-| FWL-03 | (pending roadmap) | Pending |
-| FWL-04 | (pending roadmap) | Pending |
-| KRV-01 | (pending roadmap) | Pending |
-| KRV-02 | (pending roadmap) | Pending |
-| KRV-03 | (pending roadmap) | Pending |
-| KRV-04 | (pending roadmap) | Pending |
-| CCH-01 | (pending roadmap) | Pending |
-| CCH-02 | (pending roadmap) | Pending |
-| CCH-03 | (pending roadmap) | Pending |
-| CCH-04 | (pending roadmap) | Pending |
-| CCH-05 | (pending roadmap) | Pending |
-| PRIN-01 | (pending roadmap) | Pending |
-| PRIN-02 | (pending roadmap) | Pending |
-| PRIN-03 | (pending roadmap) | Pending |
-| DST-01 | (pending roadmap) | Pending |
-| DST-02 | (pending roadmap) | Pending |
-| DST-03 | (pending roadmap) | Pending |
-| DST-04 | (pending roadmap) | Pending |
-| EVL-01 | (pending roadmap) | Pending |
-| EVL-02 | (pending roadmap) | Pending |
+| SKEL-01 | Phase 6 | Pending |
+| SKEL-02 | Phase 6 | Pending |
+| SKEL-03 | Phase 6 | Pending |
+| SKEL-04 | Phase 6 | Pending |
+| FWL-01 | Phase 7 | Pending |
+| FWL-02 | Phase 7 | Pending |
+| FWL-03 | Phase 7 | Pending |
+| FWL-04 | Phase 7 | Pending |
+| KRV-01 | Phase 8 | Pending |
+| KRV-02 | Phase 8 | Pending |
+| KRV-03 | Phase 8 | Pending |
+| KRV-04 | Phase 8 | Pending |
+| CCH-01 | Phase 9 | Pending |
+| CCH-02 | Phase 9 | Pending |
+| CCH-03 | Phase 9 | Pending |
+| CCH-04 | Phase 9 | Pending |
+| CCH-05 | Phase 9 | Pending |
+| PRIN-01 | Phase 9 | Pending |
+| PRIN-02 | Phase 9 | Pending |
+| PRIN-03 | Phase 9 | Pending |
+| DST-01 | Phase 10 | Pending |
+| DST-02 | Phase 10 | Pending |
+| DST-03 | Phase 10 | Pending |
+| DST-04 | Phase 10 | Pending |
+| EVL-01 | Phase 11 | Pending |
+| EVL-02 | Phase 11 | Pending |
 
 **Coverage:**
 - lz-tdd@0.0.2 requirements: 26 total
-- Mapped to phases: 0 (pending roadmap)
-- Unmapped: 26 (roadmap will resolve)
+- Mapped to phases: 26 (Phases 6-11)
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-07-04*
-*Last updated: 2026-07-04 after initial definition*
+*Last updated: 2026-07-04 after roadmap creation (all 26 requirements mapped to Phases 6-11)*

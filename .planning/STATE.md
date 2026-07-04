@@ -6,7 +6,7 @@ status: planning
 last_updated: "2026-07-04T15:47:39.914Z"
 last_activity: 2026-07-04
 progress:
-  total_phases: 0
+  total_phases: 6
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -19,26 +19,26 @@ progress:
 
 See: .planning/PROJECT.md (updated 2026-07-04)
 
-**Core value:** `lz-tpp` helps Claude choose the next code transformation by TPP priority during red-green-refactor TDD, and explains the premise on demand.
-**Current focus:** lz-tdd@0.0.2 -- defining requirements + roadmap for the lz-refactor skill
+**Core value:** `lz-tpp` helps Claude choose the next code transformation by TPP priority during red-green-refactor TDD, and explains the premise on demand. lz-tdd@0.0.2 adds `lz-refactor` to drive the refactor step.
+**Current focus:** lz-tdd@0.0.2 -- roadmap complete (Phases 6-11); ready to plan Phase 6.
 **Milestone:** lz-tdd@0.0.2 (lz-refactor Skill) -- planning
 
 ## Current Position
 
-Phase: Not started (defining requirements)
+Phase: 6 -- lz-refactor Skill Scaffold & Progressive Disclosure (not started)
 Plan: —
-Status: Defining requirements
-Last activity: 2026-07-04 — Milestone lz-tdd@0.0.2 started
+Status: Roadmap complete -- ready for /gsd-plan-phase 6
+Last activity: 2026-07-04 — Roadmap for lz-tdd@0.0.2 created (6 phases, 26/26 requirements mapped)
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 7
+- Total plans completed: 7 (lz-tdd@0.0.1)
 - Average duration: - min
 - Total execution time: 0.0 hours
 
-**By Phase:**
+**By Phase (lz-tdd@0.0.1):**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
@@ -53,7 +53,6 @@ Last activity: 2026-07-04 — Milestone lz-tdd@0.0.2 started
 - Trend: -
 
 *Updated after each plan completion*
-| Phase 1 P01 | 5 | 3 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -62,12 +61,12 @@ Last activity: 2026-07-04 — Milestone lz-tdd@0.0.2 started
 Decisions are logged in PROJECT.md Key Decisions table.
 Recent decisions affecting current work:
 
-- Roadmap: 5 phases following the content-dependency chain (scaffold -> source distillation -> skill authoring -> distribution -> optional-final evals).
-- Roadmap: EVAL-01/EVAL-02 isolated in Phase 5 as an optional-final, non-blocking pass; Phases 1-4 (the public ship) do not depend on it.
-- Roadmap: `.gitignore` (DIST-04) placed in Phase 1 as part of the repo-hygiene skeleton so the repo commits clean from the first commit.
-- Roadmap: canonical transformation list is the revised 14-item FibTPP list; the 12-item original is documented for provenance (resolved in Phase 2).
-- [Phase ?]: Phase 1 scaffold: version 0.0.1 lives only in plugin.json, never the marketplace entry (avoids version-masking; MKT-05)
-- [Phase ?]: claude plugin validate . --strict passes clean with the optional top-level marketplace description present (assumption A1 confirmed empirically)
+- Roadmap (0.0.2): 6 phases (6-11) mirroring 0.0.1's shape and the content-dependency chain -- scaffold -> Fowler catalog -> Kerievsky catalog -> coach behavior + principle-backing -> distribution -> evals.
+- Roadmap (0.0.2): phase numbering continues from the previous milestone (0.0.1 ended at Phase 5), so this milestone starts at Phase 6.
+- Roadmap (0.0.2): Fowler (Phase 7) precedes Kerievsky (Phase 8) because Kerievsky refactorings compose named Fowler primitives and fold into the Fowler-established smell taxonomy.
+- Roadmap (0.0.2): CCH + PRIN combined in Phase 9 -- the coach behavior and the no-oracle principle cross-refs (Beck x2, Feathers) are authored together on top of both catalogs.
+- Roadmap (0.0.2): EVL-01/EVL-02 isolated in Phase 11 as a late, non-blocking pass; Phases 6-10 (the public ship) do not depend on it.
+- Milestone constraints baked into phases: owner acts as authoritative oracle (Fowler/Kerievsky/GoF verified against the owner's e-book/web editions at checkpoints -- which include all 66 Fowler refactorings, print-absent entries included; print-absent entries + Split Phase provenance-labeled); Beck/Feathers unowned -> high-confidence core only, tagged no-oracle; no verbatim book prose/code in the shipped tree; all TS/JS samples tsc --strict-clean; progressive disclosure grounded in the angular-developer skill + skill-creator/plugin-dev guidance + in-house lz-tpp.
 
 ### Pending Todos
 
@@ -98,10 +97,10 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-02T19:14:33.229Z
-Stopped at: Phase 5 context gathered
-Resume file: .planning/phases/05-skill-effectiveness-evals/05-CONTEXT.md
+Last session: 2026-07-04
+Stopped at: lz-tdd@0.0.2 roadmap created (Phases 6-11)
+Resume file: .planning/ROADMAP.md
 
 ## Operator Next Steps
 
-- Start the next milestone with /gsd-new-milestone
+- Plan the first phase with /gsd-plan-phase 6

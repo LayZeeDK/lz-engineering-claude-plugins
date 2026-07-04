@@ -4,8 +4,8 @@ milestone: lz-tdd@0.0.2
 milestone_name: lz-refactor Skill (Fowler + Kerievsky)
 status: executing
 stopped_at: Phase 7 context gathered
-last_updated: "2026-07-04T19:05:54.911Z"
-last_activity: 2026-07-04 -- Phase 7 planning complete
+last_updated: "2026-07-04T19:22:57.769Z"
+last_activity: 2026-07-04
 progress:
   total_phases: 6
   completed_phases: 1
@@ -21,15 +21,15 @@ progress:
 See: .planning/PROJECT.md (updated 2026-07-04)
 
 **Core value:** `lz-tpp` helps Claude choose the next code transformation by TPP priority during red-green-refactor TDD, and explains the premise on demand. lz-tdd@0.0.2 adds `lz-refactor` to drive the refactor step.
-**Current focus:** Phase 7 — fowler catalog (refactoring, 2nd ed)
+**Current focus:** Phase 7 — Fowler Catalog (Refactoring, 2nd ed)
 **Milestone:** lz-tdd@0.0.2 (lz-refactor Skill) -- planning
 
 ## Current Position
 
-Phase: 7
-Plan: Not started
+Phase: 7 (Fowler Catalog (Refactoring, 2nd ed)) — EXECUTING
+Plan: 2 of 8
 Status: Ready to execute
-Last activity: 2026-07-04 -- Phase 7 planning complete
+Last activity: 2026-07-04
 
 ## Performance Metrics
 
@@ -56,6 +56,7 @@ Last activity: 2026-07-04 -- Phase 7 planning complete
 
 *Updated after each plan completion*
 | Phase 06 P01 | 6 | 3 tasks | 7 files |
+| Phase 07 P01 | 13min | 3 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -73,6 +74,7 @@ Recent decisions affecting current work:
 - [Phase ?]: Phase 6 (06-01): lz-refactor scaffold shipped -- dual-mode-by-omission router (name+description only), five references/ stubs, two splittable catalog subdirs behind thin indexes; Wave-0 checker + claude plugin validate both exit 0.
 - [Phase ?]: Phase 6: SKILL.md kept lean at 70 lines (under ~90-150 soft target, well under 500 cap); content deferred to references/ per progressive disclosure.
 - [Phase ?]: Phase 6 carry-forward (D-09): Phases 7 and 8 MUST open an AskUserQuestion oracle-access checkpoint (Fowler e-book/web ISBN 9780135425664, Kerievsky book, GoF e-book) before authoring catalog content; recorded inline in the catalog stubs.
+- [Phase 07]: Phase 7 (07-01, wave 1): built the NON-shipped FWL-01..04 validation harness at .claude/skills/lz-refactor-workspace/ (pinned typescript@6.0.3, one-module-per-fence tsc --strict extractor + 4 node-builtin checkers). Checkers gate on exit code and assert name IDENTITY not cardinality (closes WR-02). RED against the empty catalog is the expected wave-1 baseline; FWL-01..04 close only when the content plans (waves 2-4) turn the battery GREEN. — D-03 asks for a committed re-runnable harness (not Phase-3 ad-hoc extraction). Instruments-first (Nyquist scaffold) makes FWL-01..04 machine-checkable before any oracle content lands.
 
 ### Pending Todos
 
@@ -103,9 +105,9 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-04T18:04:36.068Z
+Last session: 2026-07-04T19:20:03.125Z
 Stopped at: Phase 7 context gathered
-Resume file: .planning/phases/07-fowler-catalog-refactoring-2nd-ed/07-CONTEXT.md
+Resume file: None
 
 ## Operator Next Steps
 

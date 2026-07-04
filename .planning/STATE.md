@@ -1,17 +1,16 @@
 ---
 gsd_state_version: 1.0
-milestone: lz-tdd@0.0.1
-milestone_name: First Release
-status: Awaiting next milestone
-stopped_at: lz-tdd@0.0.1 milestone complete -- all 5 phases shipped
-last_updated: "2026-07-03T22:54:01.763Z"
-last_activity: 2026-07-04 -- Quick task: renamed tag/milestone/release/changelog to lz-tdd@0.0.1
+milestone: lz-tdd@0.0.2
+milestone_name: lz-refactor Skill (Fowler + Kerievsky)
+status: planning
+last_updated: "2026-07-04T15:47:39.914Z"
+last_activity: 2026-07-04
 progress:
-  total_phases: 5
-  completed_phases: 5
-  total_plans: 11
-  completed_plans: 11
-  percent: 100
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
@@ -21,15 +20,15 @@ progress:
 See: .planning/PROJECT.md (updated 2026-07-04)
 
 **Core value:** `lz-tpp` helps Claude choose the next code transformation by TPP priority during red-green-refactor TDD, and explains the premise on demand.
-**Current focus:** Planning the next milestone (post-0.0.1)
-**Milestone:** lz-tdd@0.0.1 (First Release) -- SHIPPED 2026-07-04
+**Current focus:** lz-tdd@0.0.2 -- defining requirements + roadmap for the lz-refactor skill
+**Milestone:** lz-tdd@0.0.2 (lz-refactor Skill) -- planning
 
 ## Current Position
 
-Phase: Milestone lz-tdd@0.0.1 complete
-Plan: --
-Status: Awaiting next milestone
-Last activity: 2026-07-04 -- Milestone lz-tdd@0.0.1 completed and archived
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-07-04 — Milestone lz-tdd@0.0.2 started
 
 ## Performance Metrics
 

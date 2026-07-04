@@ -16,6 +16,34 @@ transformation that passes the failing test -- and explains the premise on deman
 If everything else fails, this transformation-priority guidance must be correct and
 usable.
 
+## Current Milestone: lz-tdd@0.0.2 lz-refactor Skill (Fowler + Kerievsky)
+
+**Goal:** Add a single `/lz-tdd:lz-refactor` agent skill -- a dual-mode refactoring
+coach + reference that operationalizes Martin Fowler's *Refactoring* (2nd ed) and
+Joshua Kerievsky's *Refactoring to Patterns* -- completing the red-green-refactor
+seam alongside `lz-tpp` (lz-tpp drives the green step; lz-refactor drives the
+refactor step).
+
+**Target features:**
+
+- Single `lz-refactor` skill built on progressive disclosure: a lean router
+  `SKILL.md` plus lazy-loaded `references/` docs, modeled on the `angular-developer`
+  skill and the skill-creator / plugin-dev authoring guidelines.
+- Dual-mode: an auto-triggering refactor-step coach (smell -> named refactoring,
+  including "refactor away from a pattern" de-patterning) and an on-demand catalog
+  reference.
+- Fowler layer at full grain: all 66 refactorings (mechanics + original TS/JS), a
+  unified smell taxonomy, and Ch.2 principles; provenance-labeled (5 print-absent
+  `+` entries + Split Phase's online-only examples).
+- Kerievsky layer at full grain: all 27 pattern-directed refactorings (mechanics +
+  original TS/JS re-rendered from Java), the To/Towards/Away directions, and the
+  Ch.4 smells; cross-mapped to the Fowler primitives each composes.
+- Principle-backing cross-references (no oracle copy owned -- high-confidence core
+  only): Beck *TDD by Example* + *Tidy First?* and Feathers *Working Effectively
+  with Legacy Code* (refactoring safely without tests).
+- Skill-effectiveness evals (trigger recall/specificity + smell->refactoring
+  behavior accuracy), as in 0.0.1's Phase 5.
+
 ## Requirements
 
 ### Validated
@@ -61,7 +89,7 @@ Skill effectiveness evals (Phase 5: Skill Effectiveness Evals, 2026-07-03):
 
 <!-- Current scope. Hypotheses until shipped and validated. -->
 
-Milestone 0.0.1 is fully shipped and validated (Phases 1-5). No active requirements -- the next milestone (post-0.0.1) defines fresh scope. Candidate directions tracked as NEXT-01..04: additional TDD skills under `lz-tdd` (test naming, triangulation, red-green discipline), additional plugins in the marketplace, npm packaging/distribution, and multi-language example sets beyond TypeScript.
+Milestone lz-tdd@0.0.2 (lz-refactor Skill) is the active scope -- the `/lz-tdd:lz-refactor` dual-mode coach + reference grounded in Fowler's *Refactoring* (2nd ed) and Kerievsky's *Refactoring to Patterns*. Requirements are enumerated in `.planning/REQUIREMENTS.md` (categories: skill structure/progressive disclosure, Fowler catalog, Kerievsky catalog, coach behavior, principle-backing cross-refs, distribution/hygiene, evals). Deferred candidates still tracked: additional TDD skills under `lz-tdd`, additional plugins, npm packaging/distribution, and multi-language example sets beyond TypeScript.
 
 ### Out of Scope
 
@@ -131,4 +159,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-07-04 after lz-tdd@0.0.1 milestone completion*
+*Last updated: 2026-07-04 after starting the lz-tdd@0.0.2 (lz-refactor Skill) milestone*

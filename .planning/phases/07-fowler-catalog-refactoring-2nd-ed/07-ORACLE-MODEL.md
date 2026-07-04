@@ -32,6 +32,15 @@ references, or `.planning/` artifacts (DST-04).
 The owner drops a chapter's source files into `.oracle/refactoring-2e/` only when we reach that
 chapter -- not all 62 up front.
 
+**What the source must retain:** the checkable FACTS -- refactoring/smell names, candidate
+cross-reference targets (smell -> refactorings, refactoring -> composed refactorings, smell ->
+near-neighbor smells), and the mechanics step structure. Those are what `oracle-reviewer` verifies
+the draft's completeness against (this is how a dropped candidate -- e.g. Extract Function under
+Divergent Change -- gets caught). Names and cross-references are FACTS, not protected expression, so
+they are safe to keep and SHOULD be kept; the owner may trim the surrounding prose. Fowler's catalog
+is hypertext -- each smell already links its named candidate refactorings -- so preserving those
+links/names in the source is what lets the fidelity gate confirm the candidate set is complete.
+
 ## The loop (per chapter / batch)
 
 1. I draft the leaves / smells / principles BLIND (public knowledge + scaffold), in the locked leaf

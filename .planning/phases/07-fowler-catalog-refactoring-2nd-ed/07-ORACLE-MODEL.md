@@ -32,14 +32,19 @@ references, or `.planning/` artifacts (DST-04).
 The owner drops a chapter's source files into `.oracle/refactoring-2e/` only when we reach that
 chapter -- not all 62 up front.
 
-**What the source must retain:** the checkable FACTS -- refactoring/smell names, candidate
-cross-reference targets (smell -> refactorings, refactoring -> composed refactorings, smell ->
-near-neighbor smells), and the mechanics step structure. Those are what `oracle-reviewer` verifies
-the draft's completeness against (this is how a dropped candidate -- e.g. Extract Function under
-Divergent Change -- gets caught). Names and cross-references are FACTS, not protected expression, so
-they are safe to keep and SHOULD be kept; the owner may trim the surrounding prose. Fowler's catalog
-is hypertext -- each smell already links its named candidate refactorings -- so preserving those
-links/names in the source is what lets the fidelity gate confirm the candidate set is complete.
+**What the source contains:** the owner drops the **FULL-TEXT** authoritative excerpts (prose,
+mechanics, examples, and the smell -> refactoring / refactoring -> refactoring cross-references).
+`oracle-reviewer` is the contracted, isolated, no-leak agent that is *allowed* to hold the full text
+precisely because its verdict never carries it out -- so give it full text, not a distillation. Full
+text is what lets it (a) verify motivation/example fidelity, and (b) run the **full-strength DST-04
+near-verbatim gate** (the automated copyright catch genuinely needs the real prose to compare
+against). Completeness of the candidate set (e.g. catching a dropped Extract Function under Divergent
+Change) is verified via the alignment against that full source -- Fowler's catalog is hypertext, so
+every smell's named candidate refactorings are present to check.
+
+**Do NOT route oracle review through an ad-hoc general-purpose agent.** Prose-minimization is only a
+precaution for agents that lack this firewall contract; the dedicated `oracle-reviewer` supersedes
+that need and must receive the full source.
 
 ## The loop (per chapter / batch)
 

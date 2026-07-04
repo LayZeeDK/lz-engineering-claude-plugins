@@ -453,9 +453,15 @@ entries (from `refactoring-com-overview.md`, owner-confirmed); the Ch.2 topic se
 count 24 (from CONTEXT D-04/D-05 and REQUIREMENTS, owner-confirmed); toolchain versions
 (verified via `npm view` / local `--version`).
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **Tag-group bucketing and leaf count (D-01, the top planning decision)**
+> Resolution summary (recorded at plan-phase): Q1 is deferred BY DESIGN to the D-07 oracle
+> checkpoint in plan 07-02 (per locked decision D-01 -- the bucketing axis is locked, the exact
+> leaf set is chosen WITH the owner, not `--auto`-locked). Q2 is implemented in plan 07-01
+> (pin `typescript` in the non-shipped workspace). Q3 is implemented via plan 07-08 running in
+> wave 4, after all catalog leaves, so smell cross-link anchors resolve.
+
+1. **Tag-group bucketing and leaf count (D-01, the top planning decision)** -- RESOLVED: deferred by design to the 07-02 D-07 oracle checkpoint (D-01).
    - What we know: 20 tag names + 66 names/aliases are known. Each refactoring carries
      MULTIPLE tags. The tags mix 7 coarse chapter tags (basic, encapsulation,
      moving-features, organizing-data, simplify-conditional-logic, refactoring-apis,
@@ -473,12 +479,12 @@ count 24 (from CONTEXT D-04/D-05 and REQUIREMENTS, owner-confirmed); toolchain v
      Either satisfies "adds leaves without re-touching SKILL.md." Surface the choice; do
      not let `--auto` silently lock it (HIGH-impact, sets the catalog's shape).
 
-2. **Harness reproducibility: pin `typescript` or use global `tsc`?**
+2. **Harness reproducibility: pin `typescript` or use global `tsc`?** -- RESOLVED: pin `typescript@6.0.3` in the non-shipped workspace (plan 07-01).
    - What we know: global `tsc 6.0.3` works today; no `package.json` is tracked.
    - Recommendation: pin `typescript@6.0.3` as a workspace devDependency + a `typecheck`
      script for a public, reproducible FWL-04 claim. Low stakes; Claude's discretion (D-03).
 
-3. **`smells.md` cross-link anchors before all leaves exist**
+3. **`smells.md` cross-link anchors before all leaves exist** -- RESOLVED: `smells.md` runs in wave 4 after all catalog leaves (plan 07-08).
    - What we know: smell rows cross-link into fowler-catalog entries (D-04); both are
      authored this phase.
    - Recommendation: sequence the smell table AFTER the leaves (or in the same wave) so its

@@ -61,7 +61,9 @@ this milestone starts at Phase 6.
   3. The `description` is authored to fire on refactor-step / code-smell / refactoring-catalog prompts and stay quiet on near-misses, within the description character cap (empirical validation deferred to Phase 11).
   4. The progressive-disclosure architecture guarantees heavy catalog material is bundled in `references/`, not inlined -- no single file forces the whole catalog into context.
 
-**Plans**: TBD
+**Plans**: 1 plan (wave 1)
+
+- [ ] 06-01-PLAN.md -- lz-refactor scaffold: Wave-0 SC checker, five references/ stubs (two thin catalog index subdirs), and the lean dual-mode SKILL.md router
 
 ### Phase 7: Fowler Catalog (Refactoring, 2nd ed)
 
@@ -146,7 +148,7 @@ Phases execute in numeric order: 6 -> 7 -> 8 -> 9 -> 10 -> 11
 | 3. lz-tpp Skill Authoring | lz-tdd@0.0.1 | 3/3 | Complete | 2026-07-02 |
 | 4. Distribution & Hygiene | lz-tdd@0.0.1 | 1/1 | Complete | 2026-07-02 |
 | 5. Skill Effectiveness Evals | lz-tdd@0.0.1 | 4/4 | Complete | 2026-07-03 |
-| 6. lz-refactor Skill Scaffold & Progressive Disclosure | lz-tdd@0.0.2 | - | Not started | - |
+| 6. lz-refactor Skill Scaffold & Progressive Disclosure | lz-tdd@0.0.2 | 0/1 | Planned | - |
 | 7. Fowler Catalog (Refactoring, 2nd ed) | lz-tdd@0.0.2 | - | Not started | - |
 | 8. Kerievsky Catalog (Refactoring to Patterns) | lz-tdd@0.0.2 | - | Not started | - |
 | 9. Coach Behavior & Principle-Backing | lz-tdd@0.0.2 | - | Not started | - |
@@ -154,4 +156,4 @@ Phases execute in numeric order: 6 -> 7 -> 8 -> 9 -> 10 -> 11
 | 11. Skill-Effectiveness Evals | lz-tdd@0.0.2 | - | Not started | - |
 
 ---
-*Roadmap created: 2026-07-02 | lz-tdd@0.0.1 completed: 2026-07-04 | lz-tdd@0.0.2 roadmap added: 2026-07-04*
+*Roadmap created: 2026-07-02 | lz-tdd@0.0.1 completed: 2026-07-04 | lz-tdd@0.0.2 roadmap added: 2026-07-04 | Phase 6 planned: 2026-07-04*

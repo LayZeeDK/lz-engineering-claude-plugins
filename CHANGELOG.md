@@ -5,7 +5,7 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.0.1] - 2026-07-04
+## [lz-tdd@0.0.1] - 2026-07-04
 
 First public release of the `lz-engineering-claude-plugins` marketplace: the `lz-tdd`
 plugin and its dual-mode `lz-tpp` skill (`/lz-tdd:lz-tpp`).
@@ -29,4 +29,4 @@ plugin and its dual-mode `lz-tpp` skill (`/lz-tdd:lz-tpp`).
   TCO-safe recursion patterns (trampoline, generator-as-state-machine, CPS).
 - **Distribution**: root `README.md` (install and usage) and an MIT `LICENSE`.
 
-[0.0.1]: https://github.com/LayZeeDK/lz-engineering-claude-plugins/releases/tag/v0.0.1
+[lz-tdd@0.0.1]: https://github.com/LayZeeDK/lz-engineering-claude-plugins/releases/tag/lz-tdd%400.0.1

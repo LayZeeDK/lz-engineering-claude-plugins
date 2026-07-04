@@ -1,5 +1,5 @@
 ---
-milestone: v0.0.1
+milestone: lz-tdd@0.0.1
 product_version: 0.0.1
 audited: 2026-07-03T22:34:34Z
 status: passed
@@ -25,7 +25,7 @@ tech_debt:
   - phase: cross-cutting
     items:
       - "SUMMARY.md frontmatter lag: 04-01 and 05-01..04 have empty requirements_completed despite verified-satisfied REQ-IDs (VERIFICATION.md is authoritative; cosmetic backfill only)."
-      - "RESOLVED at complete-milestone (2026-07-04): GSD milestone id relabeled v1.0 -> v0.0.1 to match product semver 0.0.1; all .planning/ artifacts, the milestone archive, and the git tag now use v0.0.1."
+      - "RESOLVED: GSD milestone id relabeled v1.0 -> v0.0.1 (2026-07-04, to match product semver) -> lz-tdd@0.0.1 (plugin-scoped, since the marketplace hosts multiple plugins). All .planning/ artifacts, the milestone archive, the git tag, and the GitHub Release now use lz-tdd@0.0.1."
   - phase: 05-skill-effectiveness-evals
     items:
       - "Eval harness pins a machine-specific absolute path (.claude/skills/lz-tpp-workspace/run-spec-chunks.mjs:16). Affects EVAL-01/02 reproducibility on another machine only; the workspace is gitignored and does not touch the shipped product."
@@ -38,14 +38,14 @@ resolved_no_longer_open:
   - "Work-email literal in unpushed commit 60fa6f3 (Phase 5) -> RESOLVED 2026-07-04 via commit amend; HEAD + full history clean."
 ---
 
-# Milestone v0.0.1 -- Audit Report
+# Milestone lz-tdd@0.0.1 -- Audit Report
 
 **Audited:** 2026-07-03T22:34:34Z
 **HEAD:** b1a1dfc (branch `main`, in sync with `origin/main`)
 **Status:** passed
 **Milestone goal (ROADMAP):** A public Claude Code marketplace repo (`lz-engineering-claude-plugins`) hosting the `lz-tdd` plugin and its first skill `lz-tpp` (`/lz-tdd:lz-tpp`) -- a dual-mode TDD coach + reference for the Transformation Priority Premise.
 
-> **Version note:** This milestone was originally tracked under GSD's internal id `v1.0`; at `complete-milestone` (2026-07-04) it was relabeled to **v0.0.1** to match the product release version in `plugin.json` (semver `0.0.1`). All `.planning/` artifacts, the milestone archive, and the git tag now use `v0.0.1`. This file was renamed from `v1.0-MILESTONE-AUDIT.md`.
+> **Version note:** This milestone was originally tracked under GSD's internal id `v1.0`; at `complete-milestone` (2026-07-04) it was relabeled to `v0.0.1` (to match the `plugin.json` semver `0.0.1`), then to plugin-scoped **`lz-tdd@0.0.1`** (the marketplace hosts multiple plugins, so versions are scoped per plugin). All `.planning/` artifacts, the milestone archive, the git tag, and the GitHub Release now use `lz-tdd@0.0.1`. This file was renamed `v1.0-MILESTONE-AUDIT.md` -> `v0.0.1-MILESTONE-AUDIT.md` -> `lz-tdd@0.0.1-MILESTONE-AUDIT.md`.
 
 ## Summary
 
@@ -147,7 +147,7 @@ public gmail is the only contact literal); prior git-history and unpushed-commit
 **Cross-cutting**
 - SUMMARY.md `requirements_completed` frontmatter is empty in 04-01 and 05-01..04 despite
   verified-satisfied REQ-IDs. VERIFICATION.md is authoritative; backfill is cosmetic.
-- GSD milestone id relabeled `v1.0` -> `v0.0.1` at complete-milestone (2026-07-04) to match product semver. RESOLVED.
+- GSD milestone id relabeled `v1.0` -> `v0.0.1` -> `lz-tdd@0.0.1` (2026-07-04; matched product semver, then scoped per plugin). RESOLVED.
 
 **Phase 5**
 - `.claude/skills/lz-tpp-workspace/run-spec-chunks.mjs:16` hardcodes a machine-specific absolute path;
@@ -160,7 +160,7 @@ public gmail is the only contact literal); prior git-history and unpushed-commit
 
 ## Verdict
 
-Milestone **v0.0.1** achieved its definition of done: 24/24 requirements satisfied,
+Milestone **lz-tdd@0.0.1** achieved its definition of done: 24/24 requirements satisfied,
 5/5 phases verified, integration and E2E flow wired, Nyquist-compliant and security-clean. Ready to
 complete.
 

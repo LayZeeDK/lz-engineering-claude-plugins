@@ -7,6 +7,10 @@ status: complete
 
 # Summary: Add CHANGELOG + v0.0.1 GitHub Release
 
+> **Superseded (2026-07-04):** the `v0.0.1` tag and release created by this task were
+> later renamed to plugin-scoped `lz-tdd@0.0.1` by the `retag-milestone-lz-tdd` quick task.
+> The `v0.0.1` references below are the historical record of what this task did at the time.
+
 ## What was done
 
 - Added root `CHANGELOG.md` (Keep a Changelog 1.1.0 + SemVer) with a `[0.0.1] - 2026-07-04`

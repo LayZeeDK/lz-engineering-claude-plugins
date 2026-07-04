@@ -75,7 +75,7 @@ Milestone 0.0.1 is fully shipped and validated (Phases 1-5). No active requireme
 
 ## Context
 
-- **Current state (v0.0.1 shipped 2026-07-04):** first public release complete -- marketplace + `lz-tdd` plugin + dual-mode `lz-tpp` skill, ~909 LOC under `plugins/` (Markdown / JSON / TS), MIT-licensed, `claude plugin validate .` clean. All 24 milestone requirements satisfied; evals confirm 100%/100% trigger recall/specificity and 29/30 coaching accuracy. Next: define the post-0.0.1 milestone via `/gsd-new-milestone`.
+- **Current state (lz-tdd@0.0.1 shipped 2026-07-04):** first public release complete -- marketplace + `lz-tdd` plugin + dual-mode `lz-tpp` skill, ~909 LOC under `plugins/` (Markdown / JSON / TS), MIT-licensed, `claude plugin validate .` clean. All 24 milestone requirements satisfied; evals confirm 100%/100% trigger recall/specificity and 29/30 coaching accuracy. Next: define the post-0.0.1 milestone via `/gsd-new-milestone`.
 - Authoritative sources (from the brief):
   - The Transformation Priority Premise -- https://blog.cleancoder.com/uncle-bob/2013/05/27/TheTransformationPriorityPremise.html
   - Fib. The T-P Premise. -- https://blog.cleancoder.com/uncle-bob/2013/05/27/FibTPP.html
@@ -104,14 +104,14 @@ Milestone 0.0.1 is fully shipped and validated (Phases 1-5). No active requireme
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| Repo is a marketplace named `lz-engineering-claude-plugins` (plural) | Hosts multiple engineering plugins over time; name matches intent | Good -- shipped v0.0.1; marketplace resolves + validates from the public repo |
+| Repo is a marketplace named `lz-engineering-claude-plugins` (plural) | Hosts multiple engineering plugins over time; name matches intent | Good -- shipped lz-tdd@0.0.1; marketplace resolves + validates from the public repo |
 | First plugin is `lz-tdd` (TDD-focused) | Groups TDD skills; `lz-tpp` is its first skill | Good -- `lz-tdd` ships with `lz-tpp`; additive layout ready for more TDD skills |
 | First skill is `lz-tpp` (`/lz-tdd:lz-tpp`) | TPP is the initial high-value TDD capability | Good -- shipped; evals confirm strong triggering + coaching accuracy |
 | Skill is coach + reference | Drives next-transformation choice during TDD and explains the premise on demand | Good -- dual-mode verified: auto-triggers as coach, answers on demand as reference |
 | Language-agnostic principles with TypeScript examples (functional + imperative) | Broad applicability, grounded in the user's primary stack; paradigm pairing shows how transformation priority shifts (recursion/expressions vs iteration/assignment), per Martin's language-specificity note | Good -- paired FP/imperative TS examples + Fibonacci walk + TCO guidance shipped, tsc-clean |
 | Public GitHub, MIT license | Open-source distribution via `/plugin marketplace add` | Good -- MIT LICENSE + public repo; marketplace-add install loop verified |
 | Build via `skill-creator` + `plugin-dev` | Follow first-party authoring workflows and guidelines | Good -- passed plugin-validator + skill-reviewer + `validate --strict` (exit 0) |
-| First milestone is version 0.0.1 (pre-1.0) | Signals early/experimental status; `plugin.json` version 0.0.1 | Good -- shipped as 0.0.1; GSD milestone id reconciled to v0.0.1 at complete-milestone |
+| First milestone is version 0.0.1 (pre-1.0) | Signals early/experimental status; `plugin.json` version 0.0.1 | Good -- shipped as 0.0.1; GSD milestone id reconciled to v0.0.1 then plugin-scoped to lz-tdd@0.0.1 at complete-milestone |
 
 ## Evolution
 
@@ -131,4 +131,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-07-04 after v0.0.1 milestone completion*
+*Last updated: 2026-07-04 after lz-tdd@0.0.1 milestone completion*

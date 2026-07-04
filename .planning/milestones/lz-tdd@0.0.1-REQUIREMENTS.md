@@ -1,4 +1,4 @@
-# Requirements Archive: v0.0.1 First Release
+# Requirements Archive: lz-tdd@0.0.1 First Release
 
 **Archived:** 2026-07-03
 **Status:** SHIPPED

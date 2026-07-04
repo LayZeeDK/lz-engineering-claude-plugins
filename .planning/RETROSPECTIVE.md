@@ -2,7 +2,7 @@
 
 *A living document updated after each milestone. Lessons feed forward into future planning.*
 
-## Milestone: v0.0.1 -- First Release
+## Milestone: lz-tdd@0.0.1 -- First Release
 
 **Shipped:** 2026-07-04
 **Phases:** 5 | **Plans:** 11 | **Tasks:** 15
@@ -22,7 +22,7 @@
 ### What Was Inefficient
 - **Work-email exposure recurred twice.** The work email leaked into git history in Phase 1 (fixed via `git filter-repo` + force-push) and again in an unpushed Phase 5 commit (fixed via amend). A post-commit allowlist gate is now the standing guard.
 - **SUMMARY.md frontmatter lag.** `requirements_completed` was left empty in 04-01 and 05-01..04; VERIFICATION.md carried the real coverage, so the audit had to reconcile manually.
-- **Version-numbering split.** GSD tracked the milestone as `v1.0` while the product shipped semver `0.0.1`; the mismatch rode along as tech debt until being reconciled to `v0.0.1` at complete-milestone. Decide the milestone-id-vs-product-version convention up front next time.
+- **Version-numbering churn.** GSD tracked the milestone as `v1.0` while the product shipped semver `0.0.1`; it was reconciled to `v0.0.1` at complete-milestone, then re-scoped again to plugin-qualified `lz-tdd@0.0.1` (because the marketplace hosts multiple plugins). Two relabels that a single up-front decision would have avoided. Decide the milestone-id convention -- and whether to scope it per plugin (`<plugin>@<semver>`) -- before the first tag next time.
 - **Upstream tooling gaps on Windows/arm64.** The skill-creator eval runner was broken on Windows (select-based harness) and mis-detected triggers cross-OS; the repo had to vendor a native-fixed harness under `.claude/skills/lz-tpp-workspace/tools`.
 
 ### Patterns Established
@@ -49,13 +49,13 @@
 
 | Milestone | Phases | Plans | Key Change |
 |-----------|--------|-------|------------|
-| v0.0.1 | 5 | 11 | Baseline: content-dependency phasing + optional-final non-blocking eval phase |
+| lz-tdd@0.0.1 | 5 | 11 | Baseline: content-dependency phasing + optional-final non-blocking eval phase |
 
 ### Cumulative Quality
 
 | Milestone | Requirements | Audit | Eval |
 |-----------|--------------|-------|------|
-| v0.0.1 | 24/24 satisfied | passed (Nyquist COMPLIANT, security CLEAN) | trigger 100%/100%, coaching 29/30 |
+| lz-tdd@0.0.1 | 24/24 satisfied | passed (Nyquist COMPLIANT, security CLEAN) | trigger 100%/100%, coaching 29/30 |
 
 ### Top Lessons (Verified Across Milestones)
 

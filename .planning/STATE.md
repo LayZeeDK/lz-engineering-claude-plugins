@@ -1,11 +1,11 @@
 ---
 gsd_state_version: 1.0
-milestone: v0.0.1
+milestone: lz-tdd@0.0.1
 milestone_name: First Release
 status: Awaiting next milestone
-stopped_at: v0.0.1 milestone complete -- all 5 phases shipped
+stopped_at: lz-tdd@0.0.1 milestone complete -- all 5 phases shipped
 last_updated: "2026-07-03T22:54:01.763Z"
-last_activity: 2026-07-04 -- Quick task: CHANGELOG.md + v0.0.1 GitHub Release
+last_activity: 2026-07-04 -- Quick task: renamed tag/milestone/release/changelog to lz-tdd@0.0.1
 progress:
   total_phases: 5
   completed_phases: 5
@@ -22,14 +22,14 @@ See: .planning/PROJECT.md (updated 2026-07-04)
 
 **Core value:** `lz-tpp` helps Claude choose the next code transformation by TPP priority during red-green-refactor TDD, and explains the premise on demand.
 **Current focus:** Planning the next milestone (post-0.0.1)
-**Milestone:** v0.0.1 (First Release) -- SHIPPED 2026-07-04
+**Milestone:** lz-tdd@0.0.1 (First Release) -- SHIPPED 2026-07-04
 
 ## Current Position
 
-Phase: Milestone v0.0.1 complete
+Phase: Milestone lz-tdd@0.0.1 complete
 Plan: --
 Status: Awaiting next milestone
-Last activity: 2026-07-04 -- Milestone v0.0.1 completed and archived
+Last activity: 2026-07-04 -- Milestone lz-tdd@0.0.1 completed and archived
 
 ## Performance Metrics
 
@@ -76,7 +76,7 @@ None yet.
 
 ### Blockers/Concerns
 
-None open. v0.0.1 shipped with all prior concerns resolved:
+None open. lz-tdd@0.0.1 shipped with all prior concerns resolved:
 
 - RESOLVED (2026-07-02): repo renamed to plural `lz-engineering-claude-plugins`, GitHub repo created, `origin` wired, `main` in sync; `claude plugin marketplace add LayZeeDK/lz-engineering-claude-plugins` clones + validates the marketplace and resolves `./plugins/lz-tdd` (closed D-13's ship-time deferral).
 - RESOLVED (2026-07-03): triggering accuracy (SKILL-05 / EVAL-01) validated empirically via the native eval harness -- 100% recall / 100% specificity on the shipped description.
@@ -94,7 +94,8 @@ Items acknowledged and carried forward from previous milestone close:
 | Date | Slug | Status | Notes |
 |------|------|--------|-------|
 | 2026-07-02 | triage-lz-tpp-doc-review | complete | All 5 findings resolved: 1/2/4 applied (+ `:223-224` leak); #3 aggressive trim (provenance -> `.planning/` companion, 224->116 lines); #5 keep `.planning/` committed |
-| 2026-07-04 | changelog-and-github-release | complete | Added root CHANGELOG.md (v0.0.1 entry, commit 003219b) + pushed; published GitHub Release v0.0.1 "First Release" on the v0.0.1 tag |
+| 2026-07-04 | changelog-and-github-release | complete | Added root CHANGELOG.md (lz-tdd@0.0.1 entry, commit 003219b) + pushed; published GitHub Release lz-tdd@0.0.1 "First Release" on the lz-tdd@0.0.1 tag |
+| 2026-07-04 | retag-milestone-lz-tdd | complete | Renamed identifier v0.0.1 -> lz-tdd@0.0.1 across git tag, GitHub Release, GSD milestone (.planning/ + archive files), and the CHANGELOG entry -- plugin-scoped versioning for the multi-plugin marketplace |
 
 ## Session Continuity
 

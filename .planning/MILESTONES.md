@@ -1,12 +1,12 @@
 # Milestones
 
-## v0.0.1 First Release (Shipped: 2026-07-04)
+## lz-tdd@0.0.1 First Release (Shipped: 2026-07-04)
 
 **Delivered:** The first public release of the `lz-engineering-claude-plugins` marketplace -- the `lz-tdd` plugin and its dual-mode `lz-tpp` skill (`/lz-tdd:lz-tpp`), a TDD coach + reference for Robert C. Martin's Transformation Priority Premise.
 
 **Phases completed:** 5 phases, 11 plans, 15 tasks
 **Timeline:** 2026-07-02 -> 2026-07-04 (3 days); ~909 LOC shipped under `plugins/`; 134 commits (9 `feat(`).
-**Version note:** GSD milestone id reconciled from `v1.0` to `v0.0.1` at complete-milestone to match the product semver (`plugin.json` 0.0.1). Git tag: `v0.0.1`.
+**Version note:** GSD milestone id `lz-tdd@0.0.1` -- plugin-scoped (plugin `lz-tdd` at semver `0.0.1`). Originally tracked as `v1.0`, relabeled `v0.0.1` (to match the `plugin.json` semver), then `lz-tdd@0.0.1` (the marketplace hosts multiple plugins, so versions are scoped per plugin). Git tag and GitHub Release: `lz-tdd@0.0.1`.
 
 **Key accomplishments:**
 

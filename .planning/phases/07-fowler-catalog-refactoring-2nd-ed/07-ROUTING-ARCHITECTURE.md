@@ -52,8 +52,21 @@ SKILL.md is NOT retouched: its existing pointers `references/fowler-catalog/READ
 - `# <Name>` + 1st-ed alias(es) if any
 - `Use when:` one line -- the SITUATION/seam that calls for it (serves smell-adjacent selection AND
   preparatory matching); MIRRORED verbatim into the catalog index row
-- `## Motivation` / `## Mechanics` (distilled, original words) / `## Example` (TS before->after, both
-  `tsc --strict`-clean) / provenance label if `[web-only]` / `[web-example]`
+- `## Motivation` -- 2-4 sentences, original words: the WHY (also serves human explain-mode)
+- `## Mechanics` -- 4-8 numbered, verb-first imperative steps (distilled, original words); name the
+  test/compile checkpoint inline where the behavior-preservation guarantee lives
+- `## Example` -- ONE compact TS before->after, 5-15 lines per side, only the code the refactoring
+  touches; both `tsc --strict`-clean; optional 1-line marker tying a diff point to a step. Add a 2nd
+  example ONLY for a genuinely distinct variant (hard cap 2). NOT a book-style multi-step evolving
+  walkthrough.
+- `## Watch for` -- 0-3 bullets, optional: when NOT to apply / common misapplication
+- provenance label if `[web-only]` (Return Modified Value) / `[web-example]` (Split Phase examples)
+- Voice: imperative/infinitive (verb-first), lean; explain the WHY over heavy ALWAYS/NEVER.
+- Overflow rule (YAGNI): only if a refactoring's teaching value truly lives in intermediate states,
+  push an evolving walkthrough to a deeper `<name>-walkthrough.md` loaded only in explain-in-depth
+  mode; the leaf keeps the compact before/after.
+- Content-format basis: OpenAI GPT-4.1 guide + Google few-shot + Anthropic multishot/skills +
+  plugin-dev/skill-creator -- one compact example beats a long one; numbered imperative steps; lean.
 
 **Catalog index** (`fowler-catalog/README.md`): 7 chapter headings; per entry = name + alias(es) +
 mirrored `Use when:` + link. Name/alias -> leaf resolver (reference mode) and browse/preparatory

@@ -79,6 +79,40 @@ Validated 2026-07-05: a manual clean-room A-vs-B comparison on Extract Function 
 (substance returned with no verbatim) and caught two dropped steps (isolation compile, dedup), now
 restored. This is the proof the loop catches real omissions while holding the firewall.
 
+## Comprehensive review dimensions (structural review is only half)
+
+The manual pilot runs were STRUCTURAL only (step/candidate presence, order, drops, discriminator
+drift, rough near-verbatim). A full-text `oracle-reviewer` pass must also cover the SEMANTIC and
+graph dimensions structural review is blind to. Division of labor:
+
+**`oracle-reviewer` (semantic; needs full text):**
+- **example** -- behavior-preservation (the core refactoring invariant; a `tsc`-clean example can
+  still change behavior -- this upgrades FWL-04's behavior-preserving clause from manual-only to
+  reviewer-gated) + representativeness (demonstrates THIS refactoring, canonical case, honors
+  preconditions).
+- **motivation + spirit** -- captures the source's reasons with correct EMPHASIS; no invented
+  reasons; correct conceptual distinctions, terminology, aliases, attributions.
+- **applicability** -- source caveats / limits / when-not-to-use represented, none invented.
+- **order-safety** -- mechanics in a safe order (flagged as an alignment `drifted`).
+- **near-verbatim (full-strength DST-04)** -- prose, mechanics phrasing, AND example code
+  (domain/identifiers/structure).
+- plus the structural alignment (drops/drifts) + additions/hallucination detection.
+
+**Harness (deterministic):**
+- set completeness (all 62 refactorings + 24 smells present), correct chapter assignment, no dupes;
+- bidirectional cross-ref consistency (smell <-> refactoring, inverse-of pairs mutually declared),
+  all cross-links resolve, no self-referential links;
+- no draft-scaffolding phrases (TODO / "once it exists"); ASCII-only; no work-email;
+- `tsc --strict` compile of every extracted example (before AND after).
+
+**Leaf contract additions (fold into the replan):** every refactoring leaf carries a
+behavior-preserving, representative example; an applicability/`Watch for` note faithful to the
+source; the correct canonical name + 1st-ed aliases; and correct cross-refs (inverse-of / see-also /
+addressed-smells).
+
+**Process:** the pilot's oracle review is COMPREHENSIVE (all applicable axes), not the structural
+dry-run the manual comparisons were.
+
 ## Reuse
 
 Book-agnostic: the same `.oracle/` + `oracle-reviewer` loop serves Phase 8 (Kerievsky under

@@ -31,3 +31,8 @@ Thumbs.db
 .claude/skills/*-workspace/**/trigger-workspace/
 # Generated TS modules from the FWL-04 compile harness (extract-samples.mjs) -- never committed.
 .claude/skills/*-workspace/**/samples/
+
+# Clean-room oracle: authoritative copyrighted source excerpts (Fowler/Kerievsky/GoF book
+# patterns in Markdown). NEVER committed. Only the read-only oracle-reviewer subagent reads this;
+# the main authoring context never does, so verbatim book prose cannot leak into the repo (DST-04).
+.oracle/

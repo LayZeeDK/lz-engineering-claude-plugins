@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: lz-tdd@0.0.2
 milestone_name: lz-refactor Skill (Fowler + Kerievsky)
-status: executing
+status: verifying
 stopped_at: Phase 6 context gathered
-last_updated: "2026-07-04T16:59:15.343Z"
-last_activity: 2026-07-04 -- Phase 6 planning complete
+last_updated: "2026-07-04T17:10:18.121Z"
+last_activity: 2026-07-04
 progress:
   total_phases: 6
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 1
-  completed_plans: 0
-  percent: 0
+  completed_plans: 1
+  percent: 17
 ---
 
 # Project State
@@ -21,15 +21,15 @@ progress:
 See: .planning/PROJECT.md (updated 2026-07-04)
 
 **Core value:** `lz-tpp` helps Claude choose the next code transformation by TPP priority during red-green-refactor TDD, and explains the premise on demand. lz-tdd@0.0.2 adds `lz-refactor` to drive the refactor step.
-**Current focus:** lz-tdd@0.0.2 -- roadmap complete (Phases 6-11); ready to plan Phase 6.
+**Current focus:** Phase 6 — lz-refactor-skill-scaffold-progressive-disclosure
 **Milestone:** lz-tdd@0.0.2 (lz-refactor Skill) -- planning
 
 ## Current Position
 
-Phase: 6 -- lz-refactor Skill Scaffold & Progressive Disclosure (not started)
-Plan: —
-Status: Ready to execute
-Last activity: 2026-07-04 -- Phase 6 planning complete
+Phase: 6 (lz-refactor-skill-scaffold-progressive-disclosure) — EXECUTING
+Plan: 1 of 1
+Status: Phase complete — ready for verification
+Last activity: 2026-07-04
 
 ## Performance Metrics
 
@@ -54,6 +54,7 @@ Last activity: 2026-07-04 -- Phase 6 planning complete
 - Trend: -
 
 *Updated after each plan completion*
+| Phase 06 P01 | 6 | 3 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -68,6 +69,9 @@ Recent decisions affecting current work:
 - Roadmap (0.0.2): CCH + PRIN combined in Phase 9 -- the coach behavior and the no-oracle principle cross-refs (Beck x2, Feathers) are authored together on top of both catalogs.
 - Roadmap (0.0.2): EVL-01/EVL-02 isolated in Phase 11 as a late, non-blocking pass; Phases 6-10 (the public ship) do not depend on it.
 - Milestone constraints baked into phases: owner acts as authoritative oracle (Fowler/Kerievsky/GoF verified against the owner's e-book/web editions at checkpoints -- which include all 66 Fowler refactorings, print-absent entries included; print-absent entries + Split Phase provenance-labeled); Beck/Feathers unowned -> high-confidence core only, tagged no-oracle; no verbatim book prose/code in the shipped tree; all TS/JS samples tsc --strict-clean; progressive disclosure grounded in the angular-developer skill + skill-creator/plugin-dev guidance + in-house lz-tpp.
+- [Phase ?]: Phase 6 (06-01): lz-refactor scaffold shipped -- dual-mode-by-omission router (name+description only), five references/ stubs, two splittable catalog subdirs behind thin indexes; Wave-0 checker + claude plugin validate both exit 0.
+- [Phase ?]: Phase 6: SKILL.md kept lean at 70 lines (under ~90-150 soft target, well under 500 cap); content deferred to references/ per progressive disclosure.
+- [Phase ?]: Phase 6 carry-forward (D-09): Phases 7 and 8 MUST open an AskUserQuestion oracle-access checkpoint (Fowler e-book/web ISBN 9780135425664, Kerievsky book, GoF e-book) before authoring catalog content; recorded inline in the catalog stubs.
 
 ### Pending Todos
 
@@ -98,9 +102,9 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-04T16:29:30.097Z
+Last session: 2026-07-04T17:09:25.892Z
 Stopped at: Phase 6 context gathered
-Resume file: .planning/phases/06-lz-refactor-skill-scaffold-progressive-disclosure/06-CONTEXT.md
+Resume file: None
 
 ## Operator Next Steps
 

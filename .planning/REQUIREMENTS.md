@@ -12,10 +12,10 @@ Requirements for this milestone. Each maps to exactly one roadmap phase.
 
 ### Skill Structure & Progressive Disclosure
 
-- [ ] **SKEL-01**: User can invoke `/lz-tdd:lz-refactor`; the skill lives at `plugins/lz-tdd/skills/lz-refactor/SKILL.md` with dual-mode default frontmatter (auto-triggers as a coach AND is user-invocable as a reference)
-- [ ] **SKEL-02**: The skill uses progressive disclosure -- a lean router `SKILL.md` that lazy-loads `references/` docs grouped by task area (Fowler catalog, smell taxonomy, principles, Kerievsky patterns, refactoring-without-tests), modeled on the `angular-developer` skill and the skill-creator / plugin-dev authoring guidelines; `SKILL.md` stays within the size budget (< 500 lines)
-- [ ] **SKEL-03**: The `description` is tuned to trigger on refactor-step / code-smell / refactoring-catalog prompts and stay quiet on near-misses, within the description character cap, per skill-creator description guidance
-- [ ] **SKEL-04**: Each `references/` doc is reachable from `SKILL.md` via a one-level-deep pointer, and heavy catalog material is bundled (not inlined), so no single file forces the whole catalog into context
+- [x] **SKEL-01**: User can invoke `/lz-tdd:lz-refactor`; the skill lives at `plugins/lz-tdd/skills/lz-refactor/SKILL.md` with dual-mode default frontmatter (auto-triggers as a coach AND is user-invocable as a reference)
+- [x] **SKEL-02**: The skill uses progressive disclosure -- a lean router `SKILL.md` that lazy-loads `references/` docs grouped by task area (Fowler catalog, smell taxonomy, principles, Kerievsky patterns, refactoring-without-tests), modeled on the `angular-developer` skill and the skill-creator / plugin-dev authoring guidelines; `SKILL.md` stays within the size budget (< 500 lines)
+- [x] **SKEL-03**: The `description` is tuned to trigger on refactor-step / code-smell / refactoring-catalog prompts and stay quiet on near-misses, within the description character cap, per skill-creator description guidance
+- [x] **SKEL-04**: Each `references/` doc is reachable from `SKILL.md` via a one-level-deep pointer, and heavy catalog material is bundled (not inlined), so no single file forces the whole catalog into context
 
 ### Fowler Catalog (Refactoring, 2nd ed)
 
@@ -87,10 +87,10 @@ Which phase covers which requirement. Populated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| SKEL-01 | Phase 6 | Pending |
-| SKEL-02 | Phase 6 | Pending |
-| SKEL-03 | Phase 6 | Pending |
-| SKEL-04 | Phase 6 | Pending |
+| SKEL-01 | Phase 6 | Complete |
+| SKEL-02 | Phase 6 | Complete |
+| SKEL-03 | Phase 6 | Complete |
+| SKEL-04 | Phase 6 | Complete |
 | FWL-01 | Phase 7 | Pending |
 | FWL-02 | Phase 7 | Pending |
 | FWL-03 | Phase 7 | Pending |

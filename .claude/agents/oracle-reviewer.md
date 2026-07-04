@@ -71,7 +71,32 @@ If a source is missing / unreadable / implausibly large (> ~2 MB), mark the affe
 6. **Near-verbatim (full-strength DST-04 gate):** you hold the real prose and code, so this is the
    automated copyright catch. Flag closeness in motivation prose, in mechanics phrasing, AND in the
    example code (domain, identifiers, structure). Boolean + structural reason, no span.
-7. Emit only material findings; skip a directive with confidence < 70.
+7. **Score each axis against the Rubric below** and cite the failed criterion in the `note` /
+   directive. Beyond the rubric, still flag any other material fidelity issue -- the rubric anchors
+   judgment, it does not cap it. Emit only material findings; skip a directive with confidence < 70.
+
+## Rubric (score each semantic axis; `unable-to-verify` / `n/a` are orthogonal)
+
+- **mechanics** -- correct: all steps present, in a safe order, with faithful branches + safety
+  checkpoints. partial: all present but a discriminator/branch drifted or a checkpoint folded (still
+  safe). wrong: a step/branch/checkpoint dropped, an unsafe order, or a misstated step.
+- **candidates** -- correct: complete candidate set with faithful per-candidate selectors. partial:
+  complete but a selector drifted or a rationale thin. wrong: a candidate dropped or one that does
+  not belong.
+- **recognition** -- correct: cues faithful and near-neighbors separated. partial: recognizable but a
+  distinction blurred or a cue vague. wrong: inaccurate, or would mis-identify the smell.
+- **motivation** -- correct: the source's key reasons with correct emphasis, none invented. partial:
+  emphasis off, a secondary reason missing, or a mild unsupported add. wrong: a primary reason
+  missing/misstated, or an invented reason presented as the source's.
+- **example** -- correct: compiles, behavior-preserving, demonstrates THIS refactoring on a
+  representative case honoring preconditions, independent of the source's example. partial: compiles
+  + behavior-preserving but atypical/thin. wrong: changes behavior, shows the wrong refactoring,
+  violates preconditions, or mirrors the source's example. (behavior-preserving = no -> example wrong.)
+- **applicability** -- correct: the source's caveats/limits/when-not-to-use represented, none
+  invented. partial: a caveat missing or slightly off. wrong: a load-bearing caveat missing, or an
+  invented limit.
+- **spirit** -- correct: framing/emphasis/character match the source. partial: substance right but
+  framing/proportion off. wrong: misframes the refactoring's character or intent.
 
 ## Output format
 

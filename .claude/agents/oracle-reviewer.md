@@ -133,7 +133,7 @@ no source phrasing>", "status": "matched|drifted|source-only|draft-only", "note"
 prose span, example identifier, domain term, or path>" }], "additions": [{ "item": "<own-words
 label>", "assessment": "likely-correct|doubtful", "note": "<own words; same ban>" }],
 "too_close_to_source": false, "too_close_reason": "<own words, by category; empty if false>",
-"directives": ["<structural own-words fix, <=20 words, no quote>"], "ambiguities": "<own words;
+"directives": ["<structural own-words fix, <=20 words; no quote, example identifier, domain term, or path>"], "ambiguities": "<own words;
 same ban; or empty>", "confidence": "<0-100: confidence in this verdict>" }]`
 
 `axes` keys are the axes in play. **The round is CLEAN iff every entry's `verdict` is `pass`.** A

@@ -16,8 +16,8 @@ references, or `.planning/` artifacts (DST-04).
 ## Firewall
 
 - **`.oracle/`** -- git-ignored (committed `.gitignore` entry); holds the owner's authoritative book
-  excerpts in Markdown, e.g. `.oracle/refactoring-2e/<slug>.md`. NEVER committed. The main context
-  NEVER reads it.
+  as per-chapter Markdown files under `.oracle/refactoring-2e/` (see the mapping in Provisioning).
+  NEVER committed. The main context NEVER reads it (only `ls` for names).
 - **`.claude/agents/oracle-reviewer.md`** -- read-only (`tools: Read, Grep, Glob`), `model: opus`,
   deliberate (non-proactive) invocation. Reads the draft + the `.oracle` source in its OWN isolated
   context and returns ONLY a structured verdict. It never quotes, paraphrases, transcribes, or echoes
@@ -27,10 +27,16 @@ references, or `.planning/` artifacts (DST-04).
   `intent_ok`, `spirit_ok`, `too_close_to_source` (bool + structural reason, no span), `directives`
   (short original imperatives, <= 20 words), `ambiguities`, `confidence`.
 
-## Provisioning: per-chapter just-in-time
+## Provisioning: full book present, navigated via index.md
 
-The owner drops a chapter's source files into `.oracle/refactoring-2e/` only when we reach that
-chapter -- not all 62 up front.
+As of 2026-07-05 the FULL book is present as per-chapter Markdown files under
+`.oracle/refactoring-2e/` with `index.md` as the navigation entry. **Point `oracle-reviewer` at
+`.oracle/refactoring-2e/index.md`** and it navigates to the relevant chapter file(s) itself -- the
+driver does not hardcode chapter paths. (Reference mapping: Ch.2 principles ->
+`06-chapter-2-...md`; Ch.3 smells -> `07-chapter-3-...md`; Ch.6-12 catalog ->
+`10-chapter-6-...md` .. `16-chapter-12-...md`; supplementary: `02-list-of-refactorings.md`,
+`20-code-snippets.md`, `images/`.) The main context only ever `ls`-es names; the reviewer reads
+content.
 
 **What the source contains:** the owner drops the **FULL-TEXT** authoritative excerpts (prose,
 mechanics, examples, and the smell -> refactoring / refactoring -> refactoring cross-references).

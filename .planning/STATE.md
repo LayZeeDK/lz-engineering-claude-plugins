@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: lz-tdd@0.0.2
 milestone_name: lz-refactor Skill (Fowler + Kerievsky)
 status: executing
-stopped_at: Phase 7 re-planned (scope-correction); oracle agents converged
+stopped_at: Phase 7 Wave 2 pilot (07-02) complete; clean-room oracle loop calibrated
 last_updated: "2026-07-05"
 last_activity: 2026-07-05
 progress:
   total_phases: 6
   completed_phases: 1
   total_plans: 11
-  completed_plans: 2
-  percent: 18
+  completed_plans: 3
+  percent: 27
 ---
 
 # Project State
@@ -27,8 +27,8 @@ See: .planning/PROJECT.md (updated 2026-07-04)
 ## Current Position
 
 Phase: 7 (Fowler Catalog (Refactoring, 2nd ed)) — EXECUTING
-Plan: next is 07-02 of 10 (scope-corrected re-plan: 62 refactorings, chapter-grouped per-refactoring leaves, clean-room oracle loop)
-Status: Re-planned + plan-checked (READY-WITH-NOTES, W1/W2 applied). Wave 1 done (07-01 harness); 07-03 principles authored + oracle-converged (SUMMARY pending). Blocked on user `/reload-plugins` before Wave 2.
+Plan: Wave 2 pilot 07-02 DONE (11/62 leaves); next is Wave 3 = 07-04..07-09 (Ch.7-12, parallel, file-disjoint), then Wave 4 = 07-10 (24 smells + indexes + phase-gate battery green)
+Status: Wave 1 done (07-01 harness). Wave 2 pilot 07-02 CONVERGED (11/11 Ch.6 leaves pass; 3 oracle rounds; 1 owner escalation -> Split Phase [web-example] DROPPED). Clean-room loop + rubric anchors + 62 name->slug map calibrated and pinned in 07-02-SUMMARY.md. Harness overhauled to 62/per-leaf/smell-leaf + check-crossrefs. OPEN: 07-03 principles.md needs a `definition`-token fix + SUMMARY (check-principles 7/8 RED); check-crossrefs + check-catalog(62)/check-smells(24) close at 07-10.
 Last activity: 2026-07-05
 
 ## Performance Metrics
@@ -111,8 +111,10 @@ Resume file: None
 
 ## Operator Next Steps
 
-- Run `/reload-plugins` to make the converged clean-room `oracle`/`oracle-reviewer` agents live
-  (the live registry still holds the pre-fix agents).
-- Then resume execute-phase at Wave 2: `07-02` (basic-chapter pilot -- calibrates the blind-author ->
-  oracle-reviewer-gate -> converge loop + overhauls the harness to 62-scope), then Wave 3
-  (`07-04..07-09` chapters, parallel), then Wave 4 (`07-10` smells + indexes + README finalize).
+- Wave 2 pilot (07-02) is complete + committed; the clean-room `oracle`/`oracle-reviewer` agents are
+  live and calibrated (rubric anchors + per-leaf round counts in 07-02-SUMMARY.md).
+- Next: Wave 3 = `07-04..07-09` (Ch.7-12 chapters, parallel + file-disjoint) via the same loop;
+  each consumes the 62 name->slug map + rubric anchors from `07-02-SUMMARY.md`. Then Wave 4 = `07-10`
+  (24 smell leaves + navigation indexes + finalize README + full checker battery GREEN = phase gate).
+- Before phase close: (a) fix 07-03 `principles.md` `definition`-token gap (check-principles 7/8 RED)
+  + write 07-03-SUMMARY; (b) verify_phase_goal -> secure-phase -> validate-phase -> extract-learnings.

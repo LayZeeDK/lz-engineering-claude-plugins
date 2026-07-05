@@ -1,37 +1,39 @@
 # Fowler Catalog (Refactoring, 2nd ed) -- index
 
-Scope: all 66 Fowler refactorings, provenance-labeled. Coach mode routes mechanical smells here;
-reference mode looks up a named Fowler refactoring here. This is a THIN index entry-point -- entry
-content lives in split leaf files (added in Phase 7), never inlined here (SKEL-04).
+Scope: the 62 Fowler refactorings, grouped by their book chapter. Coach mode routes a mechanical
+smell here; reference mode looks up a named refactoring here. This is a THIN index -- each row is a
+name, its 1st-ed alias(es), and the leaf's `Use when:` line; the mechanics and example live in the
+per-refactoring leaf file, never inlined here.
 
-> Populated in Phase 7. Owner acts as the authoritative oracle.
-> Phase 7 MUST open an AskUserQuestion oracle-access checkpoint BEFORE authoring any content
-> (owner Fowler *Refactoring* 2nd-ed e-book / web edition, ISBN 9780135425664; GoF e-book for
-> pattern vocabulary only). Do NOT fabricate catalog content. No verbatim Fowler or GoF prose or
-> code, even here (DST-04).
+Provenance legend:
 
-## Per-entry content contract
+- `[web-only]` -- present in the online catalog and verified against the web edition, not in the
+  2nd-ed print/e-book (the sole such entry is Return Modified Value).
 
-Each of the 66 refactorings, when populated in Phase 7, carries:
+## Ch.6 -- a first set of refactorings (the basic set)
 
-- Name -- the 2nd-ed canonical name, plus the 1st-ed alias(es) it replaces, if any.
-- Motivation -- distilled in original words (no verbatim book prose).
-- Distilled mechanics -- the step sequence in original words (no verbatim book prose).
-- TS/JS example -- before -> after, original code, `tsc --strict` clean.
-- Provenance label -- mark the 5 print-absent "+" entries (web-edition-only) and any
-  Split Phase online-only material as such, so print vs web edition is auditable.
+| Refactoring | 1st-ed aliases | Use when |
+|---|---|---|
+| [Extract Function](extract-function.md) | Extract Method | a fragment of code can be understood on its own and given a name that says what it does, not how. |
+| [Inline Function](inline-function.md) | Inline Method | a function's body is as clear as its name, or a set of poorly-factored functions is easier to reorganize once merged back inline. |
+| [Extract Variable](extract-variable.md) | Introduce Explaining Variable | an expression is hard to read, and naming a sub-expression would explain its role. |
+| [Inline Variable](inline-variable.md) | Inline Temp | a variable's name says no more than the expression it holds, and it gets in the way of further refactoring. |
+| [Change Function Declaration](change-function-declaration.md) | Add/Remove Parameter, Rename Function/Method, Change Signature | a function's name does not reveal its purpose, or its parameter list is wrong for how it is used. |
+| [Encapsulate Variable](encapsulate-variable.md) | Encapsulate Field, Self-Encapsulate Field | data with a wide scope -- especially mutable, shared, or global data -- is read and written directly, and you want one place to control that access. |
+| [Rename Variable](rename-variable.md) | -- | a variable's name does not convey what it holds, and a clearer name would capture what you now understand. |
+| [Introduce Parameter Object](introduce-parameter-object.md) | -- | the same group of arguments travels together through several functions (a data clump). |
+| [Combine Functions into Class](combine-functions-into-class.md) | -- | several functions operate closely on the same piece of data and keep passing it around. |
+| [Combine Functions into Transform](combine-functions-into-transform.md) | -- | several functions derive extra values from the same source record, and the source is not updated after the fact. |
+| [Split Phase](split-phase.md) | -- | one block of code does two distinct things in sequence -- typically it prepares some data and then computes a result from it. |
 
-## Deferred: intra-catalog split axis (D-04)
+## Ch.7 -- encapsulation
 
-The subdir + this thin index admit ANY split axis without re-touching SKILL.md. Phase 7 planning
-picks the axis (oracle-informed); Phase 6 does NOT pick one and does NOT create leaf files yet.
+## Ch.8 -- moving features between objects
 
-Candidate axes (report only, not a decision):
+## Ch.9 -- organizing data
 
-- Fowler's own 20 tag-groups: basic, encapsulation, moving-features, organizing-data,
-  simplify-conditional-logic, refactoring-apis, dealing-with-inheritance, collections, delegation,
-  errors, extract, parameters, fragments, grouping-function, immutability, inline, remove, rename,
-  split-phase, variables.
-- Book-chapter grouping (Ch.6-12), or alphabetical / count-balanced buckets.
+## Ch.10 -- simplifying conditional logic
 
-<!-- Split axis DEFERRED to Phase 7 planning (D-04). Do NOT create per-axis leaf files in Phase 6. -->
+## Ch.11 -- refactoring APIs
+
+## Ch.12 -- dealing with inheritance

@@ -7,8 +7,9 @@
 //   - each leaf file name is the kebab-case slug of its heading name (deterministic cross-link target);
 //   - each leaf carries the contract fields: a one-line `Use when:` selector, a `## Motivation`
 //     section, a `## Mechanics` section, and a `## Example` section with >=1 ts/js fence;
-//   - the sole web-only entry (Return Modified Value) carries [web-only] and the sole web-example
-//     entry (Split Phase) carries [web-example]; no other leaf carries either marker;
+//   - the sole web-only entry (Return Modified Value) carries [web-only]; no leaf carries a
+//     [web-example] marker (owner reversed the scope-correction's Split Phase [web-example] label
+//     on 2026-07-05 -- Split Phase is a normal in-book Ch.6 refactoring);
 //   - no draft-scaffolding phrases leak into a leaf (uppercase TODO / "once it exists" / etc.);
 //   - each existing leaf's `Use when:` line is mirrored verbatim into its README index row.
 // Scope is 62 = the 66 web-catalog entries minus the 4 cut 1st-ed relics (see
@@ -95,9 +96,10 @@ const NAMES = [
 
 const EXPECTED = 62;
 
-// Provenance: exactly one web-only leaf and exactly one web-example leaf.
+// Provenance: exactly one web-only leaf; no web-example leaf (owner reversed the Split Phase
+// [web-example] label on 2026-07-05 -- it is a normal in-book Ch.6 refactoring).
 const WEB_ONLY = new Set(["Return Modified Value"]);
-const WEB_EXAMPLE = new Set(["Split Phase"]);
+const WEB_EXAMPLE = new Set();
 
 // Draft-scaffolding phrases that must never leak into a shipped leaf. Uppercase TODO only
 // (so a `todos` domain example never false-fails); the rest are unambiguous draft markers.

@@ -79,34 +79,37 @@ the rest (a consumer detects an error entry by the absence of `verdict`). Do not
    (an ADDITION). Confirm negatives by reading. Assert `source-only`/`drifted` at >=70% sure; route a
    40-70% suspicion to `ambiguities`; below 40% you hold no real suspicion (leaving it `matched` is
    not a soft-pass -- but never downgrade a suspicion you DO hold). If a large item set means a full
-   ordered listing would mirror the source's selection/order, report representative items + a count
-   (never the ordered rendering) -- this shapes your OUTPUT only, not the verdict.
+   ordered listing would mirror the source's selection/order, summarize only `matched` items as
+   representative + a count (never the ordered rendering); ALWAYS list every `source-only`/`drifted`
+   item individually -- defects are never summarized away. Shapes OUTPUT only, not the verdict.
 2. **Additions.** Judge each `draft-only` item `likely-correct` ONLY if it is a benign,
    source-independent aid (a cross-link, our own framing); anything else -- a substantive claim the
    source does not state or support, or one you cannot verify -- is `doubtful` (-> `revise`: remove
    or ground it).
 3. **Score each applicable axis** `correct` | `partial` | `wrong` (else `unable-to-verify` | `n/a`)
-   against the rubric. A `drifted` item forces its axis to at most `partial`. An axis is `n/a` when
-   the source chapter has nothing for it (e.g. a smell with no code sketch).
+   against the rubric. A `drifted` item forces its axis to at most `partial`. Mark `n/a` only when you
+   CONFIRM by reading that the source has nothing for that in-play axis -- not when you merely could
+   not find it (that is `unable-to-verify`).
 4. **Example semantics** (refactoring leaves): behavior-preserving? representative? preconditions
    honored? (behavior-preserving = no => `example` axis is `wrong`.)
 5. **Near-verbatim (full-strength DST-04):** report by category; boolean + reason.
-   `too_close_to_source` fires ONLY on shared EXPRESSION (prose, identifiers, domain terms, code, or
-   ordered phrasing) -- NEVER on shared allowed names or unavoidable factual overlap (those are not
-   too-close and must not trigger `revise`).
+   `too_close_to_source` fires ONLY on shared EXPRESSION (prose, identifiers, code, or ordered
+   phrasing) -- NEVER on shared allowed names or unavoidable factual overlap. A common example DOMAIN
+   alone (e.g. customers/orders) is NOT too-close; fire only on shared identifiers + code + structure.
 6. **Directives.** One covering directive per material finding (DROP, drift, doubtful add, too-close,
    sub-`correct` axis excluding `unable-to-verify`), structural + own-words, <=20 words. Emit when
    >=70% sure it's real; route a 40-70% concern to `ambiguities`; drop only below 40%.
 7. **Verdict.**
-   - `pass` iff every APPLICABLE axis (excluding ONLY `n/a`) is `correct` -- NO axis is
-     `unable-to-verify`, `partial`, or `wrong` -- AND `alignment` has no `source-only`/`drifted`,
-     `additions` has no `doubtful`, `behavior_preserving` is not `no`, `too_close_to_source` is
-     false, AND `ambiguities` is empty. (A `pass` has empty `directives`.)
+   - `pass` iff >=1 applicable axis is `correct` and every applicable axis (excluding ONLY `n/a`) is
+     `correct` -- NO axis is `unable-to-verify`, `partial`, or `wrong` -- AND `alignment` has no
+     `source-only`/`drifted`, `additions` has no `doubtful`, `behavior_preserving` is not `no`,
+     `too_close_to_source` is false, AND `ambiguities` is empty. (All-`n/a` is not a pass; a `pass`
+     has empty `directives`.)
    - `blocked` iff the only things preventing `pass` are human-resolvable causes not yet confirmed as
-     draft defects: `unable-to-verify` axes and/or non-empty `ambiguities`. Name the cause in
-     `ambiguities` (and via the `unable-to-verify` axes). If an axis is `unable-to-verify` because the
-     readable source is too large to confirm THAT axis, the driver re-submits with a narrower SOURCE
-     target (a subsection) for that axis. Do NOT emit a draft directive for a `blocked` cause. (Total
+     draft defects: `unable-to-verify` axes and/or non-empty `ambiguities`. Name each cause (in
+     `ambiguities`, or the `unable-to-verify` axis itself). If an axis is `unable-to-verify` because
+     the readable source is too large to confirm THAT axis, the driver re-submits with a narrower
+     SOURCE target (a subsection). Do NOT emit a draft directive for a `blocked` cause. (Total
      inability to read/navigate the source is an `error` object, not `blocked`.)
    - `revise` otherwise (a real draft defect); a `revise` has non-empty `directives`.
 
@@ -133,9 +136,10 @@ never an .oracle entry/path>", "entry_path": "<the draft repo file path; never a
 ["<structural fix, <=20 words>"], "ambiguities": ["<a human-resolvable doubt>"], "confidence": <0-100
 (advisory)> }]`
 
-`axes` keys are the axes in play. **The round is CLEAN iff every entry's `verdict` is `pass`.** A
-`blocked` entry is resolved out-of-band first; if that resolution reveals a real draft defect, the
-driver fixes the draft and RE-SUBMITS it (the next round re-scores it normally).
+`axes` keys are the axes in play. **The round is CLEAN iff every entry is `pass` (or an
+owner-accepted `blocked`) and there are NO `error` entries.** Resolve each `blocked` entry
+out-of-band: a real draft defect -> the driver fixes the draft and RE-SUBMITS (re-scored next round);
+an ambiguity the owner adjudicates benign -> the driver ACCEPTS it (records it, does not re-submit).
 
 ## Do not
 

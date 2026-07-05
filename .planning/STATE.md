@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: lz-tdd@0.0.2
 milestone_name: lz-refactor Skill (Fowler + Kerievsky)
 status: executing
-stopped_at: Phase 7 Wave 3; Ch.12 (07-09) CONVERGED 11/11 -- catalog 62/62; next Wave 4 (07-10)
+stopped_at: Phase 7 Wave 4 (07-10) DONE -- 24/24 smells + 62/62 catalog + full battery GREEN; phase content complete, verification pending
 last_updated: "2026-07-05"
 last_activity: 2026-07-05
 progress:
   total_phases: 6
   completed_phases: 1
   total_plans: 11
-  completed_plans: 8
-  percent: 73
+  completed_plans: 11
+  percent: 100
 ---
 
 # Project State
@@ -26,9 +26,9 @@ See: .planning/PROJECT.md (updated 2026-07-04)
 
 ## Current Position
 
-Phase: 7 (Fowler Catalog (Refactoring, 2nd ed)) — EXECUTING
-Plan: Wave 3 DONE -- Ch.12 (07-09) CONVERGED 11/11 (catalog now 62/62); all seven catalog chapters (Ch.6-12) authored + committed. NEXT: Wave 4 = 07-10 (24 smell leaves + navigation-only smells.md + finalize README + FULL checker battery GREEN = phase gate).
-Status: Wave 1 done (07-01). Wave 2 pilot 07-02 CONVERGED (11/11; loop + rubric anchors + 62 name->slug map pinned in 07-02-SUMMARY.md). Wave 3 07-04 CONVERGED (9/9 Ch.7). 07-05 CONVERGED (9/9 Ch.8). 07-06 CONVERGED (5/5 Ch.9). 07-07 CONVERGED (6/6 Ch.10; 1 too_close_to_source -> re-domained). Oracle-reviewer rubric SHARPENED + reviewed + reloaded (cross-ref aptness in mechanics; back-edges as benign additions; spirit->spirit/judgment). 07-08 CONVERGED (11/11 Ch.11; first chapter on the sharpened rubric; R1 5 pass/6 revise, R2 5 pass/1 revise, R3 1 pass; Return Modified Value [web-only] gated OK). Targeted delta re-review of the 18 Ch.6-10 leaves (cross-ref aptness + spirit/judgment, sharpened axes) RE-RAN 2026-07-05 to completion: 18/18 pass, no leaf changed (no-op). 07-09 (Ch.12, 11 leaves) CONVERGED 11/11 (R1 7 pass/4 revise, R2 2 pass/2 revise, R3 2 pass; 1 too_close_to_source resolved by blind reword; 0 escalations) -- catalog 62/62. 07-03 principles.md `definition`-token fix DONE (check-principles now 8/8 GREEN) + 07-03-SUMMARY written. OPEN: (b) check-crossrefs + check-catalog(62)/check-smells(24)/check-principles(8/8) all close at the 07-10 full-battery gate.
+Phase: 7 (Fowler Catalog (Refactoring, 2nd ed)) — EXECUTING (content complete; verification pending)
+Plan: Wave 4 DONE -- 07-10 authored the 24 Ch.3 smell leaves (oracle-converged 24/24 over 2 rounds; 0 escalations), the navigation-only smells.md index, and the finalized 62-row fowler-catalog/README.md. The FULL checker battery is GREEN (the phase gate). All 10 phase-7 plans complete.
+Status: All waves done. Full battery GREEN at the 07-10 gate -- extract-samples 124 modules tsc --strict, check-catalog 62/62 + Use-when mirror, check-smells 24/24 + navigation index, check-crossrefs 291 links + 20 inverse pairs (no self-refs), check-principles 8/8, check-hygiene ASCII+email; `claude plugin validate .` passes. Clean-room firewall held throughout (author/revise BLIND; only oracle-reviewer subagents read .oracle/). NEXT (phase close): verify_phase_goal (gsd-verifier) -> secure-phase -> validate-phase -> extract-learnings.
 Last activity: 2026-07-05
 
 ## Performance Metrics
@@ -107,16 +107,14 @@ Items acknowledged and carried forward from previous milestone close:
 ## Session Continuity
 
 Last session: 2026-07-05
-Stopped at: Ch.12 (07-09) converged 11/11 + committed (3460dc1); catalog 62/62; paused for owner review before Wave 4 (07-10)
-Resume file: .planning/phases/07-fowler-catalog-refactoring-2nd-ed/.continue-here.md
+Stopped at: Wave 4 (07-10) DONE -- 24/24 smells converged, indexes finalized, full battery GREEN (commits 77572bf, 5341121). Phase-7 content complete; phase-close audits (verify/secure/validate/extract) pending.
+Resume file: (Wave 4 complete; .continue-here.md removed)
 
 ## Operator Next Steps
 
-- Ch.12 (07-09) converged 11/11 + committed (3460dc1); catalog now 62/62 -- all seven catalog chapters
-  (Ch.6-12) authored. The Ch.6-10 delta re-review also re-ran clean earlier (18/18 pass, no-op). The
-  clean-room `oracle`/`oracle-reviewer` agents are live, calibrated, and reloaded with the sharpened rubric.
-- Next: `/gsd-execute-phase 7` -> 07-10 (Wave 4): 24 smell leaves + navigation-only smells.md + finalize
-  README Ch.7-12 rows + FULL checker battery GREEN (check-catalog 62/62, check-smells 24/24,
-  check-crossrefs) = phase gate.
-- 07-03 `principles.md` `definition`-token fix DONE (check-principles 8/8 GREEN) + 07-03-SUMMARY written.
-- Before phase close: verify_phase_goal -> secure-phase -> validate-phase -> extract-learnings.
+- Wave 4 (07-10) DONE: the 24 Ch.3 smell leaves converged 24/24 (2 rounds, 0 escalations), smells.md is
+  a navigation-only recognize-by index, fowler-catalog/README.md lists all 62 refactorings (Ch.6-12) with
+  mirrored Use-when lines. The FULL battery is GREEN and `claude plugin validate .` passes. Commits
+  77572bf (leaves) + 5341121 (indexes). All 10 phase-7 plans complete.
+- Next (phase close): verify_phase_goal (gsd-verifier) -> secure-phase -> validate-phase ->
+  extract-learnings (per CLAUDE.md GSD rules), then the milestone can advance to Phase 8 (Kerievsky).

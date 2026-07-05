@@ -1,42 +1,47 @@
 {
   "version": "1.0",
-  "timestamp": "2026-07-05T14:47:08.599Z",
+  "timestamp": "2026-07-05T18:40:00.054Z",
   "phase": "07",
   "phase_name": "fowler-catalog-refactoring-2nd-ed",
   "phase_dir": ".planning/phases/07-fowler-catalog-refactoring-2nd-ed",
-  "plan": 5,
+  "plan": 9,
   "task": 1,
   "total_tasks": 10,
   "status": "paused",
   "unit": "plan (multi-plan phase; entries below are PLANS, not tasks within one plan)",
   "completed_tasks": [
     {"id": "07-01", "name": "harness + FWL checker battery (wave 1)", "status": "done", "commit": "pre-session"},
-    {"id": "07-02", "name": "PILOT: harness overhaul (62/per-leaf/smell-leaf + check-crossrefs) + 11 Ch.6 basic leaves + README scaffold + calibration SUMMARY (62 name->slug map + rubric anchors)", "status": "done", "commit": "60ff93c,9ccce17,7876fda"},
-    {"id": "07-03", "name": "principles.md (Ch.2)", "status": "content_done_summary_pending", "progress": "principles.md authored + oracle-converged pre-session; BUT check-principles is 7/8 RED (missing the literal token 'definition'); needs a 1-token own-framing fix + a 07-03-SUMMARY before the phase gate"},
-    {"id": "07-04", "name": "Ch.7 encapsulation (9 leaves)", "status": "done", "commit": "9e9602e,efa0680"}
+    {"id": "07-02", "name": "PILOT: harness overhaul + 11 Ch.6 basic leaves + README scaffold + calibration SUMMARY (62 name->slug map + rubric anchors)", "status": "done", "commit": "60ff93c,9ccce17,7876fda"},
+    {"id": "07-03", "name": "principles.md (Ch.2)", "status": "content_done_summary_pending", "progress": "authored + oracle-converged pre-session; check-principles 7/8 RED (missing literal token 'definition'); needs a 1-token own-framing fix + 07-03-SUMMARY before the phase gate"},
+    {"id": "07-04", "name": "Ch.7 encapsulation (9 leaves)", "status": "done", "commit": "9e9602e,efa0680"},
+    {"id": "07-05", "name": "Ch.8 moving features (9 leaves)", "status": "done", "commit": "6bcbfa7,6f6b61a"},
+    {"id": "07-06", "name": "Ch.9 organizing data (5 leaves)", "status": "done", "commit": "3f98e35,a52d22a"},
+    {"id": "07-07", "name": "Ch.10 simplify conditional logic (6 leaves)", "status": "done", "commit": "30966fa,fdc50c3"},
+    {"id": "rubric-sharpen", "name": "Oracle-reviewer rubric sharpened (3 anchors) + agent-reviewed (2 lenses) + reloaded", "status": "done", "commit": "7198d85"},
+    {"id": "07-08", "name": "Ch.11 refactoring APIs (11 leaves, incl. Return Modified Value [web-only]); first chapter on the sharpened rubric", "status": "done", "commit": "eb97c88,487f642"}
   ],
   "remaining_tasks": [
-    {"id": "07-05", "name": "Ch.8 moving features (9 leaves): move-function, move-field, move-statements-into-function, move-statements-to-callers, replace-inline-code-with-function-call, slide-statements, split-loop, replace-loop-with-pipeline, remove-dead-code", "status": "not_started"},
-    {"id": "07-06", "name": "Ch.9 organizing data (5 leaves)", "status": "not_started"},
-    {"id": "07-07", "name": "Ch.10 simplify conditional logic (6 leaves)", "status": "not_started"},
-    {"id": "07-08", "name": "Ch.11 refactoring APIs (11 leaves, incl. Return Modified Value [web-only])", "status": "not_started"},
-    {"id": "07-09", "name": "Ch.12 dealing with inheritance (11 leaves)", "status": "not_started"},
-    {"id": "07-10", "name": "Wave 4: 24 smell leaves + navigation smells.md + finalize README (Ch.7-12 rows) + FULL checker battery GREEN = phase gate", "status": "not_started"}
+    {"id": "delta-re-review", "name": "Targeted delta re-review of 18 Ch.6-10 leaves vs the SHARPENED axes (cross-ref aptness + spirit/judgment) -- background agents were stopped for a fresh session with NO verdicts produced; RE-RUN from scratch FIRST. Exact subset + per-leaf cited siblings + axis anchors are in .continue-here.md.", "status": "not_started"},
+    {"id": "07-09", "name": "Ch.12 dealing with inheritance (11 leaves) -- last catalog chapter", "status": "not_started"},
+    {"id": "07-10", "name": "Wave 4: 24 smell leaves + navigation smells.md + finalize README (Ch.7-12 rows) + FULL checker battery GREEN = phase gate", "status": "not_started"},
+    {"id": "07-03-fix", "name": "principles.md definition-token fix + 07-03-SUMMARY", "status": "not_started"},
+    {"id": "phase-close", "name": "verify_phase_goal -> secure-phase -> validate-phase -> extract-learnings", "status": "not_started"}
   ],
   "blockers": [
-    {"description": "07-03 principles.md fails check-principles 7/8 (no literal 'definition' token)", "type": "technical", "workaround": "add the word 'definition' as own-framing (e.g. label the 'What refactoring is' section as the definition); own-words, no oracle re-review needed; fix before the 07-10 full-battery gate; then write 07-03-SUMMARY"}
+    {"description": "07-03 principles.md fails check-principles 7/8 (no literal 'definition' token)", "type": "technical", "workaround": "add the word 'definition' as own-framing (label the 'What refactoring is' section as the definition); own-words, no oracle re-review; fix before the 07-10 full-battery gate; then write 07-03-SUMMARY"}
   ],
   "human_actions_pending": [
     {"action": "If a future leaf's oracle-reviewer returns error because the source lacks that entry, flag to owner to add its Markdown to .oracle/", "context": "owner provisions .oracle/ chapters; already added Return Modified Value to Ch.11", "blocking": false}
   ],
   "decisions": [
-    {"decision": "Orchestrator drives content plans INLINE (NOT via gsd-executor subagents)", "rationale": "the clean-room loop needs the Agent tool (to spawn oracle/oracle-reviewer) and AskUserQuestion (owner escalation); gsd-executor has neither, so the standard spawn-executor-in-worktree execute-phase flow CANNOT run this phase", "phase": "07"},
-    {"decision": "Chapter-by-chapter cadence with a PAUSE after each chapter for owner review", "rationale": "owner preference chosen at the pilot checkpoint", "phase": "07"},
-    {"decision": "Split Phase [web-example] DROPPED", "rationale": "owner adjudication 2026-07-05: normal in-book Ch.6 refactoring; harness WEB_EXAMPLE now empty; Return Modified Value [web-only] is the sole provenance marker", "phase": "07"},
-    {"decision": "Return Modified Value stays Ch.11 (07-08), [web-only]; now gate-able (owner added it to .oracle/ Ch.11)", "rationale": "web edition places it in Ch.11 Refactoring APIs", "phase": "07"},
-    {"decision": "Refactorings cut between the 1st and 2nd editions stay cut (the 4 relics out of the 62)", "rationale": "scope rule confirmed by owner", "phase": "07"}
+    {"decision": "Orchestrator drives content plans INLINE (NOT via gsd-executor subagents)", "rationale": "the clean-room loop needs the Agent tool (spawn oracle/oracle-reviewer) and AskUserQuestion (owner escalation); gsd-executor has neither", "phase": "07"},
+    {"decision": "Chapter-by-chapter cadence with a PAUSE after each chapter for owner review", "rationale": "owner preference from the pilot checkpoint", "phase": "07"},
+    {"decision": "Oracle-reviewer rubric SHARPENED (3 anchors): (1) mechanics scores cross-ref aptness; (2) our principles/sibling back-edges are benign additions, not invented limits; (3) spirit->spirit/judgment", "rationale": "surfaced by Ch.6-10 rounds; owner-approved; agent-reviewed (firewall SAFE, consistency CLEAN); reloaded; first used on Ch.11", "phase": "07"},
+    {"decision": "Targeted subset (18 leaves) for the Ch.6-10 back-review, not a full re-gate", "rationale": "only #1 (aptness) + #3 (judgment) opened coverage gaps; #2 only relaxes so cannot hide a defect; scoped to non-inverse cross-links + judgment-flavored leaves", "phase": "07"},
+    {"decision": "Fixed the botched `@ ` commit-subject prefix on the 6 session commits via rebase; switched idiom to git commit -F <file>", "rationale": "git commit -m @'...'@ in Git Bash prepended a literal @ line (single-quote closed early on apostrophes); rebase strip verified content-identical", "phase": "07"},
+    {"decision": "Split Phase [web-example] DROPPED; Return Modified Value [web-only] is the sole provenance marker (Ch.11, gate-able)", "rationale": "owner adjudication; cut relics stay cut (4 relics out of the 62)", "phase": "07"}
   ],
   "uncommitted_files": [],
-  "next_action": "Resume /gsd-execute-phase 7. Working tree clean. Next plan is 07-05 (Ch.8 moving features, 9 leaves). Drive it INLINE via the calibrated clean-room loop: read 07-05-PLAN.md; author 9 leaves blind (canonical slugs from the 07-02-SUMMARY name->slug map) -> gate via 2 parallel oracle-reviewer batches (SOURCE = Ch.8 moving features, CONTENT_TYPE refactoring-leaf, canonical per-axis anchors) -> revise blind -> converge -> extract-samples + check-hygiene green -> commit the 9 leaves + write 07-05-SUMMARY -> update ROADMAP/STATE -> PAUSE for owner review before Ch.9.",
-  "context_notes": "Wave 2 pilot + Wave 3 Ch.7 done; catalog 20/62; loop fully calibrated (per-leaf gate, 2 parallel batches ~5+4, validate the deterministic layer BEFORE gating). FIREWALL (blocking): main context NEVER reads .oracle/ (ls for names only); only the oracle/oracle-reviewer subagents read it. Wave-3 chapter plans are FILE-DISJOINT: author ONLY the chapter's leaf files -- do NOT touch README.md or checker .mjs (07-10 fills README Ch.7-12 rows; check-catalog mirror + check-crossrefs are RED-by-design until 07-10 and are NOT wave-3 gates). Use distinct example domains/identifiers (never the source's) to avoid too_close_to_source. Ch.9/10/11 sources contain dagger-marked (print-absent) out-of-scope entries -- pass a tight per-leaf SCOPE so they are not flagged as drops. Owner escalation path when oracle-reviewer returns blocked: AskUserQuestion, or (per owner) consult the isolated `oracle` agent for the variation's own-words gist then represent it."
+  "next_action": "Working tree clean; catalog 51/62. FIRST re-run the targeted delta re-review (see .continue-here.md 'Targeted delta re-review'): spawn 3 oracle-reviewer agents (Ch.6 subset=5; Ch.7+8 subset=8; Ch.9+10 subset=5), each scoped to ONLY cross-ref aptness + spirit/judgment with the sharpened anchors; revise any flagged leaf BLIND, re-gate, commit fixes. THEN /gsd-execute-phase 7 -> 07-09 (Ch.12, 11 leaves) via the calibrated clean-room loop (sub-batch ~6+5), then 07-10 (Wave 4) + the 07-03 fix, then phase close.",
+  "context_notes": "Oracle agents are LIVE + RELOADED with the sharpened rubric. The 3 delta-review agents from the prior session were stopped mid-source-read (no verdicts) -- re-run from scratch. FIREWALL (blocking): main context NEVER reads .oracle/ (ls for names only); only the oracle/oracle-reviewer subagents read it. Wave-3 chapter plans are FILE-DISJOINT: author ONLY the chapter's leaf files; do NOT touch README.md or checker .mjs (07-10 owns those; check-catalog mirror + check-crossrefs are RED-by-design until 07-10). Distinct example domains/identifiers (never the source's) to avoid too_close_to_source. Ch.12 is judgment-heavy (delegation vs inheritance) -- expect spirit/judgment to matter. Commit via git commit -F <msgfile> (NOT -m @'...'@)."
 }

@@ -552,7 +552,7 @@ Returns: raw JSON array, one object per draft: {verdict: pass|revise|blocked|err
 toolchain versions (verified 2026-07-05); the current Agent Skills best-practices guidance (fetched
 2026-07-05).
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Any leaf whose chapter membership the scaffold gets wrong** -- RESOLVED by design: each plan
    confirms placement via the `oracle` subagent; the index groups by the confirmed chapter recorded

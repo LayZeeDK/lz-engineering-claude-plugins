@@ -24,7 +24,7 @@ created: 2026-07-04
 | **Framework** | `tsc --strict --noEmit` (TypeScript 6.x) over a non-shipped compile workspace + Node/`rg` checkers (no app test runner) |
 | **Config file** | `.claude/skills/lz-refactor-workspace/tsconfig.json` (created Wave 0; gitignored-record pattern, mirrors lz-tpp-workspace) |
 | **Quick run command** | `npx tsc --strict --noEmit -p .claude/skills/lz-refactor-workspace/tsconfig.json` |
-| **Full suite command** | Above `tsc` run PLUS the catalog/smell/principle/hygiene checkers (66-name + provenance, 24-smell count, Ch.2 topic presence, ASCII-only, no-verbatim DST-04, work-email allowlist) |
+| **Full suite command** | Above `tsc` run PLUS the catalog/smell/principle/hygiene/cross-ref checkers (62-name identity + per-refactoring-leaf contract + provenance, 24 smell leaves, Ch.2 topic presence, bidirectional cross-refs + no self-links, ASCII-only, no-verbatim DST-04, work-email allowlist) |
 | **Estimated runtime** | ~10-30 seconds |
 
 ---
@@ -51,8 +51,8 @@ created: 2026-07-04
 ## Wave 0 Requirements
 
 - [ ] `.claude/skills/lz-refactor-workspace/tsconfig.json` + `package.json` — compile harness for extracted TS/JS samples (FWL-04)
-- [ ] A completeness checker asserting all 66 refactoring names present + the 5 print-absent entries provenance-tagged (FWL-01)
-- [ ] A smell-count checker asserting the 24 Fowler smells + resolving catalog cross-links (FWL-02)
+- [ ] A completeness checker asserting all 62 refactoring names present as per-refactoring leaves + Return Modified Value `[web-only]` / Split Phase `[web-example]` provenance-tagged, and the 4 cut 1st-ed relics absent (FWL-01)
+- [ ] A smell checker (24 Fowler smell leaves) + a `check-crossrefs` phase-gate asserting bidirectional smell<->refactoring / inverse-of links resolve with no self-links (FWL-02)
 - [ ] A Ch.2 topic-presence checker (two hats / rule of three / preparatory / comprehension / litter-pickup / performance / YAGNI) (FWL-03)
 - [ ] Hygiene checkers: ASCII-only, no verbatim Fowler prose/code (DST-04), work-email allowlist
 
@@ -64,7 +64,7 @@ created: 2026-07-04
 
 | Behavior | Requirement | Why Manual | Test Instructions |
 |----------|-------------|------------|-------------------|
-| Owner-oracle content fidelity (mechanics/motivations/smell/Ch.2 match the owner's e-book/web edition) | FWL-01..04 | Requires the owner's Fowler *Refactoring* 2nd-ed e-book/web edition; no automatable oracle | At the D-07 AskUserQuestion checkpoint, the owner confirms distilled content against the e-book, batched by tag-group |
+| Owner-oracle content fidelity (mechanics/motivations/smell/Ch.2 match the owner's edition) | FWL-01..04 | Semantic fidelity is not a plain compile/`rg` check | Via the clean-room `oracle-reviewer` loop over `.oracle/refactoring-2e/` (per 07-ORACLE-MODEL) -- NOT AskUserQuestion for this book; the main context never reads book prose (DST-04). The owner adjudicates only `blocked` ambiguities the source cannot settle |
 | Behavior-preservation of each before->after sample | FWL-04 | Semantic equivalence is not fully machine-checkable beyond compilation | Reviewer confirms each before/after pair preserves behavior |
 
 ---

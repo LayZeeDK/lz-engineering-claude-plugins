@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: lz-tdd@0.0.2
 milestone_name: lz-refactor Skill (Fowler + Kerievsky)
-status: verifying
-stopped_at: Wave 4 (07-10) DONE -- 24/24 smells converged, indexes finalized, full battery GREEN (commits 77572bf, 5341121). Phase-7 content complete; phase-close audits (verify/secure/validate/extract) pending.
+status: executing
+stopped_at: Phase 7 COMPLETE -- 10/10 plans + verify (4/4 must-haves, passed) + secure (7/7 CLOSED) + validate (nyquist-compliant) + learnings all done. Next: plan Phase 8 (Kerievsky).
 last_updated: "2026-07-05T20:58:33.580Z"
 last_activity: 2026-07-05
 progress:
   total_phases: 6
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 11
   completed_plans: 11
   percent: 100
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-07-04)
 
 **Core value:** `lz-tpp` helps Claude choose the next code transformation by TPP priority during red-green-refactor TDD, and explains the premise on demand. lz-tdd@0.0.2 adds `lz-refactor` to drive the refactor step.
-**Current focus:** Phase 7 — Fowler Catalog (Refactoring, 2nd ed)
-**Milestone:** lz-tdd@0.0.2 (lz-refactor Skill) -- planning
+**Current focus:** Phase 7 CLOSED; Phase 8 (Kerievsky Catalog) is next -- needs planning
+**Milestone:** lz-tdd@0.0.2 (lz-refactor Skill) -- executing
 
 ## Current Position
 
-Phase: 7 (Fowler Catalog (Refactoring, 2nd ed)) — EXECUTING (content complete; verification pending)
-Plan: Wave 4 DONE -- 07-10 authored the 24 Ch.3 smell leaves (oracle-converged 24/24 over 2 rounds; 0 escalations), the navigation-only smells.md index, and the finalized 62-row fowler-catalog/README.md. The FULL checker battery is GREEN (the phase gate). All 10 phase-7 plans complete.
-Status: All waves done. Full battery GREEN at the 07-10 gate -- extract-samples 124 modules tsc --strict, check-catalog 62/62 + Use-when mirror, check-smells 24/24 + navigation index, check-crossrefs 291 links + 20 inverse pairs (no self-refs), check-principles 8/8, check-hygiene ASCII+email; `claude plugin validate .` passes. Clean-room firewall held throughout (author/revise BLIND; only oracle-reviewer subagents read .oracle/). NEXT (phase close): verify_phase_goal (gsd-verifier) -> secure-phase -> validate-phase -> extract-learnings.
+Phase: 7 (Fowler Catalog (Refactoring, 2nd ed)) — COMPLETE (verified + secured + validated + learnings extracted)
+Plan: All 10 plans done. Wave 4 (07-10) authored the 24 Ch.3 smell leaves (oracle-converged 24/24 over 2 rounds; 0 escalations), the navigation-only smells.md index, and the finalized 62-row fowler-catalog/README.md.
+Status: Phase-close sequence COMPLETE. Full battery GREEN at the 07-10 gate (extract-samples 124 modules tsc --strict, check-catalog 62/62 + Use-when mirror, check-smells 24/24 + navigation index, check-crossrefs 291 links + 20 inverse pairs, check-principles 8/8, check-hygiene; `claude plugin validate .` passes). gsd-verifier: PASSED (4/4 must-haves, FWL-01..04 complete). secure-phase: SECURED (7/7 threats CLOSED). validate-phase: NYQUIST-COMPLIANT (0 gaps, checker battery is the automated verification). Learnings extracted (07-LEARNINGS.md). Clean-room firewall held throughout. NEXT: plan Phase 8 (Kerievsky Catalog).
 Last activity: 2026-07-05
 
 ## Performance Metrics
@@ -107,15 +107,16 @@ Items acknowledged and carried forward from previous milestone close:
 ## Session Continuity
 
 Last session: 2026-07-05
-Stopped at: Wave 4 (07-10) DONE -- 24/24 smells converged, indexes finalized, full battery GREEN (commits 77572bf, 5341121). Phase-7 content complete; phase-close audits (verify/secure/validate/extract) pending.
-Resume file: (Wave 4 complete; .continue-here.md removed)
+Stopped at: Phase 7 fully CLOSED -- 07-10 (Wave 4) + verify (passed) + secure (SECURED) + validate (nyquist-compliant) + extract-learnings all done and committed. Working tree clean.
+Resume file: (Phase 7 complete; no handoff needed)
 
 ## Operator Next Steps
 
-- Wave 4 (07-10) DONE: the 24 Ch.3 smell leaves converged 24/24 (2 rounds, 0 escalations), smells.md is
-  a navigation-only recognize-by index, fowler-catalog/README.md lists all 62 refactorings (Ch.6-12) with
-  mirrored Use-when lines. The FULL battery is GREEN and `claude plugin validate .` passes. Commits
-  77572bf (leaves) + 5341121 (indexes). All 10 phase-7 plans complete.
-
-- Next (phase close): verify_phase_goal (gsd-verifier) -> secure-phase -> validate-phase ->
-  extract-learnings (per CLAUDE.md GSD rules), then the milestone can advance to Phase 8 (Kerievsky).
+- Phase 7 is CLOSED: content (10/10 plans, catalog 62/62 + smells 24/24 + principles 8/8, full battery
+  GREEN), gsd-verifier PASSED (FWL-01..04 complete), secure-phase SECURED (7/7 threats CLOSED),
+  validate-phase NYQUIST-COMPLIANT (0 gaps), and 07-LEARNINGS.md extracted. Artifacts: 07-VERIFICATION.md,
+  07-SECURITY.md, 07-VALIDATION.md, 07-LEARNINGS.md, 07-10-SUMMARY.md.
+- Next: `/gsd-plan-phase 8` (Kerievsky Catalog, Refactoring to Patterns) -- it folds into the
+  Fowler-established smell taxonomy + cross-maps to the 62 catalog leaves. The Phase-8 plan-phase's
+  auto_copy_learnings step will pool 07-LEARNINGS.md into ~/.gsd/knowledge/ (features.global_learnings=true).
+- Optional before Phase 8: `/gsd-audit-milestone` is premature (milestone spans phases 6-11, not done).

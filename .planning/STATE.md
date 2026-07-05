@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: lz-tdd@0.0.2
 milestone_name: lz-refactor Skill (Fowler + Kerievsky)
 status: executing
-stopped_at: Phase 7 Wave 3 in progress; Ch.7 (07-04) done; next Ch.8 (07-05)
+stopped_at: Phase 7 Wave 3 in progress; Ch.8 (07-05) done; next Ch.9 (07-06)
 last_updated: "2026-07-05"
 last_activity: 2026-07-05
 progress:
   total_phases: 6
   completed_phases: 1
   total_plans: 11
-  completed_plans: 4
-  percent: 36
+  completed_plans: 5
+  percent: 45
 ---
 
 # Project State
@@ -27,8 +27,8 @@ See: .planning/PROJECT.md (updated 2026-07-04)
 ## Current Position
 
 Phase: 7 (Fowler Catalog (Refactoring, 2nd ed)) — EXECUTING
-Plan: Wave 3 in progress -- Ch.7 (07-04) DONE (catalog now 20/62); running chapter-by-chapter. NEXT: Ch.8 (07-05), then 07-06/07-07/07-08/07-09, then Wave 4 = 07-10 (24 smells + indexes + phase-gate battery green).
-Status: Wave 1 done (07-01). Wave 2 pilot 07-02 CONVERGED (11/11; loop + rubric anchors + 62 name->slug map pinned in 07-02-SUMMARY.md). Wave 3 07-04 CONVERGED (9/9 Ch.7; 1 owner escalation -> Remove Middle Man tooling variation resolved via `oracle` consult). OPEN: (a) 07-08 Return Modified Value [web-only] needs owner to add .oracle/ web-edition content before gating (see checkpoint); (b) 07-03 principles.md needs a `definition`-token fix + SUMMARY (check-principles 7/8 RED); (c) check-crossrefs + check-catalog(62)/check-smells(24) close at 07-10.
+Plan: Wave 3 in progress -- Ch.8 (07-05) DONE (catalog now 29/62); running chapter-by-chapter. NEXT: Ch.9 (07-06), then 07-07/07-08/07-09, then Wave 4 = 07-10 (24 smells + indexes + phase-gate battery green).
+Status: Wave 1 done (07-01). Wave 2 pilot 07-02 CONVERGED (11/11; loop + rubric anchors + 62 name->slug map pinned in 07-02-SUMMARY.md). Wave 3 07-04 CONVERGED (9/9 Ch.7). Wave 3 07-05 CONVERGED (9/9 Ch.8; R1 5 pass/4 revise, R2 4 pass; 0 escalations, 0 too_close_to_source). OPEN: (a) 07-08 Return Modified Value [web-only] now gate-able (source provisioned in .oracle/ Ch.11); (b) 07-03 principles.md needs a `definition`-token fix + SUMMARY (check-principles 7/8 RED); (c) check-crossrefs + check-catalog(62)/check-smells(24) close at 07-10.
 Last activity: 2026-07-05
 
 ## Performance Metrics

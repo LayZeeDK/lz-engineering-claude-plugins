@@ -154,3 +154,43 @@ Kerievsky).** For unowned-as-Markdown books it remains the oracle path. The orig
 standing instruction ("use AskUserQuestion for authoritative oracle book access") therefore still
 holds for GoF / Beck / RCM; it is superseded by the clean-room agent loop only where the book is in
 `.oracle/`.
+
+## Driver responsibilities + canonical anchors (oracle-agent round-10, 2026-07-05)
+
+The agents' firewall covers per-CALL leaks; three things are the DRIVER's job (the executor running
+the loop), surfaced by the blind agent reviews and NOT enforceable inside the agent files:
+
+- **Fan-out aggregation (firewall).** A per-call guard cannot see across calls. When you fan `oracle`
+  out one call per chapter, the merged result can reconstruct the book's complete curated SELECTION
+  (names + chapter numbers -- allowed facts, but still the source's compilation). The driver
+  dedupes/caps the aggregate and does not persist a full ordered name+chapter map.
+- **Loop bound + oscillation guard.** `oracle-reviewer` is adversarial (assumes drift until proven
+  otherwise), so it can false-`revise` a faithful draft and a too-close<->drift rewrite can
+  oscillate. The driver caps rounds (e.g. 3) and, on non-convergence, escalates the entry to the
+  owner (AskUserQuestion) instead of looping -- a correct draft must not churn indefinitely.
+- **Rubric anchors.** The agent carries a generic default rubric; for precision the driver passes the
+  canonical per-axis anchors below (or "holistic, no anchors"). At least one axis must be in play.
+
+**Canonical per-axis anchors** (moved out of the agent to keep its system prompt lean):
+- **mechanics** (refactoring) -- correct: all steps, safe order, faithful branches + safety
+  checkpoints. partial: a branch drifted or a checkpoint folded (still safe). wrong: a
+  step/branch/checkpoint dropped, unsafe order, or a misstated step.
+- **candidates** (smell) -- correct: complete set + faithful selectors. partial: complete but a
+  selector drifted/thin. wrong: a candidate dropped or one that doesn't belong.
+- **recognition** (smell) -- correct: faithful cues + near-neighbors separated. partial: a
+  distinction blurred. wrong: inaccurate / would mis-identify.
+- **motivation** -- correct: key reasons + emphasis, none invented. partial: emphasis off or a
+  secondary reason missing. wrong: a primary reason missing/misstated/invented.
+- **example** (refactoring) -- correct: compiles, behavior-preserving, representative, honors
+  preconditions, independent of the source. partial: compiles + behavior-preserving but atypical.
+  wrong: changes behavior / wrong refactoring / violates preconditions / mirrors the source.
+- **applicability** -- correct: source caveats represented, none invented. partial: a caveat
+  missing/off. wrong: a load-bearing caveat missing or an invented limit.
+- **spirit** -- correct: framing/emphasis match. partial: substance right, framing off. wrong:
+  misframes character/intent.
+
+NOTE (reconcile in the scope-correction replan): the "Firewall" and "Verdict schema" blocks earlier
+in THIS file still describe the pre-round-2 agent (tools `Read, Grep, Glob`; a
+`fidelity/intent_ok/spirit_ok` schema). The shipped agents are `tools: Read, Glob` with a
+`pass|revise|blocked` verdict -- treat this section + the live `.claude/agents/oracle*.md` as
+authoritative.

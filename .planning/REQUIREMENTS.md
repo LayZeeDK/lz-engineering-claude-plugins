@@ -19,10 +19,10 @@ Requirements for this milestone. Each maps to exactly one roadmap phase.
 
 ### Fowler Catalog (Refactoring, 2nd ed)
 
-- [ ] **FWL-01**: The reference covers all 62 Fowler 2nd-ed refactorings (61 e-book-verified + Return Modified Value web-edition-verified) -- each a per-refactoring leaf with name (+ 1st-ed alias(es)), a `Use when:` selector, distilled motivation and mechanics (original words), and an original tsc-clean TS/JS before/after example -- provenance-labeled (Return Modified Value `[web-only]`; Split Phase's online-only examples `[web-example]`). The 4 web-only 1st-edition relics (Replace Magic Literal, Replace Control Flag with Break, Replace Error Code with Exception, Replace Exception with Precheck) are OUT (cut: in 1st ed, absent from 2nd-ed print + e-book)
-- [ ] **FWL-02**: A unified smell-taxonomy reference covers the 24 Fowler bad smells, each mapped to its candidate refactorings (the coach's trigger table)
-- [ ] **FWL-03**: A principles reference distills Ch.2 (definition, the two hats, when-to-refactor: rule of three / preparatory / comprehension / litter-pickup, performance, YAGNI) in original words with correct attributions
-- [ ] **FWL-04**: All Fowler TS/JS samples are `tsc --strict`-clean and behavior-preserving, verified against the owner's authoritative source via the clean-room oracle loop (the `oracle-reviewer` agent reads the git-ignored `.oracle/refactoring-2e/`; the main context never sees book prose -- DST-04) rather than an AskUserQuestion paste; the source covers all 62 (Return Modified Value via the web edition)
+- [x] **FWL-01**: The reference covers all 62 Fowler 2nd-ed refactorings (61 e-book-verified + Return Modified Value web-edition-verified) -- each a per-refactoring leaf with name (+ 1st-ed alias(es)), a `Use when:` selector, distilled motivation and mechanics (original words), and an original tsc-clean TS/JS before/after example -- provenance-labeled (Return Modified Value `[web-only]`; Split Phase's online-only examples `[web-example]`). The 4 web-only 1st-edition relics (Replace Magic Literal, Replace Control Flag with Break, Replace Error Code with Exception, Replace Exception with Precheck) are OUT (cut: in 1st ed, absent from 2nd-ed print + e-book)
+- [x] **FWL-02**: A unified smell-taxonomy reference covers the 24 Fowler bad smells, each mapped to its candidate refactorings (the coach's trigger table)
+- [x] **FWL-03**: A principles reference distills Ch.2 (definition, the two hats, when-to-refactor: rule of three / preparatory / comprehension / litter-pickup, performance, YAGNI) in original words with correct attributions
+- [x] **FWL-04**: All Fowler TS/JS samples are `tsc --strict`-clean and behavior-preserving, verified against the owner's authoritative source via the clean-room oracle loop (the `oracle-reviewer` agent reads the git-ignored `.oracle/refactoring-2e/`; the main context never sees book prose -- DST-04) rather than an AskUserQuestion paste; the source covers all 62 (Return Modified Value via the web edition)
 
 ### Kerievsky Catalog (Refactoring to Patterns)
 
@@ -91,10 +91,10 @@ Which phase covers which requirement. Populated during roadmap creation.
 | SKEL-02 | Phase 6 | Complete |
 | SKEL-03 | Phase 6 | Complete |
 | SKEL-04 | Phase 6 | Complete |
-| FWL-01 | Phase 7 | Pending |
-| FWL-02 | Phase 7 | Pending |
-| FWL-03 | Phase 7 | Pending |
-| FWL-04 | Phase 7 | Pending |
+| FWL-01 | Phase 7 | Complete |
+| FWL-02 | Phase 7 | Complete |
+| FWL-03 | Phase 7 | Complete |
+| FWL-04 | Phase 7 | Complete |
 | KRV-01 | Phase 8 | Pending |
 | KRV-02 | Phase 8 | Pending |
 | KRV-03 | Phase 8 | Pending |

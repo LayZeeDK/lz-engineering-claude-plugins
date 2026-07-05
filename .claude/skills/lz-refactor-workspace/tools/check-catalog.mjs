@@ -1,11 +1,20 @@
 #!/usr/bin/env node
-// FWL-01 completeness + provenance checker. Asserts every one of the 66 canonical 2nd-ed
-// Fowler refactorings is present EXACTLY once as a level-3 entry heading across the
-// fowler-catalog leaf files (identity, not just cardinality -- closes the WR-02 gap from the
-// Phase-6 review), that each entry block carries a Motivation marker, a Mechanics marker and
-// at least one ts/js fence, and that the 5 print-absent "+" entries carry `[web-only]` while
-// Split Phase carries `[web-example]`. Throwaway; node builtins only; mirrors verify-scaffold.mjs.
-// RED against the empty catalog by design (0/66) -- proves the checker works before content lands.
+// FWL-01 completeness + per-refactoring-leaf contract checker (LOCKED 62-scope model).
+// The catalog is one leaf file per refactoring under fowler-catalog/<slug>.md (README.md is the
+// index, not a leaf). Asserts:
+//   - each of the 62 canonical 2nd-ed names is present EXACTLY once as a leaf's level-1 heading
+//     (identity, not just cardinality -- closes the WR-02 gap), no dupes, no unknown/typo heading;
+//   - each leaf file name is the kebab-case slug of its heading name (deterministic cross-link target);
+//   - each leaf carries the contract fields: a one-line `Use when:` selector, a `## Motivation`
+//     section, a `## Mechanics` section, and a `## Example` section with >=1 ts/js fence;
+//   - the sole web-only entry (Return Modified Value) carries [web-only] and the sole web-example
+//     entry (Split Phase) carries [web-example]; no other leaf carries either marker;
+//   - no draft-scaffolding phrases leak into a leaf (uppercase TODO / "once it exists" / etc.);
+//   - each existing leaf's `Use when:` line is mirrored verbatim into its README index row.
+// Scope is 62 = the 66 web-catalog entries minus the 4 cut 1st-ed relics (see
+// 07-ROUTING-ARCHITECTURE "Scope: 62 refactorings"); the README-row mirror stays partially RED
+// until 07-10 fills every chapter -- that is the expected baseline. Throwaway; node builtins only;
+// mirrors verify-scaffold.mjs. RED against the empty catalog by design (0/62).
 //   node .claude/skills/lz-refactor-workspace/tools/check-catalog.mjs
 import fs from "node:fs";
 import path from "node:path";
@@ -15,8 +24,10 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 // tools -> lz-refactor-workspace -> skills -> .claude -> repo root
 const repoRoot = path.resolve(here, "..", "..", "..", "..");
 const CATALOG = path.join(repoRoot, "plugins", "lz-tdd", "skills", "lz-refactor", "references", "fowler-catalog");
+const README = path.join(CATALOG, "README.md");
 
-// The 66 canonical 2nd-ed refactoring names (public facts, refactoring-com-overview.md).
+// The 62 canonical 2nd-ed refactoring names (public facts, refactoring-com-overview.md).
+// This is the 66-entry web catalog minus the 4 cut 1st-ed relics.
 const NAMES = [
   "Change Function Declaration",
   "Change Reference to Value",
@@ -61,14 +72,10 @@ const NAMES = [
   "Replace Command with Function",
   "Replace Conditional with Polymorphism",
   "Replace Constructor with Factory Function",
-  "Replace Control Flag with Break",
   "Replace Derived Variable with Query",
-  "Replace Error Code with Exception",
-  "Replace Exception with Precheck",
   "Replace Function with Command",
   "Replace Inline Code with Function Call",
   "Replace Loop with Pipeline",
-  "Replace Magic Literal",
   "Replace Nested Conditional with Guard Clauses",
   "Replace Parameter with Query",
   "Replace Primitive with Object",
@@ -86,17 +93,15 @@ const NAMES = [
   "Substitute Algorithm",
 ];
 
-// The 5 print-absent "+" entries -- must carry the [web-only] provenance tag on the heading.
-const WEB_ONLY = new Set([
-  "Replace Magic Literal",
-  "Replace Control Flag with Break",
-  "Return Modified Value",
-  "Replace Error Code with Exception",
-  "Replace Exception with Precheck",
-]);
+const EXPECTED = 62;
 
-// Split Phase's examples are online-only -- must carry [web-example].
+// Provenance: exactly one web-only leaf and exactly one web-example leaf.
+const WEB_ONLY = new Set(["Return Modified Value"]);
 const WEB_EXAMPLE = new Set(["Split Phase"]);
+
+// Draft-scaffolding phrases that must never leak into a shipped leaf. Uppercase TODO only
+// (so a `todos` domain example never false-fails); the rest are unambiguous draft markers.
+const SCAFFOLD_RES = [/\bTODO\b/, /once it exists/i, /to be authored/i, /\bplaceholder\b/i, /\bTBD\b/];
 
 let failures = 0;
 
@@ -115,6 +120,9 @@ const isDir = (p) => {
     return false;
   }
 };
+
+// kebab-case slug of a canonical name (deterministic cross-link target).
+const slugFor = (name) => name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
 
 const walkMd = (dir) => {
   const out = [];
@@ -136,64 +144,87 @@ const walkMd = (dir) => {
   return out;
 };
 
-// Collect every level-3 entry heading across the leaves (README is the index, not a leaf).
-// An entry = { name, tag, block } where `name` is the heading text with any trailing
-// `[...]` provenance tag stripped, `tag` is that tag (or null), and `block` is the entry body
-// up to the next level-1/2/3 heading.
-const collectEntries = () => {
-  const entries = [];
+// Collect every leaf: { name, tag, file, base, text }. A leaf is a fowler-catalog/*.md that is not
+// the README. Its identity is the single level-1 `# <Name>` heading, with a trailing `[tag]` (if
+// any) stripped off the name.
+const collectLeaves = () => {
+  const leaves = [];
 
   for (const file of walkMd(CATALOG)) {
     if (path.basename(file).toLowerCase() === "readme.md") {
       continue;
     }
 
-    const lines = fs.readFileSync(file, "utf8").split(/\r?\n/);
+    const text = fs.readFileSync(file, "utf8");
+    const lines = text.split(/\r?\n/);
+    const h1s = lines.filter((l) => /^#\s+\S/.test(l));
+    const base = path.basename(file, ".md");
+    const rel = path.relative(repoRoot, file);
 
-    for (let i = 0; i < lines.length; i++) {
-      const m = lines[i].match(/^###\s+(.+?)\s*$/);
+    if (h1s.length !== 1) {
+      report(false, `leaf ${base}.md has exactly one level-1 heading`, `found ${h1s.length}`);
+      leaves.push({ name: null, tag: null, file: rel, base, text });
+      continue;
+    }
 
-      if (!m) {
-        continue;
+    const raw = h1s[0].replace(/^#\s+/, "").trim();
+    const tagMatch = raw.match(/\[([^\]]+)\]\s*$/);
+    const tag = tagMatch ? tagMatch[1] : null;
+    const name = raw.replace(/\s*\[[^\]]+\]\s*$/, "").trim();
+    leaves.push({ name, tag, file: rel, base, text });
+  }
+
+  return leaves;
+};
+
+// Parse README rows so we can assert each leaf's Use-when is mirrored. Returns a map
+// slug -> array of README line texts that link to that slug's leaf.
+const readmeRowsBySlug = () => {
+  const map = new Map();
+
+  if (!fs.existsSync(README)) {
+    return map;
+  }
+
+  const linkRe = /\]\(([a-z0-9][a-z0-9-]*)\.md\)/g;
+
+  for (const line of fs.readFileSync(README, "utf8").split(/\r?\n/)) {
+    let m;
+
+    while ((m = linkRe.exec(line)) !== null) {
+      const slug = m[1];
+
+      if (!map.has(slug)) {
+        map.set(slug, []);
       }
 
-      const rawHeading = m[1];
-      const tagMatch = rawHeading.match(/`\[([^\]]*)\]`/);
-      const tag = tagMatch ? tagMatch[1] : null;
-      const name = rawHeading.replace(/`\[[^\]]*\]`/, "").trim();
-
-      // Body: from the next line until the next heading (#, ##, ### ...) or EOF.
-      const bodyLines = [];
-
-      for (let j = i + 1; j < lines.length; j++) {
-        if (/^#{1,3}\s+/.test(lines[j])) {
-          break;
-        }
-
-        bodyLines.push(lines[j]);
-      }
-
-      entries.push({ name, tag, file: path.relative(repoRoot, file), block: bodyLines.join("\n") });
+      map.get(slug).push(line);
     }
   }
 
-  return entries;
+  return map;
 };
 
-const entries = collectEntries();
+const leaves = collectLeaves();
 const byName = new Map();
 
-for (const e of entries) {
-  if (!byName.has(e.name)) {
-    byName.set(e.name, []);
+for (const leaf of leaves) {
+  if (!leaf.name) {
+    continue;
   }
 
-  byName.get(e.name).push(e);
+  if (!byName.has(leaf.name)) {
+    byName.set(leaf.name, []);
+  }
+
+  byName.get(leaf.name).push(leaf);
 }
 
-console.log("FWL-01 Fowler catalog completeness + provenance check");
+const rows = readmeRowsBySlug();
+
+console.log("FWL-01 Fowler catalog completeness + per-leaf contract check (62-scope)");
 console.log(`  catalog dir: ${path.relative(repoRoot, CATALOG)}`);
-console.log(`  entry headings found: ${entries.length}`);
+console.log(`  leaf files found: ${leaves.length}`);
 console.log("");
 
 let present = 0;
@@ -202,69 +233,103 @@ for (const name of NAMES) {
   const matches = byName.get(name) || [];
 
   if (matches.length === 0) {
-    report(false, name, "0 entries found");
+    report(false, name, "0 leaves found");
     continue;
   }
 
   if (matches.length > 1) {
-    report(false, name, `${matches.length} entries (expected exactly 1)`);
+    report(false, name, `${matches.length} leaves (expected exactly 1)`);
     continue;
   }
 
   present++;
-  const e = matches[0];
-  const hasMotivation = /\*\*Motivation/.test(e.block);
-  const hasMechanics = /\*\*Mechanics/.test(e.block);
-  const hasFence = /```(ts|typescript|js|javascript)\b/.test(e.block);
-
-  let provenanceOk = true;
-  let provenanceDetail = "";
-
-  if (WEB_ONLY.has(name)) {
-    provenanceOk = e.tag === "web-only";
-    provenanceDetail = provenanceOk ? "" : `expected [web-only], got ${e.tag ? "[" + e.tag + "]" : "none"}`;
-  } else if (WEB_EXAMPLE.has(name)) {
-    provenanceOk = e.tag === "web-example";
-    provenanceDetail = provenanceOk ? "" : `expected [web-example], got ${e.tag ? "[" + e.tag + "]" : "none"}`;
-  }
-
-  const ok = hasMotivation && hasMechanics && hasFence && provenanceOk;
+  const leaf = matches[0];
+  const expectedSlug = slugFor(name);
   const missing = [];
 
-  if (!hasMotivation) {
-    missing.push("Motivation");
+  if (leaf.base !== expectedSlug) {
+    missing.push(`filename ${leaf.base}.md != ${expectedSlug}.md`);
   }
 
-  if (!hasMechanics) {
-    missing.push("Mechanics");
+  if (!/^Use when:\s*\S/m.test(leaf.text)) {
+    missing.push("Use when: line");
   }
 
-  if (!hasFence) {
+  if (!/^##\s+Motivation\s*$/m.test(leaf.text)) {
+    missing.push("## Motivation");
+  }
+
+  if (!/^##\s+Mechanics\s*$/m.test(leaf.text)) {
+    missing.push("## Mechanics");
+  }
+
+  if (!/^##\s+Example\b/m.test(leaf.text)) {
+    missing.push("## Example");
+  }
+
+  if (!/```(ts|typescript|js|javascript)\b/.test(leaf.text)) {
     missing.push("ts/js fence");
   }
 
-  if (!provenanceOk) {
-    missing.push(provenanceDetail);
+  // Provenance markers: required on the two special leaves, forbidden elsewhere.
+  const hasWebOnly = /\[web-only\]/.test(leaf.text);
+  const hasWebExample = /\[web-example\]/.test(leaf.text);
+
+  if (WEB_ONLY.has(name) && !hasWebOnly) {
+    missing.push("[web-only] marker");
   }
 
-  report(ok, name, ok ? "" : `missing: ${missing.join(", ")}`);
+  if (!WEB_ONLY.has(name) && hasWebOnly) {
+    missing.push("unexpected [web-only] marker");
+  }
+
+  if (WEB_EXAMPLE.has(name) && !hasWebExample) {
+    missing.push("[web-example] marker");
+  }
+
+  if (!WEB_EXAMPLE.has(name) && hasWebExample) {
+    missing.push("unexpected [web-example] marker");
+  }
+
+  // No draft-scaffolding phrases.
+  for (const re of SCAFFOLD_RES) {
+    if (re.test(leaf.text)) {
+      missing.push(`scaffolding phrase ${re}`);
+    }
+  }
+
+  // Index-row Use-when mirror: the leaf's `Use when:` selector must appear verbatim in a README
+  // row that links to this leaf. RED until 07-10 fills every chapter row (expected baseline).
+  const useWhen = (leaf.text.match(/^Use when:\s*(.+?)\s*$/m) || [])[1];
+
+  if (useWhen) {
+    const rowLines = rows.get(expectedSlug) || [];
+
+    if (rowLines.length === 0) {
+      missing.push("no README index row");
+    } else if (!rowLines.some((line) => line.includes(useWhen))) {
+      missing.push("Use-when not mirrored in README row");
+    }
+  }
+
+  report(missing.length === 0, name, missing.length === 0 ? "" : `missing: ${missing.join("; ")}`);
 }
 
-// Flag any entry heading that is not a canonical name (typo / stray heading).
+// Flag any leaf heading that is not a canonical name (typo / stray / cut relic).
 const canonical = new Set(NAMES);
 
-for (const e of entries) {
-  if (!canonical.has(e.name)) {
-    report(false, `unknown entry heading: ${e.name}`, e.file);
+for (const leaf of leaves) {
+  if (leaf.name && !canonical.has(leaf.name)) {
+    report(false, `unknown leaf heading: ${leaf.name}`, leaf.file);
   }
 }
 
 console.log("");
 
 if (failures === 0) {
-  console.log(`SUMMARY: FWL-01 GREEN -- ${present}/66 refactorings present with contract fields + provenance`);
+  console.log(`SUMMARY: FWL-01 GREEN -- ${present}/${EXPECTED} refactorings present with contract fields + provenance`);
   process.exit(0);
 }
 
-console.log(`SUMMARY: FWL-01 RED -- ${present}/66 present, ${failures} check(s) FAILED`);
+console.log(`SUMMARY: FWL-01 RED -- ${present}/${EXPECTED} present, ${failures} check(s) FAILED`);
 process.exit(1);

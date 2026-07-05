@@ -20,16 +20,14 @@
     {"id": "rubric-sharpen", "name": "Oracle-reviewer rubric sharpened (3 anchors) + agent-reviewed (2 lenses) + reloaded", "status": "done", "commit": "7198d85"},
     {"id": "07-08", "name": "Ch.11 refactoring APIs (11 leaves, incl. Return Modified Value [web-only]); first chapter on the sharpened rubric", "status": "done", "commit": "eb97c88,487f642"},
     {"id": "delta-re-review", "name": "Targeted delta re-review of 18 Ch.6-10 leaves vs the SHARPENED axes (cross-ref aptness + spirit/judgment) -- re-ran from scratch via 3 chapter-grouped oracle-reviewer calls (5/8/5)", "status": "done", "result": "18/18 pass; no leaf changed (NO-OP). No revise/blocked/error, no too_close_to_source. Benign note: Rename Field + Move Statements into Function cite Change Function Declaration where source uses its 'Rename Function' alias (same catalog entry, apt).", "commit": "docs-only"},
-    {"id": "07-09", "name": "Ch.12 dealing with inheritance (11 leaves) -- last catalog chapter", "status": "done", "result": "11/11 converged (R1 7 pass/4 revise, R2 2 pass/2 revise, R3 2 pass; 1 too_close_to_source on push-down-method resolved by blind reword; 0 owner escalations). Catalog now 62/62. Inverse-of pairs (Pull Up<->Push Down for Method and Field) declared mutually.", "commit": "3460dc1"}
+    {"id": "07-09", "name": "Ch.12 dealing with inheritance (11 leaves) -- last catalog chapter", "status": "done", "result": "11/11 converged (R1 7 pass/4 revise, R2 2 pass/2 revise, R3 2 pass; 1 too_close_to_source on push-down-method resolved by blind reword; 0 owner escalations). Catalog now 62/62. Inverse-of pairs (Pull Up<->Push Down for Method and Field) declared mutually.", "commit": "3460dc1"},
+    {"id": "07-03-fix", "name": "principles.md definition-token fix + 07-03-SUMMARY", "status": "done", "result": "check-principles now 8/8 GREEN via a one-line own-framing lead-in supplying the literal 'definition' token; own-words, no oracle re-review. 07-03-SUMMARY.md written. FWL-03 satisfied (closes phase-wide at 07-10).", "commit": "72b55a7"}
   ],
   "remaining_tasks": [
     {"id": "07-10", "name": "Wave 4: 24 smell leaves + navigation smells.md + finalize README (Ch.7-12 rows) + FULL checker battery GREEN = phase gate", "status": "not_started"},
-    {"id": "07-03-fix", "name": "principles.md definition-token fix + 07-03-SUMMARY", "status": "not_started"},
     {"id": "phase-close", "name": "verify_phase_goal -> secure-phase -> validate-phase -> extract-learnings", "status": "not_started"}
   ],
-  "blockers": [
-    {"description": "07-03 principles.md fails check-principles 7/8 (no literal 'definition' token)", "type": "technical", "workaround": "add the word 'definition' as own-framing (label the 'What refactoring is' section as the definition); own-words, no oracle re-review; fix before the 07-10 full-battery gate; then write 07-03-SUMMARY"}
-  ],
+  "blockers": [],
   "human_actions_pending": [
     {"action": "If a future leaf's oracle-reviewer returns error because the source lacks that entry, flag to owner to add its Markdown to .oracle/", "context": "owner provisions .oracle/ chapters; already added Return Modified Value to Ch.11", "blocking": false}
   ],

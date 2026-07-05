@@ -120,3 +120,28 @@ confirm tier. No router ever loads a sibling leaf; selection is always via a one
 - **Phase 9 (coach behavior):** wires the MATCHING judgment (recognize-by -> smell, intended-change
   -> Use-when, reason -> workhorses) and mode detection (apply=coach vs explain=reference). Phase 7
   authors only the content that makes that routing possible.
+
+## principles.md: on-demand reference + always-loaded gates (split by access pattern)
+
+`principles.md` STAYS a separate, on-demand reference for the explanatory content (definitions, why,
+when-triggers + routing, how-to-refactor-safely, limits, performance, YAGNI, attribution) -- putting
+all of it always-loaded would bloat the lean SKILL.md router (research: keep the always-loaded layer
+lean). BUT a SMALL set of always-apply DECISION GATES is promoted into the always-loaded SKILL.md
+coach procedure (Phase 9 coach-behavior work):
+
+- the two-hats / lz-tpp seam;
+- the serve-delivery / when-to-stop balance;
+- **(SAFETY-CRITICAL) the atomic-boundary tripwire** -- a change to a published/consumed interface or
+  persisted data/schema is NOT proven safe by green unit tests -> use parallel change
+  (expand-contract).
+
+Rationale (adversarial panel, 2026-07-05): the coach recommends by code smell and cannot see
+persistence at the code level, so a data-loss guardrail that lived only in an on-demand
+`principles.md` might never load -- the coach would confidently recommend a data-losing rename while
+"tests pass". Safety/decision gates must be always-loaded; the fuller explanations stay on-demand.
+
+**Leaf -> principles back-edge:** a leaf's `Watch for` may CROSS-REFERENCE a named `principles.md`
+section for a cross-cutting gate (e.g. Change Function Declaration -> the atomic-boundary principle)
+rather than restating it. This adds an upward edge to the routing DAG (previously one-directional):
+gate text lives once in `principles.md` (hub); the few leaves whose mechanics change cross-ref it
+(spokes). Do not duplicate the gate across leaves.

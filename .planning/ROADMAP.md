@@ -78,16 +78,18 @@ this milestone starts at Phase 6.
   3. A principles reference distills Ch.2 (definition, the two hats, when-to-refactor: rule of three / preparatory / comprehension / litter-pickup, performance, YAGNI) in original words with correct attributions.
   4. Every Fowler TS/JS sample compiles tsc --strict-clean and is behavior-preserving, verified via the clean-room `oracle-reviewer` gate (not an AskUserQuestion paste) against `.oracle/refactoring-2e/`, which covers all 62 refactorings.
 
-**Plans**: 8 plans (4 waves)
+**Plans**: 10 plans (4 waves)
 
-- [ ] 07-01-PLAN.md -- Compile harness (tsc --strict) + FWL-01/02/03 + hygiene checkers (wave 1, autonomous)
-- [ ] 07-02-PLAN.md -- Catalog structure: thin README index + tag-group bucketing oracle checkpoint (wave 2)
-- [ ] 07-03-PLAN.md -- Principles: Fowler Ch.2 distilled (wave 2)
-- [ ] 07-04-PLAN.md -- Content: basic + encapsulation tag-groups, 21 entries (wave 3)
-- [ ] 07-05-PLAN.md -- Content: moving-features + organizing-data, 14 entries (wave 3)
-- [ ] 07-06-PLAN.md -- Content: simplify-conditional-logic + refactoring-apis + errors, 20 entries (wave 3)
-- [ ] 07-07-PLAN.md -- Content: dealing-with-inheritance, 11 entries (wave 3)
-- [ ] 07-08-PLAN.md -- Smell taxonomy: 24 Fowler rows (wave 4)
+- [x] 07-01-PLAN.md -- Wave-1 tsc --strict compile harness + FWL-01/02/03 + hygiene checkers (wave 1)
+- [ ] 07-02-PLAN.md -- PILOT: basic chapter (Ch.6) per-refactoring leaves + harness overhaul (62-scope, per-leaf, smell-leaf, +check-crossrefs) + chapter-grouped README scaffold; calibrates the clean-room loop (wave 2)
+- [ ] 07-03-PLAN.md -- Principles: Fowler Ch.2 distilled (authored + oracle-converged; SUMMARY pending) (wave 2)
+- [ ] 07-04-PLAN.md -- Catalog: encapsulation chapter (Ch.7) per-refactoring leaves (wave 3)
+- [ ] 07-05-PLAN.md -- Catalog: moving-features chapter (Ch.8) per-refactoring leaves (wave 3)
+- [ ] 07-06-PLAN.md -- Catalog: organizing-data chapter (Ch.9) per-refactoring leaves (wave 3)
+- [ ] 07-07-PLAN.md -- Catalog: simplify-conditional-logic chapter (Ch.10) per-refactoring leaves (wave 3)
+- [ ] 07-08-PLAN.md -- Catalog: refactoring-apis chapter (Ch.11) leaves, incl. Return Modified Value [web-only] (wave 3)
+- [ ] 07-09-PLAN.md -- Catalog: dealing-with-inheritance chapter (Ch.12) per-refactoring leaves (wave 3)
+- [ ] 07-10-PLAN.md -- Smell leaves (24) + navigation-only smells.md index + catalog README finalize + full battery (wave 4)
 
 ### Phase 8: Kerievsky Catalog (Refactoring to Patterns)
 
@@ -158,11 +160,11 @@ Phases execute in numeric order: 6 -> 7 -> 8 -> 9 -> 10 -> 11
 | 4. Distribution & Hygiene | lz-tdd@0.0.1 | 1/1 | Complete | 2026-07-02 |
 | 5. Skill Effectiveness Evals | lz-tdd@0.0.1 | 4/4 | Complete | 2026-07-03 |
 | 6. lz-refactor Skill Scaffold & Progressive Disclosure | lz-tdd@0.0.2 | 1/1 | Complete    | 2026-07-04 |
-| 7. Fowler Catalog (Refactoring, 2nd ed) | lz-tdd@0.0.2 | 0/8 | Planned    |  |
+| 7. Fowler Catalog (Refactoring, 2nd ed) | lz-tdd@0.0.2 | 1/10 | In Progress |  |
 | 8. Kerievsky Catalog (Refactoring to Patterns) | lz-tdd@0.0.2 | - | Not started | - |
 | 9. Coach Behavior & Principle-Backing | lz-tdd@0.0.2 | - | Not started | - |
 | 10. Distribution & Hygiene | lz-tdd@0.0.2 | - | Not started | - |
 | 11. Skill-Effectiveness Evals | lz-tdd@0.0.2 | - | Not started | - |
 
 ---
-*Roadmap created: 2026-07-02 | lz-tdd@0.0.1 completed: 2026-07-04 | lz-tdd@0.0.2 roadmap added: 2026-07-04 | Phase 6 planned: 2026-07-04 | Phase 7 planned: 2026-07-04*
+*Roadmap created: 2026-07-02 | lz-tdd@0.0.1 completed: 2026-07-04 | lz-tdd@0.0.2 roadmap added: 2026-07-04 | Phase 6 planned: 2026-07-04 | Phase 7 planned: 2026-07-04 | Phase 7 re-planned (scope-correction: 62-scope + clean-room oracle, per-refactoring leaves): 2026-07-05*

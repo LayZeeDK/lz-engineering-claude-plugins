@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: lz-tdd@0.0.2
 milestone_name: lz-refactor Skill (Fowler + Kerievsky)
 status: executing
-stopped_at: Phase 7 context gathered
-last_updated: "2026-07-04T19:22:57.769Z"
-last_activity: 2026-07-04
+stopped_at: Phase 7 re-planned (scope-correction); oracle agents converged
+last_updated: "2026-07-05"
+last_activity: 2026-07-05
 progress:
   total_phases: 6
   completed_phases: 1
-  total_plans: 9
-  completed_plans: 1
-  percent: 11
+  total_plans: 11
+  completed_plans: 2
+  percent: 18
 ---
 
 # Project State
@@ -27,9 +27,9 @@ See: .planning/PROJECT.md (updated 2026-07-04)
 ## Current Position
 
 Phase: 7 (Fowler Catalog (Refactoring, 2nd ed)) — EXECUTING
-Plan: 2 of 8
-Status: Ready to execute
-Last activity: 2026-07-04
+Plan: next is 07-02 of 10 (scope-corrected re-plan: 62 refactorings, chapter-grouped per-refactoring leaves, clean-room oracle loop)
+Status: Re-planned + plan-checked (READY-WITH-NOTES, W1/W2 applied). Wave 1 done (07-01 harness); 07-03 principles authored + oracle-converged (SUMMARY pending). Blocked on user `/reload-plugins` before Wave 2.
+Last activity: 2026-07-05
 
 ## Performance Metrics
 
@@ -111,4 +111,8 @@ Resume file: None
 
 ## Operator Next Steps
 
-- Plan the first phase with /gsd-plan-phase 6
+- Run `/reload-plugins` to make the converged clean-room `oracle`/`oracle-reviewer` agents live
+  (the live registry still holds the pre-fix agents).
+- Then resume execute-phase at Wave 2: `07-02` (basic-chapter pilot -- calibrates the blind-author ->
+  oracle-reviewer-gate -> converge loop + overhauls the harness to 62-scope), then Wave 3
+  (`07-04..07-09` chapters, parallel), then Wave 4 (`07-10` smells + indexes + README finalize).

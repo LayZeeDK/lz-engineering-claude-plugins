@@ -103,7 +103,14 @@ this milestone starts at Phase 6.
   3. Kerievsky's Ch.4 smells (including Conditional Complexity, Indecent Exposure, Solution Sprawl, Combinatorial Explosion, Oddball Solution) are folded into the unified smell taxonomy with source tags and deduplicated against Fowler's list.
   4. Each Kerievsky refactoring cross-references its target GoF pattern (from the owner's GoF e-book) for vocabulary, without reproducing any GoF text.
 
-**Plans**: TBD
+**Plans**: 6 plans (3 waves)
+
+- [ ] 08-01-PLAN.md -- Wave-1 harness extension: new check-kerievsky.mjs (27-name identity + 3 fields + 3 Away + README mirror) + re-point extract-samples / check-crossrefs / check-smells + package.json (wave 1)
+- [ ] 08-02-PLAN.md -- Catalog: Ch.6 Creation leaves (6) via the clean-room oracle loop; incl. 2 de-patterning Away cases (Inline Singleton, Encapsulate Composite with Builder) (wave 2)
+- [ ] 08-03-PLAN.md -- Catalog: Ch.7 Simplification leaves (6) via the clean-room oracle loop (State/Command overflow candidates) (wave 2)
+- [ ] 08-04-PLAN.md -- Catalog: Ch.8 Generalization leaves (7) via the clean-room oracle loop (Interpreter overflow candidate) (wave 2)
+- [ ] 08-05-PLAN.md -- Catalog: Ch.9 Protection + Ch.10 Accumulation + Ch.11 Utilities leaves (8) via the clean-room oracle loop; incl. the 3rd Away case (Move Accumulation to Visitor) + the 3 n/a-utility GoF leaves (wave 2)
+- [ ] 08-06-PLAN.md -- Ch.4 smell fold + dedup into the unified taxonomy + finalize kerievsky-catalog/README.md index + full battery green + claude plugin validate (wave 3)
 
 ### Phase 9: Coach Behavior & Principle-Backing
 
@@ -161,10 +168,10 @@ Phases execute in numeric order: 6 -> 7 -> 8 -> 9 -> 10 -> 11
 | 5. Skill Effectiveness Evals | lz-tdd@0.0.1 | 4/4 | Complete | 2026-07-03 |
 | 6. lz-refactor Skill Scaffold & Progressive Disclosure | lz-tdd@0.0.2 | 1/1 | Complete    | 2026-07-04 |
 | 7. Fowler Catalog (Refactoring, 2nd ed) | lz-tdd@0.0.2 | 10/10 | Complete   | 2026-07-05 |
-| 8. Kerievsky Catalog (Refactoring to Patterns) | lz-tdd@0.0.2 | - | Not started | - |
+| 8. Kerievsky Catalog (Refactoring to Patterns) | lz-tdd@0.0.2 | 0/6 | Planned | - |
 | 9. Coach Behavior & Principle-Backing | lz-tdd@0.0.2 | - | Not started | - |
 | 10. Distribution & Hygiene | lz-tdd@0.0.2 | - | Not started | - |
 | 11. Skill-Effectiveness Evals | lz-tdd@0.0.2 | - | Not started | - |
 
 ---
-*Roadmap created: 2026-07-02 | lz-tdd@0.0.1 completed: 2026-07-04 | lz-tdd@0.0.2 roadmap added: 2026-07-04 | Phase 6 planned: 2026-07-04 | Phase 7 planned: 2026-07-04 | Phase 7 re-planned (scope-correction: 62-scope + clean-room oracle, per-refactoring leaves): 2026-07-05*
+*Roadmap created: 2026-07-02 | lz-tdd@0.0.1 completed: 2026-07-04 | lz-tdd@0.0.2 roadmap added: 2026-07-04 | Phase 6 planned: 2026-07-04 | Phase 7 planned: 2026-07-04 | Phase 7 re-planned (scope-correction: 62-scope + clean-room oracle, per-refactoring leaves): 2026-07-05 | Phase 8 planned: 2026-07-05*

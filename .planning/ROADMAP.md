@@ -73,7 +73,7 @@ this milestone starts at Phase 6.
 **Requirements**: FWL-01, FWL-02, FWL-03, FWL-04
 **Success Criteria** (what must be TRUE):
 
-  1. The Fowler catalog reference documents all 62 refactorings as per-refactoring leaves -- each with name (+ 1st-ed aliases), a `Use when:` selector, motivation, distilled mechanics (original words), and an original TS/JS before/after example; Return Modified Value `[web-only]` and Split Phase's online-only examples `[web-example]` are provenance-labeled. All 62 are verified via the clean-room oracle loop (`oracle-reviewer` over `.oracle/refactoring-2e/`).
+  1. The Fowler catalog reference documents all 62 refactorings as per-refactoring leaves -- each with name (+ 1st-ed aliases), a `Use when:` selector, motivation, distilled mechanics (original words), and an original TS/JS before/after example; Return Modified Value `[web-only]` is provenance-labeled (the sole such marker -- Split Phase's `[web-example]` label was owner-dropped in 07-02 as a normal in-book Ch.6 refactoring). All 62 are verified via the clean-room oracle loop (`oracle-reviewer` over `.oracle/refactoring-2e/`).
   2. A unified smell-taxonomy reference lists the 24 Fowler bad smells, each mapped to its candidate refactorings, usable as the coach's trigger table.
   3. A principles reference distills Ch.2 (definition, the two hats, when-to-refactor: rule of three / preparatory / comprehension / litter-pickup, performance, YAGNI) in original words with correct attributions.
   4. Every Fowler TS/JS sample compiles tsc --strict-clean and is behavior-preserving, verified via the clean-room `oracle-reviewer` gate (not an AskUserQuestion paste) against `.oracle/refactoring-2e/`, which covers all 62 refactorings.

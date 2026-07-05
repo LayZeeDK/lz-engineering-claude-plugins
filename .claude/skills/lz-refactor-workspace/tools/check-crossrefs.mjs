@@ -25,6 +25,7 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(here, "..", "..", "..", "..");
 const REFERENCES = path.join(repoRoot, "plugins", "lz-tdd", "skills", "lz-refactor", "references");
 const CATALOG = path.join(REFERENCES, "fowler-catalog");
+const KERIEVSKY = path.join(REFERENCES, "kerievsky-catalog");
 const SMELLS_DIR = path.join(REFERENCES, "smells");
 const SMELLS_INDEX = path.join(REFERENCES, "smells.md");
 
@@ -95,7 +96,10 @@ const collectLeafFiles = (dir) => {
   return out;
 };
 
-const sourceFiles = [...collectLeafFiles(CATALOG), ...collectLeafFiles(SMELLS_DIR)];
+// Kerievsky leaves are sources too, so every composed-Fowler link (../fowler-catalog/<slug>.md#<slug>)
+// gets resolution-checked. The inverse-of mutuality guard below stays CATALOG (Fowler)-scoped, so the
+// one-directional Kerievsky -> Fowler composed-primitive links are correctly excluded from mutuality.
+const sourceFiles = [...collectLeafFiles(CATALOG), ...collectLeafFiles(KERIEVSKY), ...collectLeafFiles(SMELLS_DIR)];
 
 if (fs.existsSync(SMELLS_INDEX)) {
   sourceFiles.push(SMELLS_INDEX);

@@ -10,6 +10,9 @@
 //     link to that smell's leaf that resolves.
 // The index + candidate links stay RED until 07-10 authors the smell leaves + fills the index --
 // that is the expected baseline. Throwaway; node builtins only; mirrors verify-scaffold.mjs.
+// Phase 8 fold (D-05, KRV-03): candidate links also resolve kerievsky-catalog targets; a leaf MAY
+// carry a `Source:` tag (Fowler|Kerievsky|both, default Fowler); Kerievsky-unique leaves are
+// contract-checked; overlap smells must be deduped (tag the Fowler leaf `both`, no second leaf).
 // RED against the empty smells set by design (0/24).
 //   node .claude/skills/lz-refactor-workspace/tools/check-smells.mjs
 import fs from "node:fs";
@@ -53,6 +56,17 @@ const SMELLS = [
 ];
 
 const EXPECTED = 24;
+
+// Source tags fold Kerievsky's Ch.4 smells into the unified taxonomy (D-05). A leaf MAY carry a
+// `Source:` line; when present it must name Fowler, Kerievsky, or both. An ABSENT tag defaults to
+// Fowler (the Phase-7 baseline), so the shipped 24 Fowler leaves stay green before 08-06 tags them.
+const VALID_SOURCE_TAGS = new Set(["Fowler", "Kerievsky", "both"]);
+
+const sourceTagOf = (leaf) => {
+  const m = leaf.text.match(/^Source:\s*(\S+)/m);
+
+  return m ? m[1] : "Fowler";
+};
 
 let failures = 0;
 
@@ -169,9 +183,11 @@ console.log(`  smells dir: ${path.relative(repoRoot, SMELLS_DIR)}`);
 console.log(`  smell leaves found: ${leaves.length}`);
 console.log("");
 
-// Candidate-link resolution within a smell leaf: every ](...fowler-catalog/<leaf>.md[#a]) resolves.
+// Candidate-link resolution within a smell leaf: every ](...(fowler|kerievsky)-catalog/<leaf>.md[#a])
+// resolves. Broadened for the D-05 fold -- a unique Kerievsky smell's candidates are mostly Kerievsky
+// refactorings; the path.resolve(REFERENCES, "smells", rel) base still handles ../kerievsky-catalog/.
 const candidateLinksResolve = (leaf) => {
-  const linkRe = /\]\(([^)\s]*fowler-catalog\/[a-z0-9-]+\.md(?:#[^)\s]+)?)\)/g;
+  const linkRe = /\]\(([^)\s]*(?:fowler|kerievsky)-catalog\/[a-z0-9-]+\.md(?:#[^)\s]+)?)\)/g;
   const problems = [];
   let count = 0;
   let m;
@@ -194,25 +210,12 @@ const candidateLinksResolve = (leaf) => {
   return { count, problems };
 };
 
-let present = 0;
-
-for (const name of SMELLS) {
-  const matches = byName.get(name) || [];
-
-  if (matches.length === 0) {
-    report(false, name, "0 leaves found");
-    continue;
-  }
-
-  if (matches.length > 1) {
-    report(false, name, `${matches.length} leaves (expected exactly 1)`);
-    continue;
-  }
-
-  present++;
-  const leaf = matches[0];
-  const expectedSlug = slugFor(name);
+// The LOCKED smell-leaf contract (shared by the Fowler-canonical loop and the Kerievsky-unique loop
+// so both stay in lockstep): filename == slug, a `Recognize by:` selector, a `## Candidate
+// refactorings` section, and >=1 resolving candidate link.
+const smellContractMissing = (leaf) => {
   const missing = [];
+  const expectedSlug = slugFor(leaf.name);
 
   if (leaf.base !== expectedSlug) {
     missing.push(`filename ${leaf.base}.md != ${expectedSlug}.md`);
@@ -236,16 +239,91 @@ for (const name of SMELLS) {
     missing.push(`unresolved candidates: ${problems.join(", ")}`);
   }
 
+  return missing;
+};
+
+let present = 0;
+
+for (const name of SMELLS) {
+  const matches = byName.get(name) || [];
+
+  if (matches.length === 0) {
+    report(false, name, "0 leaves found");
+    continue;
+  }
+
+  if (matches.length > 1) {
+    report(false, name, `${matches.length} leaves (expected exactly 1)`);
+    continue;
+  }
+
+  present++;
+  const missing = smellContractMissing(matches[0]);
+
   report(missing.length === 0, name, missing.length === 0 ? "" : `missing: ${missing.join("; ")}`);
 }
 
-// Flag any smell-leaf heading that is not a canonical name.
+// The Kerievsky Ch.4 fold (D-05): validate source tags, accept Kerievsky-sourced headings, reject
+// un-deduped duplicates. The exact unique-vs-overlap map is oracle-settled in 08-06; the checker
+// validates STRUCTURE + resolution + dedup, leaving name-correctness to the oracle-reviewer.
 const canonical = new Set(SMELLS);
 
 for (const leaf of leaves) {
-  if (leaf.name && !canonical.has(leaf.name)) {
+  if (!leaf.name) {
+    continue;
+  }
+
+  const explicit = leaf.text.match(/^Source:\s*(\S+)/m);
+
+  if (explicit && !VALID_SOURCE_TAGS.has(explicit[1])) {
+    report(false, `invalid source tag on ${leaf.base}.md`, `Source: ${explicit[1]} (expected Fowler|Kerievsky|both)`);
+  }
+
+  const tag = sourceTagOf(leaf);
+  const isKerievskySourced = tag === "Kerievsky" || tag === "both";
+
+  // A non-canonical heading is only legitimate when the leaf declares itself Kerievsky-sourced.
+  if (!canonical.has(leaf.name) && !isKerievskySourced) {
     report(false, `unknown smell leaf heading: ${leaf.name}`, leaf.file);
   }
+
+  // Dedup: an overlap smell is folded by tagging the existing Fowler leaf `both`, NEVER by a second
+  // `Kerievsky`-only leaf reusing a canonical Fowler name.
+  if (tag === "Kerievsky" && canonical.has(leaf.name)) {
+    report(false, `un-deduped smell: ${leaf.name}`, "tagged Kerievsky but is a Fowler smell -- use `both` on the Fowler leaf");
+  }
+}
+
+// Kerievsky-UNIQUE smell leaves (Kerievsky-sourced, non-canonical name): assert present exactly once
+// with the smell-leaf contract, derived from the source tags rather than a hardcoded name list.
+const kerievskyUnique = new Map();
+
+for (const leaf of leaves) {
+  if (!leaf.name || canonical.has(leaf.name)) {
+    continue;
+  }
+
+  const tag = sourceTagOf(leaf);
+
+  if (tag !== "Kerievsky" && tag !== "both") {
+    continue;
+  }
+
+  if (!kerievskyUnique.has(leaf.name)) {
+    kerievskyUnique.set(leaf.name, []);
+  }
+
+  kerievskyUnique.get(leaf.name).push(leaf);
+}
+
+for (const [name, matches] of kerievskyUnique) {
+  if (matches.length > 1) {
+    report(false, `Kerievsky smell ${name}`, `${matches.length} leaves (expected exactly 1)`);
+    continue;
+  }
+
+  const missing = smellContractMissing(matches[0]);
+  report(missing.length === 0, `Kerievsky smell ${name}`, missing.length === 0 ? "" : `missing: ${missing.join("; ")}`);
 }
 
 // Navigation index: smells.md carries, per smell, a recognize-by line and a resolving leaf link.

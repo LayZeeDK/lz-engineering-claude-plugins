@@ -41,7 +41,7 @@ Phase numbering continues from the previous milestone (0.0.1 ended at Phase 5), 
 this milestone starts at Phase 6.
 
 - [x] **Phase 6: lz-refactor Skill Scaffold & Progressive Disclosure** - Invocable, auto-triggering `/lz-tdd:lz-refactor` router with a lean SKILL.md and a wired references/ structure (completed 2026-07-04)
-- [ ] **Phase 7: Fowler Catalog (Refactoring, 2nd ed)** - All 66 refactorings + 24 smells + Ch.2 principles, original prose + tsc-clean TS/JS, owner-oracle-verified and provenance-labeled
+- [ ] **Phase 7: Fowler Catalog (Refactoring, 2nd ed)** - All 62 refactorings + 24 smells + Ch.2 principles, original prose + tsc-clean TS/JS, clean-room-oracle-verified and provenance-labeled
 - [ ] **Phase 8: Kerievsky Catalog (Refactoring to Patterns)** - All 27 pattern-directed refactorings with To/Towards/Away directions, GoF cross-refs, Fowler-primitive composition, and Ch.4 smells folded into the unified taxonomy
 - [ ] **Phase 9: Coach Behavior & Principle-Backing** - Dual-mode smell->named-refactoring routing (incl. de-patterning), behavior-preservation discipline, the lz-tpp seam, and the three no-oracle Beck/Feathers cross-refs
 - [ ] **Phase 10: Distribution & Hygiene** - Version bump to 0.0.2, README + CHANGELOG, first-party review, no-verbatim-prose hygiene, public-repo hygiene preserved
@@ -67,16 +67,16 @@ this milestone starts at Phase 6.
 
 ### Phase 7: Fowler Catalog (Refactoring, 2nd ed)
 
-**Goal**: A complete, provenance-labeled Fowler reference layer -- all 66 refactorings, the 24 bad smells mapped to candidate refactorings, and the Ch.2 principles -- in original prose with tsc --strict-clean original TS/JS, verified against the owner's e-book/web oracle.
+**Goal**: A complete, provenance-labeled Fowler reference layer -- all 62 refactorings (per-refactoring leaves), the 24 bad smells mapped to candidate refactorings, and the Ch.2 principles -- in original prose with tsc --strict-clean original TS/JS, verified against the owner's authoritative source via the clean-room oracle loop (`.oracle/refactoring-2e/`, DST-04; main context never reads book prose).
 **Depends on**: Phase 6 (the skill router and `references/` structure must exist to hold the catalog docs).
-**Scaffold**: `.planning/research/refactoring-com-overview.md` (ingested 2026-07-04 -- the 66 names + 1st-ed aliases + tags + inverse-of pattern; orientation only, owner e-book/web is the oracle).
+**Scaffold**: `.planning/research/refactoring-com-overview.md` (ingested 2026-07-04 -- names + 1st-ed aliases + tags + inverse-of pattern; orientation only, `.oracle/refactoring-2e/` is the oracle). Design LOCKED in `07-ROUTING-ARCHITECTURE.md` (62-scope, chapter-grouped per-refactoring leaves) and `07-ORACLE-MODEL.md` (clean-room oracle/oracle-reviewer loop; oracle-availability matrix).
 **Requirements**: FWL-01, FWL-02, FWL-03, FWL-04
 **Success Criteria** (what must be TRUE):
 
-  1. The Fowler catalog reference documents all 66 refactorings -- each with name, motivation, distilled mechanics (original words), and an original TS/JS before/after example; the 5 print-absent `+` entries and Split Phase's online-only examples are provenance-labeled. All 66 (print-absent entries included) are verified against the owner's e-book/web oracle.
+  1. The Fowler catalog reference documents all 62 refactorings as per-refactoring leaves -- each with name (+ 1st-ed aliases), a `Use when:` selector, motivation, distilled mechanics (original words), and an original TS/JS before/after example; Return Modified Value `[web-only]` and Split Phase's online-only examples `[web-example]` are provenance-labeled. All 62 are verified via the clean-room oracle loop (`oracle-reviewer` over `.oracle/refactoring-2e/`).
   2. A unified smell-taxonomy reference lists the 24 Fowler bad smells, each mapped to its candidate refactorings, usable as the coach's trigger table.
   3. A principles reference distills Ch.2 (definition, the two hats, when-to-refactor: rule of three / preparatory / comprehension / litter-pickup, performance, YAGNI) in original words with correct attributions.
-  4. Every Fowler TS/JS sample compiles tsc --strict-clean and is behavior-preserving, verified at an owner-oracle checkpoint against the e-book/web editions, which include all 66 refactorings.
+  4. Every Fowler TS/JS sample compiles tsc --strict-clean and is behavior-preserving, verified via the clean-room `oracle-reviewer` gate (not an AskUserQuestion paste) against `.oracle/refactoring-2e/`, which covers all 62 refactorings.
 
 **Plans**: 8 plans (4 waves)
 

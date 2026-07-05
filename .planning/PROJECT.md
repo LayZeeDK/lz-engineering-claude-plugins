@@ -32,12 +32,17 @@ refactor step).
 - Dual-mode: an auto-triggering refactor-step coach (smell -> named refactoring,
   including "refactor away from a pattern" de-patterning) and an on-demand catalog
   reference.
-- Fowler layer at full grain: all 66 refactorings (mechanics + original TS/JS), a
-  unified smell taxonomy, and Ch.2 principles; provenance-labeled (5 print-absent
-  `+` entries + Split Phase's online-only examples).
+- Fowler layer at full grain: all 62 2nd-ed refactorings (mechanics + original TS/JS), a
+  unified smell taxonomy, and Ch.2 principles; provenance-labeled (Return Modified Value
+  `[web-only]` + Split Phase's online-only examples). (4 web-only 1st-ed relics cut.)
 - Kerievsky layer at full grain: all 27 pattern-directed refactorings (mechanics +
   original TS/JS re-rendered from Java), the To/Towards/Away directions, and the
   Ch.4 smells; cross-mapped to the Fowler primitives each composes.
+- Oracle-access convention (how copyrighted book content is sourced across phases): books
+  present as Markdown under git-ignored `.oracle/` (Fowler 2nd ed; Kerievsky) are accessed
+  ONLY via the clean-room `oracle`/`oracle-reviewer` agents -- the main context never reads
+  book prose; only own-words answers/verdicts cross back (DST-04). Books NOT in `.oracle/`
+  (GoF, Beck, RCM) use AskUserQuestion (the owner answers). See phase `07-ORACLE-MODEL.md`.
 - Principle-backing cross-references (no oracle copy owned -- high-confidence core
   only): Beck *TDD by Example* + *Tidy First?* and Feathers *Working Effectively
   with Legacy Code* (refactoring safely without tests).

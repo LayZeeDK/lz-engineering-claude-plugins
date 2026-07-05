@@ -3,6 +3,23 @@
 **Gathered:** 2026-07-04
 **Status:** Ready for planning
 
+> **SUPERSEDED IN PART (2026-07-05, scope-correction re-plan).** The scope/routing/oracle decisions
+> below are superseded by two LOCKED design docs -- READ THOSE FIRST: `07-ROUTING-ARCHITECTURE.md`
+> (canonical routing) and `07-ORACLE-MODEL.md` (clean-room oracle + availability matrix + driver
+> notes). Specifically:
+> - **Scope 66 -> 62** -- cut 4 web-only 1st-ed relics (Replace Magic Literal, Replace Control Flag
+>   with Break, Replace Error Code with Exception, Replace Exception with Precheck); keep Return
+>   Modified Value `[web-only]`. This overrides every "all 66" phrasing below and D-06's `+`-entry list.
+> - **D-01 (tag-group split) SUPERSEDED** by chapter-grouped per-refactoring LEAF files
+>   (`fowler-catalog/<refactoring>.md` x62 + a chapter-grouped `README.md` index).
+> - **D-04 (smells as a table) SUPERSEDED** by smell LEAVES under `smells/` + a navigation-only
+>   `smells.md` recognize-by index (candidates live in the leaf, forcing confirm-via-leaf).
+> - **D-07 (AskUserQuestion oracle checkpoint) SUPERSEDED for this book** by the clean-room
+>   `oracle`/`oracle-reviewer` loop over `.oracle/refactoring-2e/` (main context never reads book
+>   prose; DST-04). D-07's intent (owner authoritative, no fabrication) is preserved + strengthened.
+>   AskUserQuestion remains the oracle path ONLY for books NOT in `.oracle/` (GoF/Beck/RCM).
+> The `<code_context>` / `<canonical_refs>` reuse notes below remain valid.
+
 <domain>
 ## Phase Boundary
 

@@ -6,6 +6,8 @@ verbatim book prose (DST-04).
 
 ## What refactoring is
 
+The definition comes in two halves -- a noun and a verb.
+
 Refactoring (noun): reworking the internal structure of code without changing its observable
 behavior, so the code reads more clearly for the next person and future edits take less effort.
 Refactoring (verb): to improve that structure through a sequence of such small steps, each one

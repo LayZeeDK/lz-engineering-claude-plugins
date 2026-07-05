@@ -113,6 +113,18 @@ addressed-smells).
 **Process:** the pilot's oracle review is COMPREHENSIVE (all applicable axes), not the structural
 dry-run the manual comparisons were.
 
+**Rubric fits the content type.** The `oracle-reviewer`'s inline rubric is the DEFAULT for
+refactoring & smell leaves; the driver supplies a fitting rubric (or "no rubric, holistic") per
+invocation for other docs. For `principles.md` the axes are: **concepts** (definitions + the
+noun/verb + behavior-preservation + the two-hats distinction correct), **reasons** (the why-refactor
+set, none invented), **triggers** (the when-to-refactor set complete -- rule of three / preparatory /
+comprehension / litter-pickup, opportunistic-vs-planned -- with correct routing links),
+**boundaries** (when-NOT-to / problems, performance stance, YAGNI-architecture stance faithful, none
+invented), **attribution** (credits correct: Cunningham / Beck / Opdyke -> Fowler; two hats = Beck),
+**spirit** (opportunistic-continuous framing + the lz-tpp two-hats seam). mechanics / candidates /
+recognition / example are `n/a`. Indexes (README / smells.md) are mostly deterministic -> harness,
+not the reviewer.
+
 ## Reuse
 
 Book-agnostic: the same `.oracle/` + `oracle-reviewer` loop serves Phase 8 (Kerievsky under

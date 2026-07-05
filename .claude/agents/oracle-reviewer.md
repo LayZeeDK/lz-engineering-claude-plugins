@@ -71,11 +71,21 @@ If a source is missing / unreadable / implausibly large (> ~2 MB), mark the affe
 6. **Near-verbatim (full-strength DST-04 gate):** you hold the real prose and code, so this is the
    automated copyright catch. Flag closeness in motivation prose, in mechanics phrasing, AND in the
    example code (domain, identifiers, structure). Boolean + structural reason, no span.
-7. **Score each axis against the Rubric below** and cite the failed criterion in the `note` /
+7. **Score each axis against the applicable rubric** -- the driver-supplied rubric for this content
+   type if provided, else the default below -- and cite the failed criterion in the `note` /
    directive. Beyond the rubric, still flag any other material fidelity issue -- the rubric anchors
    judgment, it does not cap it. Emit only material findings; skip a directive with confidence < 70.
 
-## Rubric (score each semantic axis; `unable-to-verify` / `n/a` are orthogonal)
+## Rubric
+
+The rubric below is the DEFAULT for refactoring and smell leaves. The driver MAY supply, in the task
+message, a content-type-specific rubric, an axis subset, or "no rubric (holistic review)" -- if so,
+use that instead. Score only the axes that fit the document: a principles / conceptual doc has no
+mechanics / candidates / recognition / example (mark those `n/a`) and is judged on the axes the
+driver supplies (e.g. concepts, reasons, triggers, boundaries, attribution, spirit).
+`unable-to-verify` / `n/a` are orthogonal to the levels.
+
+### Default rubric (refactoring & smell leaves)
 
 - **mechanics** -- correct: all steps present, in a safe order, with faithful branches + safety
   checkpoints. partial: all present but a discriminator/branch drifted or a checkpoint folded (still

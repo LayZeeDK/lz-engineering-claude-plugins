@@ -54,7 +54,7 @@ completed: 2026-07-05
 
 ## Task Commits
 
-1. **Task 1: author the Ch.8 leaves via the clean-room loop** - `ec6d5b6` (feat)
+1. **Task 1: author the Ch.8 leaves via the clean-room loop** - `6bcbfa7` (feat)
 2. **Task 2: owner escalation** - did not fire (no non-converging / blocked entry); no-op.
 
 ## Confirmed Ch.8 membership (9)

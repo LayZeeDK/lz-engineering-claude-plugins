@@ -135,7 +135,22 @@ invented), **attribution** (credits correct: Cunningham / Beck / Opdyke -> Fowle
 recognition / example are `n/a`. Indexes (README / smells.md) are mostly deterministic -> harness,
 not the reviewer.
 
-## Reuse
+## Reuse and oracle availability (which books the agents can read)
 
-Book-agnostic: the same `.oracle/` + `oracle-reviewer` loop serves Phase 8 (Kerievsky under
-`.oracle/refactoring-to-patterns/`, GoF vocabulary under `.oracle/gof/`).
+The oracle agents (`oracle`, `oracle-reviewer`) work ONLY for books present as Markdown in
+`.oracle/`. For any book NOT there, the agents cannot be used (no source to read) -- use
+AskUserQuestion (the owner answers) as the oracle path instead.
+
+| Book | In `.oracle/`? | Oracle path |
+|------|----------------|-------------|
+| Fowler, *Refactoring* 2nd ed | yes (`.oracle/refactoring-2e/`) | `oracle` + `oracle-reviewer` -- Phase 7 |
+| Kerievsky, *Refactoring to Patterns* | yes (to be added) | `oracle` + `oracle-reviewer` -- Phase 8 |
+| GoF, *Design Patterns* | no | AskUserQuestion -- Phase 8 GoF vocabulary (KRV-04) |
+| Kent Beck, *TDD by Example* / *Tidy First?* | no | AskUserQuestion -- Phase 9 backing (PRIN-01/02); or keep no-oracle/high-confidence-core per existing scoping |
+| Robert C. Martin | no | AskUserQuestion |
+
+**AskUserQuestion is retired as the oracle path ONLY for the `.oracle/`-present books (Fowler,
+Kerievsky).** For unowned-as-Markdown books it remains the oracle path. The original milestone
+standing instruction ("use AskUserQuestion for authoritative oracle book access") therefore still
+holds for GoF / Beck / RCM; it is superseded by the clean-room agent loop only where the book is in
+`.oracle/`.

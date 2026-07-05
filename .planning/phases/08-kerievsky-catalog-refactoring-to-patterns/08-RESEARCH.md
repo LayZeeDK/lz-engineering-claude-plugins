@@ -448,27 +448,30 @@ For a Markdown reference-authoring phase, **the "test suite" IS the deterministi
 | A7 | Interpreter/State/Command are the likely overflow-walkthrough candidates | Reuse, Pitfall 5 | Over/under-use of walkthroughs; decided per-leaf at authoring by teaching value (YAGNI overflow rule). |
 | A8 | A new `check-kerievsky.mjs` is preferable to extending `check-catalog.mjs` | Harness | Either satisfies D-08's "keep out of shipped surface"; discretion (D-01 discretion list). |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **GoF field value for non-GoF / utility targets.**
+All four questions below are substantively RESOLVED and adopted into the plans. Q4 is
+deferred-by-design per LOCKED D-05 (settled at execution by the oracle loop, not an unresolved gap).
+
+1. **GoF field value for non-GoF / utility targets.** (RESOLVED)
    - What we know: 5+ targets are not classic GoF (Creation Method, Composed Method, Collecting Parameter, Null Object, type-safe Class); 3 Utilities target no pattern.
    - What's unclear: whether KRV-04's `GoF pattern:` field should name the actual (non-GoF) pattern, or carry "n/a -- utility," and whether `check-kerievsky.mjs` should allow "n/a."
-   - Recommendation: name the real target pattern where one exists (even if non-GoF), use "n/a -- utility" for the three Utilities, and have the checker accept a non-empty value OR the literal "n/a". Surface at plan review.
+   - RESOLVED (adopted): name the real target pattern where one exists (even if non-GoF); use "n/a -- utility" for the three Utilities; `check-kerievsky.mjs` accepts a non-empty value OR the literal "n/a -- utility" (adopted in 08-01 checker + 08-05 authoring).
 
-2. **Richer GoF intent line (D-04 re-open).**
+2. **Richer GoF intent line (D-04 re-open).** (RESOLVED)
    - What we know: default ships name-only vocabulary (satisfies KRV-04).
    - What's unclear: whether the owner wants a 1-line own-words intent per pattern.
-   - Recommendation: default name-only; an additive AskUserQuestion enhancement if the owner asks -- do not pre-build (D-04).
+   - RESOLVED (adopted): default name-only GoF vocabulary; a richer per-pattern intent line is an additive, reversible AskUserQuestion enhancement, NOT pre-built (per LOCKED D-04).
 
-3. **Exact To vs Towards granularity per leaf.**
+3. **Exact To vs Towards granularity per leaf.** (RESOLVED)
    - What we know: the 3 Away cases are LOCKED; the rest are "toward(s)."
    - What's unclear: whether each non-Away leaf is "To" or "Towards" (Kerievsky distinguishes).
-   - Recommendation: default the field to "Towards," let `oracle-reviewer`'s direction check correct any "To" cases; the harness only asserts the field is one of {To, Towards, Away}.
+   - RESOLVED (adopted): default the field to "Towards," let `oracle-reviewer`'s direction axis correct any "To" cases; the harness only asserts the field is one of {To, Towards, Away} (adopted across 08-01..08-05).
 
-4. **Does any Kerievsky-unique smell duplicate a Fowler smell after all?**
+4. **Does any Kerievsky-unique smell duplicate a Fowler smell after all?** (RESOLVED -- deferred-by-design)
    - What we know: Conditional Complexity vs Repeated Switches is the borderline case.
-   - What's unclear: the exact dedup boundary (settled at execution, D-05).
-   - Recommendation: draft Conditional Complexity provisionally as unique; let the oracle loop reclassify to an overlap-tag if the source treats it as the same smell.
+   - What's unclear: the exact dedup boundary.
+   - RESOLVED (deferred-by-design): the exact unique-vs-overlap dedup boundary is settled at EXECUTION by the oracle-gated loop against Ch.4 per LOCKED D-05 -- an intended execution-time settlement, not an unresolved research gap. 08-06 drafts Conditional Complexity provisionally as unique and lets the oracle reclassify it to an overlap-tag if the source treats it as the same smell.
 
 ## Sources
 

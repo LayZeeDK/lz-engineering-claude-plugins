@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: lz-tdd@0.0.2
 milestone_name: lz-refactor Skill (Fowler + Kerievsky)
 status: executing
-stopped_at: Phase 7 Wave 3 in progress; Ch.9 (07-06) done; next Ch.10 (07-07)
+stopped_at: Phase 7 Wave 3 in progress; Ch.10 (07-07) done; next Ch.11 (07-08)
 last_updated: "2026-07-05"
 last_activity: 2026-07-05
 progress:
   total_phases: 6
   completed_phases: 1
   total_plans: 11
-  completed_plans: 6
-  percent: 55
+  completed_plans: 7
+  percent: 64
 ---
 
 # Project State
@@ -27,8 +27,8 @@ See: .planning/PROJECT.md (updated 2026-07-04)
 ## Current Position
 
 Phase: 7 (Fowler Catalog (Refactoring, 2nd ed)) — EXECUTING
-Plan: Wave 3 in progress -- Ch.9 (07-06) DONE (catalog now 34/62); running chapter-by-chapter. NEXT: Ch.10 (07-07), then 07-08/07-09, then Wave 4 = 07-10 (24 smells + indexes + phase-gate battery green).
-Status: Wave 1 done (07-01). Wave 2 pilot 07-02 CONVERGED (11/11; loop + rubric anchors + 62 name->slug map pinned in 07-02-SUMMARY.md). Wave 3 07-04 CONVERGED (9/9 Ch.7). Wave 3 07-05 CONVERGED (9/9 Ch.8; R1 5 pass/4 revise, R2 4 pass). Wave 3 07-06 CONVERGED (5/5 Ch.9; R1 1 pass/4 revise, R2 4 pass; 0 escalations, 0 too_close_to_source; motivation axis caught an invented exception in Replace Derived Variable with Query). OPEN: (a) 07-08 Return Modified Value [web-only] now gate-able (source provisioned in .oracle/ Ch.11); (b) 07-03 principles.md needs a `definition`-token fix + SUMMARY (check-principles 7/8 RED); (c) check-crossrefs + check-catalog(62)/check-smells(24) close at 07-10; (d) owner decision pending on 2 optional oracle-rubric sharpenings (cross-ref aptness in mechanics anchor; codify atomic-boundary back-edge as benign addition) -- see conversation, not yet applied to LOCKED 07-ORACLE-MODEL.md.
+Plan: Wave 3 in progress -- Ch.10 (07-07) DONE (catalog now 40/62); running chapter-by-chapter. NEXT: Ch.11 (07-08, 11 leaves incl. Return Modified Value [web-only]), then 07-09, then Wave 4 = 07-10 (24 smells + indexes + phase-gate battery green).
+Status: Wave 1 done (07-01). Wave 2 pilot 07-02 CONVERGED (11/11; loop + rubric anchors + 62 name->slug map pinned in 07-02-SUMMARY.md). Wave 3 07-04 CONVERGED (9/9 Ch.7). Wave 3 07-05 CONVERGED (9/9 Ch.8; R1 5 pass/4 revise, R2 4 pass). Wave 3 07-06 CONVERGED (5/5 Ch.9; R1 1 pass/4 revise, R2 4 pass; motivation axis caught an invented exception). Wave 3 07-07 CONVERGED (6/6 Ch.10; R1 2 pass/4 revise, R2 4 pass; 1 too_close_to_source on Introduce Assertion -> re-domained; cross-ref-aptness slip caught on Replace Conditional with Polymorphism). OPEN: (a) 07-08 Return Modified Value [web-only] now gate-able (source provisioned in .oracle/ Ch.11); (b) 07-03 principles.md needs a `definition`-token fix + SUMMARY (check-principles 7/8 RED); (c) check-crossrefs + check-catalog(62)/check-smells(24) close at 07-10; (d) owner decision pending on 2 optional oracle-rubric sharpenings (cross-ref aptness in mechanics anchor; codify atomic-boundary back-edge as benign addition) -- see conversation, not yet applied to LOCKED 07-ORACLE-MODEL.md.
 Last activity: 2026-07-05
 
 ## Performance Metrics

@@ -3,7 +3,7 @@ gsd_state_version: 1.0
 milestone: lz-tdd@0.0.2
 milestone_name: lz-refactor Skill (Fowler + Kerievsky)
 status: executing
-stopped_at: Phase 7 Wave 3; delta re-review re-run DONE (18/18 pass, no-op); next Ch.12 (07-09)
+stopped_at: Phase 7 Wave 3; Ch.12 (07-09) CONVERGED 11/11 -- catalog 62/62; next Wave 4 (07-10)
 last_updated: "2026-07-05"
 last_activity: 2026-07-05
 progress:
@@ -27,8 +27,8 @@ See: .planning/PROJECT.md (updated 2026-07-04)
 ## Current Position
 
 Phase: 7 (Fowler Catalog (Refactoring, 2nd ed)) — EXECUTING
-Plan: Wave 3 in progress -- Ch.11 (07-08) DONE (catalog now 51/62); running chapter-by-chapter. NEXT: Ch.12 (07-09, dealing with inheritance, 11 leaves -- the last catalog chapter), then Wave 4 = 07-10 (24 smells + indexes + phase-gate battery green).
-Status: Wave 1 done (07-01). Wave 2 pilot 07-02 CONVERGED (11/11; loop + rubric anchors + 62 name->slug map pinned in 07-02-SUMMARY.md). Wave 3 07-04 CONVERGED (9/9 Ch.7). 07-05 CONVERGED (9/9 Ch.8). 07-06 CONVERGED (5/5 Ch.9). 07-07 CONVERGED (6/6 Ch.10; 1 too_close_to_source -> re-domained). Oracle-reviewer rubric SHARPENED + reviewed + reloaded (cross-ref aptness in mechanics; back-edges as benign additions; spirit->spirit/judgment). 07-08 CONVERGED (11/11 Ch.11; first chapter on the sharpened rubric; R1 5 pass/6 revise, R2 5 pass/1 revise, R3 1 pass; Return Modified Value [web-only] gated OK). Targeted delta re-review of the 18 Ch.6-10 leaves (cross-ref aptness + spirit/judgment, sharpened axes) RE-RAN 2026-07-05 to completion: 18/18 pass, no leaf changed (no-op). OPEN: (a) 07-03 principles.md needs a `definition`-token fix + SUMMARY (check-principles 7/8 RED); (b) check-crossrefs + check-catalog(62)/check-smells(24) close at 07-10.
+Plan: Wave 3 DONE -- Ch.12 (07-09) CONVERGED 11/11 (catalog now 62/62); all seven catalog chapters (Ch.6-12) authored + committed. NEXT: Wave 4 = 07-10 (24 smell leaves + navigation-only smells.md + finalize README + FULL checker battery GREEN = phase gate).
+Status: Wave 1 done (07-01). Wave 2 pilot 07-02 CONVERGED (11/11; loop + rubric anchors + 62 name->slug map pinned in 07-02-SUMMARY.md). Wave 3 07-04 CONVERGED (9/9 Ch.7). 07-05 CONVERGED (9/9 Ch.8). 07-06 CONVERGED (5/5 Ch.9). 07-07 CONVERGED (6/6 Ch.10; 1 too_close_to_source -> re-domained). Oracle-reviewer rubric SHARPENED + reviewed + reloaded (cross-ref aptness in mechanics; back-edges as benign additions; spirit->spirit/judgment). 07-08 CONVERGED (11/11 Ch.11; first chapter on the sharpened rubric; R1 5 pass/6 revise, R2 5 pass/1 revise, R3 1 pass; Return Modified Value [web-only] gated OK). Targeted delta re-review of the 18 Ch.6-10 leaves (cross-ref aptness + spirit/judgment, sharpened axes) RE-RAN 2026-07-05 to completion: 18/18 pass, no leaf changed (no-op). 07-09 (Ch.12, 11 leaves) CONVERGED 11/11 (R1 7 pass/4 revise, R2 2 pass/2 revise, R3 2 pass; 1 too_close_to_source resolved by blind reword; 0 escalations) -- catalog 62/62. OPEN: (a) 07-03 principles.md needs a `definition`-token fix + SUMMARY (check-principles 7/8 RED); (b) check-crossrefs + check-catalog(62)/check-smells(24) close at 07-10.
 Last activity: 2026-07-05
 
 ## Performance Metrics
@@ -74,6 +74,7 @@ Recent decisions affecting current work:
 - [Phase ?]: Phase 6 (06-01): lz-refactor scaffold shipped -- dual-mode-by-omission router (name+description only), five references/ stubs, two splittable catalog subdirs behind thin indexes; Wave-0 checker + claude plugin validate both exit 0.
 - [Phase ?]: Phase 6: SKILL.md kept lean at 70 lines (under ~90-150 soft target, well under 500 cap); content deferred to references/ per progressive disclosure.
 - [Phase ?]: Phase 6 carry-forward (D-09): Phases 7 and 8 MUST open an AskUserQuestion oracle-access checkpoint (Fowler e-book/web ISBN 9780135425664, Kerievsky book, GoF e-book) before authoring catalog content; recorded inline in the catalog stubs.
+- [Phase 07]: Phase 7 (07-09): Ch.12 dealing-with-inheritance 11 leaves converged 11/11 -- catalog 62/62 (all seven catalog chapters authored). The DST-04 near-verbatim gate fired on ACCIDENTAL collision (push-down-method blind draft matched the source's short imperative steps; reworded blind, cleared). spirit/judgment held `correct` across all 11 despite the judgment-heavy chapter; every revise was completeness/aptness (a dropped final mechanics step, a missing secondary motivation, a plausible-but-incomplete cited sibling).
 - [Phase 07]: Phase 7 (07-01, wave 1): built the NON-shipped FWL-01..04 validation harness at .claude/skills/lz-refactor-workspace/ (pinned typescript@6.0.3, one-module-per-fence tsc --strict extractor + 4 node-builtin checkers). Checkers gate on exit code and assert name IDENTITY not cardinality (closes WR-02). RED against the empty catalog is the expected wave-1 baseline; FWL-01..04 close only when the content plans (waves 2-4) turn the battery GREEN. — D-03 asks for a committed re-runnable harness (not Phase-3 ad-hoc extraction). Instruments-first (Nyquist scaffold) makes FWL-01..04 machine-checkable before any oracle content lands.
 
 ### Pending Todos
@@ -106,18 +107,16 @@ Items acknowledged and carried forward from previous milestone close:
 ## Session Continuity
 
 Last session: 2026-07-05
-Stopped at: Targeted delta re-review re-run complete (18/18 pass, no-op); paused for owner review before 07-09 (Ch.12)
+Stopped at: Ch.12 (07-09) converged 11/11 + committed (3460dc1); catalog 62/62; paused for owner review before Wave 4 (07-10)
 Resume file: .planning/phases/07-fowler-catalog-refactoring-2nd-ed/.continue-here.md
 
 ## Operator Next Steps
 
-- Delta re-review of the 18 Ch.6-10 leaves against the two sharpened axes (cross-ref aptness +
-  spirit/judgment) re-ran 2026-07-05: 18/18 pass, no leaf changed (no-op). Ch.6-11 (07-02, 07-04..07-08)
-  all converged + committed; catalog 51/62. The clean-room `oracle`/`oracle-reviewer` agents are live,
-  calibrated, and reloaded with the sharpened rubric.
-- Next: `/gsd-execute-phase 7` -> 07-09 (Ch.12 dealing with inheritance, 11 leaves -- the last catalog
-  chapter) via the calibrated clean-room loop (sub-batch the oracle-reviewer gate ~6+5, sharpened
-  anchors; inheritance is judgment-heavy). Then Wave 4 = `07-10` (24 smell leaves + navigation
-  smells.md + finalize README Ch.7-12 rows + full checker battery GREEN = phase gate).
+- Ch.12 (07-09) converged 11/11 + committed (3460dc1); catalog now 62/62 -- all seven catalog chapters
+  (Ch.6-12) authored. The Ch.6-10 delta re-review also re-ran clean earlier (18/18 pass, no-op). The
+  clean-room `oracle`/`oracle-reviewer` agents are live, calibrated, and reloaded with the sharpened rubric.
+- Next: `/gsd-execute-phase 7` -> 07-10 (Wave 4): 24 smell leaves + navigation-only smells.md + finalize
+  README Ch.7-12 rows + FULL checker battery GREEN (check-catalog 62/62, check-smells 24/24,
+  check-crossrefs) = phase gate.
 - Before phase close: (a) fix 07-03 `principles.md` `definition`-token gap (check-principles 7/8 RED)
   + write 07-03-SUMMARY; (b) verify_phase_goal -> secure-phase -> validate-phase -> extract-learnings.

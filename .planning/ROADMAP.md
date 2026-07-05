@@ -88,7 +88,7 @@ this milestone starts at Phase 6.
 - [x] 07-06-PLAN.md -- Catalog: organizing-data chapter (Ch.9) per-refactoring leaves (wave 3)
 - [x] 07-07-PLAN.md -- Catalog: simplify-conditional-logic chapter (Ch.10) per-refactoring leaves (wave 3)
 - [x] 07-08-PLAN.md -- Catalog: refactoring-apis chapter (Ch.11) leaves, incl. Return Modified Value [web-only] (wave 3)
-- [ ] 07-09-PLAN.md -- Catalog: dealing-with-inheritance chapter (Ch.12) per-refactoring leaves (wave 3)
+- [x] 07-09-PLAN.md -- Catalog: dealing-with-inheritance chapter (Ch.12) per-refactoring leaves (wave 3)
 - [ ] 07-10-PLAN.md -- Smell leaves (24) + navigation-only smells.md index + catalog README finalize + full battery (wave 4)
 
 ### Phase 8: Kerievsky Catalog (Refactoring to Patterns)
@@ -160,7 +160,7 @@ Phases execute in numeric order: 6 -> 7 -> 8 -> 9 -> 10 -> 11
 | 4. Distribution & Hygiene | lz-tdd@0.0.1 | 1/1 | Complete | 2026-07-02 |
 | 5. Skill Effectiveness Evals | lz-tdd@0.0.1 | 4/4 | Complete | 2026-07-03 |
 | 6. lz-refactor Skill Scaffold & Progressive Disclosure | lz-tdd@0.0.2 | 1/1 | Complete    | 2026-07-04 |
-| 7. Fowler Catalog (Refactoring, 2nd ed) | lz-tdd@0.0.2 | 3/10 | In Progress|  |
+| 7. Fowler Catalog (Refactoring, 2nd ed) | lz-tdd@0.0.2 | 8/10 | In Progress|  |
 | 8. Kerievsky Catalog (Refactoring to Patterns) | lz-tdd@0.0.2 | - | Not started | - |
 | 9. Coach Behavior & Principle-Backing | lz-tdd@0.0.2 | - | Not started | - |
 | 10. Distribution & Hygiene | lz-tdd@0.0.2 | - | Not started | - |

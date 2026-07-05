@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: lz-tdd@0.0.2
 milestone_name: lz-refactor Skill (Fowler + Kerievsky)
 status: executing
-stopped_at: Phase 7 Wave 2 pilot (07-02) complete; clean-room oracle loop calibrated
+stopped_at: Phase 7 Wave 3 in progress; Ch.7 (07-04) done; next Ch.8 (07-05)
 last_updated: "2026-07-05"
 last_activity: 2026-07-05
 progress:
   total_phases: 6
   completed_phases: 1
   total_plans: 11
-  completed_plans: 3
-  percent: 27
+  completed_plans: 4
+  percent: 36
 ---
 
 # Project State
@@ -27,8 +27,8 @@ See: .planning/PROJECT.md (updated 2026-07-04)
 ## Current Position
 
 Phase: 7 (Fowler Catalog (Refactoring, 2nd ed)) — EXECUTING
-Plan: Wave 2 pilot 07-02 DONE (11/62 leaves); next is Wave 3 = 07-04..07-09 (Ch.7-12, parallel, file-disjoint), then Wave 4 = 07-10 (24 smells + indexes + phase-gate battery green)
-Status: Wave 1 done (07-01 harness). Wave 2 pilot 07-02 CONVERGED (11/11 Ch.6 leaves pass; 3 oracle rounds; 1 owner escalation -> Split Phase [web-example] DROPPED). Clean-room loop + rubric anchors + 62 name->slug map calibrated and pinned in 07-02-SUMMARY.md. Harness overhauled to 62/per-leaf/smell-leaf + check-crossrefs. OPEN: 07-03 principles.md needs a `definition`-token fix + SUMMARY (check-principles 7/8 RED); check-crossrefs + check-catalog(62)/check-smells(24) close at 07-10.
+Plan: Wave 3 in progress -- Ch.7 (07-04) DONE (catalog now 20/62); running chapter-by-chapter. NEXT: Ch.8 (07-05), then 07-06/07-07/07-08/07-09, then Wave 4 = 07-10 (24 smells + indexes + phase-gate battery green).
+Status: Wave 1 done (07-01). Wave 2 pilot 07-02 CONVERGED (11/11; loop + rubric anchors + 62 name->slug map pinned in 07-02-SUMMARY.md). Wave 3 07-04 CONVERGED (9/9 Ch.7; 1 owner escalation -> Remove Middle Man tooling variation resolved via `oracle` consult). OPEN: (a) 07-08 Return Modified Value [web-only] needs owner to add .oracle/ web-edition content before gating (see checkpoint); (b) 07-03 principles.md needs a `definition`-token fix + SUMMARY (check-principles 7/8 RED); (c) check-crossrefs + check-catalog(62)/check-smells(24) close at 07-10.
 Last activity: 2026-07-05
 
 ## Performance Metrics

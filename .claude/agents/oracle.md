@@ -62,25 +62,29 @@ leaking, and the states-vs-inference judgment, are leak-sensitive, so this pins 
 - Optionally the desired output shape (prose / bullets / JSON).
 
 If the index/book entry is missing, unreadable, or implausibly large (> ~2 MB), say so plainly with
-confidence 0 (own words, no path) -- do not fabricate.
+confidence 0 (own words, no path) -- do not fabricate. In JSON mode, set `confidence: 0`, put the
+problem (own words, no path) in `answer`, and `sources: []`.
 
 ## Process
 
-1. Navigate from the given `index.md` to the relevant chapter(s); read what you need.
-2. Answer precisely, in your own words. For a survey, enumerate items with the chapter they come from
-   (chapter number + your own-words topic; a literal chapter title only if it is itself a bare
-   functional name).
+1. Navigate from the given `index.md` to the relevant chapter(s); read what you need (paginate a long
+   chapter fully before concluding absence -- a single Read may truncate).
+2. Answer precisely, in your own words. Prefer answering the specific question over reproducing a full
+   set. For a survey, enumerate items with the chapter they come from (chapter number + your own-words
+   topic; a literal chapter title only if it is itself a bare functional name), as facts -- not as a
+   rendering of the source's ordering.
 3. Separate "the source states X" from "my reading/inference is Y"; flag ambiguity/absence.
 4. Keep it tight and high-signal.
 
 ## Output
 
-Default shape is prose, with a fixed plain-text footer appended after the prose (not fenced):
+Default shape is prose, then this fixed plain-text footer (not fenced); use `none` as the empty case
+for `Sources` and `Not covered`, and keep every value in your own words (no verbatim heading or path):
 
 ```
-Sources: Ch.<n> (<own-words topic>), ...   (or "none" if nothing is cited)
+Sources: Ch.<n> (<own-words topic>), ...
 Confidence: <0-100>/100
-Not covered: <in your own words, no verbatim heading or path; or "none">
+Not covered: <own-words summary, or none>
 ```
 
 If JSON is requested, follow the driver's schema; if none is given, return `{ "answer": "<own

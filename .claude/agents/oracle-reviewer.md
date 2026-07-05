@@ -61,7 +61,11 @@ and owned by the harness.
 - DRAFT_PATHS: drafted Markdown file(s) under `plugins/lz-tdd/skills/lz-refactor/references/` -- the
   project's own repo paths (not copyrighted). Echo a draft path only in `entry_path`.
 - SOURCE: an `.oracle/<book>/index.md` navigation entry -- navigate from there and read the full text
-  you need. Confirm any negative ("source lacks X") by READING, never by search.
+  you need. Confirm any negative ("source lacks X") by READING TO COMPLETION (paginate a long chapter
+  fully -- a single Read may truncate), never by search.
+- SCOPE (optional): the draft's intended coverage. Judge `source-only` DROPs against SCOPE -- a
+  deliberately out-of-scope omission is expected (`n/a`), not a DROP. Absent SCOPE, the whole source
+  chapter is in-scope.
 - CONTENT_TYPE + AXES: the document type + axes to score. `refactoring-leaf` -> axes mechanics,
   motivation, example, applicability, spirit. `smell-leaf` -> axes candidates, recognition,
   motivation, applicability, spirit. `principles`/other -> the driver supplies each axis WITH its own
@@ -69,20 +73,25 @@ and owned by the harness.
   `unable-to-verify` if it arrives without anchors. Do NOT infer the type -- use what the driver
   passes.
 
-If a source/draft is missing/unreadable/implausibly large (> ~2 MB), inputs are absent/mismatched, or
-the draft's topic plainly does not match the source chapter, return `[{"error": "<what is wrong, own
-words, no path>"}]` instead of guessing.
+Per draft: if its source or draft file is missing/unreadable, the per-file source is implausibly
+large (> ~2 MB) to read at all, inputs are absent/mismatched, or the draft's topic plainly does not
+match the source chapter, emit a per-draft error object `{"error": "<what is wrong, own words, no
+path>", "entry_path": "<the draft path>"}` for THAT draft only and still return normal verdicts for
+the rest (a consumer detects an error entry by the absence of `verdict`). Do not guess.
 
 ## Process (per draft) -- adversarial: assume drift/drop until the alignment proves otherwise
 
-1. **Alignment.** Account for EVERY source item (mechanics step / candidate / recognition cue /
-   principle-claim) with an own-words label + status: `matched` | `drifted` (present but
-   selector/condition/procedure/safe-order changed) | `source-only` (a DROP) | `draft-only` (an
-   ADDITION). Confirm negatives by reading.
+1. **Alignment.** Account for EVERY in-scope source item (mechanics step / candidate / recognition
+   cue / principle-claim) with an own-words label + status: `matched` | `drifted` (present but
+   selector/condition/procedure/safe-order changed) | `source-only` (a DROP vs SCOPE) | `draft-only`
+   (an ADDITION). Confirm negatives by reading. If the draft has drifted so far that a full alignment
+   would reproduce the source's ordered selection, cap the list to representative items + a count and
+   `blocked` on completeness-vs-firewall instead.
 2. **Additions.** Judge each `draft-only` item `likely-correct` | `doubtful`; route uncertain ones to
    `ambiguities`.
 3. **Score each applicable axis** `correct` | `partial` | `wrong` (else `unable-to-verify` | `n/a`)
-   against the rubric. A `drifted` item forces its axis to at most `partial`.
+   against the rubric. A `drifted` item forces its axis to at most `partial`. An axis is `n/a` when
+   the source chapter has nothing for it (e.g. a smell with no code sketch).
 4. **Example semantics** (refactoring leaves): behavior-preserving? representative? preconditions
    honored? (behavior-preserving = no => `example` axis is `wrong`.)
 5. **Near-verbatim (full-strength DST-04):** report by category; boolean + reason.
@@ -95,10 +104,12 @@ words, no path>"}]` instead of guessing.
      `additions` has no `doubtful`, `behavior_preserving` is not `no`, `too_close_to_source` is
      false, AND `ambiguities` is empty. (A `pass` has empty `directives`.)
    - `blocked` iff the only things preventing `pass` are human-resolvable, non-draft-defect causes:
-     `unable-to-verify` axes and/or non-empty `ambiguities`. Name the cause. If it is an
-     oversized/unreadable source, the human supplies a smaller excerpt; if it is the
-     completeness-vs-firewall conflict, it is an accepted permanent limitation the driver
-     acknowledges (not re-submitted). Do NOT emit a draft directive for a `blocked` cause.
+     `unable-to-verify` axes and/or non-empty `ambiguities`. Name the cause. If an axis is
+     `unable-to-verify` because the readable source is too large to confirm THAT axis, the human
+     supplies a smaller excerpt for it; if it is the completeness-vs-firewall conflict, it is an
+     accepted permanent limitation the driver acknowledges (not re-submitted). Do NOT emit a draft
+     directive for a `blocked` cause. (Total inability to read/navigate the source is an `error`
+     object, not `blocked`.)
    - `revise` otherwise (a real draft defect); a `revise` has non-empty `directives`.
 
 ## Rubric (compact; the driver supplies axes + anchors for non-leaf types)
@@ -126,15 +137,16 @@ words, no path>"}]` instead of guessing.
 Emit ONLY a raw JSON array (no code fence), one object per draft:
 
 `[{ "entry": "<the draft's own document identity -- its refactoring/smell/doc name or filename stem;
-NEVER an .oracle source entry or path>", "entry_path": "<the draft repo file path>", "verdict":
-"pass|revise|blocked", "axes": { "<axis-in-play>": "correct|partial|wrong|unable-to-verify|n/a" },
-"behavior_preserving": "yes|no|n/a", "alignment": [{ "item": "<own-words <=12-word label; name-ok,
-no source phrasing>", "status": "matched|drifted|source-only|draft-only", "note": "<own words; no
-prose span, example identifier, domain term, or path>" }], "additions": [{ "item": "<own-words
-label>", "assessment": "likely-correct|doubtful", "note": "<own words; same ban>" }],
-"too_close_to_source": false, "too_close_reason": "<own words, by category; empty if false>",
-"directives": ["<structural own-words fix, <=20 words; no quote, example identifier, domain term, or path>"], "ambiguities": "<own words;
-same ban; or empty>", "confidence": "<0-100: confidence in this verdict>" }]`
+NEVER an .oracle source entry or path>", "entry_path": "<the draft repo file path; never an .oracle
+path>", "verdict": "pass|revise|blocked", "axes": { "<axis-in-play>":
+"correct|partial|wrong|unable-to-verify|n/a" }, "behavior_preserving": "yes|no|n/a", "alignment": [{
+"item": "<own-words <=12-word label; name-ok, no source phrasing>", "status":
+"matched|drifted|source-only|draft-only", "note": "<own words; no prose span, example identifier,
+domain term, or path>" }], "additions": [{ "item": "<own-words label>", "assessment":
+"likely-correct|doubtful", "note": "<own words; same ban>" }], "too_close_to_source": false,
+"too_close_reason": "<own words, by category; empty if false>", "directives": ["<structural own-words
+fix, <=20 words; no quote, example identifier, domain term, or path>"], "ambiguities": ["<own words;
+same ban>"], "confidence": <0-100> }]`
 
 `axes` keys are the axes in play. **The round is CLEAN iff every entry's `verdict` is `pass`.** A
 `blocked` entry must be resolved out-of-band first (not re-revised).
@@ -142,10 +154,7 @@ same ban; or empty>", "confidence": "<0-100: confidence in this verdict>" }]`
 ## Do not
 
 - Do NOT rewrite/author the draft; you verify.
-- Do NOT reproduce source prose, definition wording, descriptive headings, example code/identifiers,
-  domain terms, or paths -- in ANY field (functional names are allowed).
 - Do NOT review indexes or check links / set-completeness / chapter-assignment / scaffolding (harness
   owns those).
-- Do NOT infer the content type; score the axes the driver passes.
 - Do NOT soft-pass: an unearned `pass`, an unlisted source item, a non-empty `ambiguities` passed as
   clean, or an unverified behavior-preservation claim defeats the gate.

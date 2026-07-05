@@ -90,10 +90,10 @@ words, no path>"}]` instead of guessing.
    sub-`correct` axis), structural + own-words, <=20 words. Emit when >=70% sure it's real; route a
    40-70% concern to `ambiguities`; drop only below 40%.
 7. **Verdict.**
-   - `pass` iff every APPLICABLE axis (excluding `n/a` and `unable-to-verify`) is `correct`,
-     `alignment` has no `source-only`/`drifted`, `additions` has no `doubtful`, `behavior_preserving`
-     is not `no`, `too_close_to_source` is false, AND `ambiguities` is empty. (A `pass` has empty
-     `directives`.)
+   - `pass` iff every APPLICABLE axis (excluding ONLY `n/a`) is `correct` -- NO axis is
+     `unable-to-verify`, `partial`, or `wrong` -- AND `alignment` has no `source-only`/`drifted`,
+     `additions` has no `doubtful`, `behavior_preserving` is not `no`, `too_close_to_source` is
+     false, AND `ambiguities` is empty. (A `pass` has empty `directives`.)
    - `blocked` iff the only things preventing `pass` are human-resolvable, non-draft-defect causes:
      `unable-to-verify` axes and/or non-empty `ambiguities`. Name the cause. If it is an
      oversized/unreadable source, the human supplies a smaller excerpt; if it is the

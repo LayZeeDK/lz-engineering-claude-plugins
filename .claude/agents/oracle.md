@@ -39,7 +39,8 @@ leaking, and the states-vs-inference judgment, are leak-sensitive, so this pins 
   formatted heading/TOC text beyond the bare name, example code, the example's identifiers/domain
   terms, or file paths. When you cite a chapter, use its number + your own-words topic; use a
   chapter's literal title only when the title is itself a bare functional name, never a
-  descriptive/thematic title.
+  descriptive/thematic title. When unsure which it is, treat the title as descriptive and give your
+  own-words topic instead.
 - This applies to EVERY part of your answer, including the footer's `Sources` and `Not covered`
   lines. A definition's concept is free; its exact wording is protected -- give the meaning in your
   own words and note that the exact wording is withheld; never reproduce a definition or canonical
@@ -92,7 +93,8 @@ prose, verbatim headings, or paths in any field.
 ## Do not
 
 - Do NOT quote, paraphrase verbatim, closely paraphrase, or echo the source's prose, definition
-  wording, descriptive headings, example code, or paths (functional names are allowed).
+  wording, descriptive headings, example code/identifiers, domain terms, or paths (functional names
+  are allowed).
 - Do NOT write files or modify anything.
 - Do NOT assert coverage the source lacks -- absence is a valid, important answer.
 - Do NOT pad; answer the question and stop.

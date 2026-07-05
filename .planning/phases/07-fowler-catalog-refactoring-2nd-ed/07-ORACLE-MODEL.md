@@ -36,6 +36,29 @@ front/back matter) with `index.md` as the navigation entry. **Point `oracle-revi
 hardcode the book's chapter filenames in `.planning/` artifacts -- reference only `index.md` and the
 chapter number/topic. The main context only ever `ls`-es names; the reviewer reads content.
 
+**Provisioning status (updated 2026-07-05):** the sole web-only entry, Return Modified Value, has
+been added to the `.oracle/refactoring-2e/` Chapter 11 (Refactoring APIs) Markdown, so the oracle
+agents gate it there like any other leaf. It keeps its `[web-only]` provenance label (verified
+against the web edition) but is no longer un-gateable.
+
+The web-edition Markdown marks print-absent entries with a not-in-print flag, and Chapters 9, 10,
+and 11 each carry such flagged entries. Mapping them to the 62-scope: Replace Magic Literal (Ch.9),
+Replace Control Flag with Break (Ch.10), Replace Exception with Precheck (Ch.11), and Replace Error
+Code with Exception (Ch.11) are the 4 cut 1st-ed relics -- OUTSIDE the 62-scope, so they are never
+authored or gated, whether or not they appear in the Markdown (Replace Error Code with Exception is
+additionally absent from the Markdown entirely, per the owner). Of every print-absent entry, only
+Return Modified Value is in-scope (kept, `[web-only]`). Consequently, among all 62 in-scope leaves
+only Return Modified Value carries a provenance label; every other Ch.9/10/11 leaf is print-present.
+
+**Gating safeguard:** when gating a Ch.9/10/11 leaf, pass a tight per-leaf SCOPE (the single
+refactoring the leaf covers), so the reviewer does not treat an out-of-scope flagged entry in the
+chapter as a dropped (`source-only`) item.
+
+With Return Modified Value added, all 62 in-scope refactorings are provisioned for the oracle agents.
+If any future leaf's oracle review returns `error` because the source lacks that entry, the driver
+flags it to the owner, who adds that entry's Markdown to the relevant chapter (do NOT fabricate or
+self-gate an unprovisioned entry).
+
 Content map by chapter (facts, no filenames): Ch.2 = principles; Ch.3 = the 24 bad smells; Ch.6-12 =
 the seven catalog chapters (basic, encapsulation, moving-features, organizing-data,
 simplify-conditional-logic, refactoring-apis, dealing-with-inheritance). The book also ships a

@@ -65,7 +65,7 @@ leaking, and the states-vs-inference judgment, are leak-sensitive, so this pins 
 
 If the index/book entry is missing, unreadable, or implausibly large (> ~2 MB), say so plainly with
 confidence 0 (own words, no path) -- do not fabricate. In JSON mode, set `confidence: 0`, put the
-problem (own words, no path) in `answer`, and `sources: []`.
+problem (own words, no path) in `answer`, `sources: []`, and `not_covered: "unread"`.
 
 ## Process
 

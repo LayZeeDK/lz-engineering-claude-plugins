@@ -93,9 +93,9 @@ the rest (a consumer detects an error entry by the absence of `verdict`). Do not
 4. **Example semantics** (refactoring leaves): behavior-preserving? representative? preconditions
    honored? (behavior-preserving = no => `example` axis is `wrong`.)
 5. **Near-verbatim (full-strength DST-04):** report by category; boolean + reason.
-   `too_close_to_source` fires ONLY on shared EXPRESSION (prose, identifiers, code, or ordered
-   phrasing) -- NEVER on shared allowed names or unavoidable factual overlap. A common example DOMAIN
-   alone (e.g. customers/orders) is NOT too-close; fire only on shared identifiers + code + structure.
+   `too_close_to_source` fires ONLY on shared EXPRESSION (prose wording, identifiers, code, sentence
+   structure) -- NEVER on shared allowed names, a common example DOMAIN alone (e.g. customers/orders),
+   or unavoidable factual overlap incl. a refactoring's safe step ORDER (a fact).
 6. **Directives.** One covering directive per material finding (DROP, drift, doubtful add, too-close,
    sub-`correct` axis excluding `unable-to-verify`), structural + own-words, <=20 words. Emit when
    >=70% sure it's real; route a 40-70% concern to `ambiguities`; drop only below 40%.
@@ -103,15 +103,15 @@ the rest (a consumer detects an error entry by the absence of `verdict`). Do not
    - `pass` iff >=1 applicable axis is `correct` and every applicable axis (excluding ONLY `n/a`) is
      `correct` -- NO axis is `unable-to-verify`, `partial`, or `wrong` -- AND `alignment` has no
      `source-only`/`drifted`, `additions` has no `doubtful`, `behavior_preserving` is not `no`,
-     `too_close_to_source` is false, AND `ambiguities` is empty. (All-`n/a` is not a pass; a `pass`
-     has empty `directives`.)
-   - `blocked` iff the only things preventing `pass` are human-resolvable causes not yet confirmed as
-     draft defects: `unable-to-verify` axes and/or non-empty `ambiguities`. Name each cause (in
-     `ambiguities`, or the `unable-to-verify` axis itself). If an axis is `unable-to-verify` because
-     the readable source is too large to confirm THAT axis, the driver re-submits with a narrower
-     SOURCE target (a subsection). Do NOT emit a draft directive for a `blocked` cause. (Total
-     inability to read/navigate the source is an `error` object, not `blocked`.)
-   - `revise` otherwise (a real draft defect); a `revise` has non-empty `directives`.
+     `too_close_to_source` is false, AND `ambiguities` is empty. (A `pass` has empty `directives`.)
+   - `blocked` iff `pass` fails and the ONLY causes present are human-resolvable, not-yet-confirmed
+     defects -- at least one `unable-to-verify` axis and/or non-empty `ambiguities`, nothing else.
+     Name each cause (in `ambiguities`, or the `unable-to-verify` axis). Resolution: source too large
+     -> re-submit a narrower SOURCE subsection; a non-default axis lacked anchors -> re-submit WITH
+     anchors. Do NOT emit a draft directive for a `blocked` cause.
+   - `error` if the draft cannot be scored at all: total unread/navigation failure, topic mismatch,
+     or every in-play axis is `n/a` (axes/source mismatch).
+   - `revise` otherwise -- a real draft defect remains; a `revise` has non-empty `directives`.
 
 ## Rubric (default anchors; the driver may pass canonical per-axis anchors to override)
 

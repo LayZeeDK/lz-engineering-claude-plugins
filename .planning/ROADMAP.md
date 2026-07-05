@@ -85,7 +85,7 @@ this milestone starts at Phase 6.
 - [ ] 07-03-PLAN.md -- Principles: Fowler Ch.2 distilled (authored + oracle-converged; SUMMARY pending) (wave 2)
 - [x] 07-04-PLAN.md -- Catalog: encapsulation chapter (Ch.7) per-refactoring leaves (wave 3)
 - [x] 07-05-PLAN.md -- Catalog: moving-features chapter (Ch.8) per-refactoring leaves (wave 3)
-- [ ] 07-06-PLAN.md -- Catalog: organizing-data chapter (Ch.9) per-refactoring leaves (wave 3)
+- [x] 07-06-PLAN.md -- Catalog: organizing-data chapter (Ch.9) per-refactoring leaves (wave 3)
 - [ ] 07-07-PLAN.md -- Catalog: simplify-conditional-logic chapter (Ch.10) per-refactoring leaves (wave 3)
 - [ ] 07-08-PLAN.md -- Catalog: refactoring-apis chapter (Ch.11) leaves, incl. Return Modified Value [web-only] (wave 3)
 - [ ] 07-09-PLAN.md -- Catalog: dealing-with-inheritance chapter (Ch.12) per-refactoring leaves (wave 3)

@@ -59,8 +59,8 @@ set/chapter completeness, and scaffolding are deterministic and harness-owned).
   `alignment` (they are not DROPs); only in-scope items get a status. Absent SCOPE, the whole source
   chapter is in-scope.
 - CONTENT_TYPE + AXES: the document type + axes to score. `refactoring-leaf` -> axes mechanics,
-  motivation, example, applicability, spirit. `smell-leaf` -> axes candidates, recognition,
-  motivation, applicability, spirit. `principles`/other -> the driver supplies each axis WITH its own
+  motivation, example, applicability, spirit/judgment. `smell-leaf` -> axes candidates, recognition,
+  motivation, applicability, spirit/judgment. `principles`/other -> the driver supplies each axis WITH its own
   correct/partial/wrong anchors; score only against supplied anchors, and mark a non-default axis
   `unable-to-verify` if it arrives without anchors. Do NOT infer the type -- use what the driver
   passes. At least one axis must be in play; if none are, return an `error` (nothing to score).
@@ -83,9 +83,12 @@ the rest (a consumer detects an error entry by the absence of `verdict`). Do not
    representative + a count (never the ordered rendering); ALWAYS list every `source-only`/`drifted`
    item individually -- defects are never summarized away. Shapes OUTPUT only, not the verdict.
 2. **Additions.** Judge each `draft-only` item `likely-correct` ONLY if it is a benign,
-   source-independent aid (a cross-link, our own framing); anything else -- a substantive claim the
-   source does not state or support, or one you cannot verify -- is `doubtful` (-> `revise`: remove
-   or ground it).
+   source-independent aid -- a `Watch for` cross-link to a named `../principles.md` gate (e.g. the
+   atomic-boundary tripwire), an inverse-of/see-also sibling link, or our own framing; such a routing
+   aid is a benign addition, NEVER scored as an applicability `invented limit` (unless it contradicts
+   the source); a cited sibling's aptness is still a mechanics concern (see the Rubric). Anything else
+   -- a substantive claim the source does not state or support, or one you cannot verify -- is
+   `doubtful` (-> `revise`: remove or ground it).
 3. **Score each applicable axis** `correct` | `partial` | `wrong` (else `unable-to-verify` | `n/a`)
    against the rubric. A `drifted` item forces its axis to at most `partial`. Mark `n/a` only when you
    CONFIRM by reading that the source has nothing for that in-play axis -- not when you merely could
@@ -120,6 +123,11 @@ step/branch/selector/cue/reason/caveat/emphasis drifted, thinned, or folded (sti
 **wrong**: a load-bearing element dropped/misstated/invented, an unsafe step order, or (example)
 behavior changed / wrong refactoring / mirrors the source. A `drifted` item caps its axis at
 `partial` (step 3); `behavior_preserving`=no forces `example`=`wrong` (step 4).
+
+**Mechanics also scores cross-ref aptness:** a cited compose/follow-up/inverse-of refactoring that
+resolves but is the wrong sibling versus the source is `partial` (plausible-but-wrong) or `wrong`
+(contradicts the source's pairing). **Spirit/judgment:** presenting a judgment-call refactoring as a
+rote recipe -- or a mechanical one as a judgment call -- is `wrong`.
 
 ## Output format
 

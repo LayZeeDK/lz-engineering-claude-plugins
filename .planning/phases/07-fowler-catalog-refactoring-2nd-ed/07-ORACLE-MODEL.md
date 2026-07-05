@@ -196,8 +196,10 @@ the loop), surfaced by the blind agent reviews and NOT enforceable inside the ag
 
 **Canonical per-axis anchors** (moved out of the agent to keep its system prompt lean):
 - **mechanics** (refactoring) -- correct: all steps, safe order, faithful branches + safety
-  checkpoints. partial: a branch drifted or a checkpoint folded (still safe). wrong: a
-  step/branch/checkpoint dropped, unsafe order, or a misstated step.
+  checkpoints, AND any named compose/follow-up/inverse-of refactoring is the sibling the source
+  pairs it with (cross-ref aptness). partial: a branch drifted, a checkpoint folded (still safe), or
+  a cited refactoring is a plausible-but-wrong sibling. wrong: a step/branch/checkpoint dropped,
+  unsafe order, a misstated step, or a cited refactoring that contradicts the source's pairing.
 - **candidates** (smell) -- correct: complete set + faithful selectors. partial: complete but a
   selector drifted/thin. wrong: a candidate dropped or one that doesn't belong.
 - **recognition** (smell) -- correct: faithful cues + near-neighbors separated. partial: a
@@ -208,9 +210,25 @@ the loop), surfaced by the blind agent reviews and NOT enforceable inside the ag
   preconditions, independent of the source. partial: compiles + behavior-preserving but atypical.
   wrong: changes behavior / wrong refactoring / violates preconditions / mirrors the source.
 - **applicability** -- correct: source caveats represented, none invented. partial: a caveat
-  missing/off. wrong: a load-bearing caveat missing or an invented limit.
-- **spirit** -- correct: framing/emphasis match. partial: substance right, framing off. wrong:
-  misframes character/intent.
+  missing/off. wrong: a load-bearing caveat missing or an invented limit. NOTE: a leaf's own
+  cross-cutting routing aid -- a `Watch for` cross-link to a named ../principles.md gate (e.g. the
+  atomic-boundary tripwire) or an inverse-of/see-also sibling link -- is OUR addition, scored as a
+  benign `draft-only` addition, NEVER as an invented limit (unless it contradicts the source); a
+  cited sibling's aptness is still a mechanics concern (see the mechanics anchor).
+- **spirit/judgment** -- correct: framing/emphasis match AND a judgment-call refactoring is presented
+  as judgment (its when-to / when-not-to character), not as a rote recipe. partial: substance right
+  but framing off, or the judgment character thinned. wrong: misframes character/intent, or sells a
+  judgment call as mechanical (or a mechanical one as a judgment call).
+
+**Anchor sharpenings (2026-07-05, owner-approved after Ch.6-10).** Three refinements applied to the
+anchors above and mirrored into `.claude/agents/oracle-reviewer.md`: (1) mechanics now scores
+cross-ref aptness (a resolvable-but-wrong sibling link is a defect) -- Ch.10 caught Replace
+Conditional with Polymorphism citing Decompose Conditional where the source extracts via Extract
+Function; (2) applicability treats our own principles/sibling back-edges as benign additions, not
+invented limits -- the atomic-boundary back-edges recurred as benign across Ch.8/9; (3) spirit
+rescoped to spirit/judgment for the judgment-heavy chapters ahead -- spirit scored `correct` on all
+29 gated leaves through Ch.10 without ever firing, so it was retargeted rather than dropped. The
+`oracle` (open-ended lookup) agent is unaffected.
 
 NOTE (reconcile in the scope-correction replan): the "Firewall" and "Verdict schema" blocks earlier
 in THIS file still describe the pre-round-2 agent (tools `Read, Grep, Glob`; a

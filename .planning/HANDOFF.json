@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-07-05T18:40:00.054Z",
+  "timestamp": "2026-07-05T20:15:00.000Z",
   "phase": "07",
   "phase_name": "fowler-catalog-refactoring-2nd-ed",
   "phase_dir": ".planning/phases/07-fowler-catalog-refactoring-2nd-ed",
@@ -18,10 +18,10 @@
     {"id": "07-06", "name": "Ch.9 organizing data (5 leaves)", "status": "done", "commit": "3f98e35,a52d22a"},
     {"id": "07-07", "name": "Ch.10 simplify conditional logic (6 leaves)", "status": "done", "commit": "30966fa,fdc50c3"},
     {"id": "rubric-sharpen", "name": "Oracle-reviewer rubric sharpened (3 anchors) + agent-reviewed (2 lenses) + reloaded", "status": "done", "commit": "7198d85"},
-    {"id": "07-08", "name": "Ch.11 refactoring APIs (11 leaves, incl. Return Modified Value [web-only]); first chapter on the sharpened rubric", "status": "done", "commit": "eb97c88,487f642"}
+    {"id": "07-08", "name": "Ch.11 refactoring APIs (11 leaves, incl. Return Modified Value [web-only]); first chapter on the sharpened rubric", "status": "done", "commit": "eb97c88,487f642"},
+    {"id": "delta-re-review", "name": "Targeted delta re-review of 18 Ch.6-10 leaves vs the SHARPENED axes (cross-ref aptness + spirit/judgment) -- re-ran from scratch via 3 chapter-grouped oracle-reviewer calls (5/8/5)", "status": "done", "result": "18/18 pass; no leaf changed (NO-OP). No revise/blocked/error, no too_close_to_source. Benign note: Rename Field + Move Statements into Function cite Change Function Declaration where source uses its 'Rename Function' alias (same catalog entry, apt).", "commit": "docs-only"}
   ],
   "remaining_tasks": [
-    {"id": "delta-re-review", "name": "Targeted delta re-review of 18 Ch.6-10 leaves vs the SHARPENED axes (cross-ref aptness + spirit/judgment) -- background agents were stopped for a fresh session with NO verdicts produced; RE-RUN from scratch FIRST. Exact subset + per-leaf cited siblings + axis anchors are in .continue-here.md.", "status": "not_started"},
     {"id": "07-09", "name": "Ch.12 dealing with inheritance (11 leaves) -- last catalog chapter", "status": "not_started"},
     {"id": "07-10", "name": "Wave 4: 24 smell leaves + navigation smells.md + finalize README (Ch.7-12 rows) + FULL checker battery GREEN = phase gate", "status": "not_started"},
     {"id": "07-03-fix", "name": "principles.md definition-token fix + 07-03-SUMMARY", "status": "not_started"},
@@ -42,6 +42,6 @@
     {"decision": "Split Phase [web-example] DROPPED; Return Modified Value [web-only] is the sole provenance marker (Ch.11, gate-able)", "rationale": "owner adjudication; cut relics stay cut (4 relics out of the 62)", "phase": "07"}
   ],
   "uncommitted_files": [],
-  "next_action": "Working tree clean; catalog 51/62. FIRST re-run the targeted delta re-review (see .continue-here.md 'Targeted delta re-review'): spawn 3 oracle-reviewer agents (Ch.6 subset=5; Ch.7+8 subset=8; Ch.9+10 subset=5), each scoped to ONLY cross-ref aptness + spirit/judgment with the sharpened anchors; revise any flagged leaf BLIND, re-gate, commit fixes. THEN /gsd-execute-phase 7 -> 07-09 (Ch.12, 11 leaves) via the calibrated clean-room loop (sub-batch ~6+5), then 07-10 (Wave 4) + the 07-03 fix, then phase close.",
-  "context_notes": "Oracle agents are LIVE + RELOADED with the sharpened rubric. The 3 delta-review agents from the prior session were stopped mid-source-read (no verdicts) -- re-run from scratch. FIREWALL (blocking): main context NEVER reads .oracle/ (ls for names only); only the oracle/oracle-reviewer subagents read it. Wave-3 chapter plans are FILE-DISJOINT: author ONLY the chapter's leaf files; do NOT touch README.md or checker .mjs (07-10 owns those; check-catalog mirror + check-crossrefs are RED-by-design until 07-10). Distinct example domains/identifiers (never the source's) to avoid too_close_to_source. Ch.12 is judgment-heavy (delegation vs inheritance) -- expect spirit/judgment to matter. Commit via git commit -F <msgfile> (NOT -m @'...'@)."
+  "next_action": "Working tree clean; catalog 51/62. Delta re-review is DONE (18/18 pass, no-op) -- do NOT re-run it. NEXT: /gsd-execute-phase 7 -> 07-09 (Ch.12 dealing with inheritance, 11 leaves -- the last catalog chapter) via the calibrated clean-room loop (sub-batch the oracle-reviewer gate ~6+5, sharpened anchors), then 07-10 (Wave 4) + the 07-03 fix, then phase close.",
+  "context_notes": "Delta re-review COMPLETE (2026-07-05 re-run: 18/18 pass, no leaf changed) -- do not re-run. Oracle agents are LIVE + RELOADED with the sharpened rubric. FIREWALL (blocking): main context NEVER reads .oracle/ (ls for names only); only the oracle/oracle-reviewer subagents read it. Wave-3 chapter plans are FILE-DISJOINT: author ONLY the chapter's leaf files; do NOT touch README.md or checker .mjs (07-10 owns those; check-catalog mirror + check-crossrefs are RED-by-design until 07-10). Distinct example domains/identifiers (never the source's) to avoid too_close_to_source. Ch.12 is judgment-heavy (delegation vs inheritance) -- expect spirit/judgment to matter. Commit via git commit -F <msgfile> (NOT -m @'...'@)."
 }

@@ -1,0 +1,5 @@
+# Gitignored assets copied into new worktrees (Claude Code worktree isolation).
+# .oracle/ holds the clean-room copyrighted source excerpts the read-only
+# oracle / oracle-reviewer subagents gate authored leaves against. It is
+# gitignored (.gitignore) so it is absent from worktrees unless listed here.
+.oracle/

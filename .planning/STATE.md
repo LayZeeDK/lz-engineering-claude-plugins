@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: lz-tdd@0.0.2
 milestone_name: lz-refactor Skill (Fowler + Kerievsky)
 status: executing
-stopped_at: Phase 8 CLOSED (all 6 plans + verify + secure + validate + extract-learnings done); next is /gsd-plan-phase 9
-last_updated: "2026-07-06T19:00:00.000Z"
-last_activity: 2026-07-06 -- Phase 8 closed: content complete (27 Kerievsky leaves + index + Ch.4 smell fold), gsd-verifier PASS 5/5, secured 8/8, nyquist_compliant, 08-LEARNINGS extracted + 27 pooled to global store
+stopped_at: Phase 8 CLOSED -- 08-06 (phase gate) + all phase-close audits committed; 08-LEARNINGS pooled to the global store. Milestone lz-tdd@0.0.2 phases 6-8 done (3/6).
+last_updated: "2026-07-06T23:35:47.202Z"
+last_activity: 2026-07-06 -- Phase 08.1 planning complete
 progress:
-  total_phases: 6
+  total_phases: 7
   completed_phases: 3
-  total_plans: 17
+  total_plans: 24
   completed_plans: 17
-  percent: 50
+  percent: 43
 ---
 
 # Project State
@@ -28,8 +28,8 @@ See: .planning/PROJECT.md (updated 2026-07-04)
 
 Phase: 8 (Kerievsky Catalog (Refactoring to Patterns)) — CLOSED
 Plan: 6 of 6 complete (08-06 phase gate GREEN)
-Status: Phase 8 CLOSED. Content: all 27 Kerievsky leaves + finalized thin index + Ch.4 smell fold (4 unique + 8 overlap). Full battery GREEN (check-kerievsky 27/27, check-catalog 62/62, check-smells 24 + 4 Kerievsky-unique, check-crossrefs 449, check-principles 8/8, check-hygiene, extract-samples 185 tsc) + claude plugin validate. gsd-verifier PASS 5/5 (08-VERIFICATION), secured 8/8 (08-SECURITY), nyquist_compliant (08-VALIDATION), 08-LEARNINGS extracted (27) + pooled to the global store.
-Last activity: 2026-07-06 -- Phase 8 closed (a58aa22 smell fold KRV-03; 8b98aa0 catalog index + Direction reconciliation KRV-01/02; verify/secure/validate/extract committed). Next milestone step: /gsd-plan-phase 9 (coach behavior + principle-backing, CCH-* / PRIN-*).
+Status: Ready to execute
+Last activity: 2026-07-06 -- Phase 08.1 planning complete
 
 ## Performance Metrics
 
@@ -59,6 +59,10 @@ Last activity: 2026-07-06 -- Phase 8 closed (a58aa22 smell fold KRV-03; 8b98aa0 
 | Phase 07 P01 | 13min | 3 tasks | 8 files |
 
 ## Accumulated Context
+
+### Roadmap Evolution
+
+- Phase 08.1 inserted after Phase 8: GoF Design Patterns catalog (URGENT)
 
 ### Decisions
 

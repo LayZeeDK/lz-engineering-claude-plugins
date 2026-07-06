@@ -2,6 +2,8 @@
 
 Recognize by: the same or nearly-identical code structure appearing in more than one place.
 
+Source: both -- also named by Kerievsky (Ch.4): Duplicated Code.
+
 ## How to recognize
 
 Two or more fragments that read almost the same -- identical expressions, parallel branches of a

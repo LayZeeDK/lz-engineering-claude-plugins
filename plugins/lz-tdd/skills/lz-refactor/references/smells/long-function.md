@@ -2,6 +2,8 @@
 
 Recognize by: a function long enough that you have to scan it to understand what it does.
 
+Source: both -- also named by Kerievsky (Ch.4): Long Method.
+
 ## How to recognize
 
 The strongest signal is not raw line count but the need to summarize a stretch of the body in your

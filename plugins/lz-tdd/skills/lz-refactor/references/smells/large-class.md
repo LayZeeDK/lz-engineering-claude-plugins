@@ -2,6 +2,8 @@
 
 Recognize by: a class trying to do too much, with too many fields and methods.
 
+Source: both -- also named by Kerievsky (Ch.4): Large Class.
+
 ## How to recognize
 
 A class with a long field list -- often several subsets used together -- and many methods, where you

@@ -2,6 +2,8 @@
 
 Recognize by: a program element that does too little to justify its own existence.
 
+Source: both -- also named by Kerievsky (Ch.4): Lazy Class.
+
 ## How to recognize
 
 A function whose body is as clear as a call to it would be, a class with a single method that adds

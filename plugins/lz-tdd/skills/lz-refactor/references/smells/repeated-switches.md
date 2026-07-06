@@ -2,6 +2,8 @@
 
 Recognize by: the same switch (or if/else chain) on the same value showing up in several places.
 
+Source: both -- also named by Kerievsky (Ch.4): Switch Statements.
+
 ## How to recognize
 
 You find one conditional that branches on a type or kind, then the same set of cases repeated

@@ -2,6 +2,8 @@
 
 Recognize by: classes that do interchangeable jobs but expose them through mismatched interfaces.
 
+Source: both -- also named by Kerievsky (Ch.4): Alternative Classes with Different Interfaces.
+
 ## How to recognize
 
 Two classes that could substitute for one another -- they cover the same kind of responsibility -- yet

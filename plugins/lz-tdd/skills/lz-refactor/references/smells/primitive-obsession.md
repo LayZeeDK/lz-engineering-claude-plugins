@@ -2,6 +2,8 @@
 
 Recognize by: bare primitives standing in for concepts that deserve their own type.
 
+Source: both -- also named by Kerievsky (Ch.4): Primitive Obsession.
+
 ## How to recognize
 
 Strings, numbers, and booleans used to represent money, ranges, phone numbers, coordinates, or type

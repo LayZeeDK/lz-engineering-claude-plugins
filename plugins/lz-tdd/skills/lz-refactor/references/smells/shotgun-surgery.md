@@ -2,6 +2,8 @@
 
 Recognize by: one kind of change forcing many small edits scattered across many modules.
 
+Source: both -- also named by Kerievsky (Ch.4): Solution Sprawl.
+
 ## How to recognize
 
 Making a single conceptual change -- adding a currency, changing how a fee is calculated -- means

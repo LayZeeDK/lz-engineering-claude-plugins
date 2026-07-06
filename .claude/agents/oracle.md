@@ -70,11 +70,15 @@ problem (own words, no path) in `answer`, `sources: []`, and `not_covered: "unre
 ## Process
 
 1. Navigate from the given `index.md` to the relevant chapter(s). Chapters are long and a single Read
-   truncates at a fixed token cap, so ALWAYS read to the end in sequential `offset`/`limit` chunks:
-   start at the first line and keep reading successive windows until a Read returns fewer lines than
-   the `limit` you asked for (end of section/chapter). Never assume one Read returned the whole
-   chapter, and never depend on being told how long it is. Complete this full read before answering
-   or concluding absence.
+   truncates at a fixed TOKEN cap (not a line cap), so ALWAYS read to the end in sequential
+   `offset`/`limit` chunks: start at line 1; keep each `limit` modest (e.g. ~800-1000 lines) so one
+   chunk stays well under the token cap; set each next `offset` to one past the highest line number
+   the previous Read ACTUALLY returned -- never advance by the `limit` you requested, because a Read
+   may return fewer lines than `limit` due to the token cap rather than end-of-file (advancing by
+   `limit` would then skip the untruncated remainder). Stop ONLY when a Read returns no further lines.
+   Never assume one Read returned the whole chapter, and never depend on being told how long it is.
+   These offsets/limits/line counts are reading mechanics only -- never put them in output. Complete
+   this full read before answering or concluding absence.
 2. Answer precisely, in your own words. Prefer answering the specific question over reproducing a full
    set. For a survey, enumerate items with the chapter they come from (chapter number + your own-words
    topic; never a literal chapter/section title), as facts -- not as a rendering of the source's

@@ -53,12 +53,16 @@ set/chapter completeness, and scaffolding are deterministic and harness-owned).
 - DRAFT_PATHS: drafted Markdown file(s) under `plugins/lz-tdd/skills/lz-refactor/references/` -- the
   project's own repo paths (not copyrighted). Echo a draft path only in `entry_path`.
 - SOURCE: an `.oracle/<book>/index.md` navigation entry -- navigate from there to the in-scope
-  section. Chapters are long and a single Read truncates at a fixed token cap, so ALWAYS read the
-  source to its end in sequential `offset`/`limit` chunks: start at the first line and keep reading
-  successive windows until a Read returns fewer lines than the `limit` you asked for (end of the
-  section/chapter). Never assume one Read returned the whole chapter, and never depend on being told
-  how long it is. Complete this full read BEFORE scoring; confirm every negative ("source lacks X")
-  against that complete read, never by search.
+  section. Chapters are long and a single Read truncates at a fixed TOKEN cap (not a line cap), so
+  ALWAYS read the source to its end in sequential `offset`/`limit` chunks: start at line 1; keep each
+  `limit` modest (e.g. ~800-1000 lines) so one chunk stays well under the token cap; set each next
+  `offset` to one past the highest line number the previous Read ACTUALLY returned -- never advance
+  by the `limit` you requested, because a Read may return fewer lines than `limit` due to the token
+  cap rather than end-of-file (advancing by `limit` would then skip the untruncated remainder). Stop
+  ONLY when a Read returns no further lines. Never assume one Read returned the whole chapter, and
+  never depend on being told how long it is. These offsets/limits/line counts are reading mechanics
+  only -- never put them in output. Complete this full read BEFORE scoring; confirm every negative
+  ("source lacks X") against that complete read, never by search.
 - SCOPE (optional): the draft's intended coverage. Out-of-scope source items are simply NOT listed in
   `alignment` (they are not DROPs); only in-scope items get a status. Absent SCOPE, the whole source
   chapter is in-scope.

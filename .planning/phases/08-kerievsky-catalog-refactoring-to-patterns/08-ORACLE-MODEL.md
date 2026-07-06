@@ -70,27 +70,33 @@ spirit/judgment defined below (for pattern-directed leaves):
   - correct: the leaf carries an explicit counterweight -- for Towards/To, a guard against applying the
     pattern speculatively / before the force is real; for Away, why the pattern was premature and
     removing it improves the design -- and that counterweight does not contradict the source.
-  - partial: a counterweight is present but generic (not tied to THIS pattern's specific
-    over-application failure mode).
+  - partial: EITHER a counterweight is present but generic (not tied to THIS pattern's specific
+    over-application failure mode), OR the leaf is silent on when-not-to (no counterweight, but no
+    over-claim either -- the presence obligation is unmet, yet the leaf is not misleading).
   - wrong: the pattern is presented as an unconditional good (apply-always), or the counterweight
     contradicts the source.
-  - Ownership seam (parallel to the mechanics/composed-primitive split below, to keep axes orthogonal):
-    `motivation` owns the fidelity of the reasons/force; `applicability` owns the fidelity of the
-    source's specific caveats (none invented); `direction` owns the To/Towards/Away label (an inverted
-    label fires `direction`, NOT `spirit` -- no double-score); `spirit/judgment` owns ONLY the presence
-    + non-contradiction of the earn-it-vs-over-engineer counterweight. A leaf can pass motivation,
-    applicability, AND direction yet still fail spirit if it never states the counterweight (reads as
-    apply-always).
+  - Ownership seam (PILOT-HARDENED 2026-07-06 -- see Pilot findings; parallel to the
+    mechanics/composed-primitive split): the over-engineering / tradeoff guard (the "only when complex
+    enough / don't over-apply" limit) is owned EXCLUSIVELY by `spirit/judgment`. `applicability` is
+    BARRED from scoring that same guard -- it scores ONLY the OTHER source caveats (e.g. for Strategy
+    the pass-the-context vs pass-the-data data-access liability; for Decorator the object-identity
+    liability), never the over-application limit. `motivation` owns the fidelity of the reasons/force;
+    `direction` owns the To/Towards/Away label (an inverted label fires `direction`, NOT `spirit`). If an
+    apply-always over-claim physically sits inside the Motivation prose, it is STILL scored under
+    `spirit` (stance), not `motivation` (reasons) -- do not triple-score one sentence. Net: a leaf can
+    pass motivation, applicability, AND direction yet still fail spirit if it omits the counterweight or
+    reads as apply-always.
   - Keep the discriminator OBSERVABLE (is an explicit over-engineering / premature-pattern counterweight
-    present and consistent with the source?), NOT "the emphasis the source stresses" -- this is the
+    present and consistent with the source?), NOT "the emphasis the source stresses" -- it is the
     softest axis and the one most prone to false-`revise`/oscillation, so lean on presence + the round
     cap + owner escalation rather than a subjective emphasis judgment.
-  - Honest status: this is a FORWARD-LOOKING bet, not a proven catcher. Its feeder signals are near-dead
-    on the 12 done leaves (direction 0 fires; generic spirit 0). The justification is (a) the
-    counterweight is the content Phase 9's de-patterning coach consumes (CCH-02), and (b) the presence
-    obligation changes authoring behavior -- not that it has caught anything yet. Re-evaluate after
-    Ch.8-11 whether it earns its place. This mirrors the Phase-7 precedent of retargeting spirit rather
-    than dropping it.
+  - Status (PILOT-VALIDATED 2026-07-06): a 3-variant A/B/C pilot on one Strategy leaf (counterweight
+    present / silently absent / apply-always), with mechanics-example-reasons held byte-identical,
+    returned spirit correct / partial / wrong in step -- so spirit is the ONLY axis that separates a
+    silent omission (partial) from an active apply-always over-claim (wrong); applicability collapses
+    both to wrong. That is its earned, non-redundant contribution. It remains a forward-looking bet on
+    whether the Phase-9 de-patterning coach (CCH-02) uses the counterweight; re-evaluate after Ch.8-11.
+    This mirrors the Phase-7 precedent of retargeting spirit rather than dropping it.
 
 For `smell-leaf` content (the Ch.4 fold, 08-06): keep spirit/judgment in the base generic judgment form
 (07 anchor). The one useful refinement seen in practice is severity-judgment (is the smell's severity /
@@ -144,3 +150,36 @@ filename), CONTENT_TYPE `refactoring-leaf`, per-leaf SCOPE, and the axes above -
 ~3 rounds -> escalate non-convergence / unresolvable target-pattern via AskUserQuestion. Main context
 never reads `.oracle/` prose (ls for names only). Precedent (Ch.6, Ch.7): converges in 2 rounds; R1
 tends to flag composed-primitive aptness + folded mechanics sub-steps.
+
+## Pilot findings (2026-07-06)
+
+The retargeted spirit/judgment axis was pilot-tested before the remaining chapters run, via a
+controlled A/B/C/D gate (a fresh `oracle-reviewer`, unbiased -- not told which draft was degraded):
+
+- **A/B/C** = three variants of the SAME Strategy leaf, differing ONLY in the counterweight/stance
+  (present / silently removed / apply-always over-claim); mechanics, example, and stated reasons held
+  byte-identical. **D** = a real Decorator leaf (breadth).
+- **Result:** spirit returned correct / partial / wrong across A/B/C in step, and correct on D. With
+  everything else held constant, spirit was by construction the discriminating axis and it discriminated
+  -- and it is the ONLY axis that separates B (silent omission -> partial) from C (apply-always ->
+  wrong); applicability collapses both to wrong. Discrimination CONFIRMED.
+
+Two issues the pilot exposed, and their dispositions:
+
+1. **Spirit <-> applicability double-scored the over-engineering caveat** (both fired on B and C, same
+   content), because for a refactoring-TO-a-pattern the "over-engineering guard" and the
+   "don't-use-when-too-simple caveat" are the same source concept. FIXED above: applicability is now
+   BARRED from scoring the over-application limit; spirit owns it exclusively; applicability keeps only
+   the OTHER caveats. The spirit<->motivation seam was clean only by rule (the apply-always sentence can
+   live in Motivation prose) -- also pinned above (over-claim -> spirit, not motivation).
+2. **"partial" was overloaded** (generic-guard vs silent-absence). SPLIT above into the two explicit
+   sub-cases.
+
+Operational caution (NOT a content regression): the same fresh pass ALSO re-flagged `mechanics` and
+`composed-primitive` as `partial` on the already-converged A and D leaves, with directives that partly
+CONTRADICT those leaves' Ch.7 R2 `pass` verdicts (e.g. now wanting parameter-extraction /
+type-code-to-subclasses cited on Strategy; remove-conditional-via-polymorphism on Decorator). This is
+oracle-reviewer run-to-run variance / adversarial oscillation on the composed-primitive axis -- exactly
+what 07-ORACLE-MODEL's driver-responsibilities warn about. DO NOT reopen committed, converged leaves on
+a single fresh adversarial re-pass; honor the round cap and the converged verdict. Treat a lone
+re-flag as noise unless it reproduces or the owner adjudicates.

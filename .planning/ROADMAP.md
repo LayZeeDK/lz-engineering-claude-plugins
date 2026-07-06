@@ -106,7 +106,7 @@ this milestone starts at Phase 6.
 **Plans**: 6 plans (3 waves)
 
 - [x] 08-01-PLAN.md -- Wave-1 harness extension: new check-kerievsky.mjs (27-name identity + 3 fields + 3 Away + README mirror) + re-point extract-samples / check-crossrefs / check-smells + package.json (wave 1)
-- [ ] 08-02-PLAN.md -- Catalog: Ch.6 Creation leaves (6) via the clean-room oracle loop; incl. 2 de-patterning Away cases (Inline Singleton, Encapsulate Composite with Builder) (wave 2)
+- [x] 08-02-PLAN.md -- Catalog: Ch.6 Creation leaves (6) via the clean-room oracle loop; incl. 2 de-patterning Away cases (Inline Singleton, Encapsulate Composite with Builder) (wave 2)
 - [ ] 08-03-PLAN.md -- Catalog: Ch.7 Simplification leaves (6) via the clean-room oracle loop (State/Command overflow candidates) (wave 2)
 - [ ] 08-04-PLAN.md -- Catalog: Ch.8 Generalization leaves (7) via the clean-room oracle loop (Interpreter overflow candidate) (wave 2)
 - [ ] 08-05-PLAN.md -- Catalog: Ch.9 Protection + Ch.10 Accumulation + Ch.11 Utilities leaves (8) via the clean-room oracle loop; incl. the 3rd Away case (Move Accumulation to Visitor) + the 3 n/a-utility GoF leaves (wave 2)
@@ -168,7 +168,7 @@ Phases execute in numeric order: 6 -> 7 -> 8 -> 9 -> 10 -> 11
 | 5. Skill Effectiveness Evals | lz-tdd@0.0.1 | 4/4 | Complete | 2026-07-03 |
 | 6. lz-refactor Skill Scaffold & Progressive Disclosure | lz-tdd@0.0.2 | 1/1 | Complete    | 2026-07-04 |
 | 7. Fowler Catalog (Refactoring, 2nd ed) | lz-tdd@0.0.2 | 10/10 | Complete   | 2026-07-05 |
-| 8. Kerievsky Catalog (Refactoring to Patterns) | lz-tdd@0.0.2 | 1/6 | In Progress|  |
+| 8. Kerievsky Catalog (Refactoring to Patterns) | lz-tdd@0.0.2 | 2/6 | In Progress|  |
 | 9. Coach Behavior & Principle-Backing | lz-tdd@0.0.2 | - | Not started | - |
 | 10. Distribution & Hygiene | lz-tdd@0.0.2 | - | Not started | - |
 | 11. Skill-Effectiveness Evals | lz-tdd@0.0.2 | - | Not started | - |

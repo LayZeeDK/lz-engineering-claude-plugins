@@ -73,5 +73,8 @@ function apply(op: string, value: number): number {
 
 ## Watch for
 
+- Reach for a command table only once the dispatch set is genuinely churning, or the actions need to be
+  stored, passed, or tested on their own; a small, stable switch that nothing needs to extend is clearer
+  left as a switch than scattered across a command per case.
 - Keep the not-found path the old default gave; a lookup that silently returns nothing where the switch
   used to throw is a behavior change, not a refactoring.

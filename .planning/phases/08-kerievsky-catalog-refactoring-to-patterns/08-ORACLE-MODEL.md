@@ -104,15 +104,16 @@ when-it-is-actually-acceptable framed as the source does -- e.g. refused-bequest
 judgment call, the single time the axis fired). Do NOT apply the counterweight retarget to smells (they
 have no Direction field).
 
-**The 12 Ch.6-7 leaves (already shipped) were gated PRE-retarget** (generic spirit), so they were not
-gated on the counterweight obligation. They were spot-checked: each already carries an over-engineering
-counterweight in its `## Watch for` (e.g. Strategy "never a third case", Decorator narrow-interface,
-Composite "shallow tree", Compose Method "do not over-extract"; Ch.6's "single obvious construction
-gains nothing", "a Composite clients rarely build by hand does not need a builder"), so they satisfy
-the PRESENCE obligation as-authored -- accepted as-is, no oracle re-gate. The retarget governs Ch.8-11
-gating only. If the owner wants uniform enforcement, presence (not fidelity) is cheaply checkable
-deterministically and could be added at the 08-06 gate; fidelity stays the reviewer's job going forward.
-Flagging this so the two-tier gating is explicit, not silent.
+**The 12 Ch.6-7 leaves were RE-GATED on the retargeted spirit axis (2026-07-06)**, closing the
+pre-retarget two-tier gap for real (not just spot-checked). Result: 11/12 `correct` on the first pass;
+the one miss was Replace Conditional Dispatcher with Command, whose only `## Watch for` was a
+behavior-preservation caveat (NOT an over-application counterweight) -- flagged `partial`, fixed blind
+(added a Command-specific over-application guard: reserve a command table for a churning dispatch set /
+actions that must live on their own; leave a small stable switch as a switch), re-gated `correct`.
+Final: 12/12 `correct`. This was a SPIRIT-AXIS-ONLY re-gate by design: the other axes converged under
+the prior gate, and re-scoring them invites the oscillation documented in Pilot findings, so they were
+explicitly out of scope. This both closed the gap AND was the second live confirmation the retargeted
+axis discriminates on real content (it caught a genuine missing counterweight the generic axis passed).
 
 ## target-pattern sourcing (reconciles D-04)
 

@@ -86,11 +86,26 @@ problem (own words, no path) in `answer`, `sources: []`, and `not_covered: "unre
 3. Separate "the source states X" from "my reading/inference is Y"; flag ambiguity/absence.
 4. Keep it tight and high-signal.
 
+## Direction facts (Refactoring to Patterns book only)
+
+When a question concerns a refactoring's DIRECTION relative to a pattern -- whether it moves To,
+Towards, or Away from that pattern -- in the *Refactoring to Patterns* book, the authoritative source
+is that book's **Refactoring Directions** table, reachable from index.md as the book's Inside Front
+Cover (it follows the List of Refactorings). Consult it for any direction question; it outranks the
+per-chapter prose. A single refactoring can appear under MULTIPLE patterns and columns (e.g. one that
+adopts one pattern while moving away from another), so report every pattern/direction pairing the
+table gives for that refactoring, in your own words -- the chapter prose frames only the pattern being
+adopted and will miss an away-from-another-pattern classification. This table is specific to this book; other books may
+have none. (Direction/membership are facts; still never reproduce the table's formatting or wording --
+convey the pairings in your own words.)
+
 ## Output
 
 Default shape is prose, then this fixed plain-text footer (the ``` fence below is display-only -- do
 NOT emit it); use `none` as the empty case for `Sources`/`Not covered`, and keep every value in your
-own words (no verbatim heading or path):
+own words (no verbatim heading or path). A `Sources` entry is normally a chapter (`Ch.<n>
+(<own-words topic>)`); for a fact taken from the Refactoring Directions table, cite it in your own
+words as the book's direction table (front matter, not a chapter):
 
 ```
 Sources: Ch.<n> (<own-words topic>), ...

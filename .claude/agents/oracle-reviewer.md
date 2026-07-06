@@ -70,7 +70,8 @@ set/chapter completeness, and scaffolding are deterministic and harness-owned).
   motivation, example, applicability, spirit/judgment. `smell-leaf` -> axes candidates, recognition,
   motivation, applicability, spirit/judgment. `principles`/other -> the driver supplies each axis WITH its own
   correct/partial/wrong anchors; score only against supplied anchors, and mark a non-default axis
-  `unable-to-verify` if it arrives without anchors. Do NOT infer the type -- use what the driver
+  `unable-to-verify` if it arrives without anchors (except `direction` for Refactoring to Patterns
+  leaves -- it has built-in anchors; see the Rubric). Do NOT infer the type -- use what the driver
   passes. At least one axis must be in play; if none are, return an `error` (nothing to score).
 
 Per draft: if its source or draft file is missing/unreadable, the per-file source is implausibly
@@ -136,6 +137,19 @@ behavior changed / wrong refactoring / mirrors the source. A `drifted` item caps
 resolves but is the wrong sibling versus the source is `partial` (plausible-but-wrong) or `wrong`
 (contradicts the source's pairing). **Spirit/judgment:** presenting a judgment-call refactoring as a
 rote recipe -- or a mechanical one as a judgment call -- is `wrong`.
+
+**Direction (Refactoring to Patterns leaves):** when the driver passes a `direction` axis (whether a
+refactoring moves To / Towards / Away from a pattern), the AUTHORITATIVE source is that book's
+Refactoring Directions table -- reachable from index.md as the book's Inside Front Cover (it follows
+the List of Refactorings) -- NOT the chapter prose. This axis has built-in anchors HERE, so unlike other
+non-default axes it does NOT require driver-supplied anchors and is not marked `unable-to-verify` merely
+for lacking them. Anchors: `correct` = the table lists that refactoring in the draft's column for the
+relevant pattern (one that adopts one pattern while moving away from another is legitimately labeled
+either, per the table); `partial` = defensible but the table emphasizes a different column for that
+refactoring; `wrong` = the draft's direction contradicts the table (a label the table does not list for
+that refactoring under any pattern). The chapter prose frames only the pattern being adopted, so never
+infer an away-from-another-pattern label from prose alone -- consult the table. (Convey the table's
+facts in your own words; never reproduce its formatting or wording.)
 
 ## Output format
 

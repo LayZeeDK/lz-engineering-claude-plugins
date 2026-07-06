@@ -31,6 +31,14 @@ Requirements for this milestone. Each maps to exactly one roadmap phase.
 - [ ] **KRV-03**: Kerievsky's Ch.4 smells (including Conditional Complexity, Indecent Exposure, Solution Sprawl, Combinatorial Explosion, Oddball Solution) are folded into the unified smell taxonomy with source tags and deduplicated against Fowler's list
 - [ ] **KRV-04**: Each Kerievsky refactoring cross-references its target GoF pattern (from the owner's GoF e-book) for vocabulary, without reproducing GoF text
 
+### GoF Design Patterns Catalog (Phase 8.1)
+
+- [ ] **GOF-01**: All 23 GoF patterns exist as per-pattern leaves with the locked 5-section contract (Intent / Applicability / Consequences / Example / Related patterns; optional Also known as), in original prose + `tsc --strict`-clean original TypeScript, clean-room-oracle-verified against `.oracle/design-patterns/`; grouped by family (Creational / Structural / Behavioral) in the `gof-catalog/README.md` index with the Applicability-first-line selector mirror
+- [ ] **GOF-02**: Modern-status caveats (author-cited) are folded into `## Consequences` for the flagged patterns (Singleton, Iterator, Interpreter, Flyweight, Factory Method, Composite, Template Method, Command, Observer); Singleton's Consequences cites Dependency Injection (Fowler DI article) as the preferred alternative; no invented liabilities for the 8 GoF-benefits-only patterns (Builder, Singleton, Bridge, Facade, Proxy, Command, Iterator, Template Method)
+- [ ] **GOF-03**: Each Kerievsky `GoF pattern:` token resolves -- GoF-23 -> `gof-catalog`, extra pattern -> `extra-patterns-catalog`, tokens naming no real pattern stay free text; the 3 Direction:Away leaves carry the required `## Related patterns` link to their Away refactoring (Singleton -> Inline Singleton; Composite -> Encapsulate Composite with Builder; Iterator -> Move Accumulation to Visitor); all intra-repo links resolve
+- [ ] **GOF-04**: Hygiene -- no verbatim GoF / Kerievsky / Fowler prose or code listings in the shipped tree; ASCII-only; every GoF + extra-pattern TS sample compiles `tsc --strict`
+- [ ] **XTR-01**: The 5 Tier-1 extra patterns (Null Object, Factory, Creation Method, Composed Method, Collecting Parameter) exist as leaves in `extra-patterns-catalog/` (same 5-section contract), Kerievsky-grounded and clean-room-oracle-verified
+
 ### Coach Behavior
 
 - [ ] **CCH-01**: For a detected or named smell during the refactor step, the coach recommends the next NAMED refactoring -- routing mechanical smells to Fowler refactorings and repeated/complex-structure smells to Kerievsky pattern-directed refactorings
@@ -99,6 +107,11 @@ Which phase covers which requirement. Populated during roadmap creation.
 | KRV-02 | Phase 8 | Pending |
 | KRV-03 | Phase 8 | Pending |
 | KRV-04 | Phase 8 | Pending |
+| GOF-01 | Phase 8.1 | Pending |
+| GOF-02 | Phase 8.1 | Pending |
+| GOF-03 | Phase 8.1 | Pending |
+| GOF-04 | Phase 8.1 | Pending |
+| XTR-01 | Phase 8.1 | Pending |
 | CCH-01 | Phase 9 | Pending |
 | CCH-02 | Phase 9 | Pending |
 | CCH-03 | Phase 9 | Pending |
@@ -115,10 +128,10 @@ Which phase covers which requirement. Populated during roadmap creation.
 | EVL-02 | Phase 11 | Pending |
 
 **Coverage:**
-- lz-tdd@0.0.2 requirements: 26 total
-- Mapped to phases: 26 (Phases 6-11)
+- lz-tdd@0.0.2 requirements: 31 total
+- Mapped to phases: 31 (Phases 6-11, incl. inserted Phase 8.1)
 - Unmapped: 0
 
 ---
 *Requirements defined: 2026-07-04*
-*Last updated: 2026-07-04 after roadmap creation (all 26 requirements mapped to Phases 6-11)*
+*Last updated: 2026-07-07 -- added GOF-01..04 + XTR-01 (5) for inserted Phase 8.1 (GoF Design Patterns Catalog); mapped all to Phase 8.1*

@@ -112,10 +112,25 @@ this milestone starts at Phase 6.
 - [x] 08-05-PLAN.md -- Catalog: Ch.9 Protection + Ch.10 Accumulation + Ch.11 Utilities leaves (8) via the clean-room oracle loop; incl. the 3rd Away case (Move Accumulation to Visitor) + the 3 n/a-utility GoF leaves (wave 2)
 - [ ] 08-06-PLAN.md -- Ch.4 smell fold + dedup into the unified taxonomy + finalize kerievsky-catalog/README.md index + full battery green + claude plugin validate (wave 3)
 
+### Phase 08.1: GoF Design Patterns Catalog (INSERTED)
+
+**Goal**: A complete GoF design-patterns reference layer for `lz-refactor` -- all 23 GoF patterns (grouped Creational / Structural / Behavioral) plus 5 Tier-1 extra patterns (Null Object, Factory, Creation Method, Composed Method, Collecting Parameter), each a per-pattern leaf on the locked 5-section contract (Intent / Applicability / Consequences / Example / Related patterns), in original prose + `tsc --strict`-clean original TypeScript, clean-room-oracle-verified against `.oracle/design-patterns/` and `.oracle/refactoring-to-patterns/`; every Kerievsky `GoF pattern:` token that names a real pattern is resolved into a link (GoF-23 -> `gof-catalog`, extra -> `extra-patterns-catalog`) incl. the 3 Direction:Away de-patterning links, with author-cited modern-status caveats folded into `## Consequences`.
+**Depends on**: Phase 8 (all 27 Kerievsky `GoF pattern:` tokens must exist before they can be linkified).
+**Requirements**: GOF-01, GOF-02, GOF-03, GOF-04, XTR-01
+**Success Criteria** (what must be TRUE):
+
+  1. All 23 GoF patterns exist as per-pattern leaves on the locked 5-section contract, grouped by family in `gof-catalog/README.md` with the Applicability-first-line selector mirror; `check-gof` passes 23/23.
+  2. The 5 Tier-1 extra patterns exist as leaves in `extra-patterns-catalog/` on the same contract, Kerievsky-grounded and oracle-verified; `check-extra-patterns` passes 5/5.
+  3. Every Kerievsky `GoF pattern:` token that names a real pattern resolves to a link (GoF-23 -> `gof-catalog`, extra -> `extra-patterns-catalog`); tokens naming no real pattern stay free text; the 3 Direction:Away leaves carry the required `## Related patterns` link (Singleton -> Inline Singleton; Composite -> Encapsulate Composite with Builder; Iterator -> Move Accumulation to Visitor); `check-kerievsky` linkify gate + `check-crossrefs` all resolve.
+  4. Author-cited modern-status caveats are folded into `## Consequences` (Singleton cites Dependency Injection); no invented liabilities for the 8 GoF-benefits-only patterns.
+  5. Hygiene: no verbatim GoF / Kerievsky / Fowler prose or code in the shipped tree; ASCII-only; every GoF + extra-pattern TS fence compiles `tsc --strict`; `claude plugin validate .` passes.
+
+**Plans**: TBD (run /gsd-plan-phase 08.1 to break down)
+
 ### Phase 9: Coach Behavior & Principle-Backing
 
 **Goal**: The dual-mode coach behavior is wired on top of both catalogs -- smell->named-refactoring routing (mechanical->Fowler, structural->Kerievsky), the over-/under-engineering (de-patterning) balance, behavior-preservation discipline with a no-tests fallback, and the red-green-refactor seam with lz-tpp -- backed by the three no-oracle, high-confidence-core principle cross-references.
-**Depends on**: Phases 7 and 8 (the coach routes to catalog and smell-taxonomy references that must already exist; the taxonomy is the coach's trigger table).
+**Depends on**: Phases 7, 8, and 8.1 (the coach routes to the Fowler / Kerievsky catalogs, the smell taxonomy, AND the GoF pattern catalog that must already exist; the taxonomy is the coach's trigger table and the GoF catalog is the named-pattern target the coach justifies toward and away).
 **Requirements**: CCH-01, CCH-02, CCH-03, CCH-04, CCH-05, PRIN-01, PRIN-02, PRIN-03
 **Success Criteria** (what must be TRUE):
 
@@ -169,6 +184,7 @@ Phases execute in numeric order: 6 -> 7 -> 8 -> 9 -> 10 -> 11
 | 6. lz-refactor Skill Scaffold & Progressive Disclosure | lz-tdd@0.0.2 | 1/1 | Complete    | 2026-07-04 |
 | 7. Fowler Catalog (Refactoring, 2nd ed) | lz-tdd@0.0.2 | 10/10 | Complete   | 2026-07-05 |
 | 8. Kerievsky Catalog (Refactoring to Patterns) | lz-tdd@0.0.2 | 5/6 | In Progress|  |
+| 8.1. GoF Design Patterns Catalog (INSERTED) | lz-tdd@0.0.2 | - | Not started | - |
 | 9. Coach Behavior & Principle-Backing | lz-tdd@0.0.2 | - | Not started | - |
 | 10. Distribution & Hygiene | lz-tdd@0.0.2 | - | Not started | - |
 | 11. Skill-Effectiveness Evals | lz-tdd@0.0.2 | - | Not started | - |

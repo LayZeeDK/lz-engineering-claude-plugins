@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: lz-tdd@0.0.2
 milestone_name: lz-refactor Skill (Fowler + Kerievsky)
 status: executing
-stopped_at: Phase 8 plan 05 (Ch.9+10+11) complete -- all 27 Kerievsky leaves authored; 08-06 next
-last_updated: "2026-07-06T14:30:00.000Z"
-last_activity: 2026-07-06 -- Phase 8 plan 05 complete (Ch.9+10+11, 8 leaves; catalog complete at 27; Refactoring Directions convention locked)
+stopped_at: Phase 8 plan 06 (phase gate) complete -- all 6 plans done, full battery GREEN; phase close in progress
+last_updated: "2026-07-06T18:00:00.000Z"
+last_activity: 2026-07-06 -- Phase 8 plan 06 complete (Ch.4 smell fold + catalog index + Direction reconciliation; full battery + claude plugin validate GREEN)
 progress:
   total_phases: 6
   completed_phases: 2
   total_plans: 17
-  completed_plans: 15
-  percent: 33
+  completed_plans: 16
+  percent: 39
 ---
 
 # Project State
@@ -26,10 +26,10 @@ See: .planning/PROJECT.md (updated 2026-07-04)
 
 ## Current Position
 
-Phase: 8 (Kerievsky Catalog (Refactoring to Patterns)) — EXECUTING
-Plan: 5 of 6 complete (08-06 next -- phase gate)
-Status: Executing Phase 8 (08-01..08-05 complete; all 27 Kerievsky leaves authored; 08-06 smell fold + README index + direction reconciliation + full battery = phase gate)
-Last activity: 2026-07-06 -- Phase 8 plan 05 complete (Ch.9+10+11, 8 leaves oracle-converged; 27/27 Kerievsky leaves done; Refactoring Directions convention locked via 6-member board)
+Phase: 8 (Kerievsky Catalog (Refactoring to Patterns)) — CONTENT COMPLETE, phase close in progress
+Plan: 6 of 6 complete (08-06 phase gate GREEN)
+Status: Phase 8 content done (all 27 Kerievsky leaves + finalized index + Ch.4 smell fold). Full battery GREEN (check-kerievsky 27/27, check-catalog 62/62, check-smells 24/24 + 4 Kerievsky-unique, check-crossrefs 449, check-principles 8/8, check-hygiene, extract-samples 185 tsc) + claude plugin validate. Phase close: verify_phase_goal -> secure-phase -> validate-phase -> extract-learnings.
+Last activity: 2026-07-06 -- Phase 8 plan 06 complete (a58aa22 smell fold KRV-03; 8b98aa0 catalog index + Direction reconciliation KRV-01/02); 0 owner escalations; all 12 smell leaves oracle-reviewer pass
 
 ## Performance Metrics
 
@@ -78,6 +78,7 @@ Recent decisions affecting current work:
 - [Phase 07]: Phase 7 (07-01, wave 1): built the NON-shipped FWL-01..04 validation harness at .claude/skills/lz-refactor-workspace/ (pinned typescript@6.0.3, one-module-per-fence tsc --strict extractor + 4 node-builtin checkers). Checkers gate on exit code and assert name IDENTITY not cardinality (closes WR-02). RED against the empty catalog is the expected wave-1 baseline; FWL-01..04 close only when the content plans (waves 2-4) turn the battery GREEN. — D-03 asks for a committed re-runnable harness (not Phase-3 ad-hoc extraction). Instruments-first (Nyquist scaffold) makes FWL-01..04 machine-checkable before any oracle content lands.
 - [Phase 08]: Phase 8 (08-04): Ch.8 Generalization 7 leaves oracle-converged 7/7 (Extract Composite R1; five leaves R2; Form Template Method R3), 0 owner escalations, all Direction: Towards + GoF targets oracle-settled. REUSABLE for 08-05/06: the `Composed Fowler primitive(s)` field maps Kerievsky's 1st-ed primitive names onto our Fowler 2nd-ed catalog slugs (Extract Method->Extract Function, Move Method->Move Function, Inline Method->Inline Function); Kerievsky's "Extract Interface" has NO 2nd-ed leaf -> express interface-conformance via Change Function Declaration (or Extract Superclass for a genuine supertype). Pass this provenance constraint to oracle-reviewer explicitly or it false-flags composed-primitive demanding non-existent 1st-ed-named leaves (the dominant R1 defect this chapter).
 - [Phase 08]: Phase 8 (08-05): Ch.9+10+11 8 leaves oracle-converged; ALL 27 Kerievsky leaves authored. LOCKED Refactoring Directions convention (owner-approved; 08-REFACTORING-DIRECTIONS.md): the book's Refactoring Directions table (Inside Front Cover) is the AUTHORITATIVE Direction source, outranking oracle chapter-prose (agents made aware, commit 9a877d7). Direction values: `To` = full pattern; `To/Towards` (compound) = both-listed dual placement; `Away` = de-pattern; `n/a` = table-absent utility. Move Accumulation to Visitor = Away (from Iterator) -- table lists it To/Towards Visitor AND Away Iterator, vindicating D-03. The 4 utilities = `n/a` (unanimous 6-member Opus board; `Towards` falsely implied partial adoption of a nonexistent pattern). 08-06 MUST: compound `To/Towards` on the 6 both-listed committed leaves; 11 committed `Towards` -> `To`; widen check-kerievsky Direction allow-list (+`n/a`, +compound leading-token); ship a single shared Direction gloss in the kerievsky-catalog README.
+- [Phase 08]: Phase 8 (08-06, phase gate) COMPLETE. Ch.4 smell fold (KRV-03): oracle-settled dedup map over 12 Ch.4 smells = 4 UNIQUE + 8 OVERLAP. Two corrections to the provisional plan map: Conditional Complexity kept UNIQUE (broader than Repeated Switches), and Solution Sprawl reclassified OVERLAP -> Shotgun Surgery (book equates them) so NO solution-sprawl leaf. 4 new source-tagged leaves (conditional-complexity, indecent-exposure, combinatorial-explosion, oddball-solution); 8 overlap Fowler leaves get `Source: both` + "also named by Kerievsky" note (recognize-by cues unchanged); smells.md gains a Kerievsky-unique section + `[both]`/`[Kerievsky]` tag convention. All 12 leaves oracle-reviewer pass (0 owner escalations; Oddball re-gated once for a within-pass "preferred-solution-first" nuance). Direction reconciliation (KRV-02): 11 Towards->To, 6 Towards->To/Towards; check-kerievsky allow-list widened by the `n/a` token (compound already validated via leading token); NAMES needed no change (all 27 H1 slugs matched). Full battery + claude plugin validate GREEN. Commits a58aa22, 8b98aa0.
 
 ### Pending Todos
 
@@ -109,8 +110,8 @@ Items acknowledged and carried forward from previous milestone close:
 ## Session Continuity
 
 Last session: 2026-07-06
-Stopped at: Phase 8 plan 04 (Ch.8 Generalization) complete + committed (6d9478d); checking in per pacing before 08-05
-Resume file: .planning/phases/08-kerievsky-catalog-refactoring-to-patterns/.continue-here.md (advanced to 08-05)
+Stopped at: Phase 8 plan 06 (phase gate) complete + committed (a58aa22, 8b98aa0); full battery GREEN; phase close (verify -> secure -> validate -> extract-learnings) in progress
+Resume file: .planning/phases/08-kerievsky-catalog-refactoring-to-patterns/08-06-SUMMARY.md
 
 ## Operator Next Steps
 

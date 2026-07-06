@@ -2,7 +2,7 @@
 
 Use when: a conditional selects between whole algorithms, and you want to vary or extend those algorithms independently of the code that runs them.
 
-Direction: Towards
+Direction: To/Towards
 GoF pattern: Strategy
 Composed Fowler primitive(s): [Replace Conditional with Polymorphism](../fowler-catalog/replace-conditional-with-polymorphism.md#replace-conditional-with-polymorphism), [Move Function](../fowler-catalog/move-function.md#move-function), [Extract Class](../fowler-catalog/extract-class.md#extract-class)
 

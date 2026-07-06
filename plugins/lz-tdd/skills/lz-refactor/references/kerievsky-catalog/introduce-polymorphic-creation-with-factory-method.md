@@ -2,7 +2,7 @@
 
 Use when: sibling subclasses each carry a near-identical method that differs only in the object it creates.
 
-Direction: Towards
+Direction: To
 GoF pattern: Factory Method
 Composed Fowler primitive(s): [Pull Up Method](../fowler-catalog/pull-up-method.md#pull-up-method), [Extract Function](../fowler-catalog/extract-function.md#extract-function)
 

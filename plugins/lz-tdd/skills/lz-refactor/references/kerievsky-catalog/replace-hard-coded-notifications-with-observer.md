@@ -2,7 +2,7 @@
 
 Use when: a class notifies a fixed, named set of dependents by calling each one directly whenever its state changes.
 
-Direction: Towards
+Direction: To/Towards
 GoF pattern: Observer
 Composed Fowler primitive(s): [Move Function](../fowler-catalog/move-function.md#move-function), [Pull Up Method](../fowler-catalog/pull-up-method.md#pull-up-method), [Change Function Declaration](../fowler-catalog/change-function-declaration.md#change-function-declaration)
 

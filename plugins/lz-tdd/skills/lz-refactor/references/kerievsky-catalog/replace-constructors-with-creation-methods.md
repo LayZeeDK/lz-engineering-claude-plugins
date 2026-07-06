@@ -2,7 +2,7 @@
 
 Use when: a class has several constructors, or constructor calls whose arguments do not reveal which kind of instance you are asking for.
 
-Direction: Towards
+Direction: To
 GoF pattern: Creation Method (Kerievsky's own pattern; not one of the GoF 23)
 Composed Fowler primitive(s): [Change Function Declaration](../fowler-catalog/change-function-declaration.md#change-function-declaration), [Extract Function](../fowler-catalog/extract-function.md#extract-function), [Inline Function](../fowler-catalog/inline-function.md#inline-function)
 

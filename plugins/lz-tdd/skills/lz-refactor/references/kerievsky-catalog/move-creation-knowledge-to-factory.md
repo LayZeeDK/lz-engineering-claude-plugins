@@ -2,7 +2,7 @@
 
 Use when: the knowledge of which concrete type to build, and how to wire it, is sprawled across the collaborator classes that produce or hold these objects.
 
-Direction: Towards
+Direction: To
 GoF pattern: Factory
 Composed Fowler primitive(s): [Move Function](../fowler-catalog/move-function.md#move-function), [Extract Class](../fowler-catalog/extract-class.md#extract-class), [Move Field](../fowler-catalog/move-field.md#move-field)
 

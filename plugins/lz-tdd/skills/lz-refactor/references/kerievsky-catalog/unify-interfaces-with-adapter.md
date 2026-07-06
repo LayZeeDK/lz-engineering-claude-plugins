@@ -2,7 +2,7 @@
 
 Use when: clients want to treat two classes the same way, but the classes expose different interfaces and one of them you cannot change.
 
-Direction: Towards
+Direction: To/Towards
 GoF pattern: Adapter
 Composed Fowler primitive(s): [Extract Function](../fowler-catalog/extract-function.md#extract-function), [Move Function](../fowler-catalog/move-function.md#move-function), [Change Function Declaration](../fowler-catalog/change-function-declaration.md#change-function-declaration)
 

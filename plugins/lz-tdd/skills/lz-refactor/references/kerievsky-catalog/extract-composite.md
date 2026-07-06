@@ -2,7 +2,7 @@
 
 Use when: sibling classes in a hierarchy each repeat the same code for holding and iterating child objects.
 
-Direction: Towards
+Direction: To
 GoF pattern: Composite
 Composed Fowler primitive(s): [Extract Superclass](../fowler-catalog/extract-superclass.md#extract-superclass), [Pull Up Field](../fowler-catalog/pull-up-field.md#pull-up-field), [Pull Up Method](../fowler-catalog/pull-up-method.md#pull-up-method)
 

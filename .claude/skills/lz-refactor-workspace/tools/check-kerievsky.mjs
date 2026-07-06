@@ -9,7 +9,10 @@
 //   - each leaf carries the LOCKED Fowler contract fields: a one-line `Use when:` selector, a
 //     `## Motivation` section, a `## Mechanics` section, and a `## Example` section with >=1 ts/js fence;
 //   - PLUS the three Kerievsky field labels (token-lockstep with the leaf template, Pitfall 4):
-//       Direction:                    value in {To, Towards, Away} (KRV-02)
+//       Direction:                    value in {To, To/Towards, Towards, Away, n/a} (KRV-02); the
+//                                     compound `To/Towards` (the 6 both-listed refactorings) and the
+//                                     `n/a` sentinel (the 4 table-absent utilities) come from the
+//                                     book's authoritative Refactoring Directions table (08-06)
 //       GoF pattern:                  a non-empty value OR the literal "n/a -- utility" (KRV-04, Q1)
 //       Composed Fowler primitive(s): >=1 link matching ../fowler-catalog/<slug>.md#<slug> (KRV-01,
 //                                     PRESENCE only -- link RESOLUTION is check-crossrefs's job);
@@ -257,9 +260,13 @@ for (const name of NAMES) {
     missing.push("ts/js fence");
   }
 
-  // Kerievsky-specific fields (token-lockstep with the leaf template, Pitfall 4).
-  if (!/^Direction:\s*(To|Towards|Away)\b/m.test(leaf.text)) {
-    missing.push("Direction: field (To|Towards|Away)");
+  // Kerievsky-specific fields (token-lockstep with the leaf template, Pitfall 4). The Direction
+  // allow-list is widened (08-06) to the authoritative Refactoring Directions table's vocabulary:
+  // leading-token match validates `To`, the compound `To/Towards` (6 both-listed refactorings, routes
+  // as To), `Towards`, `Away`, and the `n/a` sentinel (4 table-absent utilities). The Phase-9 coach
+  // keys only on `Away`, so its routing is untouched.
+  if (!/^Direction:\s*(To|Towards|Away|n\/a)\b/m.test(leaf.text)) {
+    missing.push("Direction: field (To|To/Towards|Towards|Away|n/a)");
   }
 
   // GoF pattern: name-only vocabulary (KRV-04). A non-empty value satisfies it; the three Utilities

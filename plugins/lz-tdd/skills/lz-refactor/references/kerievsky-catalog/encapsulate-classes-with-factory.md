@@ -2,7 +2,7 @@
 
 Use when: clients instantiate a family of related concrete classes directly, and you would rather they depend only on a shared interface plus one factory.
 
-Direction: Towards
+Direction: To
 GoF pattern: Factory
 Composed Fowler primitive(s): [Extract Function](../fowler-catalog/extract-function.md#extract-function), [Move Function](../fowler-catalog/move-function.md#move-function), [Change Function Declaration](../fowler-catalog/change-function-declaration.md#change-function-declaration)
 

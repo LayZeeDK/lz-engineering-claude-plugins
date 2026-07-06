@@ -2,7 +2,7 @@
 
 Use when: code keeps branching on whether it is handling a single object or a collection of them, and you need to combine those objects in richer ways than a flat list allows.
 
-Direction: Towards
+Direction: To
 GoF pattern: Composite
 Composed Fowler primitive(s): [Extract Class](../fowler-catalog/extract-class.md#extract-class), [Move Function](../fowler-catalog/move-function.md#move-function), [Inline Function](../fowler-catalog/inline-function.md#inline-function), [Change Function Declaration](../fowler-catalog/change-function-declaration.md#change-function-declaration)
 

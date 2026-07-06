@@ -2,7 +2,7 @@
 
 Use when: a class keeps growing methods for each combination of the same few conditions, spelling out by hand a small language it never names.
 
-Direction: Towards
+Direction: To
 GoF pattern: Interpreter
 Composed Fowler primitive(s): [Extract Class](../fowler-catalog/extract-class.md#extract-class), [Extract Superclass](../fowler-catalog/extract-superclass.md#extract-superclass), [Extract Function](../fowler-catalog/extract-function.md#extract-function), [Inline Function](../fowler-catalog/inline-function.md#inline-function)
 

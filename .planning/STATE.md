@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: lz-tdd@0.0.2
 milestone_name: lz-refactor Skill (Fowler + Kerievsky)
 status: executing
-stopped_at: Phase 8 context gathered
-last_updated: "2026-07-05T22:27:02.427Z"
-last_activity: 2026-07-05 -- Phase 8 planning complete
+stopped_at: Phase 8 plan 01 (harness extension) complete
+last_updated: "2026-07-06T00:00:00.000Z"
+last_activity: 2026-07-06 -- Phase 8 plan 01 complete (Kerievsky harness, RED baseline)
 progress:
   total_phases: 6
   completed_phases: 2
   total_plans: 17
-  completed_plans: 11
+  completed_plans: 12
   percent: 33
 ---
 
@@ -21,15 +21,15 @@ progress:
 See: .planning/PROJECT.md (updated 2026-07-04)
 
 **Core value:** `lz-tpp` helps Claude choose the next code transformation by TPP priority during red-green-refactor TDD, and explains the premise on demand. lz-tdd@0.0.2 adds `lz-refactor` to drive the refactor step.
-**Current focus:** Phase 7 CLOSED; Phase 8 (Kerievsky Catalog) is next -- needs planning
+**Current focus:** Phase 8 — Kerievsky Catalog (Refactoring to Patterns)
 **Milestone:** lz-tdd@0.0.2 (lz-refactor Skill) -- executing
 
 ## Current Position
 
-Phase: 7 (Fowler Catalog (Refactoring, 2nd ed)) — COMPLETE (verified + secured + validated + learnings extracted)
-Plan: All 10 plans done. Wave 4 (07-10) authored the 24 Ch.3 smell leaves (oracle-converged 24/24 over 2 rounds; 0 escalations), the navigation-only smells.md index, and the finalized 62-row fowler-catalog/README.md.
-Status: Ready to execute
-Last activity: 2026-07-05 -- Phase 8 planning complete
+Phase: 8 (Kerievsky Catalog (Refactoring to Patterns)) — EXECUTING
+Plan: 2 of 6
+Status: Executing Phase 8 (08-01 harness complete; 08-02 next)
+Last activity: 2026-07-06 -- Phase 8 plan 01 complete (Kerievsky harness, RED baseline)
 
 ## Performance Metrics
 
@@ -106,9 +106,9 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-05T21:23:00.357Z
+Last session: 2026-07-05T22:43:09.627Z
 Stopped at: Phase 8 context gathered
-Resume file: .planning/phases/08-kerievsky-catalog-refactoring-to-patterns/08-CONTEXT.md
+Resume file: None
 
 ## Operator Next Steps
 

@@ -52,9 +52,13 @@ set/chapter completeness, and scaffolding are deterministic and harness-owned).
 
 - DRAFT_PATHS: drafted Markdown file(s) under `plugins/lz-tdd/skills/lz-refactor/references/` -- the
   project's own repo paths (not copyrighted). Echo a draft path only in `entry_path`.
-- SOURCE: an `.oracle/<book>/index.md` navigation entry -- navigate from there and read the full text
-  you need. Confirm any negative ("source lacks X") by READING TO COMPLETION (paginate a long chapter
-  fully -- a single Read may truncate), never by search.
+- SOURCE: an `.oracle/<book>/index.md` navigation entry -- navigate from there to the in-scope
+  section. Chapters are long and a single Read truncates at a fixed token cap, so ALWAYS read the
+  source to its end in sequential `offset`/`limit` chunks: start at the first line and keep reading
+  successive windows until a Read returns fewer lines than the `limit` you asked for (end of the
+  section/chapter). Never assume one Read returned the whole chapter, and never depend on being told
+  how long it is. Complete this full read BEFORE scoring; confirm every negative ("source lacks X")
+  against that complete read, never by search.
 - SCOPE (optional): the draft's intended coverage. Out-of-scope source items are simply NOT listed in
   `alignment` (they are not DROPs); only in-scope items get a status. Absent SCOPE, the whole source
   chapter is in-scope.

@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: lz-tdd@0.0.2
 milestone_name: lz-refactor Skill (Fowler + Kerievsky)
 status: executing
-stopped_at: Phase 8 plan 06 (phase gate) complete -- all 6 plans done, full battery GREEN; phase close in progress
-last_updated: "2026-07-06T18:00:00.000Z"
-last_activity: 2026-07-06 -- Phase 8 plan 06 complete (Ch.4 smell fold + catalog index + Direction reconciliation; full battery + claude plugin validate GREEN)
+stopped_at: Phase 8 CLOSED (all 6 plans + verify + secure + validate + extract-learnings done); next is /gsd-plan-phase 9
+last_updated: "2026-07-06T19:00:00.000Z"
+last_activity: 2026-07-06 -- Phase 8 closed: content complete (27 Kerievsky leaves + index + Ch.4 smell fold), gsd-verifier PASS 5/5, secured 8/8, nyquist_compliant, 08-LEARNINGS extracted + 27 pooled to global store
 progress:
   total_phases: 6
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 17
-  completed_plans: 16
-  percent: 39
+  completed_plans: 17
+  percent: 50
 ---
 
 # Project State
@@ -26,10 +26,10 @@ See: .planning/PROJECT.md (updated 2026-07-04)
 
 ## Current Position
 
-Phase: 8 (Kerievsky Catalog (Refactoring to Patterns)) — CONTENT COMPLETE, phase close in progress
+Phase: 8 (Kerievsky Catalog (Refactoring to Patterns)) — CLOSED
 Plan: 6 of 6 complete (08-06 phase gate GREEN)
-Status: Phase 8 content done (all 27 Kerievsky leaves + finalized index + Ch.4 smell fold). Full battery GREEN (check-kerievsky 27/27, check-catalog 62/62, check-smells 24/24 + 4 Kerievsky-unique, check-crossrefs 449, check-principles 8/8, check-hygiene, extract-samples 185 tsc) + claude plugin validate. Phase close: verify_phase_goal -> secure-phase -> validate-phase -> extract-learnings.
-Last activity: 2026-07-06 -- Phase 8 plan 06 complete (a58aa22 smell fold KRV-03; 8b98aa0 catalog index + Direction reconciliation KRV-01/02); 0 owner escalations; all 12 smell leaves oracle-reviewer pass
+Status: Phase 8 CLOSED. Content: all 27 Kerievsky leaves + finalized thin index + Ch.4 smell fold (4 unique + 8 overlap). Full battery GREEN (check-kerievsky 27/27, check-catalog 62/62, check-smells 24 + 4 Kerievsky-unique, check-crossrefs 449, check-principles 8/8, check-hygiene, extract-samples 185 tsc) + claude plugin validate. gsd-verifier PASS 5/5 (08-VERIFICATION), secured 8/8 (08-SECURITY), nyquist_compliant (08-VALIDATION), 08-LEARNINGS extracted (27) + pooled to the global store.
+Last activity: 2026-07-06 -- Phase 8 closed (a58aa22 smell fold KRV-03; 8b98aa0 catalog index + Direction reconciliation KRV-01/02; verify/secure/validate/extract committed). Next milestone step: /gsd-plan-phase 9 (coach behavior + principle-backing, CCH-* / PRIN-*).
 
 ## Performance Metrics
 
@@ -110,18 +110,21 @@ Items acknowledged and carried forward from previous milestone close:
 ## Session Continuity
 
 Last session: 2026-07-06
-Stopped at: Phase 8 plan 06 (phase gate) complete + committed (a58aa22, 8b98aa0); full battery GREEN; phase close (verify -> secure -> validate -> extract-learnings) in progress
-Resume file: .planning/phases/08-kerievsky-catalog-refactoring-to-patterns/08-06-SUMMARY.md
+Stopped at: Phase 8 CLOSED -- 08-06 (phase gate) + all phase-close audits committed; 08-LEARNINGS pooled to the global store. Milestone lz-tdd@0.0.2 phases 6-8 done (3/6).
+Resume file: none (phase 8 closed; next is /gsd-plan-phase 9). Reference: .planning/phases/08-kerievsky-catalog-refactoring-to-patterns/08-06-SUMMARY.md + 08-LEARNINGS.md
 
 ## Operator Next Steps
 
-- Phase 7 is CLOSED: content (10/10 plans, catalog 62/62 + smells 24/24 + principles 8/8, full battery
-  GREEN), gsd-verifier PASSED (FWL-01..04 complete), secure-phase SECURED (7/7 threats CLOSED),
-  validate-phase NYQUIST-COMPLIANT (0 gaps), and 07-LEARNINGS.md extracted. Artifacts: 07-VERIFICATION.md,
-  07-SECURITY.md, 07-VALIDATION.md, 07-LEARNINGS.md, 07-10-SUMMARY.md.
+- Phase 8 is CLOSED: content (6/6 plans -- 27 Kerievsky leaves + finalized thin index + Ch.4 smell fold
+  4 unique + 8 overlap; full battery GREEN + claude plugin validate), gsd-verifier PASS 5/5
+  (08-VERIFICATION), secure-phase SECURED 8/8 (08-SECURITY), validate-phase nyquist_compliant
+  (08-VALIDATION), 08-LEARNINGS extracted (27 items) + all 27 pooled to the global store
+  (~/.gsd/knowledge/, features.global_learnings=true). Artifacts: 08-VERIFICATION.md, 08-SECURITY.md,
+  08-VALIDATION.md, 08-LEARNINGS.md, 08-06-SUMMARY.md.
 
-- Next: `/gsd-plan-phase 8` (Kerievsky Catalog, Refactoring to Patterns) -- it folds into the
-  Fowler-established smell taxonomy + cross-maps to the 62 catalog leaves. The Phase-8 plan-phase's
-  auto_copy_learnings step will pool 07-LEARNINGS.md into ~/.gsd/knowledge/ (features.global_learnings=true).
+- Next: `/gsd-plan-phase 9` (coach decision procedure + principle-backing -- CCH-* / PRIN-*): the coach
+  consumes both catalogs (mechanical->Fowler, structural/pattern-directed->Kerievsky), the unified smell
+  taxonomy, and the Direction `Away` de-patterning routing (CCH-02); Beck/Feathers principle cross-refs
+  are no-oracle high-confidence-core-only.
 
-- Optional before Phase 8: `/gsd-audit-milestone` is premature (milestone spans phases 6-11, not done).
+- Optional: `/gsd-audit-milestone` is still premature (milestone lz-tdd@0.0.2 spans phases 6-11; 3/6 done).

@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: lz-tdd@0.0.2
 milestone_name: lz-refactor Skill (Fowler + Kerievsky)
 status: executing
-stopped_at: Phase 8 plan 04 (Ch.8 Generalization) complete -- checking in per pacing before 08-05
-last_updated: "2026-07-06T11:45:00.000Z"
-last_activity: 2026-07-06 -- Phase 8 plan 04 complete (Ch.8 Generalization, 7 leaves oracle-converged 7/7 + Interpreter walkthrough)
+stopped_at: Phase 8 plan 05 (Ch.9+10+11) complete -- all 27 Kerievsky leaves authored; 08-06 next
+last_updated: "2026-07-06T14:30:00.000Z"
+last_activity: 2026-07-06 -- Phase 8 plan 05 complete (Ch.9+10+11, 8 leaves; catalog complete at 27; Refactoring Directions convention locked)
 progress:
   total_phases: 6
   completed_phases: 2
   total_plans: 17
-  completed_plans: 14
+  completed_plans: 15
   percent: 33
 ---
 
@@ -27,9 +27,9 @@ See: .planning/PROJECT.md (updated 2026-07-04)
 ## Current Position
 
 Phase: 8 (Kerievsky Catalog (Refactoring to Patterns)) — EXECUTING
-Plan: 4 of 6 complete (08-05 next)
-Status: Executing Phase 8 (08-01 harness + 08-02 Ch.6 + 08-03 Ch.7 + 08-04 Ch.8 complete; 08-05 Ch.9+10+11 next)
-Last activity: 2026-07-06 -- Phase 8 plan 04 complete (Ch.8 Generalization, 7 leaves oracle-converged 7/7; 19/27 Kerievsky leaves done)
+Plan: 5 of 6 complete (08-06 next -- phase gate)
+Status: Executing Phase 8 (08-01..08-05 complete; all 27 Kerievsky leaves authored; 08-06 smell fold + README index + direction reconciliation + full battery = phase gate)
+Last activity: 2026-07-06 -- Phase 8 plan 05 complete (Ch.9+10+11, 8 leaves oracle-converged; 27/27 Kerievsky leaves done; Refactoring Directions convention locked via 6-member board)
 
 ## Performance Metrics
 
@@ -77,6 +77,7 @@ Recent decisions affecting current work:
 - [Phase 07]: Phase 7 (07-09): Ch.12 dealing-with-inheritance 11 leaves converged 11/11 -- catalog 62/62 (all seven catalog chapters authored). The DST-04 near-verbatim gate fired on ACCIDENTAL collision (push-down-method blind draft matched the source's short imperative steps; reworded blind, cleared). spirit/judgment held `correct` across all 11 despite the judgment-heavy chapter; every revise was completeness/aptness (a dropped final mechanics step, a missing secondary motivation, a plausible-but-incomplete cited sibling).
 - [Phase 07]: Phase 7 (07-01, wave 1): built the NON-shipped FWL-01..04 validation harness at .claude/skills/lz-refactor-workspace/ (pinned typescript@6.0.3, one-module-per-fence tsc --strict extractor + 4 node-builtin checkers). Checkers gate on exit code and assert name IDENTITY not cardinality (closes WR-02). RED against the empty catalog is the expected wave-1 baseline; FWL-01..04 close only when the content plans (waves 2-4) turn the battery GREEN. — D-03 asks for a committed re-runnable harness (not Phase-3 ad-hoc extraction). Instruments-first (Nyquist scaffold) makes FWL-01..04 machine-checkable before any oracle content lands.
 - [Phase 08]: Phase 8 (08-04): Ch.8 Generalization 7 leaves oracle-converged 7/7 (Extract Composite R1; five leaves R2; Form Template Method R3), 0 owner escalations, all Direction: Towards + GoF targets oracle-settled. REUSABLE for 08-05/06: the `Composed Fowler primitive(s)` field maps Kerievsky's 1st-ed primitive names onto our Fowler 2nd-ed catalog slugs (Extract Method->Extract Function, Move Method->Move Function, Inline Method->Inline Function); Kerievsky's "Extract Interface" has NO 2nd-ed leaf -> express interface-conformance via Change Function Declaration (or Extract Superclass for a genuine supertype). Pass this provenance constraint to oracle-reviewer explicitly or it false-flags composed-primitive demanding non-existent 1st-ed-named leaves (the dominant R1 defect this chapter).
+- [Phase 08]: Phase 8 (08-05): Ch.9+10+11 8 leaves oracle-converged; ALL 27 Kerievsky leaves authored. LOCKED Refactoring Directions convention (owner-approved; 08-REFACTORING-DIRECTIONS.md): the book's Refactoring Directions table (Inside Front Cover) is the AUTHORITATIVE Direction source, outranking oracle chapter-prose (agents made aware, commit 9a877d7). Direction values: `To` = full pattern; `To/Towards` (compound) = both-listed dual placement; `Away` = de-pattern; `n/a` = table-absent utility. Move Accumulation to Visitor = Away (from Iterator) -- table lists it To/Towards Visitor AND Away Iterator, vindicating D-03. The 4 utilities = `n/a` (unanimous 6-member Opus board; `Towards` falsely implied partial adoption of a nonexistent pattern). 08-06 MUST: compound `To/Towards` on the 6 both-listed committed leaves; 11 committed `Towards` -> `To`; widen check-kerievsky Direction allow-list (+`n/a`, +compound leading-token); ship a single shared Direction gloss in the kerievsky-catalog README.
 
 ### Pending Todos
 

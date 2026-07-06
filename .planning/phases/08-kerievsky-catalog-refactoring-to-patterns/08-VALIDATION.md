@@ -1,13 +1,14 @@
 ---
 phase: 8
 slug: kerievsky-catalog-refactoring-to-patterns
-status: draft
-nyquist_compliant: false
-wave_0_complete: false
+status: validated
+nyquist_compliant: true
+wave_0_complete: true
 created: 2026-07-05
+validated: 2026-07-06
 ---
 
-# Phase 8 — Validation Strategy
+# Phase 8 -- Validation Strategy
 
 > Per-phase validation contract for feedback sampling during execution.
 > This is a Markdown reference-authoring phase: the "test suite" IS the non-shipped
@@ -42,15 +43,34 @@ created: 2026-07-05
 
 ## Per-Task Verification Map
 
-> Populated during `/gsd-plan-phase` / `/gsd-validate-phase` once PLAN.md tasks exist.
-> Each authoring task maps to: the deterministic checker(s) that gate it + the
-> `oracle-reviewer` verdict for the leaves it touches.
+> Filled post-execution by `/gsd-validate-phase`. Each authoring task maps to the
+> deterministic checker(s) that gate it + the `oracle-reviewer` verdict for the leaves
+> it touches. Every row is GREEN: the full battery was re-run read-only from repo root
+> on 2026-07-06 (all seven checkers + `extract-samples` exit 0).
 
 | Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
-| 08-XX-XX | XX | X | KRV-01..04 | T-08-xx / — | no verbatim book prose/code (DST-04) | checker + tsc + oracle-reviewer | `node .claude/skills/lz-refactor-workspace/tools/check-kerievsky.mjs` | ❌ W0 | ⬜ pending |
+| 08-01 | 01 | 1 (W0) | KRV-01..04 | T-08-06 | cross-links resolve; no false-green sample overwrite | checker harness | `node .claude/skills/lz-refactor-workspace/tools/check-kerievsky.mjs` (new) + `check-smells` / `check-crossrefs` / `extract-samples` (extended) | yes | green |
+| 08-02 | 02 | 2 | KRV-01, KRV-02, KRV-04 | T-08-01 | no verbatim book prose/code (DST-04) | checker + tsc + oracle-reviewer | `node .claude/skills/lz-refactor-workspace/tools/check-kerievsky.mjs && node .claude/skills/lz-refactor-workspace/extract-samples.mjs` | yes | green |
+| 08-03 | 03 | 2 | KRV-01, KRV-02, KRV-04 | T-08-01 | no verbatim book prose/code (DST-04) | checker + tsc + oracle-reviewer | `node .claude/skills/lz-refactor-workspace/tools/check-kerievsky.mjs && node .claude/skills/lz-refactor-workspace/extract-samples.mjs` | yes | green |
+| 08-04 | 04 | 2 | KRV-01, KRV-02, KRV-04 | T-08-01 | no verbatim book prose/code (DST-04) | checker + tsc + oracle-reviewer | `node .claude/skills/lz-refactor-workspace/tools/check-kerievsky.mjs && node .claude/skills/lz-refactor-workspace/extract-samples.mjs` | yes | green |
+| 08-05 | 05 | 2 | KRV-01, KRV-02, KRV-04 | T-08-01 | no verbatim book prose/code (DST-04) | checker + tsc + oracle-reviewer | `node .claude/skills/lz-refactor-workspace/tools/check-kerievsky.mjs && node .claude/skills/lz-refactor-workspace/extract-samples.mjs` | yes | green |
+| 08-06 | 06 | 3 | KRV-01, KRV-03 | T-08-01 / T-08-06 | no verbatim; folded-smell links resolve; index rows mirror | checker + oracle-reviewer | `node .claude/skills/lz-refactor-workspace/tools/check-smells.mjs && node .claude/skills/lz-refactor-workspace/tools/check-kerievsky.mjs && node .claude/skills/lz-refactor-workspace/tools/check-crossrefs.mjs && node .claude/skills/lz-refactor-workspace/tools/check-catalog.mjs && node .claude/skills/lz-refactor-workspace/tools/check-principles.mjs && node .claude/skills/lz-refactor-workspace/tools/check-hygiene.mjs` | yes | green |
 
-*Status: pending / green / red / flaky. Filled post-planning.*
+*Status legend: pending / green / red / flaky.*
+
+### Coverage adequacy (Nyquist)
+
+Every Phase-8 requirement observable has a covering deterministic check whose sampling rate catches a regression per requirement:
+
+- **KRV-01** (27 leaves + thin index + Use-when mirror + composed Fowler primitives + compiling examples): `check-kerievsky` (27/27 name-identity, not cardinality; LOCKED contract fields; composed-primitive cross-link presence; README-row Use-when mirror) + `extract-samples` (185 modules `tsc --strict`) + `check-crossrefs` (449 links resolve). GREEN.
+- **KRV-02** (Direction model + 3 Away cases): `check-kerievsky` Direction allow-list (`To|Towards|Away|n/a`) on every leaf + the AWAY set enforced to carry `Direction: Away` plus an "away from &lt;pattern&gt;" callout. GREEN.
+- **KRV-03** (Ch.4 smell fold, source-tagged + deduped): `check-smells` validates source tags (`Fowler|Kerievsky|both`), fails an un-deduped Kerievsky-tagged Fowler name, resolves `(?:fowler|kerievsky)-catalog` candidate links, and contract-checks the 4 Kerievsky-unique leaves. GREEN.
+- **KRV-04** (GoF vocabulary-only, no verbatim): `check-kerievsky` GoF-field presence + `check-hygiene` ASCII/email hard-fail + no-verbatim WARN (0 WARN). GREEN.
+
+**No new test generated** -- coverage was already complete over the seven-checker battery + tsc extractor. Adding an assertion would be redundant against an already-green instrument.
+
+**Known limitation (documented, not a gap):** `check-kerievsky` validates Direction *membership*, not the exact 14/6/3/4 census. This is not a REQUIREMENTS-level observable (the Phase-9 coach keys only on `Away`; `To` and `Towards` route identically), the 3 named `Away` cases are hard-checked, and census fidelity is reconciled to the authoritative Refactoring Directions table + oracle-gated. A census-exact checker was deliberately NOT added (redundant per the coach's routing). This matches the 08-VERIFICATION observation.
 
 ---
 
@@ -67,12 +87,12 @@ created: 2026-07-05
 
 ## Wave 0 Requirements
 
-- [ ] `check-kerievsky.mjs` — new checker asserting the 27 Kerievsky leaves + fields (recommended over editing the Fowler-verified `check-catalog.mjs`).
-- [ ] `extract-samples.mjs` — extend sample discovery to include `kerievsky-catalog/` fenced examples (avoid flat-filename slug collision with Fowler samples — namespace the extracted `.ts` files).
-- [ ] `check-crossrefs.mjs` — include `kerievsky-catalog/` in cross-ref resolution.
-- [ ] `check-smells.mjs` — widen the candidate-link regex beyond `fowler-catalog/` so Kerievsky pattern-directed candidates resolve.
+- [x] `check-kerievsky.mjs` -- new checker asserting the 27 Kerievsky leaves + fields (landed in 08-01; GREEN 27/27).
+- [x] `extract-samples.mjs` -- extended to include `kerievsky-catalog/` fenced examples with per-catalog namespacing (landed in 08-01; GREEN, 185 modules `tsc --strict`, 0 skipped).
+- [x] `check-crossrefs.mjs` -- includes `kerievsky-catalog/` in cross-ref resolution, mutuality Fowler-scoped (landed in 08-01; GREEN, 449 links).
+- [x] `check-smells.mjs` -- candidate-link regex widened to `(?:fowler|kerievsky)-catalog` + source-tag + dedup guards (landed in 08-01; GREEN).
 
-*RED against the empty kerievsky-catalog is the expected Wave-0 baseline; KRV-01..04 close only when the authoring waves turn the battery GREEN.*
+*All four Wave-0 harness extensions landed in 08-01 and are GREEN post-execution; KRV-01..04 closed as the authoring waves (08-02..08-06) turned the battery GREEN.*
 
 ---
 
@@ -88,11 +108,15 @@ created: 2026-07-05
 
 ## Validation Sign-Off
 
-- [ ] All authoring tasks gate on a checker command + oracle-reviewer verdict
-- [ ] Sampling continuity: deterministic layer runs before every oracle-reviewer batch
-- [ ] Wave 0 extends the harness for Kerievsky (4 items above) and is GREEN-when-filled
-- [ ] No watch-mode flags
-- [ ] Feedback latency < 90s (deterministic layer)
-- [ ] `nyquist_compliant: true` set post-execution by `/gsd-validate-phase`
+- [x] All authoring tasks gate on a checker command + oracle-reviewer verdict
+- [x] Sampling continuity: deterministic layer runs before every oracle-reviewer batch
+- [x] Wave 0 extends the harness for Kerievsky (4 items above) and is GREEN
+- [x] No watch-mode flags
+- [x] Feedback latency < 90s (deterministic layer; tsc extract dominates)
+- [x] `nyquist_compliant: true` set post-execution by `/gsd-validate-phase`
 
-**Approval:** pending
+**Approval:** validated 2026-07-06 -- full battery re-run read-only from repo root, all GREEN
+(check-kerievsky 27/27, check-catalog 62/62, check-smells 24 Fowler + 4 Kerievsky-unique,
+check-crossrefs 449 links, check-principles 8/8, check-hygiene 126 files clean, extract-samples
+185 modules `tsc --strict`). Every KRV-01..04 observable has a covering GREEN deterministic check;
+no uncovered observable found, so no new test was generated.

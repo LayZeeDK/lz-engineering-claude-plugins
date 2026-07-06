@@ -1,45 +1,39 @@
 {
   "version": "1.0",
-  "timestamp": "2026-07-05T19:51:58.592Z",
-  "phase": "07",
-  "phase_name": "fowler-catalog-refactoring-2nd-ed",
-  "phase_dir": ".planning/phases/07-fowler-catalog-refactoring-2nd-ed",
-  "plan": 10,
+  "timestamp": "2026-07-06T07:44:24.183Z",
+  "phase": "8",
+  "phase_name": "Kerievsky Catalog (Refactoring to Patterns)",
+  "phase_dir": ".planning/phases/08-kerievsky-catalog-refactoring-to-patterns",
+  "plan": 3,
   "task": 1,
-  "total_tasks": 10,
+  "total_tasks": 6,
   "status": "paused",
-  "unit": "plan (multi-plan phase; entries below are PLANS, not tasks within one plan)",
+  "unit": "plan (multi-plan phase; entries below are PLANS)",
   "completed_tasks": [
-    {"id": "07-01", "name": "harness + FWL checker battery (wave 1)", "status": "done", "commit": "pre-session"},
-    {"id": "07-02", "name": "PILOT: harness overhaul + 11 Ch.6 basic leaves + README scaffold + calibration SUMMARY (62 name->slug map + rubric anchors)", "status": "done", "commit": "60ff93c,9ccce17,7876fda"},
-    {"id": "07-03", "name": "principles.md (Ch.2)", "status": "content_done_summary_pending", "progress": "authored + oracle-converged pre-session; check-principles 7/8 RED (missing literal token 'definition'); needs a 1-token own-framing fix + 07-03-SUMMARY before the phase gate"},
-    {"id": "07-04", "name": "Ch.7 encapsulation (9 leaves)", "status": "done", "commit": "9e9602e,efa0680"},
-    {"id": "07-05", "name": "Ch.8 moving features (9 leaves)", "status": "done", "commit": "6bcbfa7,6f6b61a"},
-    {"id": "07-06", "name": "Ch.9 organizing data (5 leaves)", "status": "done", "commit": "3f98e35,a52d22a"},
-    {"id": "07-07", "name": "Ch.10 simplify conditional logic (6 leaves)", "status": "done", "commit": "30966fa,fdc50c3"},
-    {"id": "rubric-sharpen", "name": "Oracle-reviewer rubric sharpened (3 anchors) + agent-reviewed (2 lenses) + reloaded", "status": "done", "commit": "7198d85"},
-    {"id": "07-08", "name": "Ch.11 refactoring APIs (11 leaves, incl. Return Modified Value [web-only]); first chapter on the sharpened rubric", "status": "done", "commit": "eb97c88,487f642"},
-    {"id": "delta-re-review", "name": "Targeted delta re-review of 18 Ch.6-10 leaves vs the SHARPENED axes (cross-ref aptness + spirit/judgment) -- re-ran from scratch via 3 chapter-grouped oracle-reviewer calls (5/8/5)", "status": "done", "result": "18/18 pass; no leaf changed (NO-OP). No revise/blocked/error, no too_close_to_source. Benign note: Rename Field + Move Statements into Function cite Change Function Declaration where source uses its 'Rename Function' alias (same catalog entry, apt).", "commit": "docs-only"},
-    {"id": "07-09", "name": "Ch.12 dealing with inheritance (11 leaves) -- last catalog chapter", "status": "done", "result": "11/11 converged (R1 7 pass/4 revise, R2 2 pass/2 revise, R3 2 pass; 1 too_close_to_source on push-down-method resolved by blind reword; 0 owner escalations). Catalog now 62/62. Inverse-of pairs (Pull Up<->Push Down for Method and Field) declared mutually.", "commit": "3460dc1"},
-    {"id": "07-03-fix", "name": "principles.md definition-token fix + 07-03-SUMMARY", "status": "done", "result": "check-principles now 8/8 GREEN via a one-line own-framing lead-in supplying the literal 'definition' token; own-words, no oracle re-review. 07-03-SUMMARY.md written. FWL-03 satisfied (closes phase-wide at 07-10).", "commit": "72b55a7"}
+    {"id": "08-01", "name": "harness extension: new check-kerievsky.mjs (27-name identity + 3 fields + 3 Away + README mirror) + extend extract-samples/check-crossrefs/check-smells", "status": "done", "commit": "b8502ff,fe5f3ed,585552c"},
+    {"id": "08-02", "name": "Ch.6 Creation leaves (6) -- oracle-converged 6/6 (R1 1 pass/5 revise, R2 5 pass, 0 escalations)", "status": "done", "commit": "7629ab6"},
+    {"id": "oracle-fix", "name": "oracle + oracle-reviewer ALWAYS chunk-read to EOF (length-agnostic; token-cap-aware); agent-reviewed (firewall SAFE + correctness PASS) + RELOADED live", "status": "done", "commit": "88f1513,a01f51b"}
   ],
   "remaining_tasks": [
-    {"id": "07-10", "name": "Wave 4: 24 smell leaves + navigation smells.md + finalize README (Ch.7-12 rows) + FULL checker battery GREEN = phase gate", "status": "not_started"},
+    {"id": "08-03", "name": "Ch.7 Simplification leaves (6) -- LARGEST source chapter ~40K tok: Compose Method, Replace Conditional Logic with Strategy, Move Embellishment to Decorator, Replace State-Altering Conditionals with State, Replace Implicit Tree with Composite, Replace Conditional Dispatcher with Command", "status": "not_started"},
+    {"id": "08-04", "name": "Ch.8 Generalization leaves (7): Form Template Method, Extract Composite, Replace One/Many Distinctions with Composite, Replace Hard-Coded Notifications with Observer, Unify Interfaces with Adapter, Extract Adapter, Replace Implicit Language with Interpreter", "status": "not_started"},
+    {"id": "08-05", "name": "Ch.9 Protection (3) + Ch.10 Accumulation (2) + Ch.11 Utilities (3) = 8 leaves; incl. 3rd Away case Move Accumulation to Visitor; 3 Utilities may carry GoF pattern 'n/a -- utility'", "status": "not_started"},
+    {"id": "08-06", "name": "Ch.4 smell fold + dedup (source-tagged) + finalize kerievsky README index + reconcile check-kerievsky NAMES to authored slugs + FULL battery GREEN + claude plugin validate = phase gate", "status": "not_started"},
     {"id": "phase-close", "name": "verify_phase_goal -> secure-phase -> validate-phase -> extract-learnings", "status": "not_started"}
   ],
   "blockers": [],
   "human_actions_pending": [
-    {"action": "If a future leaf's oracle-reviewer returns error because the source lacks that entry, flag to owner to add its Markdown to .oracle/", "context": "owner provisions .oracle/ chapters; already added Return Modified Value to Ch.11", "blocking": false}
+    {"action": "Re-confirm pacing for the remaining 4 plans (continue all / one chapter at a time)", "context": "The pacing AskUserQuestion was set aside; owner paused for a fresh session.", "blocking": false},
+    {"action": "After ANY future oracle/agent instruction change is reviewed+committed, run /reload-plugins before proceeding", "context": "owner standing rule; only the user can run /reload-plugins", "blocking": false}
   ],
   "decisions": [
-    {"decision": "Orchestrator drives content plans INLINE (NOT via gsd-executor subagents)", "rationale": "the clean-room loop needs the Agent tool (spawn oracle/oracle-reviewer) and AskUserQuestion (owner escalation); gsd-executor has neither", "phase": "07"},
-    {"decision": "Chapter-by-chapter cadence with a PAUSE after each chapter for owner review", "rationale": "owner preference from the pilot checkpoint", "phase": "07"},
-    {"decision": "Oracle-reviewer rubric SHARPENED (3 anchors): (1) mechanics scores cross-ref aptness; (2) our principles/sibling back-edges are benign additions, not invented limits; (3) spirit->spirit/judgment", "rationale": "surfaced by Ch.6-10 rounds; owner-approved; agent-reviewed (firewall SAFE, consistency CLEAN); reloaded; first used on Ch.11", "phase": "07"},
-    {"decision": "Targeted subset (18 leaves) for the Ch.6-10 back-review, not a full re-gate", "rationale": "only #1 (aptness) + #3 (judgment) opened coverage gaps; #2 only relaxes so cannot hide a defect; scoped to non-inverse cross-links + judgment-flavored leaves", "phase": "07"},
-    {"decision": "Fixed the botched `@ ` commit-subject prefix on the 6 session commits via rebase; switched idiom to git commit -F <file>", "rationale": "git commit -m @'...'@ in Git Bash prepended a literal @ line (single-quote closed early on apostrophes); rebase strip verified content-identical", "phase": "07"},
-    {"decision": "Split Phase [web-example] DROPPED; Return Modified Value [web-only] is the sole provenance marker (Ch.11, gate-able)", "rationale": "owner adjudication; cut relics stay cut (4 relics out of the 62)", "phase": "07"}
+    {"decision": "Execution runs INLINE in the main context (D-08) -- NOT gsd-executor, NOT worktrees", "rationale": "the clean-room loop needs Agent (spawn oracle/oracle-reviewer) + AskUserQuestion (owner escalation); gsd-executor has neither. This is the Phase-7 failure mode carried forward -- BLOCKING.", "phase": "8"},
+    {"decision": "oracle/oracle-reviewer ALWAYS chunk-read .oracle sources to EOF (length-agnostic)", "rationale": "Read tool ~25K-tok cap; Ch.6/7/8 exceed it so a single Read dropped the tail. Fix in the AGENT contracts (not per-call size hints). Reviewed + reloaded.", "phase": "8"},
+    {"decision": "STANDING RULE: any agent/skill instruction change must be agent-reviewed before acceptance", "rationale": "owner rule; instructions are load-bearing behavioral contracts; saved to auto-memory", "phase": "8"},
+    {"decision": "STANDING RULE: after an oracle/agent change is reviewed+committed, escalate to owner to run /reload-plugins and WAIT before proceeding (no inline-reminder workaround)", "rationale": "committed != live until reload; owner runs it; saved to auto-memory", "phase": "8"},
+    {"decision": "GoF target-name corrections settled by oracle in Ch.6: Move Creation Knowledge to Factory + Encapsulate Classes with Factory target a plain Factory (NOT Abstract Factory)", "rationale": "oracle-reviewer target_pattern axis, R1", "phase": "8"}
   ],
-  "uncommitted_files": [],
-  "next_action": "Working tree clean; catalog 62/62 (all seven catalog chapters authored). Delta re-review and Ch.12 (07-09) are both DONE -- do NOT re-run. NEXT: /gsd-execute-phase 7 -> 07-10 (Wave 4): author the 24 smell leaves (CONTENT_TYPE smell-leaf: candidates/recognition/motivation/applicability/spirit -- NOT refactoring-leaf axes) via the same clean-room loop, write the navigation-only smells.md, finalize the README Ch.7-12 rows, and turn the FULL checker battery GREEN (check-catalog 62/62, check-smells 24/24, check-crossrefs) = the phase gate. 07-10 OWNS README.md + the checker .mjs. Also fix 07-03 principles.md (add the 'definition' token) + write 07-03-SUMMARY before the full-battery gate. Then phase close: verify_phase_goal -> secure-phase -> validate-phase -> extract-learnings.",
-  "context_notes": "Delta re-review + Ch.12 (07-09) COMPLETE (2026-07-05) -- do not re-run; catalog 62/62. Oracle agents are LIVE + RELOADED with the sharpened rubric. FIREWALL (blocking): main context NEVER reads .oracle/ (ls for names only); only the oracle/oracle-reviewer subagents read it. 07-10 is the LAST plan and (unlike the wave-3 chapter plans) DOES own README.md + the checker .mjs; check-catalog mirror + check-crossrefs were RED-by-design until now and close at this gate. Distinct example domains/identifiers (never the source's) to avoid too_close_to_source; note the DST-04 gate can fire on ACCIDENTAL collision even on terse steps (Ch.12 push-down-method), so reword blind if flagged. Commit via git commit -F <msgfile> (NOT -m @'...'@)."
+  "uncommitted_files": [".planning/config.json (auto-chain runtime flag -- intentionally NOT committed)"],
+  "next_action": "Resume 08-03 (Ch.7 Simplification). Read 08-03-PLAN.md. Author the 6 leaves BLIND in the LOCKED Fowler leaf format (single # H1 + Use when: + ## Motivation (intent leads) + ## Mechanics + ## Example + optional ## Watch for) PLUS the 3 Kerievsky field labels (Composed Fowler primitive(s): / Direction: / GoF pattern:), original TS examples in domains UNRELATED to the source. Run the DETERMINISTIC layer FIRST (node extract-samples.mjs tsc + check-hygiene + field-presence rg + composed-link resolution), fix blind, THEN gate via oracle-reviewer (SOURCE=.oracle/refactoring-to-patterns/index.md + 'Ch.7 -- Simplification'; NO sizes -- the reloaded agent self-chunks to EOF; axes = refactoring-leaf defaults + direction + target_pattern anchors). Revise blind to all-pass; escalate non-convergence/unresolvable GoF via AskUserQuestion. Commit the chapter + 08-03-SUMMARY. Ch.7 is the biggest chapter -- sanity-check the oracle verdicts for incomplete-read signatures.",
+  "context_notes": "Phase 8 = Kerievsky analog of Phase 7's LOCKED clean-room model (07-ROUTING-ARCHITECTURE.md + 07-ORACLE-MODEL.md). 6/27 leaves done (Ch.6). FIREWALL (blocking): main context NEVER reads .oracle/ (ls for names/sizes only); only the oracle/oracle-reviewer subagents read book prose. Per chapter: author blind -> deterministic-checks-FIRST -> oracle-reviewer gate (sub-batch the chapter's leaves in one call, ~6-8) -> revise blind -> converge (~3 round cap). check-kerievsky is RED-by-design until 08-06 adds the README rows + reconciles NAMES; extract-samples/check-crossrefs/check-smells stay GREEN. The 3 named Away (de-patterning) cases: Encapsulate Composite with Builder + Inline Singleton (both DONE in Ch.6) and Move Accumulation to Visitor (08-05). Wave-2 plans do NOT touch README.md or any checker .mjs (08-06 owns those)."
 }

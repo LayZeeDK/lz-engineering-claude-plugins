@@ -434,12 +434,22 @@ for (const dir of OO_LEAF_DIRS) {
     ooChecked++;
     const base = path.basename(file, ".md");
     const text = fs.readFileSync(file, "utf8");
-    const line = text.match(/^Functional alternative:\s*(.+?)\s*$/m);
+    // C4 contract (header lines 17-22): EXACTLY one `Functional alternative:` line. Match ALL
+    // occurrences and assert cardinality -- a first-match-only check (WR-01) let a second,
+    // valid-resolving-but-semantically-wrong link slip past on future drift.
+    const all = [...text.matchAll(/^Functional alternative:\s*(.+?)\s*$/gm)];
 
-    if (!line) {
+    if (all.length === 0) {
       report(false, `${dir}/${base}.md`, "Functional alternative: line missing");
       continue;
     }
+
+    if (all.length !== 1) {
+      report(false, `${dir}/${base}.md`, `expected exactly one Functional alternative: line, found ${all.length}`);
+      continue;
+    }
+
+    const line = all[0];
 
     const link = line[1].match(/\[([^\]]+)\]\(([^)]+)\)/);
 

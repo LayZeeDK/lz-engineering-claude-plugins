@@ -5,6 +5,7 @@ Use when: a class keeps growing methods for each combination of the same few con
 Direction: To
 GoF pattern: [Interpreter](../gof-catalog/interpreter.md#interpreter)
 Composed Fowler primitive(s): [Extract Class](../fowler-catalog/extract-class.md#extract-class), [Extract Superclass](../fowler-catalog/extract-superclass.md#extract-superclass), [Extract Function](../fowler-catalog/extract-function.md#extract-function), [Inline Function](../fowler-catalog/inline-function.md#inline-function)
+Functional alternative: [Discriminated Union and Fold](../functional-catalog/discriminated-union-and-fold.md#interpreter)
 
 ## Motivation
 

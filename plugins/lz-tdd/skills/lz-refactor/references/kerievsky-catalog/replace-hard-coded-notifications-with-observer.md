@@ -5,6 +5,7 @@ Use when: a class notifies a fixed, named set of dependents by calling each one 
 Direction: To/Towards
 GoF pattern: [Observer](../gof-catalog/observer.md#observer)
 Composed Fowler primitive(s): [Move Function](../fowler-catalog/move-function.md#move-function), [Pull Up Method](../fowler-catalog/pull-up-method.md#pull-up-method), [Change Function Declaration](../fowler-catalog/change-function-declaration.md#change-function-declaration)
+Functional alternative: [Observer Callbacks](../functional-catalog/observer-callbacks.md#observer-callbacks)
 
 ## Motivation
 

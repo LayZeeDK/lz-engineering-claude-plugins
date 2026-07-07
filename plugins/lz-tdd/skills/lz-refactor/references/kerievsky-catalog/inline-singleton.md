@@ -5,6 +5,7 @@ Use when: a class is a Singleton, but its single-instance policy and global acce
 Direction: Away
 GoF pattern: [Singleton](../gof-catalog/singleton.md#singleton)
 Composed Fowler primitive(s): [Inline Class](../fowler-catalog/inline-class.md#inline-class), [Move Function](../fowler-catalog/move-function.md#move-function), [Move Field](../fowler-catalog/move-field.md#move-field)
+Functional alternative: [Module Namespace](../functional-catalog/module-namespace.md#singleton)
 
 ## Motivation
 

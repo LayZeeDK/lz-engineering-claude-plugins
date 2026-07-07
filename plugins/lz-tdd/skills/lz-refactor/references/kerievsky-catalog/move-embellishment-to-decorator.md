@@ -5,6 +5,7 @@ Use when: a class carries optional extras behind flags or conditionals, and thos
 Direction: To/Towards
 GoF pattern: [Decorator](../gof-catalog/decorator.md#decorator)
 Composed Fowler primitive(s): [Replace Superclass with Delegate](../fowler-catalog/replace-superclass-with-delegate.md#replace-superclass-with-delegate), [Move Function](../fowler-catalog/move-function.md#move-function)
+Functional alternative: [Function Composition](../functional-catalog/function-composition.md#decorator)
 
 ## Motivation
 

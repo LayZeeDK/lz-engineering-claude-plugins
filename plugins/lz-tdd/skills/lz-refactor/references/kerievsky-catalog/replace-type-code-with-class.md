@@ -5,6 +5,7 @@ Use when: a field holds one of a fixed set of bare codes (a string or number) th
 Direction: n/a
 GoF pattern: Class / type-safe value (non-GoF)
 Composed Fowler primitive(s): [Replace Primitive with Object](../fowler-catalog/replace-primitive-with-object.md#replace-primitive-with-object), [Encapsulate Variable](../fowler-catalog/encapsulate-variable.md#encapsulate-variable)
+Functional alternative: [Branded Type](../functional-catalog/branded-type.md#branded-type)
 
 ## Motivation
 

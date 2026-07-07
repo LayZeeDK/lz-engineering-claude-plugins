@@ -5,6 +5,7 @@ Use when: a conditional selects between whole algorithms, and you want to vary o
 Direction: To/Towards
 GoF pattern: [Strategy](../gof-catalog/strategy.md#strategy)
 Composed Fowler primitive(s): [Replace Conditional with Polymorphism](../fowler-catalog/replace-conditional-with-polymorphism.md#replace-conditional-with-polymorphism), [Move Function](../fowler-catalog/move-function.md#move-function), [Extract Class](../fowler-catalog/extract-class.md#extract-class)
+Functional alternative: [First-Class Function](../functional-catalog/first-class-function.md#strategy)
 
 ## Motivation
 

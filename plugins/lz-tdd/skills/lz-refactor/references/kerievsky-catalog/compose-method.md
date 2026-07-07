@@ -5,6 +5,7 @@ Use when: a method mixes high-level flow with low-level detail, so you must read
 Direction: To
 GoF pattern: [Composed Method](../extra-patterns-catalog/composed-method.md#composed-method) (Beck's pattern; not one of the GoF 23)
 Composed Fowler primitive(s): [Extract Function](../fowler-catalog/extract-function.md#extract-function), [Inline Function](../fowler-catalog/inline-function.md#inline-function), [Replace Temp with Query](../fowler-catalog/replace-temp-with-query.md#replace-temp-with-query), [Rename Variable](../fowler-catalog/rename-variable.md#rename-variable)
+Functional alternative: [Function Composition](../functional-catalog/function-composition.md#composed-method)
 
 ## Motivation
 

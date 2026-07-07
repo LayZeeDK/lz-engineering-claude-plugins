@@ -5,6 +5,7 @@ Use when: one class supports several versions or variants of an external thing, 
 Direction: To
 GoF pattern: [Adapter](../gof-catalog/adapter.md#adapter)
 Composed Fowler primitive(s): [Extract Class](../fowler-catalog/extract-class.md#extract-class), [Move Function](../fowler-catalog/move-function.md#move-function), [Replace Conditional with Polymorphism](../fowler-catalog/replace-conditional-with-polymorphism.md#replace-conditional-with-polymorphism), [Pull Up Method](../fowler-catalog/pull-up-method.md#pull-up-method)
+Functional alternative: [First-Class Function](../functional-catalog/first-class-function.md#adapter)
 
 ## Motivation
 

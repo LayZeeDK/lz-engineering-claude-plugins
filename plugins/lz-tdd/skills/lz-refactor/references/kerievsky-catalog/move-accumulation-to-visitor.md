@@ -5,6 +5,7 @@ Use when: code accumulates a result by iterating a mixed collection and branchin
 Direction: Away
 GoF pattern: [Visitor](../gof-catalog/visitor.md#visitor)
 Composed Fowler primitive(s): [Extract Function](../fowler-catalog/extract-function.md#extract-function), [Move Function](../fowler-catalog/move-function.md#move-function), [Change Function Declaration](../fowler-catalog/change-function-declaration.md#change-function-declaration)
+Functional alternative: [Discriminated Union and Fold](../functional-catalog/discriminated-union-and-fold.md#visitor)
 
 ## Motivation
 

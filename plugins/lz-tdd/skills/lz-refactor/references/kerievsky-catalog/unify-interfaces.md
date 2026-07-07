@@ -5,6 +5,7 @@ Use when: a superclass and its subclass (or two related types you own) should pr
 Direction: n/a
 GoF pattern: n/a -- utility
 Composed Fowler primitive(s): [Change Function Declaration](../fowler-catalog/change-function-declaration.md#change-function-declaration)
+Functional alternative: [First-Class Function](../functional-catalog/first-class-function.md#adapter)
 
 ## Motivation
 

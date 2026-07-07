@@ -5,6 +5,7 @@ Use when: code keeps branching on whether it is handling a single object or a co
 Direction: To
 GoF pattern: [Composite](../gof-catalog/composite.md#composite)
 Composed Fowler primitive(s): [Extract Class](../fowler-catalog/extract-class.md#extract-class), [Move Function](../fowler-catalog/move-function.md#move-function), [Inline Function](../fowler-catalog/inline-function.md#inline-function), [Change Function Declaration](../fowler-catalog/change-function-declaration.md#change-function-declaration)
+Functional alternative: [Discriminated Union and Fold](../functional-catalog/discriminated-union-and-fold.md#composite)
 
 ## Motivation
 

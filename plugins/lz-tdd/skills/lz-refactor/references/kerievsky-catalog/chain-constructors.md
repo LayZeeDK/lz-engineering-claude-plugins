@@ -5,6 +5,7 @@ Use when: several creation paths for the same class repeat the same object-build
 Direction: n/a
 GoF pattern: n/a -- utility
 Composed Fowler primitive(s): [Substitute Algorithm](../fowler-catalog/substitute-algorithm.md#substitute-algorithm), [Remove Dead Code](../fowler-catalog/remove-dead-code.md#remove-dead-code), [Change Function Declaration](../fowler-catalog/change-function-declaration.md#change-function-declaration)
+Functional alternative: [Factory Function](../functional-catalog/factory-function.md#factory)
 
 ## Motivation
 

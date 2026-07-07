@@ -5,6 +5,7 @@ Use when: a class has several constructors, or constructor calls whose arguments
 Direction: To
 GoF pattern: [Creation Method](../extra-patterns-catalog/creation-method.md#creation-method) (Kerievsky's own pattern; not one of the GoF 23)
 Composed Fowler primitive(s): [Change Function Declaration](../fowler-catalog/change-function-declaration.md#change-function-declaration), [Extract Function](../fowler-catalog/extract-function.md#extract-function), [Inline Function](../fowler-catalog/inline-function.md#inline-function)
+Functional alternative: [Factory Function](../functional-catalog/factory-function.md#creation-method)
 
 ## Motivation
 

@@ -5,6 +5,7 @@ Use when: the same "is it absent?" check is repeated across call sites, each sup
 Direction: To
 GoF pattern: [Null Object](../extra-patterns-catalog/null-object.md#null-object) (non-classic-GoF)
 Composed Fowler primitive(s): [Introduce Special Case](../fowler-catalog/introduce-special-case.md#introduce-special-case), [Replace Conditional with Polymorphism](../fowler-catalog/replace-conditional-with-polymorphism.md#replace-conditional-with-polymorphism)
+Functional alternative: [Option and Either](../functional-catalog/option-and-either.md#option-and-either)
 
 ## Motivation
 

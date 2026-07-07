@@ -5,6 +5,7 @@ Use when: a class builds one of its fields from a value it creates internally, b
 Direction: n/a
 GoF pattern: n/a -- utility
 Composed Fowler primitive(s): [Change Function Declaration](../fowler-catalog/change-function-declaration.md#change-function-declaration)
+Functional alternative: [Currying and Partial Application](../functional-catalog/currying-and-partial-application.md#currying-and-partial-application)
 
 ## Motivation
 

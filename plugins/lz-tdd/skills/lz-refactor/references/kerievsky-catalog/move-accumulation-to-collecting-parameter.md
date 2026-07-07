@@ -5,6 +5,7 @@ Use when: one long method builds up a result by hand, and you want to spread the
 Direction: To
 GoF pattern: [Collecting Parameter](../extra-patterns-catalog/collecting-parameter.md#collecting-parameter) (non-GoF)
 Composed Fowler primitive(s): [Extract Function](../fowler-catalog/extract-function.md#extract-function), [Move Statements into Function](../fowler-catalog/move-statements-into-function.md#move-statements-into-function), [Change Function Declaration](../fowler-catalog/change-function-declaration.md#change-function-declaration)
+Functional alternative: [Function Composition](../functional-catalog/function-composition.md#collecting-parameter)
 
 ## Motivation
 

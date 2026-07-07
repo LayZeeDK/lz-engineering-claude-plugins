@@ -5,6 +5,7 @@ Use when: profiling shows that many identical instances of a shareable object ar
 Direction: To
 GoF pattern: [Singleton](../gof-catalog/singleton.md#singleton)
 Composed Fowler primitive(s): [Replace Constructor with Factory Function](../fowler-catalog/replace-constructor-with-factory-function.md#replace-constructor-with-factory-function), [Change Function Declaration](../fowler-catalog/change-function-declaration.md#change-function-declaration)
+Functional alternative: [Module Namespace](../functional-catalog/module-namespace.md#singleton)
 
 ## Motivation
 

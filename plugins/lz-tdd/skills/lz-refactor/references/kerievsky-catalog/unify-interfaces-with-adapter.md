@@ -5,6 +5,7 @@ Use when: clients want to treat two classes the same way, but the classes expose
 Direction: To/Towards
 GoF pattern: [Adapter](../gof-catalog/adapter.md#adapter)
 Composed Fowler primitive(s): [Extract Function](../fowler-catalog/extract-function.md#extract-function), [Move Function](../fowler-catalog/move-function.md#move-function), [Change Function Declaration](../fowler-catalog/change-function-declaration.md#change-function-declaration)
+Functional alternative: [First-Class Function](../functional-catalog/first-class-function.md#adapter)
 
 ## Motivation
 

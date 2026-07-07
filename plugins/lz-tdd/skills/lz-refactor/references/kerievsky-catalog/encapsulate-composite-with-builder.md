@@ -5,6 +5,7 @@ Use when: clients build a Composite by hand -- creating nodes and wiring parent 
 Direction: Away
 GoF pattern: [Builder](../gof-catalog/builder.md#builder)
 Composed Fowler primitive(s): [Extract Class](../fowler-catalog/extract-class.md#extract-class), [Move Function](../fowler-catalog/move-function.md#move-function), [Hide Delegate](../fowler-catalog/hide-delegate.md#hide-delegate)
+Functional alternative: [Function Composition](../functional-catalog/function-composition.md#builder)
 
 ## Motivation
 

@@ -71,6 +71,14 @@ pattern itself up in the target-pattern catalogs: the 23 classic Gang-of-Four pa
 (Null Object, Factory, Creation Method, Composed Method, Collecting Parameter) in
 [references/extra-patterns-catalog/README.md](references/extra-patterns-catalog/README.md).
 
+## Functional catalog (de-patterning + native FP idioms)
+
+When a request is about how an OO pattern or a pattern-directed refactoring dissolves into a
+functional idiom (de-patterning), or about a native FP idiom offered alongside an OO form
+(Option/Either, functor/monad, lens/optics, currying/partial application, transducers), look the
+idiom up in the by-idiom index:
+[references/functional-catalog/README.md](references/functional-catalog/README.md)
+
 ## Refactoring safely without tests (Feathers)
 
 When the target code lacks the test coverage that makes ordinary refactoring safe, consult the

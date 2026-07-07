@@ -5,6 +5,7 @@ Use when: clients instantiate a family of related concrete classes directly, and
 Direction: To
 GoF pattern: [Factory](../extra-patterns-catalog/factory.md#factory)
 Composed Fowler primitive(s): [Extract Function](../fowler-catalog/extract-function.md#extract-function), [Move Function](../fowler-catalog/move-function.md#move-function), [Change Function Declaration](../fowler-catalog/change-function-declaration.md#change-function-declaration)
+Functional alternative: [Factory Function](../functional-catalog/factory-function.md#factory)
 
 ## Motivation
 

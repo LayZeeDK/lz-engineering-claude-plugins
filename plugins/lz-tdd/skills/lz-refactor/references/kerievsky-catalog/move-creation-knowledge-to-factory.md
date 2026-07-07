@@ -5,6 +5,7 @@ Use when: the knowledge of which concrete type to build, and how to wire it, is 
 Direction: To
 GoF pattern: [Factory](../extra-patterns-catalog/factory.md#factory)
 Composed Fowler primitive(s): [Move Function](../fowler-catalog/move-function.md#move-function), [Extract Class](../fowler-catalog/extract-class.md#extract-class), [Move Field](../fowler-catalog/move-field.md#move-field)
+Functional alternative: [Factory Function](../functional-catalog/factory-function.md#factory)
 
 ## Motivation
 

@@ -127,7 +127,7 @@ this milestone starts at Phase 6.
 
 **Plans**: 7 plans (3 waves)
 
-- [ ] 08.1-01-PLAN.md -- Wave-1 harness: new check-gof + check-extra-patterns, check-kerievsky linkify retrofit, extended check-crossrefs / extract-samples / package.json, both README scaffolds (RED baseline expected) (wave 1)
+- [x] 08.1-01-PLAN.md -- Wave-1 harness: new check-gof + check-extra-patterns, check-kerievsky linkify retrofit, extended check-crossrefs / extract-samples / package.json, both README scaffolds (RED baseline expected) (wave 1)
 - [ ] 08.1-02-PLAN.md -- GoF Creational leaves (5: Abstract Factory, Builder, Factory Method, Prototype, Singleton) via the clean-room oracle loop; Singleton DI caveat + Inline Singleton Away link (wave 2)
 - [ ] 08.1-03-PLAN.md -- GoF Structural leaves (7: Adapter, Bridge, Composite, Decorator, Facade, Flyweight, Proxy); Composite Away link + Composite/Flyweight caveats (wave 2)
 - [ ] 08.1-04-PLAN.md -- GoF Behavioral part 1 (6: Chain of Responsibility, Command, Interpreter, Iterator, Mediator, Memento); Iterator Away link + Iterator/Interpreter/Command caveats (wave 2)
@@ -192,7 +192,7 @@ Phases execute in numeric order: 6 -> 7 -> 8 -> 9 -> 10 -> 11
 | 6. lz-refactor Skill Scaffold & Progressive Disclosure | lz-tdd@0.0.2 | 1/1 | Complete    | 2026-07-04 |
 | 7. Fowler Catalog (Refactoring, 2nd ed) | lz-tdd@0.0.2 | 10/10 | Complete   | 2026-07-05 |
 | 8. Kerievsky Catalog (Refactoring to Patterns) | lz-tdd@0.0.2 | 5/6 | In Progress|  |
-| 8.1. GoF Design Patterns Catalog (INSERTED) | lz-tdd@0.0.2 | 0/7 | Not started | - |
+| 8.1. GoF Design Patterns Catalog (INSERTED) | lz-tdd@0.0.2 | 1/7 | In Progress|  |
 | 9. Coach Behavior & Principle-Backing | lz-tdd@0.0.2 | - | Not started | - |
 | 10. Distribution & Hygiene | lz-tdd@0.0.2 | - | Not started | - |
 | 11. Skill-Effectiveness Evals | lz-tdd@0.0.2 | - | Not started | - |

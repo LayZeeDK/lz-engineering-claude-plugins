@@ -13,7 +13,12 @@
 //                                     compound `To/Towards` (the 6 both-listed refactorings) and the
 //                                     `n/a` sentinel (the 4 table-absent utilities) come from the
 //                                     book's authoritative Refactoring Directions table (08-06)
-//       GoF pattern:                  a non-empty value OR the literal "n/a -- utility" (KRV-04, Q1)
+//       GoF pattern:                  linkify gate (D-08/D-11): a GoF-23 name links to
+//                                     ../gof-catalog/<slug>.md#<slug>; an extra-5 name links to
+//                                     ../extra-patterns-catalog/<slug>.md#<slug>; a token in neither
+//                                     set (n/a -- utility, Class / type-safe value) stays free text.
+//                                     Exact-name set lookup, never substring (Factory vs Factory
+//                                     Method, Pitfall 1). RED on ~23 un-linkified tokens pre-Wave-3.
 //       Composed Fowler primitive(s): >=1 link matching ../fowler-catalog/<slug>.md#<slug> (KRV-01,
 //                                     PRESENCE only -- link RESOLUTION is check-crossrefs's job);
 //   - the 3 named de-patterning (Away) cases (Inline Singleton, Move Accumulation to Visitor,
@@ -83,6 +88,51 @@ const AWAY = new Set([
   "Inline Singleton",
   "Move Accumulation to Visitor",
   "Encapsulate Composite with Builder",
+]);
+
+// The GoF pattern: linkify gate (D-08/D-11). Every leaf's `GoF pattern:` token is one of three
+// outcomes: a GoF-23 name MUST link to ../gof-catalog/<slug>.md#<slug>; an extra-5 name MUST link to
+// ../extra-patterns-catalog/<slug>.md#<slug>; a token in NEITHER set (the `n/a -- utility` sentinels +
+// `Class / type-safe value`) MUST carry NO gof/extra link (free text). Membership is EXACT-name set
+// lookup, NEVER substring -- so `Factory` (extra) maps to extra-patterns-catalog/factory.md and is
+// never confused with `Factory Method` (gof-catalog/factory-method.md), Pitfall 1. Pre-Wave-3 the 23
+// pattern tokens are plain names with no link -> 23 FAILs (the EXPECTED instrument-first RED baseline);
+// the 4 free-text tokens PASS. RESOLUTION of the link target is check-crossrefs's job.
+const GOF23 = new Set([
+  // Creational (5)
+  "Abstract Factory",
+  "Builder",
+  "Factory Method",
+  "Prototype",
+  "Singleton",
+  // Structural (7)
+  "Adapter",
+  "Bridge",
+  "Composite",
+  "Decorator",
+  "Facade",
+  "Flyweight",
+  "Proxy",
+  // Behavioral (11)
+  "Chain of Responsibility",
+  "Command",
+  "Interpreter",
+  "Iterator",
+  "Mediator",
+  "Memento",
+  "Observer",
+  "State",
+  "Strategy",
+  "Template Method",
+  "Visitor",
+]);
+
+const EXTRA5 = new Set([
+  "Null Object",
+  "Factory",
+  "Creation Method",
+  "Composed Method",
+  "Collecting Parameter",
 ]);
 
 // Draft-scaffolding phrases that must never leak into a shipped leaf. Uppercase TODO only (so a
@@ -269,11 +319,36 @@ for (const name of NAMES) {
     missing.push("Direction: field (To|To/Towards|Towards|Away|n/a)");
   }
 
-  // GoF pattern: name-only vocabulary (KRV-04). A non-empty value satisfies it; the three Utilities
-  // (Chain Constructors, Unify Interfaces, Extract Parameter) may carry the literal "n/a -- utility"
-  // (Open Question 1) -- that is a non-empty value, so the same presence check accepts it.
-  if (!/^GoF pattern:\s*\S/m.test(leaf.text)) {
+  // GoF pattern: linkify gate (D-08/D-11) -- replaces the old presence-only check. Parse the
+  // `GoF pattern:` line: if it carries a Markdown link, the declared name is the link text and the
+  // link URL is validated; else the declared name is the leading token before ` (` (the parenthetical
+  // qualifier, if any). Then EXACT-name set membership decides the required form (never substring).
+  const gofLine = leaf.text.match(/^GoF pattern:\s*(.+?)\s*$/m);
+
+  if (!gofLine) {
     missing.push("GoF pattern: field");
+  } else {
+    const value = gofLine[1];
+    const link = value.match(/\[([^\]]+)\]\(([^)]+)\)/);
+    const declaredName = link ? link[1].trim() : value.split(" (")[0].trim();
+    const linkUrl = link ? link[2].trim() : null;
+
+    if (GOF23.has(declaredName)) {
+      const want = `../gof-catalog/${slugFor(declaredName)}.md#${slugFor(declaredName)}`;
+
+      if (linkUrl !== want) {
+        missing.push(`GoF pattern "${declaredName}" must link to ${want}`);
+      }
+    } else if (EXTRA5.has(declaredName)) {
+      const want = `../extra-patterns-catalog/${slugFor(declaredName)}.md#${slugFor(declaredName)}`;
+
+      if (linkUrl !== want) {
+        missing.push(`GoF pattern "${declaredName}" must link to ${want}`);
+      }
+    } else if (linkUrl && /\.\.\/(?:gof-catalog|extra-patterns-catalog)\//.test(linkUrl)) {
+      // Token naming no real pattern (n/a -- utility, Class / type-safe value) MUST stay free text.
+      missing.push(`GoF pattern free-text token "${declaredName}" must not carry a gof/extra link`);
+    }
   }
 
   // Composed Fowler primitive(s): PRESENCE of >=1 cross-link to a Fowler leaf H1 anchor. Resolution

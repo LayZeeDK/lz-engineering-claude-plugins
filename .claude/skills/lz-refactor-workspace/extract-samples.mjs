@@ -16,11 +16,14 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 // lz-refactor-workspace -> skills -> .claude -> repo root
 const repoRoot = path.resolve(here, "..", "..", "..");
 const REFERENCES = path.join(repoRoot, "plugins", "lz-tdd", "skills", "lz-refactor", "references");
-// Walk BOTH catalogs; namespace sample filenames by catalog so a Kerievsky slug cannot silently
-// overwrite a Fowler sample module (false green). walkMd's .md filter also picks up *-walkthrough.md.
+// Walk ALL catalogs (fowler, kerievsky, gof, extra-patterns); namespace sample filenames by catalog
+// so a slug that coincides across catalogs cannot silently overwrite another's sample module (false
+// green -- e.g. gof factory-method vs extra factory). walkMd's .md filter also picks up *-walkthrough.md.
 const CATALOGS = [
   { dir: path.join(REFERENCES, "fowler-catalog"), prefix: "fowler" },
   { dir: path.join(REFERENCES, "kerievsky-catalog"), prefix: "kerievsky" },
+  { dir: path.join(REFERENCES, "gof-catalog"), prefix: "gof" },
+  { dir: path.join(REFERENCES, "extra-patterns-catalog"), prefix: "extra" },
 ];
 const SAMPLES = path.join(here, "samples");
 

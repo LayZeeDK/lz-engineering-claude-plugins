@@ -3,11 +3,11 @@ gsd_state_version: 1.0
 milestone: lz-tdd@0.0.2
 milestone_name: lz-refactor Skill (Fowler + Kerievsky)
 status: planning
-stopped_at: Phase 08.1 content COMPLETE (7/7 plans) -- 08.1-07 Wave-3 gate GREEN (linkify + both READMEs + SKILL.md D-14); GOF-01..04 + XTR-01 CLOSED; ready for verify/secure/validate.
+stopped_at: Roadmap updated -- Phase 8 reconciled to CLOSED (6/6); Phase 8.2 (Functional Catalog) INSERTED after 8.1 with FUN-01..04; Phase 9 re-scoped (+CCH-06, de-patterning routes to functional-catalog). Design locked in .planning/research/functional-depatterning-ts.md S13. Next: /gsd-plan-phase 8.2 (NOT yet run -- user halt).
 last_updated: "2026-07-07T08:03:03.082Z"
 last_activity: 2026-07-07
 progress:
-  total_phases: 7
+  total_phases: 8
   completed_phases: 4
   total_plans: 24
   completed_plans: 35
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-07-04)
 
 **Core value:** `lz-tpp` helps Claude choose the next code transformation by TPP priority during red-green-refactor TDD, and explains the premise on demand. lz-tdd@0.0.2 adds `lz-refactor` to drive the refactor step.
-**Current focus:** Phase 9 — coach behavior & principle backing
+**Current focus:** Phase 8.2 -- Functional Catalog (then Phase 9 coach + principle backing)
 **Milestone:** lz-tdd@0.0.2 (lz-refactor Skill) -- executing
 
 ## Current Position
 
-Phase: 9
+Phase: 8.2
 Plan: Not started
-Status: Ready to plan
+Status: Ready to plan (structure inserted; design locked in research S13; /gsd-plan-phase 8.2 not yet run)
 Last activity: 2026-07-07
 
 ## Performance Metrics
@@ -66,6 +66,8 @@ Last activity: 2026-07-07
 ### Roadmap Evolution
 
 - Phase 08.1 inserted after Phase 8: GoF Design Patterns catalog (URGENT)
+- Phase 8.2 inserted after Phase 8.1: Functional Catalog (by-idiom FP de-patterning + native FP; board-ratified shared template + check-functional spec in .planning/research/functional-depatterning-ts.md S13). Phase 9 re-scoped: +CCH-06, CCH-02 de-patterning routes to functional-catalog, +dep on 8.2.
+- Phase 8 status reconciled 2026-07-07: ROADMAP showed stale "5/6 In Progress" but Phase 8 was CLOSED (6/6, verified/secured/validated, commits a58aa22/8b98aa0); KRV-01..04 flipped to Complete.
 
 ### Decisions
 

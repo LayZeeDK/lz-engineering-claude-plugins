@@ -39,6 +39,13 @@ Requirements for this milestone. Each maps to exactly one roadmap phase.
 - [x] **GOF-04**: Hygiene -- no verbatim GoF / Kerievsky / Fowler prose or code listings in the shipped tree; ASCII-only; every GoF + extra-pattern TS sample compiles `tsc --strict`
 - [x] **XTR-01**: The 5 Tier-1 extra patterns (Null Object, Factory, Creation Method, Composed Method, Collecting Parameter) exist as leaves in `extra-patterns-catalog/` (same 5-section contract), Kerievsky-grounded and clean-room-oracle-verified
 
+### Functional Catalog (Phase 8.2)
+
+- [ ] **FUN-01**: A single by-idiom `functional-catalog/` reference group exists mirroring the sibling-catalog conventions -- a thin N:1 pattern->idiom map README (declares its N:1 contract, mirrors each leaf's `Use when:` selector, caps note cells to one line, `## Sources` cites `.planning/research/functional-depatterning-ts.md`) and per-idiom leaves on the LOCKED Kerievsky-aligned template (Use when / Correspondence: dissolves-from|alternative-to / Keep the OO form when / Idiom / Example / When each fits); every TS Example compiles `tsc --strict`
+- [ ] **FUN-02**: De-patterning coverage -- every dissolvable/collapsible GoF pattern (23), Kerievsky pattern-directed refactoring, and Fowler FP-analog refactoring resolves via the README map to an idiom leaf or a one-line note (moot / FP-avoids-via-data-modeling), deduped by idiom; the selector/lens + normalized-store idioms and the Replace-Pipeline-with-Loop reverse-direction note are present
+- [ ] **FUN-03**: Native FP patterns with no OO ancestor (Option/Either, functor/monad, lens/optics, currying/partial application, transducers) exist as `alternative-to` idiom leaves, each cross-referencing its OO alternative (Option<->Null Object, functor<->Iterator, memoization<->Flyweight, etc.); flagged FUT-04 (may graduate to its own skill if it outgrows)
+- [ ] **FUN-04**: Bidirectional link integrity + hygiene -- each gof/kerievsky/extra leaf carries a one-line `Functional alternative:` link to its idiom leaf and every `Correspondence:` link resolves back (spanning all three OO catalogs); a new `check-functional` gate enforces the selector-mirror, the `Correspondence` enum, bidirectional + intra-leaf-anchor link resolution, the one-line-per-served-pattern cap, and `tsc --strict`; DST-04-clean (no verbatim prose/code); skill-reviewer PASS
+
 ### Coach Behavior
 
 - [ ] **CCH-01**: For a detected or named smell during the refactor step, the coach recommends the next NAMED refactoring -- routing mechanical smells to Fowler refactorings and repeated/complex-structure smells to Kerievsky pattern-directed refactorings
@@ -46,6 +53,7 @@ Requirements for this milestone. Each maps to exactly one roadmap phase.
 - [ ] **CCH-03**: The coach enforces behavior-preservation discipline (small steps, run tests after each) and, when tests are absent, routes to the Feathers "refactor safely without tests" guidance
 - [ ] **CCH-04**: In reference mode, the coach answers on-demand catalog / smell / principle questions by routing to the correct `references/` doc
 - [ ] **CCH-05**: The coach frames the red-green-refactor seam with `lz-tpp` (green step = TPP transformation; refactor step = lz-refactor), consistent with Beck's TDD cycle
+- [ ] **CCH-06**: The coach surfaces the functional alternative -- for a dissolvable pattern it names "pattern X disappears via FP idiom Y / TS feature Z" and routes to the `functional-catalog`, and gives the Replace-Pipeline-with-Loop reverse-direction guidance (clarity is the default; reverse to a loop only on a measured hot path or a named house-style reason)
 
 ### Principle-Backing Cross-References (no owned oracle -- high-confidence core only)
 
@@ -103,20 +111,25 @@ Which phase covers which requirement. Populated during roadmap creation.
 | FWL-02 | Phase 7 | Complete |
 | FWL-03 | Phase 7 | Complete |
 | FWL-04 | Phase 7 | Complete |
-| KRV-01 | Phase 8 | Pending |
-| KRV-02 | Phase 8 | Pending |
-| KRV-03 | Phase 8 | Pending |
-| KRV-04 | Phase 8 | Pending |
+| KRV-01 | Phase 8 | Complete |
+| KRV-02 | Phase 8 | Complete |
+| KRV-03 | Phase 8 | Complete |
+| KRV-04 | Phase 8 | Complete |
 | GOF-01 | Phase 8.1 | Complete |
 | GOF-02 | Phase 8.1 | Complete |
 | GOF-03 | Phase 8.1 | Complete |
 | GOF-04 | Phase 8.1 | Complete |
 | XTR-01 | Phase 8.1 | Complete |
+| FUN-01 | Phase 8.2 | Pending |
+| FUN-02 | Phase 8.2 | Pending |
+| FUN-03 | Phase 8.2 | Pending |
+| FUN-04 | Phase 8.2 | Pending |
 | CCH-01 | Phase 9 | Pending |
 | CCH-02 | Phase 9 | Pending |
 | CCH-03 | Phase 9 | Pending |
 | CCH-04 | Phase 9 | Pending |
 | CCH-05 | Phase 9 | Pending |
+| CCH-06 | Phase 9 | Pending |
 | PRIN-01 | Phase 9 | Pending |
 | PRIN-02 | Phase 9 | Pending |
 | PRIN-03 | Phase 9 | Pending |
@@ -128,10 +141,11 @@ Which phase covers which requirement. Populated during roadmap creation.
 | EVL-02 | Phase 11 | Pending |
 
 **Coverage:**
-- lz-tdd@0.0.2 requirements: 31 total
-- Mapped to phases: 31 (Phases 6-11, incl. inserted Phase 8.1)
+- lz-tdd@0.0.2 requirements: 36 total
+- Mapped to phases: 36 (Phases 6-11, incl. inserted Phases 8.1 and 8.2)
 - Unmapped: 0
 
 ---
 *Requirements defined: 2026-07-04*
 *Last updated: 2026-07-07 -- added GOF-01..04 + XTR-01 (5) for inserted Phase 8.1 (GoF Design Patterns Catalog); mapped all to Phase 8.1*
+*Last updated: 2026-07-07 -- added FUN-01..04 + CCH-06 (5) for inserted Phase 8.2 (Functional Catalog) and Phase 9 re-scope; flipped KRV-01..04 to Complete (Phase 8 closed)*

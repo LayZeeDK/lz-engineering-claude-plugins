@@ -42,7 +42,7 @@ this milestone starts at Phase 6.
 
 - [x] **Phase 6: lz-refactor Skill Scaffold & Progressive Disclosure** - Invocable, auto-triggering `/lz-tdd:lz-refactor` router with a lean SKILL.md and a wired references/ structure (completed 2026-07-04)
 - [x] **Phase 7: Fowler Catalog (Refactoring, 2nd ed)** - All 62 refactorings + 24 smells + Ch.2 principles, original prose + tsc-clean TS/JS, clean-room-oracle-verified and provenance-labeled (completed 2026-07-05)
-- [ ] **Phase 8: Kerievsky Catalog (Refactoring to Patterns)** - All 27 pattern-directed refactorings with To/Towards/Away directions, GoF cross-refs, Fowler-primitive composition, and Ch.4 smells folded into the unified taxonomy
+- [x] **Phase 8: Kerievsky Catalog (Refactoring to Patterns)** - All 27 pattern-directed refactorings with To/Towards/Away directions, GoF cross-refs, Fowler-primitive composition, and Ch.4 smells folded into the unified taxonomy (completed 2026-07-07)
 - [ ] **Phase 9: Coach Behavior & Principle-Backing** - Dual-mode smell->named-refactoring routing (incl. de-patterning), behavior-preservation discipline, the lz-tpp seam, and the three no-oracle Beck/Feathers cross-refs
 - [ ] **Phase 10: Distribution & Hygiene** - Version bump to 0.0.2, README + CHANGELOG, first-party review, no-verbatim-prose hygiene, public-repo hygiene preserved
 - [ ] **Phase 11: Skill-Effectiveness Evals** - Native-harness trigger recall/specificity + smell->refactoring behavior accuracy (with-skill vs baseline), late and non-blocking
@@ -110,7 +110,7 @@ this milestone starts at Phase 6.
 - [x] 08-03-PLAN.md -- Catalog: Ch.7 Simplification leaves (6) via the clean-room oracle loop (State/Command overflow candidates) (wave 2)
 - [x] 08-04-PLAN.md -- Catalog: Ch.8 Generalization leaves (7) via the clean-room oracle loop (Interpreter overflow candidate) (wave 2)
 - [x] 08-05-PLAN.md -- Catalog: Ch.9 Protection + Ch.10 Accumulation + Ch.11 Utilities leaves (8) via the clean-room oracle loop; incl. the 3rd Away case (Move Accumulation to Visitor) + the 3 n/a-utility GoF leaves (wave 2)
-- [ ] 08-06-PLAN.md -- Ch.4 smell fold + dedup into the unified taxonomy + finalize kerievsky-catalog/README.md index + full battery green + claude plugin validate (wave 3)
+- [x] 08-06-PLAN.md -- Ch.4 smell fold + dedup into the unified taxonomy + finalize kerievsky-catalog/README.md index + full battery green + claude plugin validate (wave 3)
 
 ### Phase 08.1: GoF Design Patterns Catalog (INSERTED)
 
@@ -135,18 +135,34 @@ this milestone starts at Phase 6.
 - [x] 08.1-06-PLAN.md -- Extra patterns (5: Null Object, Factory, Creation Method, Composed Method, Collecting Parameter) via the clean-room oracle loop (wave 2)
 - [x] 08.1-07-PLAN.md -- Wave-3 gate: linkify the 27 Kerievsky GoF pattern: tokens, finalize both READMEs + SKILL.md wiring, full npm run check + typecheck + claude plugin validate . (wave 3)
 
+### Phase 8.2: Functional Catalog (INSERTED)
+
+**Goal**: A single by-idiom `functional-catalog/` reference group documenting how OO patterns/refactorings dissolve into functional TypeScript idioms AND native FP patterns, on the LOCKED Kerievsky-aligned shared template. Unifies de-patterning idioms (FP renderings of GoF/Kerievsky/Fowler-analog patterns) and native FP patterns under one template that differs only by `Correspondence: dissolves-from | alternative-to`; ~17 idiom leaves + an N:1 pattern->idiom map README; each OO catalog leaf gains a one-line `Functional alternative:` cross-link; no-oracle correctness anchor = the committed research artifact + a new `check-functional` gate + `tsc --strict`.
+**Depends on**: Phases 7, 8, 8.1 (the functional-catalog cross-links to the Fowler / Kerievsky / GoF+extra leaves it de-patterns, so all three OO catalogs must exist first).
+**Scaffold**: Design LOCKED in `.planning/research/functional-depatterning-ts.md` (Sections 10-13: the pattern->idiom->TS-feature disappearance map, the full-corpus Stays-OO analysis, the opposite-direction / Replace-Pipeline-with-Loop findings, and the board-ratified shared template + `check-functional` spec). No owned oracle -- cited no-oracle tier.
+**Requirements**: FUN-01, FUN-02, FUN-03, FUN-04
+**Success Criteria** (what must be TRUE):
+
+  1. A `functional-catalog/` group exists: a thin N:1 pattern->idiom map README (declares its N:1 contract, mirrors each leaf's `Use when:` selector, caps note cells to one line, `## Sources` cites the research artifact) plus per-idiom leaves on the locked template (Use when / Correspondence / Keep the OO form when / Idiom / Example / When each fits); every TS Example compiles `tsc --strict`.
+  2. De-patterning coverage: every dissolvable/collapsible GoF pattern (23), Kerievsky pattern-directed refactoring, and Fowler FP-analog refactoring resolves via the README map to an idiom leaf or a one-line note (moot / FP-avoids-via-data-modeling), deduped by idiom; the selector/lens + normalized-store idioms and the Replace-Pipeline-with-Loop reverse-direction note are present.
+  3. Native FP patterns (Option/Either, functor/monad, lens/optics, currying/partial application, transducers) exist as `alternative-to` idiom leaves, each cross-referencing its OO alternative.
+  4. Bidirectional link integrity: each gof/kerievsky/extra leaf carries a one-line `Functional alternative:` link to its idiom leaf and every `Correspondence:` link resolves back (spanning all three OO catalogs); a new `check-functional` gate enforces the selector-mirror, the `Correspondence` enum, bidirectional + intra-leaf-anchor link resolution, the one-line-per-served-pattern cap, and `tsc --strict`; DST-04-clean (original prose/code); skill-reviewer PASS.
+
+**Plans**: TBD
+
 ### Phase 9: Coach Behavior & Principle-Backing
 
-**Goal**: The dual-mode coach behavior is wired on top of both catalogs -- smell->named-refactoring routing (mechanical->Fowler, structural->Kerievsky), the over-/under-engineering (de-patterning) balance, behavior-preservation discipline with a no-tests fallback, and the red-green-refactor seam with lz-tpp -- backed by the three no-oracle, high-confidence-core principle cross-references.
-**Depends on**: Phases 7, 8, and 8.1 (the coach routes to the Fowler / Kerievsky catalogs, the smell taxonomy, AND the GoF pattern catalog that must already exist; the taxonomy is the coach's trigger table and the GoF catalog is the named-pattern target the coach justifies toward and away).
-**Requirements**: CCH-01, CCH-02, CCH-03, CCH-04, CCH-05, PRIN-01, PRIN-02, PRIN-03
+**Goal**: The dual-mode coach behavior is wired on top of both catalogs -- smell->named-refactoring routing (mechanical->Fowler, structural->Kerievsky), the over-/under-engineering (de-patterning) balance routed to the functional-catalog, behavior-preservation discipline with a no-tests fallback, and the red-green-refactor seam with lz-tpp -- backed by the three no-oracle, high-confidence-core principle cross-references.
+**Depends on**: Phases 7, 8, 8.1, and 8.2 (the coach routes to the Fowler / Kerievsky catalogs, the smell taxonomy, the GoF pattern catalog, AND the functional-catalog it surfaces FP alternatives from; all must already exist).
+**Requirements**: CCH-01, CCH-02, CCH-03, CCH-04, CCH-05, CCH-06, PRIN-01, PRIN-02, PRIN-03
 **Success Criteria** (what must be TRUE):
 
   1. For a detected or named smell during the refactor step, the coach recommends the next NAMED refactoring, routing mechanical smells to Fowler refactorings and repeated / complex-structure smells to Kerievsky pattern-directed refactorings.
-  2. The coach applies the over-/under-engineering balance -- it recommends de-patterning (refactor away) when a pattern is unwarranted, not only adding structure.
+  2. The coach applies the over-/under-engineering balance -- it recommends de-patterning (refactor away) when a pattern is unwarranted, routing to the functional-catalog (the FP idiom a pattern dissolves into), not only the Kerievsky Away direction.
   3. The coach enforces behavior-preservation discipline (small steps, run tests after each) and, when tests are absent, routes to the Feathers "refactor safely without tests" reference.
-  4. In reference mode the coach answers on-demand catalog / smell / principle questions by routing to the correct `references/` doc, and it frames the red-green-refactor seam with lz-tpp (green step = TPP transformation; refactor step = lz-refactor) consistent with Beck's TDD cycle.
-  5. Principle-backing references exist, tagged no-oracle and scoped to high-confidence core only: Beck *TDD by Example* (cycle, two rules, Fake It / Triangulate / Obvious Implementation), Beck *Tidy First?* (structural-vs-behavioral separation + refactor economics, cross-referenced to overlapping Fowler refactorings), and Feathers *Legacy Code* (seams, characterization tests, the change algorithm, Sprout/Wrap Method+Class, Subclass and Override Method, Extract Interface).
+  4. In reference mode the coach answers on-demand catalog / smell / principle / functional-alternative questions by routing to the correct `references/` doc (Fowler / Kerievsky / GoF / functional-catalog), and it frames the red-green-refactor seam with lz-tpp (green step = TPP transformation; refactor step = lz-refactor) consistent with Beck's TDD cycle.
+  5. The coach surfaces the functional alternative (CCH-06): for a dissolvable pattern it names "pattern X disappears via FP idiom Y / TS feature Z" and routes to the functional-catalog, and it gives the Replace-Pipeline-with-Loop reverse-direction guidance (clarity is the default; reverse to a loop only on a measured hot path or a named house-style reason).
+  6. Principle-backing references exist, tagged no-oracle and scoped to high-confidence core only: Beck *TDD by Example* (cycle, two rules, Fake It / Triangulate / Obvious Implementation), Beck *Tidy First?* (structural-vs-behavioral separation + refactor economics, cross-referenced to overlapping Fowler refactorings), and Feathers *Legacy Code* (seams, characterization tests, the change algorithm, Sprout/Wrap Method+Class, Subclass and Override Method, Extract Interface).
 
 **Plans**: TBD
 
@@ -180,7 +196,7 @@ this milestone starts at Phase 6.
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 6 -> 7 -> 8 -> 9 -> 10 -> 11
+Phases execute in numeric order: 6 -> 7 -> 8 -> 8.1 -> 8.2 -> 9 -> 10 -> 11
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 | ----- | --------- | -------------- | ------ | --------- |
@@ -191,11 +207,12 @@ Phases execute in numeric order: 6 -> 7 -> 8 -> 9 -> 10 -> 11
 | 5. Skill Effectiveness Evals | lz-tdd@0.0.1 | 4/4 | Complete | 2026-07-03 |
 | 6. lz-refactor Skill Scaffold & Progressive Disclosure | lz-tdd@0.0.2 | 1/1 | Complete    | 2026-07-04 |
 | 7. Fowler Catalog (Refactoring, 2nd ed) | lz-tdd@0.0.2 | 10/10 | Complete   | 2026-07-05 |
-| 8. Kerievsky Catalog (Refactoring to Patterns) | lz-tdd@0.0.2 | 5/6 | In Progress|  |
+| 8. Kerievsky Catalog (Refactoring to Patterns) | lz-tdd@0.0.2 | 6/6 | Complete   | 2026-07-07 |
 | 8.1. GoF Design Patterns Catalog (INSERTED) | lz-tdd@0.0.2 | 7/7 | Complete   | 2026-07-07 |
+| 8.2. Functional Catalog (INSERTED) | lz-tdd@0.0.2 | - | Not started | - |
 | 9. Coach Behavior & Principle-Backing | lz-tdd@0.0.2 | - | Not started | - |
 | 10. Distribution & Hygiene | lz-tdd@0.0.2 | - | Not started | - |
 | 11. Skill-Effectiveness Evals | lz-tdd@0.0.2 | - | Not started | - |
 
 ---
-*Roadmap created: 2026-07-02 | lz-tdd@0.0.1 completed: 2026-07-04 | lz-tdd@0.0.2 roadmap added: 2026-07-04 | Phase 6 planned: 2026-07-04 | Phase 7 planned: 2026-07-04 | Phase 7 re-planned (scope-correction: 62-scope + clean-room oracle, per-refactoring leaves): 2026-07-05 | Phase 8 planned: 2026-07-05*
+*Roadmap created: 2026-07-02 | lz-tdd@0.0.1 completed: 2026-07-04 | lz-tdd@0.0.2 roadmap added: 2026-07-04 | Phase 6 planned: 2026-07-04 | Phase 7 planned: 2026-07-04 | Phase 7 re-planned (scope-correction: 62-scope + clean-room oracle, per-refactoring leaves): 2026-07-05 | Phase 8 planned: 2026-07-05 | Phase 8 completed: 2026-07-07 | Phase 8.2 inserted (Functional Catalog): 2026-07-07*

@@ -29,6 +29,7 @@ const CATALOG = path.join(REFERENCES, "fowler-catalog");
 const KERIEVSKY = path.join(REFERENCES, "kerievsky-catalog");
 const GOF = path.join(REFERENCES, "gof-catalog");
 const EXTRA = path.join(REFERENCES, "extra-patterns-catalog");
+const FUNCTIONAL = path.join(REFERENCES, "functional-catalog");
 const SMELLS_DIR = path.join(REFERENCES, "smells");
 const SMELLS_INDEX = path.join(REFERENCES, "smells.md");
 
@@ -96,13 +97,16 @@ const collectLeafFiles = (dir) => {
   return out;
 };
 
-// Kerievsky + gof + extra leaves are sources too, so every outbound link (composed-Fowler links, the
-// linkified Kerievsky ../gof-catalog/<slug>.md#<slug> and ../extra-patterns-catalog/... links, the 3
-// gof Away back-links, and gof<->gof Related-patterns links) gets resolution-checked. The inverse-of
-// mutuality guard below stays CATALOG (Fowler)-scoped, so the one-directional Kerievsky<->gof links are
+// Kerievsky + gof + extra + functional leaves are sources too, so every outbound link (composed-Fowler
+// links, the linkified Kerievsky ../gof-catalog/<slug>.md#<slug> and ../extra-patterns-catalog/... links,
+// the 3 gof Away back-links, gof<->gof Related-patterns links, and the functional-catalog leaves'
+// outbound Correspondence links -- including intra-leaf #anchors and fowler-catalog targets) gets
+// resolution-checked. The inverse-of mutuality guard below stays CATALOG (Fowler)-scoped, so the
+// one-directional Kerievsky<->gof and functional Functional-alternative/Correspondence links are
 // correctly excluded from mutuality.
 const sourceFiles = [...collectLeafFiles(CATALOG), ...collectLeafFiles(KERIEVSKY),
                      ...collectLeafFiles(GOF), ...collectLeafFiles(EXTRA),
+                     ...collectLeafFiles(FUNCTIONAL),
                      ...collectLeafFiles(SMELLS_DIR)];
 
 if (fs.existsSync(SMELLS_INDEX)) {

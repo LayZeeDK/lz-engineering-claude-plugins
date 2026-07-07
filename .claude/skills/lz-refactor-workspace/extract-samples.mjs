@@ -24,6 +24,7 @@ const CATALOGS = [
   { dir: path.join(REFERENCES, "kerievsky-catalog"), prefix: "kerievsky" },
   { dir: path.join(REFERENCES, "gof-catalog"), prefix: "gof" },
   { dir: path.join(REFERENCES, "extra-patterns-catalog"), prefix: "extra" },
+  { dir: path.join(REFERENCES, "functional-catalog"), prefix: "functional" },
 ];
 const SAMPLES = path.join(here, "samples");
 

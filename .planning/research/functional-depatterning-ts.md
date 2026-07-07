@@ -838,3 +838,83 @@ functional->imperative asymmetry in the catalog (12.4).
 - `jetbrains.com/guide/java/tips/debugging-streams/` -- debuggability of pipelines vs loops.
 
 Provenance: web-researched (two neutral confirm/reject passes) -- higher evidence tier than 12.1-12.5.
+
+---
+
+## 13. Functional-catalog design spec (LOCKED 2026-07-07)
+
+Ratified by a two-round advisor board (three lenses: skill architecture, coaching pedagogy,
+cross-catalog consistency). Round 2 was unanimous **RATIFY-WITH-NIT at HIGH confidence**; both
+open points resolved 3/0. This is the build spec for the functional-catalog (planned Phase 8.2).
+
+### 13.1 Organization
+
+- **One catalog `functional-catalog/`** covering BOTH de-patterning idioms (the FP renderings of
+  GoF / Kerievsky / Fowler-analog patterns) AND native FP patterns (Option/Either, functor/monad,
+  lens, currying/partial application, transducers), unified as "an FP idiom + its OO correspondence,
+  differing only by direction."
+- **By IDIOM, not per-pattern** (~17 leaves: ~12 de-patterning idioms + ~5 native). Many OO patterns
+  map to ONE idiom leaf (Visitor/State/Interpreter/Composite -> "Discriminated union + fold").
+- **Shape aligned to the Kerievsky sibling leaf** (selector + metadata header + body) -- NOT a bespoke
+  shape, NOT the GoF 5-section. Book-freedom removes prose-mirroring, not the repo's structural
+  conventions (a leading selector, a thin README-mirror, a checker gate, `tsc --strict`).
+
+### 13.2 Locked leaf template
+
+```
+# <idiom name>
+
+Use when: <one-line smell/trigger; mirrored verbatim in the README index>
+Correspondence: dissolves-from | alternative-to  ->  [OO pattern(s)](links: gof / kerievsky / extra-patterns)
+Keep the OO form when: <identity | coordinated mutable state | measured hot path | new-variant churn (expression problem) | house style>
+
+## Idiom
+FP idiom (Y) + TS feature (Z), 1-2 lines.
+
+## Example
+Before (OO) -> After (idiom), tsc --strict-clean, behavior-preserving by construction
+(pure, same inputs -> outputs; ideally mirroring the linked refactoring's domain).
+Same behavior; mechanics: <cross-link to the Fowler/Kerievsky refactoring>, run tests between steps.
+
+## When each fits
+Idiom-specific boundary; for a multi-pattern (N:1) idiom, exactly ONE capped residual line
+per served pattern (stable anchor, locked format) carrying its expression-problem flip;
+plus the explicit reverse transformation where relevant (e.g. Replace Pipeline with Loop).
+1:1 idioms get no per-pattern split.
+```
+
+### 13.3 README contract
+
+- An **N:1 pattern -> idiom MAP** that **declares this contract in a header** (the sibling READMEs are
+  1:1 selector-mirrors; this one fans many rows into one leaf).
+- Still **mirrors each leaf's `Use when:`** selector; **note cells capped to one line**.
+- Rows for ALL 23 GoF + Kerievsky + Fowler-analog + native idioms; each resolves to an idiom leaf OR
+  a one-line note.
+- **Moot/FP-default + FP-avoids-via-data-modeling entries are one-line NOTES, not leaves** (a leaf
+  requires a real `tsc --strict` Example).
+- A **`## Sources`** block cites this research artifact -- the no-oracle correctness anchor.
+- Each OO catalog leaf (gof / kerievsky / extra) gains a one-line **`Functional alternative:`**
+  cross-link to its idiom leaf.
+
+### 13.4 `check-functional` spec (replaces oracle-fidelity as the correctness anchor)
+
+1. **Selector-mirror**, generalized to N:1 -- each README row mirrors its leaf's `Use when:`.
+2. **`Correspondence:`** = closed enum `{dissolves-from | alternative-to}` + resolvable pattern link(s).
+3. **Bidirectional link integrity spanning gof + kerievsky + extra-patterns** (Correspondence targets
+   are NOT GoF-only): every OO leaf's `Functional alternative:` resolves to an idiom leaf, and every
+   `Correspondence:` link resolves back.
+4. **Per-pattern residual lines**: stable anchor ids + a locked parseable format; the checker resolves
+   README-row -> intra-leaf residual anchor (not just file-to-file), with a **hard cap of one line per
+   served pattern** enforced.
+5. **`tsc --strict`** on every Example; examples **pure / same-I/O** so Before->After is
+   behavior-preserving by construction (tsc checks types, not equivalence).
+6. **Moot / data-modeling entries** are one-line README notes, not leaves.
+7. **`## Sources`** cites the committed research artifact.
+
+### 13.5 Provenance
+
+Two advisor-board rounds. Round 1: all three lenses returned MODIFY, converged on by-idiom + the
+Kerievsky-aligned shape + the anchor-swap. Round 2: unanimous RATIFY-WITH-NIT at HIGH confidence;
+R1 (mechanics via cross-link, no duplicated `## Mechanics`) and R2 (capped per-pattern residual only
+where it differs) both ACCEPT 3/0; the architecture lens reversed its round-1 README-row position.
+The residual nits are folded into 13.4.

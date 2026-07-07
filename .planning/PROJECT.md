@@ -172,3 +172,4 @@ This document evolves at phase transitions and milestone boundaries.
 
 ---
 *Last updated: 2026-07-04 after completing Phase 6 (lz-refactor skill scaffold) of the lz-tdd@0.0.2 milestone*
+*Progress note 2026-07-08: Phases 7 (Fowler catalog), 8 (Kerievsky catalog), 8.1 (GoF + extra patterns), and 8.2 (Functional catalog -- FUN-01..04 complete) are all shipped and verified; the shipped `lz-refactor` skill now carries all five catalogs + the unified smell taxonomy. The per-phase `### Validated` backfill for Phases 7-8.2 is deferred to `/gsd-audit-milestone` (pre-existing drift, not introduced by any single phase); `.planning/REQUIREMENTS.md` remains the authoritative traceability.*

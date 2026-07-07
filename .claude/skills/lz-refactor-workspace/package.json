@@ -5,7 +5,7 @@
   "description": "NON-shipped compile harness + checker battery for the lz-refactor Fowler catalog (FWL-01..FWL-04). Not part of the shipped plugin; the shipped skill stays dependency-free Markdown.",
   "scripts": {
     "typecheck": "node extract-samples.mjs",
-    "check": "node tools/check-catalog.mjs && node tools/check-kerievsky.mjs && node tools/check-smells.mjs && node tools/check-crossrefs.mjs && node tools/check-principles.mjs && node tools/check-hygiene.mjs"
+    "check": "node tools/check-catalog.mjs && node tools/check-kerievsky.mjs && node tools/check-gof.mjs && node tools/check-extra-patterns.mjs && node tools/check-smells.mjs && node tools/check-crossrefs.mjs && node tools/check-principles.mjs && node tools/check-hygiene.mjs"
   },
   "devDependencies": {
     "typescript": "6.0.3"

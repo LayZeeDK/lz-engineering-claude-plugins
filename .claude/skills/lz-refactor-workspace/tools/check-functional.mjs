@@ -325,7 +325,10 @@ for (const spec of LEAVES) {
     missing.push("## Idiom");
   }
 
-  if (!/^##\s+Example\b/m.test(leaf.text)) {
+  // WR-02: exact heading (not `\b`) so C1 agrees with sectionBody (line 149). A loose `\b` would
+  // pass a `## Example (Before -> After)` heading that sectionBody then fails to find, giving the
+  // misleading "non-ignore ts fence in ## Example" diagnostic even when the fence is present.
+  if (!/^##\s+Example\s*$/m.test(leaf.text)) {
     missing.push("## Example");
   }
 
@@ -502,6 +505,12 @@ for (const dir of OO_LEAF_DIRS) {
     report(true, `${dir}/${base}.md -> ${idiomSlug}#${anchor}`);
   }
 }
+
+// C4 count assertion (IN-01): the header contract is EXACTLY 55 OO leaves (23 gof + 27 kerievsky +
+// 5 extra). Assert the aggregate here so an entire missing catalog dir cannot pass C4 silently --
+// each dir's own count is asserted by its sibling checker (check-gof/check-kerievsky/check-extra),
+// this is the in-gate defense-in-depth that makes the "EXACTLY the 55" header claim actually hold.
+report(ooChecked === 55, "C4 OO-leaf count == 55 (23 gof + 27 kerievsky + 5 extra)", ooChecked === 55 ? "" : `found ${ooChecked}`);
 
 // --- C7: Fowler note discipline in the README ---
 console.log("");

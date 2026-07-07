@@ -41,10 +41,10 @@ Requirements for this milestone. Each maps to exactly one roadmap phase.
 
 ### Functional Catalog (Phase 8.2)
 
-- [ ] **FUN-01**: A single by-idiom `functional-catalog/` reference group exists mirroring the sibling-catalog conventions -- a thin N:1 pattern->idiom map README (declares its N:1 contract, mirrors each leaf's `Use when:` selector, caps note cells to one line, `## Sources` cites `.planning/research/functional-depatterning-ts.md`) and per-idiom leaves on the LOCKED Kerievsky-aligned template (Use when / Correspondence: dissolves-from|alternative-to / Keep the OO form when / Idiom / Example / When each fits); every TS Example compiles `tsc --strict`
-- [ ] **FUN-02**: De-patterning coverage -- every dissolvable/collapsible GoF pattern (23), Kerievsky pattern-directed refactoring, and Fowler FP-analog refactoring resolves via the README map to an idiom leaf or a one-line note (moot / FP-avoids-via-data-modeling), deduped by idiom; the selector/lens + normalized-store idioms and the Replace-Pipeline-with-Loop reverse-direction note are present
-- [ ] **FUN-03**: Native FP patterns with no OO ancestor (Option/Either, functor/monad, lens/optics, currying/partial application, transducers) exist as `alternative-to` idiom leaves, each cross-referencing its OO alternative (Option<->Null Object, functor<->Iterator, memoization<->Flyweight, etc.); flagged FUT-04 (may graduate to its own skill if it outgrows)
-- [ ] **FUN-04**: Bidirectional link integrity + hygiene -- each gof/kerievsky/extra leaf carries a one-line `Functional alternative:` link to its idiom leaf and every `Correspondence:` link resolves back (spanning all three OO catalogs); a new `check-functional` gate enforces the selector-mirror, the `Correspondence` enum, bidirectional + intra-leaf-anchor link resolution, the one-line-per-served-pattern cap, and `tsc --strict`; DST-04-clean (no verbatim prose/code); skill-reviewer PASS
+- [x] **FUN-01**: A single by-idiom `functional-catalog/` reference group exists mirroring the sibling-catalog conventions -- a thin N:1 pattern->idiom map README (declares its N:1 contract, mirrors each leaf's `Use when:` selector, caps note cells to one line, `## Sources` cites `.planning/research/functional-depatterning-ts.md`) and per-idiom leaves on the LOCKED Kerievsky-aligned template (Use when / Correspondence: dissolves-from|alternative-to / Keep the OO form when / Idiom / Example / When each fits); every TS Example compiles `tsc --strict`
+- [x] **FUN-02**: De-patterning coverage -- every dissolvable/collapsible GoF pattern (23), Kerievsky pattern-directed refactoring, and Fowler FP-analog refactoring resolves via the README map to an idiom leaf or a one-line note (moot / FP-avoids-via-data-modeling), deduped by idiom; the selector/lens + normalized-store idioms and the Replace-Pipeline-with-Loop reverse-direction note are present
+- [x] **FUN-03**: Native FP patterns with no OO ancestor (Option/Either, functor/monad, lens/optics, currying/partial application, transducers) exist as `alternative-to` idiom leaves, each cross-referencing its OO alternative (Option<->Null Object, functor<->Iterator, memoization<->Flyweight, etc.); flagged FUT-04 (may graduate to its own skill if it outgrows)
+- [x] **FUN-04**: Bidirectional link integrity + hygiene -- each gof/kerievsky/extra leaf carries a one-line `Functional alternative:` link to its idiom leaf and every `Correspondence:` link resolves back (spanning all three OO catalogs); a new `check-functional` gate enforces the selector-mirror, the `Correspondence` enum, bidirectional + intra-leaf-anchor link resolution, the one-line-per-served-pattern cap, and `tsc --strict`; DST-04-clean (no verbatim prose/code); skill-reviewer PASS
 
 ### Coach Behavior
 
@@ -120,10 +120,10 @@ Which phase covers which requirement. Populated during roadmap creation.
 | GOF-03 | Phase 8.1 | Complete |
 | GOF-04 | Phase 8.1 | Complete |
 | XTR-01 | Phase 8.1 | Complete |
-| FUN-01 | Phase 8.2 | Pending |
-| FUN-02 | Phase 8.2 | Pending |
-| FUN-03 | Phase 8.2 | Pending |
-| FUN-04 | Phase 8.2 | Pending |
+| FUN-01 | Phase 8.2 | Complete |
+| FUN-02 | Phase 8.2 | Complete |
+| FUN-03 | Phase 8.2 | Complete |
+| FUN-04 | Phase 8.2 | Complete |
 | CCH-01 | Phase 9 | Pending |
 | CCH-02 | Phase 9 | Pending |
 | CCH-03 | Phase 9 | Pending |
@@ -149,3 +149,4 @@ Which phase covers which requirement. Populated during roadmap creation.
 *Requirements defined: 2026-07-04*
 *Last updated: 2026-07-07 -- added GOF-01..04 + XTR-01 (5) for inserted Phase 8.1 (GoF Design Patterns Catalog); mapped all to Phase 8.1*
 *Last updated: 2026-07-07 -- added FUN-01..04 + CCH-06 (5) for inserted Phase 8.2 (Functional Catalog) and Phase 9 re-scope; flipped KRV-01..04 to Complete (Phase 8 closed)*
+*Last updated: 2026-07-08 -- flipped FUN-01..04 to Complete (Phase 8.2 executed 6/6, verified 4/4 must-haves, secured 4/4, nyquist-validated, skill-reviewer PASS)*

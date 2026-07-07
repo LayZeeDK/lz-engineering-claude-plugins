@@ -2,9 +2,9 @@
 gsd_state_version: 1.0
 milestone: lz-tdd@0.0.2
 milestone_name: lz-refactor Skill (Fowler + Kerievsky)
-status: ready_to_plan
-stopped_at: Phase 08.1 complete (7/7) — ready to discuss Phase 9
-last_updated: 2026-07-07T07:48:31.151Z
+status: planning
+stopped_at: Phase 08.1 content COMPLETE (7/7 plans) -- 08.1-07 Wave-3 gate GREEN (linkify + both READMEs + SKILL.md D-14); GOF-01..04 + XTR-01 CLOSED; ready for verify/secure/validate.
+last_updated: "2026-07-07T08:03:03.082Z"
 last_activity: 2026-07-07
 progress:
   total_phases: 7

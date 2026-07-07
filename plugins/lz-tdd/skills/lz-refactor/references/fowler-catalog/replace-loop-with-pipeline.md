@@ -55,3 +55,21 @@ function activeOwners(accounts: readonly Account[]): string[] {
     .map((account) => account.owner);
 }
 ```
+
+## Reverse direction: Replace Pipeline with Loop
+
+The inverse refactoring exists, but clarity is the default and a pipeline is usually the clearer
+story -- reverse to a plain loop only for a concrete, named reason, never on folklore.
+
+- Measured hot path. Each `.filter().map()` stage allocates a throwaway intermediate array and
+  re-walks the data, so a single loop can run measurably faster in tight, large-N passes over trivial
+  per-element work (numeric loops, per-frame rendering, million-row data); in ordinary app code the
+  difference is negligible and clarity wins. Confirm it in a profile first. Middle grounds keep the
+  functional style: collapse the chain into one `reduce` or `for-of` to drop the intermediate arrays;
+  reach for the short-circuiting `find` / `some` / `every` when the only reason for a loop was early
+  exit; use a typed array for a pure numeric loop. Never accumulate with `[...acc, x]` inside a
+  reduce -- that is quadratic.
+- Clarity, debuggability, or house style. A loop steps and breakpoints cleanly, whereas `reduce` and
+  collector stages often leave nowhere to pause; `break` and `return` map awkwardly onto pipeline
+  operators; and matching the surrounding idiom can matter. If the pipeline is not clearer than the
+  loop it replaced, revert.

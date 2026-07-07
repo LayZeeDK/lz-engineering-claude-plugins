@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: lz-tdd@0.0.2
 milestone_name: lz-refactor Skill (Fowler + Kerievsky)
 status: planning
-stopped_at: Roadmap updated -- Phase 8 reconciled to CLOSED (6/6); Phase 8.2 (Functional Catalog) INSERTED after 8.1 with FUN-01..04; Phase 9 re-scoped (+CCH-06, de-patterning routes to functional-catalog). Design locked in .planning/research/functional-depatterning-ts.md S13. Next: /gsd-plan-phase 8.2 (NOT yet run -- user halt).
-last_updated: "2026-07-07T08:03:03.082Z"
+stopped_at: Phase 8.2 context gathered (--analyze --auto); board-locked decisions ratified in 08.2-CONTEXT.md; HALTED before /gsd-plan-phase per user gate
+last_updated: "2026-07-07T17:24:37.620Z"
 last_activity: 2026-07-07
 progress:
   total_phases: 8
   completed_phases: 4
   total_plans: 24
-  completed_plans: 35
-  percent: 57
+  completed_plans: 24
+  percent: 50
 ---
 
 # Project State
@@ -120,9 +120,9 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-07T07:35:33.907Z
-Stopped at: Phase 08.1 content COMPLETE (7/7 plans) -- 08.1-07 Wave-3 gate GREEN (linkify + both READMEs + SKILL.md D-14); GOF-01..04 + XTR-01 CLOSED; ready for verify/secure/validate.
-Resume file: None
+Last session: 2026-07-07T17:24:37.563Z
+Stopped at: Phase 8.2 context gathered (--analyze --auto); board-locked decisions ratified in 08.2-CONTEXT.md; HALTED before /gsd-plan-phase per user gate
+Resume file: .planning/phases/08.2-functional-catalog-inserted/08.2-CONTEXT.md
 
 ## Operator Next Steps
 

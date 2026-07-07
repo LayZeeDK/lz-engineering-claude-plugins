@@ -3,7 +3,7 @@
 Use when: a switch or if/else chain selects and runs an action by name or code, and the set of actions keeps changing.
 
 Direction: To/Towards
-GoF pattern: Command
+GoF pattern: [Command](../gof-catalog/command.md#command)
 Composed Fowler primitive(s): [Replace Function with Command](../fowler-catalog/replace-function-with-command.md#replace-function-with-command), [Extract Function](../fowler-catalog/extract-function.md#extract-function), [Extract Class](../fowler-catalog/extract-class.md#extract-class)
 
 ## Motivation

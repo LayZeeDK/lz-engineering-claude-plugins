@@ -3,7 +3,7 @@
 Use when: a class carries optional extras behind flags or conditionals, and those extras clutter its core responsibility.
 
 Direction: To/Towards
-GoF pattern: Decorator
+GoF pattern: [Decorator](../gof-catalog/decorator.md#decorator)
 Composed Fowler primitive(s): [Replace Superclass with Delegate](../fowler-catalog/replace-superclass-with-delegate.md#replace-superclass-with-delegate), [Move Function](../fowler-catalog/move-function.md#move-function)
 
 ## Motivation

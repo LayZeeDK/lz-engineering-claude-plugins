@@ -3,7 +3,7 @@
 Use when: code accumulates a result by iterating a mixed collection and branching on each element's type, and that type-branching keeps growing.
 
 Direction: Away
-GoF pattern: Visitor
+GoF pattern: [Visitor](../gof-catalog/visitor.md#visitor)
 Composed Fowler primitive(s): [Extract Function](../fowler-catalog/extract-function.md#extract-function), [Move Function](../fowler-catalog/move-function.md#move-function), [Change Function Declaration](../fowler-catalog/change-function-declaration.md#change-function-declaration)
 
 ## Motivation

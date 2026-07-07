@@ -3,7 +3,7 @@
 Use when: a tree is represented with nested primitives or ad-hoc structures, and traversing it means special-casing leaves against branches everywhere.
 
 Direction: To
-GoF pattern: Composite
+GoF pattern: [Composite](../gof-catalog/composite.md#composite)
 Composed Fowler primitive(s): [Extract Class](../fowler-catalog/extract-class.md#extract-class), [Replace Primitive with Object](../fowler-catalog/replace-primitive-with-object.md#replace-primitive-with-object)
 
 ## Motivation

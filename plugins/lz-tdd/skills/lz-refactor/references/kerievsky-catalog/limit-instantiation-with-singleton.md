@@ -3,7 +3,7 @@
 Use when: profiling shows that many identical instances of a shareable object are wasting memory or construction time, and a single shared instance would serve every caller.
 
 Direction: To
-GoF pattern: Singleton
+GoF pattern: [Singleton](../gof-catalog/singleton.md#singleton)
 Composed Fowler primitive(s): [Replace Constructor with Factory Function](../fowler-catalog/replace-constructor-with-factory-function.md#replace-constructor-with-factory-function), [Change Function Declaration](../fowler-catalog/change-function-declaration.md#change-function-declaration)
 
 ## Motivation

@@ -3,7 +3,7 @@
 Use when: two subclasses run the same sequence of steps in the same order but each spells the individual steps out itself, so the shared skeleton is duplicated.
 
 Direction: To
-GoF pattern: Template Method
+GoF pattern: [Template Method](../gof-catalog/template-method.md#template-method)
 Composed Fowler primitive(s): [Extract Function](../fowler-catalog/extract-function.md#extract-function), [Change Function Declaration](../fowler-catalog/change-function-declaration.md#change-function-declaration), [Pull Up Method](../fowler-catalog/pull-up-method.md#pull-up-method)
 
 ## Motivation

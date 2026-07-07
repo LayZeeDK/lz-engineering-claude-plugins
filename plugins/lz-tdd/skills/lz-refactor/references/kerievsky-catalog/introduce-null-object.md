@@ -3,7 +3,7 @@
 Use when: the same "is it absent?" check is repeated across call sites, each supplying the same default behavior when it is.
 
 Direction: To
-GoF pattern: Null Object (non-classic-GoF)
+GoF pattern: [Null Object](../extra-patterns-catalog/null-object.md#null-object) (non-classic-GoF)
 Composed Fowler primitive(s): [Introduce Special Case](../fowler-catalog/introduce-special-case.md#introduce-special-case), [Replace Conditional with Polymorphism](../fowler-catalog/replace-conditional-with-polymorphism.md#replace-conditional-with-polymorphism)
 
 ## Motivation

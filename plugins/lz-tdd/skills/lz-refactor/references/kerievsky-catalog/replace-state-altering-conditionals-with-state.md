@@ -3,7 +3,7 @@
 Use when: conditionals scattered through a class both decide what it may do now and choose which state it moves to next.
 
 Direction: To/Towards
-GoF pattern: State
+GoF pattern: [State](../gof-catalog/state.md#state)
 Composed Fowler primitive(s): [Replace Primitive with Object](../fowler-catalog/replace-primitive-with-object.md#replace-primitive-with-object), [Replace Type Code with Subclasses](../fowler-catalog/replace-type-code-with-subclasses.md#replace-type-code-with-subclasses), [Replace Conditional with Polymorphism](../fowler-catalog/replace-conditional-with-polymorphism.md#replace-conditional-with-polymorphism)
 
 ## Motivation

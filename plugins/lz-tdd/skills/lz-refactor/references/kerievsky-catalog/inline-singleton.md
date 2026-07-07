@@ -3,7 +3,7 @@
 Use when: a class is a Singleton, but its single-instance policy and global access are hiding a dependency and making the callers hard to test.
 
 Direction: Away
-GoF pattern: Singleton
+GoF pattern: [Singleton](../gof-catalog/singleton.md#singleton)
 Composed Fowler primitive(s): [Inline Class](../fowler-catalog/inline-class.md#inline-class), [Move Function](../fowler-catalog/move-function.md#move-function), [Move Field](../fowler-catalog/move-field.md#move-field)
 
 ## Motivation

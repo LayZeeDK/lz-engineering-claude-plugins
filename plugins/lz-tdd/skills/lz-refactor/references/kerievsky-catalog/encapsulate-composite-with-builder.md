@@ -3,7 +3,7 @@
 Use when: clients build a Composite by hand -- creating nodes and wiring parent to child -- and that assembly is verbose and easy to get wrong.
 
 Direction: Away
-GoF pattern: Builder
+GoF pattern: [Builder](../gof-catalog/builder.md#builder)
 Composed Fowler primitive(s): [Extract Class](../fowler-catalog/extract-class.md#extract-class), [Move Function](../fowler-catalog/move-function.md#move-function), [Hide Delegate](../fowler-catalog/hide-delegate.md#hide-delegate)
 
 ## Motivation

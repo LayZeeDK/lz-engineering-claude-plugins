@@ -4,9 +4,9 @@ Also known as: Kit
 
 ## Intent
 
-Provide an interface for creating whole families of related or dependent objects
-without naming their concrete classes, so client code stays independent of how its
-products are made and which variant of the family is currently in use.
+Give client code one interface for producing a whole family of related objects, so it can
+create and use them without naming their concrete classes or knowing which variant of the
+family it currently holds.
 
 ## Applicability
 

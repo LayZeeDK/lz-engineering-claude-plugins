@@ -2,8 +2,8 @@
 
 ## Intent
 
-Specify the kinds of objects to create using a prototypical instance, and produce new
-objects by copying that prototype rather than by instantiating a class directly.
+Produce fresh objects by cloning a fully configured example instance instead of building
+them from a class, so the example itself dictates what each new object looks like.
 
 ## Applicability
 

@@ -2,7 +2,8 @@
 
 ## Intent
 
-Ensure a class has only one instance and provide a single, global point of access to it.
+Guarantee that a class is instantiated only once, and route all use of that single
+instance through one well-known access point.
 
 ## Applicability
 

@@ -2,8 +2,8 @@
 
 ## Intent
 
-Separate the construction of a complex object from its representation, so the same
-step-by-step construction process can produce different representations of the object.
+Pull the step-by-step assembly of a complex object out of the object itself, so one
+assembly process can be reused to produce several different representations of the result.
 
 ## Applicability
 

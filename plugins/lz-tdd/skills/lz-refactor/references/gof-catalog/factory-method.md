@@ -4,9 +4,9 @@ Also known as: Virtual Constructor
 
 ## Intent
 
-Define an interface for creating an object but let subclasses decide which concrete
-class to instantiate, so a class can defer instantiation of its collaborators to the
-subclasses that specialize it.
+Give a class a method whose job is to produce a collaborator, but leave the choice of
+concrete type to its subclasses, so the class defers that instantiation decision to
+whoever specializes it.
 
 ## Applicability
 

@@ -189,6 +189,12 @@ const collectLeaves = () => {
 
     const text = fs.readFileSync(file, "utf8");
     const lines = text.split(/\r?\n/);
+    // ponytail: H1 scan is not fence-aware (mirrors check-gof/kerievsky/extra; same gap noted atop
+    // check-crossrefs). Dormant -- a GREEN battery proves no leaf carries a fenced column-0 `#`; and
+    // it fails safe (false-FAIL, never a silent false-PASS) if one ever does. Upgrade path: a
+    // fence-aware heading helper shared by all four catalog checkers, NOT a one-off here (that
+    // re-adds divergence). Tracked as carried-in debt on ROADMAP Phase 9; trigger = first leaf
+    // needing a non-TS fenced block (bash/yaml/toml) with a column-0 `#`.
     const h1s = lines.filter((l) => /^#\s+\S/.test(l));
     const base = path.basename(file, ".md");
     const rel = path.relative(repoRoot, file);

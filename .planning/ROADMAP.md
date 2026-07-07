@@ -151,9 +151,9 @@ this milestone starts at Phase 6.
 **Plans**: 6 plans (4 waves)
 
 - [x] 08.2-01-PLAN.md -- Wave-1 instrument: check-functional.mjs RED baseline + extract-samples/check-crossrefs/package.json wiring + README scaffold (wave 1)
-- [ ] 08.2-02-PLAN.md -- 6 N:1 dissolves-from idiom leaves (first-class-function, thunk-and-lazy-value, function-composition, discriminated-union-and-fold, module-namespace, factory-function) + per-pattern residual anchors (wave 2)
-- [ ] 08.2-03-PLAN.md -- 7 1:1 dissolves-from idiom leaves (reducer-and-store, observer-callbacks, generator, memoization-and-interning, immutable-snapshot, structural-clone, branded-type) (wave 2)
-- [ ] 08.2-04-PLAN.md -- 6 alternative-to native FP leaves (option-and-either, functor-and-monad, lens-and-optics, currying-and-partial-application, transducers, normalized-store) (wave 2)
+- [x] 08.2-02-PLAN.md -- 6 N:1 dissolves-from idiom leaves (first-class-function, thunk-and-lazy-value, function-composition, discriminated-union-and-fold, module-namespace, factory-function) + per-pattern residual anchors (wave 2)
+- [x] 08.2-03-PLAN.md -- 7 1:1 dissolves-from idiom leaves (reducer-and-store, observer-callbacks, generator, memoization-and-interning, immutable-snapshot, structural-clone, branded-type) (wave 2)
+- [x] 08.2-04-PLAN.md -- 6 alternative-to native FP leaves (option-and-either, functor-and-monad, lens-and-optics, currying-and-partial-application, transducers, normalized-store) (wave 2)
 - [ ] 08.2-05-PLAN.md -- N:1 pattern->idiom map README finalize + D-14 Replace-Pipeline-with-Loop reverse note in the Fowler leaf (wave 3)
 - [ ] 08.2-06-PLAN.md -- 55 Functional alternative: cross-links + SKILL.md router pointer + full battery/typecheck/validate/skill-reviewer gate (wave 4)
 
@@ -216,7 +216,7 @@ Phases execute in numeric order: 6 -> 7 -> 8 -> 8.1 -> 8.2 -> 9 -> 10 -> 11
 | 7. Fowler Catalog (Refactoring, 2nd ed) | lz-tdd@0.0.2 | 10/10 | Complete   | 2026-07-05 |
 | 8. Kerievsky Catalog (Refactoring to Patterns) | lz-tdd@0.0.2 | 6/6 | Complete   | 2026-07-07 |
 | 8.1. GoF Design Patterns Catalog (INSERTED) | lz-tdd@0.0.2 | 7/7 | Complete   | 2026-07-07 |
-| 8.2. Functional Catalog (INSERTED) | lz-tdd@0.0.2 | 1/6 | In Progress|  |
+| 8.2. Functional Catalog (INSERTED) | lz-tdd@0.0.2 | 4/6 | In Progress|  |
 | 9. Coach Behavior & Principle-Backing | lz-tdd@0.0.2 | - | Not started | - |
 | 10. Distribution & Hygiene | lz-tdd@0.0.2 | - | Not started | - |
 | 11. Skill-Effectiveness Evals | lz-tdd@0.0.2 | - | Not started | - |

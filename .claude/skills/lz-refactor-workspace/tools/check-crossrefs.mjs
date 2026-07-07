@@ -19,6 +19,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { githubSlug } from "./lib/github-slug.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 // tools -> lz-refactor-workspace -> skills -> .claude -> repo root
@@ -61,10 +62,7 @@ const slugsFor = (text) => {
       continue;
     }
 
-    const base = m[1]
-      .toLowerCase()
-      .replace(/[^\w\s-]/g, "")
-      .replace(/\s+/g, "-");
+    const base = githubSlug(m[1]);
 
     let slug = base;
 
@@ -190,8 +188,10 @@ for (const file of sourceFiles) {
   }
 }
 
-report(unresolved === 0, "all cross-links resolve", `${totalLinks} link(s), ${unresolved} unresolved`);
-report(selfRefs === 0, "no self-referential links", `${selfRefs} found`);
+// Informational aggregates (IN-03): the per-link report(false) calls above are the sole
+// source of truth for `failures`; these summaries must NOT increment it again (double-count).
+console.log(`  [INFO] cross-links checked -- ${totalLinks} link(s), ${unresolved} unresolved`);
+console.log(`  [INFO] self-referential links -- ${selfRefs} found`);
 
 // Inverse-of mutuality: every declared A->B must have a declared B->A.
 const edgeSet = new Set(inverseEdges.map((e) => `${e.from}=>${e.to}`));
@@ -204,7 +204,7 @@ for (const e of inverseEdges) {
   }
 }
 
-report(asymmetric === 0, "inverse-of pairs mutually declared", `${inverseEdges.length} inverse link(s), ${asymmetric} one-sided`);
+console.log(`  [INFO] inverse-of pairs -- ${inverseEdges.length} inverse link(s), ${asymmetric} one-sided`);
 
 console.log("");
 

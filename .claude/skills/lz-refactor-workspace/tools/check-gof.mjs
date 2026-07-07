@@ -272,8 +272,12 @@ for (const name of NAMES) {
     missing.push("## Related patterns");
   }
 
-  if (!/```(ts|typescript)\b/.test(leaf.text)) {
-    missing.push("ts fence");
+  // The ts fence must live INSIDE the ## Example section (IN-01), not merely somewhere in
+  // the leaf, so an empty Example with a stray fence elsewhere cannot pass.
+  const exampleBody = sectionBody(leaf.text, "Example");
+
+  if (exampleBody === null || !/```(ts|typescript)\b/.test(exampleBody)) {
+    missing.push("ts fence in ## Example");
   }
 
   // Consequences present + populated (D-07): >=1 non-blank content line before the next `## `. Does

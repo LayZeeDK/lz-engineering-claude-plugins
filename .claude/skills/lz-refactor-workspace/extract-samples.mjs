@@ -86,7 +86,10 @@ const extractFences = (text) => {
     }
   }
 
-  return fences;
+  // WR-01: a fence opened but never closed (EOF with open !== null) would otherwise be
+  // silently dropped -- shrinking compile coverage instead of failing. Surface it so the
+  // caller can fail loudly rather than let a malformed example pass as green.
+  return { fences, unterminated: open !== null };
 };
 
 // Fresh samples dir each run so a deleted fence never leaves a stale module behind.
@@ -108,7 +111,13 @@ for (const { dir, prefix } of CATALOGS) {
       continue;
     }
 
-    const fences = extractFences(fs.readFileSync(file, "utf8"));
+    const { fences, unterminated } = extractFences(fs.readFileSync(file, "utf8"));
+
+    if (unterminated) {
+      console.log(`SUMMARY: FWL-04 RED -- unterminated code fence in ${path.relative(repoRoot, file)}`);
+      process.exit(1);
+    }
+
     let n = 0;
 
     for (const f of fences) {

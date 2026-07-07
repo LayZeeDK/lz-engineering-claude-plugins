@@ -33,6 +33,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { githubSlug } from "./lib/github-slug.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 // tools -> lz-refactor-workspace -> skills -> .claude -> repo root
@@ -334,13 +335,16 @@ for (const name of NAMES) {
     const linkUrl = link ? link[2].trim() : null;
 
     if (GOF23.has(declaredName)) {
-      const want = `../gof-catalog/${slugFor(declaredName)}.md#${slugFor(declaredName)}`;
+      // File part uses the filename slug (slugFor); anchor part uses the GitHub anchor slug
+      // (githubSlug) -- the same function check-crossrefs validates with, so build and
+      // validation cannot diverge (WR-02). Identical for the clean GoF/extra names today.
+      const want = `../gof-catalog/${slugFor(declaredName)}.md#${githubSlug(declaredName)}`;
 
       if (linkUrl !== want) {
         missing.push(`GoF pattern "${declaredName}" must link to ${want}`);
       }
     } else if (EXTRA5.has(declaredName)) {
-      const want = `../extra-patterns-catalog/${slugFor(declaredName)}.md#${slugFor(declaredName)}`;
+      const want = `../extra-patterns-catalog/${slugFor(declaredName)}.md#${githubSlug(declaredName)}`;
 
       if (linkUrl !== want) {
         missing.push(`GoF pattern "${declaredName}" must link to ${want}`);

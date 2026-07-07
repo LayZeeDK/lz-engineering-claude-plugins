@@ -1,0 +1,33 @@
+{
+  "version": "1.0",
+  "timestamp": "2026-07-07T17:42:55.330Z",
+  "phase": "8.2",
+  "phase_name": "Functional Catalog (INSERTED)",
+  "phase_dir": ".planning/phases/08.2-functional-catalog-inserted",
+  "plan": null,
+  "task": null,
+  "total_tasks": 0,
+  "status": "paused",
+  "completed_tasks": [
+    {"id": 1, "name": "Board-ratified functional-catalog design (locked template + check-functional spec)", "status": "done", "commit": "9e9f7ed"},
+    {"id": 2, "name": "Roadmap structure: insert Phase 8.2, reconcile Phase 8, re-scope Phase 9", "status": "done", "commit": "e8a5082"},
+    {"id": 3, "name": "Phase 8.2 context gathered (08.2-CONTEXT.md, D-01..D-14)", "status": "done", "commit": "651fb99"}
+  ],
+  "remaining_tasks": [
+    {"id": 4, "name": "Run /gsd-plan-phase 8.2 (produces 08.2-RESEARCH + PATTERNS + PLAN(s))", "status": "not_started"},
+    {"id": 5, "name": "Execute plans (build check-functional RED-first, then author leaves + cross-links)", "status": "not_started"},
+    {"id": 6, "name": "verify_phase_goal + secure + validate + extract-learnings", "status": "not_started"},
+    {"id": 7, "name": "Proceed to Phase 9 (coach behavior + principle-backing)", "status": "not_started"}
+  ],
+  "blockers": [],
+  "human_actions_pending": [],
+  "decisions": [
+    {"decision": "No owned oracle for this phase; correctness anchor is the committed research artifact + check-functional + tsc --strict. Do NOT open the oracle-access checkpoint that Phases 7/8/8.1 used.", "rationale": "There is no book to verify FP idioms against; the board-locked research artifact is the source. D-06.", "phase": "8.2"},
+    {"decision": "By-idiom organization on the locked Kerievsky-aligned template; one unified functional-catalog for de-patterning + native FP, distinguished by Correspondence: dissolves-from | alternative-to.", "rationale": "Two-round advisor board, unanimous RATIFY. D-01..D-04.", "phase": "8.2"},
+    {"decision": "Native FP (Option/Either, functor/monad, lens, currying, transducers) is in scope as alternative-to leaves; flagged FUT-04.", "rationale": "User-directed inclusion. D-08.", "phase": "8.2"},
+    {"decision": "Full decision set D-01..D-14 lives in 08.2-CONTEXT.md; the design source of record is research S10-13.", "rationale": "Downstream researcher/planner read these; decision-coverage gate expects D-NN citations.", "phase": "8.2"}
+  ],
+  "uncommitted_files": [],
+  "next_action": "In a fresh session run: /gsd-plan-phase 8.2 (padded id 08.2). It reads 08.2-CONTEXT.md (D-01..D-14) + research S10-13 as the source of record, builds check-functional to a RED baseline, then plans the functional-catalog leaves + README + OO-leaf cross-links.",
+  "context_notes": "Design is fully locked (two-round advisor board). Planning is mechanical from here. Heed the advisory anti-patterns in .continue-here.md: cite D-NN as '- **D-NN:**' (colon-flush) in plan must_haves for the decision-coverage gate; SKIP the UI gate (this is Markdown skill authoring, no frontend); NO oracle checkpoint; use padded phase id 08.2. The check-functional harness extends the existing non-shipped workspace at .claude/skills/lz-refactor-workspace/tools/."
+}

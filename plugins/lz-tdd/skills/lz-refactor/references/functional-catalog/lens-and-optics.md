@@ -67,7 +67,7 @@ function moveCity(person: Person, city: string): Person {
 }
 ```
 
-Same behavior; mechanics: [Hide Delegate](../fowler-catalog/hide-delegate.md#hide-delegate), run tests between steps.
+Same behavior; mechanics: extract a getter/immutable-setter pair per level into a Lens, then compose them to replace each nested spread, run tests between steps.
 
 ## When each fits
 

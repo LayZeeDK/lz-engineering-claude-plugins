@@ -88,7 +88,7 @@ function greet(directory: UserDirectory, id: number): string {
 }
 ```
 
-Same behavior; mechanics: [Introduce Null Object](../kerievsky-catalog/introduce-null-object.md#introduce-null-object), run tests between steps.
+Same behavior; mechanics: define the Option<T> union and replace each | null return and its null-guard with a some/none tag the caller must open, run tests between steps.
 
 ## When each fits
 

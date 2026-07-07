@@ -52,16 +52,19 @@ abstract class HandlerDecorator implements RequestHandler {
   abstract handle(request: string): string;
 }
 
-// Concrete Decorator: adds one responsibility, then delegates to the wrapped handler.
-class RetryingHandler extends HandlerDecorator {
-  handle(request: string): string {
-    const first = this.inner.handle(request);
+// Concrete Decorator: adds a responsibility (tagging every response) around the delegate
+// and stays transparent to callers; the added behavior is always exercised, not conditional.
+class TracingHandler extends HandlerDecorator {
+  constructor(inner: RequestHandler, private readonly tag: string) {
+    super(inner);
+  }
 
-    return first.length > 0 ? first : this.inner.handle(request);
+  handle(request: string): string {
+    return `[${this.tag}] ${this.inner.handle(request)}`;
   }
 }
 
-const handler: RequestHandler = new RetryingHandler(new CoreHandler());
+const handler: RequestHandler = new TracingHandler(new CoreHandler(), "traced");
 const response = handler.handle("GET /");
 ```
 

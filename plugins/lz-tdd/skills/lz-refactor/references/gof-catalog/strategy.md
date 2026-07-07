@@ -2,6 +2,8 @@
 
 Also known as: Policy
 
+Functional alternative: [First-Class Function](../functional-catalog/first-class-function.md#strategy)
+
 ## Intent
 
 Capture each member of a family of interchangeable algorithms in its own object behind a

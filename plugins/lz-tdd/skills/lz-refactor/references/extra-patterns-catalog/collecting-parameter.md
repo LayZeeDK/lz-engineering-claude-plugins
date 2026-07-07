@@ -1,5 +1,7 @@
 # Collecting Parameter
 
+Functional alternative: [Function Composition](../functional-catalog/function-composition.md#collecting-parameter)
+
 ## Intent
 
 Pass one collector object into a set of methods so each adds its contribution to it,

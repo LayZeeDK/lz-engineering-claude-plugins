@@ -1,5 +1,7 @@
 # Prototype
 
+Functional alternative: [Structural Clone](../functional-catalog/structural-clone.md#structural-clone)
+
 ## Intent
 
 Produce fresh objects by cloning a fully configured example instance instead of building

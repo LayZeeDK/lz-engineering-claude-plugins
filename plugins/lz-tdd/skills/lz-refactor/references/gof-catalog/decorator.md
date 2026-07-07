@@ -2,6 +2,8 @@
 
 Also known as: Wrapper
 
+Functional alternative: [Function Composition](../functional-catalog/function-composition.md#decorator)
+
 ## Intent
 
 Wrap an object in a matching-interface enclosure that adds behavior around it, so

@@ -2,6 +2,8 @@
 
 Also known as: Objects for States
 
+Functional alternative: [Discriminated Union and Fold](../functional-catalog/discriminated-union-and-fold.md#state)
+
 ## Intent
 
 Let an object change how it behaves as its internal condition changes, so that from the

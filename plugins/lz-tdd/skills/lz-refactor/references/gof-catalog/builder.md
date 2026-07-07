@@ -1,5 +1,7 @@
 # Builder
 
+Functional alternative: [Function Composition](../functional-catalog/function-composition.md#builder)
+
 ## Intent
 
 Pull the step-by-step assembly of a complex object out of the object itself, so one

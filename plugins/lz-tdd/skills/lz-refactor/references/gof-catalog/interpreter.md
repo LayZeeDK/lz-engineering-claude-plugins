@@ -1,5 +1,7 @@
 # Interpreter
 
+Functional alternative: [Discriminated Union and Fold](../functional-catalog/discriminated-union-and-fold.md#interpreter)
+
 ## Intent
 
 For a small language, model each grammar rule as its own class and walk the resulting tree

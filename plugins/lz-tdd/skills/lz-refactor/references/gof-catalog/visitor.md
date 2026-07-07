@@ -1,5 +1,7 @@
 # Visitor
 
+Functional alternative: [Discriminated Union and Fold](../functional-catalog/discriminated-union-and-fold.md#visitor)
+
 ## Intent
 
 Move an operation that works across the objects of a structure into a separate visitor

@@ -1,5 +1,7 @@
 # Null Object
 
+Functional alternative: [Option and Either](../functional-catalog/option-and-either.md#option-and-either)
+
 ## Intent
 
 Replace repeated checks for a missing collaborator with a stand-in object that implements

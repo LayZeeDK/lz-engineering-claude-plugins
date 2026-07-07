@@ -1,5 +1,7 @@
 # Chain of Responsibility
 
+Functional alternative: [Function Composition](../functional-catalog/function-composition.md#chain-of-responsibility)
+
 ## Intent
 
 Give several objects a chance to handle a request by linking them in a line and passing

@@ -1,5 +1,7 @@
 # Facade
 
+Functional alternative: [Module Namespace](../functional-catalog/module-namespace.md#facade)
+
 ## Intent
 
 Put one higher-level entry point in front of a subsystem's many classes, so the tasks

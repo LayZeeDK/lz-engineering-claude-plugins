@@ -2,6 +2,8 @@
 
 Also known as: Action, Transaction
 
+Functional alternative: [Thunk and Lazy Value](../functional-catalog/thunk-and-lazy-value.md#command)
+
 ## Intent
 
 Turn a request into a standalone object, so requests can be passed as arguments, held in

@@ -2,6 +2,8 @@
 
 Also known as: Cursor
 
+Functional alternative: [Generator](../functional-catalog/generator.md#generator)
+
 ## Intent
 
 Let a client step through the elements of a collection one at a time through a separate

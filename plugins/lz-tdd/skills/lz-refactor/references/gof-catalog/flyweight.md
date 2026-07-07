@@ -1,5 +1,7 @@
 # Flyweight
 
+Functional alternative: [Memoization and Interning](../functional-catalog/memoization-and-interning.md#memoization-and-interning)
+
 ## Intent
 
 Share the common, unchanging part of a large population of similar objects across all of

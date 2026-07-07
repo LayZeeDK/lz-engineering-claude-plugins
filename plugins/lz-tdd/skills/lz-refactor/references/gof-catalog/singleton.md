@@ -1,5 +1,7 @@
 # Singleton
 
+Functional alternative: [Module Namespace](../functional-catalog/module-namespace.md#singleton)
+
 ## Intent
 
 Guarantee that a class is instantiated only once, and route all use of that single

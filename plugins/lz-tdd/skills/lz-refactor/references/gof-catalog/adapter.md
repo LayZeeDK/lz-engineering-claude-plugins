@@ -2,6 +2,8 @@
 
 Also known as: Wrapper
 
+Functional alternative: [First-Class Function](../functional-catalog/first-class-function.md#adapter)
+
 ## Intent
 
 Wrap an existing class in the interface a client expects, so code written against that

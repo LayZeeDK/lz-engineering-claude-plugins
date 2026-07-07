@@ -1,5 +1,7 @@
 # Composed Method
 
+Functional alternative: [Function Composition](../functional-catalog/function-composition.md#composed-method)
+
 ## Intent
 
 Build a method out of calls to a few well-named helper methods, each at a single level of

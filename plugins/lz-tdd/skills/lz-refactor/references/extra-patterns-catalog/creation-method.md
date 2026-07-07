@@ -1,5 +1,7 @@
 # Creation Method
 
+Functional alternative: [Factory Function](../functional-catalog/factory-function.md#creation-method)
+
 ## Intent
 
 Replace a plain or overloaded constructor with a named method that builds and returns the

@@ -2,6 +2,8 @@
 
 Also known as: Virtual Constructor
 
+Functional alternative: [Factory Function](../functional-catalog/factory-function.md#factory-method)
+
 ## Intent
 
 Give a class a method whose job is to produce a collaborator, but leave the choice of

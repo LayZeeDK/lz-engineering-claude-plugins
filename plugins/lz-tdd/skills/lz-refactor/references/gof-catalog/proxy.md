@@ -2,6 +2,8 @@
 
 Also known as: Surrogate
 
+Functional alternative: [Thunk and Lazy Value](../functional-catalog/thunk-and-lazy-value.md#proxy)
+
 ## Intent
 
 Put a stand-in object in front of a real one so that every access is routed through the

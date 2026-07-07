@@ -2,6 +2,8 @@
 
 Also known as: Kit
 
+Functional alternative: [Factory Function](../functional-catalog/factory-function.md#abstract-factory)
+
 ## Intent
 
 Give client code one interface for producing a whole family of related objects, so it can

@@ -2,6 +2,8 @@
 
 Also known as: Dependents, Publish-Subscribe
 
+Functional alternative: [Observer Callbacks](../functional-catalog/observer-callbacks.md#observer-callbacks)
+
 ## Intent
 
 Set up a one-to-many link between a subject and its dependents so that whenever the

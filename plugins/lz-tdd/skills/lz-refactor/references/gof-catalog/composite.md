@@ -1,5 +1,7 @@
 # Composite
 
+Functional alternative: [Discriminated Union and Fold](../functional-catalog/discriminated-union-and-fold.md#composite)
+
 ## Intent
 
 Arrange objects into part-whole trees and give a single item and a whole subtree the same

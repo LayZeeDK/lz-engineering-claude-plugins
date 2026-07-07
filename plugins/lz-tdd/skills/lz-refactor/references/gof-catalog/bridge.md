@@ -2,6 +2,8 @@
 
 Also known as: Handle/Body
 
+Functional alternative: [First-Class Function](../functional-catalog/first-class-function.md#bridge)
+
 ## Intent
 
 Keep an abstraction and the implementation that carries it out in two separate class

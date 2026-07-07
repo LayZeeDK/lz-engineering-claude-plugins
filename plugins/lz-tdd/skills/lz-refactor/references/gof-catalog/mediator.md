@@ -1,5 +1,7 @@
 # Mediator
 
+Functional alternative: [Reducer and Store](../functional-catalog/reducer-and-store.md#reducer-and-store)
+
 ## Intent
 
 Route the interactions among a group of objects through one coordinating object, so the

@@ -2,6 +2,8 @@
 
 Also known as: Token
 
+Functional alternative: [Immutable Snapshot](../functional-catalog/immutable-snapshot.md#immutable-snapshot)
+
 ## Intent
 
 Capture a snapshot of an object's internal state in a separate object that only the

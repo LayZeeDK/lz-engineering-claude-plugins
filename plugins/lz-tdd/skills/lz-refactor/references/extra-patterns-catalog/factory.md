@@ -1,5 +1,7 @@
 # Factory
 
+Functional alternative: [Factory Function](../functional-catalog/factory-function.md#factory)
+
 ## Intent
 
 Concentrate the creation of related objects in one place that hides which concrete class is

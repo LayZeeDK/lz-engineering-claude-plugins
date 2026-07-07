@@ -1,5 +1,7 @@
 # Template Method
 
+Functional alternative: [Function Composition](../functional-catalog/function-composition.md#template-method)
+
 ## Intent
 
 Put the fixed outline of an algorithm in a base-class method that calls out to steps the

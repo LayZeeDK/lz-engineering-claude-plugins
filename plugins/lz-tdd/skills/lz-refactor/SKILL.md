@@ -63,6 +63,14 @@ When routing a structural / pattern-directed smell or looking up a named Kerievs
 (including de-patterning), consult the catalog index:
 [references/kerievsky-catalog/README.md](references/kerievsky-catalog/README.md)
 
+## Target pattern catalogs (GoF + extra patterns)
+
+When a pattern-directed refactoring names a target pattern to move toward or away from, look the
+pattern itself up in the target-pattern catalogs: the 23 classic Gang-of-Four patterns in
+[references/gof-catalog/README.md](references/gof-catalog/README.md), and the non-GoF-23 patterns
+(Null Object, Factory, Creation Method, Composed Method, Collecting Parameter) in
+[references/extra-patterns-catalog/README.md](references/extra-patterns-catalog/README.md).
+
 ## Refactoring safely without tests (Feathers)
 
 When the target code lacks the test coverage that makes ordinary refactoring safe, consult the

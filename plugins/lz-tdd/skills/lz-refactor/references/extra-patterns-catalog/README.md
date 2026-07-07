@@ -8,8 +8,15 @@ in per-pattern leaf files, never inlined here (SKEL-04). Each leaf follows the s
 contract as the GoF leaves: Intent, Applicability, Consequences, Example, Related patterns. The
 selector shown against each entry is that leaf's Applicability first line, mirrored verbatim.
 
-This index is flat (no family grouping). Leaf rows are added when the pattern leaves are authored;
-until then this index carries the scope note only.
+This index is flat (no family grouping).
+
+| Pattern | Applicability |
+|---|---|
+| [Null Object](null-object.md) | Use it when many callers repeat the same check for a missing collaborator before acting on it. |
+| [Factory](factory.md) | Use it when the choice of which concrete class to create, and the work of building it, is duplicated across callers or exposes concrete types they should not depend on. |
+| [Creation Method](creation-method.md) | Use it when a class is created through constructors that are ambiguous or fail to reveal what kind of object results. |
+| [Composed Method](composed-method.md) | Use it when a method is hard to follow because it mixes high-level steps with low-level detail. |
+| [Collecting Parameter](collecting-parameter.md) | Use it when a result must be accumulated from several methods or from a traversal, rather than assembled from their separate return values. |
 
 ## Sources
 

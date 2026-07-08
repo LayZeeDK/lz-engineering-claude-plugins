@@ -23,8 +23,8 @@ changes belong to the green step and its sibling skill lz-tpp.
 ## Two modes
 
 - Coach mode: the tests are green and the code has a smell, and the question is which refactoring
-  to apply. Route the smell to a candidate NAMED refactoring and present it. (The full coach
-  decision procedure is deferred to Phase 9 -- see the placeholder below.)
+  to apply. Route the smell to a candidate NAMED refactoring and present it via the coach decision
+  procedure below.
 - Reference mode: the request is "explain this refactoring / smell / principle", a named-refactoring
   lookup, or an explicit `/lz-tdd:lz-refactor` invocation with nothing to coach. Answer from the
   reference files listed below; do not restate their content here.
@@ -35,12 +35,39 @@ The refactor step (structure-only, behavior-preserving) is lz-refactor. The gree
 step (making a failing test pass by changing behavior) is lz-tpp. Classify the request before
 acting: if a red test must be made to pass, that is lz-tpp, not this skill.
 
-## Coach decision procedure (deferred to Phase 9)
+## Coach decision procedure
 
-Placeholder only. The full coach decision procedure -- smell -> named-refactoring routing
-(mechanical -> Fowler, pattern-directed -> Kerievsky), de-patterning balance, behavior-preservation
-discipline, the Feathers no-tests fallback, and the lz-tpp seam detail -- is authored in Phase 9
-(CCH-01..05, PRIN-01..03). Do not infer it from this scaffold.
+1. Classify the request against the lz-tpp seam (CCH-05). If a red / failing test must be made to
+   pass, that is the green step -- hand off to lz-tpp and stop. If the tests are green and the code
+   has a structure-only smell, continue here (the refactor step). See "Refactoring vs the green step"
+   above; do not restate it.
+2. Recognize the smell (CCH-01). Scan the recognize-by cues in
+   [references/smells.md](references/smells.md), then OPEN the matching smell leaf for its candidate
+   refactorings -- the index is navigation-only, so never guess a refactoring from it.
+3. Route by smell kind to a NAMED refactoring (CCH-01):
+   - Mechanical smell (Long Function, Duplicated Code, Feature Envy) -> a Fowler refactoring from the
+     [Fowler catalog](references/fowler-catalog/README.md).
+   - Repeated / complex-structure smell (Conditional Complexity, Combinatorial Explosion, Repeated
+     Switches) -> a Kerievsky pattern-directed refactoring from the
+     [Kerievsky catalog](references/kerievsky-catalog/README.md); look the target pattern up in the
+     [GoF](references/gof-catalog/README.md) or
+     [extra-patterns](references/extra-patterns-catalog/README.md) catalog.
+4. Apply the over/under-engineering balance (CCH-02, CCH-06). A pattern that earns its keep is
+   applied or kept; an unwarranted pattern is refactored AWAY -- either a Kerievsky Away refactoring
+   (Inline Singleton, Encapsulate Composite with Builder, Move Accumulation to Visitor) or dissolved
+   to a functional idiom via the [functional catalog](references/functional-catalog/README.md)
+   ("pattern X disappears via idiom Y / TS feature Z"). Replace Pipeline with Loop only on a measured
+   hot path or a named house-style reason -- clarity is the default.
+5. Preserve behavior (CCH-03). Take the smallest steps that keep the code working, run the tests
+   after each, commit on green. If the target code has NO tests, route to
+   [references/refactoring-without-tests.md](references/refactoring-without-tests.md) (Feathers) to
+   pin current behavior with characterization tests first, then refactor.
+6. Reference mode (CCH-04). For an explain / lookup request, route to the correct references/ doc --
+   Fowler, Kerievsky, GoF, extra-patterns, functional, [smells](references/smells.md), or
+   [principles](references/principles.md) -- and answer from it; do not restate it here.
+
+Coach, don't drive. Present the named refactoring and the smallest next step; let the developer apply
+it and run the tests. Never edit the developer's code or run the tests unless explicitly asked.
 
 ## Fowler catalog (mechanical refactorings)
 

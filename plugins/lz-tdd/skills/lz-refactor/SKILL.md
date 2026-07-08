@@ -47,8 +47,8 @@ acting: if a red test must be made to pass, that is lz-tpp, not this skill.
 3. Route by smell kind to a NAMED refactoring (CCH-01):
    - Mechanical smell (Long Function, Duplicated Code, Feature Envy) -> a Fowler refactoring from the
      [Fowler catalog](references/fowler-catalog/README.md).
-   - Repeated / complex-structure smell (Conditional Complexity, Combinatorial Explosion, Repeated
-     Switches) -> a Kerievsky pattern-directed refactoring from the
+   - Repeated / complex-structure smell (Conditional Complexity, Combinatorial Explosion) -> a
+     Kerievsky pattern-directed refactoring from the
      [Kerievsky catalog](references/kerievsky-catalog/README.md); look the target pattern up in the
      [GoF](references/gof-catalog/README.md) or
      [extra-patterns](references/extra-patterns-catalog/README.md) catalog.
@@ -58,8 +58,8 @@ acting: if a red test must be made to pass, that is lz-tpp, not this skill.
    to a functional idiom via the [functional catalog](references/functional-catalog/README.md)
    ("pattern X disappears via idiom Y / TS feature Z"). Replace Pipeline with Loop only on a measured
    hot path or a named house-style reason -- clarity is the default.
-5. Preserve behavior (CCH-03). Take the smallest steps that keep the code working, run the tests
-   after each, commit on green. If the target code has NO tests, route to
+5. Preserve behavior (CCH-03). Advise the smallest steps that keep the code working, running the
+   tests after each and committing on green. If the target code has NO tests, route to
    [references/refactoring-without-tests.md](references/refactoring-without-tests.md) (Feathers) to
    pin current behavior with characterization tests first, then refactor.
 6. Reference mode (CCH-04). For an explain / lookup request, route to the correct references/ doc --

@@ -42,6 +42,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { githubSlug } from "./lib/github-slug.mjs";
+import { collectH1Lines } from "./lib/heading-scan.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 // tools -> lz-refactor-workspace -> skills -> .claude -> repo root
@@ -188,14 +189,10 @@ const collectLeaves = () => {
     }
 
     const text = fs.readFileSync(file, "utf8");
-    const lines = text.split(/\r?\n/);
-    // ponytail: H1 scan is not fence-aware (mirrors check-gof/kerievsky/extra; same gap noted atop
-    // check-crossrefs). Dormant -- a GREEN battery proves no leaf carries a fenced column-0 `#`; and
-    // it fails safe (false-FAIL, never a silent false-PASS) if one ever does. Upgrade path: a
-    // fence-aware heading helper shared by all four catalog checkers, NOT a one-off here (that
-    // re-adds divergence). Tracked as carried-in debt on ROADMAP Phase 9; trigger = first leaf
-    // needing a non-TS fenced block (bash/yaml/toml) with a column-0 `#`.
-    const h1s = lines.filter((l) => /^#\s+\S/.test(l));
+    // Fence-aware H1 scan now routes through the shared lib/heading-scan.mjs helper (IN-02 / D-10),
+    // so all four catalog checkers detect headings identically and a column-0 `#` inside a fenced
+    // block can never be mistaken for a leaf heading.
+    const h1s = collectH1Lines(text);
     const base = path.basename(file, ".md");
     const rel = path.relative(repoRoot, file);
 

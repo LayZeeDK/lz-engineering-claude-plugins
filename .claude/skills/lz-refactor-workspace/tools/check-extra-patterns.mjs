@@ -20,6 +20,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { collectH1Lines } from "./lib/heading-scan.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 // tools -> lz-refactor-workspace -> skills -> .claude -> repo root
@@ -109,8 +110,7 @@ const collectLeaves = () => {
     }
 
     const text = fs.readFileSync(file, "utf8");
-    const lines = text.split(/\r?\n/);
-    const h1s = lines.filter((l) => /^#\s+\S/.test(l));
+    const h1s = collectH1Lines(text);
     const base = path.basename(file, ".md");
     const rel = path.relative(repoRoot, file);
 

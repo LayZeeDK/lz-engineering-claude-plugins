@@ -173,7 +173,12 @@ this milestone starts at Phase 6.
 
 **Carried-in tech debt** (Phase 08.2 code review, finding IN-02 -- deferred, NOT won't-fix): make H1/heading detection fence-aware in a helper shared by the four catalog checkers (check-gof / check-kerievsky / check-extra-patterns / check-functional), imported alongside `githubSlug`, so all four gain it in one pass with zero divergence -- a per-checker patch would re-introduce the divergence the 08.2 fixer correctly declined. Today each checker's `collectLeaves` counts column-0 `# ` lines without skipping fenced blocks; the same gap is noted at the top of check-crossrefs (link scan). Provably dormant now (the GREEN battery is the proof no leaf carries a fenced column-0 `#`) and fails safe if it ever fires (a stray fenced `#` yields a false-FAIL/RED, never a silent false-PASS). **Trigger to action it:** the first leaf that needs a non-TS fenced block (bash/yaml/toml/dockerfile) containing a column-0 `#` line -- e.g. a Phase 9 principle reference. Fold into whichever plan next touches the checker harness.
 
-**Plans**: TBD
+**Plans**: 4 plans (3 waves)
+
+- [ ] 09-01-PLAN.md -- Wave-1 instrument: shared fence-aware heading-scan helper + rewire the 4 catalog checkers (IN-02/D-10, battery stays GREEN) + new check-backing.mjs RED gate + check-crossrefs source extension + package.json wiring (wave 1)
+- [ ] 09-02-PLAN.md -- Coach decision procedure inline in SKILL.md: classify/seam gate, smell->named-refactoring routing, de-patterning balance, behavior-preservation + Feathers fallback, reference mode (CCH-01..06) (wave 2)
+- [ ] 09-03-PLAN.md -- Three no-oracle principle refs: beck-tdd-by-example.md (PRIN-01), beck-tidy-first.md (PRIN-02, Fowler cross-links by link), populate refactoring-without-tests.md (PRIN-03) -> check-backing GREEN (wave 2)
+- [ ] 09-04-PLAN.md -- principles.md D-06 Beck cross-ref pointers + phase finalize gate (full npm run check + typecheck + claude plugin validate . + skill-reviewer PASS) (wave 3)
 
 ### Phase 10: Distribution & Hygiene
 

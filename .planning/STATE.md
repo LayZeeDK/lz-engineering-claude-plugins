@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: lz-tdd@0.0.2
 milestone_name: lz-refactor Skill (Fowler + Kerievsky)
 status: executing
-stopped_at: Phase 9 context gathered (--analyze --auto, discuss-only); 4 gray areas auto-locked in 09-CONTEXT.md; HALTED before /gsd-plan-phase per user gate
-last_updated: "2026-07-08T18:58:08.687Z"
-last_activity: 2026-07-08 -- Phase 09 planning complete
+stopped_at: "Completed 09-01-PLAN.md (instrument-first harness: IN-02 retired + check-backing RED gate)"
+last_updated: "2026-07-08T19:20:03.801Z"
+last_activity: 2026-07-08
 progress:
   total_phases: 8
   completed_phases: 5
   total_plans: 34
-  completed_plans: 30
+  completed_plans: 31
   percent: 63
 ---
 
@@ -21,15 +21,15 @@ progress:
 See: .planning/PROJECT.md (updated 2026-07-04)
 
 **Core value:** `lz-tpp` helps Claude choose the next code transformation by TPP priority during red-green-refactor TDD, and explains the premise on demand. lz-tdd@0.0.2 adds `lz-refactor` to drive the refactor step.
-**Current focus:** Phase 9 — coach behavior & principle backing
+**Current focus:** Phase 09 — coach-behavior-principle-backing
 **Milestone:** lz-tdd@0.0.2 (lz-refactor Skill) -- executing
 
 ## Current Position
 
-Phase: 9
-Plan: Not started
+Phase: 09 (coach-behavior-principle-backing) — EXECUTING
+Plan: 2 of 4
 Status: Ready to execute
-Last activity: 2026-07-08 -- Phase 09 planning complete
+Last activity: 2026-07-08
 
 ## Performance Metrics
 
@@ -61,6 +61,7 @@ Last activity: 2026-07-08 -- Phase 09 planning complete
 | Phase 07 P01 | 13min | 3 tasks | 8 files |
 | Phase 08.1 P01 | 20min | 3 tasks | 8 files |
 | Phase 08.1 P07 | ~15min | 3 tasks | 26 files |
+| Phase 09 P01 | 18min | 2 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -91,6 +92,7 @@ Recent decisions affecting current work:
 - [Phase 08]: Phase 8 (08-06, phase gate) COMPLETE. Ch.4 smell fold (KRV-03): oracle-settled dedup map over 12 Ch.4 smells = 4 UNIQUE + 8 OVERLAP. Two corrections to the provisional plan map: Conditional Complexity kept UNIQUE (broader than Repeated Switches), and Solution Sprawl reclassified OVERLAP -> Shotgun Surgery (book equates them) so NO solution-sprawl leaf. 4 new source-tagged leaves (conditional-complexity, indecent-exposure, combinatorial-explosion, oddball-solution); 8 overlap Fowler leaves get `Source: both` + "also named by Kerievsky" note (recognize-by cues unchanged); smells.md gains a Kerievsky-unique section + `[both]`/`[Kerievsky]` tag convention. All 12 leaves oracle-reviewer pass (0 owner escalations; Oddball re-gated once for a within-pass "preferred-solution-first" nuance). Direction reconciliation (KRV-02): 11 Towards->To, 6 Towards->To/Towards; check-kerievsky allow-list widened by the `n/a` token (compound already validated via leading token); NAMES needed no change (all 27 H1 slugs matched). Full battery + claude plugin validate GREEN. Commits a58aa22, 8b98aa0.
 - [Phase 08.1]: Phase 08.1 (08.1-01, Wave 1): built the GoF harness instruments -- new check-gof.mjs (23 names by family + 5-section contract + Applicability-first-line mirror + Consequences present+populated + Singleton-cites-DI + REQUIRED_AWAY 3-map + family headings) and check-extra-patterns.mjs (5 names, flat), linkify branch in check-kerievsky (exact-name set lookup, never substring), extended check-crossrefs + extract-samples source sets, wired package.json, scaffolded both thin READMEs. Instrument-first RED baseline established and asserted per D-15: check-gof 0/23, check-extra-patterns 0/5, check-kerievsky RED on 23 un-linkified tokens; check-catalog + check-crossrefs + extract-samples + check-hygiene stay GREEN. Requirements GOF-01..04 + XTR-01 remain OPEN (satisfied only when Waves 2-3 turn the battery GREEN).
 - [Phase 08.1]: Phase 08.1 (08.1-07, Wave-3 gate) COMPLETE. Deterministic finalize (no oracle loop): linkified 23 real-pattern Kerievsky `GoF pattern:` tokens (17 gof-catalog + 6 extra-patterns-catalog; both Factory tokens -> extra-patterns-catalog/factory.md#factory, NEVER factory-method) + preserved the 4 free-text sentinels (chain-constructors, unify-interfaces, extract-parameter, replace-type-code-with-class). Finalized gof-catalog/README.md (family-grouped 23 rows: Creational 5 / Structural 7 / Behavioral 11) + extra-patterns-catalog/README.md (flat 5 rows), each row a bare [Name](slug.md) link + the leaf's ## Applicability first line mirrored verbatim. Wired the SKILL.md D-14 pointer section to both READMEs after the Kerievsky pointer (Phase-9 coach placeholder untouched). NO checker .mjs edited: all 23 GoF + 5 extra leaf H1 slugs already matched the locked NAMES arrays, so no NAMES reconciliation was needed. Full battery GREEN (check-catalog 62/62, check-kerievsky 27/27 linkify, check-gof 23/23, check-extra 5/5, check-smells 24/24, check-crossrefs 547 links + 20 inverse pairs, check-principles 8/8, check-hygiene 156 files 0 WARN) + npm run typecheck 213 modules tsc --strict clean + claude plugin validate . PASS. GOF-01..04 + XTR-01 CLOSED. Commits 11f174e, 79c106a.
+- [Phase ?]: Phase 9 (09-01, Wave 1): retired IN-02 into shared tools/lib/heading-scan.mjs (collectH1Lines) imported by all four catalog checkers, behavior-preserving (battery stays GREEN). Stood up check-backing.mjs (D-09) as a NEW sibling to an asserted RED baseline, wired into npm run check; check-crossrefs now sources SKILL.md + principles.md + 3 backing refs. Phase-open baseline: check-backing sole RED, all else GREEN. PRIN-01/02/03 remain OPEN until Wave 2 turns the gate GREEN.
 
 ### Pending Todos
 
@@ -121,9 +123,9 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-07T23:41:12.319Z
-Stopped at: Phase 9 context gathered (--analyze --auto, discuss-only); 4 gray areas auto-locked in 09-CONTEXT.md; HALTED before /gsd-plan-phase per user gate
-Resume file: .planning/phases/09-coach-behavior-principle-backing/09-CONTEXT.md
+Last session: 2026-07-08T19:19:48.003Z
+Stopped at: Completed 09-01-PLAN.md (instrument-first harness: IN-02 retired + check-backing RED gate)
+Resume file: None
 
 ## Operator Next Steps
 

@@ -48,12 +48,12 @@ Requirements for this milestone. Each maps to exactly one roadmap phase.
 
 ### Coach Behavior
 
-- [ ] **CCH-01**: For a detected or named smell during the refactor step, the coach recommends the next NAMED refactoring -- routing mechanical smells to Fowler refactorings and repeated/complex-structure smells to Kerievsky pattern-directed refactorings
-- [ ] **CCH-02**: The coach applies the over-/under-engineering balance -- it recommends de-patterning (refactor away) when a pattern is unwarranted, not only adding structure
-- [ ] **CCH-03**: The coach enforces behavior-preservation discipline (small steps, run tests after each) and, when tests are absent, routes to the Feathers "refactor safely without tests" guidance
-- [ ] **CCH-04**: In reference mode, the coach answers on-demand catalog / smell / principle questions by routing to the correct `references/` doc
-- [ ] **CCH-05**: The coach frames the red-green-refactor seam with `lz-tpp` (green step = TPP transformation; refactor step = lz-refactor), consistent with Beck's TDD cycle
-- [ ] **CCH-06**: The coach surfaces the functional alternative -- for a dissolvable pattern it names "pattern X disappears via FP idiom Y / TS feature Z" and routes to the `functional-catalog`, and gives the Replace-Pipeline-with-Loop reverse-direction guidance (clarity is the default; reverse to a loop only on a measured hot path or a named house-style reason)
+- [x] **CCH-01**: For a detected or named smell during the refactor step, the coach recommends the next NAMED refactoring -- routing mechanical smells to Fowler refactorings and repeated/complex-structure smells to Kerievsky pattern-directed refactorings
+- [x] **CCH-02**: The coach applies the over-/under-engineering balance -- it recommends de-patterning (refactor away) when a pattern is unwarranted, not only adding structure
+- [x] **CCH-03**: The coach enforces behavior-preservation discipline (small steps, run tests after each) and, when tests are absent, routes to the Feathers "refactor safely without tests" guidance
+- [x] **CCH-04**: In reference mode, the coach answers on-demand catalog / smell / principle questions by routing to the correct `references/` doc
+- [x] **CCH-05**: The coach frames the red-green-refactor seam with `lz-tpp` (green step = TPP transformation; refactor step = lz-refactor), consistent with Beck's TDD cycle
+- [x] **CCH-06**: The coach surfaces the functional alternative -- for a dissolvable pattern it names "pattern X disappears via FP idiom Y / TS feature Z" and routes to the `functional-catalog`, and gives the Replace-Pipeline-with-Loop reverse-direction guidance (clarity is the default; reverse to a loop only on a measured hot path or a named house-style reason)
 
 ### Principle-Backing Cross-References (no owned oracle -- high-confidence core only)
 
@@ -124,12 +124,12 @@ Which phase covers which requirement. Populated during roadmap creation.
 | FUN-02 | Phase 8.2 | Complete |
 | FUN-03 | Phase 8.2 | Complete |
 | FUN-04 | Phase 8.2 | Complete |
-| CCH-01 | Phase 9 | Pending |
-| CCH-02 | Phase 9 | Pending |
-| CCH-03 | Phase 9 | Pending |
-| CCH-04 | Phase 9 | Pending |
-| CCH-05 | Phase 9 | Pending |
-| CCH-06 | Phase 9 | Pending |
+| CCH-01 | Phase 9 | Complete |
+| CCH-02 | Phase 9 | Complete |
+| CCH-03 | Phase 9 | Complete |
+| CCH-04 | Phase 9 | Complete |
+| CCH-05 | Phase 9 | Complete |
+| CCH-06 | Phase 9 | Complete |
 | PRIN-01 | Phase 9 | Pending |
 | PRIN-02 | Phase 9 | Pending |
 | PRIN-03 | Phase 9 | Pending |

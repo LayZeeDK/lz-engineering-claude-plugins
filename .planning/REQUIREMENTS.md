@@ -57,9 +57,9 @@ Requirements for this milestone. Each maps to exactly one roadmap phase.
 
 ### Principle-Backing Cross-References (no owned oracle -- high-confidence core only)
 
-- [ ] **PRIN-01**: Beck *TDD by Example* backing -- the red-green-refactor cycle, the two rules, and the green-bar strategies (Fake It / Triangulate / Obvious Implementation) -- tagged no-oracle, scoped to seam context
-- [ ] **PRIN-02**: Beck *Tidy First?* backing -- the structural-vs-behavioral change separation and when-to-refactor economics (coupling / cohesion / options) -- cross-referenced to overlapping Fowler refactorings; no complete tidyings catalog claimed
-- [ ] **PRIN-03**: Feathers *Working Effectively with Legacy Code* backing -- a "refactor safely without tests" reference (legacy = no tests; seams; characterization tests; the change algorithm; Sprout/Wrap Method+Class, Subclass and Override Method, Extract Interface) -- core techniques only
+- [x] **PRIN-01**: Beck *TDD by Example* backing -- the red-green-refactor cycle, the two rules, and the green-bar strategies (Fake It / Triangulate / Obvious Implementation) -- tagged no-oracle, scoped to seam context
+- [x] **PRIN-02**: Beck *Tidy First?* backing -- the structural-vs-behavioral change separation and when-to-refactor economics (coupling / cohesion / options) -- cross-referenced to overlapping Fowler refactorings; no complete tidyings catalog claimed
+- [x] **PRIN-03**: Feathers *Working Effectively with Legacy Code* backing -- a "refactor safely without tests" reference (legacy = no tests; seams; characterization tests; the change algorithm; Sprout/Wrap Method+Class, Subclass and Override Method, Extract Interface) -- core techniques only
 
 ### Distribution & Hygiene
 
@@ -130,9 +130,9 @@ Which phase covers which requirement. Populated during roadmap creation.
 | CCH-04 | Phase 9 | Complete |
 | CCH-05 | Phase 9 | Complete |
 | CCH-06 | Phase 9 | Complete |
-| PRIN-01 | Phase 9 | Pending |
-| PRIN-02 | Phase 9 | Pending |
-| PRIN-03 | Phase 9 | Pending |
+| PRIN-01 | Phase 9 | Complete |
+| PRIN-02 | Phase 9 | Complete |
+| PRIN-03 | Phase 9 | Complete |
 | DST-01 | Phase 10 | Pending |
 | DST-02 | Phase 10 | Pending |
 | DST-03 | Phase 10 | Pending |

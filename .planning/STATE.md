@@ -4,13 +4,13 @@ milestone: lz-tdd@0.0.2
 milestone_name: lz-refactor Skill (Fowler + Kerievsky)
 status: executing
 stopped_at: "Completed 09-01-PLAN.md (instrument-first harness: IN-02 retired + check-backing RED gate)"
-last_updated: "2026-07-08T19:30:40.267Z"
+last_updated: "2026-07-08T19:53:34.713Z"
 last_activity: 2026-07-08
 progress:
   total_phases: 8
   completed_phases: 5
   total_plans: 34
-  completed_plans: 31
+  completed_plans: 33
   percent: 63
 ---
 
@@ -27,7 +27,7 @@ See: .planning/PROJECT.md (updated 2026-07-04)
 ## Current Position
 
 Phase: 09 (coach-behavior-principle-backing) — EXECUTING
-Plan: 3 of 4
+Plan: 4 of 4
 Status: Ready to execute
 Last activity: 2026-07-08
 
@@ -63,6 +63,7 @@ Last activity: 2026-07-08
 | Phase 08.1 P07 | ~15min | 3 tasks | 26 files |
 | Phase 09 P01 | 18min | 2 tasks | 8 files |
 | Phase 09 P02 | 8min | 1 task tasks | 1 file files |
+| Phase 09 P03 | 15min | 3 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -95,6 +96,7 @@ Recent decisions affecting current work:
 - [Phase 08.1]: Phase 08.1 (08.1-07, Wave-3 gate) COMPLETE. Deterministic finalize (no oracle loop): linkified 23 real-pattern Kerievsky `GoF pattern:` tokens (17 gof-catalog + 6 extra-patterns-catalog; both Factory tokens -> extra-patterns-catalog/factory.md#factory, NEVER factory-method) + preserved the 4 free-text sentinels (chain-constructors, unify-interfaces, extract-parameter, replace-type-code-with-class). Finalized gof-catalog/README.md (family-grouped 23 rows: Creational 5 / Structural 7 / Behavioral 11) + extra-patterns-catalog/README.md (flat 5 rows), each row a bare [Name](slug.md) link + the leaf's ## Applicability first line mirrored verbatim. Wired the SKILL.md D-14 pointer section to both READMEs after the Kerievsky pointer (Phase-9 coach placeholder untouched). NO checker .mjs edited: all 23 GoF + 5 extra leaf H1 slugs already matched the locked NAMES arrays, so no NAMES reconciliation was needed. Full battery GREEN (check-catalog 62/62, check-kerievsky 27/27 linkify, check-gof 23/23, check-extra 5/5, check-smells 24/24, check-crossrefs 547 links + 20 inverse pairs, check-principles 8/8, check-hygiene 156 files 0 WARN) + npm run typecheck 213 modules tsc --strict clean + claude plugin validate . PASS. GOF-01..04 + XTR-01 CLOSED. Commits 11f174e, 79c106a.
 - [Phase ?]: Phase 9 (09-01, Wave 1): retired IN-02 into shared tools/lib/heading-scan.mjs (collectH1Lines) imported by all four catalog checkers, behavior-preserving (battery stays GREEN). Stood up check-backing.mjs (D-09) as a NEW sibling to an asserted RED baseline, wired into npm run check; check-crossrefs now sources SKILL.md + principles.md + 3 backing refs. Phase-open baseline: check-backing sole RED, all else GREEN. PRIN-01/02/03 remain OPEN until Wave 2 turns the gate GREEN.
 - [Phase ?]: Phase 9 (09-02, Wave 2): replaced the deferred-to-Phase-9 placeholder in lz-refactor SKILL.md with the real inline coach decision procedure -- a compact 6-step numbered tree wiring CCH-01..06 (classify against the lz-tpp seam; recognize smell via smells.md then open the leaf; route mechanical->Fowler / repeated-complex->Kerievsky; de-patterning balance to Kerievsky Away OR functional-catalog with the Replace-Pipeline-with-Loop reverse note; behavior-preservation + Feathers no-tests fallback; reference mode). No new smell table (D-03); all coach cross-links file-level to already-existing files (INLINE, no split -- SKILL.md 112 lines). check-crossrefs + check-hygiene GREEN; check-backing stays RED by design (Beck refs in parallel 09-03).
+- [Phase 09]: Phase 9 (09-03, Wave 2): authored 3 no-oracle principle refs -- beck-tdd-by-example.md (PRIN-01), beck-tidy-first.md (PRIN-02, 8 Fowler cross-links via ./fowler-catalog/ link form to satisfy check-backing's leading-dot regex), populated refactoring-without-tests.md (PRIN-03, both scaffold markers removed). check-backing GREEN 3/3; crossrefs + hygiene GREEN. DST-04-clean, fence-free (D-11).
 
 ### Pending Todos
 
@@ -125,7 +127,7 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-08T19:29:50.975Z
+Last session: 2026-07-08T19:50:52.660Z
 Stopped at: Completed 09-01-PLAN.md (instrument-first harness: IN-02 retired + check-backing RED gate)
 Resume file: None
 

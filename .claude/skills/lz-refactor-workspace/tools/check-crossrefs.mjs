@@ -32,6 +32,13 @@ const EXTRA = path.join(REFERENCES, "extra-patterns-catalog");
 const FUNCTIONAL = path.join(REFERENCES, "functional-catalog");
 const SMELLS_DIR = path.join(REFERENCES, "smells");
 const SMELLS_INDEX = path.join(REFERENCES, "smells.md");
+// Phase 9 (D-09): additional single-file link sources -- the coach router and the no-oracle
+// principle-backing refs. SKILL.md sits one dir UP from references/; the rest live under references/.
+const SKILL_MD = path.join(REFERENCES, "..", "SKILL.md");
+const PRINCIPLES_MD = path.join(REFERENCES, "principles.md");
+const BECK_TDD = path.join(REFERENCES, "beck-tdd-by-example.md");
+const BECK_TIDY = path.join(REFERENCES, "beck-tidy-first.md");
+const FEATHERS = path.join(REFERENCES, "refactoring-without-tests.md");
 
 let failures = 0;
 
@@ -111,6 +118,17 @@ const sourceFiles = [...collectLeafFiles(CATALOG), ...collectLeafFiles(KERIEVSKY
 
 if (fs.existsSync(SMELLS_INDEX)) {
   sourceFiles.push(SMELLS_INDEX);
+}
+
+// Phase 9 (D-09, RESEARCH Pitfall 3): add SKILL.md + principles.md + the 3 backing refs as SOURCES so
+// their outbound coach cross-links and the Beck->Fowler links get resolution-checked. Each is
+// existsSync-guarded so the 2 absent Beck files (pre-Wave-2) are simply skipped -- the same
+// extend-the-source-set move 08.1 (gof/extra) and 08.2 (functional) made. principles.md stays a
+// file-level hub TARGET below; adding it as a SOURCE is orthogonal (its outbound links get checked).
+for (const extra of [SKILL_MD, PRINCIPLES_MD, BECK_TDD, BECK_TIDY, FEATHERS]) {
+  if (fs.existsSync(extra)) {
+    sourceFiles.push(extra);
+  }
 }
 
 console.log("Cross-reference consistency check (phase-gate; full at 07-10)");

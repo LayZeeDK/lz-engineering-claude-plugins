@@ -130,6 +130,7 @@ Items acknowledged and carried forward from previous milestone close:
 | 2026-07-02 | triage-lz-tpp-doc-review | complete | All 5 findings resolved: 1/2/4 applied (+ `:223-224` leak); #3 aggressive trim (provenance -> `.planning/` companion, 224->116 lines); #5 keep `.planning/` committed |
 | 2026-07-04 | changelog-and-github-release | complete | Added root CHANGELOG.md (lz-tdd@0.0.1 entry, commit 003219b) + pushed; published GitHub Release lz-tdd@0.0.1 "First Release" on the lz-tdd@0.0.1 tag |
 | 2026-07-04 | retag-milestone-lz-tdd | complete | Renamed identifier v0.0.1 -> lz-tdd@0.0.1 across git tag, GitHub Release, GSD milestone (.planning/ + archive files), and the CHANGELOG entry -- plugin-scoped versioning for the multi-plugin marketplace |
+| 2026-07-09 | humanize-lz-refactor-docs | complete | Humanized all 178 lz-refactor Markdown files via parallel agents: rewrote em-dash/`--` connectors to ASCII punctuation and removed AI-writing tells; conservative, structure- and fidelity-preserving (162 changed, 16 already clean). Verified by mechanical gate + 10 review agents (162 pass, 0 fixes). Docs commit 00258e3 |
 
 ## Session Continuity
 

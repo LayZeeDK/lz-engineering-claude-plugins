@@ -4,8 +4,8 @@ milestone: lz-tdd@0.0.2
 milestone_name: lz-refactor Skill (Fowler + Kerievsky)
 status: executing
 stopped_at: Phase 11 context gathered (evals; auto-advance suppressed per pause directive)
-last_updated: "2026-07-09T22:48:44.724Z"
-last_activity: 2026-07-09 -- Phase 11 planning complete
+last_updated: "2026-07-09T23:05:10.538Z"
+last_activity: 2026-07-09
 progress:
   total_phases: 8
   completed_phases: 7
@@ -21,15 +21,15 @@ progress:
 See: .planning/PROJECT.md (updated 2026-07-04)
 
 **Core value:** `lz-tpp` helps Claude choose the next code transformation by TPP priority during red-green-refactor TDD, and explains the premise on demand. lz-tdd@0.0.2 adds `lz-refactor` to drive the refactor step.
-**Current focus:** Phase 10 -- distribution-hygiene
+**Current focus:** Phase 11 — skill-effectiveness-evals
 **Milestone:** lz-tdd@0.0.2 (lz-refactor Skill) -- executing
 
 ## Current Position
 
-Phase: 10 (distribution-hygiene) -- COMPLETE (verified PASSED)
-Plan: all 4 plans complete (10-01, 10-02, 10-03, 10-04)
+Phase: 11 (skill-effectiveness-evals) — EXECUTING
+Plan: 2 of 4
 Status: Ready to execute
-Last activity: 2026-07-09 -- Phase 11 planning complete
+Last activity: 2026-07-09
 
 ## Performance Metrics
 
@@ -66,6 +66,7 @@ Last activity: 2026-07-09 -- Phase 11 planning complete
 | Phase 09 P03 | 15min | 3 tasks | 3 files |
 | Phase 09 P04 | 10min | 2 tasks | 1 files |
 | Phase 10 P02 | 5min | 3 tasks | 4 files |
+| Phase 11 P01 | 10min | 3 tasks | 9 files |
 
 ## Accumulated Context
 
@@ -103,6 +104,7 @@ Recent decisions affecting current work:
 - [Phase 10]: Phase 10 (10-01): landed the widened+hardened check-hygiene instrument (D-10, D-01 L1, D-17) -- Per-axis target-set split: wideTargets for axes (a) ASCII + (b) work-email (both skill trees + root README/CHANGELOG/LICENSE + both manifests, 178 -> 187 files); verbatimTargets for axis (c) no-verbatim (lz-refactor tree + new root prose only, 180 files, excludes lz-tpp/LICENSE/manifests per D-04). Axis (c) promoted WARN -> HARD report() gate; dead warn()/warnings path removed. D-11 allowlist shape unchanged; work-email literal absent. Extended in place, not a sibling (D-17). GREEN regression baseline (exit 0).
 - [Phase 10]: Phase 10 (10-02): authored the two-skill 0.0.2 content edits under the widened hygiene gate (DST-01/DST-03). plugin.json 0.0.1->0.0.2 + two-skill description + 6 refactoring keywords (refactoring, code-smells, design-patterns, gang-of-four, fowler, kerievsky); marketplace.json listing description names both skills and stays version-free (D-09). README documents lz-refactor alongside lz-tpp (two-skill lead via the red-green-refactor seam, /lz-tdd:lz-refactor bullet, What-lz-refactor-does Coach/Reference section, original refactoring primer + link-only Fowler/Kerievsky/GoF sources + references/ pointer; inventory RE-COUNTED against the live tree: 62 Fowler / 27 Kerievsky / 23 GoF + 5 extra / 19 functional / 28 smells). CHANGELOG gained the [lz-tdd@0.0.2] - 2026-07-09 entry above 0.0.1 (lead + 6 Added bullets + %40-encoded bottom link-ref to the not-yet-cut tag, D-16). All four files ASCII-only + work-email-free; check-hygiene GREEN after each task (187-file a/b, 180-file c). DST-01/DST-03 satisfied per-plan (traceability flip deferred to the 10-04 phase gate). Commits a08ca1a, 478dd7c, 5953cdc.
 - [Phase 10]: Phase 10 (10-03): DST-04 clean-room layer-2 sweep (D-01 L2/L3, D-02/03/04) -- 16 chapter/family oracle-reviewer batches (sequential per operator) cleared all 28 ## Intent lines (GoF 23 + extra 5) + 89 ## Mechanics step lists (Fowler 62 + Kerievsky 27) to all-pass near-verbatim. 24 surfaces reworded BLIND from category-only directives (never read .oracle/), re-gated within the 3-round cap, none escalated. Main context never read .oracle/. 10-DST-04-ATTESTATION.md records the sweep + cites 07/08/08.1 LEARNINGS+SUMMARYs for un-swept surfaces (functional-catalog no-oracle; lz-tpp out-of-axis). check-hygiene/gof/kerievsky/catalog GREEN; no SKILL.md touched (no D-14). Pre-existing ACCEPTED work-email-domain finding on 4 main-side prior-phase docs unchanged (deferred-items, out of scope).
+- [Phase ?]: Phase 11 (11-01): vendored the Phase-5 skill-creator-eval rig verbatim into lz-refactor-workspace (run_eval/utils/__init__/LICENSE byte-identical; eval-status + merge-judge verbatim, merge-judge --selfcheck GREEN); run-spec-chunks re-pointed (WS/SKILL/CANARY); EVAL-RESULTS.md scaffolded with blank numbers + the locked serial run config (--num-workers 1, PONYTAIL off, MCP + user-plugins stripped). Shared eval infrastructure only -- EVL-01/EVL-02 NOT satisfied yet (eval DATA + grader rubric + gated run come in later 11-0N plans; D-10 halt).
 
 ### Pending Todos
 
@@ -134,9 +136,9 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-09T21:57:26.593Z
+Last session: 2026-07-09T23:04:16.452Z
 Stopped at: Phase 11 context gathered (evals; auto-advance suppressed per pause directive)
-Resume file: .planning/phases/11-skill-effectiveness-evals/11-CONTEXT.md
+Resume file: None
 
 ## Operator Next Steps
 

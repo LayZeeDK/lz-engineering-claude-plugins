@@ -32,13 +32,6 @@ const EXTRA = path.join(REFERENCES, "extra-patterns-catalog");
 const FUNCTIONAL = path.join(REFERENCES, "functional-catalog");
 const SMELLS_DIR = path.join(REFERENCES, "smells");
 const SMELLS_INDEX = path.join(REFERENCES, "smells.md");
-// Phase 9 (D-09): additional single-file link sources -- the coach router and the no-oracle
-// principle-backing refs. SKILL.md sits one dir UP from references/; the rest live under references/.
-const SKILL_MD = path.join(REFERENCES, "..", "SKILL.md");
-const PRINCIPLES_MD = path.join(REFERENCES, "principles.md");
-const BECK_TDD = path.join(REFERENCES, "beck-tdd-by-example.md");
-const BECK_TIDY = path.join(REFERENCES, "beck-tidy-first.md");
-const FEATHERS = path.join(REFERENCES, "refactoring-without-tests.md");
 
 let failures = 0;
 
@@ -125,7 +118,13 @@ if (fs.existsSync(SMELLS_INDEX)) {
 // existsSync-guarded so the 2 absent Beck files (pre-Wave-2) are simply skipped -- the same
 // extend-the-source-set move 08.1 (gof/extra) and 08.2 (functional) made. principles.md stays a
 // file-level hub TARGET below; adding it as a SOURCE is orthogonal (its outbound links get checked).
-for (const extra of [SKILL_MD, PRINCIPLES_MD, BECK_TDD, BECK_TIDY, FEATHERS]) {
+for (const extra of [
+  path.join(REFERENCES, "..", "SKILL.md"), // the coach router, one dir UP from references/
+  path.join(REFERENCES, "principles.md"),
+  path.join(REFERENCES, "beck-tdd-by-example.md"),
+  path.join(REFERENCES, "beck-tidy-first.md"),
+  path.join(REFERENCES, "refactoring-without-tests.md"),
+]) {
   if (fs.existsSync(extra)) {
     sourceFiles.push(extra);
   }

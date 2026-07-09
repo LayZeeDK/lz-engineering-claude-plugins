@@ -29,8 +29,8 @@ const repoRoot = path.resolve(here, "..", "..", "..", "..");
 const REFERENCES = path.join(repoRoot, "plugins", "lz-tdd", "skills", "lz-refactor", "references");
 
 // Per-file core topic tokens (D-08 scope; RESEARCH topic-token map). Each entry: a label + a
-// line-matching pattern (case-insensitive). `link` (beck-tidy-first only) demands >=1 fowler-catalog
-// cross-link; PRESENCE only -- resolution is check-crossrefs's job.
+// line-matching pattern (case-insensitive). beck-tidy-first also carries a topic asserting >=1
+// fowler-catalog cross-link; PRESENCE only -- link resolution is check-crossrefs's job.
 const FILES = [
   {
     name: "beck-tdd-by-example.md",
@@ -51,8 +51,8 @@ const FILES = [
       { label: "coupling", re: /coupling/i },
       { label: "cohesion", re: /cohesion/i },
       { label: "options", re: /options/i },
+      { label: ">=1 fowler-catalog cross-link", re: /\]\(\.\.?\/?fowler-catalog\/[a-z0-9-]+\.md/ },
     ],
-    link: { label: ">=1 fowler-catalog cross-link", re: /\]\(\.\.?\/?fowler-catalog\/[a-z0-9-]+\.md/ },
   },
   {
     name: "refactoring-without-tests.md",
@@ -102,11 +102,6 @@ for (const spec of FILES) {
   for (const topic of spec.topics) {
     const hit = lines.some((line) => topic.re.test(line));
     report(hit, `${spec.name}: ${topic.label}`, hit ? "" : "topic token absent");
-  }
-
-  if (spec.link) {
-    const hit = lines.some((line) => spec.link.re.test(line));
-    report(hit, `${spec.name}: ${spec.link.label}`, hit ? "" : "fowler-catalog link absent");
   }
 
   const hasTag = lines.some((line) => NO_ORACLE.test(line));

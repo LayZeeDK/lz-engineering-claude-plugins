@@ -44,7 +44,7 @@ this milestone starts at Phase 6.
 - [x] **Phase 7: Fowler Catalog (Refactoring, 2nd ed)** - All 62 refactorings + 24 smells + Ch.2 principles, original prose + tsc-clean TS/JS, clean-room-oracle-verified and provenance-labeled (completed 2026-07-05)
 - [x] **Phase 8: Kerievsky Catalog (Refactoring to Patterns)** - All 27 pattern-directed refactorings with To/Towards/Away directions, GoF cross-refs, Fowler-primitive composition, and Ch.4 smells folded into the unified taxonomy (completed 2026-07-07)
 - [x] **Phase 9: Coach Behavior & Principle-Backing** - Dual-mode smell->named-refactoring routing (incl. de-patterning), behavior-preservation discipline, the lz-tpp seam, and the three no-oracle Beck/Feathers cross-refs (completed 2026-07-09)
-- [ ] **Phase 10: Distribution & Hygiene** - Version bump to 0.0.2, README + CHANGELOG, first-party review, no-verbatim-prose hygiene, public-repo hygiene preserved
+- [x] **Phase 10: Distribution & Hygiene** - Version bump to 0.0.2, README + CHANGELOG, first-party review, no-verbatim-prose hygiene, public-repo hygiene preserved (completed 2026-07-09)
 - [ ] **Phase 11: Skill-Effectiveness Evals** - Native-harness trigger recall/specificity + smell->refactoring behavior accuracy (with-skill vs baseline), late and non-blocking
 
 ## Phase Details
@@ -197,7 +197,7 @@ this milestone starts at Phase 6.
 - [x] 10-01-PLAN.md -- Wave-1 instrument: harden check-hygiene (c) WARN->HARD gate + widen the ASCII/email walk with a per-axis target-set split (D-01 L1, D-04, D-10, D-11)
 - [x] 10-02-PLAN.md -- Wave-2 content: plugin.json bump 0.0.1->0.0.2 + two-skill description/keywords + marketplace.json listing, README lz-refactor section, CHANGELOG 0.0.2 entry (D-05..09, D-15/16)
 - [x] 10-03-PLAN.md -- Wave-1 DST-04 clean-room oracle-reviewer sweep (28 Intents + 89 mechanics, batched by chapter) + layer-3 attestation record (D-01 L2/L3, D-02/03/04)
-- [ ] 10-04-PLAN.md -- Wave-3 review battery: validate + --strict + npm run check/typecheck + plugin-validator + skill-reviewer on both skills + D-13 triage (D-12/13/14)
+- [x] 10-04-PLAN.md -- Wave-3 review battery: validate + --strict + npm run check/typecheck + plugin-validator + skill-reviewer on both skills + D-13 triage (D-12/13/14)
 
 ### Phase 11: Skill-Effectiveness Evals
 
@@ -230,7 +230,7 @@ Phases execute in numeric order: 6 -> 7 -> 8 -> 8.1 -> 8.2 -> 9 -> 10 -> 11
 | 8.1. GoF Design Patterns Catalog (INSERTED) | lz-tdd@0.0.2 | 7/7 | Complete   | 2026-07-07 |
 | 8.2. Functional Catalog (INSERTED) | lz-tdd@0.0.2 | 6/6 | Complete   | 2026-07-07 |
 | 9. Coach Behavior & Principle-Backing | lz-tdd@0.0.2 | 4/4 | Complete   | 2026-07-09 |
-| 10. Distribution & Hygiene | lz-tdd@0.0.2 | 2/4 | In Progress|  |
+| 10. Distribution & Hygiene | lz-tdd@0.0.2 | 4/4 | Complete   | 2026-07-09 |
 | 11. Skill-Effectiveness Evals | lz-tdd@0.0.2 | - | Not started | - |
 
 ---

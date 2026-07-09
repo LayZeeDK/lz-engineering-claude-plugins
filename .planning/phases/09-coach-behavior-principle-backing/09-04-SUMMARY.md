@@ -94,9 +94,18 @@ Run on the merged tree; recorded verbatim (no checker weakened to force GREEN, p
 - **`npm run typecheck`**: exit 0 -- 251 modules tsc --strict --noEmit clean, 0 fences skipped (FWL-04).
 - **`claude plugin validate .`** (from repo root): PASS ("Validation passed").
 
-## skill-reviewer (delegated -- orchestrator-pending)
+## skill-reviewer (orchestrator-run -- PASS)
 
-The plan's Task 2 also requires a plugin-dev **skill-reviewer PASS** on the lz-refactor skill (the authoritative DST-04 anchor for the no-oracle Beck/Feathers refs, D-07). The executor does NOT have the Agent tool and cannot spawn skill-reviewer; this is delegated to the orchestrator, which runs skill-reviewer after this plan returns. This SUMMARY therefore does NOT claim a skill-reviewer PASS -- it records the automated gate results only and marks skill-reviewer as **pending (orchestrator)**.
+The plan's Task 2 also requires a plugin-dev **skill-reviewer PASS** on the lz-refactor skill (the authoritative DST-04 anchor for the no-oracle Beck/Feathers refs, D-07). The executor has no Agent tool, so this was delegated to and run by the orchestrator after the plan returned.
+
+**Verdict: PASS-with-suggestions** (no Critical, no Major). The reviewer read SKILL.md, the three Phase-9 no-oracle refs, principles.md, the sibling lz-tpp frontmatter, and smells.md, and enumerated the Fowler catalog to fact-check one claim. It confirmed: the skill reads as one coherent unit (coach procedure routes into references with no dead ends), progressive disclosure is disciplined, frontmatter cleanly disambiguates from lz-tpp, and the three no-oracle refs carry consistent provenance and original prose (DST-04 posture holds -- Beck's two rules, Feathers' seam, and the technique names all paraphrased/kept-as-names correctly).
+
+Three minor findings were fixed in commit `a4106f5` before phase close:
+- principles.md: dropped the "wired in Phase 9" authoring-process leak; added the `refactoring-without-tests.md` sibling link for parity.
+- beck-tidy-first.md: dropped the "FUT-01" internal ticket ID leak.
+- beck-tidy-first.md: reworded "no dedicated Fowler 2nd-edition leaf" -> "no leaf in this catalog" (accuracy).
+
+Reviewer-judged non-defects, deliberately deferred: the layered (cross-linked) lz-tpp seam statement, the dedupe-now vs rule-of-three scoping (both correct at their scope), and the SKILL.md CCH-01..06 traceability tags. Full battery + typecheck re-confirmed GREEN after the fixes; no checker weakened.
 
 ## Decisions Made
 

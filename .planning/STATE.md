@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: lz-tdd@0.0.2
 milestone_name: lz-refactor Skill (Fowler + Kerievsky)
-status: executing
-stopped_at: "Completed 09-01-PLAN.md (instrument-first harness: IN-02 retired + check-backing RED gate)"
-last_updated: "2026-07-08T19:53:34.713Z"
-last_activity: 2026-07-08
+status: verifying
+stopped_at: "Completed 09-04-PLAN.md (Wave-3 finalize: D-06 Beck pointers + phase gate GREEN; skill-reviewer pending orchestrator)"
+last_updated: "2026-07-09T04:59:12.881Z"
+last_activity: 2026-07-09
 progress:
   total_phases: 8
-  completed_phases: 5
+  completed_phases: 6
   total_plans: 34
-  completed_plans: 33
-  percent: 63
+  completed_plans: 34
+  percent: 75
 ---
 
 # Project State
@@ -28,8 +28,8 @@ See: .planning/PROJECT.md (updated 2026-07-04)
 
 Phase: 09 (coach-behavior-principle-backing) — EXECUTING
 Plan: 4 of 4
-Status: Ready to execute
-Last activity: 2026-07-08
+Status: Phase complete — ready for verification
+Last activity: 2026-07-09
 
 ## Performance Metrics
 
@@ -64,6 +64,7 @@ Last activity: 2026-07-08
 | Phase 09 P01 | 18min | 2 tasks | 8 files |
 | Phase 09 P02 | 8min | 1 task tasks | 1 file files |
 | Phase 09 P03 | 15min | 3 tasks | 3 files |
+| Phase 09 P04 | 10min | 2 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -97,6 +98,7 @@ Recent decisions affecting current work:
 - [Phase ?]: Phase 9 (09-01, Wave 1): retired IN-02 into shared tools/lib/heading-scan.mjs (collectH1Lines) imported by all four catalog checkers, behavior-preserving (battery stays GREEN). Stood up check-backing.mjs (D-09) as a NEW sibling to an asserted RED baseline, wired into npm run check; check-crossrefs now sources SKILL.md + principles.md + 3 backing refs. Phase-open baseline: check-backing sole RED, all else GREEN. PRIN-01/02/03 remain OPEN until Wave 2 turns the gate GREEN.
 - [Phase ?]: Phase 9 (09-02, Wave 2): replaced the deferred-to-Phase-9 placeholder in lz-refactor SKILL.md with the real inline coach decision procedure -- a compact 6-step numbered tree wiring CCH-01..06 (classify against the lz-tpp seam; recognize smell via smells.md then open the leaf; route mechanical->Fowler / repeated-complex->Kerievsky; de-patterning balance to Kerievsky Away OR functional-catalog with the Replace-Pipeline-with-Loop reverse note; behavior-preservation + Feathers no-tests fallback; reference mode). No new smell table (D-03); all coach cross-links file-level to already-existing files (INLINE, no split -- SKILL.md 112 lines). check-crossrefs + check-hygiene GREEN; check-backing stays RED by design (Beck refs in parallel 09-03).
 - [Phase 09]: Phase 9 (09-03, Wave 2): authored 3 no-oracle principle refs -- beck-tdd-by-example.md (PRIN-01), beck-tidy-first.md (PRIN-02, 8 Fowler cross-links via ./fowler-catalog/ link form to satisfy check-backing's leading-dot regex), populated refactoring-without-tests.md (PRIN-03, both scaffold markers removed). check-backing GREEN 3/3; crossrefs + hygiene GREEN. DST-04-clean, fence-free (D-11).
+- [Phase 09]: Phase 9 (09-04, Wave-3 finalize): wired the two D-06 Beck cross-ref pointers into the Fowler-oracle principles.md (beck-tdd-by-example.md under 'The two hats' / lz-tpp seam CCH-05; beck-tidy-first.md under 'When to refactor' / economics) in the file's existing sibling-relative inline link style, pointers-only with no Beck content imported. Full phase gate GREEN on the merged tree: npm run check exit 0 (all 10 checkers incl. check-backing 3/3 + the four IN-02-rewired catalog checkers + check-crossrefs 715 links), npm run typecheck exit 0 (251 modules tsc --strict clean), claude plugin validate . PASS; no checker weakened (T-09-GATE). skill-reviewer PASS delegated to the orchestrator (executor has no Agent tool). CCH-05 / PRIN-01 / PRIN-02 closed.
 
 ### Pending Todos
 
@@ -127,8 +129,8 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-08T19:50:52.660Z
-Stopped at: Completed 09-01-PLAN.md (instrument-first harness: IN-02 retired + check-backing RED gate)
+Last session: 2026-07-09T04:59:12.872Z
+Stopped at: Completed 09-04-PLAN.md (Wave-3 finalize: D-06 Beck pointers + phase gate GREEN; skill-reviewer pending orchestrator)
 Resume file: None
 
 ## Operator Next Steps

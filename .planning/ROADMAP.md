@@ -43,7 +43,7 @@ this milestone starts at Phase 6.
 - [x] **Phase 6: lz-refactor Skill Scaffold & Progressive Disclosure** - Invocable, auto-triggering `/lz-tdd:lz-refactor` router with a lean SKILL.md and a wired references/ structure (completed 2026-07-04)
 - [x] **Phase 7: Fowler Catalog (Refactoring, 2nd ed)** - All 62 refactorings + 24 smells + Ch.2 principles, original prose + tsc-clean TS/JS, clean-room-oracle-verified and provenance-labeled (completed 2026-07-05)
 - [x] **Phase 8: Kerievsky Catalog (Refactoring to Patterns)** - All 27 pattern-directed refactorings with To/Towards/Away directions, GoF cross-refs, Fowler-primitive composition, and Ch.4 smells folded into the unified taxonomy (completed 2026-07-07)
-- [ ] **Phase 9: Coach Behavior & Principle-Backing** - Dual-mode smell->named-refactoring routing (incl. de-patterning), behavior-preservation discipline, the lz-tpp seam, and the three no-oracle Beck/Feathers cross-refs
+- [x] **Phase 9: Coach Behavior & Principle-Backing** - Dual-mode smell->named-refactoring routing (incl. de-patterning), behavior-preservation discipline, the lz-tpp seam, and the three no-oracle Beck/Feathers cross-refs (completed 2026-07-09)
 - [ ] **Phase 10: Distribution & Hygiene** - Version bump to 0.0.2, README + CHANGELOG, first-party review, no-verbatim-prose hygiene, public-repo hygiene preserved
 - [ ] **Phase 11: Skill-Effectiveness Evals** - Native-harness trigger recall/specificity + smell->refactoring behavior accuracy (with-skill vs baseline), late and non-blocking
 
@@ -178,7 +178,7 @@ this milestone starts at Phase 6.
 - [x] 09-01-PLAN.md -- Wave-1 instrument: shared fence-aware heading-scan helper + rewire the 4 catalog checkers (IN-02/D-10, battery stays GREEN) + new check-backing.mjs RED gate + check-crossrefs source extension + package.json wiring (wave 1)
 - [x] 09-02-PLAN.md -- Coach decision procedure inline in SKILL.md: classify/seam gate, smell->named-refactoring routing, de-patterning balance, behavior-preservation + Feathers fallback, reference mode (CCH-01..06) (wave 2)
 - [x] 09-03-PLAN.md -- Three no-oracle principle refs: beck-tdd-by-example.md (PRIN-01), beck-tidy-first.md (PRIN-02, Fowler cross-links by link), populate refactoring-without-tests.md (PRIN-03) -> check-backing GREEN (wave 2)
-- [ ] 09-04-PLAN.md -- principles.md D-06 Beck cross-ref pointers + phase finalize gate (full npm run check + typecheck + claude plugin validate . + skill-reviewer PASS) (wave 3)
+- [x] 09-04-PLAN.md -- principles.md D-06 Beck cross-ref pointers + phase finalize gate (full npm run check + typecheck + claude plugin validate . + skill-reviewer PASS) (wave 3)
 
 ### Phase 10: Distribution & Hygiene
 
@@ -224,7 +224,7 @@ Phases execute in numeric order: 6 -> 7 -> 8 -> 8.1 -> 8.2 -> 9 -> 10 -> 11
 | 8. Kerievsky Catalog (Refactoring to Patterns) | lz-tdd@0.0.2 | 6/6 | Complete   | 2026-07-07 |
 | 8.1. GoF Design Patterns Catalog (INSERTED) | lz-tdd@0.0.2 | 7/7 | Complete   | 2026-07-07 |
 | 8.2. Functional Catalog (INSERTED) | lz-tdd@0.0.2 | 6/6 | Complete   | 2026-07-07 |
-| 9. Coach Behavior & Principle-Backing | lz-tdd@0.0.2 | 3/4 | In Progress|  |
+| 9. Coach Behavior & Principle-Backing | lz-tdd@0.0.2 | 4/4 | Complete   | 2026-07-09 |
 | 10. Distribution & Hygiene | lz-tdd@0.0.2 | - | Not started | - |
 | 11. Skill-Effectiveness Evals | lz-tdd@0.0.2 | - | Not started | - |
 

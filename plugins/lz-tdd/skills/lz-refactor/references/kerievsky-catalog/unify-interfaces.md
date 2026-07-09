@@ -21,8 +21,8 @@ it once clients are narrowing to a subtype just to call a method the supertype c
 1. Add the method the client needs -- the one only the specific type defines -- to the existing shared
    supertype, declaring it there with
    [Change Function Declaration](../fowler-catalog/change-function-declaration.md#change-function-declaration)
-   and giving it a safe default (null-behavior) implementation so every subtype answers it; compile and
-   run the tests.
+   and backing it with a harmless default body -- one that does nothing observable -- so every subtype
+   answers it; compile and run the tests.
 2. Remove the type tests and narrowing at the call sites, calling the unified method directly.
 3. Run the tests and confirm behavior is unchanged for both types.
 

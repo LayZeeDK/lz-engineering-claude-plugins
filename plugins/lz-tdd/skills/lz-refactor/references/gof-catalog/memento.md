@@ -6,9 +6,9 @@ Functional alternative: [Immutable Snapshot](../functional-catalog/immutable-sna
 
 ## Intent
 
-Capture a snapshot of an object's internal state in a separate object that only the
-original can read back, so the object can be rolled back to that state later without
-exposing its internals to whatever holds the snapshot.
+An object hands out a sealed record of where it currently stands -- opaque to every holder except
+the object itself. Handed that record back later, it returns to exactly the point the record
+describes, and at no stage did anything about its internals become public.
 
 ## Applicability
 

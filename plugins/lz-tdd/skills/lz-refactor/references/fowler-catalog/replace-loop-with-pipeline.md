@@ -14,8 +14,8 @@ which is usually the clearer story.
 ## Mechanics
 
 1. Create a variable holding the collection the loop iterates over, independent of the loop.
-2. Take the topmost piece of behavior in the loop and re-express it as a pipeline operation on that
-   variable, then remove that piece from the loop. Run the tests.
+2. Start with whatever the loop does first: restate it as an operation applied to that variable,
+   delete it from the loop body, and run the tests.
 3. Repeat down the loop, moving one behavior at a time into the pipeline and testing after each, until
    the loop body is empty.
 4. Remove the empty loop and return the pipeline's result. Run the tests.

@@ -6,8 +6,9 @@ Functional alternative: [Discriminated Union and Fold](../functional-catalog/dis
 
 ## Intent
 
-Let an object change how it behaves as its internal condition changes, so that from the
-outside it looks as though the object had switched to a different class.
+Behavior is delegated to whichever state object currently stands for the situation the owner is in,
+so moving to another situation swaps the behavior wholesale. To a caller, the thing it holds seems
+to have become a different kind of object altogether.
 
 ## Applicability
 

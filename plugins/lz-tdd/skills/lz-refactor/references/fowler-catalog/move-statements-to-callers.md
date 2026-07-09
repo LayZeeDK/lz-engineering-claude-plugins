@@ -12,12 +12,13 @@ single function is doing slightly the wrong thing for some of the code that call
 
 ## Mechanics
 
-1. In the simple case -- a handful of callers and a straightforward function -- copy the statements
-   you want to move into each caller, then remove them from the function, testing after each caller.
-2. Otherwise, apply [Extract Function](extract-function.md) to all the code you want to keep inside
-   the function, giving it a temporary name; run the tests. If the function is overridden in
-   subclasses, extract the kept code in every override too, so each subclass's kept-code function is
-   identical, then remove the overrides -- this keeps the next step safe.
+1. Where only a few callers exist and the function is unremarkable, paste the departing statements
+   into each caller, strip them from the function, and test caller by caller.
+2. Failing that, wrap whatever stays behind in a function of its own via
+   [Extract Function](extract-function.md) under a throwaway name, and run the tests. Where
+   subclasses override the function, each override needs the same extraction so that all the
+   retained-code functions come out identical; delete the overrides afterwards, which is what makes
+   the following step safe.
 3. Apply [Inline Function](inline-function.md) to the original function so every caller now holds its
    body directly; run the tests.
 4. Apply [Change Function Declaration](change-function-declaration.md) to rename the extracted

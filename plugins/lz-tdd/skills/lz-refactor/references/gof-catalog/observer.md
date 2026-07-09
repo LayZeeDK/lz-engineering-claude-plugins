@@ -6,8 +6,9 @@ Functional alternative: [Observer Callbacks](../functional-catalog/observer-call
 
 ## Intent
 
-Set up a one-to-many link between a subject and its dependents so that whenever the
-subject's state changes, every dependent is told and refreshes itself automatically.
+Interested parties register with the object they care about. Any change to that object's state then
+fans out to all of them, each bringing itself up to date on its own; the object needs to know
+nothing about them beyond the fact that they registered.
 
 ## Applicability
 

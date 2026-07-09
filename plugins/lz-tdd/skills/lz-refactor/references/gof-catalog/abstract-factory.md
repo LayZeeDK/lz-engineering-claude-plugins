@@ -6,9 +6,9 @@ Functional alternative: [Factory Function](../functional-catalog/factory-functio
 
 ## Intent
 
-Give client code one interface for producing a whole family of related objects, so it can
-create and use them without naming their concrete classes or knowing which variant of the
-family it currently holds.
+Concrete class names stay out of the client's vocabulary. A single factory interface hands back an
+entire family of objects meant to be used together, and which variant of that family the client is
+holding becomes the factory's business rather than the client's.
 
 ## Applicability
 

@@ -14,8 +14,8 @@ belongs inside the current function; if the name would be useful more widely, pr
 ## Mechanics
 
 1. Confirm the expression has no side effects, so naming and reusing it changes nothing.
-2. Declare a new immutable variable and set it to the expression you want to name.
-3. Replace the original expression with the variable.
+2. Introduce a fresh binding that cannot be reassigned, and give it that expression as its value.
+3. Substitute the binding wherever the expression used to sit.
 4. Run the tests.
 
 Repeat for each sub-expression worth naming.

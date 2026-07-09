@@ -4,9 +4,9 @@ Functional alternative: [Function Composition](../functional-catalog/function-co
 
 ## Intent
 
-Give several objects a chance to handle a request by linking them in a line and passing
-the request along until one of them takes it, so the sender never needs to know which
-object will respond.
+A request travels down a line of candidate handlers, and the first one willing to deal with it ends
+the traversal. Because the caller addresses only the head of that line, it never learns which
+handler answered -- or whether any did.
 
 ## Applicability
 

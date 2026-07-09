@@ -13,13 +13,14 @@ them out.
 
 ## Mechanics
 
-1. If the repeated statements are not adjacent to the call of the target function, apply
-   [Slide Statements](slide-statements.md) until they are.
-2. If the target function is called only from this one place, cut the statements from the caller,
-   paste them into the target, and run the tests. You are done.
+1. Should the repeated statements sit anywhere other than right beside the call, bring them together
+   first with [Slide Statements](slide-statements.md).
+2. A single call site makes this easy: lift the statements out of the caller, drop them inside the
+   target, and let the tests confirm it. Nothing further is needed.
 3. With more callers, pick one call site and apply [Extract Function](extract-function.md) to the
    statements together with the call, giving the new function a temporary name; run the tests.
-4. Convert every other call site to the new function, testing after each.
+4. Work through the remaining call sites, switching each one over to the new function and testing as
+   you go.
 5. When all callers use the new function, apply [Inline Function](inline-function.md) to fold the
    original target into it.
 6. Apply [Change Function Declaration](change-function-declaration.md) to rename the new function to

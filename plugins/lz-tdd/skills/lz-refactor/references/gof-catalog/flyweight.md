@@ -4,9 +4,9 @@ Functional alternative: [Memoization and Interning](../functional-catalog/memoiz
 
 ## Intent
 
-Share the common, unchanging part of a large population of similar objects across all of
-them, so that supporting very many fine-grained objects costs far less memory than giving
-each object its own copy.
+Objects that differ only in a sliver of their state need not each carry a private copy of the rest.
+Hoist what they hold in common into a single instance every one of them points at, and a population
+whose memory cost would otherwise be prohibitive becomes affordable.
 
 ## Applicability
 

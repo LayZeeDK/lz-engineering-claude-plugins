@@ -12,8 +12,8 @@ is a judgment call that shifts as the relationship changes.
 ## Mechanics
 
 1. Add an accessor on the server for the delegate, if there is not one.
-2. For each client using a delegating method, replace the call with one that goes through the
-   delegate accessor, testing after each.
+2. Redirect the clients one at a time: each forwarding call becomes a call reached through the
+   accessor, with a test run in between.
 3. Remove the delegating method once no client uses it.
 
 With refactoring-tool support this composes from two other refactorings: apply

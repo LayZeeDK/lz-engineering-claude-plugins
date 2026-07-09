@@ -15,10 +15,10 @@ alternative.
 
 1. Encapsulate the common data so the functions share one object -- apply
    [Encapsulate Record](encapsulate-record.md) if it is a bare record.
-2. Take each function that uses the common data and move it onto the new class with
-   [Move Function](move-function.md).
-3. Extract fragments of logic that manipulate the data with
-   [Extract Function](extract-function.md) and move those onto the class too.
+2. Relocate onto the class, one at a time, every function whose work centers on that data --
+   [Move Function](move-function.md) does the mechanical part.
+3. Where a chunk of logic still handles the data from outside, pull it out via
+   [Extract Function](extract-function.md) and give it a home on the class as well.
 4. Run the tests after each move.
 
 ## Example

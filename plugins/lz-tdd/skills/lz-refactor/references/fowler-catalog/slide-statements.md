@@ -16,11 +16,11 @@ statements you pass have any ordering dependency, so check before you cut.
 
 ## Mechanics
 
-1. Identify where the fragment should go, then inspect every statement it must slide past for
-   interference: the fragment must not reference anything declared in that span, nothing in that span
-   may reference anything the fragment declares, and the fragment and the span must not both touch
-   the same state (one reading what the other writes) or depend on side-effect ordering.
-2. Cut the fragment and paste it into the target position.
+1. Settle on the fragment's destination, then examine each statement it will travel past for a
+   conflict: the fragment must not reference anything declared in that span, nothing in that span
+   may reference anything the fragment declares, and the two must not both touch the same state (one
+   reading what the other writes) or rely on side-effect ordering.
+2. Lift the fragment out and set it down where it belongs.
 3. Run the tests.
 
 If a slide feels risky, break it into smaller slides, or lean on a tool that guarantees the move is

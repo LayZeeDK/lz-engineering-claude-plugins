@@ -12,8 +12,8 @@ combined condition after what it means rather than what it tests.
 
 ## Mechanics
 
-1. Confirm none of the conditions has a side effect; if one does, apply
-   [Separate Query from Modifier](separate-query-from-modifier.md) first.
+1. No check in the run may alter state; where one does, hand it to
+   [Separate Query from Modifier](separate-query-from-modifier.md) before going further.
 2. Combine two of the conditions that share a result into one expression -- `or` for a sequence of
    independent checks, `and` for nested ones.
 3. Run the tests, then fold in the next condition the same way, testing after each.

@@ -4,8 +4,10 @@ Functional alternative: [Function Composition](../functional-catalog/function-co
 
 ## Intent
 
-Pull the step-by-step assembly of a complex object out of the object itself, so one
-assembly process can be reused to produce several different representations of the result.
+One assembly routine, several possible end products. The steps that build up a complex object live
+outside it, in a separate builder role; because the walk through those steps is decoupled from what
+each step actually produces, running it again against a different builder yields a different
+representation.
 
 ## Applicability
 

@@ -4,9 +4,9 @@ Functional alternative: [Discriminated Union and Fold](../functional-catalog/dis
 
 ## Intent
 
-Move an operation that works across the objects of a structure into a separate visitor
-object, so new operations can be added without editing the classes of the elements they
-run on.
+Move an operation that works across the objects of a structure into a separate visitor object.
+Adding another operation then means writing another visitor; the element types the visitor walks
+over stay exactly as they were.
 
 ## Applicability
 

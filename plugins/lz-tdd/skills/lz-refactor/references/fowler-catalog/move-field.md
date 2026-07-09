@@ -14,11 +14,12 @@ functions that use it.
 
 ## Mechanics
 
-1. Ensure the source field is encapsulated, reached only through accessors; if it is not, apply
-   [Encapsulate Variable](encapsulate-variable.md) or [Encapsulate Record](encapsulate-record.md)
-   first.
+1. The source field must be reachable only through accessors before anything moves; where it is not,
+   run [Encapsulate Variable](encapsulate-variable.md) or
+   [Encapsulate Record](encapsulate-record.md) first.
 2. Run the tests.
-3. Create the field, and accessors for it, in the target record.
+3. Give the target record its own copy of the field, together with the accessors that read and write
+   it.
 4. Compile to confirm the new field and accessors are consistent.
 5. Ensure the source can reach the target -- an existing reference, or one you add.
 6. Redirect the source accessors to read and write the target's field instead of their own.

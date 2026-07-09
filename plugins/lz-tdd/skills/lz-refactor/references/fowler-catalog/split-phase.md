@@ -11,12 +11,14 @@ longer forces you to read the other.
 
 ## Mechanics
 
-1. Extract the second phase into its own function with [Extract Function](extract-function.md).
+1. Give the trailing concern a function of its own -- [Extract Function](extract-function.md) --
+   leaving the earlier work where it stands.
 2. Run the tests.
-3. Introduce an intermediate data structure and pass it as the second phase's argument.
+3. Create a record to carry values across the seam, and hand it to the trailing function as an
+   argument.
 4. Run the tests.
-5. Examine each parameter the second phase still takes; for any that the first phase also uses, move
-   it into the intermediate structure, testing after each.
+5. Walk the trailing function's remaining parameters one by one; whenever the earlier work also
+   touches one, fold it into that carrier record and re-run the tests before moving on.
 6. Extract the first phase into its own function that returns the intermediate structure.
 
 ## Example

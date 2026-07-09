@@ -12,7 +12,8 @@ what a correct program does; removing every assertion should leave behavior iden
 
 ## Mechanics
 
-1. Where the code silently assumes a condition, add an assertion that states it.
+1. Take the assumption the code leans on without saying so, and write it down on the spot as an
+   assertion.
 2. Run the tests.
 
 ## Example

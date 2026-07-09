@@ -15,11 +15,11 @@ in one place and the type says what it is.
 
 1. Apply [Encapsulate Variable](encapsulate-variable.md) to the primitive field if it is not already
    encapsulated.
-2. Create a small value class that takes the primitive in its constructor and exposes it through a
-   getter.
+2. Give the concept a class of its own: its constructor accepts the raw value, and a single read
+   accessor hands that value back.
 3. Run the static checks.
-4. Change the setter to store a new instance of the value class and the getter to read the value back
-   out; test.
+4. Rewire the write accessor so incoming values arrive wrapped in that class, and the read accessor
+   so it unwraps them again; test.
 5. Move the behavior that operated on the primitive onto the value class.
 6. Run the tests.
 7. Consider renaming the original accessors so their names reflect the new type rather than the old

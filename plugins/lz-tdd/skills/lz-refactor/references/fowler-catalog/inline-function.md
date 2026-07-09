@@ -15,7 +15,7 @@ divided -- inline them into one place, then re-extract along better seams.
 1. Confirm the function is not polymorphic -- do not inline a method that subclasses override, since
    callers may bind to a different body.
 2. Find every caller.
-3. Replace each call with the function's body.
+3. At every call site, substitute what the body actually does for the call itself.
 4. Run the tests after each replacement, so a bad substitution is caught while it is still isolated.
 5. Once every call is replaced, remove the function definition.
 

@@ -11,10 +11,11 @@ later change to the delegate touches only the server. This is encapsulation of a
 
 ## Mechanics
 
-1. For each method on the delegate the client uses, add a simple delegating method on the server.
+1. Wherever a client currently reaches the delegate for some operation, give the server a thin
+   forwarding method that covers it.
 2. Change the client to call the server's method instead of reaching through to the delegate, testing
    after each.
-3. If no client still needs it, remove the server's accessor that exposed the delegate.
+3. Once nothing outside relies on it, drop the server member that handed the delegate out.
 4. Run the tests.
 
 Inverse of [Remove Middle Man](remove-middle-man.md).

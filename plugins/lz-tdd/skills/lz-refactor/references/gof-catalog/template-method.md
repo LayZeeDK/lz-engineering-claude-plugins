@@ -4,9 +4,9 @@ Functional alternative: [Function Composition](../functional-catalog/function-co
 
 ## Intent
 
-Put the fixed outline of an algorithm in a base-class method that calls out to steps the
-subclasses supply, so subclasses can redefine those steps without altering the algorithm's
-overall shape.
+The overall shape of an algorithm lives in one place -- a base-class method -- while the individual
+steps it reaches for are deliberately left open. Each subclass fills in its own version of those
+hook steps, and the order the base class laid down never moves.
 
 ## Applicability
 

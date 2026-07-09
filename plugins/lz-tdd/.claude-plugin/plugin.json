@@ -1,7 +1,7 @@
 {
   "name": "lz-tdd",
-  "version": "0.0.1",
-  "description": "Test-driven development guidance for Claude Code. Includes the lz-tpp skill operationalizing Robert C. Martin's Transformation Priority Premise (TPP).",
+  "version": "0.0.2",
+  "description": "Test-driven development guidance for Claude Code across the red-green-refactor loop. Includes the lz-tpp skill for the green step (Robert C. Martin's Transformation Priority Premise) and the lz-refactor skill for the refactor step (Fowler and Kerievsky refactorings, code smells, and design patterns).",
   "author": {
     "name": "Lars Gyrup Brink Nielsen",
     "email": "larsbrinknielsen@gmail.com"
@@ -16,6 +16,12 @@
     "tpp",
     "red-green-refactor",
     "clean-code",
-    "typescript"
+    "typescript",
+    "refactoring",
+    "code-smells",
+    "design-patterns",
+    "gang-of-four",
+    "fowler",
+    "kerievsky"
   ]
 }

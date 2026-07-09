@@ -27,8 +27,8 @@ See: .planning/PROJECT.md (updated 2026-07-04)
 ## Current Position
 
 Phase: 10 (distribution-hygiene) -- EXECUTING
-Plan: 2 of 4
-Status: Ready to execute
+Plan: 10-03 complete (2 of 4 plans done: 10-01, 10-03); 10-02 + 10-04 remain
+Status: executing
 Last activity: 2026-07-09
 
 ## Performance Metrics
@@ -100,6 +100,7 @@ Recent decisions affecting current work:
 - [Phase 09]: Phase 9 (09-03, Wave 2): authored 3 no-oracle principle refs -- beck-tdd-by-example.md (PRIN-01), beck-tidy-first.md (PRIN-02, 8 Fowler cross-links via ./fowler-catalog/ link form to satisfy check-backing's leading-dot regex), populated refactoring-without-tests.md (PRIN-03, both scaffold markers removed). check-backing GREEN 3/3; crossrefs + hygiene GREEN. DST-04-clean, fence-free (D-11).
 - [Phase 09]: Phase 9 (09-04, Wave-3 finalize): wired the two D-06 Beck cross-ref pointers into the Fowler-oracle principles.md (beck-tdd-by-example.md under 'The two hats' / lz-tpp seam CCH-05; beck-tidy-first.md under 'When to refactor' / economics) in the file's existing sibling-relative inline link style, pointers-only with no Beck content imported. Full phase gate GREEN on the merged tree: npm run check exit 0 (all 10 checkers incl. check-backing 3/3 + the four IN-02-rewired catalog checkers + check-crossrefs 715 links), npm run typecheck exit 0 (251 modules tsc --strict clean), claude plugin validate . PASS; no checker weakened (T-09-GATE). skill-reviewer PASS (orchestrator-run, PASS-with-suggestions; 3 minor leak/accuracy fixes committed a4106f5). gsd-verifier 9/9 SATISFIED (09-VERIFICATION). CCH-05 / PRIN-01 / PRIN-02 closed.
 - [Phase 10]: Phase 10 (10-01): landed the widened+hardened check-hygiene instrument (D-10, D-01 L1, D-17) -- Per-axis target-set split: wideTargets for axes (a) ASCII + (b) work-email (both skill trees + root README/CHANGELOG/LICENSE + both manifests, 178 -> 187 files); verbatimTargets for axis (c) no-verbatim (lz-refactor tree + new root prose only, 180 files, excludes lz-tpp/LICENSE/manifests per D-04). Axis (c) promoted WARN -> HARD report() gate; dead warn()/warnings path removed. D-11 allowlist shape unchanged; work-email literal absent. Extended in place, not a sibling (D-17). GREEN regression baseline (exit 0).
+- [Phase 10]: Phase 10 (10-03): DST-04 clean-room layer-2 sweep (D-01 L2/L3, D-02/03/04) -- 16 chapter/family oracle-reviewer batches (sequential per operator) cleared all 28 ## Intent lines (GoF 23 + extra 5) + 89 ## Mechanics step lists (Fowler 62 + Kerievsky 27) to all-pass near-verbatim. 24 surfaces reworded BLIND from category-only directives (never read .oracle/), re-gated within the 3-round cap, none escalated. Main context never read .oracle/. 10-DST-04-ATTESTATION.md records the sweep + cites 07/08/08.1 LEARNINGS+SUMMARYs for un-swept surfaces (functional-catalog no-oracle; lz-tpp out-of-axis). check-hygiene/gof/kerievsky/catalog GREEN; no SKILL.md touched (no D-14). Pre-existing ACCEPTED work-email-domain finding on 4 main-side prior-phase docs unchanged (deferred-items, out of scope).
 
 ### Pending Todos
 

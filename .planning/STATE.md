@@ -2,8 +2,8 @@
 gsd_state_version: 1.0
 milestone: lz-tdd@0.0.2
 milestone_name: lz-refactor Skill (Fowler + Kerievsky)
-status: verifying
-stopped_at: Phase 09 verified 9/9 (skill-reviewer PASS recorded); pending validate-phase + extract-learnings
+status: executing
+stopped_at: Phase 09 CLOSED (verified 9/9, secured 9/9, nyquist-compliant, learnings extracted+pooled); next Phase 10 (distribution)
 last_updated: "2026-07-09T05:28:22.067Z"
 last_activity: 2026-07-09
 progress:
@@ -26,9 +26,9 @@ See: .planning/PROJECT.md (updated 2026-07-04)
 
 ## Current Position
 
-Phase: 09 (coach-behavior-principle-backing) — EXECUTING
+Phase: 09 (coach-behavior-principle-backing) — CLOSED
 Plan: 4 of 4
-Status: Phase complete — verified 9/9 (skill-reviewer PASS); validate-phase + extract-learnings pending
+Status: Phase 09 CLOSED — verified 9/9, secured 9/9 (threats_open 0), nyquist-compliant (0 gaps), learnings extracted (22 items pooled). Next: Phase 10 (distribution).
 Last activity: 2026-07-09
 
 ## Performance Metrics
@@ -130,21 +130,22 @@ Items acknowledged and carried forward from previous milestone close:
 ## Session Continuity
 
 Last session: 2026-07-09T04:59:12.872Z
-Stopped at: Phase 09 verified 9/9 (skill-reviewer PASS recorded); pending validate-phase + extract-learnings
+Stopped at: Phase 09 CLOSED (verified/secured/validated/learnings); next Phase 10 (distribution)
 Resume file: None
 
 ## Operator Next Steps
 
-- Phase 8 is CLOSED: content (6/6 plans -- 27 Kerievsky leaves + finalized thin index + Ch.4 smell fold
-  4 unique + 8 overlap; full battery GREEN + claude plugin validate), gsd-verifier PASS 5/5
-  (08-VERIFICATION), secure-phase SECURED 8/8 (08-SECURITY), validate-phase nyquist_compliant
-  (08-VALIDATION), 08-LEARNINGS extracted (27 items) + all 27 pooled to the global store
-  (~/.gsd/knowledge/, features.global_learnings=true). Artifacts: 08-VERIFICATION.md, 08-SECURITY.md,
-  08-VALIDATION.md, 08-LEARNINGS.md, 08-06-SUMMARY.md.
+- Phase 9 is CLOSED: 4/4 plans (09-01 instrument-first harness incl. IN-02 retired + check-backing gate;
+  09-02 inline coach decision procedure in SKILL.md; 09-03 three no-oracle Beck/Feathers refs; 09-04 D-06
+  Beck pointers + finalize gate). Full battery GREEN + typecheck + claude plugin validate . PASS.
+  gsd-verifier 9/9 SATISFIED (09-VERIFICATION), secure-phase 9/9 threats CLOSED (09-SECURITY),
+  validate-phase nyquist_compliant 0 gaps (09-VALIDATION), 09-LEARNINGS extracted (22 items) + all 22
+  pooled to the global store (~/.gsd/knowledge/, features.global_learnings=true). CCH-01..06 + PRIN-01..03
+  all closed. skill-reviewer PASS-with-suggestions (routing-example + DST-04 seam + internal-ID-leak fixes
+  applied). Artifacts: 09-VERIFICATION.md, 09-SECURITY.md, 09-VALIDATION.md, 09-LEARNINGS.md, 09-0N-SUMMARY.md.
 
-- Next: `/gsd-plan-phase 9` (coach decision procedure + principle-backing -- CCH-* / PRIN-*): the coach
-  consumes both catalogs (mechanical->Fowler, structural/pattern-directed->Kerievsky), the unified smell
-  taxonomy, and the Direction `Away` de-patterning routing (CCH-02); Beck/Feathers principle cross-refs
-  are no-oracle high-confidence-core-only.
+- Next: `/gsd-plan-phase 10` (distribution -- the public-ship phase for the lz-refactor skill). Phases 6-9
+  of milestone lz-tdd@0.0.2 are done; 10 (distribution) and 11 (evals, incl. EVL-02 empirical coach routing)
+  remain.
 
-- Optional: `/gsd-audit-milestone` is still premature (milestone lz-tdd@0.0.2 spans phases 6-11; 3/6 done).
+- Optional: `/gsd-audit-milestone` is still premature (milestone lz-tdd@0.0.2 spans phases 6-11; 4/6 done).

@@ -195,7 +195,7 @@ this milestone starts at Phase 6.
 **Plans**: 4 plans (3 waves)
 
 - [x] 10-01-PLAN.md -- Wave-1 instrument: harden check-hygiene (c) WARN->HARD gate + widen the ASCII/email walk with a per-axis target-set split (D-01 L1, D-04, D-10, D-11)
-- [ ] 10-02-PLAN.md -- Wave-2 content: plugin.json bump 0.0.1->0.0.2 + two-skill description/keywords + marketplace.json listing, README lz-refactor section, CHANGELOG 0.0.2 entry (D-05..09, D-15/16)
+- [x] 10-02-PLAN.md -- Wave-2 content: plugin.json bump 0.0.1->0.0.2 + two-skill description/keywords + marketplace.json listing, README lz-refactor section, CHANGELOG 0.0.2 entry (D-05..09, D-15/16)
 - [x] 10-03-PLAN.md -- Wave-1 DST-04 clean-room oracle-reviewer sweep (28 Intents + 89 mechanics, batched by chapter) + layer-3 attestation record (D-01 L2/L3, D-02/03/04)
 - [ ] 10-04-PLAN.md -- Wave-3 review battery: validate + --strict + npm run check/typecheck + plugin-validator + skill-reviewer on both skills + D-13 triage (D-12/13/14)
 

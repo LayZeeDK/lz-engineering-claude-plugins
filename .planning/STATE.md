@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: lz-tdd@0.0.2
 milestone_name: lz-refactor Skill (Fowler + Kerievsky)
 status: executing
-stopped_at: Phase 10 context gathered (paused before plan-phase; D-03 DST-04 scan breadth OPEN for operator)
-last_updated: "2026-07-09T08:19:09.361Z"
+stopped_at: Phase 10 plan 10-02 complete (manifest 0.0.2 + README lz-refactor + CHANGELOG 0.0.2); 10-04 review battery remains
+last_updated: "2026-07-09T20:12:45Z"
 last_activity: 2026-07-09
 progress:
   total_phases: 8
@@ -27,7 +27,7 @@ See: .planning/PROJECT.md (updated 2026-07-04)
 ## Current Position
 
 Phase: 10 (distribution-hygiene) -- EXECUTING
-Plan: 10-03 complete (2 of 4 plans done: 10-01, 10-03); 10-02 + 10-04 remain
+Plan: 10-02 complete (3 of 4 plans done: 10-01, 10-02, 10-03); 10-04 remains
 Status: executing
 Last activity: 2026-07-09
 
@@ -65,6 +65,7 @@ Last activity: 2026-07-09
 | Phase 09 P02 | 8min | 1 task tasks | 1 file files |
 | Phase 09 P03 | 15min | 3 tasks | 3 files |
 | Phase 09 P04 | 10min | 2 tasks | 1 files |
+| Phase 10 P02 | 5min | 3 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -89,7 +90,7 @@ Recent decisions affecting current work:
 - [Phase ?]: Phase 6: SKILL.md kept lean at 70 lines (under ~90-150 soft target, well under 500 cap); content deferred to references/ per progressive disclosure.
 - [Phase ?]: Phase 6 carry-forward (D-09): Phases 7 and 8 MUST open an AskUserQuestion oracle-access checkpoint (Fowler e-book/web ISBN 9780135425664, Kerievsky book, GoF e-book) before authoring catalog content; recorded inline in the catalog stubs.
 - [Phase 07]: Phase 7 (07-09): Ch.12 dealing-with-inheritance 11 leaves converged 11/11 -- catalog 62/62 (all seven catalog chapters authored). The DST-04 near-verbatim gate fired on ACCIDENTAL collision (push-down-method blind draft matched the source's short imperative steps; reworded blind, cleared). spirit/judgment held `correct` across all 11 despite the judgment-heavy chapter; every revise was completeness/aptness (a dropped final mechanics step, a missing secondary motivation, a plausible-but-incomplete cited sibling).
-- [Phase 07]: Phase 7 (07-01, wave 1): built the NON-shipped FWL-01..04 validation harness at .claude/skills/lz-refactor-workspace/ (pinned typescript@6.0.3, one-module-per-fence tsc --strict extractor + 4 node-builtin checkers). Checkers gate on exit code and assert name IDENTITY not cardinality (closes WR-02). RED against the empty catalog is the expected wave-1 baseline; FWL-01..04 close only when the content plans (waves 2-4) turn the battery GREEN. — D-03 asks for a committed re-runnable harness (not Phase-3 ad-hoc extraction). Instruments-first (Nyquist scaffold) makes FWL-01..04 machine-checkable before any oracle content lands.
+- [Phase 07]: Phase 7 (07-01, wave 1): built the NON-shipped FWL-01..04 validation harness at .claude/skills/lz-refactor-workspace/ (pinned typescript@6.0.3, one-module-per-fence tsc --strict extractor + 4 node-builtin checkers). Checkers gate on exit code and assert name IDENTITY not cardinality (closes WR-02). RED against the empty catalog is the expected wave-1 baseline; FWL-01..04 close only when the content plans (waves 2-4) turn the battery GREEN. -- D-03 asks for a committed re-runnable harness (not Phase-3 ad-hoc extraction). Instruments-first (Nyquist scaffold) makes FWL-01..04 machine-checkable before any oracle content lands.
 - [Phase 08]: Phase 8 (08-04): Ch.8 Generalization 7 leaves oracle-converged 7/7 (Extract Composite R1; five leaves R2; Form Template Method R3), 0 owner escalations, all Direction: Towards + GoF targets oracle-settled. REUSABLE for 08-05/06: the `Composed Fowler primitive(s)` field maps Kerievsky's 1st-ed primitive names onto our Fowler 2nd-ed catalog slugs (Extract Method->Extract Function, Move Method->Move Function, Inline Method->Inline Function); Kerievsky's "Extract Interface" has NO 2nd-ed leaf -> express interface-conformance via Change Function Declaration (or Extract Superclass for a genuine supertype). Pass this provenance constraint to oracle-reviewer explicitly or it false-flags composed-primitive demanding non-existent 1st-ed-named leaves (the dominant R1 defect this chapter).
 - [Phase 08]: Phase 8 (08-05): Ch.9+10+11 8 leaves oracle-converged; ALL 27 Kerievsky leaves authored. LOCKED Refactoring Directions convention (owner-approved; 08-REFACTORING-DIRECTIONS.md): the book's Refactoring Directions table (Inside Front Cover) is the AUTHORITATIVE Direction source, outranking oracle chapter-prose (agents made aware, commit 9a877d7). Direction values: `To` = full pattern; `To/Towards` (compound) = both-listed dual placement; `Away` = de-pattern; `n/a` = table-absent utility. Move Accumulation to Visitor = Away (from Iterator) -- table lists it To/Towards Visitor AND Away Iterator, vindicating D-03. The 4 utilities = `n/a` (unanimous 6-member Opus board; `Towards` falsely implied partial adoption of a nonexistent pattern). 08-06 MUST: compound `To/Towards` on the 6 both-listed committed leaves; 11 committed `Towards` -> `To`; widen check-kerievsky Direction allow-list (+`n/a`, +compound leading-token); ship a single shared Direction gloss in the kerievsky-catalog README.
 - [Phase 08]: Phase 8 (08-06, phase gate) COMPLETE. Ch.4 smell fold (KRV-03): oracle-settled dedup map over 12 Ch.4 smells = 4 UNIQUE + 8 OVERLAP. Two corrections to the provisional plan map: Conditional Complexity kept UNIQUE (broader than Repeated Switches), and Solution Sprawl reclassified OVERLAP -> Shotgun Surgery (book equates them) so NO solution-sprawl leaf. 4 new source-tagged leaves (conditional-complexity, indecent-exposure, combinatorial-explosion, oddball-solution); 8 overlap Fowler leaves get `Source: both` + "also named by Kerievsky" note (recognize-by cues unchanged); smells.md gains a Kerievsky-unique section + `[both]`/`[Kerievsky]` tag convention. All 12 leaves oracle-reviewer pass (0 owner escalations; Oddball re-gated once for a within-pass "preferred-solution-first" nuance). Direction reconciliation (KRV-02): 11 Towards->To, 6 Towards->To/Towards; check-kerievsky allow-list widened by the `n/a` token (compound already validated via leading token); NAMES needed no change (all 27 H1 slugs matched). Full battery + claude plugin validate GREEN. Commits a58aa22, 8b98aa0.
@@ -100,6 +101,7 @@ Recent decisions affecting current work:
 - [Phase 09]: Phase 9 (09-03, Wave 2): authored 3 no-oracle principle refs -- beck-tdd-by-example.md (PRIN-01), beck-tidy-first.md (PRIN-02, 8 Fowler cross-links via ./fowler-catalog/ link form to satisfy check-backing's leading-dot regex), populated refactoring-without-tests.md (PRIN-03, both scaffold markers removed). check-backing GREEN 3/3; crossrefs + hygiene GREEN. DST-04-clean, fence-free (D-11).
 - [Phase 09]: Phase 9 (09-04, Wave-3 finalize): wired the two D-06 Beck cross-ref pointers into the Fowler-oracle principles.md (beck-tdd-by-example.md under 'The two hats' / lz-tpp seam CCH-05; beck-tidy-first.md under 'When to refactor' / economics) in the file's existing sibling-relative inline link style, pointers-only with no Beck content imported. Full phase gate GREEN on the merged tree: npm run check exit 0 (all 10 checkers incl. check-backing 3/3 + the four IN-02-rewired catalog checkers + check-crossrefs 715 links), npm run typecheck exit 0 (251 modules tsc --strict clean), claude plugin validate . PASS; no checker weakened (T-09-GATE). skill-reviewer PASS (orchestrator-run, PASS-with-suggestions; 3 minor leak/accuracy fixes committed a4106f5). gsd-verifier 9/9 SATISFIED (09-VERIFICATION). CCH-05 / PRIN-01 / PRIN-02 closed.
 - [Phase 10]: Phase 10 (10-01): landed the widened+hardened check-hygiene instrument (D-10, D-01 L1, D-17) -- Per-axis target-set split: wideTargets for axes (a) ASCII + (b) work-email (both skill trees + root README/CHANGELOG/LICENSE + both manifests, 178 -> 187 files); verbatimTargets for axis (c) no-verbatim (lz-refactor tree + new root prose only, 180 files, excludes lz-tpp/LICENSE/manifests per D-04). Axis (c) promoted WARN -> HARD report() gate; dead warn()/warnings path removed. D-11 allowlist shape unchanged; work-email literal absent. Extended in place, not a sibling (D-17). GREEN regression baseline (exit 0).
+- [Phase 10]: Phase 10 (10-02): authored the two-skill 0.0.2 content edits under the widened hygiene gate (DST-01/DST-03). plugin.json 0.0.1->0.0.2 + two-skill description + 6 refactoring keywords (refactoring, code-smells, design-patterns, gang-of-four, fowler, kerievsky); marketplace.json listing description names both skills and stays version-free (D-09). README documents lz-refactor alongside lz-tpp (two-skill lead via the red-green-refactor seam, /lz-tdd:lz-refactor bullet, What-lz-refactor-does Coach/Reference section, original refactoring primer + link-only Fowler/Kerievsky/GoF sources + references/ pointer; inventory RE-COUNTED against the live tree: 62 Fowler / 27 Kerievsky / 23 GoF + 5 extra / 19 functional / 28 smells). CHANGELOG gained the [lz-tdd@0.0.2] - 2026-07-09 entry above 0.0.1 (lead + 6 Added bullets + %40-encoded bottom link-ref to the not-yet-cut tag, D-16). All four files ASCII-only + work-email-free; check-hygiene GREEN after each task (187-file a/b, 180-file c). DST-01/DST-03 satisfied per-plan (traceability flip deferred to the 10-04 phase gate). Commits a08ca1a, 478dd7c, 5953cdc.
 - [Phase 10]: Phase 10 (10-03): DST-04 clean-room layer-2 sweep (D-01 L2/L3, D-02/03/04) -- 16 chapter/family oracle-reviewer batches (sequential per operator) cleared all 28 ## Intent lines (GoF 23 + extra 5) + 89 ## Mechanics step lists (Fowler 62 + Kerievsky 27) to all-pass near-verbatim. 24 surfaces reworded BLIND from category-only directives (never read .oracle/), re-gated within the 3-round cap, none escalated. Main context never read .oracle/. 10-DST-04-ATTESTATION.md records the sweep + cites 07/08/08.1 LEARNINGS+SUMMARYs for un-swept surfaces (functional-catalog no-oracle; lz-tpp out-of-axis). check-hygiene/gof/kerievsky/catalog GREEN; no SKILL.md touched (no D-14). Pre-existing ACCEPTED work-email-domain finding on 4 main-side prior-phase docs unchanged (deferred-items, out of scope).
 
 ### Pending Todos
@@ -131,9 +133,9 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-09T06:18:52.281Z
-Stopped at: Phase 10 context gathered (paused before plan-phase; D-03 DST-04 scan breadth OPEN for operator)
-Resume file: .planning/phases/10-distribution-hygiene/10-CONTEXT.md
+Last session: 2026-07-09T20:12:45Z
+Stopped at: Phase 10 plan 10-02 complete; 10-04 review battery remains
+Resume file: .planning/phases/10-distribution-hygiene/10-02-SUMMARY.md
 
 ## Operator Next Steps
 

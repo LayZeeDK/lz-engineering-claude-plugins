@@ -23,6 +23,9 @@ Know which hat you have on, and switch deliberately. This is the seam with lz-tp
 test pass is the add-function hat (lz-tpp's transformation step); the refactor step is the
 refactoring hat (this skill).
 
+For the TDD loop this seam sits inside -- where the green step ends and the refactor step begins --
+see the Beck backing: [Test-Driven Development by Example](beck-tdd-by-example.md).
+
 ## Why refactor
 
 - Improve the design against the entropy that accumulates as code changes.
@@ -54,6 +57,9 @@ a separate scheduled activity:
 - **Litter-pickup** -- tidy small messes you pass through, as far as is cheap.
 
 Planned, dedicated refactoring is the exception; prefer continuous, opportunistic cleanup.
+
+For separating structural change from behavioral change, and the economics of when a small cleanup
+pays for itself, see the Beck backing: [Tidy First?](beck-tidy-first.md).
 
 ## How to refactor safely
 

@@ -21,7 +21,7 @@ functions that use it.
 3. Give the target record its own copy of the field, together with the accessors that read and write
    it.
 4. Compile to confirm the new field and accessors are consistent.
-5. Ensure the source can reach the target -- an existing reference, or one you add.
+5. Ensure the source can reach the target: an existing reference, or one you add.
 6. Redirect the source accessors to read and write the target's field instead of their own.
 7. Run the tests.
 8. Remove the now-unused field from the source.
@@ -29,7 +29,7 @@ functions that use it.
 
 ## Example
 
-Before -- the price lives on `Subscription`, though it is really a property of the `Plan`:
+Before, the price lives on `Subscription`, though it is really a property of the `Plan`:
 
 ```ts
 class Plan {
@@ -45,7 +45,7 @@ class Subscription {
 }
 ```
 
-After -- the field moves to `Plan`; the `Subscription` accessor now delegates:
+After, the field moves to `Plan`; the `Subscription` accessor now delegates:
 
 ```ts
 class Plan {
@@ -68,8 +68,8 @@ class Subscription {
 ## Watch for
 
 - If the target is shared by several source objects, moving the field there can change behavior
-  unless every source already holds the same value; confirm they agree -- an assertion helps -- before
+  unless every source already holds the same value; confirm they agree (an assertion helps) before
   relying on the shared field.
 - Moving a field that maps to stored data changes the persisted shape; passing unit tests do not
-  prove a schema move safe. Migrate with a parallel change -- see the atomic-boundary tripwire in the
+  prove a schema move safe. Migrate with a parallel change. See the atomic-boundary tripwire in the
   [refactoring principles](../principles.md).

@@ -31,7 +31,7 @@ wide reach.
 
 ## Example
 
-Before -- a record anyone can reshape:
+Before, a record anyone can reshape:
 
 ```ts
 interface BookData {
@@ -42,7 +42,7 @@ interface BookData {
 const book: BookData = { title: "Untitled", authorCount: 1 };
 ```
 
-After -- a class controls access to the same data:
+After, a class controls access to the same data:
 
 ```ts
 interface BookData {

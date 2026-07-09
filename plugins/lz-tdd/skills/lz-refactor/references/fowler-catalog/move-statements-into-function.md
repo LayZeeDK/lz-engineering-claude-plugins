@@ -30,7 +30,7 @@ Inverse of [Move Statements to Callers](move-statements-to-callers.md).
 
 ## Example
 
-Before -- the sole caller computes the header, then calls `summarize`:
+Before, the sole caller computes the header, then calls `summarize`:
 
 ```ts
 function summarize(rows: readonly string[]): string {
@@ -44,7 +44,7 @@ function report(rows: readonly string[]): string {
 }
 ```
 
-After -- the header statement moves into `summarize`, so it owns the whole summary:
+After, the header statement moves into `summarize`, so it owns the whole summary:
 
 ```ts
 function summarize(rows: readonly string[]): string {

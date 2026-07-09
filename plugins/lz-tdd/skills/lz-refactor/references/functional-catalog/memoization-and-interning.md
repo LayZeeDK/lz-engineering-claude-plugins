@@ -6,11 +6,11 @@ Keep the OO form when: the shared object owns identity or coordinated mutable st
 
 ## Idiom
 
-Flyweight saves memory by sharing one instance of an immutable value across many contexts, handing out references through a factory that caches by key. That becomes a memoized -- or interning -- factory: a closure over a `Map` or `WeakMap` that returns the cached value when a key repeats and stores a freshly built one otherwise. `Symbol.for` is the language's built-in interning table for symbols, and any pure function of a key can be wrapped the same way.
+Flyweight saves memory by sharing one instance of an immutable value across many contexts, handing out references through a factory that caches by key. That becomes a memoized (or interning) factory: a closure over a `Map` or `WeakMap` that returns the cached value when a key repeats and stores a freshly built one otherwise. `Symbol.for` is the language's built-in interning table for symbols, and any pure function of a key can be wrapped the same way.
 
 ## Example
 
-Before -- a factory class caches shared glyphs in a field:
+Before, a factory class caches shared glyphs in a field:
 
 ```ts
 class Glyph {
@@ -33,7 +33,7 @@ class GlyphFactory {
 }
 ```
 
-After -- a closure captures the cache; the factory is a plain function:
+After, a closure captures the cache; the factory is a plain function:
 
 ```ts
 type Glyph = { readonly char: string };
@@ -58,4 +58,4 @@ Same behavior; mechanics: [Replace Constructor with Factory Function](../fowler-
 
 ## When each fits
 
-Memoization fits when the same input recurs and its value is immutable -- interning short strings, canonicalizing enum-like values, or caching a pure computation. For genuinely immutable primitives the pattern dissolves entirely, because equal literals are already shared by the runtime and there is nothing to pool. A closure-held cache earns its keep only when the shared value is a heavy compound object whose identity you want to reuse; reach for a `WeakMap` there so the cache does not pin its keys in memory once nothing else references them.
+Memoization fits when the same input recurs and its value is immutable: interning short strings, canonicalizing enum-like values, or caching a pure computation. For genuinely immutable primitives the pattern dissolves entirely, because equal literals are already shared by the runtime and there is nothing to pool. A closure-held cache earns its keep only when the shared value is a heavy compound object whose identity you want to reuse; reach for a `WeakMap` there so the cache does not pin its keys in memory once nothing else references them.

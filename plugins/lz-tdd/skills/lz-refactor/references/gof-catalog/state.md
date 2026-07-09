@@ -96,5 +96,5 @@ const state = doc.status();
 ## Related patterns
 
 - [Flyweight](flyweight.md#flyweight): explains when and how state objects that carry no per-context data can be shared.
-- [Strategy](strategy.md#strategy): has the same structure but a different intent -- a strategy is chosen once by the client, whereas states swap themselves as the context evolves.
+- [Strategy](strategy.md#strategy): has the same structure but a different intent: a strategy is chosen once by the client, whereas states swap themselves as the context evolves.
 - [Singleton](singleton.md#singleton): state objects are often singletons.

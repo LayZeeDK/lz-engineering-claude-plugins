@@ -26,7 +26,7 @@ Reach for it when you want to support multiple, simultaneous traversals of an ag
   position, several traversals of the same aggregate can be in progress at once.
 - Modern status: mainstream languages now provide built-in iteration protocols (for-of
   loops, iterables, and generators), so a hand-written Iterator class is rarely necessary
-  today -- the pattern has largely been subsumed by the language.
+  today. The pattern has largely been subsumed by the language.
 
 ## Example
 
@@ -80,7 +80,7 @@ while (cursor.hasNext()) {
 
 ## Related patterns
 
-- Direction: Away -- [Move Accumulation to Visitor](../kerievsky-catalog/move-accumulation-to-visitor.md#move-accumulation-to-visitor): the pattern-directed refactoring that moves accumulation logic that a traversal collects into a visitor, rather than growing an iterator loop that gathers many kinds of data.
+- Direction: Away. [Move Accumulation to Visitor](../kerievsky-catalog/move-accumulation-to-visitor.md#move-accumulation-to-visitor): the pattern-directed refactoring that moves accumulation logic that a traversal collects into a visitor, rather than growing an iterator loop that gathers many kinds of data.
 - [Composite](composite.md#composite): iterators are commonly used to traverse composite structures.
 - [Factory Method](factory-method.md#factory-method): polymorphic aggregates use a factory method to create the right concrete iterator.
 - [Memento](memento.md#memento): a cursor can hand its current position to a memento, so a traversal can be captured and resumed later.

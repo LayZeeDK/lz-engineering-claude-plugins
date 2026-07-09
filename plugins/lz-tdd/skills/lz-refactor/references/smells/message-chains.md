@@ -1,6 +1,6 @@
 # Message Chains
 
-Recognize by: a client hopping object-to-object -- `a.b().c().d()` -- to reach what it wants.
+Recognize by: a client hopping object-to-object, such as `a.b().c().d()`, to reach what it wants.
 
 ## How to recognize
 
@@ -14,10 +14,10 @@ methods.
 
 A client that walks a chain is coupled to the structure of every link, so a change anywhere along the
 path breaks it. Hiding the navigation behind a method on the first object means the client asks once
-and stays ignorant of the intermediaries. Not every chain is worth breaking, though -- some navigation
+and stays ignorant of the intermediaries. Not every chain is worth breaking, though. Some navigation
 is reasonable, so weigh whether hiding the delegate earns its keep before acting.
 
 ## Candidate refactorings
 
-- [Hide Delegate](../fowler-catalog/hide-delegate.md#hide-delegate) -- pick as the direct move; give the server a method so the client stops walking to the delegate.
-- [Extract Function](../fowler-catalog/extract-function.md#extract-function) -- pick when the chain computes something; name that computation, then [Move Function](../fowler-catalog/move-function.md#move-function) it closer to the objects it navigates.
+- [Hide Delegate](../fowler-catalog/hide-delegate.md#hide-delegate): pick as the direct move; give the server a method so the client stops walking to the delegate.
+- [Extract Function](../fowler-catalog/extract-function.md#extract-function): pick when the chain computes something; name that computation, then [Move Function](../fowler-catalog/move-function.md#move-function) it closer to the objects it navigates.

@@ -14,14 +14,14 @@ value is computed once and does not change afterward.
 1. Check the variable is assigned once and yields the same result each time. If computing it has a
    side effect, first apply [Separate Query from Modifier](separate-query-from-modifier.md) so the
    calculation is pure before continuing.
-2. If the variable is not already immutable, make it so and run the tests -- proof it is set once.
+2. If the variable is not already immutable, make it so and run the tests to prove it is set once.
 3. Extract the assigned expression into a query method; it may keep the variable's name for now.
 4. Replace each reference to the variable with a call to the query, testing after each.
 5. Remove the variable's declaration.
 
 ## Example
 
-Before -- a temp holds an intermediate value:
+Before, a temp holds an intermediate value:
 
 ```ts
 class Invoice {
@@ -34,7 +34,7 @@ class Invoice {
 }
 ```
 
-After -- the value is a query, reusable and free of the local:
+After, the value is a query, reusable and free of the local:
 
 ```ts
 class Invoice {

@@ -1,8 +1,8 @@
-# Code Smells (unified taxonomy: Fowler 2nd ed Ch.3 + Kerievsky Ch.4) -- index
+# Code Smells index (unified taxonomy: Fowler 2nd ed Ch.3 + Kerievsky Ch.4)
 
-Scope: the unified bad-smell taxonomy -- Fowler's 24 smells (Refactoring, 2nd ed, Ch.3) with
+Scope: the unified bad-smell taxonomy. It gathers Fowler's 24 smells (Refactoring, 2nd ed, Ch.3) with
 Kerievsky's Ch.4 smells (Refactoring to Patterns) folded in and deduplicated against them. This index
-is NAVIGATION ONLY -- per smell, a recognize-by cue and a link to its leaf. It deliberately carries NO
+is NAVIGATION ONLY: per smell, a recognize-by cue and a link to its leaf. It deliberately carries NO
 candidate refactorings, so a coach must open the smell leaf to confirm the match and see the
 smell-to-refactoring map. Scan the recognize-by cues for a fuzzy match, then follow the link to
 confirm.
@@ -61,7 +61,7 @@ Recognize by: the same switch (or if/else chain) on the same value showing up in
 
 ### Loops
 
-Recognize by: an explicit loop whose real intent -- filter, map, sum -- is buried in bookkeeping. ([leaf](smells/loops.md))
+Recognize by: an explicit loop whose real intent (filter, map, sum) is buried in bookkeeping. ([leaf](smells/loops.md))
 
 ### Lazy Element [both]
 
@@ -77,7 +77,7 @@ Recognize by: a field that only holds a meaningful value some of the time. ([lea
 
 ### Message Chains
 
-Recognize by: a client hopping object-to-object -- `a.b().c().d()` -- to reach what it wants. ([leaf](smells/message-chains.md))
+Recognize by: a client hopping object-to-object (`a.b().c().d()`) to reach what it wants. ([leaf](smells/message-chains.md))
 
 ### Middle Man
 
@@ -115,7 +115,7 @@ tagged `[both]`.)
 
 ### Conditional Complexity [Kerievsky]
 
-Recognize by: branching logic that has grown tangled over time -- conditionals that select behavior, layer on optional extras, and drive state changes, all accreting in one place. ([leaf](smells/conditional-complexity.md))
+Recognize by: branching logic that has grown tangled over time: conditionals that select behavior, layer on optional extras, and drive state changes, all accreting in one place. ([leaf](smells/conditional-complexity.md))
 
 ### Indecent Exposure [Kerievsky]
 
@@ -123,7 +123,7 @@ Recognize by: classes, constructors, or methods that ought to be hidden are publ
 
 ### Combinatorial Explosion [Kerievsky]
 
-Recognize by: a pile of near-identical methods or branches that each handle one combination of the same few options -- an unnamed mini-language spelled out by hand. ([leaf](smells/combinatorial-explosion.md))
+Recognize by: a pile of near-identical methods or branches that each handle one combination of the same few options: an unnamed mini-language spelled out by hand. ([leaf](smells/combinatorial-explosion.md))
 
 ### Oddball Solution [Kerievsky]
 

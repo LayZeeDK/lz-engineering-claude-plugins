@@ -1,6 +1,6 @@
 # Replace Loop with Pipeline
 
-Use when: a loop walks a collection through steps -- filtering, mapping, accumulating -- that a
+Use when: a loop walks a collection through steps (filtering, mapping, accumulating) that a
 collection pipeline would state more directly.
 
 ## Motivation
@@ -22,7 +22,7 @@ which is usually the clearer story.
 
 ## Example
 
-Before -- a loop filters, then collects a field:
+Before, a loop filters, then collects a field:
 
 ```ts
 interface Account {
@@ -41,7 +41,7 @@ function activeOwners(accounts: readonly Account[]): string[] {
 }
 ```
 
-After -- the same steps read as a pipeline:
+After, the same steps read as a pipeline:
 
 ```ts
 interface Account {
@@ -59,7 +59,7 @@ function activeOwners(accounts: readonly Account[]): string[] {
 ## Reverse direction: Replace Pipeline with Loop
 
 The inverse refactoring exists, but clarity is the default and a pipeline is usually the clearer
-story -- reverse to a plain loop only for a concrete, named reason, never on folklore.
+story. Reverse to a plain loop only for a concrete, named reason, never on folklore.
 
 - Measured hot path. Each `.filter().map()` stage allocates a throwaway intermediate array and
   re-walks the data, so a single loop can run measurably faster in tight, large-N passes over trivial
@@ -68,7 +68,7 @@ story -- reverse to a plain loop only for a concrete, named reason, never on fol
   functional style: collapse the chain into one `reduce` or `for-of` to drop the intermediate arrays;
   reach for the short-circuiting `find` / `some` / `every` when the only reason for a loop was early
   exit; use a typed array for a pure numeric loop. Never accumulate with `[...acc, x]` inside a
-  reduce -- that is quadratic.
+  reduce. That is quadratic.
 - Clarity, debuggability, or house style. A loop steps and breakpoints cleanly, whereas `reduce` and
   collector stages often leave nowhere to pause; `break` and `return` map awkwardly onto pipeline
   operators; and matching the surrounding idiom can matter. If the pipeline is not clearer than the

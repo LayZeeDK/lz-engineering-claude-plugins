@@ -5,8 +5,8 @@ be one shared object.
 
 ## Motivation
 
-When a data structure holds several records that all stand for the same real-world thing -- the same
-publisher reached from many books, say -- copying it as a value means an update has to find and change
+When a data structure holds several records that all stand for the same real-world thing (the same
+publisher reached from many books, say), copying it as a value means an update has to find and change
 every copy, and any copy you miss drifts out of date. Turning those copies into references to a single
 shared instance makes one update visible everywhere and removes the duplication. A repository that
 returns the one instance for a given id is the usual way to share it.
@@ -24,12 +24,12 @@ Inverse of [Change Reference to Value](change-reference-to-value.md).
 ## Watch for
 
 - A single module-global repository couples every owner to that global and makes it hard to
-  substitute -- in tests, for instance. Consider passing the repository in rather than reaching for a
+  substitute (in tests, for instance). Consider passing the repository in rather than reaching for a
   global.
 
 ## Example
 
-Before -- every book builds its own `Publisher`, so copies with the same id can diverge:
+Before, every book builds its own `Publisher`, so copies with the same id can diverge:
 
 ```ts
 class Publisher {
@@ -45,7 +45,7 @@ class Book {
 }
 ```
 
-After -- books fetch the one shared instance from a repository keyed by id:
+After, books fetch the one shared instance from a repository keyed by id:
 
 ```ts
 class Publisher {

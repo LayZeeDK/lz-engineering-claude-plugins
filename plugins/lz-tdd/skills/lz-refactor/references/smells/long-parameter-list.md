@@ -18,8 +18,8 @@ function derive what it can shortens the list and makes the remaining parameters
 
 ## Candidate refactorings
 
-- [Replace Parameter with Query](../fowler-catalog/replace-parameter-with-query.md#replace-parameter-with-query) -- pick when a parameter's value can be derived from the other arguments or from the receiver.
-- [Preserve Whole Object](../fowler-catalog/preserve-whole-object.md#preserve-whole-object) -- pick when several parameters are pulled from one object the function could take whole.
-- [Introduce Parameter Object](../fowler-catalog/introduce-parameter-object.md#introduce-parameter-object) -- pick when a group of arguments keeps travelling together across functions.
-- [Remove Flag Argument](../fowler-catalog/remove-flag-argument.md#remove-flag-argument) -- pick when a boolean or enum argument makes the function branch into distinct behaviors.
-- [Combine Functions into Class](../fowler-catalog/combine-functions-into-class.md#combine-functions-into-class) -- pick when the same arguments are threaded through several related functions; make them fields instead.
+- [Replace Parameter with Query](../fowler-catalog/replace-parameter-with-query.md#replace-parameter-with-query): pick when a parameter's value can be derived from the other arguments or from the receiver.
+- [Preserve Whole Object](../fowler-catalog/preserve-whole-object.md#preserve-whole-object): pick when several parameters are pulled from one object the function could take whole.
+- [Introduce Parameter Object](../fowler-catalog/introduce-parameter-object.md#introduce-parameter-object): pick when a group of arguments keeps travelling together across functions.
+- [Remove Flag Argument](../fowler-catalog/remove-flag-argument.md#remove-flag-argument): pick when a boolean or enum argument makes the function branch into distinct behaviors.
+- [Combine Functions into Class](../fowler-catalog/combine-functions-into-class.md#combine-functions-into-class): pick when the same arguments are threaded through several related functions; make them fields instead.

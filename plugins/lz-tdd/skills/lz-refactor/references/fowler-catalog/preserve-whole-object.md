@@ -24,7 +24,7 @@ signature change, and can reveal that the logic belongs on the object itself.
 
 ## Example
 
-Before -- the caller unpacks a bracket to pass two numbers:
+Before, the caller unpacks a bracket to pass two numbers:
 
 ```ts
 interface Bracket {
@@ -41,7 +41,7 @@ function qualifies(bracket: Bracket, amount: number): boolean {
 }
 ```
 
-After -- the whole bracket is passed:
+After, the caller passes the whole bracket:
 
 ```ts
 interface Bracket {
@@ -60,5 +60,5 @@ function qualifies(bracket: Bracket, amount: number): boolean {
 
 ## Watch for
 
-- Do not preserve the whole object when the receiver should not depend on the whole -- especially
+- Do not preserve the whole object when the receiver should not depend on the whole, especially
   across a module boundary, where passing the entire object couples the callee to more than it needs.

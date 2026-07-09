@@ -10,7 +10,7 @@ Pass, return, and store behavior as an ordinary value: a function typed as `(arg
 
 ## Example
 
-Before -- a single-method strategy modeled as an interface with a class per algorithm:
+Before, a single-method strategy modeled as an interface with a class per algorithm:
 
 ```ts
 interface DiscountStrategy {
@@ -43,7 +43,7 @@ const cart = new Cart(new PercentageDiscount(0.1));
 const due: number = cart.checkout(100);
 ```
 
-After -- the algorithm is a function value; a configured variant is a returned closure:
+After, the algorithm is a function value; a configured variant is a returned closure:
 
 ```ts
 type DiscountStrategy = (price: number) => number;
@@ -60,7 +60,7 @@ const checkout = (strategy: DiscountStrategy, price: number): number => strategy
 const due: number = checkout(percentageDiscount(0.1), 100);
 ```
 
-Same behavior; mechanics: run [Replace Conditional Logic with Strategy](../kerievsky-catalog/replace-conditional-logic-with-strategy.md#replace-conditional-logic-with-strategy) in reverse -- collapse each single-method strategy class into a function value, run tests between steps.
+Same behavior; mechanics: run [Replace Conditional Logic with Strategy](../kerievsky-catalog/replace-conditional-logic-with-strategy.md#replace-conditional-logic-with-strategy) in reverse: collapse each single-method strategy class into a function value, run tests between steps.
 
 ## When each fits
 

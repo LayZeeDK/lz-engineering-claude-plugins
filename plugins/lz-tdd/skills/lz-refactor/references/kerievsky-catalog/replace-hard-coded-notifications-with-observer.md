@@ -13,7 +13,7 @@ When a subject holds references to each dependent it must tell about a change an
 is coupled to exactly those dependents: adding another means editing the subject, wiring a new field, and
 adding another call. The subject knows too much about who is listening. Introducing an observer inverts
 that: the subject keeps a list of observers behind a small interface and, on a change, notifies whoever
-registered -- without naming any of them. Dependents subscribe and unsubscribe on their own, and the
+registered, without naming any of them. Dependents subscribe and unsubscribe on their own, and the
 subject's notification code stops growing with the audience. Reach for it once dependents come and go, or
 the list of things to notify keeps expanding.
 
@@ -35,7 +35,7 @@ the list of things to notify keeps expanding.
 
 ## Example
 
-Before -- the thermostat names each dependent it updates:
+Before, the thermostat names each dependent it updates:
 
 ```ts
 interface Observer {
@@ -56,7 +56,7 @@ class Thermostat {
 }
 ```
 
-After -- the thermostat notifies whoever subscribed:
+After, the thermostat notifies whoever subscribed:
 
 ```ts
 interface Observer {

@@ -26,7 +26,7 @@ keeping it is fine.
 
 ## Example
 
-Before -- `total` is a derived field kept in step with `items` by hand:
+Before, `total` is a derived field kept in step with `items` by hand:
 
 ```ts
 class Cart {
@@ -44,7 +44,7 @@ class Cart {
 }
 ```
 
-After -- the value is queried from its source, so it can never fall out of sync:
+After, the value is queried from its source, so it can never fall out of sync:
 
 ```ts
 class Cart {

@@ -6,7 +6,7 @@ Recognize by: a name that makes you stop and work out what it refers to, or that
 
 A function, variable, field, class, or module whose name does not say plainly what it is or does.
 You reread the body to remember its purpose, or the name suggests one thing while the code does
-another. A good test: try to rename it to something crisp -- if no short, honest name comes, the
+another. A good test: try to rename it to something crisp. If no short, honest name comes, the
 trouble is usually that the thing itself is doing too much, and the naming difficulty is a symptom of
 a deeper smell. Separate this from [Comments](comments.md): a comment that exists only to explain what
 a name should have said is really this smell wearing a disguise.
@@ -20,6 +20,6 @@ frequent refactoring, so a mysterious name left in place quietly taxes every lat
 
 ## Candidate refactorings
 
-- [Change Function Declaration](../fowler-catalog/change-function-declaration.md#change-function-declaration) -- pick when the unclear name is on a function; rename it (and revisit its parameter names in the same pass).
-- [Rename Variable](../fowler-catalog/rename-variable.md#rename-variable) -- pick when the unclear name is a local variable or temp.
-- [Rename Field](../fowler-catalog/rename-field.md#rename-field) -- pick when the unclear name is a record or class field that outlives a single call.
+- [Change Function Declaration](../fowler-catalog/change-function-declaration.md#change-function-declaration): pick when the unclear name is on a function; rename it (and revisit its parameter names in the same pass).
+- [Rename Variable](../fowler-catalog/rename-variable.md#rename-variable): pick when the unclear name is a local variable or temp.
+- [Rename Field](../fowler-catalog/rename-field.md#rename-field): pick when the unclear name is a record or class field that outlives a single call.

@@ -9,13 +9,13 @@ Functional alternative: [Discriminated Union and Fold](../functional-catalog/dis
 
 ## Motivation
 
-When a design treats "one" and "many" as different shapes -- a method that takes either a single item or a
-list, then branches to handle each case -- the one-versus-many test spreads to every place that consumes
+When a design treats "one" and "many" as different shapes (a method that takes either a single item or a
+list, then branches to handle each case), the one-versus-many test spreads to every place that consumes
 the value, and callers must know which form they hold. A composite dissolves the distinction: a group of
 objects becomes an object of the same type as a single one, so both answer the same interface and the
-branching disappears. The real payoff is not just uniform calls and less branching but the freedom to
-combine objects in richer ways -- mixing single items and groups, and eventually AND/OR or tree-shaped
-queries -- which a flat one-or-many split cannot express. Reach for it once the single-versus-collection
+branching disappears. Beyond uniform calls and less branching, the payoff is the freedom to
+combine objects in richer ways (mixing single items and groups, and eventually AND/OR or tree-shaped
+queries), which a flat one-or-many split cannot express. Reach for it once the single-versus-collection
 branch recurs and you can foresee combining the objects, not merely listing them.
 
 ## Mechanics
@@ -35,7 +35,7 @@ branch recurs and you can foresee combining the objects, not merely listing them
 
 ## Example
 
-Before -- the caller branches on one query versus many:
+Before, the caller branches on one query versus many:
 
 ```ts
 interface Query {
@@ -55,7 +55,7 @@ function matchesAll(text: string, query: Query | Query[]): boolean {
 }
 ```
 
-After -- a composite is itself a Query, so one and many are the same type:
+After, a composite is itself a Query, so one and many are the same type:
 
 ```ts
 interface Query {
@@ -79,5 +79,5 @@ class AllQuery implements Query {
   the objects; if a single item is handled in just one place, wrapping it in a composite adds a class and
   a level of indirection for no gain.
 - A composite lets any conforming object be added as a child, so it needs a runtime guard to reject
-  children that are invalid for its context -- the compiler alone will not stop a malformed tree from
+  children that are invalid for its context: the compiler alone will not stop a malformed tree from
   being built.

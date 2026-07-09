@@ -23,7 +23,7 @@ function.
 
 ## Example
 
-Before -- two fee functions differ only by a rate:
+Before, two fee functions differ only by a rate:
 
 ```ts
 function smallBoxFee(weight: number): number {
@@ -35,7 +35,7 @@ function largeBoxFee(weight: number): number {
 }
 ```
 
-After -- one function takes the rate as a parameter:
+After, one function takes the rate as a parameter:
 
 ```ts
 function boxFee(weight: number, ratePerKg: number): number {

@@ -21,13 +21,13 @@ Reach for it when many distinct and unrelated operations must be performed on th
 - Gathers related behavior and separates unrelated behavior: the logic for one operation
   lives together in a single visitor, instead of being spread across every element class.
 - Makes adding new element classes hard: every existing visitor must gain an operation for
-  the new element, so the pattern trades easy operations for costly new element types --
+  the new element, so the pattern trades easy operations for costly new element types,
   the reverse of the usual class-based tradeoff.
 - Can accumulate state as it visits: a visitor can build up a result across the elements it
   visits, avoiding extra parameters or global variables.
 - Can visit across unrelated classes: a visitor is not limited to elements that share a
   common parent type, so it can operate over a structure whose element classes have no
-  inheritance relationship -- something a plain iterator cannot do.
+  inheritance relationship, something a plain iterator cannot do.
 - May force elements to break encapsulation: because the visitor's operations live outside
   the elements, the elements may have to expose enough of their internals for the visitor
   to do its work.

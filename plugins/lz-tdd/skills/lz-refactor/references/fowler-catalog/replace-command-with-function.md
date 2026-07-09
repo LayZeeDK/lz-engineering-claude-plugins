@@ -4,7 +4,7 @@ Use when: a command object does little more than run one function, so the class 
 
 ## Motivation
 
-A command object earns its class when an operation is complex or needs lifecycle -- undo, queuing,
+A command object earns its class when an operation is complex or needs lifecycle: undo, queuing,
 shared intermediate state. When it has shrunk to little more than a constructor and an `execute`
 method with no real state or extra capability, the class is ceremony: a plain function is simpler and
 clearer. This is the inverse of wrapping a function in a command; apply it once the command no longer
@@ -27,7 +27,7 @@ Inverse of [Replace Function with Command](replace-function-with-command.md).
 
 ## Example
 
-Before -- a command with no state beyond its inputs:
+Before, a command with no state beyond its inputs:
 
 ```ts
 class RentalCharge {
@@ -39,7 +39,7 @@ class RentalCharge {
 }
 ```
 
-After -- a plain function:
+After, a plain function:
 
 ```ts
 function rentalCharge(days: number, dailyRate: number): number {

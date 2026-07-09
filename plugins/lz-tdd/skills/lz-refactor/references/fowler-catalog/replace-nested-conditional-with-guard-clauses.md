@@ -22,7 +22,7 @@ immediately, leaving the rest of the function as the clear, normal path. The int
 
 ## Example
 
-Before -- nested conditionals bury the ordinary case:
+Before: nested conditionals bury the ordinary case:
 
 ```ts
 function ticketPrice(age: number, hasPass: boolean): number {
@@ -40,7 +40,7 @@ function ticketPrice(age: number, hasPass: boolean): number {
 }
 ```
 
-After -- guards handle the special cases, leaving the normal price last:
+After: guards handle the special cases, leaving the normal price last:
 
 ```ts
 function ticketPrice(age: number, hasPass: boolean): number {

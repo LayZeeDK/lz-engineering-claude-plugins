@@ -11,25 +11,25 @@ Functional alternative: [Factory Function](../functional-catalog/factory-functio
 
 When the decision of which concrete type to build, and the data needed to build it, are spread across
 the classes that collaborate to make these objects, no single place owns creation and each
-collaborator is coupled to the concrete classes. Gathering that scattered creation knowledge -- both
-the selection logic and the data it depends on -- into a dedicated factory gives creation one home,
+collaborator is coupled to the concrete classes. Gathering that scattered creation knowledge (both
+the selection logic and the data it depends on) into a dedicated factory gives creation one home,
 so collaborators ask the factory and depend only on the abstraction. Do it once the making of an
 object is smeared across several classes rather than owned by one.
 
 ## Mechanics
 
-1. Find the creation knowledge -- the type-selection logic and the fields it reads -- spread across
+1. Find the creation knowledge (the type-selection logic and the fields it reads) spread across
    the collaborators.
 2. Create a factory type (or a creation method on an existing owner) to hold it.
 3. Move one collaborator's creation code into the factory; have that collaborator call the factory
    instead; compile and run the tests.
 4. Repeat for each collaborator, converging every caller on the one factory.
-5. Consolidate the data those decisions relied on -- the scattered fields -- into the factory, so the
+5. Consolidate the data those decisions relied on (the scattered fields) into the factory, so the
    creation knowledge and its state live together; compile and run the tests.
 
 ## Example
 
-Before -- the carrier rule is embedded in a collaborator and repeated wherever a carrier is chosen:
+Before, the carrier rule is embedded in a collaborator and repeated wherever a carrier is chosen:
 
 ```ts
 interface Carrier {
@@ -53,7 +53,7 @@ function quote(weightKg: number): Carrier {
 }
 ```
 
-After -- the rule (and the threshold it depends on) live in a factory the collaborator is handed:
+After, the rule (and the threshold it depends on) live in a factory the collaborator is handed:
 
 ```ts
 interface Carrier {
@@ -88,4 +88,4 @@ function quote(weightKg: number, carriers: CarrierFactory): Carrier {
 ## Watch for
 
 - A single collaborator that already owns all of the creation knowledge does not need a separate
-  factory -- this refactoring pays off when the knowledge is genuinely scattered.
+  factory. This refactoring pays off when the knowledge is genuinely scattered.

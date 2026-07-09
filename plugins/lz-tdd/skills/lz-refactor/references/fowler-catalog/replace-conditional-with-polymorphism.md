@@ -8,12 +8,12 @@ subclasses.
 A conditional that switches on a type code is a classic candidate for polymorphism: each branch is
 really the behavior of one variant. Moving each branch into an overriding method lets the language's
 dispatch stand in for the switch, so adding a variant becomes adding a class rather than editing every
-switch that mentions the type. Reserve it for genuine type-based variation, though -- a plain
+switch that mentions the type. Reserve it for genuine type-based variation, though. A plain
 conditional that is easy to read does not need a hierarchy.
 
 ## Mechanics
 
-1. Ensure a class hierarchy exists for the variants; if not, create it -- for example
+1. Ensure a class hierarchy exists for the variants; if not, create it, for example
    [Replace Type Code with Subclasses](replace-type-code-with-subclasses.md) or
    [Replace Constructor with Factory Function](replace-constructor-with-factory-function.md).
 2. Route callers through a factory so each obtains the right subclass instance.
@@ -29,7 +29,7 @@ For a conditional that just needs clearer names rather than a whole hierarchy, p
 
 ## Example
 
-Before -- a switch selects the area formula by shape kind:
+Before, a switch selects the area formula by shape kind:
 
 ```ts
 type Shape =
@@ -46,7 +46,7 @@ function area(shape: Shape): number {
 }
 ```
 
-After -- each variant overrides the method; dispatch replaces the switch:
+After, each variant overrides the method; dispatch replaces the switch:
 
 ```ts
 interface Shape {

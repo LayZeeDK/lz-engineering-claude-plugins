@@ -10,7 +10,7 @@ Return constructed values from a plain function rather than a constructor or a f
 
 ## Example
 
-Before -- an abstract factory with one factory class per product family:
+Before, an abstract factory with one factory class per product family:
 
 ```ts
 interface Button {
@@ -49,7 +49,7 @@ const factory: ButtonFactory = new DarkButtonFactory();
 const button: Button = factory.create();
 ```
 
-After -- a creation function plus a record of builders keyed by variant:
+After, a creation function plus a record of builders keyed by variant:
 
 ```ts
 type Theme = "light" | "dark";
@@ -72,7 +72,7 @@ const createButton = (theme: Theme): Button => buttonFactories[theme]();
 const button: Button = createButton("dark");
 ```
 
-Same behavior; mechanics: run [Replace Constructors with Creation Methods](../kerievsky-catalog/replace-constructors-with-creation-methods.md#replace-constructors-with-creation-methods) -- replace each factory class with a named creation function, run tests between steps.
+Same behavior; mechanics: run [Replace Constructors with Creation Methods](../kerievsky-catalog/replace-constructors-with-creation-methods.md#replace-constructors-with-creation-methods): replace each factory class with a named creation function, run tests between steps.
 
 ## When each fits
 

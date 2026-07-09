@@ -21,7 +21,7 @@ Inverse of [Pull Up Method](pull-up-method.md).
 
 ## Example
 
-Before -- the interest calculation lives on the base class but only savings accounts use it:
+Before, the interest calculation lives on the base class but only savings accounts use it:
 
 ```ts
 abstract class Account {
@@ -35,7 +35,7 @@ class SavingsAccount extends Account {}
 class CheckingAccount extends Account {}
 ```
 
-After -- the method moves down to the subclass that needs it:
+After, the method moves down to the subclass that needs it:
 
 ```ts
 abstract class Account {}
@@ -52,7 +52,7 @@ class CheckingAccount extends Account {}
 ## Watch for
 
 - Pushing the method down is safe only where callers already work with the specific subclass. If any
-  caller reaches it through a superclass-typed reference, restructure those callers first -- have the
+  caller reaches it through a superclass-typed reference, restructure those callers first: have the
   choice dispatch on the concrete type via
-  [Replace Conditional with Polymorphism](replace-conditional-with-polymorphism.md) -- so no
+  [Replace Conditional with Polymorphism](replace-conditional-with-polymorphism.md), so no
   superclass caller is left calling a method the parent no longer offers.

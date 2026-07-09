@@ -1,9 +1,9 @@
-# Replace State-Altering Conditionals with State -- walkthrough
+# Replace State-Altering Conditionals with State walkthrough
 
 This walkthrough expands the compact example in
 [Replace State-Altering Conditionals with State](replace-state-altering-conditionals-with-state.md#replace-state-altering-conditionals-with-state).
 The leaf's before/after shows only the transitions; the teaching this refactoring is really about lives
-in the intermediate states -- each state guards which operations are legal, runs its own side effect, and
+in the intermediate states: each state guards which operations are legal, runs its own side effect, and
 answers state-dependent queries. This fuller example keeps all three so the shift is visible.
 
 ## Starting point: one class, conditionals everywhere
@@ -37,7 +37,7 @@ class Job {
 }
 ```
 
-Reading it, you cannot see at a glance which moves are legal from where -- the transition rules are spread
+Reading it, you cannot see at a glance which moves are legal from where: the transition rules are spread
 across the guards, and adding a phase means editing every method.
 
 ## After: each state owns its rules

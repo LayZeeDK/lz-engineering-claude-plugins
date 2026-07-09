@@ -13,9 +13,9 @@ alternative.
 
 ## Mechanics
 
-1. Encapsulate the common data so the functions share one object -- apply
+1. Encapsulate the common data so the functions share one object: apply
    [Encapsulate Record](encapsulate-record.md) if it is a bare record.
-2. Relocate onto the class, one at a time, every function whose work centers on that data --
+2. Relocate onto the class, one at a time, every function whose work centers on that data.
    [Move Function](move-function.md) does the mechanical part.
 3. Where a chunk of logic still handles the data from outside, pull it out via
    [Extract Function](extract-function.md) and give it a home on the class as well.
@@ -23,7 +23,7 @@ alternative.
 
 ## Example
 
-Before -- free functions thread the same record through their signatures:
+Before, free functions thread the same record through their signatures:
 
 ```ts
 interface Session {
@@ -40,7 +40,7 @@ function isLong(session: Session): boolean {
 }
 ```
 
-After -- data and behavior live together, and the parameters disappear:
+After, data and behavior live together, and the parameters disappear:
 
 ```ts
 class Session {

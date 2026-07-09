@@ -6,11 +6,11 @@ Keep the OO form when: the entities are genuine interchangeable values with no s
 
 ## Idiom
 
-Store each entity once in a `Map<Id, Entity>` and refer to it everywhere else by its id. A reader resolves the id back to the single record on demand, so one update is seen by every holder of the id -- there is exactly one place the entity lives. It is the functional counterpart of turning a duplicated value into a shared reference, reached without a mutable object graph: the map is the identity, the ids are the edges.
+Store each entity once in a `Map<Id, Entity>` and refer to it everywhere else by its id. A reader resolves the id back to the single record on demand, so one update is seen by every holder of the id: there is exactly one place the entity lives. It is the functional counterpart of turning a duplicated value into a shared reference, reached without a mutable object graph: the map is the identity, the ids are the edges.
 
 ## Example
 
-Before -- each order embeds a full copy of its customer, so renaming a customer means finding and rewriting every order that carries them:
+Before, each order embeds a full copy of its customer, so renaming a customer means finding and rewriting every order that carries them:
 
 ```ts
 interface Customer {
@@ -28,7 +28,7 @@ function customerNames(orders: readonly Order[]): string[] {
 }
 ```
 
-After -- an order holds only a `customerId`, and one `Map` holds the single customer record; a rename touches that one entry and every order sees it. Given the same data, the same names come out.
+After, an order holds only a `customerId`, and one `Map` holds the single customer record; a rename touches that one entry and every order sees it. Given the same data, the same names come out.
 
 ```ts
 interface Customer {

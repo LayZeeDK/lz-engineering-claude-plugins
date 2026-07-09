@@ -6,11 +6,11 @@ Keep the OO form when: consumers need stateful positional traversal (pause and r
 
 ## Idiom
 
-A functor is any container that offers `map`: hand it a function and it applies that function to whatever it holds, returning the same kind of container with transformed contents. A monad adds `flatMap` (also called chain) so a step that itself returns a wrapped value composes without stacking wrappers. Together they let a caller express a sequence of transformations over a container -- an optional, a result, a promise, a list -- while the wrapping stays invisible to each individual step.
+A functor is any container that offers `map`: hand it a function and it applies that function to whatever it holds, returning the same kind of container with transformed contents. A monad adds `flatMap` (also called chain) so a step that itself returns a wrapped value composes without stacking wrappers. Together they let a caller express a sequence of transformations over a container (an optional, a result, a promise, a list) while the wrapping stays invisible to each individual step.
 
 ## Example
 
-Before -- the caller reaches into a boxed value, transforms it, and rebuilds the box at each stage:
+Before, the caller reaches into a boxed value, transforms it, and rebuilds the box at each stage:
 
 ```ts
 class Box<T> {
@@ -25,7 +25,7 @@ function priceWithTax(box: Box<number>): Box<number> {
 }
 ```
 
-After -- the box carries `map` (and `flatMap`), so the same two steps read as a chain and no site opens the container by hand. The result is the identical rounded price.
+After, the box carries `map` (and `flatMap`), so the same two steps read as a chain and no site opens the container by hand. The result is the identical rounded price.
 
 ```ts
 class Box<T> {
@@ -51,4 +51,4 @@ Same behavior; mechanics: [Combine Functions into Transform](../fowler-catalog/c
 
 ## When each fits
 
-Reach for a functor or monad when you want to sequence transformations over a wrapped value and keep the wrapping out of each step -- `map` for a plain transform, `flatMap` when a step returns another wrapped value that would otherwise nest. Keep an Iterator when consumers need positional, stateful traversal: pausing, resuming, or pulling one element at a time from a possibly infinite source, none of which map and flatMap model. Note that Iterator's own dissolution is the generator idiom; this leaf is the transform-oriented alternative offered alongside it, not that dissolution.
+Reach for a functor or monad when you want to sequence transformations over a wrapped value and keep the wrapping out of each step: `map` for a plain transform, `flatMap` when a step returns another wrapped value that would otherwise nest. Keep an Iterator when consumers need positional, stateful traversal: pausing, resuming, or pulling one element at a time from a possibly infinite source, none of which map and flatMap model. Note that Iterator's own dissolution is the generator idiom; this leaf is the transform-oriented alternative offered alongside it, not that dissolution.

@@ -6,11 +6,11 @@ Keep the OO form when: the operation must be serialized, inspected, or undone (a
 
 ## Idiom
 
-Wrap deferred work in a nullary closure -- `() => T` -- that captures everything it needs and runs only when called. The same shape memoizes: compute the value on the first call, keep it in the closure, and return the cached value on every later call.
+Wrap deferred work in a nullary closure (`() => T`) that captures everything it needs and runs only when called. The same shape memoizes: compute the value on the first call, keep it in the closure, and return the cached value on every later call.
 
 ## Example
 
-Before -- a command object holds one deferred operation behind an execute method:
+Before, a command object holds one deferred operation behind an execute method:
 
 ```ts
 interface Command {
@@ -33,7 +33,7 @@ const command: Command = new AddItemCommand(cart, "book");
 command.execute();
 ```
 
-After -- the deferred operation is a nullary closure that captures its arguments:
+After, the deferred operation is a nullary closure that captures its arguments:
 
 ```ts
 type Command = () => void;
@@ -49,7 +49,7 @@ const command: Command = addItem(cart, "book");
 command();
 ```
 
-Same behavior; mechanics: run [Replace Conditional Dispatcher with Command](../kerievsky-catalog/replace-conditional-dispatcher-with-command.md#replace-conditional-dispatcher-with-command) in reverse -- replace each command object with a nullary closure that captures its arguments, run tests between steps.
+Same behavior; mechanics: run [Replace Conditional Dispatcher with Command](../kerievsky-catalog/replace-conditional-dispatcher-with-command.md#replace-conditional-dispatcher-with-command) in reverse: replace each command object with a nullary closure that captures its arguments, run tests between steps.
 
 ## When each fits
 
@@ -59,4 +59,4 @@ A one-method command object collapses to a nullary closure that captures its arg
 
 ### Proxy
 
-A virtual proxy is a memoized thunk that computes once on first call, while the protection and remote variants are the residual sub-kinds -- guarding folds into wrapping composition and remoteness folds into an async thunk.
+A virtual proxy is a memoized thunk that computes once on first call, while the protection and remote variants are the residual sub-kinds: guarding folds into wrapping composition and remoteness folds into an async thunk.

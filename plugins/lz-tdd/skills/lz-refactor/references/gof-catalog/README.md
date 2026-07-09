@@ -1,9 +1,9 @@
-# GoF Design Patterns Catalog -- index
+# GoF Design Patterns Catalog: index
 
 Scope: all 23 Gang-of-Four design patterns, grouped by family (Creational / Structural /
 Behavioral). Coach mode routes a pattern-directed decision here to name the target pattern to move
-toward (or away from); reference mode looks up a named GoF pattern here. This is a THIN index --
-entry content lives in per-pattern leaf files, never inlined here (SKEL-04). Each leaf follows the
+toward (or away from); reference mode looks up a named GoF pattern here. This is a THIN index.
+Entry content lives in per-pattern leaf files, never inlined here (SKEL-04). Each leaf follows the
 locked 5-section contract: Intent, Applicability, Consequences, Example, Related patterns. The
 selector shown against each entry is that leaf's Applicability first line, mirrored verbatim.
 

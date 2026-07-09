@@ -6,11 +6,11 @@ Keep the OO form when: the collection is small enough that the extra arrays neve
 
 ## Idiom
 
-A transducer expresses each collection step -- a map, a filter -- as a function that wraps a reducer rather than one that produces a new collection. Because each step is just a reducer-to-reducer transformation, the steps compose into a single reducer that applies all of them per element. Folding a collection through that one reducer runs every stage in a single pass, so a multi-stage pipeline no longer builds an array between each map and filter, and the step definitions stay independent of the collection they run over.
+A transducer expresses each collection step (a map, a filter) as a function that wraps a reducer rather than one that produces a new collection. Because each step is just a reducer-to-reducer transformation, the steps compose into a single reducer that applies all of them per element. Folding a collection through that one reducer runs every stage in a single pass, so a multi-stage pipeline no longer builds an array between each map and filter, and the step definitions stay independent of the collection they run over.
 
 ## Example
 
-Before -- each array method allocates its own intermediate array before the next stage runs:
+Before, each array method allocates its own intermediate array before the next stage runs:
 
 ```ts
 function evenSquares(numbers: readonly number[]): number[] {
@@ -18,7 +18,7 @@ function evenSquares(numbers: readonly number[]): number[] {
 }
 ```
 
-After -- filter and map are reducer-wrapping steps composed into one reducer; a single fold applies both per element with no array between stages. The output list is identical.
+After, filter and map are reducer-wrapping steps composed into one reducer; a single fold applies both per element with no array between stages. The output list is identical.
 
 ```ts
 type Reducer<A, T> = (accumulator: A, item: T) => A;
@@ -54,4 +54,4 @@ Same behavior; mechanics: [Replace Loop with Pipeline](../fowler-catalog/replace
 
 ## When each fits
 
-Reach for transducers when a multi-stage map/filter over a large sequence shows intermediate-array allocation in a profile and you want a single pass without giving up the composability of separate steps. Keep a plain pipeline -- the result of Replace Loop with Pipeline -- when the collection is small, when the per-stage arrays are cheap relative to the readability they buy, or when you want to see the intermediate results, since the reducer-wrapping machinery costs clarity to earn its one pass.
+Reach for transducers when a multi-stage map/filter over a large sequence shows intermediate-array allocation in a profile and you want a single pass without giving up the composability of separate steps. Keep a plain pipeline (the result of Replace Loop with Pipeline) when the collection is small, when the per-stage arrays are cheap relative to the readability they buy, or when you want to see the intermediate results, since the reducer-wrapping machinery costs clarity to earn its one pass.

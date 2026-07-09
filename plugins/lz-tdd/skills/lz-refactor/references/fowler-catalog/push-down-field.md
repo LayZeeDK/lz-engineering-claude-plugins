@@ -20,7 +20,7 @@ Inverse of [Pull Up Field](pull-up-field.md).
 
 ## Example
 
-Before -- the frame-rate field is on the base class but only video assets use it:
+Before, the frame-rate field is on the base class but only video assets use it:
 
 ```ts
 abstract class MediaAsset {
@@ -32,7 +32,7 @@ class VideoAsset extends MediaAsset {}
 class ImageAsset extends MediaAsset {}
 ```
 
-After -- the field moves down to the subclass that reads it:
+After, the field moves down to the subclass that reads it:
 
 ```ts
 abstract class MediaAsset {}

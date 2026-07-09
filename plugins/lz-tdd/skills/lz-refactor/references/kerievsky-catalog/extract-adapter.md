@@ -35,7 +35,7 @@ at the edge. Reach for it once the version conditional appears in more than one 
 
 ## Example
 
-Before -- one class branches on the API version everywhere:
+Before, one class branches on the API version everywhere:
 
 ```ts
 class WeatherClient {
@@ -49,7 +49,7 @@ class WeatherClient {
 }
 ```
 
-After -- one adapter per version, no version field:
+After, one adapter per version and no version field:
 
 ```ts
 interface Weather {
@@ -75,5 +75,5 @@ class WeatherV2 implements Weather {
   check in one place is cheaper left inline than split into a class hierarchy, and pre-splitting for
   versions you do not yet support builds an abstraction around a guess rather than a real second variant.
 - An adapter that narrows the adaptee to one uniform interface can hide behavior a client still needs from
-  a particular version -- keep the shared type wide enough that no version's essential capability is cut
+  a particular version. Keep the shared type wide enough that no version's essential capability is cut
   off.

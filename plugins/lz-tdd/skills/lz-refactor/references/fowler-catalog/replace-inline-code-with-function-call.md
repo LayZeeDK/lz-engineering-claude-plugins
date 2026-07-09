@@ -18,7 +18,7 @@ something different should stay separate.
 
 ## Example
 
-Before -- the loop re-implements the same membership test the helper already provides:
+Before, the loop re-implements the same membership test the helper already provides:
 
 ```ts
 function isVowel(ch: string): boolean {
@@ -36,7 +36,7 @@ function countVowels(word: string): number {
 }
 ```
 
-After -- the loop calls the existing function:
+After, the loop calls the existing function:
 
 ```ts
 function isVowel(ch: string): boolean {

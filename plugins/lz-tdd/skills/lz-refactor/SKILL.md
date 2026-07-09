@@ -7,8 +7,8 @@ description: >-
   smell and the question is which named refactoring to apply, and as a reference when the user
   asks what a refactoring such as Extract Function or Replace Conditional with Polymorphism means,
   how to refactor away from a pattern (de-patterning), or asks a Fowler or Kerievsky catalog
-  question. Do not use it for the green / transformation step of TDD -- choosing the change that
-  makes a failing test pass is lz-tpp -- nor for plain feature work or generic write-a-function or
+  question. Do not use it for the green / transformation step of TDD (choosing the change that
+  makes a failing test pass is lz-tpp), nor for plain feature work or generic write-a-function or
   write-code requests.
 ---
 
@@ -17,7 +17,7 @@ description: >-
 This skill drives the refactor step of red-green-refactor TDD: with the tests green, it recommends
 the next NAMED refactoring for a detected code smell (Fowler mechanical refactorings and Kerievsky
 pattern-directed refactorings), and explains refactorings, smells, and refactoring principles on
-demand. It runs in two modes and routes by intent, and it never changes behavior -- behavior
+demand. It runs in two modes and routes by intent, and it never changes behavior. Behavior
 changes belong to the green step and its sibling skill lz-tpp.
 
 ## Two modes
@@ -38,12 +38,12 @@ acting: if a red test must be made to pass, that is lz-tpp, not this skill.
 ## Coach decision procedure
 
 1. Classify the request against the lz-tpp seam (CCH-05). If a red / failing test must be made to
-   pass, that is the green step -- hand off to lz-tpp and stop. If the tests are green and the code
+   pass, that is the green step. Hand off to lz-tpp and stop. If the tests are green and the code
    has a structure-only smell, continue here (the refactor step). See "Refactoring vs the green step"
    above; do not restate it.
 2. Recognize the smell (CCH-01). Scan the recognize-by cues in
    [references/smells.md](references/smells.md), then OPEN the matching smell leaf for its candidate
-   refactorings -- the index is navigation-only, so never guess a refactoring from it.
+   refactorings. The index is navigation-only, so never guess a refactoring from it.
 3. Route by smell kind to a NAMED refactoring (CCH-01):
    - Mechanical smell (Long Function, Duplicated Code, Feature Envy) -> a Fowler refactoring from the
      [Fowler catalog](references/fowler-catalog/README.md).
@@ -53,18 +53,18 @@ acting: if a red test must be made to pass, that is lz-tpp, not this skill.
      [GoF](references/gof-catalog/README.md) or
      [extra-patterns](references/extra-patterns-catalog/README.md) catalog.
 4. Apply the over/under-engineering balance (CCH-02, CCH-06). A pattern that earns its keep is
-   applied or kept; an unwarranted pattern is refactored AWAY -- either a Kerievsky Away refactoring
+   applied or kept; an unwarranted pattern is refactored AWAY: either a Kerievsky Away refactoring
    (Inline Singleton, Encapsulate Composite with Builder, Move Accumulation to Visitor) or dissolved
    to a functional idiom via the [functional catalog](references/functional-catalog/README.md)
    ("pattern X disappears via idiom Y / TS feature Z"). Replace Pipeline with Loop only on a measured
-   hot path or a named house-style reason -- clarity is the default.
+   hot path or a named house-style reason. Clarity is the default.
 5. Preserve behavior (CCH-03). Advise the smallest steps that keep the code working, running the
    tests after each and committing on green. If the target code has NO tests, route to
    [references/refactoring-without-tests.md](references/refactoring-without-tests.md) (Feathers) to
    pin current behavior with characterization tests first, then refactor.
-6. Reference mode (CCH-04). For an explain / lookup request, route to the correct references/ doc --
+6. Reference mode (CCH-04). For an explain / lookup request, route to the correct references/ doc:
    Fowler, Kerievsky, GoF, extra-patterns, functional, [smells](references/smells.md), or
-   [principles](references/principles.md) -- and answer from it; do not restate it here.
+   [principles](references/principles.md). Answer from it; do not restate it here.
 
 Coach, don't drive. Present the named refactoring and the smallest next step; let the developer apply
 it and run the tests. Never edit the developer's code or run the tests unless explicitly asked.

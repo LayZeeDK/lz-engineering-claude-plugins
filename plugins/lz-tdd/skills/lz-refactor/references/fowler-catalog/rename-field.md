@@ -26,7 +26,7 @@ class that behaves like a record.
 
 ## Example
 
-Before -- a cramped field name obscures the data:
+Before, a cramped field name obscures the data:
 
 ```ts
 interface Contact {
@@ -39,7 +39,7 @@ function greeting(contact: Contact): string {
 }
 ```
 
-After -- the field name states what it holds, at the declaration and every use:
+After, the field name states what it holds, at the declaration and every use:
 
 ```ts
 interface Contact {
@@ -55,5 +55,5 @@ function greeting(contact: Contact): string {
 ## Watch for
 
 - Renaming a field that maps to stored data changes the persisted shape; green unit tests do not
-  prove it safe. Migrate with a parallel change -- see the atomic-boundary tripwire in the
+  prove it safe. Migrate with a parallel change. See the atomic-boundary tripwire in the
   [refactoring principles](../principles.md).

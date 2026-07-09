@@ -28,7 +28,7 @@ implementers is stable enough that direct instantiation is a liability rather th
 
 ## Example
 
-Before -- every client names a concrete codec to build one:
+Before, every client names a concrete codec to build one:
 
 ```ts
 export interface Codec {
@@ -48,7 +48,7 @@ export class OpusCodec implements Codec {
 }
 ```
 
-After -- the concretes are hidden; the factory offers one named method per kind:
+After, the concretes are hidden; the factory offers one named method per kind:
 
 ```ts
 export interface Codec {
@@ -81,4 +81,4 @@ export class CodecFactory {
 ## Watch for
 
 - Encapsulating a family whose clients legitimately need the concrete type (for type-specific
-  behavior) fights the language -- keep the concrete reachable in that case.
+  behavior) fights the language. Keep the concrete reachable in that case.

@@ -73,6 +73,6 @@ const total = frame.cost();
 
 ## Related patterns
 
-- Direction: Away -- [Encapsulate Composite with Builder](../kerievsky-catalog/encapsulate-composite-with-builder.md#encapsulate-composite-with-builder): the pattern-directed refactoring that hides an awkward hand-built Composite behind a builder so callers assemble the tree fluently instead of wiring child nodes by hand.
+- Direction: Away. [Encapsulate Composite with Builder](../kerievsky-catalog/encapsulate-composite-with-builder.md#encapsulate-composite-with-builder): the pattern-directed refactoring that hides an awkward hand-built Composite behind a builder so callers assemble the tree fluently instead of wiring child nodes by hand.
 - [Decorator](decorator.md#decorator): often used with Composite; both rely on recursive composition, but Decorator adds responsibilities to one child rather than aggregating many.
 - [Flyweight](flyweight.md#flyweight): lets you share leaf components of a composite structure when there are many identical ones.

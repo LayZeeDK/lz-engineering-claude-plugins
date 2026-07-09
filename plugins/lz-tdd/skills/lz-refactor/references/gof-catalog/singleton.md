@@ -58,5 +58,5 @@ const requests = MetricsRegistry.getInstance().read("requests");
 
 ## Related patterns
 
-- Direction: Away -- [Inline Singleton](../kerievsky-catalog/inline-singleton.md#inline-singleton): the pattern-directed refactoring that removes a singleton by absorbing its behavior into an owner and injecting the instance, once its global access is causing more trouble than the one-instance policy is worth.
+- Direction: Away. [Inline Singleton](../kerievsky-catalog/inline-singleton.md#inline-singleton): the pattern-directed refactoring that removes a singleton by absorbing its behavior into an owner and injecting the instance, once its global access is causing more trouble than the one-instance policy is worth.
 - [Abstract Factory](abstract-factory.md#abstract-factory), [Builder](builder.md#builder), and [Prototype](prototype.md#prototype): these creational objects are themselves often realized as singletons.

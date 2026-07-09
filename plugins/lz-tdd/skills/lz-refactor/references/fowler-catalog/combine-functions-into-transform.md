@@ -7,12 +7,12 @@ Use when: several functions derive extra values from the same source record, and
 When derivations of a record are scattered, the same calculation gets repeated and can drift out of
 step. A transform gathers them: it takes the source record and returns a new, enriched record whose
 extra fields are the derived values, computed in one place. Prefer this over
-[Combine Functions into Class](combine-functions-into-class.md) when the source is read-only --
+[Combine Functions into Class](combine-functions-into-class.md) when the source is read-only,
 because a derived snapshot goes stale if the source it copied from later changes.
 
 ## Mechanics
 
-1. Create a transform function that takes the source record and returns a copy of it -- copy rather
+1. Create a transform function that takes the source record and returns a copy of it: copy rather
    than alias, so callers cannot mutate the source through the result.
 2. Move one derivation's logic into the transform, add its result as a field on the returned record,
    and change that derivation's callers to read the field.
@@ -21,7 +21,7 @@ because a derived snapshot goes stale if the source it copied from later changes
 
 ## Example
 
-Before -- a derivation is a separate function over the record:
+Before, a derivation is a separate function over the record:
 
 ```ts
 interface Item {
@@ -34,7 +34,7 @@ function subtotal(item: Item): number {
 }
 ```
 
-After -- the transform returns an enriched copy carrying the derived field:
+After, the transform returns an enriched copy carrying the derived field:
 
 ```ts
 interface Item {
@@ -55,5 +55,5 @@ function enrichItem(item: Item): EnrichedItem {
 
 ## Watch for
 
-- If the source is mutated after the transform runs, the enriched copy will not reflect it -- that
+- If the source is mutated after the transform runs, the enriched copy will not reflect it. That
   is the case for [Combine Functions into Class](combine-functions-into-class.md) instead.

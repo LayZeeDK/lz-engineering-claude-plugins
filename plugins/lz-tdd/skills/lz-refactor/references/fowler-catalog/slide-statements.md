@@ -9,8 +9,8 @@ another refactoring.
 
 Code is easier to understand when things that belong together appear together. A declaration that
 sits far from where it is used, or a piece of behavior split across a block, forces the reader to
-hold context in their head. Sliding related statements next to each other -- typically a declaration
-down to its first use -- shortens that span and often prepares the ground for an
+hold context in their head. Sliding related statements next to each other, typically a declaration
+down to its first use, shortens that span and often prepares the ground for an
 [Extract Function](extract-function.md). The move looks trivial, but its safety hinges on whether the
 statements you pass have any ordering dependency, so check before you cut.
 
@@ -28,7 +28,7 @@ safe.
 
 ## Example
 
-Before -- `discountThreshold` is declared at the top, far from the calculation that uses it:
+Before, `discountThreshold` is declared at the top, far from the calculation that uses it:
 
 ```ts
 function invoice(quantity: number, unitPrice: number): number {
@@ -40,7 +40,7 @@ function invoice(quantity: number, unitPrice: number): number {
 }
 ```
 
-After -- the declaration slides down to sit with its use; the statements it passes share no state:
+After, the declaration slides down to sit with its use; the statements it passes share no state:
 
 ```ts
 function invoice(quantity: number, unitPrice: number): number {

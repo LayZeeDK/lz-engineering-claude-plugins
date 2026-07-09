@@ -1,6 +1,6 @@
 # Extract Class
 
-Use when: a class is doing the work of two -- a subset of its fields and the methods that use them form a cohesive unit that could stand on its own.
+Use when: a class is doing the work of two, where a subset of its fields and the methods that use them form a cohesive unit that could stand on its own.
 
 ## Motivation
 
@@ -27,7 +27,7 @@ Inverse of [Inline Class](inline-class.md).
 
 ## Example
 
-Before -- one class holds two concepts:
+Before, one class holds two concepts:
 
 ```ts
 class Book {
@@ -39,7 +39,7 @@ class Book {
 }
 ```
 
-After -- the publisher is its own class:
+After, the publisher is its own class:
 
 ```ts
 class Publisher {

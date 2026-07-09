@@ -14,7 +14,7 @@ separate algorithm crammed into one place, and adding or tuning one means editin
 Moving each branch into its own object behind a common interface lets a caller hold the one algorithm it
 needs and swap it without touching the others, and lets you unit-test each in isolation. Prefer it over
 plain subclass polymorphism when the varying behavior is a pluggable part rather than the identity of the
-host object -- the strategy is composed in, not inherited. Reach for it once the conditional guards
+host object: the strategy is composed in, not inherited. Reach for it once the conditional guards
 genuine algorithmic variation you expect to grow.
 
 ## Mechanics
@@ -32,7 +32,7 @@ genuine algorithmic variation you expect to grow.
 
 ## Example
 
-Before -- one function branches on the shipping mode:
+Before, one function branches on the shipping mode:
 
 ```ts
 type Method = "standard" | "express";
@@ -45,7 +45,7 @@ function fee(method: Method, weightKg: number): number {
 }
 ```
 
-After -- each mode is a strategy behind a shared interface:
+After, each mode is a strategy behind a shared interface:
 
 ```ts
 interface ShippingStrategy {
@@ -71,5 +71,5 @@ function fee(strategy: ShippingStrategy, weightKg: number): number {
 
 ## Watch for
 
-- A conditional that only picks a value, or that will never gain a third case, does not need a strategy --
+- A conditional that only picks a value, or that will never gain a third case, does not need a strategy:
   the extra interface and classes cost more than the branch they replace.

@@ -5,8 +5,8 @@ Use when: several separate conditional checks all lead to the same result or act
 ## Motivation
 
 When a run of checks each ends in the same outcome, they are really one check wearing several
-disguises, and their separateness hides that. Combining them into a single logical expression -- and
-usually extracting it into a named function -- makes the shared intent explicit: there is one reason
+disguises, and their separateness hides that. Combining them into a single logical expression (and
+usually extracting it into a named function) makes the shared intent explicit: there is one reason
 for one result. It also often sets up an [Extract Function](extract-function.md) that names the
 combined condition after what it means rather than what it tests.
 
@@ -14,7 +14,7 @@ combined condition after what it means rather than what it tests.
 
 1. No check in the run may alter state; where one does, hand it to
    [Separate Query from Modifier](separate-query-from-modifier.md) before going further.
-2. Combine two of the conditions that share a result into one expression -- `or` for a sequence of
+2. Combine two of the conditions that share a result into one expression: `or` for a sequence of
    independent checks, `and` for nested ones.
 3. Run the tests, then fold in the next condition the same way, testing after each.
 4. Consider [Extract Function](extract-function.md) on the combined condition, naming it for what it
@@ -22,7 +22,7 @@ combined condition after what it means rather than what it tests.
 
 ## Example
 
-Before -- three separate guards return the same value:
+Before, three separate guards return the same value:
 
 ```ts
 function shippingDiscount(weight: number, express: boolean, remote: boolean): number {
@@ -39,7 +39,7 @@ function shippingDiscount(weight: number, express: boolean, remote: boolean): nu
 }
 ```
 
-After -- the checks are one named condition:
+After, the checks are one named condition:
 
 ```ts
 function shippingDiscount(weight: number, express: boolean, remote: boolean): number {
@@ -58,4 +58,4 @@ function notEligibleForDiscount(weight: number, express: boolean, remote: boolea
 
 - Consolidate only checks that are really one reason for the result. If the conditions are
   conceptually independent, combining them hides that they are separate decisions and makes later
-  change harder -- leave them apart.
+  change harder. Leave them apart.

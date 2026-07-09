@@ -10,7 +10,7 @@ Observer connects a subject to observer objects that each expose an update metho
 
 ## Example
 
-Before -- a subject holds observer objects and calls `update` on each:
+Before, a subject holds observer objects and calls `update` on each:
 
 ```ts
 interface Observer {
@@ -40,7 +40,7 @@ class Display implements Observer {
 }
 ```
 
-After -- the subject holds listener functions and returns an unsubscribe closure:
+After, the subject holds listener functions and returns an unsubscribe closure:
 
 ```ts
 type Listener = (temperature: number) => void;
@@ -69,4 +69,4 @@ Same behavior; mechanics: [Replace Command with Function](../fowler-catalog/repl
 
 ## When each fits
 
-Callbacks fit when notification is the whole relationship and you want subscribers decoupled from the subject's type. Keep the unsubscribe closure the subscribe call returns, so listeners can detach and you avoid leaks from long-lived subjects. Once the event graph turns complex -- many interdependent sources, backpressure, cancellation, or replay -- reach for a reactive-stream library rather than hand-rolling that machinery on top of raw callbacks; that is a dependency decision, not a language built-in.
+Callbacks fit when notification is the whole relationship and you want subscribers decoupled from the subject's type. Keep the unsubscribe closure the subscribe call returns, so listeners can detach and you avoid leaks from long-lived subjects. Once the event graph turns complex (many interdependent sources, backpressure, cancellation, or replay), reach for a reactive-stream library rather than hand-rolling that machinery on top of raw callbacks; that is a dependency decision, not a language built-in.

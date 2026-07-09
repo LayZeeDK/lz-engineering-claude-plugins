@@ -3,7 +3,7 @@
 Use when: several creation paths for the same class repeat the same object-building steps.
 
 Direction: n/a
-GoF pattern: n/a -- utility
+GoF pattern: n/a (utility)
 Composed Fowler primitive(s): [Substitute Algorithm](../fowler-catalog/substitute-algorithm.md#substitute-algorithm), [Remove Dead Code](../fowler-catalog/remove-dead-code.md#remove-dead-code), [Change Function Declaration](../fowler-catalog/change-function-declaration.md#change-function-declaration)
 Functional alternative: [Factory Function](../functional-catalog/factory-function.md#factory)
 
@@ -18,7 +18,7 @@ duplicate the same setup.
 
 ## Mechanics
 
-1. Pick the most general creation path -- the one the others could be expressed in terms of -- and settle
+1. Pick the most general creation path (the one the others could be expressed in terms of) and settle
    its parameter list with
    [Change Function Declaration](../fowler-catalog/change-function-declaration.md#change-function-declaration).
 2. Replace each specific path's body with a call to the general one, passing its fixed values, using
@@ -32,7 +32,7 @@ duplicate the same setup.
 
 ## Example
 
-Before -- each creator repeats the assembly:
+Before, each creator repeats the assembly:
 
 ```ts
 class Rational {
@@ -55,7 +55,7 @@ function fromInteger(n: number): Rational {
 }
 ```
 
-After -- the specific creator chains through the general one:
+After, the specific creator chains through the general one:
 
 ```ts
 class Rational {

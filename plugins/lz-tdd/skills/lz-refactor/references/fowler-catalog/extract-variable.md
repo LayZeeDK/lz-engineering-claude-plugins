@@ -24,7 +24,7 @@ Inverse of [Inline Variable](inline-variable.md).
 
 ## Example
 
-Before -- a single return line packs several ideas:
+Before, a single return line packs several ideas:
 
 ```ts
 function finalScore(raw: number, bonus: number, penalty: number): number {
@@ -32,7 +32,7 @@ function finalScore(raw: number, bonus: number, penalty: number): number {
 }
 ```
 
-After -- the adjustment is named, and the cap reads as a cap:
+After, the adjustment is named, and the cap reads as a cap:
 
 ```ts
 function finalScore(raw: number, bonus: number, penalty: number): number {

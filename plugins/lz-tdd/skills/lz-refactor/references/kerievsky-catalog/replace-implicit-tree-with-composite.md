@@ -32,7 +32,7 @@ several operations.
 
 ## Example
 
-Before -- the tree is nested primitives, walked by a type test:
+Before, the tree is nested primitives, walked by a type test:
 
 ```ts
 type Parcel = number | Parcel[];
@@ -45,7 +45,7 @@ function weight(parcel: Parcel): number {
 }
 ```
 
-After -- leaves and boxes share an interface; each answers weight:
+After, leaves and boxes share an interface; each answers weight:
 
 ```ts
 interface Parcel {
@@ -73,4 +73,4 @@ class Box implements Parcel {
 ## Watch for
 
 - A structure that is only ever one level deep, or never traversed polymorphically, does not need a
-  Composite -- the shared interface earns its place when nesting and uniform traversal are real.
+  Composite: the shared interface earns its place when nesting and uniform traversal are real.

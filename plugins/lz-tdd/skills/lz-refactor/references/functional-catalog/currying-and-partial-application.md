@@ -6,11 +6,11 @@ Keep the OO form when: many optional parts are assembled and validated together,
 
 ## Idiom
 
-A curried function accepts its arguments in stages: supply the stable ones now and receive a smaller function that waits for the rest. Partial application is the same move applied to an existing function -- fix its leading arguments to get a specialized version. Either way the shared configuration is captured once in a closure and the remaining call sites pass only what actually varies, so there is no configuration object to thread through and no builder to assemble.
+A curried function accepts its arguments in stages: supply the stable ones now and receive a smaller function that waits for the rest. Partial application is the same move applied to an existing function: fix its leading arguments to get a specialized version. Either way the shared configuration is captured once in a closure and the remaining call sites pass only what actually varies, so there is no configuration object to thread through and no builder to assemble.
 
 ## Example
 
-Before -- a builder collects the fixed parts (a prefix and a level) and hands back a formatter:
+Before, a builder collects the fixed parts (a prefix and a level) and hands back a formatter:
 
 ```ts
 class MessageBuilder {
@@ -41,7 +41,7 @@ const format = new MessageBuilder().withPrefix("api").withLevel("warn").build();
 const line = format("disk almost full");
 ```
 
-After -- the same fixed parts are supplied in stages; each application returns a narrower function, and the last one is the formatter. `format("disk almost full")` yields the identical string.
+After, the same fixed parts are supplied in stages; each application returns a narrower function, and the last one is the formatter. `format("disk almost full")` yields the identical string.
 
 ```ts
 const makeFormatter =

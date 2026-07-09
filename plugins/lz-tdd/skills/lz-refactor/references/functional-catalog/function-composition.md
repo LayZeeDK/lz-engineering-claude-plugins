@@ -10,7 +10,7 @@ Express a multi-step transformation as small functions that share one input and 
 
 ## Example
 
-Before -- decorators wrap a formatter, each adding one step through the shared interface:
+Before, decorators wrap a formatter, each adding one step through the shared interface:
 
 ```ts
 interface Formatter {
@@ -43,7 +43,7 @@ const decorated: Formatter = new LowerFormatter(new TrimFormatter(new PlainForma
 const result: string = decorated.format("  HELLO  ");
 ```
 
-After -- each step is a function of the same type, composed into one pipe:
+After, each step is a function of the same type, composed into one pipe:
 
 ```ts
 type TextTransform = (input: string) => string;
@@ -60,7 +60,7 @@ const format: TextTransform = pipe(trim, toLower);
 const result: string = format("  HELLO  ");
 ```
 
-Same behavior; mechanics: run [Move Embellishment to Decorator](../kerievsky-catalog/move-embellishment-to-decorator.md#move-embellishment-to-decorator) in reverse -- replace each wrapping decorator with one function in the pipe, run tests between steps.
+Same behavior; mechanics: run [Move Embellishment to Decorator](../kerievsky-catalog/move-embellishment-to-decorator.md#move-embellishment-to-decorator) in reverse: replace each wrapping decorator with one function in the pipe, run tests between steps.
 
 ## When each fits
 

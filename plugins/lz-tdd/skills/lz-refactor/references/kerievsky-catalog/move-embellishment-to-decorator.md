@@ -26,13 +26,13 @@ whose main purpose should stay simple.
    compile and run the tests.
 4. Apply [Replace Superclass with Delegate](../fowler-catalog/replace-superclass-with-delegate.md#replace-superclass-with-delegate)
    so that subclass holds a wrapped instance of the interface and delegates to it, adding its behavior
-   around the delegated call -- it is now a decorator.
+   around the delegated call: it is now a decorator.
 5. Have callers that wanted the extra wrap the core in the decorator instead of setting the flag.
 6. Repeat per adjustment, then remove the drained flags and run the tests.
 
 ## Example
 
-Before -- optional charges live as flags inside the quote:
+Before, optional charges live as flags inside the quote:
 
 ```ts
 class Quote {
@@ -55,7 +55,7 @@ class Quote {
 }
 ```
 
-After -- each charge is a decorator wrapping the quote:
+After, each charge is a decorator wrapping the quote:
 
 ```ts
 interface Quote {
@@ -90,5 +90,5 @@ class Expedited implements Quote {
   when the interface is wide, prefer
   [Replace Conditional Logic with Strategy](replace-conditional-logic-with-strategy.md#replace-conditional-logic-with-strategy)
   instead.
-- Decorators compose in an order that can matter -- wrapping insurance inside expedite is not the same as
+- Decorators compose in an order that can matter: wrapping insurance inside expedite is not the same as
   the reverse; keep the composition explicit where the sequence changes the result.

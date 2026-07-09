@@ -1,14 +1,14 @@
 # Return Modified Value
 
-*Provenance: [web-only] -- verified against the web edition of the catalog, not the print/e-book.*
+*Provenance: [web-only]. Verified against the web edition of the catalog, not the print/e-book.*
 
 Use when: a function updates a value by mutating it in place, and the code would read more clearly if
 it returned the new value instead.
 
 ## Motivation
 
-When a function computes a new value for something, returning that value -- rather than mutating a
-variable the caller passed or shares -- makes the data flow explicit: the reader sees exactly where
+When a function computes a new value for something, returning that value, rather than mutating a
+variable the caller passed or shares, makes the data flow explicit: the reader sees exactly where
 the value is set. A returned result is also easier to reason about and to compose, and it pairs
 naturally with declaring the receiving variable immutable. It fits best when a single value is being
 computed; needing to return several can be a sign the function is doing too much. It is also a common
@@ -19,7 +19,7 @@ easier to relocate than one that mutates a caller's variable.
 
 1. Have the function also return the value it computes, keeping its existing in-place update for now;
    run the tests.
-2. At each caller, assign the returned value to the target variable -- the update still runs, so the
+2. At each caller, assign the returned value to the target variable: the update still runs, so the
    value is unchanged; test after each.
 3. Once every caller consumes the returned value, remove the in-place update so the function only
    computes and returns; run the tests.
@@ -28,7 +28,7 @@ easier to relocate than one that mutates a caller's variable.
 
 ## Example
 
-Before -- a nested helper mutates the outer `peak` variable:
+Before, a nested helper mutates the outer `peak` variable:
 
 ```ts
 function report(readings: readonly number[]): string {
@@ -47,7 +47,7 @@ function report(readings: readonly number[]): string {
 }
 ```
 
-After -- the helper returns the value; the caller assigns it to an immutable local:
+After, the helper returns the value; the caller assigns it to an immutable local:
 
 ```ts
 function report(readings: readonly number[]): string {

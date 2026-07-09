@@ -33,7 +33,7 @@ outside the switch.
 
 ## Example
 
-Before -- a switch dispatches by operation code:
+Before, a switch dispatches by operation code:
 
 ```ts
 function apply(op: string, value: number): number {
@@ -50,7 +50,7 @@ function apply(op: string, value: number): number {
 }
 ```
 
-After -- each operation is a command in a lookup:
+After, each operation is a command in a lookup:
 
 ```ts
 interface Command {

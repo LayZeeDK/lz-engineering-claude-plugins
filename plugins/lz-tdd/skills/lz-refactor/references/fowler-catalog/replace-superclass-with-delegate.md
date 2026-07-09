@@ -2,13 +2,13 @@
 
 *Aliases: Replace Inheritance with Delegation.*
 
-Use when: a subclass inherits from a superclass that is not a true "is a" fit -- it uses only part of the parent, or the parent's interface leaks operations that make no sense on the child.
+Use when: a subclass inherits from a superclass that is not a true "is a" fit: it uses only part of the parent, or the parent's interface leaks operations that make no sense on the child.
 
 ## Motivation
 
 Inheritance is a strong claim: the subclass is a kind of the superclass and honors its whole
-interface. When that is not true -- the child needs only some of the parent, or exposes inherited
-operations that break its own invariants -- inheritance couples the two so that parent changes ripple
+interface. When that is not true (the child needs only some of the parent, or exposes inherited
+operations that break its own invariants), inheritance couples the two so that parent changes ripple
 into the child. Replacing the superclass with a delegate field keeps the useful behavior through
 explicit forwarding while dropping the false claim and the leaked interface. This is the whole-parent
 counterpart to [Replace Subclass with Delegate](replace-subclass-with-delegate.md).
@@ -23,7 +23,7 @@ counterpart to [Replace Subclass with Delegate](replace-subclass-with-delegate.m
 
 ## Example
 
-Before -- a playlist inherits a whole list, exposing more than it should:
+Before, a playlist inherits a whole list, exposing more than it should:
 
 ```ts
 class ItemList {
@@ -45,7 +45,7 @@ class Playlist extends ItemList {
 }
 ```
 
-After -- the list becomes a delegate reached through forwarding methods:
+After, the list becomes a delegate reached through forwarding methods:
 
 ```ts
 class ItemList {
@@ -76,5 +76,5 @@ class Playlist {
 ## Watch for
 
 - Dropping extends removes inherited methods from the class's type; callers that used them bind to a
-  published surface, so migrate them as a boundary move -- see the atomic-boundary tripwire in the
+  published surface, so migrate them as a boundary move. See the atomic-boundary tripwire in the
   [refactoring principles](../principles.md).

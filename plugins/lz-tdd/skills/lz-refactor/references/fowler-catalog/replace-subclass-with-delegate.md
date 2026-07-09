@@ -1,6 +1,6 @@
 # Replace Subclass with Delegate
 
-Use when: subclasses vary one aspect of an object, but inheritance is too rigid -- the axis changes at runtime, or you need to vary more than one thing at once.
+Use when: subclasses vary one aspect of an object, but inheritance is too rigid: the axis changes at runtime, or you need to vary more than one thing at once.
 
 ## Motivation
 
@@ -8,7 +8,7 @@ Inheritance commits you to a single axis of variation fixed at construction: an 
 its subclass, and it can specialize along only one dimension. It also couples parent and child
 tightly, so a later change to the superclass can ripple into the subclasses and break them. When the
 varying behavior needs to switch while the object lives, or to combine with another kind of variation,
-a delegate is the flexible choice -- the object holds a replaceable collaborator instead of being a
+a delegate is the flexible choice: the object holds a replaceable collaborator instead of being a
 fixed subclass. This is composition over inheritance, and it matches the State and Strategy patterns.
 To move an entire parent out of the picture rather than the subclasses, see
 [Replace Superclass with Delegate](replace-superclass-with-delegate.md).
@@ -26,7 +26,7 @@ To move an entire parent out of the picture rather than the subclasses, see
 
 ## Example
 
-Before -- a sponsored subclass overrides the ranking:
+Before, a sponsored subclass overrides the ranking:
 
 ```ts
 class SearchResult {
@@ -44,7 +44,7 @@ class SponsoredResult extends SearchResult {
 }
 ```
 
-After -- the varying behavior becomes a swappable delegate:
+After, the varying behavior becomes a swappable delegate:
 
 ```ts
 interface RankingPolicy {

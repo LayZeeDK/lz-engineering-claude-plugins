@@ -6,7 +6,7 @@ Functional alternative: [Function Composition](../functional-catalog/function-co
 
 A request travels down a line of candidate handlers, and the first one willing to deal with it ends
 the traversal. Because the caller addresses only the head of that line, it never learns which
-handler answered -- or whether any did.
+handler answered, or whether any did.
 
 ## Applicability
 
@@ -17,7 +17,7 @@ Reach for it when you want to issue a request to one of several objects without 
 ## Consequences
 
 - Reduces coupling: the sender and receiver have no explicit knowledge of each other, and
-  an object in the chain need not know the chain's structure -- it keeps only a reference
+  an object in the chain need not know the chain's structure. It keeps only a reference
   to its successor.
 - Adds flexibility in assigning responsibilities: because the chain is built at run time,
   you can add or reorder handlers, or change which handler covers which request, by

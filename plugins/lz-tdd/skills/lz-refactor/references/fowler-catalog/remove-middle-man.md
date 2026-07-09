@@ -18,14 +18,14 @@ is a judgment call that shifts as the relationship changes.
 
 With refactoring-tool support this composes from two other refactorings: apply
 [Encapsulate Variable](encapsulate-variable.md) to the delegate field, then
-[Inline Function](inline-function.md) on each delegating method -- inlining updates every caller in
+[Inline Function](inline-function.md) on each delegating method: inlining updates every caller in
 one step, subsuming the per-client redirect and the method removal.
 
 Inverse of [Hide Delegate](hide-delegate.md).
 
 ## Example
 
-Before -- Order forwards to Customer through a wrapper method:
+Before, Order forwards to Customer through a wrapper method:
 
 ```ts
 class Customer {
@@ -41,7 +41,7 @@ class Order {
 }
 ```
 
-After -- the delegate is exposed and the forwarding method is gone:
+After, the delegate is exposed and the forwarding method is gone:
 
 ```ts
 class Customer {

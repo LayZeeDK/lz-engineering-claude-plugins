@@ -1,6 +1,6 @@
 # Encapsulate Composite with Builder
 
-Use when: clients build a Composite by hand -- creating nodes and wiring parent to child -- and that assembly is verbose and easy to get wrong.
+Use when: clients build a Composite by hand (creating nodes and wiring parent to child) and that assembly is verbose and easy to get wrong.
 
 Direction: Away
 GoF pattern: [Builder](../gof-catalog/builder.md#builder)
@@ -29,7 +29,7 @@ recurring source of noise or mistakes.
 
 ## Example
 
-Before -- the client creates and wires every node against the Composite directly:
+Before, the client creates and wires every node against the Composite directly:
 
 ```ts
 class Node {
@@ -51,7 +51,7 @@ docs.add(new Node("guide"));
 root.add(docs);
 ```
 
-After -- a builder hides node creation and wiring; the client describes the tree:
+After, a builder hides node creation and wiring; the client describes the tree:
 
 ```ts
 class Node {
@@ -98,5 +98,5 @@ const root = new TreeBuilder("root").branch("docs").leaf("guide").build();
 
 ## Watch for
 
-- A Composite that clients rarely build by hand does not need a builder -- the extra type only earns
+- A Composite that clients rarely build by hand does not need a builder. The extra type only earns
   its place when assembly is both frequent and error-prone.

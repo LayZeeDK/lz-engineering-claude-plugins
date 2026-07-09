@@ -5,13 +5,13 @@ Use when: a superclass and its subclass have grown so alike that the separation 
 ## Motivation
 
 After enough refactoring, a class and its parent can converge until the distinction between them adds
-nothing -- the subclass no longer specializes anything worth naming. Merging the two into one class
+nothing: the subclass no longer specializes anything worth naming. Merging the two into one class
 removes a layer that a reader would otherwise have to hold in mind. It is the cleanup you reach for
 once features have moved and a once-useful split has become empty ceremony.
 
 ## Mechanics
 
-1. Choose which class to keep -- superclass or subclass.
+1. Choose which class to keep: superclass or subclass.
 2. Move every element into the surviving class: [Pull Up Field](pull-up-field.md) and
    [Pull Up Method](pull-up-method.md) to lift members up, or [Push Down Field](push-down-field.md)
    and [Push Down Method](push-down-method.md) to send them down.
@@ -20,7 +20,7 @@ once features have moved and a once-useful split has become empty ceremony.
 
 ## Example
 
-Before -- the subclass adds only one derived label:
+Before, the subclass adds only one derived label:
 
 ```ts
 class Folder {
@@ -34,7 +34,7 @@ class SmartFolder extends Folder {
 }
 ```
 
-After -- the two collapse into a single class:
+After, the two collapse into a single class:
 
 ```ts
 class Folder {

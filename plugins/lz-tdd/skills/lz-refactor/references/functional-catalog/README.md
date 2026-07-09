@@ -1,14 +1,14 @@
-# Functional Catalog (de-patterning idioms + native FP) -- index
+# Functional Catalog (de-patterning idioms + native FP): index
 
 Scope: the functional renderings of the OO patterns and pattern-directed refactorings (how a GoF
 pattern, a Kerievsky refactoring, or a Fowler FP-analog dissolves into a functional idiom) AND the
 native FP patterns offered alongside an OO alternative (Option/Either, functor/monad, lens/optics,
 currying/partial application, transducers). Coach mode routes a de-patterning or functional-alternative
-decision here; reference mode looks up a named idiom here. This is a THIN index -- entry content lives
+decision here; reference mode looks up a named idiom here. This is a THIN index: entry content lives
 in per-idiom leaf files, never inlined here (SKEL-04). Every TypeScript Example is `tsc --strict`-clean.
 
 N:1 contract: unlike the sibling catalogs (gof / kerievsky / extra-patterns), whose READMEs are 1:1
-selector-mirrors of one leaf per row, THIS index is an N:1 pattern -> idiom map -- many OO patterns and
+selector-mirrors of one leaf per row, THIS index is an N:1 pattern -> idiom map: many OO patterns and
 refactorings fan into one idiom leaf (for example Visitor / State / Interpreter / Composite all map to
 Discriminated Union and Fold). Each map row still mirrors its target leaf's `Use when:` selector
 verbatim, and each note cell is capped to one line. A row that names a served pattern of an N:1 leaf
@@ -26,7 +26,7 @@ Every dissolvable source item resolves to an idiom leaf below. The `Corresponden
 target leaf relates to the source: `dissolves-from` when the OO structure disappears into the idiom,
 `alternative-to` when the idiom is a native FP option offered beside the OO form. Fowler refactorings
 whose intent is a functional default, is reached by data reshaping, or is a light one-line adjustment do
-not resolve to a leaf -- they are the one-line notes under `## Notes`.
+not resolve to a leaf: they are the one-line notes under `## Notes`.
 
 ### GoF patterns (23)
 
@@ -49,7 +49,7 @@ not resolve to a leaf -- they are the one-line notes under `## Notes`.
 | Interpreter | dissolves-from | [Discriminated Union and Fold](discriminated-union-and-fold.md#interpreter) | a type hierarchy or a chain of conditionals selects behavior by variant, and you add operations more often than variants. |
 | Iterator | dissolves-from | [Generator](generator.md) | you need sequential access to a series of values and want the traversal produced lazily rather than materialized up front. |
 | Mediator | dissolves-from | [Reducer and Store](reducer-and-store.md) | several components coordinate through a central object and you want their state transitions to be pure, replayable, and testable in isolation. |
-| Memento | dissolves-from | [Immutable Snapshot](immutable-snapshot.md) | you need to save a value so you can return to it later -- undo, rollback, time-travel -- and the value is already immutable. |
+| Memento | dissolves-from | [Immutable Snapshot](immutable-snapshot.md) | you need to save a value so you can return to it later (undo, rollback, time-travel) and the value is already immutable. |
 | Observer | dissolves-from | [Observer Callbacks](observer-callbacks.md) | one object needs to tell an open-ended set of interested parties that something changed, and those parties should not be coupled to the notifier's concrete type. |
 | State | dissolves-from | [Discriminated Union and Fold](discriminated-union-and-fold.md#state) | a type hierarchy or a chain of conditionals selects behavior by variant, and you add operations more often than variants. |
 | Strategy | dissolves-from | [First-Class Function](first-class-function.md#strategy) | an object exists only to carry a single method, and you want to pass, return, or swap that behavior as a value. |
@@ -58,7 +58,7 @@ not resolve to a leaf -- they are the one-line notes under `## Notes`.
 
 ### Kerievsky refactorings (27)
 
-Each Kerievsky refactoring inherits the idiom leaf -- and, for an N:1 leaf, the residual anchor -- of the
+Each Kerievsky refactoring inherits the idiom leaf (and, for an N:1 leaf, the residual anchor) of the
 GoF pattern it targets. The three Ch.11 utilities map to the nearest idiom (A4: no checker exemption).
 
 | Kerievsky refactoring | Correspondence | Idiom leaf | Use when |
@@ -82,7 +82,7 @@ GoF pattern it targets. The three Ch.11 utilities map to the nearest idiom (A4: 
 | Unify Interfaces with Adapter | dissolves-from | [First-Class Function](first-class-function.md#adapter) | an object exists only to carry a single method, and you want to pass, return, or swap that behavior as a value. |
 | Extract Adapter | dissolves-from | [First-Class Function](first-class-function.md#adapter) | an object exists only to carry a single method, and you want to pass, return, or swap that behavior as a value. |
 | Replace Implicit Language with Interpreter | dissolves-from | [Discriminated Union and Fold](discriminated-union-and-fold.md#interpreter) | a type hierarchy or a chain of conditionals selects behavior by variant, and you add operations more often than variants. |
-| Replace Type Code with Class | dissolves-from | [Branded Type](branded-type.md) | a primitive carries meaning the compiler should enforce -- an id, a unit, a validated string -- and you want that guarantee without allocating a wrapper object. |
+| Replace Type Code with Class | dissolves-from | [Branded Type](branded-type.md) | a primitive carries meaning the compiler should enforce (an id, a unit, a validated string) and you want that guarantee without allocating a wrapper object. |
 | Limit Instantiation with Singleton | dissolves-from | [Module Namespace](module-namespace.md#singleton) | a class exists only to provide one shared instance or to group related operations, and a module of functions would carry the same contract. |
 | Introduce Null Object | alternative-to | [Option and Either](option-and-either.md) | a value may be absent or a call may fail, and callers keep guarding with null checks or try/catch before they can use the result. |
 | Move Accumulation to Collecting Parameter | dissolves-from | [Function Composition](function-composition.md#collecting-parameter) | behavior is built by wrapping or sequencing same-shaped steps, and you want to vary the order or set of steps without a wrapper class per step. |
@@ -103,7 +103,7 @@ GoF pattern it targets. The three Ch.11 utilities map to the nearest idiom (A4: 
 
 ### Fowler FP-analog refactorings (15)
 
-The FP-analog subset of the Fowler catalog folds into existing idiom leaves through these rows only --
+The FP-analog subset of the Fowler catalog folds into existing idiom leaves through these rows only.
 Fowler leaves carry no `Functional alternative:` line (D-10). The paradigm-neutral Fowler refactorings
 already ship functional-style examples and stay out of this catalog.
 
@@ -111,7 +111,7 @@ already ship functional-style examples and stay out of this catalog.
 |---|---|---|---|
 | Replace Type Code with Subclasses | dissolves-from | [Discriminated Union and Fold](discriminated-union-and-fold.md) | a type hierarchy or a chain of conditionals selects behavior by variant, and you add operations more often than variants. |
 | Replace Conditional with Polymorphism | dissolves-from | [Discriminated Union and Fold](discriminated-union-and-fold.md) | a type hierarchy or a chain of conditionals selects behavior by variant, and you add operations more often than variants. |
-| Replace Primitive with Object | dissolves-from | [Branded Type](branded-type.md) | a primitive carries meaning the compiler should enforce -- an id, a unit, a validated string -- and you want that guarantee without allocating a wrapper object. |
+| Replace Primitive with Object | dissolves-from | [Branded Type](branded-type.md) | a primitive carries meaning the compiler should enforce (an id, a unit, a validated string) and you want that guarantee without allocating a wrapper object. |
 | Combine Functions into Class | dissolves-from | [Module Namespace](module-namespace.md) | a class exists only to provide one shared instance or to group related operations, and a module of functions would carry the same contract. |
 | Extract Class | dissolves-from | [Module Namespace](module-namespace.md) | a class exists only to provide one shared instance or to group related operations, and a module of functions would carry the same contract. |
 | Inline Class | dissolves-from | [Module Namespace](module-namespace.md) | a class exists only to provide one shared instance or to group related operations, and a module of functions would carry the same contract. |
@@ -144,37 +144,37 @@ by the OO alternative's own dissolution leaf or via the Fowler rows above.
 
 Fowler refactorings whose intent is a functional default (immutability, value equality, composition),
 is reached through data/ADT reshaping rather than a dedicated idiom, or is a light one-line adjustment
-appear here as one-line notes with NO idiom leaf -- a leaf requires a real `tsc --strict` Example. Names
+appear here as one-line notes with NO idiom leaf: a leaf requires a real `tsc --strict` Example. Names
 are reconciled against the shipped `../fowler-catalog/` leaf filenames (A5).
 
 Moot / FP-baseline (the intent is already the default, so the refactoring does not arise):
 
-- Change Reference to Value -- values are immutable by default, so there is no shared mutable object to fold back into a value.
-- Remove Setting Method -- records are built whole and never mutated after construction, so no setter exists to remove.
-- Replace Superclass with Delegate -- behavior is shared by composing functions and records, so there is no superclass to convert into a delegate.
+- Change Reference to Value: values are immutable by default, so there is no shared mutable object to fold back into a value.
+- Remove Setting Method: records are built whole and never mutated after construction, so no setter exists to remove.
+- Replace Superclass with Delegate: behavior is shared by composing functions and records, so there is no superclass to convert into a delegate.
 
 FP-avoids-via-data-modeling (the intent is reached by reshaping records or unions, not by an inheritance hierarchy):
 
-- Pull Up Method -- shared behavior is a function that takes the record, so there is no hierarchy to lift a method into.
-- Push Down Method -- variant-specific behavior lives in a branch of the fold over the union, not in a subclass to push into.
-- Pull Up Field -- common data is a shared record field or the base of an intersection type, reshaped rather than inherited.
-- Push Down Field -- variant-specific data lives on the matching union member, selected by the value's shape rather than a subclass.
-- Pull Up Constructor Body -- construction is a plain function, so shared setup is a helper call, not a superclass constructor to hoist.
-- Extract Superclass -- shared structure is captured by a common record type or a union, not by extracting a parent class.
-- Collapse Hierarchy -- there is no class hierarchy to collapse; variants are members of one discriminated union.
-- Remove Subclass -- a redundant variant is dropped from the union and its fold branch, not from a subclass.
+- Pull Up Method: shared behavior is a function that takes the record, so there is no hierarchy to lift a method into.
+- Push Down Method: variant-specific behavior lives in a branch of the fold over the union, not in a subclass to push into.
+- Pull Up Field: common data is a shared record field or the base of an intersection type, reshaped rather than inherited.
+- Push Down Field: variant-specific data lives on the matching union member, selected by the value's shape rather than a subclass.
+- Pull Up Constructor Body: construction is a plain function, so shared setup is a helper call, not a superclass constructor to hoist.
+- Extract Superclass: shared structure is captured by a common record type or a union, not by extracting a parent class.
+- Collapse Hierarchy: there is no class hierarchy to collapse; variants are members of one discriminated union.
+- Remove Subclass: a redundant variant is dropped from the union and its fold branch, not from a subclass.
 
 Light functional notes (a one-line data adjustment, no dedicated idiom):
 
-- Move Field -- a field moves by reshaping the record types that hold it, a plain data edit with no accessor ceremony.
-- Encapsulate Variable -- shared state is reached through functions, and a value that needs a guarantee becomes an opaque or branded type (Encapsulate Record folds in here too).
-- Encapsulate Collection -- expose a ReadonlyArray and return new collections from pure operations instead of handing out a mutable one.
+- Move Field: a field moves by reshaping the record types that hold it, a plain data edit with no accessor ceremony.
+- Encapsulate Variable: shared state is reached through functions, and a value that needs a guarantee becomes an opaque or branded type (Encapsulate Record folds in here too).
+- Encapsulate Collection: expose a ReadonlyArray and return new collections from pure operations instead of handing out a mutable one.
 
 ## Sources
 
-- `.planning/research/functional-depatterning-ts.md` Sections 10-13 -- the LOCKED design source of
+- `.planning/research/functional-depatterning-ts.md` Sections 10-13: the LOCKED design source of
   record for this catalog (the pattern -> FP-idiom -> TS-feature disappearance map, the full-corpus
   Stays-OO analysis, the board-ratified leaf template, and the N:1 map). This phase has no owned book
   oracle (D-06); the committed research artifact plus `check-functional` plus `tsc --strict` are the
-  correctness anchor. Idioms, examples, and prose are original words with original TypeScript -- no
+  correctness anchor. Idioms, examples, and prose are original words with original TypeScript: no
   verbatim book or artifact prose or code (DST-04).

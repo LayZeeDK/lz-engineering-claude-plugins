@@ -5,7 +5,7 @@ Use when: statements once common to every caller of a function now need to vary 
 ## Motivation
 
 Functions bundle behavior so callers can share it, but as a program grows the behavior that once was
-common to all callers starts to diverge -- one caller needs a variation the others do not. When that
+common to all callers starts to diverge: one caller needs a variation the others do not. When that
 happens, the shared statements no longer belong inside the function; move them out to the callers so
 each can decide for itself. This is the counter-move to folding statements in: you make it when a
 single function is doing slightly the wrong thing for some of the code that calls it.
@@ -28,7 +28,7 @@ Inverse of [Move Statements into Function](move-statements-into-function.md).
 
 ## Example
 
-Before -- `summarize` always prepends the header, but not every caller should:
+Before, `summarize` always prepends the header, but not every caller should:
 
 ```ts
 function summarize(rows: readonly string[]): string {
@@ -42,7 +42,7 @@ function report(rows: readonly string[]): string {
 }
 ```
 
-After -- the header statement moves out to the caller, freeing `summarize` to serve varied callers:
+After, the header statement moves out to the caller, freeing `summarize` to serve varied callers:
 
 ```ts
 function summarize(rows: readonly string[]): string {

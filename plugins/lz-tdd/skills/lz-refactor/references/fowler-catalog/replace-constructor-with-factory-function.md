@@ -2,8 +2,8 @@
 
 *Aliases: Replace Constructor with Factory Method.*
 
-Use when: a constructor's limits get in the way -- you want a name that says intent, to return a
-subtype, or to avoid forcing callers to use `new`.
+Use when: a constructor's limits get in the way (you want a name that says intent, to return a
+subtype, or to avoid forcing callers to use `new`).
 
 ## Motivation
 
@@ -23,7 +23,7 @@ flexibility than a constructor allows.
 
 ## Example
 
-Before -- callers construct with `new` and a bare priority number:
+Before, callers construct with `new` and a bare priority number:
 
 ```ts
 class Ticket {
@@ -33,7 +33,7 @@ class Ticket {
 const urgent = new Ticket("T-1", 1);
 ```
 
-After -- a named factory states intent and hides the constructor:
+After, a named factory states intent and hides the constructor:
 
 ```ts
 class Ticket {
@@ -50,5 +50,5 @@ const urgent = urgentTicket("T-1");
 ## Watch for
 
 - Changing how callers construct an object is a published-interface change; green unit tests do not
-  prove that safe for external callers. Migrate with a parallel change -- see the atomic-boundary
+  prove that safe for external callers. Migrate with a parallel change. See the atomic-boundary
   tripwire in the [refactoring principles](../principles.md).

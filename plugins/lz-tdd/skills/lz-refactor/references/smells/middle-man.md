@@ -17,7 +17,7 @@ relationship into real delegation, restores a class that earns its interface.
 
 ## Candidate refactorings
 
-- [Remove Middle Man](../fowler-catalog/remove-middle-man.md#remove-middle-man) -- pick when the forwarding dominates; let clients talk to the delegate directly.
-- [Inline Function](../fowler-catalog/inline-function.md#inline-function) -- pick when only a few delegating methods remain; fold them into their callers.
-- [Replace Superclass with Delegate](../fowler-catalog/replace-superclass-with-delegate.md#replace-superclass-with-delegate) -- pick when you want to keep and build on some of the delegated behavior rather than simply forward it.
-- [Replace Subclass with Delegate](../fowler-catalog/replace-subclass-with-delegate.md#replace-subclass-with-delegate) -- pick when the forwarding should become real delegation you can extend, not just remove.
+- [Remove Middle Man](../fowler-catalog/remove-middle-man.md#remove-middle-man): pick when the forwarding dominates; let clients talk to the delegate directly.
+- [Inline Function](../fowler-catalog/inline-function.md#inline-function): pick when only a few delegating methods remain; fold them into their callers.
+- [Replace Superclass with Delegate](../fowler-catalog/replace-superclass-with-delegate.md#replace-superclass-with-delegate): pick when you want to keep and build on some of the delegated behavior rather than simply forward it.
+- [Replace Subclass with Delegate](../fowler-catalog/replace-subclass-with-delegate.md#replace-subclass-with-delegate): pick when the forwarding should become real delegation you can extend, not just remove.

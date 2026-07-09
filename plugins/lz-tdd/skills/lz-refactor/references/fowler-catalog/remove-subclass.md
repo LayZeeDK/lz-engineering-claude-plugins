@@ -26,7 +26,7 @@ pays, a field is the simpler carrier.
 
 ## Example
 
-Before -- an admin subclass only decorates the label:
+Before, an admin subclass only decorates the label:
 
 ```ts
 class User {
@@ -44,7 +44,7 @@ class AdminUser extends User {
 }
 ```
 
-After -- the distinction becomes a field, and a factory hides construction:
+After, the distinction becomes a field, and a factory hides construction:
 
 ```ts
 class User {
@@ -66,5 +66,5 @@ function createUser(name: string, admin = false): User {
 ## Watch for
 
 - Callers that construct or type-check the subclass depend on its name; removing it changes that
-  published surface, so migrate them as a boundary move -- see the atomic-boundary tripwire in the
+  published surface, so migrate them as a boundary move. See the atomic-boundary tripwire in the
   [refactoring principles](../principles.md).

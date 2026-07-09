@@ -1,6 +1,6 @@
 # Split Phase
 
-Use when: one block of code does two distinct things in sequence -- typically it prepares some data and then computes a result from it.
+Use when: one block of code does two distinct things in sequence. Typically it prepares some data and then computes a result from it.
 
 ## Motivation
 
@@ -11,7 +11,7 @@ longer forces you to read the other.
 
 ## Mechanics
 
-1. Give the trailing concern a function of its own -- [Extract Function](extract-function.md) --
+1. Give the trailing concern a function of its own ([Extract Function](extract-function.md)),
    leaving the earlier work where it stands.
 2. Run the tests.
 3. Create a record to carry values across the seam, and hand it to the trailing function as an
@@ -23,7 +23,7 @@ longer forces you to read the other.
 
 ## Example
 
-Before -- gathering and computing are tangled in one function:
+Before, gathering and computing are tangled in one function:
 
 ```ts
 function receiptTotal(prices: readonly number[], taxRate: number): number {
@@ -32,7 +32,7 @@ function receiptTotal(prices: readonly number[], taxRate: number): number {
 }
 ```
 
-After -- a first phase builds an intermediate record, a second phase computes from it:
+After, a first phase builds an intermediate record, a second phase computes from it:
 
 ```ts
 interface OrderData {

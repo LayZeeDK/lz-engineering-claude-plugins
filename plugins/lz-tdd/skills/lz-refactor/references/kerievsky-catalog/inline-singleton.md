@@ -9,8 +9,8 @@ Functional alternative: [Module Namespace](../functional-catalog/module-namespac
 
 ## Motivation
 
-A Singleton bundles two decisions -- that there is one instance, and that anyone may reach it
-globally -- into the class itself, which hides who actually depends on it and makes a caller
+A Singleton bundles two decisions (that there is one instance, and that anyone may reach it
+globally) into the class itself, which hides who actually depends on it and makes a caller
 impossible to test with a stand-in. When neither the single-instance guarantee nor the global reach
 is truly needed, this refactors away from Singleton: absorb its behavior into the object that will
 own it and pass that object to the code that used to reach for it. Callers then declare their
@@ -30,7 +30,7 @@ causing more trouble than the one-instance policy is worth.
 
 ## Example
 
-Before -- callers reach a global instance through a static accessor:
+Before, callers reach a global instance through a static accessor:
 
 ```ts
 class IdSequence {
@@ -51,7 +51,7 @@ function label(): string {
 }
 ```
 
-After -- the behavior is a plain object passed in; the global access is gone:
+After, the behavior is a plain object passed in; the global access is gone:
 
 ```ts
 class IdSequence {

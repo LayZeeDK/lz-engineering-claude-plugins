@@ -1,9 +1,9 @@
-# Move Accumulation to Visitor -- walkthrough
+# Move Accumulation to Visitor walkthrough
 
 This walkthrough expands the compact example in
 [Move Accumulation to Visitor](move-accumulation-to-visitor.md#move-accumulation-to-visitor). The leaf's
 after shows only the visitor holding the accumulation; the teaching this refactoring is really about lives
-in the double dispatch -- each element type accepting the visitor and calling its own method -- so this
+in the double dispatch (each element type accepting the visitor and calling its own method), so this
 fuller example keeps the node classes, their `accept` methods, and the driver that runs the visitor over
 the structure.
 
@@ -36,7 +36,7 @@ double dispatch.
 
 ## After: each node accepts a visitor
 
-Give every node type an `accept` method that calls the visitor method for its own type -- that is the
+Give every node type an `accept` method that calls the visitor method for its own type: that is the
 double dispatch. The accumulation state and the per-type arithmetic move into a visitor class. The driver
 loops once, asking each node to accept the visitor, and then reads the result off the visitor. A different
 accumulation is now a different visitor, not another type switch:
@@ -86,5 +86,5 @@ function totalWeight(nodes: DocNode[]): number {
 
 The loop no longer knows the node types; each node routes itself to the right visitor method, and the sum
 lives in the visitor. Adding a "count images" accumulation is a new visitor class with the same two
-methods -- no change to the loop or the nodes -- which is the payoff for leaving the type-switching
+methods (no change to the loop or the nodes), which is the payoff for leaving the type-switching
 iterator behind.

@@ -10,7 +10,7 @@ Model each variant as one arm of a tagged union (a shared `kind` or `tag` field)
 
 ## Example
 
-Before -- a polymorphic hierarchy where each shape supplies its own operation:
+Before, a polymorphic hierarchy where each shape supplies its own operation:
 
 ```ts
 interface Shape {
@@ -40,7 +40,7 @@ const shapes: Shape[] = [new Circle(2), new Rectangle(3, 4)];
 const total: number = shapes.reduce((sum, shape) => sum + shape.area(), 0);
 ```
 
-After -- a tagged union plus one fold, with a compiler-checked exhaustive switch:
+After, a tagged union plus one fold, with a compiler-checked exhaustive switch:
 
 ```ts
 type Shape =
@@ -74,13 +74,13 @@ const shapes: Shape[] = [
 const total: number = shapes.reduce((sum, shape) => sum + area(shape), 0);
 ```
 
-Same behavior; mechanics: run [Move Accumulation to Visitor](../kerievsky-catalog/move-accumulation-to-visitor.md#move-accumulation-to-visitor) in reverse -- lift each visit method into one arm of the switch, run tests between steps.
+Same behavior; mechanics: run [Move Accumulation to Visitor](../kerievsky-catalog/move-accumulation-to-visitor.md#move-accumulation-to-visitor) in reverse: lift each visit method into one arm of the switch, run tests between steps.
 
 ## When each fits
 
 ### Visitor
 
-Adding a new operation is one new fold; adding a new variant edits every existing fold -- the expression-problem tradeoff flips versus a class-per-variant Visitor that makes new variants cheap and new operations expensive.
+Adding a new operation is one new fold; adding a new variant edits every existing fold. The expression-problem tradeoff flips versus a class-per-variant Visitor that makes new variants cheap and new operations expensive.
 
 ### State
 

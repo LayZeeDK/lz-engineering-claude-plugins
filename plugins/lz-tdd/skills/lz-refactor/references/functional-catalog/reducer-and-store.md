@@ -10,7 +10,7 @@ A Mediator centralizes how a group of components coordinate so they need not ref
 
 ## Example
 
-Before -- a mediator object routes changes between two form fields and a button:
+Before, a mediator object routes changes between two form fields and a button:
 
 ```ts
 interface Component {
@@ -43,7 +43,7 @@ class DialogMediator {
 }
 ```
 
-After -- one pure reducer folds actions into state; a store holds the value:
+After, one pure reducer folds actions into state; a store holds the value:
 
 ```ts
 type State = { nameFilled: boolean; termsAccepted: boolean };
@@ -77,4 +77,4 @@ Same behavior; mechanics: [Combine Functions into Transform](../fowler-catalog/c
 
 ## When each fits
 
-Reach for a reducer and store when state transitions are the real coordination and you want them replayable, serializable, and unit-testable apart from any UI. The God-object risk does not disappear -- it moves into a reducer that can grow just as large, so split the reducer by feature once it sprawls. Coordinating long-lived stateful actors -- timers, sockets, retries -- does not belong inside the pure reducer; relocate those to an effect or subscription layer that sits outside it and only dispatches actions back in.
+Reach for a reducer and store when state transitions are the real coordination and you want them replayable, serializable, and unit-testable apart from any UI. The God-object risk does not disappear: it moves into a reducer that can grow just as large, so split the reducer by feature once it sprawls. Coordinating long-lived stateful actors (timers, sockets, retries) does not belong inside the pure reducer; relocate those to an effect or subscription layer that sits outside it and only dispatches actions back in.

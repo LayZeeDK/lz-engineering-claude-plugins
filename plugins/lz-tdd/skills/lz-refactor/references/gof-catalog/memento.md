@@ -6,7 +6,7 @@ Functional alternative: [Immutable Snapshot](../functional-catalog/immutable-sna
 
 ## Intent
 
-An object hands out a sealed record of where it currently stands -- opaque to every holder except
+An object hands out a sealed record of where it currently stands, opaque to every holder except
 the object itself. Handed that record back later, it returns to exactly the point the record
 describes, and at no stage did anything about its internals become public.
 

@@ -9,7 +9,7 @@ Use when: a type-code field drives behavior through conditionals, or gates field
 A type code that a class switches on is a request for polymorphism. Turning each value into a subclass
 lets [Replace Conditional with Polymorphism](replace-conditional-with-polymorphism.md) dispatch on the
 type instead of testing it, and lets fields that only matter for one value live on the subclass that
-uses them. Reach for subclasses of a separate state object -- the State/Strategy shape -- when the
+uses them. Reach for subclasses of a separate state object (the State/Strategy shape) when the
 host is already subclassed on another axis, or when the code value can change during an object's life.
 
 ## Mechanics
@@ -22,16 +22,16 @@ host is already subclassed on another axis, or when the code value can change du
    tests.
 4. Repeat for each remaining type-code value, testing after each.
 5. Remove the type-code field once every value has a subclass, and run the tests.
-6. Move type-specific behavior down onto the subclass that owns it -- turn type-branching logic into
+6. Move type-specific behavior down onto the subclass that owns it: turn type-branching logic into
    polymorphism with [Replace Conditional with Polymorphism](replace-conditional-with-polymorphism.md),
    and send a method that only one type uses down with [Push Down Method](push-down-method.md); once
    nothing outside the subclasses reads the type, delete its accessor and run the tests.
 
-To reverse this move -- folding thin subclasses back into a field -- see [Remove Subclass](remove-subclass.md).
+To reverse this move (folding thin subclasses back into a field), see [Remove Subclass](remove-subclass.md).
 
 ## Example
 
-Before -- a transit time chosen by a carrier type code:
+Before, a transit time chosen by a carrier type code:
 
 ```ts
 class Shipment {
@@ -43,7 +43,7 @@ class Shipment {
 }
 ```
 
-After -- each carrier is a subclass and a factory selects it:
+After, each carrier is a subclass and a factory selects it:
 
 ```ts
 abstract class Shipment {

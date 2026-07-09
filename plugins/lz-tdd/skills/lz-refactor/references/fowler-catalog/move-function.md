@@ -10,15 +10,15 @@ A function belongs with the data and other functions it works with. When a funct
 fields or functions of some other context more than its own, its coupling points the wrong way:
 readers must jump between contexts to follow it, and the context it really serves cannot evolve
 without reaching back. Moving it next to what it uses tightens the module it now lives in and thins
-the one it left. You also move a function to reach it from where it is now needed -- to sit near new
+the one it left. You also move a function to reach it from where it is now needed: to sit near new
 callers, or to lift a helper nested inside one function out to where other code can reuse it. Deciding
 where a function truly belongs is often a judgment call you refine as the program teaches you more
 about its subject.
 
 ## Mechanics
 
-1. Examine every element the function uses in its current context -- fields, other functions,
-   variables -- and decide whether any of them should move with it.
+1. Examine every element the function uses in its current context (fields, other functions,
+   variables) and decide whether any of them should move with it.
 2. Confirm the function is not polymorphic; an override in a class hierarchy makes the move harder
    and may need a different approach.
 3. Copy the function into the target context and fit it there: rewire each reference by either
@@ -33,7 +33,7 @@ about its subject.
 
 ## Example
 
-Before -- the total is a free function, but it uses nothing except a `Reservation`'s own data:
+Before, the total is a free function, but it uses nothing except a `Reservation`'s own data:
 
 ```ts
 class Reservation {
@@ -45,7 +45,7 @@ function reservationTotal(reservation: Reservation): number {
 }
 ```
 
-After -- the function moves onto the class whose data it works with:
+After, the function moves onto the class whose data it works with:
 
 ```ts
 class Reservation {
@@ -60,5 +60,5 @@ class Reservation {
 ## Watch for
 
 - Moving a function that other modules call changes a published interface; green unit tests do not
-  prove that safe. Keep a delegator and migrate callers first -- see the atomic-boundary tripwire in
+  prove that safe. Keep a delegator and migrate callers first. See the atomic-boundary tripwire in
   the [refactoring principles](../principles.md).

@@ -2,7 +2,7 @@
 
 *Aliases: Replace Method with Method Object.*
 
-Use when: a function is intricate enough -- lots of local state, or wanting to be broken up -- that
+Use when: a function is complex enough (lots of local state, or wanting to be broken up) that
 turning it into an object would help.
 
 ## Motivation
@@ -28,7 +28,7 @@ Inverse of [Replace Command with Function](replace-command-with-function.md).
 
 ## Example
 
-Before -- a charge calculation with several intermediate steps:
+Before, a charge calculation with several intermediate steps:
 
 ```ts
 function rentalCharge(days: number, dailyRate: number, memberDiscount: number): number {
@@ -39,7 +39,7 @@ function rentalCharge(days: number, dailyRate: number, memberDiscount: number): 
 }
 ```
 
-After -- a command holds the inputs as fields, and the steps become methods that share them:
+After, a command holds the inputs as fields, and the steps become methods that share them:
 
 ```ts
 class RentalCharge {

@@ -1,12 +1,12 @@
 # Inline Class
 
-Use when: a class no longer pulls its weight -- often the leftover of a refactoring that moved most of its features elsewhere.
+Use when: a class no longer pulls its weight, often the leftover of a refactoring that moved most of its features elsewhere.
 
 ## Motivation
 
 The opposite of [Extract Class](extract-class.md): when a class has dwindled to too little
 responsibility to justify its existence, fold it back into the class that uses it most. Inlining is
-also a useful setup move -- collapse two poorly-divided classes into one, then re-extract along a
+also a useful setup move: collapse two poorly-divided classes into one, then re-extract along a
 better seam.
 
 ## Mechanics
@@ -22,7 +22,7 @@ Inverse of [Extract Class](extract-class.md).
 
 ## Example
 
-Before -- a class that barely holds anything:
+Before, a class that barely holds anything:
 
 ```ts
 class Label {
@@ -34,7 +34,7 @@ class Product {
 }
 ```
 
-After -- its one field folds into its only user:
+After, its one field folds into its only user:
 
 ```ts
 class Product {

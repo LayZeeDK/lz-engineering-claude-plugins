@@ -8,7 +8,7 @@ A function that queries global state or a far-reaching reference carries a hidde
 harder to test, harder to reason about, and tied to that context. Passing the value in as a parameter
 makes the dependency explicit and the function easier to reuse and test, at the cost of a longer
 parameter list and pushing the responsibility to callers. It is the trade you make to lift a
-dependency out of a function -- the inverse of letting the function query for it.
+dependency out of a function, the inverse of letting the function query for it.
 
 ## Mechanics
 
@@ -26,7 +26,7 @@ Inverse of [Replace Parameter with Query](replace-parameter-with-query.md).
 
 ## Example
 
-Before -- the function reads shared config directly:
+Before, the function reads shared config directly:
 
 ```ts
 const config = { taxRate: 0.2 };
@@ -36,7 +36,7 @@ function grossPrice(net: number): number {
 }
 ```
 
-After -- the rate is a parameter, the dependency explicit:
+After, the rate is a parameter, the dependency explicit:
 
 ```ts
 function grossPrice(net: number, taxRate: number): number {
@@ -47,5 +47,5 @@ function grossPrice(net: number, taxRate: number): number {
 ## Watch for
 
 - Adding a required parameter changes a published interface; green unit tests do not prove that safe
-  for external callers. Migrate with a parallel change -- see the atomic-boundary tripwire in the
+  for external callers. Migrate with a parallel change. See the atomic-boundary tripwire in the
   [refactoring principles](../principles.md).

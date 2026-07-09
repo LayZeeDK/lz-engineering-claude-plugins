@@ -23,7 +23,7 @@ Inverse of [Push Down Field](push-down-field.md).
 
 ## Example
 
-Before -- both listing subclasses hold the same seller field:
+Before, both listing subclasses hold the same seller field:
 
 ```ts
 abstract class Listing {}
@@ -41,7 +41,7 @@ class FixedPriceListing extends Listing {
 }
 ```
 
-After -- the field moves to the superclass and the subclasses inherit its constructor:
+After, the field moves to the superclass and the subclasses inherit its constructor:
 
 ```ts
 abstract class Listing {

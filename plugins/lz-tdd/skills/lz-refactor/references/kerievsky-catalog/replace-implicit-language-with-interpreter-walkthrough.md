@@ -1,16 +1,16 @@
-# Replace Implicit Language with Interpreter -- walkthrough
+# Replace Implicit Language with Interpreter walkthrough
 
 This walkthrough expands the compact example in
 [Replace Implicit Language with Interpreter](replace-implicit-language-with-interpreter.md#replace-implicit-language-with-interpreter).
 The leaf's before/after shows only a level term and an "and"; the teaching this refactoring is really
-about lives in the fuller grammar -- more than one kind of term, more than one combinator, and the single
+about lives in the fuller grammar: more than one kind of term, more than one combinator, and the single
 step that applies an assembled expression to the data. This fuller example keeps all of it so the shift
 from "a method per question" to "compose the question" is visible.
 
 ## Starting point: a method per combination
 
-Each question the code can answer is a hard-coded method. The same three ideas -- match a level, match a
-service, combine two tests -- are re-typed inside every one, and each new question (warnings, warnings from
+Each question the code can answer is a hard-coded method. The same three ideas (match a level, match a
+service, combine two tests) are re-typed inside every one, and each new question (warnings, warnings from
 a service, errors-or-warnings) is another method:
 
 ```ts
@@ -32,7 +32,7 @@ class LogFilter {
 }
 ```
 
-The set of methods is open-ended, and the building blocks -- level test, service test, and/or -- are
+The set of methods is open-ended, and the building blocks (level test, service test, and/or) are
 implicit, copied into each method rather than named anywhere.
 
 ## After: name the building blocks as composable expressions
@@ -129,5 +129,5 @@ function errorsFromShipping(entries: Entry[]): Entry[] {
 }
 ```
 
-Each new question is a new combination of the same parts rather than a new method, and the grammar --
-terms plus and/or -- is now named in one place instead of retyped in every filter.
+Each new question is a new combination of the same parts rather than a new method, and the grammar
+(terms plus and/or) is now named in one place instead of retyped in every filter.

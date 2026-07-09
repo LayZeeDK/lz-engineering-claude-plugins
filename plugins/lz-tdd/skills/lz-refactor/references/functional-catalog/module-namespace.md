@@ -10,7 +10,7 @@ Let an ES module be the unit of grouping and of single instantiation: its top-le
 
 ## Example
 
-Before -- a facade over a subsystem, published as a lazily created singleton:
+Before, a facade over a subsystem, published as a lazily created singleton:
 
 ```ts
 class TemperatureSubsystem {
@@ -45,7 +45,7 @@ class TemperatureFacade {
 const boilingF: number = TemperatureFacade.getInstance().fahrenheit(100);
 ```
 
-After -- module-level functions are the facade; a module binding is the single instance:
+After, module-level functions are the facade; a module binding is the single instance:
 
 ```ts
 const toFahrenheit = (celsius: number): number => celsius * 1.8 + 32;
@@ -63,7 +63,7 @@ export const temperature = {
 const boilingF: number = temperature.fahrenheit(100);
 ```
 
-Same behavior; mechanics: run [Inline Singleton](../kerievsky-catalog/inline-singleton.md#inline-singleton) -- move the singleton's methods to module-level functions and its single instance to a module binding, run tests between steps.
+Same behavior; mechanics: run [Inline Singleton](../kerievsky-catalog/inline-singleton.md#inline-singleton). Move the singleton's methods to module-level functions and its single instance to a module binding, run tests between steps.
 
 ## When each fits
 

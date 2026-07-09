@@ -1,13 +1,13 @@
 # Loops
 
-Recognize by: an explicit loop whose real intent -- filter, map, sum -- is buried in bookkeeping.
+Recognize by: an explicit loop whose real intent (filter, map, sum) is buried in bookkeeping.
 
 ## How to recognize
 
 A `for` or `while` that mixes iteration mechanics with the work it does, so you must read the whole
 body to see that it is really selecting some elements, transforming them, and combining them. Nested
 or multi-purpose loops are the clearest cases. When one loop does several unrelated things, that is
-also [Long Function](long-function.md) territory -- split the jobs before naming them.
+also [Long Function](long-function.md) territory. Split the jobs before naming them.
 
 ## Why it's a problem
 
@@ -17,4 +17,4 @@ visible and lets the collection pipeline carry the mechanics.
 
 ## Candidate refactorings
 
-- [Replace Loop with Pipeline](../fowler-catalog/replace-loop-with-pipeline.md#replace-loop-with-pipeline) -- pick when the loop is a chain of filter/map/reduce steps; make each step explicit as a pipeline operation.
+- [Replace Loop with Pipeline](../fowler-catalog/replace-loop-with-pipeline.md#replace-loop-with-pipeline): pick when the loop is a chain of filter/map/reduce steps; make each step explicit as a pipeline operation.

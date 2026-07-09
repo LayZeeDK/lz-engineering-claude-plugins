@@ -4,7 +4,7 @@ Recognize by: the same few data items appearing together in field lists and para
 
 ## How to recognize
 
-A recurring group -- start and end date, or street/city/postcode -- that shows up as fields in several
+A recurring group (start and end date, or street/city/postcode) that shows up as fields in several
 classes and as arguments in several signatures. A quick test: delete one of the values; if the rest no
 longer make sense on their own, they are a clump that wants to be one object. Data clumps often feed
 [Long Parameter List](long-parameter-list.md) and overlap with [Primitive Obsession](primitive-obsession.md),
@@ -18,6 +18,6 @@ one home and shortens every signature that used to spell the group out.
 
 ## Candidate refactorings
 
-- [Extract Class](../fowler-catalog/extract-class.md#extract-class) -- pick when the clump appears as fields; give it its own class so behavior can gather there.
-- [Introduce Parameter Object](../fowler-catalog/introduce-parameter-object.md#introduce-parameter-object) -- pick when the clump appears in parameter lists; replace the group with one object.
-- [Preserve Whole Object](../fowler-catalog/preserve-whole-object.md#preserve-whole-object) -- pick when a caller already holds an object carrying the clump and could pass it whole.
+- [Extract Class](../fowler-catalog/extract-class.md#extract-class): pick when the clump appears as fields; give it its own class so behavior can gather there.
+- [Introduce Parameter Object](../fowler-catalog/introduce-parameter-object.md#introduce-parameter-object): pick when the clump appears in parameter lists; replace the group with one object.
+- [Preserve Whole Object](../fowler-catalog/preserve-whole-object.md#preserve-whole-object): pick when a caller already holds an object carrying the clump and could pass it whole.

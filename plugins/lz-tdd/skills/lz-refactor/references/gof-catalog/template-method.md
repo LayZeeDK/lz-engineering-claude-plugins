@@ -4,7 +4,7 @@ Functional alternative: [Function Composition](../functional-catalog/function-co
 
 ## Intent
 
-The overall shape of an algorithm lives in one place -- a base-class method -- while the individual
+The overall shape of an algorithm lives in one place, a base-class method, while the individual
 steps it reaches for are deliberately left open. Each subclass fills in its own version of those
 hook steps, and the order the base class laid down never moves.
 
@@ -19,7 +19,7 @@ Reach for it to factor common behavior among subclasses into a single place to a
 - Is a fundamental technique for code reuse: it factors the shared structure of an
   algorithm into a base class, which is especially important in class libraries where it
   hoists common behavior out of the subclasses.
-- Inverts control (the "Hollywood principle" -- don't call us, we'll call you): the parent
+- Inverts control (the "Hollywood principle", don't call us, we'll call you): the parent
   class calls down into the subclass operations rather than the other way around, so the
   overall flow stays fixed while the details vary.
 - Distinguishes the kinds of operations a template method calls: concrete operations,

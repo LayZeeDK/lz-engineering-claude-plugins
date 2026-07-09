@@ -22,7 +22,7 @@ up removes the duplication while respecting the ordering rules constructors impo
 
 ## Example
 
-Before -- both subclasses repeat the same name-and-health setup:
+Before, both subclasses repeat the same name-and-health setup:
 
 ```ts
 abstract class Character {
@@ -47,7 +47,7 @@ class Mage extends Character {
 }
 ```
 
-After -- the shared setup lives in the superclass constructor:
+After, the shared setup lives in the superclass constructor:
 
 ```ts
 abstract class Character {

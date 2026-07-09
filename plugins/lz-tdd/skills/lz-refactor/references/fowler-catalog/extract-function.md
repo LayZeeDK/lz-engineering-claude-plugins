@@ -18,10 +18,10 @@ explain a block into a name.
 2. Copy the fragment into the new function.
 3. Check the fragment for variables that are local to the source function; decide how each crosses
    the boundary: a variable only read becomes a parameter; a variable assigned and used afterward is
-   returned. If several variables are assigned and needed later, the extraction is harder -- first
+   returned. If several variables are assigned and needed later, the extraction is harder: first
    apply [Split Variable](split-variable.md) or [Replace Temp with Query](replace-temp-with-query.md),
    then extract.
-4. Once all parameters are declared, compile the new function in isolation before wiring it in -- a
+4. Once all parameters are declared, compile the new function in isolation before wiring it in, a
    checkpoint that surfaces a missed variable early.
 5. Replace the original fragment with a call to the new function.
 6. Run the tests.
@@ -32,7 +32,7 @@ Inverse of [Inline Function](inline-function.md).
 
 ## Example
 
-Before -- one function mixes a fixed heading with a calculation:
+Before, one function mixes a fixed heading with a calculation:
 
 ```ts
 function report(items: readonly number[]): string {
@@ -45,7 +45,7 @@ function report(items: readonly number[]): string {
 }
 ```
 
-After -- the calculation becomes a function taking a read-only parameter and returning its result,
+After, the calculation becomes a function taking a read-only parameter and returning its result,
 and the fixed heading becomes its own function:
 
 ```ts

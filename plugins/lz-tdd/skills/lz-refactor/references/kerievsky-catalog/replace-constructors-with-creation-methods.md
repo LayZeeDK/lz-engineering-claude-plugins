@@ -12,8 +12,8 @@ Functional alternative: [Factory Function](../functional-catalog/factory-functio
 A constructor can only be told apart from its siblings by its parameter list, so two ways of
 building the same class read almost the same at the call site and force the reader to remember what
 each argument position means. Replacing the raw constructor calls with named static creation methods
-puts the intent back where it is read -- one clearly named method per meaningful way to build the
-object -- and gives you a single place to enforce or later vary how each variant is made. Reach for
+puts the intent back where it is read (one clearly named method per meaningful way to build the
+object) and gives you a single place to enforce or later vary how each variant is made. Reach for
 it once a class has more than one construction path, or a constructor whose arguments hide the
 variant being created.
 
@@ -32,7 +32,7 @@ variant being created.
 
 ## Example
 
-Before -- two builds of the same class read the same, distinguished only by argument order:
+Before, two builds of the same class read the same, distinguished only by argument order:
 
 ```ts
 class Discount {
@@ -46,7 +46,7 @@ const seasonal = new Discount("percent", 15);
 const coupon = new Discount("flat", 5);
 ```
 
-After -- each construction path has a name; the constructor is sealed:
+After, each construction path has a name; the constructor is sealed:
 
 ```ts
 class Discount {
@@ -70,8 +70,8 @@ const coupon = Discount.flat(5);
 
 ## Watch for
 
-- Before naming every constructor, consider whether structural extraction -- pulling a subset of
-  fields into their own class, or splitting variants into subclasses -- would cut the number of
+- Before naming every constructor, consider whether structural extraction (pulling a subset of
+  fields into their own class, or splitting variants into subclasses) would cut the number of
   constructors first; creation methods are for the count that genuinely remains.
-- A class with a single, obvious construction gains nothing from a creation method -- leave the
+- A class with a single, obvious construction gains nothing from a creation method. Leave the
   constructor public rather than add ceremony.

@@ -19,7 +19,7 @@ branching on which concrete provider it has because their interfaces disagree.
 
 ## Mechanics
 
-1. Pick the interface the client should depend on -- usually the shape of the class you own -- and align
+1. Pick the interface the client should depend on (usually the shape of the class you own) and align
    that class to it by renaming and reshaping its methods with
    [Change Function Declaration](../fowler-catalog/change-function-declaration.md#change-function-declaration);
    compile and run the tests.
@@ -34,7 +34,7 @@ branching on which concrete provider it has because their interfaces disagree.
 
 ## Example
 
-Before -- two providers, two different method shapes:
+Before, two providers, two different method shapes:
 
 ```ts
 class Twilio {
@@ -50,7 +50,7 @@ class Plivo {
 }
 ```
 
-After -- a shared interface; the fixed provider is wrapped in an adapter:
+After, a shared interface; the fixed provider is wrapped in an adapter:
 
 ```ts
 interface Sms {
@@ -82,5 +82,5 @@ class PlivoAdapter implements Sms {
 - Unify the interfaces only when a client genuinely needs to treat the two providers interchangeably; if
   every caller already knows and wants the specific concrete type, a shared interface plus an adapter is
   indirection with no payoff.
-- When the class is yours to change, prefer aligning it directly over wrapping it -- an adapter that has
+- When the class is yours to change, prefer aligning it directly over wrapping it: an adapter that has
   to invent behavior the adaptee lacks is a sign the interfaces should not be forced together.

@@ -1,6 +1,6 @@
 # Immutable Snapshot
 
-Use when: you need to save a value so you can return to it later -- undo, rollback, time-travel -- and the value is already immutable.
+Use when: you need to save a value so you can return to it later (undo, rollback, time-travel) and the value is already immutable.
 Correspondence: dissolves-from -> [Memento](../gof-catalog/memento.md#memento)
 Keep the OO form when: the owner refuses to expose the state a snapshot would capture, the object has identity or coordinated mutable state, capture sits on a measured hot path, or the surrounding house style is object-oriented.
 
@@ -10,7 +10,7 @@ Memento records enough of an object's state that it can be rolled back to that p
 
 ## Example
 
-Before -- an editor hands out and restores opaque memento objects:
+Before, an editor hands out and restores opaque memento objects:
 
 ```ts
 class EditorMemento {
@@ -34,7 +34,7 @@ class Editor {
 }
 ```
 
-After -- each edit returns a new immutable value; history keeps the prior ones:
+After, each edit returns a new immutable value; history keeps the prior ones:
 
 ```ts
 type EditorState = { readonly content: string };
@@ -57,4 +57,4 @@ Same behavior; mechanics: [Change Reference to Value](../fowler-catalog/change-r
 
 ## When each fits
 
-Immutable snapshots fit when history is linear and the state is a plain value -- undo/redo stacks, time-travel debugging, or optimistic UI you can roll back on failure. Two gotchas are runtime-shaped, not type-shaped: `readonly` is a compile-time-only marker that is erased and gives no runtime protection, and `Object.freeze` is shallow, so a nested object still mutates unless you freeze it too. Keep an encapsulating memento object only when the saved state must hide internals the owner will not expose as a plain value.
+Immutable snapshots fit when history is linear and the state is a plain value: undo/redo stacks, time-travel debugging, or optimistic UI you can roll back on failure. Two gotchas are runtime-shaped, not type-shaped: `readonly` is a compile-time-only marker that is erased and gives no runtime protection, and `Object.freeze` is shallow, so a nested object still mutates unless you freeze it too. Keep an encapsulating memento object only when the saved state must hide internals the owner will not expose as a plain value.

@@ -2,7 +2,7 @@
 
 *Aliases: Replace Data Value with Object, Replace Type Code with Class.*
 
-Use when: a primitive value has started to carry meaning -- it needs formatting, validation, or related behavior that is duplicating itself around the code.
+Use when: a primitive value has started to carry meaning. It needs formatting, validation, or related behavior that is duplicating itself around the code.
 
 ## Motivation
 
@@ -24,14 +24,13 @@ in one place and the type says what it is.
 6. Run the tests.
 7. Consider renaming the original accessors so their names reflect the new type rather than the old
    primitive.
-8. Decide whether the wrapper is a value object or a reference object -- see
-   [Change Reference to Value](change-reference-to-value.md) /
-   [Change Value to Reference](change-value-to-reference.md) -- since that governs sharing and
-   equality.
+8. Decide whether the wrapper is a value object or a reference object, since that governs sharing and
+   equality (see [Change Reference to Value](change-reference-to-value.md) /
+   [Change Value to Reference](change-value-to-reference.md)).
 
 ## Example
 
-Before -- a string field with behavior sitting outside it:
+Before, a string field with behavior sitting outside it:
 
 ```ts
 class Parcel {
@@ -41,7 +40,7 @@ class Parcel {
 const isExpress = (parcel: Parcel): boolean => parcel.trackingId.startsWith("EX");
 ```
 
-After -- the concept is a type, and its behavior lives on it:
+After, the concept is a type, and its behavior lives on it:
 
 ```ts
 class TrackingId {

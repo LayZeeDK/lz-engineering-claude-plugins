@@ -9,7 +9,7 @@ Functional alternative: [Function Composition](../functional-catalog/function-co
 
 ## Motivation
 
-When two subclasses carry out the same overall algorithm -- the same steps assembled the same way -- but
+When two subclasses carry out the same overall algorithm (the same steps assembled the same way) but
 each writes the whole thing out, the invariant skeleton is copied in both places and the parts that
 actually differ are buried inside it. A reader cannot see which steps are shared and which vary, and a
 change to the skeleton has to be made twice. Forming a template method hoists the fixed skeleton into one
@@ -23,7 +23,7 @@ siblings that already run their steps in the same order.
 1. In each subclass, isolate the steps that differ into their own methods with
    [Extract Function](../fowler-catalog/extract-function.md#extract-function), leaving each algorithm as a
    skeleton that calls those step methods.
-2. Align the step methods across the subclasses -- same names, same signatures -- with
+2. Align the step methods across the subclasses (same names, same signatures) with
    [Change Function Declaration](../fowler-catalog/change-function-declaration.md#change-function-declaration);
    compile and run the tests after each rename.
 3. The skeleton method is now identical in both subclasses; lift it to the superclass with
@@ -34,7 +34,7 @@ siblings that already run their steps in the same order.
 
 ## Example
 
-Before -- both renderers assemble their parts the same way, differing only in the parts:
+Before, both renderers assemble their parts the same way, differing only in the parts:
 
 ```ts
 class TextReport {
@@ -56,7 +56,7 @@ class CsvReport {
 }
 ```
 
-After -- the superclass owns the assembly; each subclass supplies only the differing steps:
+After, the superclass owns the assembly; each subclass supplies only the differing steps:
 
 ```ts
 abstract class Report {
@@ -79,7 +79,7 @@ class TextReport extends Report {
 
 - Form the template only once two or more subclasses genuinely share the same assembled skeleton; a single
   implementation, or siblings whose steps differ in how they are assembled rather than in detail, gain
-  nothing from an abstract skeleton -- pulling one up early freezes an algorithm shape you do not yet have
+  nothing from an abstract skeleton: pulling one up early freezes an algorithm shape you do not yet have
   and forces future variants to bend to it.
 - A skeleton broken into many abstract steps burdens every subclass with a long list of small methods to
   flesh out; if the varying part is a single step, the extra structure can obscure the algorithm more than

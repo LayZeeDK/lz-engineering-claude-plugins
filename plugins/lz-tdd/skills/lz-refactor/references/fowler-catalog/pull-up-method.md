@@ -12,7 +12,7 @@ in the data the method touches, which you then resolve by pulling that up too.
 ## Mechanics
 
 1. Inspect the candidate methods to confirm they are identical; if they only do the same thing,
-   first refactor their bodies until they match -- use [Extract Function](extract-function.md) to
+   first refactor their bodies until they match: use [Extract Function](extract-function.md) to
    isolate the common part, and [Change Function Declaration](change-function-declaration.md) to give
    them one signature.
 2. If a body references a field or method that lives only on the subclasses, pull that up first with
@@ -26,7 +26,7 @@ Inverse of [Push Down Method](push-down-method.md).
 
 ## Example
 
-Before -- two report subclasses format the heading identically:
+Before, two report subclasses format the heading identically:
 
 ```ts
 abstract class Report {
@@ -46,7 +46,7 @@ class AuditReport extends Report {
 }
 ```
 
-After -- the method moves to the superclass and both subclasses inherit it:
+After, the method moves to the superclass and both subclasses inherit it:
 
 ```ts
 abstract class Report {

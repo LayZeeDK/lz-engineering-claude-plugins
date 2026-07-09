@@ -5,7 +5,7 @@ Use when: a client reaches through an object to call a method on one of its fiel
 ## Motivation
 
 When a client calls `order.customer.region`, it must know that an order has a customer and that a
-customer has a region -- so a change to that relationship ripples out to every such client. Adding a
+customer has a region, so a change to that relationship ripples out to every such client. Adding a
 delegating method on the server (`order.region`) hides the delegate: clients ask the server, and a
 later change to the delegate touches only the server. This is encapsulation of a relationship.
 
@@ -22,7 +22,7 @@ Inverse of [Remove Middle Man](remove-middle-man.md).
 
 ## Example
 
-Before -- the caller reaches through Order to Customer:
+Before, the caller reaches through Order to Customer:
 
 ```ts
 class Customer {
@@ -36,7 +36,7 @@ class Order {
 const regionOf = (order: Order): string => order.customer.region;
 ```
 
-After -- Order hides the delegate behind its own method:
+After, Order hides the delegate behind its own method:
 
 ```ts
 class Customer {

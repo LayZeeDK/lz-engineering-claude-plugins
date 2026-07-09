@@ -13,7 +13,7 @@ can prove the replacement matches.
 
 ## Mechanics
 
-1. Arrange the code so the algorithm to replace is a single self-contained function -- use
+1. Arrange the code so the algorithm to replace is a single self-contained function. Use
    [Extract Function](extract-function.md) if it is not already.
 2. Make sure that function is covered by tests that fix its current behavior.
 3. Prepare the replacement algorithm.
@@ -23,7 +23,7 @@ can prove the replacement matches.
 
 ## Example
 
-Before -- nested loops search for the first allowed name:
+Before, nested loops search for the first allowed name:
 
 ```ts
 function firstMatch(names: readonly string[], allowed: readonly string[]): string {
@@ -39,7 +39,7 @@ function firstMatch(names: readonly string[], allowed: readonly string[]): strin
 }
 ```
 
-After -- a clearer library-driven expression, same result:
+After, a clearer library-driven expression with the same result:
 
 ```ts
 function firstMatch(names: readonly string[], allowed: readonly string[]): string {
@@ -50,4 +50,4 @@ function firstMatch(names: readonly string[], allowed: readonly string[]): strin
 ## Watch for
 
 - If the two algorithms disagree on an edge case, either behavior was not preserved or the tests are
-  incomplete -- reconcile before deleting the old one.
+  incomplete. Reconcile before deleting the old one.

@@ -10,17 +10,17 @@ Functional alternative: [Module Namespace](../functional-catalog/module-namespac
 ## Motivation
 
 When many parts of a system each construct their own copy of an object that carries no per-instance state
--- a formatter, a lookup table, a converter -- the copies are interchangeable, so holding one each only
+(a formatter, a lookup table, a converter), the copies are interchangeable, so holding one each only
 wastes memory and repeats whatever the construction costs. Limiting instantiation with a Singleton routes
 every caller through one access point that returns a single lazily created instance and prevents others
 from being made, so the resource cost is paid once. This is a performance move, applied after profiling
-shows the duplication actually matters -- not a default. It has a hard precondition: the object must be
+shows the duplication actually matters; it is not a default. It has a hard precondition: the object must be
 stateless, or hold only state that is safe to share, because every caller now sees the same instance.
 Reach for it once a profiler points at duplicate instances of a shareable object.
 
 ## Mechanics
 
-1. Confirm the object is stateless or holds only sharable state -- if one caller could mutate it in a way
+1. Confirm the object is stateless or holds only sharable state: if one caller could mutate it in a way
    another caller must not see, stop; this refactoring does not apply.
 2. Replace direct construction with a shared access method using
    [Replace Constructor with Factory Function](../fowler-catalog/replace-constructor-with-factory-function.md#replace-constructor-with-factory-function),
@@ -32,7 +32,7 @@ Reach for it once a profiler points at duplicate instances of a shareable object
 
 ## Example
 
-Before -- each caller builds its own formatter, rebuilding the same table:
+Before, each caller builds its own formatter, rebuilding the same table:
 
 ```ts
 class MoneyFormatter {
@@ -46,7 +46,7 @@ class MoneyFormatter {
 }
 ```
 
-After -- one shared, stateless instance behind a factory method:
+After, one shared, stateless instance behind a factory method:
 
 ```ts
 class MoneyFormatter {
@@ -72,7 +72,7 @@ class MoneyFormatter {
 
 - Reach for a Singleton only when a profiler shows duplicate instances are a real memory or performance
   problem; using it merely for convenient global access hides dependencies, couples callers to the access
-  point, and makes state hard to isolate in tests -- prefer passing the one instance explicitly wherever
+  point, and makes state hard to isolate in tests. Prefer passing the one instance explicitly wherever
   you can.
 - It is unsuitable when the object holds mutable state that must not be shared: collapsing such instances
   into one makes each caller's changes visible to the others, silently changing behavior.

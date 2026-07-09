@@ -23,7 +23,7 @@ Reach for it only when all of the following hold: the application uses a great m
   computed, or looked up on each use rather than stored, the pattern spends CPU time to
   reclaim memory.
 - Modern status: Flyweight is a niche, optimization-driven pattern and is a different kind
-  of beast from the patterns that shape a design for flexibility -- it is really a
+  of beast from the patterns that shape a design for flexibility. It is really a
   memory-footprint technique. Reach for it only when profiling shows large numbers of
   similar objects genuinely dominating memory, not as a default structuring choice.
 

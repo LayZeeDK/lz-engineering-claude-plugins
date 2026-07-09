@@ -9,8 +9,8 @@ Functional alternative: [Discriminated Union and Fold](../functional-catalog/dis
 
 ## Motivation
 
-When a class answers many closely related questions -- errors, errors from a service, warnings, warnings
-from a service, and so on -- by adding one hard-coded method per combination, it is really expressing a
+When a class answers many closely related questions (errors, errors from a service, warnings, warnings
+from a service, and so on) by adding one hard-coded method per combination, it is really expressing a
 small query language one frozen sentence at a time. Every new combination is another method, and the
 shared building blocks (a level test, a service test, an "and") are re-typed inside each one. An
 interpreter names those building blocks as small expression objects that compose: each term is a class,
@@ -20,8 +20,8 @@ clearly multiplying.
 
 ## Mechanics
 
-1. Identify the recurring building blocks in the hard-coded methods -- the individual tests and the ways
-   they combine -- and give each its own class with
+1. Identify the recurring building blocks in the hard-coded methods (the individual tests and the ways
+   they combine) and give each its own class with
    [Extract Class](../fowler-catalog/extract-class.md#extract-class).
 2. Give those classes a common expression type with
    [Extract Superclass](../fowler-catalog/extract-superclass.md#extract-superclass), so every term and
@@ -37,7 +37,7 @@ clearly multiplying.
 
 ## Example
 
-Before -- one method per combination of the same tests:
+Before, one method per combination of the same tests:
 
 ```ts
 interface Entry {
@@ -55,7 +55,7 @@ class LogFilter {
 }
 ```
 
-After -- composable expression objects; a combination is assembled, not coded:
+After, composable expression objects; a combination is assembled, not coded:
 
 ```ts
 interface Entry {
@@ -82,6 +82,6 @@ class And implements Expr {
 
 - Build the interpreter only when the combinations are genuinely multiplying; for a handful of fixed
   queries the explicit methods are simpler and easier to read than a grammar you compose by hand.
-- There is an upper bound too: once the language grows a real grammar -- precedence, nesting, parsing of
-  input strings -- a hand-built interpreter becomes as much work as the code it replaced; reach for a
+- There is an upper bound too: once the language grows a real grammar (precedence, nesting, parsing of
+  input strings) a hand-built interpreter becomes as much work as the code it replaced; reach for a
   parser or a generator tool instead of extending the expression hierarchy indefinitely.

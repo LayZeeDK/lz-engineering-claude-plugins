@@ -11,7 +11,7 @@ Functional alternative: [Option and Either](../functional-catalog/option-and-eit
 
 When a value can be absent and every caller guards it with the same null check before falling back to the
 same neutral behavior, that check is duplicated everywhere the value is used, and forgetting it once is a
-latent bug. A null object is a real instance of the expected type whose methods do the neutral thing --
+latent bug. A null object is a real instance of the expected type whose methods do the neutral thing:
 return the identity value, do nothing, answer "empty". Callers hold it in place of the absent value and
 simply call through, with no special case at the call site. The absence is handled in one class instead of
 at every use. Reach for it once the same null-and-default pattern is repeated across callers.
@@ -29,7 +29,7 @@ at every use. Reach for it once the same null-and-default pattern is repeated ac
 
 ## Example
 
-Before -- every caller null-checks the plan before defaulting:
+Before, every caller null-checks the plan before defaulting:
 
 ```ts
 interface Plan {
@@ -48,7 +48,7 @@ function priceFor(plan: Plan | null, amount: number): number {
 }
 ```
 
-After -- a null object supplies the neutral behavior:
+After, a null object supplies the neutral behavior:
 
 ```ts
 interface Plan {

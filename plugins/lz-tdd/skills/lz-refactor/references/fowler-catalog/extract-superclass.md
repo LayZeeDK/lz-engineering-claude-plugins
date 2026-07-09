@@ -24,7 +24,7 @@ commonality by delegation instead.
 
 ## Example
 
-Before -- an invoice and a receipt format money the same way:
+Before, an invoice and a receipt format money the same way:
 
 ```ts
 class Invoice {
@@ -44,7 +44,7 @@ class Receipt {
 }
 ```
 
-After -- the shared field and method rise into an extracted superclass:
+After, the shared field and method rise into an extracted superclass:
 
 ```ts
 abstract class FinancialDocument {

@@ -14,7 +14,7 @@ structure and switches on each element's type to accumulate a result. That itera
 concentrates every type's contribution in one growing conditional, and each new element type or each new
 kind of accumulation forces another branch. Moving the accumulation to a visitor gives each element type
 an `accept` method that dispatches to the matching visitor method, so the accumulation lives in a visitor
-object -- one method per element type -- and adding a new accumulation is a new visitor rather than another
+object (one method per element type), and adding a new accumulation is a new visitor rather than another
 branch in the loop. Reach for it once the type-switching accumulation over a stable structure has become
 the thing that is hard to extend.
 
@@ -35,7 +35,7 @@ the thing that is hard to extend.
 
 ## Example
 
-Before -- iterate and branch on each element's type to accumulate:
+Before, iterate and branch on each element's type to accumulate:
 
 ```ts
 type DocNode =
@@ -55,7 +55,7 @@ function totalWeight(nodes: DocNode[]): number {
 }
 ```
 
-After -- the accumulation lives in a visitor, one method per type:
+After, the accumulation lives in a visitor, one method per type:
 
 ```ts
 interface NodeVisitor {
@@ -82,10 +82,9 @@ their `accept` methods, and running the visitor over them).
 ## Watch for
 
 - Move to a visitor only when the accumulation genuinely varies by element type over a structure whose set
-  of types is stable; the double dispatch is rigid -- adding an element type means touching every visitor
-  -- so if the type set churns, or there is only one accumulation over one or two types, the plain loop is
+  of types is stable; the double dispatch is rigid (adding an element type means touching every visitor), so if the type set churns, or there is only one accumulation over one or two types, the plain loop is
   simpler and you should not abandon it for a visitor.
 - If the element types can instead expose one common method that does the work, giving them that shared
-  interface can make the visitor unnecessary -- prefer it to double dispatch when it fits.
+  interface can make the visitor unnecessary. Prefer it to double dispatch when it fits.
 - A visitor usually needs each element to expose enough of its internals for the visit method to compute
   its part, which can weaken the elements' encapsulation.

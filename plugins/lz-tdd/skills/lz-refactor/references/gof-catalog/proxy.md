@@ -68,4 +68,4 @@ const value = vault.read();
 ## Related patterns
 
 - [Adapter](adapter.md#adapter): an adapter gives its subject a different interface, whereas a proxy keeps the same interface as its subject.
-- [Decorator](decorator.md#decorator): has a similar structure but a different purpose -- a decorator adds responsibilities to an object, while a proxy controls access to it.
+- [Decorator](decorator.md#decorator): has a similar structure but a different purpose: a decorator adds responsibilities to an object, while a proxy controls access to it.

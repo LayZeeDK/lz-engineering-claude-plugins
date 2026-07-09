@@ -1,9 +1,9 @@
-# Extra Patterns Catalog -- index
+# Extra Patterns Catalog: index
 
-Scope: the 5 Tier-1 extra patterns -- Null Object, Factory, Creation Method, Composed Method, and
-Collecting Parameter -- that Kerievsky documents with pattern-grade material but that are not among
+Scope: the 5 Tier-1 extra patterns (Null Object, Factory, Creation Method, Composed Method, and
+Collecting Parameter) that Kerievsky documents with pattern-grade material but that are not among
 the classic GoF 23. Coach mode routes here when a Kerievsky refactoring targets one of these
-non-GoF-23 patterns; reference mode looks one up by name. This is a THIN index -- entry content lives
+non-GoF-23 patterns; reference mode looks one up by name. This is a THIN index: entry content lives
 in per-pattern leaf files, never inlined here (SKEL-04). Each leaf follows the same locked 5-section
 contract as the GoF leaves: Intent, Applicability, Consequences, Example, Related patterns. The
 selector shown against each entry is that leaf's Applicability first line, mirrored verbatim.

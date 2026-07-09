@@ -6,7 +6,7 @@ Use when: many callers check for the same special value of a field and then all 
 
 ## Motivation
 
-When a lot of code checks for one particular value -- often a missing or null case -- and responds
+When a lot of code checks for one particular value (often a missing or null case) and responds
 to it identically, that repeated handling is duplication that spreads the special case across the
 program. Capture the case as its own object that answers the common queries the way the special case
 should, so callers can use it without checking. The most common form is a null object: a stand-in for
@@ -14,11 +14,11 @@ should, so callers can use it without checking. The most common form is a null o
 
 ## Mechanics
 
-1. Add a way to identify the special case on the subject -- a property such as `isUnknown`, or a
+1. Add a way to identify the special case on the subject: a property such as `isUnknown`, or a
    shared predicate function.
 2. Extract that special-case check into the shared function and route every caller through it, so no
    caller tests the raw value directly; run the tests.
-3. Create the special-case object -- a subclass or a stand-in -- that answers the common queries with
+3. Create the special-case object (a subclass or a stand-in) that answers the common queries with
    the special-case values.
 4. Change the producer to return the special-case object wherever the raw special value (often null)
    was yielded; run the tests.
@@ -28,7 +28,7 @@ should, so callers can use it without checking. The most common form is a null o
 
 ## Example
 
-Before -- the producer yields `undefined`, so every caller checks and substitutes the same defaults:
+Before, the producer yields `undefined`, so every caller checks and substitutes the same defaults:
 
 ```ts
 interface User {
@@ -47,7 +47,7 @@ function summary(user: User | undefined): string {
 }
 ```
 
-After -- the producer returns the special-case object, so callers stop checking:
+After, the producer returns the special-case object, so callers stop checking:
 
 ```ts
 interface User {

@@ -2,7 +2,7 @@
 
 *Aliases: Encapsulate Field, Self-Encapsulate Field.*
 
-Use when: data with a wide scope -- especially mutable, shared, or global data -- is read and written directly, and you want one place to control that access.
+Use when: data with a wide scope (especially mutable, shared, or global data) is read and written directly, and you want one place to control that access.
 
 ## Motivation
 
@@ -24,13 +24,13 @@ fields as well.
 
 ## Example
 
-Before -- a mutable value is exported for anyone to read or write:
+Before, a mutable value is exported for anyone to read or write:
 
 ```ts
 export let threshold = 10;
 ```
 
-After -- access goes through functions, and the variable is module-private:
+After, access goes through functions, and the variable is module-private:
 
 ```ts
 let currentThreshold = 10;

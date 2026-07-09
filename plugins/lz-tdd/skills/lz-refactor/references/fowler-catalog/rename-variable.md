@@ -5,7 +5,7 @@ Use when: a variable's name does not convey what it holds, and a clearer name wo
 ## Motivation
 
 Names carry most of the meaning in code. As you come to understand what a variable really is, rename
-it to say so -- the next reader then learns it for free. The wider the variable's reach, the more a
+it to say so. The next reader then learns it for free. The wider the variable's reach, the more a
 good name is worth, and the more care the rename takes.
 
 ## Mechanics
@@ -22,7 +22,7 @@ copy gradually while the tests stay green, then remove the original.
 
 ## Example
 
-Before -- a terse accumulator name:
+Before, a terse accumulator name:
 
 ```ts
 function totalCost(prices: readonly number[]): number {
@@ -34,7 +34,7 @@ function totalCost(prices: readonly number[]): number {
 }
 ```
 
-After -- the name states its role:
+After, the name states its role:
 
 ```ts
 function totalCost(prices: readonly number[]): number {
@@ -48,5 +48,5 @@ function totalCost(prices: readonly number[]): number {
 
 ## Watch for
 
-- Renaming something that is part of a published interface is not a bare rename -- treat it as
+- Renaming something that is part of a published interface is not a bare rename: treat it as
   [Change Function Declaration](change-function-declaration.md) and migrate consumers.

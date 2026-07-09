@@ -7,8 +7,8 @@ Use when: a function's name does not reveal its purpose, or its parameter list i
 ## Motivation
 
 A function's declaration is its interface: the name is how callers understand it without reading the
-body, and the parameters decide how it couples to the rest of the program. Improving either -- a
-clearer name, a better-fitting parameter -- pays off every time the function is read or called. A
+body, and the parameters decide how it couples to the rest of the program. Improving either, a
+clearer name or a better-fitting parameter, pays off every time the function is read or called. A
 good habit is to name a function as if writing a comment for it, then use that name.
 
 ## Mechanics
@@ -21,7 +21,7 @@ each tested on its own, rather than folding them into a single move.
 Simple:
 
 1. If you are removing a parameter, first confirm the body no longer uses it.
-2. Change the declaration -- the name, or the parameter list.
+2. Change the declaration: the name, or the parameter list.
 3. Find and update every caller.
 4. Run the tests.
 
@@ -37,7 +37,7 @@ Migration (safe for wide or published use):
 
 ## Example
 
-Before -- an opaque name and single-letter parameters:
+Before, an opaque name and single-letter parameters:
 
 ```ts
 function calc(a: number, b: number): number {
@@ -45,7 +45,7 @@ function calc(a: number, b: number): number {
 }
 ```
 
-After -- the name states the intent and the parameters say what they are:
+After, the name states the intent and the parameters say what they are:
 
 ```ts
 function areaOfRectangle(width: number, height: number): number {
@@ -56,5 +56,5 @@ function areaOfRectangle(width: number, height: number): number {
 ## Watch for
 
 - A change to a published or consumed interface is not proven safe by green unit tests. Use parallel
-  change (expand then contract) and migrate consumers before removing the old form -- see the
+  change (expand then contract) and migrate consumers before removing the old form. See the
   atomic-boundary tripwire in the [refactoring principles](../principles.md).

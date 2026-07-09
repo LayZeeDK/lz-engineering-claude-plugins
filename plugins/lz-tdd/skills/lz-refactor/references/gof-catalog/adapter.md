@@ -59,6 +59,6 @@ const paid = processor.charge(19.99);
 
 ## Related patterns
 
-- [Bridge](bridge.md#bridge): has a structure similar to an object adapter, but a different intent -- Bridge separates an interface from its implementation up front, whereas Adapter changes the interface of something that already exists.
+- [Bridge](bridge.md#bridge): has a structure similar to an object adapter, but a different intent: Bridge separates an interface from its implementation up front, whereas Adapter changes the interface of something that already exists.
 - [Decorator](decorator.md#decorator): enhances an object without changing its interface, whereas Adapter gives an object a new interface.
 - [Proxy](proxy.md#proxy): stands in for another object without changing its interface, unlike Adapter.

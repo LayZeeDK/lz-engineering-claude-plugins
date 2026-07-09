@@ -28,7 +28,7 @@ across siblings and differs only at the point of creation.
 
 ## Example
 
-Before -- two subclasses repeat the same method, differing only in the validator they build:
+Before, two subclasses repeat the same method, differing only in the validator they build:
 
 ```ts
 interface Validator {
@@ -64,7 +64,7 @@ class AgeQuestion extends Question {
 }
 ```
 
-After -- the shared method is a template on the superclass; each subclass overrides only creation:
+After, the shared method is a template on the superclass; each subclass overrides only creation:
 
 ```ts
 interface Validator {
@@ -106,5 +106,5 @@ class AgeQuestion extends Question {
 
 ## Watch for
 
-- If there is no hierarchy yet -- just one class with a conditional that builds an object -- a plain
+- If there is no hierarchy yet (just one class with a conditional that builds an object), a plain
   factory function is lighter than manufacturing subclasses to hold a factory method.

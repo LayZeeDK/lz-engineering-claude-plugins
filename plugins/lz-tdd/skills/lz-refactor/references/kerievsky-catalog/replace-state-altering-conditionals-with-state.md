@@ -11,8 +11,8 @@ Functional alternative: [Discriminated Union and Fold](../functional-catalog/dis
 
 When an object tracks its condition with a flag or code and guards every operation with "if we are in this
 state" checks that also reassign the flag, the transition rules end up smeared across many methods and no
-single place tells you which moves are legal from where. Giving each state its own object -- one that
-answers the operations and returns the state to move to -- collects each state's rules in one class and
+single place tells you which moves are legal from where. Giving each state its own object (one that
+answers the operations and returns the state to move to) collects each state's rules in one class and
 turns an illegal transition into a method that simply does not advance. The host delegates to its current
 state object and replaces it with whatever that object returns. Reach for it once the state-checking
 conditionals are duplicated across operations or the legal transitions are hard to see at a glance.
@@ -35,7 +35,7 @@ conditionals are duplicated across operations or the legal transitions are hard 
 
 ## Example
 
-Before -- each operation checks and reassigns the phase flag:
+Before, each operation checks and reassigns the phase flag:
 
 ```ts
 type Phase = "idle" | "running" | "done";
@@ -57,7 +57,7 @@ class Job {
 }
 ```
 
-After -- each state object receives the job, guards the operation, and sets the next state:
+After, each state object receives the job, guards the operation, and sets the next state:
 
 ```ts
 interface JobState {
@@ -88,4 +88,4 @@ For a fuller example showing state-dependent behavior, guards, and side effects 
 ## Watch for
 
 - If only one operation ever inspects the flag, a single conditional may be clearer than a set of state
-  objects -- introduce State when the transition logic is genuinely spread out.
+  objects. Introduce State when the transition logic is genuinely spread out.

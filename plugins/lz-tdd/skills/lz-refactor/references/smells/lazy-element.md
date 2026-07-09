@@ -2,7 +2,7 @@
 
 Recognize by: a program element that does too little to justify its own existence.
 
-Source: both -- also named by Kerievsky (Ch.4): Lazy Class.
+Source: both. Also named by Kerievsky (Ch.4) as Lazy Class.
 
 ## How to recognize
 
@@ -20,6 +20,6 @@ losing anything.
 
 ## Candidate refactorings
 
-- [Inline Function](../fowler-catalog/inline-function.md#inline-function) -- pick when a function's body says no more than its name; merge it back into callers.
-- [Inline Class](../fowler-catalog/inline-class.md#inline-class) -- pick when a class no longer pulls its weight; fold its few features into its main user.
-- [Collapse Hierarchy](../fowler-catalog/collapse-hierarchy.md#collapse-hierarchy) -- pick when a subclass and its parent have grown too alike to keep apart.
+- [Inline Function](../fowler-catalog/inline-function.md#inline-function): pick when a function's body says no more than its name; merge it back into callers.
+- [Inline Class](../fowler-catalog/inline-class.md#inline-class): pick when a class no longer pulls its weight; fold its few features into its main user.
+- [Collapse Hierarchy](../fowler-catalog/collapse-hierarchy.md#collapse-hierarchy): pick when a subclass and its parent have grown too alike to keep apart.

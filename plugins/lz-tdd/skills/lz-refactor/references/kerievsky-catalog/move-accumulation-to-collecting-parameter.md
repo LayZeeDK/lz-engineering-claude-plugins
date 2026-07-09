@@ -9,7 +9,7 @@ Functional alternative: [Function Composition](../functional-catalog/function-co
 
 ## Motivation
 
-When a single method accumulates a result -- appending to a string, growing a list, summing -- it tends to
+When a single method accumulates a result (appending to a string, growing a list, summing), it tends to
 swell, because breaking it into helpers means each helper returns a fragment that the caller must merge
 back. A collecting parameter cuts that friction: you pass one mutable accumulator to each helper, and each
 contributes to it directly instead of returning something to combine. The result is assembled in one
@@ -32,7 +32,7 @@ together.
 
 ## Example
 
-Before -- each node returns its text and the parent concatenates:
+Before, each node returns its text and the parent concatenates:
 
 ```ts
 class Tree {
@@ -50,7 +50,7 @@ class Tree {
 }
 ```
 
-After -- one collecting parameter is passed down and each node appends to it:
+After, one collecting parameter is passed down and each node appends to it:
 
 ```ts
 class Tree {

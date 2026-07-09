@@ -9,15 +9,15 @@ Functional alternative: [Function Composition](../functional-catalog/function-co
 
 ## Motivation
 
-A method that jumps between levels of abstraction -- orchestrating the overall steps while also spelling
-out how one of them works -- forces the reader to hold both concerns at once. Composing the method turns
+A method that jumps between levels of abstraction, orchestrating the overall steps while also spelling
+out how one of them works, forces the reader to hold both concerns at once. Composing the method turns
 it into a short sequence of calls to well-named helpers, each operating at a single level, so the top
 method reads as a summary of intent and the detail lives one call away. Reach for it when a method is
 long enough that its purpose is buried, or when parts of it sit at obviously different levels of detail.
 
 ## Mechanics
 
-Compose Method is guideline-driven rather than a fixed sequence -- apply these moves by judgment until
+Compose Method is guideline-driven rather than a fixed sequence. Apply these moves by judgment until
 the method reads at one level of abstraction:
 
 1. Read the method and mark the runs of statements that each accomplish one conceptual step.
@@ -34,7 +34,7 @@ the method reads at one level of abstraction:
 
 ## Example
 
-Before -- one method both formats the reading and classifies it:
+Before, one method both formats the reading and classifies it:
 
 ```ts
 class Thermostat {
@@ -55,7 +55,7 @@ class Thermostat {
 }
 ```
 
-After -- the top method reads as intent; detail moves into named helpers:
+After, the top method reads as intent; detail moves into named helpers:
 
 ```ts
 class Thermostat {
@@ -83,5 +83,5 @@ class Thermostat {
 
 ## Watch for
 
-- Do not extract so aggressively that a one-line helper only hides a self-evident expression -- a step
+- Do not extract so aggressively that a one-line helper only hides a self-evident expression. A step
   earns a name only when the name says more than the code it replaces.

@@ -7,13 +7,13 @@ immutable value.
 
 A reference object is shared: every holder sees an in-place update, which is exactly what you want for
 a genuine entity but a hazard for a small data-holder, where aliasing turns one holder's edit into a
-surprise for another. Treating such an object as a value -- immutable, compared by its contents,
-replaced whole rather than mutated -- removes that aliasing risk and makes the object safe to pass
+surprise for another. Treating such an object as a value (immutable, compared by its contents,
+replaced whole rather than mutated) removes that aliasing risk and makes the object safe to pass
 around freely, which also helps in concurrent or distributed code.
 
 ## Mechanics
 
-1. Confirm the object can be immutable, or make it so -- no holder may rely on mutating it in place
+1. Confirm the object can be immutable, or make it so: no holder may rely on mutating it in place
    and having another holder observe the change.
 2. Remove any setter with [Remove Setting Method](remove-setting-method.md) so the field can only be
    replaced by assigning a whole new object.
@@ -24,7 +24,7 @@ Inverse of [Change Value to Reference](change-value-to-reference.md).
 
 ## Example
 
-Before -- the position is shared by reference and mutated field by field:
+Before, the position is shared by reference and mutated field by field:
 
 ```ts
 class Position {
@@ -40,7 +40,7 @@ class Marker {
 }
 ```
 
-After -- the position is an immutable value; a change replaces it whole and compares by content:
+After, the position is an immutable value; a change replaces it whole and compares by content:
 
 ```ts
 class Position {

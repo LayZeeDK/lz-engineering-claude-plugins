@@ -43,16 +43,25 @@ which surfaces a final sweep must cover.
 
 | Option | Description | Selected |
 |--------|-------------|----------|
-| a. Surface-scoped, all leaves | Sweep every `## Intent` line (29 leaves) and every mechanics step list, but only those surfaces. Widest coverage of both proved collision surfaces; highest oracle cost. | |
+| a. Surface-scoped, all leaves | Sweep every `## Intent` line (29 leaves) and every mechanics step list, but only those surfaces. Widest coverage of both proved collision surfaces; highest oracle cost. | (x) |
 | b. Surface-scoped, GoF + extra only | 29 leaves; the one surface with a proved, reviewer-confirmed near-verbatim trap. Cheapest defensible option; leaves Fowler/Kerievsky mechanics on Phase-7/8 attestation alone. | |
 | c. Detector-first | Run the hardened source-free detector across all 178 leaves, then send its hits plus all 29 `## Intent` lines to `oracle-reviewer`. Data-driven; oracle cost unknown until the detector runs. | |
 
-**Auto-selection:** NONE -- deliberately left OPEN.
+**Auto-selection:** NONE -- deliberately left OPEN by the `--auto` pass.
+**Operator's choice (2026-07-09, at the pre-plan-phase pause):** (a) both proven
+surfaces, all leaves, surface-scoped, batched by chapter.
+
 **Notes:** This is the high-impact + not-high-confidence trap quadrant that `--auto` is
 documented to mishandle (`CLAUDE.md`, "`--auto` can silently lock a bad choice"). The
-operator's requested pause before plan-phase is the human checkpoint, so the correct
-`--auto` behavior is to record the competing options and stop, not to pick one.
-Recorded as D-03 `[OPEN-FOR-OPERATOR]`.
+operator's requested pause before plan-phase was the human checkpoint, so the correct
+`--auto` behavior was to record the competing options and stop, then escalate. The
+operator selected (a). Rationale captured in D-03: the two observed collisions sit on
+DIFFERENT surfaces, so (b) would leave the surface where a real accidental collision
+was actually caught (`push-down-method` mechanics) resting on attestation alone; and
+(c) is illusory economy, because a source-free detector can only flag stylistic proxies
+and its hit set collapses back onto (a)'s surface pair. Batching per chapter (as
+Phases 7 and 8 already drove `oracle-reviewer`) puts (a) at roughly 15-20 subagent
+invocations rather than ~120, so its cost premium over (b) is modest.
 
 **Supporting evidence gathered (feeds D-02 regardless of which breadth wins):**
 - Memory `pattern-leaf-intent-near-verbatim-dst04`: canonical one-line pattern Intents

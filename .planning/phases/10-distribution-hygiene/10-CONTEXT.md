@@ -8,10 +8,10 @@
 > auto-resolved to their recommended options with trade-off tables (see
 > `10-DISCUSSION-LOG.md`). Five are reversible pre-tag Markdown / JSON / harness edits
 > with direct Phase-4 precedent -- none in the high-impact + low-confidence trap
-> quadrant. GA-1's scan BREADTH is the one exception and is flagged as
-> **OPEN-FOR-OPERATOR** below (D-03): high impact (public-repo copyright, expensive to
-> reverse) and only medium confidence, so it is surfaced at the pause rather than
-> silently locked.
+> quadrant. GA-1's scan BREADTH was the one exception (high impact: public-repo
+> copyright, expensive to reverse; only medium confidence), so `--auto` did NOT lock
+> it -- it was escalated to the operator at the pause and decided there. See D-03.
+> Every decision below is now locked; nothing is open.
 
 <domain>
 ## Phase Boundary
@@ -79,24 +79,32 @@ task AFTER the phase).
   - **`Applicability` first lines** mirrored into the `gof-catalog/README.md` selector
     column -- a mirror multiplies any single leaf's collision into two files.
 
-- **D-03:** **[OPEN-FOR-OPERATOR -- do NOT treat as locked]** The **breadth** of the
-  D-01 layer-2 clean-room sweep. The MECHANISM is forced (only `oracle-reviewer` may
-  read `.oracle/`, so confidence is HIGH); the BREADTH is a judgment call at only
-  MEDIUM confidence against a HIGH-IMPACT, expensive-to-reverse outcome (verbatim
-  copyrighted prose in a public repo's git history -- cf. memory
-  `lz-plugins-phase1-workemail-git-history-exposure`, which cost a `git filter-repo` +
-  force-push). Do not silently lock a breadth. The operator picks from:
-  - **(a) Surface-scoped, all leaves** -- sweep every `## Intent` line (29 leaves) and
-    every mechanics step list, but only those surfaces, not whole leaves. Widest
-    coverage of the two proven collision surfaces; the highest oracle cost of the three.
-  - **(b) Surface-scoped, GoF + extra only** (29 leaves) -- the one surface with a
-    *proved, reviewer-confirmed* near-verbatim trap. Cheapest defensible option;
-    leaves the Fowler/Kerievsky mechanics surface on Phase-7/8 attestation alone.
-  - **(c) Detector-first** -- run the hardened deterministic detector FIRST across all
-    178 leaves, then send only its hits (plus all 29 `## Intent` lines
-    unconditionally) to `oracle-reviewer`. Data-driven breadth; unknown oracle cost
-    until the detector runs; requires a detector that does not need the source text.
-  Planner: surface this to the operator before writing plans. Do not auto-pick.
+- **D-03:** **[OPERATOR-DECIDED 2026-07-09 -- escalated out of `--auto`, then locked]**
+  The **breadth** of the D-01 layer-2 clean-room sweep is **both proven collision
+  surfaces, across all leaves, surface-scoped**:
+  - Every `## Intent` line in `gof-catalog/` + `extra-patterns-catalog/` (29 leaves).
+  - Every mechanics step list in `fowler-catalog/` (62) + `kerievsky-catalog/` (27).
+  - **Surfaces only, not whole leaves** -- the sweep does not re-review motivation,
+    examples, or `Consequences` prose; those rest on the D-01 layer-3 attestation.
+  - **Batch by chapter**, mirroring how Phase 7 and Phase 8 already drove
+    `oracle-reviewer` (one invocation per chapter, not one per leaf). Expected order of
+    magnitude: ~15-20 subagent invocations, not ~120.
+  Why this breadth and not a cheaper one: the two proven collisions sit on DIFFERENT
+  surfaces. Phase 08.1 caught the canonical `## Intent` trap (memory
+  `pattern-leaf-intent-near-verbatim-dst04`); Phase 7 (07-09) caught an accidental
+  mechanics collision on `push-down-method`. A GoF-Intent-only sweep would leave the
+  one surface where a REAL accidental collision was actually observed resting on
+  attestation alone. A detector-first sweep was considered and rejected as illusory
+  economy: the layer-1 detector is source-free by construction, so it can only flag
+  stylistic proxies (one-line Intents, short imperative step lists) and its hit set
+  collapses back onto this same surface pair.
+  Escalation note: the MECHANISM was forced (only `oracle-reviewer` may read
+  `.oracle/`, so confidence was HIGH); the BREADTH was HIGH-IMPACT + MEDIUM-confidence
+  -- the trap quadrant `--auto` is documented to mishandle. It was therefore left
+  unlocked by the auto pass and put to the operator at the pre-plan-phase pause rather
+  than silently defaulted. Cf. memory
+  `lz-plugins-phase1-workemail-git-history-exposure`: a comparable public-repo leak
+  cost a `git filter-repo` + a force-push of `origin/main`.
 
 - **D-04:** DST-04's book-prose axis is scoped to the **`lz-refactor` tree**
   (`plugins/lz-tdd/skills/lz-refactor/`) plus any NEW Phase-10 prose (README primer,

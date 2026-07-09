@@ -555,7 +555,12 @@ read `.oracle/`.
 | A4 | extra-patterns Intents can be gated against `.oracle/refactoring-to-patterns` + `design-patterns` (Kerievsky-grounded) | Layer 2 | Low -- matches how Phase 8.1 authored them; the reviewer flags source-absence as `blocked` if wrong |
 | A5 | `.planning/` is published to the public repo, so its work-email hygiene matters | Pitfall 3 | Medium -- if `.planning/` were stripped at ship the concern narrows to git history; the escaped-needle discipline holds regardless |
 
-## Open Questions
+## Open Questions (RESOLVED)
+
+All three below are D-17 discretion items, RESOLVED during Phase-10 planning (2026-07-09):
+Q1 -> 10-01 (extend `check-hygiene.mjs`, two internal target arrays for the per-axis split);
+Q2 -> 10-02 (keywords list + CHANGELOG bullet granularity per the recommendations below);
+Q3 -> 10-03 (Kerievsky mechanics batched 5-6, within the D-03 15-20 invocation envelope).
 
 1. **Does the hardened `(c)` gate extend `check-hygiene.mjs` or land as a sibling? (D-17)**
    - What we know: extending reuses `repoRoot` and one file; a sibling cleanly isolates the per-axis

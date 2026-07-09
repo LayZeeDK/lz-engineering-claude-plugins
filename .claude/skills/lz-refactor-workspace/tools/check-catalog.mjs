@@ -20,6 +20,8 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { collectH1Lines } from "./lib/heading-scan.mjs";
+import { SCAFFOLD_RES } from "./lib/scaffold-phrases.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 // tools -> lz-refactor-workspace -> skills -> .claude -> repo root
@@ -101,10 +103,6 @@ const EXPECTED = 62;
 const WEB_ONLY = new Set(["Return Modified Value"]);
 const WEB_EXAMPLE = new Set();
 
-// Draft-scaffolding phrases that must never leak into a shipped leaf. Uppercase TODO only
-// (so a `todos` domain example never false-fails); the rest are unambiguous draft markers.
-const SCAFFOLD_RES = [/\bTODO\b/, /once it exists/i, /to be authored/i, /\bplaceholder\b/i, /\bTBD\b/];
-
 let failures = 0;
 
 const report = (ok, label, detail) => {
@@ -158,8 +156,7 @@ const collectLeaves = () => {
     }
 
     const text = fs.readFileSync(file, "utf8");
-    const lines = text.split(/\r?\n/);
-    const h1s = lines.filter((l) => /^#\s+\S/.test(l));
+    const h1s = collectH1Lines(text);
     const base = path.basename(file, ".md");
     const rel = path.relative(repoRoot, file);
 

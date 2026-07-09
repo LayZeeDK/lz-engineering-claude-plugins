@@ -18,6 +18,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { collectH1Lines } from "./lib/heading-scan.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 // tools -> lz-refactor-workspace -> skills -> .claude -> repo root
@@ -148,7 +149,7 @@ const collectLeaves = () => {
     const text = fs.readFileSync(file, "utf8");
     const base = path.basename(file, ".md");
     const rel = path.relative(repoRoot, file);
-    const h1s = text.split(/\r?\n/).filter((l) => /^#\s+\S/.test(l));
+    const h1s = collectH1Lines(text);
 
     if (h1s.length !== 1) {
       report(false, `smell leaf ${base}.md has exactly one level-1 heading`, `found ${h1s.length}`);

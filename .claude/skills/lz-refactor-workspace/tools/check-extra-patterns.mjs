@@ -21,6 +21,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { collectH1Lines } from "./lib/heading-scan.mjs";
+import { SCAFFOLD_RES } from "./lib/scaffold-phrases.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 // tools -> lz-refactor-workspace -> skills -> .claude -> repo root
@@ -39,10 +40,6 @@ const NAMES = [
 ];
 
 const EXPECTED = 5;
-
-// Draft-scaffolding phrases that must never leak into a shipped leaf. Uppercase TODO only
-// (so a `todos` domain example never false-fails); the rest are unambiguous draft markers.
-const SCAFFOLD_RES = [/\bTODO\b/, /once it exists/i, /to be authored/i, /\bplaceholder\b/i, /\bTBD\b/];
 
 let failures = 0;
 

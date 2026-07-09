@@ -210,7 +210,12 @@ this milestone starts at Phase 6.
   2. A behavior eval confirms the coach recommends the correct next refactoring across representative smell/scenario prompts spanning both layers (Fowler mechanical + Kerievsky pattern-directed routing), measured with-skill vs. baseline.
   3. Eval findings feed at most a bounded description/behavior tuning pass on the already-shipped skill; earlier phases remain complete regardless of eval outcomes (non-blocking).
 
-**Plans**: TBD
+**Plans**: 4 plans (2 waves)
+
+- [ ] 11-01-PLAN.md -- Vendor the proven Phase-5 eval rig verbatim into `.claude/skills/lz-refactor-workspace/`: tools/skill-creator-eval (native-fixed probe), eval-status.mjs + merge-judge.mjs verbatim, run-spec-chunks.mjs light-edit, EVAL-RESULTS.md template (D-01, D-07, D-09) (wave 1)
+- [ ] 11-02-PLAN.md -- EVL-01 trigger set: evals/trigger-eval.json (10 should-trigger + 10 near-miss, incl. >= 2 lz-tpp-seam green-step negatives) + check-evals.mjs schema/count/seam/ASCII lint (D-02) (wave 1)
+- [ ] 11-03-PLAN.md -- EVL-02 behavior set: evals/evals.json (>= 8 leaf-sourced scenarios spanning both layers + de-patterning + routing-boundary) + grade-run.mjs rewrite (name+layer matcher, RUBRICS, alignment selfcheck preserved) (D-03, D-04-RUBRIC, D-05) (wave 1)
+- [ ] 11-04-PLAN.md -- Readiness gate: build-time selfchecks/lints only, present the ready-to-run EVL-01 + EVL-02 commands with the locked run config, then HALT for explicit user approval (D-06, D-08, D-10) (wave 2, autonomous: false)
 
 ## Progress
 
@@ -231,7 +236,7 @@ Phases execute in numeric order: 6 -> 7 -> 8 -> 8.1 -> 8.2 -> 9 -> 10 -> 11
 | 8.2. Functional Catalog (INSERTED) | lz-tdd@0.0.2 | 6/6 | Complete   | 2026-07-07 |
 | 9. Coach Behavior & Principle-Backing | lz-tdd@0.0.2 | 4/4 | Complete   | 2026-07-09 |
 | 10. Distribution & Hygiene | lz-tdd@0.0.2 | 4/4 | Complete   | 2026-07-09 |
-| 11. Skill-Effectiveness Evals | lz-tdd@0.0.2 | - | Not started | - |
+| 11. Skill-Effectiveness Evals | lz-tdd@0.0.2 | 0/4 | Planned | - |
 
 ---
-*Roadmap created: 2026-07-02 | lz-tdd@0.0.1 completed: 2026-07-04 | lz-tdd@0.0.2 roadmap added: 2026-07-04 | Phase 6 planned: 2026-07-04 | Phase 7 planned: 2026-07-04 | Phase 7 re-planned (scope-correction: 62-scope + clean-room oracle, per-refactoring leaves): 2026-07-05 | Phase 8 planned: 2026-07-05 | Phase 8 completed: 2026-07-07 | Phase 8.2 inserted (Functional Catalog): 2026-07-07 | Phase 8.2 planned (6 plans, 4 waves): 2026-07-07*
+*Roadmap created: 2026-07-02 | lz-tdd@0.0.1 completed: 2026-07-04 | lz-tdd@0.0.2 roadmap added: 2026-07-04 | Phase 6 planned: 2026-07-04 | Phase 7 planned: 2026-07-04 | Phase 7 re-planned (scope-correction: 62-scope + clean-room oracle, per-refactoring leaves): 2026-07-05 | Phase 8 planned: 2026-07-05 | Phase 8 completed: 2026-07-07 | Phase 8.2 inserted (Functional Catalog): 2026-07-07 | Phase 8.2 planned (6 plans, 4 waves): 2026-07-07 | Phase 11 planned (4 plans, 2 waves): 2026-07-10*

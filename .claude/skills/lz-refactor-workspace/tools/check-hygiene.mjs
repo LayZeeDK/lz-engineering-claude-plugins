@@ -1,12 +1,14 @@
 #!/usr/bin/env node
-// Hygiene checker over the shipped lz-refactor skill (SKILL.md + every references/*.md leaf):
+// Hygiene checker over the shippable public surface -- both skill trees (lz-refactor + lz-tpp),
+// the repo-root README/CHANGELOG/LICENSE, and both manifests:
 //   (a) ASCII-only    -- fail on any non-ASCII byte, reported as file@byteN (cp1252 mojibake risk).
 //   (b) work-email    -- enumerate every email-shaped token, subtract the approved public gmail,
 //                        assert the remainder is empty (the work-email leak recurred twice in Phase 4).
-//   (c) no-verbatim   -- DST-04 heuristic: flag long double-quoted runs as review candidates.
-// (a) and (b) are HARD failures (non-zero exit). (c) is WARN-level only -- the authoritative
-// no-verbatim gate is the D-07 oracle checkpoint plus the Phase-10 hygiene scan. Node builtins only.
-// GREEN against the current scaffold today (ASCII-clean, email-clean).
+//   (c) no-verbatim   -- DST-04 gate: fail on long double-quoted runs (a verbatim-prose proxy).
+// (a), (b), and (c) are all HARD failures (non-zero exit). (c) is the realized Phase-10 no-verbatim
+// gate (D-01 layer 1); it scans the narrower verbatimTargets set -- the lz-refactor tree + new
+// Phase-10 root prose ONLY, excluding lz-tpp (cited FibTPP), LICENSE, and the manifests. Node builtins only.
+// GREEN against the current tree today (ASCII-clean, email-clean, no verbatim-looking runs).
 //   node .claude/skills/lz-refactor-workspace/tools/check-hygiene.mjs
 import fs from "node:fs";
 import path from "node:path";
@@ -33,10 +35,9 @@ const MARKETPLACE_MANIFEST = path.join(repoRoot, ".claude-plugin", "marketplace.
 // Only the public contact is allowed in the public repo. The work email must never appear.
 const APPROVED_EMAILS = new Set(["larsbrinknielsen@gmail.com"]);
 const EMAIL_RE = /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g;
-const QUOTE_THRESHOLD = 120; // chars inside a single "..." run that trip the no-verbatim WARN.
+const QUOTE_THRESHOLD = 120; // chars inside a single "..." run that trip the no-verbatim gate.
 
 let failures = 0;
-let warnings = 0;
 
 const report = (ok, label, detail) => {
   if (!ok) {
@@ -44,11 +45,6 @@ const report = (ok, label, detail) => {
   }
 
   console.log(`  [${ok ? "PASS" : "FAIL"}] ${label}${detail ? " -- " + detail : ""}`);
-};
-
-const warn = (label, detail) => {
-  warnings++;
-  console.log(`  [WARN] ${label}${detail ? " -- " + detail : ""}`);
 };
 
 const isDir = (p) => {
@@ -166,26 +162,29 @@ for (const f of wideTargets) {
 
 report(offending.size === 0, "no non-allowlisted emails", offending.size === 0 ? "" : [...offending].join(", "));
 
-// (c) no-verbatim heuristic (WARN only).
+// (c) no-verbatim gate (HARD, DST-04, D-01 layer 1) over the narrower verbatimTargets set.
 const quoteRe = /"([^"\n]{1,})"/g;
+const verbatimHits = [];
 
-for (const f of wideTargets) {
+for (const f of verbatimTargets) {
   const text = fs.readFileSync(f, "utf8");
   let qm;
 
   while ((qm = quoteRe.exec(text)) !== null) {
     if (qm[1].length >= QUOTE_THRESHOLD) {
-      warn("long quoted run (review for verbatim prose, DST-04)", `${path.relative(repoRoot, f)}: ${qm[1].length} chars`);
+      verbatimHits.push(`${path.relative(repoRoot, f)}: ${qm[1].length} chars`);
     }
   }
 }
 
+report(verbatimHits.length === 0, "no verbatim-looking quoted runs (DST-04)", verbatimHits.length === 0 ? `${verbatimTargets.length} files clean` : verbatimHits.join(", "));
+
 console.log("");
 
 if (failures === 0) {
-  console.log(`SUMMARY: hygiene GREEN -- ASCII + email clean over ${wideTargets.length} file(s); ${warnings} no-verbatim WARN(s)`);
+  console.log(`SUMMARY: hygiene GREEN -- ASCII + work-email (${wideTargets.length} files) + no-verbatim (${verbatimTargets.length} files) all clean`);
   process.exit(0);
 }
 
-console.log(`SUMMARY: hygiene RED -- ${failures} hard failure(s); ${warnings} no-verbatim WARN(s)`);
+console.log(`SUMMARY: hygiene RED -- ${failures} hard failure(s)`);
 process.exit(1);

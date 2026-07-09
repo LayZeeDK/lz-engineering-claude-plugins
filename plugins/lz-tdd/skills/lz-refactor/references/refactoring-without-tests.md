@@ -20,10 +20,10 @@ Each technique carries:
 
 ## Seams
 
-- Technique -- a seam is a point where you can change what a piece of code does without editing that
-  code in place, by supplying a different implementation at that point. Feathers distinguishes object
-  seams (swap the object whose method is called), link seams (swap a linked or imported module), and
-  preprocessing seams.
+- Technique -- a seam is a location where the implementation that runs can be chosen externally,
+  letting a test substitute a stand-in for the real collaborator at that spot. Feathers distinguishes
+  object seams (swap the object whose method is called), link seams (swap a linked or imported module),
+  and preprocessing seams.
 - When-to-use -- when a unit is hard to instantiate or observe because a collaborator (a database, the
   clock, the network, a global) is wired straight into it.
 - Distilled mechanics -- locate the point where the awkward behavior is selected, introduce a

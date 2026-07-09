@@ -4,13 +4,13 @@ milestone: lz-tdd@0.0.2
 milestone_name: lz-refactor Skill (Fowler + Kerievsky)
 status: executing
 stopped_at: Phase 10 context gathered (paused before plan-phase; D-03 DST-04 scan breadth OPEN for operator)
-last_updated: "2026-07-09T07:29:55.327Z"
-last_activity: 2026-07-09 -- Phase 10 planning complete
+last_updated: "2026-07-09T08:19:09.361Z"
+last_activity: 2026-07-09
 progress:
   total_phases: 8
   completed_phases: 6
   total_plans: 38
-  completed_plans: 34
+  completed_plans: 35
   percent: 75
 ---
 
@@ -21,15 +21,15 @@ progress:
 See: .planning/PROJECT.md (updated 2026-07-04)
 
 **Core value:** `lz-tpp` helps Claude choose the next code transformation by TPP priority during red-green-refactor TDD, and explains the premise on demand. lz-tdd@0.0.2 adds `lz-refactor` to drive the refactor step.
-**Current focus:** Phase 09 — coach-behavior-principle-backing
+**Current focus:** Phase 10 -- distribution-hygiene
 **Milestone:** lz-tdd@0.0.2 (lz-refactor Skill) -- executing
 
 ## Current Position
 
-Phase: 09 (coach-behavior-principle-backing) — CLOSED
-Plan: 4 of 4
+Phase: 10 (distribution-hygiene) -- EXECUTING
+Plan: 2 of 4
 Status: Ready to execute
-Last activity: 2026-07-09 -- Phase 10 planning complete
+Last activity: 2026-07-09
 
 ## Performance Metrics
 
@@ -99,6 +99,7 @@ Recent decisions affecting current work:
 - [Phase ?]: Phase 9 (09-02, Wave 2): replaced the deferred-to-Phase-9 placeholder in lz-refactor SKILL.md with the real inline coach decision procedure -- a compact 6-step numbered tree wiring CCH-01..06 (classify against the lz-tpp seam; recognize smell via smells.md then open the leaf; route mechanical->Fowler / repeated-complex->Kerievsky; de-patterning balance to Kerievsky Away OR functional-catalog with the Replace-Pipeline-with-Loop reverse note; behavior-preservation + Feathers no-tests fallback; reference mode). No new smell table (D-03); all coach cross-links file-level to already-existing files (INLINE, no split -- SKILL.md 112 lines). check-crossrefs + check-hygiene GREEN; check-backing stays RED by design (Beck refs in parallel 09-03).
 - [Phase 09]: Phase 9 (09-03, Wave 2): authored 3 no-oracle principle refs -- beck-tdd-by-example.md (PRIN-01), beck-tidy-first.md (PRIN-02, 8 Fowler cross-links via ./fowler-catalog/ link form to satisfy check-backing's leading-dot regex), populated refactoring-without-tests.md (PRIN-03, both scaffold markers removed). check-backing GREEN 3/3; crossrefs + hygiene GREEN. DST-04-clean, fence-free (D-11).
 - [Phase 09]: Phase 9 (09-04, Wave-3 finalize): wired the two D-06 Beck cross-ref pointers into the Fowler-oracle principles.md (beck-tdd-by-example.md under 'The two hats' / lz-tpp seam CCH-05; beck-tidy-first.md under 'When to refactor' / economics) in the file's existing sibling-relative inline link style, pointers-only with no Beck content imported. Full phase gate GREEN on the merged tree: npm run check exit 0 (all 10 checkers incl. check-backing 3/3 + the four IN-02-rewired catalog checkers + check-crossrefs 715 links), npm run typecheck exit 0 (251 modules tsc --strict clean), claude plugin validate . PASS; no checker weakened (T-09-GATE). skill-reviewer PASS (orchestrator-run, PASS-with-suggestions; 3 minor leak/accuracy fixes committed a4106f5). gsd-verifier 9/9 SATISFIED (09-VERIFICATION). CCH-05 / PRIN-01 / PRIN-02 closed.
+- [Phase 10]: Phase 10 (10-01): landed the widened+hardened check-hygiene instrument (D-10, D-01 L1, D-17) -- Per-axis target-set split: wideTargets for axes (a) ASCII + (b) work-email (both skill trees + root README/CHANGELOG/LICENSE + both manifests, 178 -> 187 files); verbatimTargets for axis (c) no-verbatim (lz-refactor tree + new root prose only, 180 files, excludes lz-tpp/LICENSE/manifests per D-04). Axis (c) promoted WARN -> HARD report() gate; dead warn()/warnings path removed. D-11 allowlist shape unchanged; work-email literal absent. Extended in place, not a sibling (D-17). GREEN regression baseline (exit 0).
 
 ### Pending Todos
 

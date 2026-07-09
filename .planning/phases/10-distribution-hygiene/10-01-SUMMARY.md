@@ -117,6 +117,12 @@ None - no external service configuration required.
 - **Requirements advanced, not yet completed:** 10-01 delivers only the deterministic layer of DST-04 (D-01 layer 1) and the widened ASCII/work-email coverage for DST-02 (D-10). Both requirements fully close at the 10-04 phase gate (`claude plugin validate . --strict`, `plugin-validator` + `skill-reviewer`, full `npm run check` + `npm run typecheck`) plus the 10-03 clean-room `oracle-reviewer` sweep and Layer-3 attestation. `requirements-completed` is intentionally empty here; do not mark DST-02/DST-04 complete until the phase gate.
 - No SKILL.md was touched, so no D-14 subagent review and no `/reload-plugins` is required for this plan.
 
+## Self-Check: PASSED
+
+- FOUND: `.planning/phases/10-distribution-hygiene/10-01-SUMMARY.md`
+- FOUND: `.claude/skills/lz-refactor-workspace/tools/check-hygiene.mjs`
+- FOUND commits: `546a11a` (Task 1), `57d35c9` (Task 2), `0cee0d4` (SUMMARY)
+
 ---
 *Phase: 10-distribution-hygiene*
 *Completed: 2026-07-09*

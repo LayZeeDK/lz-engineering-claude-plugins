@@ -22,7 +22,7 @@ usable.
 - **Tech stack**: Claude Code plugin format -- root `.claude-plugin/marketplace.json`, per-plugin `.claude-plugin/plugin.json`, skills as `SKILL.md` with YAML frontmatter and progressive disclosure. Skills are namespaced by plugin (`/lz-tdd:lz-tpp`).
 - **Tooling**: Build the skill with `skill-creator`; scaffold and validate the plugin/marketplace with `plugin-dev`.
 - **Source authority precedence**: Anthropic News / Claude Code Blog > frontier labs > community resources > Claude Code Docs > skill-creator > plugin-dev. Note: some Anthropic domains block AI fetchers -- use the fetch fallback chain (markdown.new, WebFetch, url-to-markdown, playwright-cli).
-- **Public repo hygiene**: MIT license; public contact `larsbrinknielsen@gmail.com`; never use the work email in this repo.
+- **Public repo hygiene**: MIT license. For the MAINTAINER's commits and authored content, the only email that may appear -- in committed files, commit messages, and the commit author/committer identity -- is the public contact `larsbrinknielsen@gmail.com`; the maintainer's employer email and its bare domain must never be committed, plain or obfuscated. Outside contributors commit under their own identity and must never be blocked by a hygiene check. Verify by allowlist-inversion (assert only the approved gmail is present); never write a forbidden value as a search needle. See `AGENTS.md`.
 - **Local system**: Windows 11 arm64, PowerShell Core + Git Bash; ASCII-only output (no Unicode/emojis); `git grep`/`rg` for search; `npm` default package manager.
 <!-- GSD:project-end -->
 

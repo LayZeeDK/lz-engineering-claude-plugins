@@ -3,7 +3,7 @@
 Scope: the high-confidence core of Beck's Tidy First? -- separating structural change from behavioral
 change, and the economics that decide when a small structural cleanup pays for itself. The coach cites
 this when it recommends tidying before or after a behavior change, and when it weighs whether a
-cleanup is worth doing now. This is not the complete tidyings catalog (that is deferred, FUT-01); it
+cleanup is worth doing now. This is not the complete tidyings catalog (that is deferred); it
 covers only the core that overlaps refactorings this skill already carries.
 
 > No-oracle reference: high-confidence CORE only (no owned book to verify against). Original prose, no
@@ -65,7 +65,7 @@ link for the mechanics; they are not repeated here:
 - Split a tangled conditional into named parts: [Decompose Conditional](./fowler-catalog/decompose-conditional.md).
 - Rename for clarity: [Rename Variable](./fowler-catalog/rename-variable.md).
 
-Explaining constants -- naming a bare literal -- has no dedicated Fowler 2nd-edition leaf; treat it as
+Explaining constants -- naming a bare literal -- has no leaf in this catalog; treat it as
 the same instinct as Extract Variable applied to a constant value.
 
 ## Sources

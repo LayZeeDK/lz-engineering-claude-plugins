@@ -86,8 +86,8 @@ structural moves on long-lived branches.
 **Safe refactoring rests on tests -- both ways.** With a reliable test suite you can restructure
 freely, because the tests catch any behavior you change by accident. The absence of tests is itself
 an obstacle: establish characterization tests first to pin current behavior -- missing tests are a
-precondition to satisfy, not a reason never to refactor (routes to the refactoring-without-tests
-reference, wired in Phase 9).
+precondition to satisfy, not a reason never to refactor. See
+[Refactoring safely without tests](refactoring-without-tests.md).
 
 **Changes you cannot make atomically need parallel change, not the normal loop.** When a refactoring
 touches something whose consumers you cannot update in the same step -- a published or consumed API,

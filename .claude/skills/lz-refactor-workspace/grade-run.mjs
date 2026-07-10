@@ -164,14 +164,26 @@ for (const n of FUNCTIONAL) {
 }
 
 // Distinct layers of every KNOWN refactoring name that appears in the response.
+// Longest-match / full-name-boundary resolution: a shorter canonical name that is a word-bounded
+// sub-phrase of a LONGER matched name is SHADOWED (its layers are not credited), so the functional
+// leaf "Factory Function" never leaks its layer into the Fowler name "Replace Constructor with
+// Factory Function" (CR-01). Because a proper sub-phrase is always shorter than the name that
+// contains it, this only suppresses phantom sub-matches and never drops a genuinely named move.
 function layersInResponse(resp) {
+  const matched = [...NAME_LAYERS.keys()].filter((name) => nameRe(name).test(resp));
   const found = new Set();
 
-  for (const [name, layers] of NAME_LAYERS) {
-    if (nameRe(name).test(resp)) {
-      for (const l of layers) {
-        found.add(l);
-      }
+  for (const name of matched) {
+    const shadowed = matched.some(
+      (other) => other !== name && other.length > name.length && nameRe(name).test(other),
+    );
+
+    if (shadowed) {
+      continue;
+    }
+
+    for (const l of NAME_LAYERS.get(name)) {
+      found.add(l);
     }
   }
 
@@ -482,6 +494,17 @@ function selfcheck() {
         assert(NAME_LAYERS.has(nm), `RUBRICS[${id}] name "${nm}" does not resolve in the name->layer lookup`);
       }
     }
+  }
+
+  // resolve-identity gate (CR-01): every catalog name must resolve to EXACTLY its own layer set,
+  // so a shorter canonical name can never sub-phrase-match inside a longer one (e.g. the functional
+  // "Factory Function" leaking into the Fowler "Replace Constructor with Factory Function"). This
+  // regression was invisible to the name-resolve gate above, which only checks a name EXISTS.
+  for (const [name, own] of NAME_LAYERS) {
+    assert(
+      JSON.stringify(layersInResponse(name).sort()) === JSON.stringify([...own].sort()),
+      `name "${name}" resolves to [${layersInResponse(name)}] but declares [${own}]`,
+    );
   }
 
   // RUBRICS <-> evals.json alignment (Pitfall-6: fails loudly on count drift).

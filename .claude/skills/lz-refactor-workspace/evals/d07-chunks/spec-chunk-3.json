@@ -1,0 +1,14 @@
+[
+  {
+    "query": "my CSV parse step throws on empty rows and one of my tests is red - help me find the bug",
+    "should_trigger": false
+  },
+  {
+    "query": "whats the time and space complexity of this recursive merge sort?",
+    "should_trigger": false
+  },
+  {
+    "query": "what does Extract Function actually do, and when should I reach for it over inlining?",
+    "should_trigger": true
+  }
+]

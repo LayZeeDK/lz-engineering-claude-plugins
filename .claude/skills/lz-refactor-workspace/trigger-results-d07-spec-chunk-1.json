@@ -1,0 +1,51 @@
+{
+  "skill_name": "lz-refactor",
+  "description": "This skill should be used during the refactor step of red-green-refactor TDD to recommend the next NAMED refactoring for a detected code smell, and to explain refactorings, smells, and refactoring principles on demand. Use it as a coach when the tests are green and the code has a smell and the question is which named refactoring to apply, and as a reference when the user asks what a refactoring such as Extract Function or Replace Conditional with Polymorphism means, how to refactor away from a pattern (de-patterning), or asks a Fowler or Kerievsky catalog question. Do not use it for the green / transformation step of TDD (choosing the change that makes a failing test pass is lz-tpp), nor for plain feature work or generic write-a-function or write-code requests.",
+  "results": [
+    {
+      "query": "red test `expect(of(2)).toBe(1)`, my `of` is `return n <= 1 ? n : 1;`. whats the smallest edit to get it passing? doing tdd",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "my failing test wants fib(3) to be 2 but the code returns 1 for anything above 1. whats the minimal transformation to green it without writing the whole recursion yet?",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "which change makes this failing test pass - is there a smaller step than writing the full algorithm?",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "refactor this to be faster - it's O(n^2) and i need it under 50ms",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "what does Extract Function actually do, and when should I reach for it over inlining?",
+      "should_trigger": true,
+      "trigger_rate": 1.0,
+      "triggers": 3,
+      "runs": 3,
+      "pass": true
+    }
+  ],
+  "summary": {
+    "total": 5,
+    "passed": 5,
+    "failed": 0
+  }
+}

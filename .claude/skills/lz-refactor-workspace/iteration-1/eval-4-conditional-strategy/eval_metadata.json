@@ -1,0 +1,12 @@
+{
+  "eval_id": 4,
+  "eval_name": "conditional-strategy",
+  "prompt": "green. this `price(order)` has a big if/else that picks a WHOLE pricing algorithm by customer segment (retail vs wholesale vs promo) -- each branch is a self-contained calculation and i want to add and vary those algorithms independently of the code that runs them. tests pass. which refactoring?",
+  "assertions": [
+    "Names Replace Conditional Logic with Strategy as the best-fit next refactoring",
+    "Names an in-set Conditional Complexity refactoring (Replace Conditional Logic with Strategy, Move Embellishment to Decorator, Replace State-Altering Conditionals with State, or Introduce Null Object)",
+    "Routes to the Kerievsky pattern-directed layer",
+    "Ties the pick to the conditional choosing among whole interchangeable algorithms (not optional embellishment or next-state selection)",
+    "Does not edit any source file and does not run tests (coach, don't drive)"
+  ]
+}

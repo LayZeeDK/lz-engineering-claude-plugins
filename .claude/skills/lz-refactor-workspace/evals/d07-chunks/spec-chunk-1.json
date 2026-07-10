@@ -1,0 +1,22 @@
+[
+  {
+    "query": "red test `expect(of(2)).toBe(1)`, my `of` is `return n <= 1 ? n : 1;`. whats the smallest edit to get it passing? doing tdd",
+    "should_trigger": false
+  },
+  {
+    "query": "my failing test wants fib(3) to be 2 but the code returns 1 for anything above 1. whats the minimal transformation to green it without writing the whole recursion yet?",
+    "should_trigger": false
+  },
+  {
+    "query": "which change makes this failing test pass - is there a smaller step than writing the full algorithm?",
+    "should_trigger": false
+  },
+  {
+    "query": "refactor this to be faster - it's O(n^2) and i need it under 50ms",
+    "should_trigger": false
+  },
+  {
+    "query": "what does Extract Function actually do, and when should I reach for it over inlining?",
+    "should_trigger": true
+  }
+]

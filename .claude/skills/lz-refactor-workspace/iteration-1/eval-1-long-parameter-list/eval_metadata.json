@@ -1,0 +1,12 @@
+{
+  "eval_id": 1,
+  "eval_name": "long-parameter-list",
+  "prompt": "green bar. `createShipment(name, street, city, zip, weightKg, carrier, priority)` -- the street/city/zip trio always travels together and i pass that same trio into three other functions the same way. tests pass. whats the right named refactoring for this signature?",
+  "assertions": [
+    "Names Introduce Parameter Object as the best-fit next refactoring",
+    "Names an in-set Long Parameter List refactoring (Replace Parameter with Query, Preserve Whole Object, Introduce Parameter Object, Remove Flag Argument, or Combine Functions into Class)",
+    "Routes to the Fowler mechanical layer",
+    "Ties the pick to the street/city/zip clump that travels together, not a generic parameter reduction",
+    "Does not edit any source file and does not run tests (coach, don't drive)"
+  ]
+}

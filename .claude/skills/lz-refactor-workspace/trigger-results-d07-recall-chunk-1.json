@@ -1,0 +1,43 @@
+{
+  "skill_name": "lz-refactor",
+  "description": "This skill should be used during the refactor step of red-green-refactor TDD to recommend the next NAMED refactoring for a detected code smell, and to explain refactorings, smells, and refactoring principles on demand. Use it as a coach when the tests are green and the code has a smell and the question is which named refactoring to apply, and as a reference when the user asks what a refactoring such as Extract Function or Replace Conditional with Polymorphism means, how to refactor away from a pattern (de-patterning), or asks a Fowler or Kerievsky catalog question. Do not use it for the green / transformation step of TDD (choosing the change that makes a failing test pass is lz-tpp), nor for plain feature work or generic write-a-function or write-code requests.",
+  "results": [
+    {
+      "query": "all tests pass, but this 60-line `processOrder()` does five different things and i keep scrolling to follow it. whats the refactoring here?",
+      "should_trigger": true,
+      "trigger_rate": 1.0,
+      "triggers": 3,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "green bar. i've got the same date-formatting block copy-pasted across three services - which named refactoring cleans up that duplication?",
+      "should_trigger": true,
+      "trigger_rate": 1.0,
+      "triggers": 3,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "tests are green. `Invoice.describe()` only ever reads a Customer's name, tier and address and barely touches Invoice itself. is there a named refactoring for that?",
+      "should_trigger": true,
+      "trigger_rate": 1.0,
+      "triggers": 3,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "what does Extract Function actually do, and when should i reach for it over inlining?",
+      "should_trigger": true,
+      "trigger_rate": 1.0,
+      "triggers": 3,
+      "runs": 3,
+      "pass": true
+    }
+  ],
+  "summary": {
+    "total": 4,
+    "passed": 4,
+    "failed": 0
+  }
+}

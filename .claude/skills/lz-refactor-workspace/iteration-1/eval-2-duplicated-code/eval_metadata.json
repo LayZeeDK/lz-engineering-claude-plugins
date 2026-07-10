@@ -1,0 +1,12 @@
+{
+  "eval_id": 2,
+  "eval_name": "duplicated-code",
+  "prompt": "tests are green. `SavingsAccount` and `CheckingAccount` both extend `Account` and each has an identical `validateWithdrawal(amount)` method -- same body, copy-pasted into both siblings. whats the next refactoring to remove that duplication?",
+  "assertions": [
+    "Names Pull Up Method as the best-fit next refactoring",
+    "Names an in-set Duplicated Code refactoring (Extract Function, Slide Statements, or Pull Up Method)",
+    "Routes to the Fowler mechanical layer",
+    "Ties the pick to WHERE the duplication lives (identical code in sibling subclasses -> lift to the shared parent), not a generic dedup",
+    "Does not edit any source file and does not run tests (coach, don't drive)"
+  ]
+}

@@ -1,0 +1,2255 @@
+{
+  "metadata": {
+    "skill_name": "lz-refactor",
+    "skill_path": "plugins/lz-tdd/skills/lz-refactor",
+    "executor_model": "claude-opus-4-8",
+    "analyzer_model": "claude-opus-4-8",
+    "timestamp": null,
+    "evals_run": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8
+    ],
+    "runs_per_configuration": 3
+  },
+  "runs": [
+    {
+      "eval_id": 0,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": null,
+        "tokens": null,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Names Extract Function as the best-fit next refactoring",
+          "passed": true,
+          "evidence": "named \"Extract Function\""
+        },
+        {
+          "text": "Names an in-set Long Function refactoring",
+          "passed": true,
+          "evidence": "named in-set: Extract Function, Replace Temp with Query, Replace Conditional with Polymorphism"
+        },
+        {
+          "text": "Routes to the Fowler mechanical layer",
+          "passed": true,
+          "evidence": "named refactoring(s) resolve to accepted layer: Fowler"
+        },
+        {
+          "text": "Ties the pick to a nameable block within the long body (validate / compute totals / format receipt), not a generic 'shorten it'",
+          "passed": true,
+          "evidence": "LLM judge: The response maps each phase to a named extraction -- 'validates the cart -> validateCart(order)', 'computes totals and tax -> calculateLineTotals(order) and calculateTax(...)', 'formats the receipt -> formatReceipt(...)'."
+        },
+        {
+          "text": "Coach, don't drive (no edit / no test run)",
+          "passed": true,
+          "evidence": "no Edit/Write/MultiEdit/NotebookEdit/Bash recorded"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 0,
+      "configuration": "with_skill",
+      "run_number": 2,
+      "result": {
+        "pass_rate": 1,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": null,
+        "tokens": null,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Names Extract Function as the best-fit next refactoring",
+          "passed": true,
+          "evidence": "named \"Extract Function\""
+        },
+        {
+          "text": "Names an in-set Long Function refactoring",
+          "passed": true,
+          "evidence": "named in-set: Extract Function, Replace Temp with Query, Replace Function with Command, Replace Conditional with Polymorphism"
+        },
+        {
+          "text": "Routes to the Fowler mechanical layer",
+          "passed": true,
+          "evidence": "named refactoring(s) resolve to accepted layer: Fowler"
+        },
+        {
+          "text": "Ties the pick to a nameable block within the long body (validate / compute totals / format receipt), not a generic 'shorten it'",
+          "passed": true,
+          "evidence": "LLM judge: The response names the three distinct blocks (validate the cart, compute line totals and tax, format the receipt) and maps each to a specific extracted function (validateCart, computeTotals, formatReceipt), rather than a generic 'shorten it'."
+        },
+        {
+          "text": "Coach, don't drive (no edit / no test run)",
+          "passed": true,
+          "evidence": "no Edit/Write/MultiEdit/NotebookEdit/Bash recorded"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 0,
+      "configuration": "with_skill",
+      "run_number": 3,
+      "result": {
+        "pass_rate": 1,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": null,
+        "tokens": null,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Names Extract Function as the best-fit next refactoring",
+          "passed": true,
+          "evidence": "named \"Extract Function\""
+        },
+        {
+          "text": "Names an in-set Long Function refactoring",
+          "passed": true,
+          "evidence": "named in-set: Extract Function, Replace Temp with Query"
+        },
+        {
+          "text": "Routes to the Fowler mechanical layer",
+          "passed": true,
+          "evidence": "named refactoring(s) resolve to accepted layer: Fowler"
+        },
+        {
+          "text": "Ties the pick to a nameable block within the long body (validate / compute totals / format receipt), not a generic 'shorten it'",
+          "passed": true,
+          "evidence": "LLM judge: The response maps each named span to an extracted function -- 'validates the cart -> validateCart(order)', 'computes line totals and tax -> computeTotals(order)', 'formats a receipt string -> formatReceipt(...)' -- rather than a generic 'shorten it'."
+        },
+        {
+          "text": "Coach, don't drive (no edit / no test run)",
+          "passed": true,
+          "evidence": "no Edit/Write/MultiEdit/NotebookEdit/Bash recorded"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 0,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": null,
+        "tokens": null,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Names Extract Function as the best-fit next refactoring",
+          "passed": true,
+          "evidence": "named \"Extract Function\""
+        },
+        {
+          "text": "Names an in-set Long Function refactoring",
+          "passed": true,
+          "evidence": "named in-set: Extract Function, Replace Conditional with Polymorphism"
+        },
+        {
+          "text": "Routes to the Fowler mechanical layer",
+          "passed": true,
+          "evidence": "named refactoring(s) resolve to accepted layer: Fowler"
+        },
+        {
+          "text": "Ties the pick to a nameable block within the long body (validate / compute totals / format receipt), not a generic 'shorten it'",
+          "passed": true,
+          "evidence": "LLM judge: The response names the three extraction seams -- '(1) validate the cart, (2) compute line totals and tax, (3) format the receipt string' -- and proposes concrete functions validateCart, computeTotals, and formatReceipt for each block."
+        },
+        {
+          "text": "Coach, don't drive (no edit / no test run)",
+          "passed": true,
+          "evidence": "no Edit/Write/MultiEdit/NotebookEdit/Bash recorded"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 0,
+      "configuration": "without_skill",
+      "run_number": 2,
+      "result": {
+        "pass_rate": 1,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": null,
+        "tokens": null,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Names Extract Function as the best-fit next refactoring",
+          "passed": true,
+          "evidence": "named \"Extract Function\""
+        },
+        {
+          "text": "Names an in-set Long Function refactoring",
+          "passed": true,
+          "evidence": "named in-set: Extract Function"
+        },
+        {
+          "text": "Routes to the Fowler mechanical layer",
+          "passed": true,
+          "evidence": "named refactoring(s) resolve to accepted layer: Fowler"
+        },
+        {
+          "text": "Ties the pick to a nameable block within the long body (validate / compute totals / format receipt), not a generic 'shorten it'",
+          "passed": true,
+          "evidence": "LLM judge: The response names concrete extractions validateCart(order), computeTotals(order), and formatReceipt(order, totals) tied to the validate/compute-totals/format-receipt blocks the user described."
+        },
+        {
+          "text": "Coach, don't drive (no edit / no test run)",
+          "passed": true,
+          "evidence": "no Edit/Write/MultiEdit/NotebookEdit/Bash recorded"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 0,
+      "configuration": "without_skill",
+      "run_number": 3,
+      "result": {
+        "pass_rate": 1,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": null,
+        "tokens": null,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Names Extract Function as the best-fit next refactoring",
+          "passed": true,
+          "evidence": "named \"Extract Function\""
+        },
+        {
+          "text": "Names an in-set Long Function refactoring",
+          "passed": true,
+          "evidence": "named in-set: Extract Function, Replace Conditional with Polymorphism"
+        },
+        {
+          "text": "Routes to the Fowler mechanical layer",
+          "passed": true,
+          "evidence": "named refactoring(s) resolve to accepted layer: Fowler"
+        },
+        {
+          "text": "Ties the pick to a nameable block within the long body (validate / compute totals / format receipt), not a generic 'shorten it'",
+          "passed": true,
+          "evidence": "LLM judge: The response names all three cohesive stages (validate the cart, compute line totals + tax, format the receipt string) and maps a specific Extract Function to each: validateCart(order), calculateTotals(order), and formatReceipt(order, totals)."
+        },
+        {
+          "text": "Coach, don't drive (no edit / no test run)",
+          "passed": true,
+          "evidence": "no Edit/Write/MultiEdit/NotebookEdit/Bash recorded"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 1,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": null,
+        "tokens": null,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Names Introduce Parameter Object as the best-fit next refactoring",
+          "passed": true,
+          "evidence": "named \"Introduce Parameter Object\""
+        },
+        {
+          "text": "Names an in-set Long Parameter List refactoring",
+          "passed": true,
+          "evidence": "named in-set: Preserve Whole Object, Introduce Parameter Object, Combine Functions into Class"
+        },
+        {
+          "text": "Routes to the Fowler mechanical layer",
+          "passed": true,
+          "evidence": "named refactoring(s) resolve to accepted layer: Fowler"
+        },
+        {
+          "text": "Ties the pick to the street/city/zip clump that travels together, not a generic parameter reduction",
+          "passed": true,
+          "evidence": "LLM judge: The response explicitly grounds the pick in the clump, stating the tell is not the raw parameter count but that 'street/city/zip is the SAME group riding together through four signatures' and applies a delete-zip quick test to show they only make sense as a set."
+        },
+        {
+          "text": "Coach, don't drive (no edit / no test run)",
+          "passed": true,
+          "evidence": "no Edit/Write/MultiEdit/NotebookEdit/Bash recorded"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 1,
+      "configuration": "with_skill",
+      "run_number": 2,
+      "result": {
+        "pass_rate": 1,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": null,
+        "tokens": null,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Names Introduce Parameter Object as the best-fit next refactoring",
+          "passed": true,
+          "evidence": "named \"Introduce Parameter Object\""
+        },
+        {
+          "text": "Names an in-set Long Parameter List refactoring",
+          "passed": true,
+          "evidence": "named in-set: Preserve Whole Object, Introduce Parameter Object, Combine Functions into Class"
+        },
+        {
+          "text": "Routes to the Fowler mechanical layer",
+          "passed": true,
+          "evidence": "named refactoring(s) resolve to accepted layer: Fowler"
+        },
+        {
+          "text": "Ties the pick to the street/city/zip clump that travels together, not a generic parameter reduction",
+          "passed": true,
+          "evidence": "LLM judge: The response names the smell as Data Clumps because 'street/city/zip always travel together AND you pass the same trio into three other functions the same way,' and explicitly treats the Long Parameter List reduction as 'a side benefit' with 'the clump is the root.'"
+        },
+        {
+          "text": "Coach, don't drive (no edit / no test run)",
+          "passed": true,
+          "evidence": "no Edit/Write/MultiEdit/NotebookEdit/Bash recorded"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 1,
+      "configuration": "with_skill",
+      "run_number": 3,
+      "result": {
+        "pass_rate": 1,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": null,
+        "tokens": null,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Names Introduce Parameter Object as the best-fit next refactoring",
+          "passed": true,
+          "evidence": "named \"Introduce Parameter Object\""
+        },
+        {
+          "text": "Names an in-set Long Parameter List refactoring",
+          "passed": true,
+          "evidence": "named in-set: Preserve Whole Object, Introduce Parameter Object"
+        },
+        {
+          "text": "Routes to the Fowler mechanical layer",
+          "passed": true,
+          "evidence": "named refactoring(s) resolve to accepted layer: Fowler"
+        },
+        {
+          "text": "Ties the pick to the street/city/zip clump that travels together, not a generic parameter reduction",
+          "passed": true,
+          "evidence": "LLM judge: The response identifies the Data Clumps smell because street/city/zip 'appear together across multiple parameter lists' and frames Introduce Parameter Object as replacing 'the trio with a single Address structure' that 'names the relationship between the three values,' rather than a generic parameter count reduction."
+        },
+        {
+          "text": "Coach, don't drive (no edit / no test run)",
+          "passed": true,
+          "evidence": "no Edit/Write/MultiEdit/NotebookEdit/Bash recorded"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 1,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": null,
+        "tokens": null,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Names Introduce Parameter Object as the best-fit next refactoring",
+          "passed": true,
+          "evidence": "named \"Introduce Parameter Object\""
+        },
+        {
+          "text": "Names an in-set Long Parameter List refactoring",
+          "passed": true,
+          "evidence": "named in-set: Preserve Whole Object, Introduce Parameter Object"
+        },
+        {
+          "text": "Routes to the Fowler mechanical layer",
+          "passed": true,
+          "evidence": "named refactoring(s) resolve to accepted layer: Fowler"
+        },
+        {
+          "text": "Ties the pick to the street/city/zip clump that travels together, not a generic parameter reduction",
+          "passed": true,
+          "evidence": "LLM judge: The response names the Data Clump smell and explicitly grounds the pick in street/city/zip traveling 'as a trio, in the same order' passed to three other functions, choosing Introduce Parameter Object because 'the problem is the repeated argument grouping' rather than generic parameter reduction."
+        },
+        {
+          "text": "Coach, don't drive (no edit / no test run)",
+          "passed": true,
+          "evidence": "no Edit/Write/MultiEdit/NotebookEdit/Bash recorded"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 1,
+      "configuration": "without_skill",
+      "run_number": 2,
+      "result": {
+        "pass_rate": 1,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": null,
+        "tokens": null,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Names Introduce Parameter Object as the best-fit next refactoring",
+          "passed": true,
+          "evidence": "named \"Introduce Parameter Object\""
+        },
+        {
+          "text": "Names an in-set Long Parameter List refactoring",
+          "passed": true,
+          "evidence": "named in-set: Preserve Whole Object, Introduce Parameter Object, Combine Functions into Class"
+        },
+        {
+          "text": "Routes to the Fowler mechanical layer",
+          "passed": true,
+          "evidence": "named refactoring(s) resolve to accepted layer: Fowler"
+        },
+        {
+          "text": "Ties the pick to the street/city/zip clump that travels together, not a generic parameter reduction",
+          "passed": true,
+          "evidence": "LLM judge: The response explicitly names Data Clumps and ties Introduce Parameter Object to the street/city/zip trio that 'moves as a unit across four signatures,' rather than framing it as generic parameter reduction."
+        },
+        {
+          "text": "Coach, don't drive (no edit / no test run)",
+          "passed": true,
+          "evidence": "no Edit/Write/MultiEdit/NotebookEdit/Bash recorded"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 1,
+      "configuration": "without_skill",
+      "run_number": 3,
+      "result": {
+        "pass_rate": 1,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": null,
+        "tokens": null,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Names Introduce Parameter Object as the best-fit next refactoring",
+          "passed": true,
+          "evidence": "named \"Introduce Parameter Object\""
+        },
+        {
+          "text": "Names an in-set Long Parameter List refactoring",
+          "passed": true,
+          "evidence": "named in-set: Introduce Parameter Object"
+        },
+        {
+          "text": "Routes to the Fowler mechanical layer",
+          "passed": true,
+          "evidence": "named refactoring(s) resolve to accepted layer: Fowler"
+        },
+        {
+          "text": "Ties the pick to the street/city/zip clump that travels together, not a generic parameter reduction",
+          "passed": true,
+          "evidence": "LLM judge: The response explicitly names Data Clumps and states 'the primary driver is the clump, not the count -- if these three were unrelated scalars you would not group them,' tying the pick to the street/city/zip trio rather than generic parameter reduction."
+        },
+        {
+          "text": "Coach, don't drive (no edit / no test run)",
+          "passed": true,
+          "evidence": "no Edit/Write/MultiEdit/NotebookEdit/Bash recorded"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 2,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": null,
+        "tokens": null,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Names Pull Up Method as the best-fit next refactoring",
+          "passed": true,
+          "evidence": "named \"Pull Up Method\""
+        },
+        {
+          "text": "Names an in-set Duplicated Code refactoring",
+          "passed": true,
+          "evidence": "named in-set: Extract Function, Slide Statements, Pull Up Method"
+        },
+        {
+          "text": "Routes to the Fowler mechanical layer",
+          "passed": true,
+          "evidence": "named refactoring(s) resolve to accepted layer: Fowler"
+        },
+        {
+          "text": "Ties the pick to WHERE the duplication lives (identical code in sibling subclasses -> lift to the shared parent), not a generic dedup",
+          "passed": true,
+          "evidence": "LLM judge: The response states 'with duplication the location decides the refactoring... identical code in sibling subclasses' and routes to Pull Up Method to 'lift the one authoritative copy onto the superclass Account,' explicitly tying the pick to where the duplication lives rather than a generic dedup."
+        },
+        {
+          "text": "Coach, don't drive (no edit / no test run)",
+          "passed": true,
+          "evidence": "no Edit/Write/MultiEdit/NotebookEdit/Bash recorded"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 2,
+      "configuration": "with_skill",
+      "run_number": 2,
+      "result": {
+        "pass_rate": 1,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": null,
+        "tokens": null,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Names Pull Up Method as the best-fit next refactoring",
+          "passed": true,
+          "evidence": "named \"Pull Up Method\""
+        },
+        {
+          "text": "Names an in-set Duplicated Code refactoring",
+          "passed": true,
+          "evidence": "named in-set: Extract Function, Pull Up Method"
+        },
+        {
+          "text": "Routes to the Fowler mechanical layer",
+          "passed": true,
+          "evidence": "named refactoring(s) resolve to accepted layer: Fowler"
+        },
+        {
+          "text": "Ties the pick to WHERE the duplication lives (identical code in sibling subclasses -> lift to the shared parent), not a generic dedup",
+          "passed": true,
+          "evidence": "LLM judge: Line 9 states the recognize-by cue is WHERE the copies live: identical code in sibling subclasses sharing a common parent, mapping to 'the identical code sits in sibling subclasses -> lift it to the shared parent.'"
+        },
+        {
+          "text": "Coach, don't drive (no edit / no test run)",
+          "passed": true,
+          "evidence": "no Edit/Write/MultiEdit/NotebookEdit/Bash recorded"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 2,
+      "configuration": "with_skill",
+      "run_number": 3,
+      "result": {
+        "pass_rate": 1,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": null,
+        "tokens": null,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Names Pull Up Method as the best-fit next refactoring",
+          "passed": true,
+          "evidence": "named \"Pull Up Method\""
+        },
+        {
+          "text": "Names an in-set Duplicated Code refactoring",
+          "passed": true,
+          "evidence": "named in-set: Extract Function, Slide Statements, Pull Up Method"
+        },
+        {
+          "text": "Routes to the Fowler mechanical layer",
+          "passed": true,
+          "evidence": "named refactoring(s) resolve to accepted layer: Fowler"
+        },
+        {
+          "text": "Ties the pick to WHERE the duplication lives (identical code in sibling subclasses -> lift to the shared parent), not a generic dedup",
+          "passed": true,
+          "evidence": "LLM judge: The response states 'the identical code sits in sibling subclasses; lift it to the shared parent' and notes the copies are 'byte-identical, sitting in two siblings (SavingsAccount, CheckingAccount) that already share a parent (Account),' routing by WHERE the copies live rather than generic dedup."
+        },
+        {
+          "text": "Coach, don't drive (no edit / no test run)",
+          "passed": true,
+          "evidence": "no Edit/Write/MultiEdit/NotebookEdit/Bash recorded"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 2,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": null,
+        "tokens": null,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Names Pull Up Method as the best-fit next refactoring",
+          "passed": true,
+          "evidence": "named \"Pull Up Method\""
+        },
+        {
+          "text": "Names an in-set Duplicated Code refactoring",
+          "passed": true,
+          "evidence": "named in-set: Extract Function, Pull Up Method"
+        },
+        {
+          "text": "Routes to the Fowler mechanical layer",
+          "passed": true,
+          "evidence": "named refactoring(s) resolve to accepted layer: Fowler"
+        },
+        {
+          "text": "Ties the pick to WHERE the duplication lives (identical code in sibling subclasses -> lift to the shared parent), not a generic dedup",
+          "passed": true,
+          "evidence": "LLM judge: The response states 'The duplication lives in two siblings under one parent, so the single obvious home is the parent' and pins Pull Up Method to the shared superclass Account rather than a generic dedup."
+        },
+        {
+          "text": "Coach, don't drive (no edit / no test run)",
+          "passed": true,
+          "evidence": "no Edit/Write/MultiEdit/NotebookEdit/Bash recorded"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 2,
+      "configuration": "without_skill",
+      "run_number": 2,
+      "result": {
+        "pass_rate": 1,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": null,
+        "tokens": null,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Names Pull Up Method as the best-fit next refactoring",
+          "passed": true,
+          "evidence": "named \"Pull Up Method\""
+        },
+        {
+          "text": "Names an in-set Duplicated Code refactoring",
+          "passed": true,
+          "evidence": "named in-set: Extract Function, Pull Up Method"
+        },
+        {
+          "text": "Routes to the Fowler mechanical layer",
+          "passed": true,
+          "evidence": "named refactoring(s) resolve to accepted layer: Fowler"
+        },
+        {
+          "text": "Ties the pick to WHERE the duplication lives (identical code in sibling subclasses -> lift to the shared parent), not a generic dedup",
+          "passed": true,
+          "evidence": "LLM judge: The response states the smell is Duplicated Code in the 'same method in two sibling subclasses' shape with identical bodies and an existing common superclass Account, prescribing lifting one copy of validateWithdrawal up into Account and deleting both subclass copies."
+        },
+        {
+          "text": "Coach, don't drive (no edit / no test run)",
+          "passed": true,
+          "evidence": "no Edit/Write/MultiEdit/NotebookEdit/Bash recorded"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 2,
+      "configuration": "without_skill",
+      "run_number": 3,
+      "result": {
+        "pass_rate": 1,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": null,
+        "tokens": null,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Names Pull Up Method as the best-fit next refactoring",
+          "passed": true,
+          "evidence": "named \"Pull Up Method\""
+        },
+        {
+          "text": "Names an in-set Duplicated Code refactoring",
+          "passed": true,
+          "evidence": "named in-set: Extract Function, Pull Up Method"
+        },
+        {
+          "text": "Routes to the Fowler mechanical layer",
+          "passed": true,
+          "evidence": "named refactoring(s) resolve to accepted layer: Fowler"
+        },
+        {
+          "text": "Ties the pick to WHERE the duplication lives (identical code in sibling subclasses -> lift to the shared parent), not a generic dedup",
+          "passed": true,
+          "evidence": "LLM judge: The response identifies the 'identical method in sibling subclasses' variant and explains the two classes share superclass Account with byte-for-byte identical bodies, so the fix is to move the canonical copy up into Account and delete both subclass copies."
+        },
+        {
+          "text": "Coach, don't drive (no edit / no test run)",
+          "passed": true,
+          "evidence": "no Edit/Write/MultiEdit/NotebookEdit/Bash recorded"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 3,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": null,
+        "tokens": null,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Names Move Function as the best-fit next refactoring",
+          "passed": true,
+          "evidence": "named \"Move Function\""
+        },
+        {
+          "text": "Names an in-set Feature Envy refactoring",
+          "passed": true,
+          "evidence": "named in-set: Move Function, Extract Function"
+        },
+        {
+          "text": "Routes to the Fowler mechanical layer",
+          "passed": true,
+          "evidence": "named refactoring(s) resolve to accepted layer: Fowler"
+        },
+        {
+          "text": "Ties the pick to the whole function computing from Customer's fields (it envies the other module), siting it with that data",
+          "passed": true,
+          "evidence": "LLM judge: Line 17 states total() 'reads almost entirely from Customer and barely touches Invoice. That is whole-function envy, so Move Function is the pick: relocate the discount/tax/loyalty computation onto Customer, where the data it works on lives.'"
+        },
+        {
+          "text": "Coach, don't drive (no edit / no test run)",
+          "passed": true,
+          "evidence": "no Edit/Write/MultiEdit/NotebookEdit/Bash recorded"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 3,
+      "configuration": "with_skill",
+      "run_number": 2,
+      "result": {
+        "pass_rate": 1,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": null,
+        "tokens": null,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Names Move Function as the best-fit next refactoring",
+          "passed": true,
+          "evidence": "named \"Move Function\""
+        },
+        {
+          "text": "Names an in-set Feature Envy refactoring",
+          "passed": true,
+          "evidence": "named in-set: Move Function, Extract Function"
+        },
+        {
+          "text": "Routes to the Fowler mechanical layer",
+          "passed": true,
+          "evidence": "named refactoring(s) resolve to accepted layer: Fowler"
+        },
+        {
+          "text": "Ties the pick to the whole function computing from Customer's fields (it envies the other module), siting it with that data",
+          "passed": true,
+          "evidence": "LLM judge: The response states 'Because total() reads almost entirely from Customer and barely uses its own Invoice fields, the whole method envies Customer. So it's Move Function... the discount/tax-region/loyalty logic sits next to the fields it reads,' explicitly tying the pick to the whole function's dependence on Customer's data and siting the behavior with that data."
+        },
+        {
+          "text": "Coach, don't drive (no edit / no test run)",
+          "passed": true,
+          "evidence": "no Edit/Write/MultiEdit/NotebookEdit/Bash recorded"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 3,
+      "configuration": "with_skill",
+      "run_number": 3,
+      "result": {
+        "pass_rate": 1,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": null,
+        "tokens": null,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Names Move Function as the best-fit next refactoring",
+          "passed": true,
+          "evidence": "named \"Move Function\""
+        },
+        {
+          "text": "Names an in-set Feature Envy refactoring",
+          "passed": true,
+          "evidence": "named in-set: Move Function, Extract Function"
+        },
+        {
+          "text": "Routes to the Fowler mechanical layer",
+          "passed": true,
+          "evidence": "named refactoring(s) resolve to accepted layer: Fowler"
+        },
+        {
+          "text": "Ties the pick to the whole function computing from Customer's fields (it envies the other module), siting it with that data",
+          "passed": true,
+          "evidence": "LLM judge: The response states Move Function is the pick when the whole function belongs with the envied data, citing that total() computes 'almost entirely' from Customer and 'barely touches any Invoice field', and sites the moved behavior on Customer (e.g. Customer.priceFor(invoice))."
+        },
+        {
+          "text": "Coach, don't drive (no edit / no test run)",
+          "passed": true,
+          "evidence": "no Edit/Write/MultiEdit/NotebookEdit/Bash recorded"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 3,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": null,
+        "tokens": null,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Names Move Function as the best-fit next refactoring",
+          "passed": true,
+          "evidence": "named \"Move Function\""
+        },
+        {
+          "text": "Names an in-set Feature Envy refactoring",
+          "passed": true,
+          "evidence": "named in-set: Move Function, Extract Function"
+        },
+        {
+          "text": "Routes to the Fowler mechanical layer",
+          "passed": true,
+          "evidence": "named refactoring(s) resolve to accepted layer: Fowler"
+        },
+        {
+          "text": "Ties the pick to the whole function computing from Customer's fields (it envies the other module), siting it with that data",
+          "passed": true,
+          "evidence": "LLM judge: The response states Invoice.total() is 'more interested in Customer than in the Invoice', that 'Three reads from customer.* and almost none from this means the computation belongs on Customer', and recommends moving it 'so the discount/tax/loyalty logic sits next to the data it reads'."
+        },
+        {
+          "text": "Coach, don't drive (no edit / no test run)",
+          "passed": true,
+          "evidence": "no Edit/Write/MultiEdit/NotebookEdit/Bash recorded"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 3,
+      "configuration": "without_skill",
+      "run_number": 2,
+      "result": {
+        "pass_rate": 1,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": null,
+        "tokens": null,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Names Move Function as the best-fit next refactoring",
+          "passed": true,
+          "evidence": "named \"Move Function\""
+        },
+        {
+          "text": "Names an in-set Feature Envy refactoring",
+          "passed": true,
+          "evidence": "named in-set: Move Function, Extract Function"
+        },
+        {
+          "text": "Routes to the Fowler mechanical layer",
+          "passed": true,
+          "evidence": "named refactoring(s) resolve to accepted layer: Fowler"
+        },
+        {
+          "text": "Ties the pick to the whole function computing from Customer's fields (it envies the other module), siting it with that data",
+          "passed": true,
+          "evidence": "LLM judge: The response states total() pulls discountRate, taxRegion, and loyaltyTier off Customer with its 'data gravity on Customer', and picks Move Function to relocate the method onto Customer 'so the behavior sits next to the three fields it actually reads.'"
+        },
+        {
+          "text": "Coach, don't drive (no edit / no test run)",
+          "passed": true,
+          "evidence": "no Edit/Write/MultiEdit/NotebookEdit/Bash recorded"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 3,
+      "configuration": "without_skill",
+      "run_number": 3,
+      "result": {
+        "pass_rate": 1,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": null,
+        "tokens": null,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Names Move Function as the best-fit next refactoring",
+          "passed": true,
+          "evidence": "named \"Move Function\""
+        },
+        {
+          "text": "Names an in-set Feature Envy refactoring",
+          "passed": true,
+          "evidence": "named in-set: Move Function, Extract Function"
+        },
+        {
+          "text": "Routes to the Fowler mechanical layer",
+          "passed": true,
+          "evidence": "named refactoring(s) resolve to accepted layer: Fowler"
+        },
+        {
+          "text": "Ties the pick to the whole function computing from Customer's fields (it envies the other module), siting it with that data",
+          "passed": true,
+          "evidence": "LLM judge: The response states total() 'computes almost entirely from Customer state' and that moving the whole method to Customer 'puts the behavior next to the data it uses,' tying the pick to the function's envy of Customer's fields."
+        },
+        {
+          "text": "Coach, don't drive (no edit / no test run)",
+          "passed": true,
+          "evidence": "no Edit/Write/MultiEdit/NotebookEdit/Bash recorded"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 4,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": null,
+        "tokens": null,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Names Replace Conditional Logic with Strategy as the best-fit next refactoring",
+          "passed": true,
+          "evidence": "named \"Replace Conditional Logic with Strategy\""
+        },
+        {
+          "text": "Names an in-set Conditional Complexity refactoring",
+          "passed": true,
+          "evidence": "named in-set: Replace Conditional Logic with Strategy, Move Embellishment to Decorator, Replace State-Altering Conditionals with State, Introduce Null Object"
+        },
+        {
+          "text": "Routes to the Kerievsky pattern-directed layer",
+          "passed": true,
+          "evidence": "named refactoring(s) resolve to accepted layer: Kerievsky"
+        },
+        {
+          "text": "Ties the pick to the conditional choosing among whole interchangeable algorithms (not optional embellishment or next-state selection)",
+          "passed": true,
+          "evidence": "LLM judge: Line 12 explicitly rules out optional add-ons (Decorator) and state transitions (State), stating each branch is a self-contained whole calculation selected by mode -- the 'conditional chooses among whole interchangeable algorithms you want to vary independently' Strategy trigger."
+        },
+        {
+          "text": "Coach, don't drive (no edit / no test run)",
+          "passed": true,
+          "evidence": "no Edit/Write/MultiEdit/NotebookEdit/Bash recorded"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 4,
+      "configuration": "with_skill",
+      "run_number": 2,
+      "result": {
+        "pass_rate": 1,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": null,
+        "tokens": null,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Names Replace Conditional Logic with Strategy as the best-fit next refactoring",
+          "passed": true,
+          "evidence": "named \"Replace Conditional Logic with Strategy\""
+        },
+        {
+          "text": "Names an in-set Conditional Complexity refactoring",
+          "passed": true,
+          "evidence": "named in-set: Replace Conditional Logic with Strategy, Move Embellishment to Decorator, Replace State-Altering Conditionals with State, Introduce Null Object"
+        },
+        {
+          "text": "Routes to the Kerievsky pattern-directed layer",
+          "passed": true,
+          "evidence": "named refactoring(s) resolve to accepted layer: Kerievsky"
+        },
+        {
+          "text": "Ties the pick to the conditional choosing among whole interchangeable algorithms (not optional embellishment or next-state selection)",
+          "passed": true,
+          "evidence": "LLM judge: The response states the case is 'branches choose among whole interchangeable algorithms you want to vary independently' and explicitly rules out Decorator (optional add-ons/embellishment) and State (branches deciding the next state)."
+        },
+        {
+          "text": "Coach, don't drive (no edit / no test run)",
+          "passed": true,
+          "evidence": "no Edit/Write/MultiEdit/NotebookEdit/Bash recorded"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 4,
+      "configuration": "with_skill",
+      "run_number": 3,
+      "result": {
+        "pass_rate": 1,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": null,
+        "tokens": null,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Names Replace Conditional Logic with Strategy as the best-fit next refactoring",
+          "passed": true,
+          "evidence": "named \"Replace Conditional Logic with Strategy\""
+        },
+        {
+          "text": "Names an in-set Conditional Complexity refactoring",
+          "passed": true,
+          "evidence": "named in-set: Replace Conditional Logic with Strategy, Move Embellishment to Decorator, Replace State-Altering Conditionals with State"
+        },
+        {
+          "text": "Routes to the Kerievsky pattern-directed layer",
+          "passed": true,
+          "evidence": "named refactoring(s) resolve to accepted layer: Kerievsky"
+        },
+        {
+          "text": "Ties the pick to the conditional choosing among whole interchangeable algorithms (not optional embellishment or next-state selection)",
+          "passed": true,
+          "evidence": "LLM judge: The response states each branch is 'a whole interchangeable algorithm (retail vs wholesale vs promo pricing)' and explicitly rules out Decorator (optional extras layered on a core) and State (which state comes next)."
+        },
+        {
+          "text": "Coach, don't drive (no edit / no test run)",
+          "passed": true,
+          "evidence": "no Edit/Write/MultiEdit/NotebookEdit/Bash recorded"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 4,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": null,
+        "tokens": null,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Names Replace Conditional Logic with Strategy as the best-fit next refactoring",
+          "passed": true,
+          "evidence": "named \"Replace Conditional Logic with Strategy\""
+        },
+        {
+          "text": "Names an in-set Conditional Complexity refactoring",
+          "passed": true,
+          "evidence": "named in-set: Replace Conditional Logic with Strategy"
+        },
+        {
+          "text": "Routes to the Kerievsky pattern-directed layer",
+          "passed": true,
+          "evidence": "named refactoring(s) resolve to accepted layer: Kerievsky"
+        },
+        {
+          "text": "Ties the pick to the conditional choosing among whole interchangeable algorithms (not optional embellishment or next-state selection)",
+          "passed": true,
+          "evidence": "LLM judge: The response states the if/else 'selects a WHOLE algorithm per customer segment ... each branch is a self-contained calculation. That is the exact shape Strategy targets: a family of interchangeable algorithms behind one interface.'"
+        },
+        {
+          "text": "Coach, don't drive (no edit / no test run)",
+          "passed": true,
+          "evidence": "no Edit/Write/MultiEdit/NotebookEdit/Bash recorded"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 4,
+      "configuration": "without_skill",
+      "run_number": 2,
+      "result": {
+        "pass_rate": 1,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": null,
+        "tokens": null,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Names Replace Conditional Logic with Strategy as the best-fit next refactoring",
+          "passed": true,
+          "evidence": "named \"Replace Conditional Logic with Strategy\""
+        },
+        {
+          "text": "Names an in-set Conditional Complexity refactoring",
+          "passed": true,
+          "evidence": "named in-set: Replace Conditional Logic with Strategy"
+        },
+        {
+          "text": "Routes to the Kerievsky pattern-directed layer",
+          "passed": true,
+          "evidence": "named refactoring(s) resolve to accepted layer: Kerievsky"
+        },
+        {
+          "text": "Ties the pick to the conditional choosing among whole interchangeable algorithms (not optional embellishment or next-state selection)",
+          "passed": true,
+          "evidence": "LLM judge: The response states the conditional is 'choosing an entire algorithm (not just tweaking a value)' and ties Strategy to a 'family of interchangeable algorithms' where each branch is a 'whole, self-contained pricing calculation'."
+        },
+        {
+          "text": "Coach, don't drive (no edit / no test run)",
+          "passed": true,
+          "evidence": "no Edit/Write/MultiEdit/NotebookEdit/Bash recorded"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 4,
+      "configuration": "without_skill",
+      "run_number": 3,
+      "result": {
+        "pass_rate": 1,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": null,
+        "tokens": null,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Names Replace Conditional Logic with Strategy as the best-fit next refactoring",
+          "passed": true,
+          "evidence": "named \"Replace Conditional Logic with Strategy\""
+        },
+        {
+          "text": "Names an in-set Conditional Complexity refactoring",
+          "passed": true,
+          "evidence": "named in-set: Replace Conditional Logic with Strategy"
+        },
+        {
+          "text": "Routes to the Kerievsky pattern-directed layer",
+          "passed": true,
+          "evidence": "named refactoring(s) resolve to accepted layer: Kerievsky"
+        },
+        {
+          "text": "Ties the pick to the conditional choosing among whole interchangeable algorithms (not optional embellishment or next-state selection)",
+          "passed": true,
+          "evidence": "LLM judge: The response frames the if/else as choosing a whole self-contained pricing algorithm per segment and cites Strategy's intent to 'define a family of algorithms, encapsulate each, and make them interchangeable so the algorithm varies independently of the client.'"
+        },
+        {
+          "text": "Coach, don't drive (no edit / no test run)",
+          "passed": true,
+          "evidence": "no Edit/Write/MultiEdit/NotebookEdit/Bash recorded"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 5,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": null,
+        "tokens": null,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Names Replace State-Altering Conditionals with State as the best-fit next refactoring",
+          "passed": true,
+          "evidence": "named \"Replace State-Altering Conditionals with State\""
+        },
+        {
+          "text": "Names an in-set Conditional Complexity refactoring",
+          "passed": true,
+          "evidence": "named in-set: Replace Conditional Logic with Strategy, Move Embellishment to Decorator, Replace State-Altering Conditionals with State"
+        },
+        {
+          "text": "Routes to the Kerievsky pattern-directed layer",
+          "passed": true,
+          "evidence": "named refactoring(s) resolve to accepted layer: Kerievsky"
+        },
+        {
+          "text": "Ties the pick to conditionals that both decide what may happen now AND choose which status comes next (state-altering), not whole-algorithm selection",
+          "passed": true,
+          "evidence": "LLM judge: The response ties the pick to status conditionals that '(a) gate what each action may do right now ... and (b) reassign this.status to the next value (the draft -> moderation -> published transition)' and explicitly contrasts the state-altering case against whole-algorithm selection (Strategy)."
+        },
+        {
+          "text": "Coach, don't drive (no edit / no test run)",
+          "passed": true,
+          "evidence": "no Edit/Write/MultiEdit/NotebookEdit/Bash recorded"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 5,
+      "configuration": "with_skill",
+      "run_number": 2,
+      "result": {
+        "pass_rate": 1,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": null,
+        "tokens": null,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Names Replace State-Altering Conditionals with State as the best-fit next refactoring",
+          "passed": true,
+          "evidence": "named \"Replace State-Altering Conditionals with State\""
+        },
+        {
+          "text": "Names an in-set Conditional Complexity refactoring",
+          "passed": true,
+          "evidence": "named in-set: Replace State-Altering Conditionals with State"
+        },
+        {
+          "text": "Routes to the Kerievsky pattern-directed layer",
+          "passed": true,
+          "evidence": "named refactoring(s) resolve to accepted layer: Kerievsky"
+        },
+        {
+          "text": "Ties the pick to conditionals that both decide what may happen now AND choose which status comes next (state-altering), not whole-algorithm selection",
+          "passed": true,
+          "evidence": "LLM judge: The response states the conditionals 'both decide what may happen now AND choose which state comes next (draft -> moderation -> published)' as the precise selector for Replace State-Altering Conditionals with State, and explicitly contrasts this with Strategy (choosing among whole interchangeable algorithms)."
+        },
+        {
+          "text": "Coach, don't drive (no edit / no test run)",
+          "passed": true,
+          "evidence": "no Edit/Write/MultiEdit/NotebookEdit/Bash recorded"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 5,
+      "configuration": "with_skill",
+      "run_number": 3,
+      "result": {
+        "pass_rate": 1,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": null,
+        "tokens": null,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Names Replace State-Altering Conditionals with State as the best-fit next refactoring",
+          "passed": true,
+          "evidence": "named \"Replace State-Altering Conditionals with State\""
+        },
+        {
+          "text": "Names an in-set Conditional Complexity refactoring",
+          "passed": true,
+          "evidence": "named in-set: Replace Conditional Logic with Strategy, Move Embellishment to Decorator, Replace State-Altering Conditionals with State"
+        },
+        {
+          "text": "Routes to the Kerievsky pattern-directed layer",
+          "passed": true,
+          "evidence": "named refactoring(s) resolve to accepted layer: Kerievsky"
+        },
+        {
+          "text": "Ties the pick to conditionals that both decide what may happen now AND choose which status comes next (state-altering), not whole-algorithm selection",
+          "passed": true,
+          "evidence": "LLM judge: The response explicitly frames the smell as conditionals that do 'two jobs at once: decides what an action may do right now AND chooses which status comes next,' and rules out Strategy because that is for 'whole interchangeable algorithms,' which does not capture 'choosing the next status.'"
+        },
+        {
+          "text": "Coach, don't drive (no edit / no test run)",
+          "passed": true,
+          "evidence": "no Edit/Write/MultiEdit/NotebookEdit/Bash recorded"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 5,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": null,
+        "tokens": null,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Names Replace State-Altering Conditionals with State as the best-fit next refactoring",
+          "passed": true,
+          "evidence": "named \"Replace State-Altering Conditionals with State\""
+        },
+        {
+          "text": "Names an in-set Conditional Complexity refactoring",
+          "passed": true,
+          "evidence": "named in-set: Replace State-Altering Conditionals with State"
+        },
+        {
+          "text": "Routes to the Kerievsky pattern-directed layer",
+          "passed": true,
+          "evidence": "named refactoring(s) resolve to accepted layer: Kerievsky"
+        },
+        {
+          "text": "Ties the pick to conditionals that both decide what may happen now AND choose which status comes next (state-altering), not whole-algorithm selection",
+          "passed": true,
+          "evidence": "LLM judge: Lines 11-15 explicitly frame the conditionals as doing two things -- (1) deciding what an action is allowed to do right now and (2) setting which status comes next (a transition) -- and contrast this with Strategy, which would only cover whole-behavior/algorithm selection with no memory of what comes next."
+        },
+        {
+          "text": "Coach, don't drive (no edit / no test run)",
+          "passed": true,
+          "evidence": "no Edit/Write/MultiEdit/NotebookEdit/Bash recorded"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 5,
+      "configuration": "without_skill",
+      "run_number": 2,
+      "result": {
+        "pass_rate": 1,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": null,
+        "tokens": null,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Names Replace State-Altering Conditionals with State as the best-fit next refactoring",
+          "passed": true,
+          "evidence": "named \"Replace State-Altering Conditionals with State\""
+        },
+        {
+          "text": "Names an in-set Conditional Complexity refactoring",
+          "passed": true,
+          "evidence": "named in-set: Replace Conditional Logic with Strategy, Replace State-Altering Conditionals with State"
+        },
+        {
+          "text": "Routes to the Kerievsky pattern-directed layer",
+          "passed": true,
+          "evidence": "named refactoring(s) resolve to accepted layer: Kerievsky"
+        },
+        {
+          "text": "Ties the pick to conditionals that both decide what may happen now AND choose which status comes next (state-altering), not whole-algorithm selection",
+          "passed": true,
+          "evidence": "LLM judge: The response names 'both' as the discriminator (lines 13-18): guarding behavior 'deciding what an action is allowed to do right now' AND altering state 'setting which status comes next', and explicitly contrasts with Strategy, which merely 'selects an algorithm but knows nothing about transitions between strategies'."
+        },
+        {
+          "text": "Coach, don't drive (no edit / no test run)",
+          "passed": true,
+          "evidence": "no Edit/Write/MultiEdit/NotebookEdit/Bash recorded"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 5,
+      "configuration": "without_skill",
+      "run_number": 3,
+      "result": {
+        "pass_rate": 1,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": null,
+        "tokens": null,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Names Replace State-Altering Conditionals with State as the best-fit next refactoring",
+          "passed": true,
+          "evidence": "named \"Replace State-Altering Conditionals with State\""
+        },
+        {
+          "text": "Names an in-set Conditional Complexity refactoring",
+          "passed": true,
+          "evidence": "named in-set: Replace Conditional Logic with Strategy, Replace State-Altering Conditionals with State"
+        },
+        {
+          "text": "Routes to the Kerievsky pattern-directed layer",
+          "passed": true,
+          "evidence": "named refactoring(s) resolve to accepted layer: Kerievsky"
+        },
+        {
+          "text": "Ties the pick to conditionals that both decide what may happen now AND choose which status comes next (state-altering), not whole-algorithm selection",
+          "passed": true,
+          "evidence": "LLM judge: The response explicitly cites both tells - conditionals deciding 'what an action may do right now' and 'also assign the next status (draft -> moderation -> published)' calling them state-altering, and distinguishes this from Strategy's whole-algorithm selection."
+        },
+        {
+          "text": "Coach, don't drive (no edit / no test run)",
+          "passed": true,
+          "evidence": "no Edit/Write/MultiEdit/NotebookEdit/Bash recorded"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 6,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1,
+        "passed": 4,
+        "failed": 0,
+        "total": 4,
+        "time_seconds": null,
+        "tokens": null,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Names Replace Implicit Language with Interpreter as the best-fit next refactoring",
+          "passed": true,
+          "evidence": "named \"Replace Implicit Language with Interpreter\""
+        },
+        {
+          "text": "Routes to the Kerievsky pattern-directed layer",
+          "passed": true,
+          "evidence": "named refactoring(s) resolve to accepted layer: Kerievsky"
+        },
+        {
+          "text": "Frames the near-identical combination methods as an unnamed mini-language whose terms become composable objects, not plain incidental duplication",
+          "passed": true,
+          "evidence": "LLM judge: The response states the copies are 'systematic combinations of an unnamed mini-language, not incidental repetition' and that the refactoring 'names those terms as small composable expression objects' so any query is assembled rather than coded."
+        },
+        {
+          "text": "Coach, don't drive (no edit / no test run)",
+          "passed": true,
+          "evidence": "no Edit/Write/MultiEdit/NotebookEdit/Bash recorded"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 6,
+      "configuration": "with_skill",
+      "run_number": 2,
+      "result": {
+        "pass_rate": 1,
+        "passed": 4,
+        "failed": 0,
+        "total": 4,
+        "time_seconds": null,
+        "tokens": null,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Names Replace Implicit Language with Interpreter as the best-fit next refactoring",
+          "passed": true,
+          "evidence": "named \"Replace Implicit Language with Interpreter\""
+        },
+        {
+          "text": "Routes to the Kerievsky pattern-directed layer",
+          "passed": true,
+          "evidence": "named refactoring(s) resolve to accepted layer: Kerievsky"
+        },
+        {
+          "text": "Frames the near-identical combination methods as an unnamed mini-language whose terms become composable objects, not plain incidental duplication",
+          "passed": true,
+          "evidence": "LLM judge: The response states 'You have an unnamed mini-language spelled out by hand' whose terms 'you can express as composable objects', and explicitly distinguishes it from 'plain Duplicated Code ... not incidental repetition'."
+        },
+        {
+          "text": "Coach, don't drive (no edit / no test run)",
+          "passed": true,
+          "evidence": "no Edit/Write/MultiEdit/NotebookEdit/Bash recorded"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 6,
+      "configuration": "with_skill",
+      "run_number": 3,
+      "result": {
+        "pass_rate": 1,
+        "passed": 4,
+        "failed": 0,
+        "total": 4,
+        "time_seconds": null,
+        "tokens": null,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Names Replace Implicit Language with Interpreter as the best-fit next refactoring",
+          "passed": true,
+          "evidence": "named \"Replace Implicit Language with Interpreter\""
+        },
+        {
+          "text": "Routes to the Kerievsky pattern-directed layer",
+          "passed": true,
+          "evidence": "named refactoring(s) resolve to accepted layer: Kerievsky"
+        },
+        {
+          "text": "Frames the near-identical combination methods as an unnamed mini-language whose terms become composable objects, not plain incidental duplication",
+          "passed": true,
+          "evidence": "LLM judge: The response states the method stack is 'really a small, unnamed query language spelled out one frozen sentence at a time' whose grammar 'is never named,' explicitly rules out 'incidental repetition'/'plain Duplicated Code,' and describes each term becoming a composable expression class with And/Or combinators."
+        },
+        {
+          "text": "Coach, don't drive (no edit / no test run)",
+          "passed": true,
+          "evidence": "no Edit/Write/MultiEdit/NotebookEdit/Bash recorded"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 6,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1,
+        "passed": 4,
+        "failed": 0,
+        "total": 4,
+        "time_seconds": null,
+        "tokens": null,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Names Replace Implicit Language with Interpreter as the best-fit next refactoring",
+          "passed": true,
+          "evidence": "named \"Replace Implicit Language with Interpreter\""
+        },
+        {
+          "text": "Routes to the Kerievsky pattern-directed layer",
+          "passed": true,
+          "evidence": "named refactoring(s) resolve to accepted layer: Kerievsky"
+        },
+        {
+          "text": "Frames the near-identical combination methods as an unnamed mini-language whose terms become composable objects, not plain incidental duplication",
+          "passed": true,
+          "evidence": "LLM judge: The response names 'Replace Implicit Language with Interpreter' and describes the methods as 'a small grammar of composable expression objects' -- leaf/composite matchers composed as And(ExactWord, PhrasePrefix) -- explicitly reframing the duplication as a combinatorial-explosion language rather than incidental duplication."
+        },
+        {
+          "text": "Coach, don't drive (no edit / no test run)",
+          "passed": true,
+          "evidence": "no Edit/Write/MultiEdit/NotebookEdit/Bash recorded"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 6,
+      "configuration": "without_skill",
+      "run_number": 2,
+      "result": {
+        "pass_rate": 1,
+        "passed": 4,
+        "failed": 0,
+        "total": 4,
+        "time_seconds": null,
+        "tokens": null,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Names Replace Implicit Language with Interpreter as the best-fit next refactoring",
+          "passed": true,
+          "evidence": "named \"Replace Implicit Language with Interpreter\""
+        },
+        {
+          "text": "Routes to the Kerievsky pattern-directed layer",
+          "passed": true,
+          "evidence": "named refactoring(s) resolve to accepted layer: Kerievsky"
+        },
+        {
+          "text": "Frames the near-identical combination methods as an unnamed mini-language whose terms become composable objects, not plain incidental duplication",
+          "passed": true,
+          "evidence": "LLM judge: The response states 'there IS a little grammar of match expressions hiding here' and reframes the methods as terminals/combinators forming a composable expression tree (Or(ExactPhrase(...), ...)), turning k^N enumerated methods into k+k+k composable pieces rather than incidental duplication."
+        },
+        {
+          "text": "Coach, don't drive (no edit / no test run)",
+          "passed": true,
+          "evidence": "no Edit/Write/MultiEdit/NotebookEdit/Bash recorded"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 6,
+      "configuration": "without_skill",
+      "run_number": 3,
+      "result": {
+        "pass_rate": 1,
+        "passed": 4,
+        "failed": 0,
+        "total": 4,
+        "time_seconds": null,
+        "tokens": null,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Names Replace Implicit Language with Interpreter as the best-fit next refactoring",
+          "passed": true,
+          "evidence": "named \"Replace Implicit Language with Interpreter\""
+        },
+        {
+          "text": "Routes to the Kerievsky pattern-directed layer",
+          "passed": true,
+          "evidence": "named refactoring(s) resolve to accepted layer: Kerievsky"
+        },
+        {
+          "text": "Frames the near-identical combination methods as an unnamed mini-language whose terms become composable objects, not plain incidental duplication",
+          "passed": true,
+          "evidence": "LLM judge: The response names it 'Replace Implicit Language with Interpreter' and states 'the grammar of \"what to match\" lives implicitly, smeared across method names... an implicit language begging to be made explicit: represent each axis as its own composable object,' explicitly framing it as a mini-language rather than incidental duplication."
+        },
+        {
+          "text": "Coach, don't drive (no edit / no test run)",
+          "passed": true,
+          "evidence": "no Edit/Write/MultiEdit/NotebookEdit/Bash recorded"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 7,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1,
+        "passed": 4,
+        "failed": 0,
+        "total": 4,
+        "time_seconds": null,
+        "tokens": null,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Names an accepted de-patterning route: Inline Singleton or the Module Namespace functional dissolution",
+          "passed": true,
+          "evidence": "named in-set: Inline Singleton, Module Namespace"
+        },
+        {
+          "text": "Routes to the Kerievsky-Away or functional layer (either is accepted)",
+          "passed": true,
+          "evidence": "named refactoring(s) resolve to accepted layer: Kerievsky-Away, functional"
+        },
+        {
+          "text": "Frames the Singleton as unwarranted (nothing needs single-instance policy) and names the dissolution, rather than keeping or embellishing the pattern",
+          "passed": true,
+          "evidence": "LLM judge: The response states 'the pattern is not earning its keep' and 'nothing needs a single-instance policy,' then names 'Inline Singleton' de-patterning (Direction: Away) to dissolve the Singleton into an injected plain object."
+        },
+        {
+          "text": "Coach, don't drive (no edit / no test run)",
+          "passed": true,
+          "evidence": "no Edit/Write/MultiEdit/NotebookEdit/Bash recorded"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 7,
+      "configuration": "with_skill",
+      "run_number": 2,
+      "result": {
+        "pass_rate": 1,
+        "passed": 4,
+        "failed": 0,
+        "total": 4,
+        "time_seconds": null,
+        "tokens": null,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Names an accepted de-patterning route: Inline Singleton or the Module Namespace functional dissolution",
+          "passed": true,
+          "evidence": "named in-set: Inline Singleton, Module Namespace"
+        },
+        {
+          "text": "Routes to the Kerievsky-Away or functional layer (either is accepted)",
+          "passed": true,
+          "evidence": "named refactoring(s) resolve to accepted layer: Kerievsky-Away, functional"
+        },
+        {
+          "text": "Frames the Singleton as unwarranted (nothing needs single-instance policy) and names the dissolution, rather than keeping or embellishing the pattern",
+          "passed": true,
+          "evidence": "LLM judge: The response explicitly calls the pattern unwarranted ('unwarranted pattern -> refactor it away', 'the pattern is not earning its keep') and names the dissolution 'Inline Singleton' with Direction = Away that de-patterns."
+        },
+        {
+          "text": "Coach, don't drive (no edit / no test run)",
+          "passed": true,
+          "evidence": "no Edit/Write/MultiEdit/NotebookEdit/Bash recorded"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 7,
+      "configuration": "with_skill",
+      "run_number": 3,
+      "result": {
+        "pass_rate": 1,
+        "passed": 4,
+        "failed": 0,
+        "total": 4,
+        "time_seconds": null,
+        "tokens": null,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Names an accepted de-patterning route: Inline Singleton or the Module Namespace functional dissolution",
+          "passed": true,
+          "evidence": "named in-set: Inline Singleton, Module Namespace"
+        },
+        {
+          "text": "Routes to the Kerievsky-Away or functional layer (either is accepted)",
+          "passed": true,
+          "evidence": "named refactoring(s) resolve to accepted layer: Kerievsky-Away, functional"
+        },
+        {
+          "text": "Frames the Singleton as unwarranted (nothing needs single-instance policy) and names the dissolution, rather than keeping or embellishing the pattern",
+          "passed": true,
+          "evidence": "LLM judge: The response opens with 'Yes -- refactor away from it', states 'You've told me the single-instance policy earns nothing here. An unwarranted pattern gets refactored AWAY', and names the dissolution 'Inline Singleton' (Kerievsky Away, de-patterning) plus the Module Namespace alternative."
+        },
+        {
+          "text": "Coach, don't drive (no edit / no test run)",
+          "passed": true,
+          "evidence": "no Edit/Write/MultiEdit/NotebookEdit/Bash recorded"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 7,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1,
+        "passed": 4,
+        "failed": 0,
+        "total": 4,
+        "time_seconds": null,
+        "tokens": null,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Names an accepted de-patterning route: Inline Singleton or the Module Namespace functional dissolution",
+          "passed": true,
+          "evidence": "named in-set: Inline Singleton"
+        },
+        {
+          "text": "Routes to the Kerievsky-Away or functional layer (either is accepted)",
+          "passed": true,
+          "evidence": "named refactoring(s) resolve to accepted layer: Kerievsky-Away"
+        },
+        {
+          "text": "Frames the Singleton as unwarranted (nothing needs single-instance policy) and names the dissolution, rather than keeping or embellishing the pattern",
+          "passed": true,
+          "evidence": "LLM judge: The response says 'refactor it away... the Singleton pattern is present without any of the forces that justify it' and names 'Inline Singleton' as the dissolution, noting the single-instance justification 'is absent' and 'the pattern is pure ceremony here'."
+        },
+        {
+          "text": "Coach, don't drive (no edit / no test run)",
+          "passed": true,
+          "evidence": "no Edit/Write/MultiEdit/NotebookEdit/Bash recorded"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 7,
+      "configuration": "without_skill",
+      "run_number": 2,
+      "result": {
+        "pass_rate": 1,
+        "passed": 4,
+        "failed": 0,
+        "total": 4,
+        "time_seconds": null,
+        "tokens": null,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Names an accepted de-patterning route: Inline Singleton or the Module Namespace functional dissolution",
+          "passed": true,
+          "evidence": "named in-set: Inline Singleton"
+        },
+        {
+          "text": "Routes to the Kerievsky-Away or functional layer (either is accepted)",
+          "passed": true,
+          "evidence": "named refactoring(s) resolve to accepted layer: Kerievsky-Away"
+        },
+        {
+          "text": "Frames the Singleton as unwarranted (nothing needs single-instance policy) and names the dissolution, rather than keeping or embellishing the pattern",
+          "passed": true,
+          "evidence": "LLM judge: The response states 'Nothing needs the single-instance guarantee, so the Singleton is pure liability here' and names the dissolution 'Inline Singleton ... Direction: Away from Singleton (de-patterning)'."
+        },
+        {
+          "text": "Coach, don't drive (no edit / no test run)",
+          "passed": true,
+          "evidence": "no Edit/Write/MultiEdit/NotebookEdit/Bash recorded"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 7,
+      "configuration": "without_skill",
+      "run_number": 3,
+      "result": {
+        "pass_rate": 1,
+        "passed": 4,
+        "failed": 0,
+        "total": 4,
+        "time_seconds": null,
+        "tokens": null,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Names an accepted de-patterning route: Inline Singleton or the Module Namespace functional dissolution",
+          "passed": true,
+          "evidence": "named in-set: Inline Singleton"
+        },
+        {
+          "text": "Routes to the Kerievsky-Away or functional layer (either is accepted)",
+          "passed": true,
+          "evidence": "named refactoring(s) resolve to accepted layer: Kerievsky-Away"
+        },
+        {
+          "text": "Frames the Singleton as unwarranted (nothing needs single-instance policy) and names the dissolution, rather than keeping or embellishing the pattern",
+          "passed": true,
+          "evidence": "LLM judge: The response states the Singleton is 'carrying zero load' since 'nothing needs that policy' and names 'Inline Singleton' as the explicit de-patterning move directed away from Singleton."
+        },
+        {
+          "text": "Coach, don't drive (no edit / no test run)",
+          "passed": true,
+          "evidence": "no Edit/Write/MultiEdit/NotebookEdit/Bash recorded"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 8,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1,
+        "passed": 4,
+        "failed": 0,
+        "total": 4,
+        "time_seconds": null,
+        "tokens": null,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Names Replace Conditional with Polymorphism as the best-fit next refactoring",
+          "passed": true,
+          "evidence": "named \"Replace Conditional with Polymorphism\""
+        },
+        {
+          "text": "Routes to the Fowler mechanical layer (NOT a Kerievsky pattern-directed refactoring)",
+          "passed": true,
+          "evidence": "named refactoring(s) resolve to accepted layer: Fowler"
+        },
+        {
+          "text": "Justifies the Fowler mechanical route over a pattern-directed one: it is the SAME type switch repeated across sites, not a single complex conditional wanting a design pattern",
+          "passed": true,
+          "evidence": "LLM judge: The response frames the smell as \"the repetition of the switch across sites\" (line 11) and explicitly notes \"this is distinct from a single tangled conditional... You have duplicated branching, not one complex branch\" (line 13), labeling the chosen fix a Fowler mechanical refactoring (line 17)."
+        },
+        {
+          "text": "Coach, don't drive (no edit / no test run)",
+          "passed": true,
+          "evidence": "no Edit/Write/MultiEdit/NotebookEdit/Bash recorded"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 8,
+      "configuration": "with_skill",
+      "run_number": 2,
+      "result": {
+        "pass_rate": 1,
+        "passed": 4,
+        "failed": 0,
+        "total": 4,
+        "time_seconds": null,
+        "tokens": null,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Names Replace Conditional with Polymorphism as the best-fit next refactoring",
+          "passed": true,
+          "evidence": "named \"Replace Conditional with Polymorphism\""
+        },
+        {
+          "text": "Routes to the Fowler mechanical layer (NOT a Kerievsky pattern-directed refactoring)",
+          "passed": true,
+          "evidence": "named refactoring(s) resolve to accepted layer: Fowler"
+        },
+        {
+          "text": "Justifies the Fowler mechanical route over a pattern-directed one: it is the SAME type switch repeated across sites, not a single complex conditional wanting a design pattern",
+          "passed": true,
+          "evidence": "LLM judge: The response labels Replace Conditional with Polymorphism 'a Fowler mechanical refactoring' and justifies it because the same switch(shape.kind) is 'already duplicated three ways, not speculative generality', stressing repetition across area/perimeter/boundingBox rather than a single complex conditional needing a pattern."
+        },
+        {
+          "text": "Coach, don't drive (no edit / no test run)",
+          "passed": true,
+          "evidence": "no Edit/Write/MultiEdit/NotebookEdit/Bash recorded"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 8,
+      "configuration": "with_skill",
+      "run_number": 3,
+      "result": {
+        "pass_rate": 1,
+        "passed": 4,
+        "failed": 0,
+        "total": 4,
+        "time_seconds": null,
+        "tokens": null,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Names Replace Conditional with Polymorphism as the best-fit next refactoring",
+          "passed": true,
+          "evidence": "named \"Replace Conditional with Polymorphism\""
+        },
+        {
+          "text": "Routes to the Fowler mechanical layer (NOT a Kerievsky pattern-directed refactoring)",
+          "passed": true,
+          "evidence": "named refactoring(s) resolve to accepted layer: Fowler"
+        },
+        {
+          "text": "Justifies the Fowler mechanical route over a pattern-directed one: it is the SAME type switch repeated across sites, not a single complex conditional wanting a design pattern",
+          "passed": true,
+          "evidence": "LLM judge: The response diagnoses 'the *same* switch (shape.kind) ... duplicated across area, perimeter, and boundingBox' and states 'The repetition of the switch across sites is the smell', then selects 'Replace Conditional with Polymorphism (Fowler catalog, mechanical layer)' grounded in that repeated-across-sites structure rather than a single complex conditional."
+        },
+        {
+          "text": "Coach, don't drive (no edit / no test run)",
+          "passed": true,
+          "evidence": "no Edit/Write/MultiEdit/NotebookEdit/Bash recorded"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 8,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.75,
+        "passed": 3,
+        "failed": 1,
+        "total": 4,
+        "time_seconds": null,
+        "tokens": null,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Names Replace Conditional with Polymorphism as the best-fit next refactoring",
+          "passed": true,
+          "evidence": "named \"Replace Conditional with Polymorphism\""
+        },
+        {
+          "text": "Routes to the Fowler mechanical layer (NOT a Kerievsky pattern-directed refactoring)",
+          "passed": true,
+          "evidence": "named refactoring(s) resolve to accepted layer: Fowler"
+        },
+        {
+          "text": "Justifies the Fowler mechanical route over a pattern-directed one: it is the SAME type switch repeated across sites, not a single complex conditional wanting a design pattern",
+          "passed": false,
+          "evidence": "LLM judge: The response diagnoses Repeated Switches/Shotgun Surgery (same switch cloned across three sites) and picks Replace Conditional with Polymorphism, but only contrasts it against Extract Function -- it never engages with or argues against a design-pattern-directed approach, so it does not justify the mechanical route over a pattern-directed one."
+        },
+        {
+          "text": "Coach, don't drive (no edit / no test run)",
+          "passed": true,
+          "evidence": "no Edit/Write/MultiEdit/NotebookEdit/Bash recorded"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 8,
+      "configuration": "without_skill",
+      "run_number": 2,
+      "result": {
+        "pass_rate": 1,
+        "passed": 4,
+        "failed": 0,
+        "total": 4,
+        "time_seconds": null,
+        "tokens": null,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Names Replace Conditional with Polymorphism as the best-fit next refactoring",
+          "passed": true,
+          "evidence": "named \"Replace Conditional with Polymorphism\""
+        },
+        {
+          "text": "Routes to the Fowler mechanical layer (NOT a Kerievsky pattern-directed refactoring)",
+          "passed": true,
+          "evidence": "named refactoring(s) resolve to accepted layer: Fowler"
+        },
+        {
+          "text": "Justifies the Fowler mechanical route over a pattern-directed one: it is the SAME type switch repeated across sites, not a single complex conditional wanting a design pattern",
+          "passed": true,
+          "evidence": "LLM judge: The response names the smell 'Repeated Switches (Fowler)' and justifies the mechanical Replace Conditional with Polymorphism by stressing the SAME switch is duplicated across area/perimeter/boundingBox (N sites), the exact precondition for polymorphic dispatch."
+        },
+        {
+          "text": "Coach, don't drive (no edit / no test run)",
+          "passed": true,
+          "evidence": "no Edit/Write/MultiEdit/NotebookEdit/Bash recorded"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 8,
+      "configuration": "without_skill",
+      "run_number": 3,
+      "result": {
+        "pass_rate": 1,
+        "passed": 4,
+        "failed": 0,
+        "total": 4,
+        "time_seconds": null,
+        "tokens": null,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Names Replace Conditional with Polymorphism as the best-fit next refactoring",
+          "passed": true,
+          "evidence": "named \"Replace Conditional with Polymorphism\""
+        },
+        {
+          "text": "Routes to the Fowler mechanical layer (NOT a Kerievsky pattern-directed refactoring)",
+          "passed": true,
+          "evidence": "named refactoring(s) resolve to accepted layer: Fowler"
+        },
+        {
+          "text": "Justifies the Fowler mechanical route over a pattern-directed one: it is the SAME type switch repeated across sites, not a single complex conditional wanting a design pattern",
+          "passed": true,
+          "evidence": "LLM judge: The response names the 'Repeated Switches' smell -- 'the SAME discriminator shape.kind is branched on in area, perimeter, and boundingBox' -- and uses that repeated-across-sites observation (not a single conditional) to justify the mechanical Fowler route (Replace Type Code with Subclasses -> Move Function -> Replace Conditional with Polymorphism)."
+        },
+        {
+          "text": "Coach, don't drive (no edit / no test run)",
+          "passed": true,
+          "evidence": "no Edit/Write/MultiEdit/NotebookEdit/Bash recorded"
+        }
+      ],
+      "notes": []
+    }
+  ]
+}

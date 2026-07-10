@@ -1,0 +1,43 @@
+{
+  "skill_name": "lz-refactor",
+  "description": "This skill should be used during the refactor step of red-green-refactor TDD to recommend the next NAMED refactoring for a detected code smell, and to explain refactorings, smells, and refactoring principles on demand. Use it as a coach when the tests are green and the code has a smell and the question is which named refactoring to apply, and as a reference when the user asks what a refactoring such as Extract Function or Replace Conditional with Polymorphism means, how to refactor away from a pattern (de-patterning), or asks a Fowler or Kerievsky catalog question. Do not use it for the green / transformation step of TDD (choosing the change that makes a failing test pass is lz-tpp), nor for plain feature work or generic write-a-function or write-code requests.",
+  "results": [
+    {
+      "query": "i have a `Config` Singleton that everything reaches into globally and it's making my tests painful. should i refactor away from the Singleton?",
+      "should_trigger": true,
+      "trigger_rate": 1.0,
+      "triggers": 3,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "whats the 'rule of three' about - the guideline for when you should actually refactor duplicated code?",
+      "should_trigger": true,
+      "trigger_rate": 1.0,
+      "triggers": 3,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "tests pass. i've got ~12 near-identical methods each handling one combination of {currency, taxRegion, rounding}, and adding a currency means adding a dozen more. what refactoring gets me out of this?",
+      "should_trigger": true,
+      "trigger_rate": 1.0,
+      "triggers": 3,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "what does Extract Function actually do, and when should i reach for it over inlining?",
+      "should_trigger": true,
+      "trigger_rate": 1.0,
+      "triggers": 3,
+      "runs": 3,
+      "pass": true
+    }
+  ],
+  "summary": {
+    "total": 4,
+    "passed": 4,
+    "failed": 0
+  }
+}

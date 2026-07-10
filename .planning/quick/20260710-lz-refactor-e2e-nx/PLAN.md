@@ -2,7 +2,7 @@
 type: quick-plan
 slug: lz-refactor-e2e-nx
 created: 2026-07-10
-status: in-progress
+status: complete
 ---
 
 # Quick Task: lz-refactor end-to-end test against nrwl/nx
@@ -51,9 +51,23 @@ baseline on the same prompts for comparison. JavaScript/TypeScript only.
    hand-off) fired reliably. p2's within-prompt A/B (fired once in 3) shows firing adds only a
    citation, not a better answer -- baseline Opus @ high is already catalog-grade. Rubric
    correction: T3 expected FP conversion is wrong for that hot-path code.
-5. [GATE / pending user] stage (b) apply+verify on a throwaway branch; stage (c) no_skill baseline
-   (now mostly redundant for p1-p4; informative only for p5/p6).
-6. Write final results; update STATE.md Quick Tasks; commit.
+5. [done] stage (c) no_skill baseline (nx p2/p5/p6 k=3) -> with/without comparison.
+6. [done] stage (b) apply nx p1-p4 k=3 (2-parallel worktrees) -> apply-trigger split by target size.
+
+## Scope expansion (user-directed, same task)
+
+7. [done] Suite 1 -- explicit `/lz-refactor` invocation (invoke_skill arm): nx p1-p4 k=3 (12/12 activated).
+8. [done] Suite 2 -- Gilded Rose kata (`e2e-gilded-rose/`, shared `--suite` runner): recommend all arms
+   k=3 + apply (with_skill + invoke_skill) k=3. Canonical kata; fast golden-master tests.
+9. [done] Cross-suite synthesis `.claude/skills/lz-refactor-workspace/E2E-FINDINGS.md`; per-suite
+   `e2e-nx/E2E-RESULTS.md` + `e2e-gilded-rose/GR-RESULTS.md`. Both target repos restored to pristine.
+
+## Headline outcome
+
+The skill's payload is sound (forced invoke: 100% activation, catalog-grade coaching), but **coach-mode
+auto-triggering is the load-bearing gap** (advise prompts fire ~1/18; apply/do-it framing + big targets
+fire much more). Baseline Opus 4.8 @ high is already strong on mechanical refactorings; the skill's
+marginal value concentrates on pattern-directed / de-patterning / seam routing. See E2E-FINDINGS.md.
 
 ## Verification
 

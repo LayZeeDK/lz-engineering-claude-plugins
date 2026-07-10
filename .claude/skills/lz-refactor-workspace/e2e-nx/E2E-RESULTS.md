@@ -75,6 +75,27 @@ reference (p5)** prompts and **moderate for the seam (p6)** -- concentrated in T
 green-step handling and catalog grounding, NOT in reaching the right refactoring (baseline already
 does). This confirms the p2 within-prompt natural experiment at the arm level.
 
+## Addendum: invoke_skill + apply (nx)
+
+**invoke_skill, recommend, p1-p4, k=3 (12 runs):** forced via `/lz-tdd:lz-refactor` -> **12/12 activated**.
+Establishes skill-activated coaching quality for the coach prompts that never auto-trigger. Content is
+clearly skill-driven (classifies the refactor/lz-tpp seam; cites the catalog; p1 invoke even surfaced the
+`isComboDepConstraint` duplication appearing ~6x) -- and substantively matches the strong baseline, adding
+catalog grounding rather than a different conclusion.
+
+**apply, with_skill, p1-p4, k=3 (11 runs + the p4 smoke):** ran on throwaway branches (2-parallel: main
+clone p1/p2, junctioned worktree p3/p4).
+- **Auto-trigger split:** p1 (`run`, ~530 lines) **3/3**, p2 (`validateEntry`) **3/3**, p3 **0/3**, p4
+  **0/3**. So apply framing raises the trigger rate over recommend (coach recommend 1/12) and it
+  correlates with target size / how obviously the task is "a refactoring."
+- **Skill-driven apply works:** p1 applied incremental Extract Function (the visitor's phase checks ->
+  named `report*`/`check*` fns, short-circuit preserved), typecheck + tests between steps; p3/p4 applied
+  the functional pipeline / Map rewrite, tests green (p3 46/46).
+- **coach-vs-apply tension:** p2 run-3 fired the skill but produced **0 edits** (advice only) -- the
+  skill's "never edit unless asked" can override an explicit apply directive.
+
+See [../E2E-FINDINGS.md](../E2E-FINDINGS.md) for the cross-suite synthesis (nx + Gilded Rose).
+
 ## Conclusions
 
 1. **Coach-mode auto-triggering is effectively absent** (1/12) under natural, non-leading "clean up
@@ -104,13 +125,9 @@ does). This confirms the p2 within-prompt natural experiment at the arm level.
 ## Status of the other stages
 
 - **(c) no_skill baseline (p2/p5/p6, k=3): DONE.** See the with/without comparison above.
-- **(b) apply + typecheck + real tests: harness VALIDATED (p4 smoke); full n=3 pending.** The apply
-  harness works end-to-end: the p4 smoke run (~8.6 min) applied the expected **Map-based `groupImports`
-  rewrite**, ran the eslint-plugin Jest tests (pass), captured `diff.patch` + `changed_files`, and
-  left edits uncommitted -- and it independently flagged the same subtle duplicate-member behavior
-  difference the recommend run found, offering a `Set` variant. The skill did NOT fire (coach mode,
-  consistent). Tools executed despite the untrusted-workspace warning (`bypassPermissions` overrode
-  it). The full nx apply n=3 (p1-p4) is heavy (~8.6 min/run) and largely confirmatory given (b) and
-  the recommend findings; deferred pending a scope decision.
+- **(b) apply + typecheck + real tests: DONE (p1-p4, k=3).** See the addendum above. Ran 2-parallel on
+  throwaway branches; auto-trigger split by target size (p1/p2 3/3, p3/p4 0/6); skill-driven apply keeps
+  tests green; the coach-vs-apply no-edit tension surfaced once (p2 run-3).
+- **invoke_skill: DONE (nx p1-p4, k=3).** Forced activation 12/12; see addendum.
 - **Trigger-gap follow-up**: why coach mode doesn't auto-trigger via `--plugin-dir` -- highest
   leverage for the skill, but scope beyond "test end-to-end".

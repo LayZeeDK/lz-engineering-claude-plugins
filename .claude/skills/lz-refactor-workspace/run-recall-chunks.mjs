@@ -174,10 +174,14 @@ for (let i = 0; i < chunks.length; i++) {
 }
 
 const canaryRecall = canaryRuns ? canaryFires / canaryRuns >= 0.5 : false;
-const totalTested = tested + 1; // + canary query
+// Count the canary in the denominator ONLY when it actually ran (IN-01), so a fully-throttled run
+// reports "0/10 positives measured: 0/0" (no valid data) rather than a misleading "0/1 = 0%".
+const canaryTested = canaryRuns > 0 ? 1 : 0;
+const totalTested = tested + canaryTested;
 const totalFired = fired + (canaryRecall ? 1 : 0);
+const pct = totalTested ? (100 * totalFired / totalTested).toFixed(0) + "%" : "-";
 
-console.log(`\nMEASURED (9 non-canary positives): ${fired}/${tested} fired >=0.5`);
+console.log(`\nMEASURED (${positives.length} non-canary positives): ${fired}/${tested} fired >=0.5`);
 console.log(`CANARY positive (Extract Function lookup): ${canaryFires}/${canaryRuns} runs fired -> ${canaryRecall ? "RECALLS" : "MISS"}`);
-console.log(`RECALL (canary-validated, all 10 positives): ${totalFired}/${totalTested} = ${totalTested ? (100 * totalFired / totalTested).toFixed(0) : "-"}%`);
+console.log(`RECALL (canary-validated, ${totalTested}/${positives.length + 1} positives measured): ${totalFired}/${totalTested} = ${pct}`);
 misses.forEach((m) => console.log("  MISS: " + m));

@@ -58,6 +58,23 @@ A/B on the SAME input:
 different or better recommendation. The base model already produces the right named refactoring and
 the right over/under-engineering judgment.
 
+## with_skill vs no_skill (p2, p5, p6 -- where the skill fired), k=3
+
+`no_skill` = the identical command WITHOUT `--plugin-dir` (baseline Opus 4.8 @ high, no lz plugin).
+Run for the three prompts where the skill actually fired; p1/p3/p4 are omitted (the skill was never
+in the loop there, so with == without by construction).
+
+| prompt | with_skill | no_skill (baseline) | skill marginal value |
+|--------|-----------|---------------------|----------------------|
+| p2 (coach) | rejects polymorphism; finish Extract Function; `MODE_RULES` descriptor | **same**: rejects polymorphism (generator/executor identical -> boolean; "variation is data, not behavior"; fights the functional style); finish Extract Function; `MODE_RULES` descriptor; same cross-field impl-or-prompt caveat | **~none** |
+| p5 (reference) | catalog-grounded de-patterning; cites the skill's own leaf | **same or richer**: names it from Fowler; canonical Bird example; 6 over-application signs; reverse moves (Replace Subclass with Fields / Inline Class / collapse hierarchy) | **~none** (baseline if anything more thorough) |
+| p6 (seam) | reframes as a *transformation*; TPP `(nil->constant)`/`(constant->scalar)`; fake-it-then-triangulate; hands to lz-tpp | gets the core call unaided -- "a function hardcoded to `return null` isn't a refactor situation, it's unimplemented -- implement the split" -- but NO TPP framing, vocabulary, or numbered move | **moderate**: skill adds TPP structure + green-step discipline; baseline still nails the essential distinction |
+
+**Net:** the skill's marginal value over baseline Opus 4.8 @ high is **~zero for the coach (p2) and
+reference (p5)** prompts and **moderate for the seam (p6)** -- concentrated in TPP-structured
+green-step handling and catalog grounding, NOT in reaching the right refactoring (baseline already
+does). This confirms the p2 within-prompt natural experiment at the arm level.
+
 ## Conclusions
 
 1. **Coach-mode auto-triggering is effectively absent** (1/12) under natural, non-leading "clean up

@@ -17,8 +17,11 @@ Run date: 2026-07-10. Status: RUN COMPLETE. D-08 tuning: NOT applied (no defect;
 
 Both measured via the canary-gated chunk runners (`run-recall-chunks.mjs`, `run-spec-chunks.mjs`):
 every chunk carried a known-positive canary and was trusted ONLY when the canary fired, proving a
-non-throttled window. Every chunk validated (canary 3/3), every should-trigger fired 3/3, every
-near-miss stayed quiet. The `lz-tpp` seam holds: all green/transformation-step negatives ("which
+non-throttled window. Every chunk validated (canary 3/3), 9 of 10 should-triggers fired 3/3, every
+near-miss stayed quiet. (Post-review correction: the original recall runner had a canary-text drift
+bug -- WR-01 -- that substituted a byte-near-identical variant for trigger positive #6 and never
+measured #6 directly. The bug is fixed; positive #6 was then measured directly and fired 2/3 =
+recall PASS. So all 10 positives are now directly confirmed to recall >= 0.5.) The `lz-tpp` seam holds: all green/transformation-step negatives ("which
 change makes this failing test pass", "minimal transformation to green it") correctly kept
 `lz-refactor` quiet.
 
@@ -87,6 +90,14 @@ without the LLM judge:
 Real discrimination therefore rests on the exact best-fit NAME presence plus the LLM rationale
 judge, which behaved well (a substantive, defensible FAIL on eval-8 baseline run-1; specific,
 line-cited PASS verdicts elsewhere; no rubber-stamping).
+
+**Post-review correction (CR-01, fixed):** the deterministic `layersInResponse` check had a
+sub-phrase-match bug -- the functional leaf "Factory Function" matched inside the Fowler name
+"Replace Constructor with Factory Function", which could falsely credit the functional layer. It was
+one-directional and only touched eval-7's layer check (itself gated by the candidate-set check), so
+it flipped NO verdict here. It is now fixed (longest-match resolution + a resolve-identity selfcheck
+assertion), and re-grading all 54 runs with the fixed grader produced BYTE-IDENTICAL gradings and the
+same aggregate (with_skill 100%, baseline 96.3%). The headline numbers are unaffected.
 
 ## D-07 verdict
 

@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: lz-tdd@0.0.2
 milestone_name: lz-refactor Skill (Fowler + Kerievsky)
 status: executing
-stopped_at: Phase 11 context gathered (evals; auto-advance suppressed per pause directive)
-last_updated: "2026-07-09T23:11:08.217Z"
-last_activity: 2026-07-09
+stopped_at: Completed 11-03-PLAN.md (EVL-02 grader + scenarios); grade-run.mjs selfcheck GREEN
+last_updated: "2026-07-10T00:52:03.164Z"
+last_activity: 2026-07-10
 progress:
   total_phases: 8
   completed_phases: 7
   total_plans: 42
-  completed_plans: 39
+  completed_plans: 41
   percent: 88
 ---
 
@@ -27,9 +27,9 @@ See: .planning/PROJECT.md (updated 2026-07-04)
 ## Current Position
 
 Phase: 11 (skill-effectiveness-evals) — EXECUTING
-Plan: 3 of 4
+Plan: 4 of 4
 Status: Ready to execute
-Last activity: 2026-07-09
+Last activity: 2026-07-10
 
 ## Performance Metrics
 
@@ -68,6 +68,7 @@ Last activity: 2026-07-09
 | Phase 10 P02 | 5min | 3 tasks | 4 files |
 | Phase 11 P01 | 10min | 3 tasks | 9 files |
 | Phase 11 P02 | ~8min | 2 tasks | 2 files |
+| Phase 11 P03 | ~15min | 2 tasks tasks | 1 file files |
 
 ## Accumulated Context
 
@@ -107,6 +108,7 @@ Recent decisions affecting current work:
 - [Phase 10]: Phase 10 (10-03): DST-04 clean-room layer-2 sweep (D-01 L2/L3, D-02/03/04) -- 16 chapter/family oracle-reviewer batches (sequential per operator) cleared all 28 ## Intent lines (GoF 23 + extra 5) + 89 ## Mechanics step lists (Fowler 62 + Kerievsky 27) to all-pass near-verbatim. 24 surfaces reworded BLIND from category-only directives (never read .oracle/), re-gated within the 3-round cap, none escalated. Main context never read .oracle/. 10-DST-04-ATTESTATION.md records the sweep + cites 07/08/08.1 LEARNINGS+SUMMARYs for un-swept surfaces (functional-catalog no-oracle; lz-tpp out-of-axis). check-hygiene/gof/kerievsky/catalog GREEN; no SKILL.md touched (no D-14). Pre-existing ACCEPTED work-email-domain finding on 4 main-side prior-phase docs unchanged (deferred-items, out of scope).
 - [Phase ?]: Phase 11 (11-01): vendored the Phase-5 skill-creator-eval rig verbatim into lz-refactor-workspace (run_eval/utils/__init__/LICENSE byte-identical; eval-status + merge-judge verbatim, merge-judge --selfcheck GREEN); run-spec-chunks re-pointed (WS/SKILL/CANARY); EVAL-RESULTS.md scaffolded with blank numbers + the locked serial run config (--num-workers 1, PONYTAIL off, MCP + user-plugins stripped). Shared eval infrastructure only -- EVL-01/EVL-02 NOT satisfied yet (eval DATA + grader rubric + gated run come in later 11-0N plans; D-10 halt).
 - [Phase ?]: Phase 11 (11-02): authored EVL-01 trigger-eval.json (10 trigger + 10 near-miss, incl. 3 lz-tpp-seam green-step negatives) grounded in the shipped lz-refactor description; check-evals.mjs build-time lint GREEN + fail-closed (schema, >= 8/>= 8 split, >= 2 seam, ASCII-only). Data + lint only; measured EVL-01 recall/specificity closes post gated run (D-10).
+- [Phase 11]: Phase 11 (11-03): rewrote grade-run.mjs as the lz-refactor deterministic grader -- nameRe word-bounded phrase matcher + NAME_LAYERS lookup (62 Fowler / 27 Kerievsky + 3 Away / 19 functional idiom leaves from the shipped catalog READMEs) + five D-04-RUBRIC check kinds (bestFit/candidateSet/layer/nodrive/judge), RUBRICS[0-8] count-aligned 1:1 with evals.json, selfcheck GREEN (matcher boundary + 4-layer resolve + nodrive cases + alignment + name-resolve gate). layer check is deterministic (resolve-via-lookup), judge reserved for rationale only. EVL-02 stays OPEN by design (D-10): data+grader built, empirical run gated to 11-04.
 
 ### Pending Todos
 
@@ -138,8 +140,8 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-09T23:04:16.452Z
-Stopped at: Phase 11 context gathered (evals; auto-advance suppressed per pause directive)
+Last session: 2026-07-10T00:52:02.723Z
+Stopped at: Completed 11-03-PLAN.md (EVL-02 grader + scenarios); grade-run.mjs selfcheck GREEN
 Resume file: None
 
 ## Operator Next Steps

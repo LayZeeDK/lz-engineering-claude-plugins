@@ -97,28 +97,42 @@ function parseArgs(argv) {
   return args;
 }
 
-// Resolve the claude CLI to a concrete path. Bare 'claude' fails on native Windows (the binary is
-// claude.CMD; CreateProcess only appends .exe). Mirrors the run_eval.py rationale.
+// Resolve the claude CLI to a concrete path. On Windows the entry on PATH is a .CMD/.sh shim that
+// Node's spawnSync (no shell) cannot execute -- it only launches real binaries. The shim wraps a
+// native claude.exe under <shim-dir>/node_modules/@anthropic-ai/claude-code/bin/claude.exe, so
+// prefer that. Launching the .exe with an args array is also the safe way to pass a prompt that
+// contains backticks/quotes: spawnSync(shell:false) forwards argv verbatim, with no re-parsing.
 function resolveClaude() {
   if (process.env.CLAUDE_BIN) {
     return process.env.CLAUDE_BIN;
   }
 
   const isWin = process.platform === 'win32';
-  const names = isWin ? ['claude.CMD', 'claude.cmd', 'claude.exe', 'claude'] : ['claude'];
+  const names = isWin ? ['claude.exe', 'claude.CMD', 'claude.cmd', 'claude'] : ['claude'];
   const dirs = (process.env.PATH || '').split(path.delimiter);
 
   for (const dir of dirs) {
     for (const name of names) {
       const full = path.join(dir, name);
 
-      if (fs.existsSync(full)) {
+      if (!fs.existsSync(full)) {
+        continue;
+      }
+
+      if (full.toLowerCase().endsWith('.exe') || !isWin) {
         return full;
+      }
+
+      // Found a shim (.CMD/.sh); resolve the real exe it wraps.
+      const realExe = path.join(dir, 'node_modules', '@anthropic-ai', 'claude-code', 'bin', 'claude.exe');
+
+      if (fs.existsSync(realExe)) {
+        return realExe;
       }
     }
   }
 
-  throw new Error("could not resolve the 'claude' CLI on PATH; set CLAUDE_BIN");
+  throw new Error("could not resolve a native 'claude.exe'; set CLAUDE_BIN to its full path");
 }
 
 function composePrompt(promptEntry, mode) {
@@ -153,12 +167,15 @@ function buildCmd(fullPrompt, arm, mode) {
   return cmd;
 }
 
-// Pull the final assistant text and light skill-usage signal out of the stream-json transcript.
+// Pull the final assistant text and skill-usage signal out of the stream-json transcript.
+// Tracks BOTH lz skills: lz-refactor (expected for the refactor-step prompts p1-p5) and lz-tpp
+// (the correct hand-off for the seam prompt p6). A tool_use referencing either counts.
 function extractResult(raw) {
   const lines = raw.split('\n').filter((l) => l.trim());
   let finalText = '';
-  let skillHits = 0;
-  const skillNames = new Set();
+  let refactorHits = 0;
+  let tppHits = 0;
+  const skillsInvoked = new Set();
 
   for (const line of lines) {
     let ev;
@@ -175,21 +192,59 @@ function extractResult(raw) {
 
     const content = ev?.message?.content;
 
-    if (Array.isArray(content)) {
-      for (const block of content) {
-        if (block?.type === 'tool_use') {
-          const blob = JSON.stringify(block).toLowerCase();
+    if (!Array.isArray(content)) {
+      continue;
+    }
 
-          if (blob.includes('lz-refactor')) {
-            skillHits++;
-            skillNames.add(block.name || 'unknown');
-          }
-        }
+    for (const block of content) {
+      if (block?.type !== 'tool_use') {
+        continue;
+      }
+
+      const blob = JSON.stringify(block).toLowerCase();
+
+      if (blob.includes('lz-refactor')) {
+        refactorHits++;
+      }
+
+      if (blob.includes('lz-tpp')) {
+        tppHits++;
+      }
+
+      if (block.name === 'Skill') {
+        const inp = block.input || {};
+        skillsInvoked.add(String(inp.command || inp.skill || inp.name || JSON.stringify(inp)));
       }
     }
   }
 
-  return { finalText, skillHits, skillNames: [...skillNames] };
+  return {
+    finalText,
+    usedRefactor: refactorHits > 0,
+    usedTpp: tppHits > 0,
+    refactorHits,
+    tppHits,
+    skillsInvoked: [...skillsInvoked],
+  };
+}
+
+// One-line human signal of which lz skill(s) the run invoked.
+function skillFlag(meta) {
+  if (meta.arm === 'no_skill') {
+    return 'baseline';
+  }
+
+  const used = [];
+
+  if (meta.used_refactor) {
+    used.push('lz-refactor');
+  }
+
+  if (meta.used_tpp) {
+    used.push('lz-tpp');
+  }
+
+  return used.length ? `used: ${used.join('+')}` : 'NO lz skill invoked';
 }
 
 function runOne(claude, promptEntry, arm, mode, cwd) {
@@ -219,7 +274,12 @@ function runOne(claude, promptEntry, arm, mode, cwd) {
     fs.writeFileSync(path.join(rawDir, 'stderr.log'), res.stderr);
   }
 
-  const { finalText, skillHits, skillNames } = extractResult(raw);
+  if (res.error) {
+    fs.writeFileSync(path.join(rawDir, 'spawn-error.log'), String(res.error.stack || res.error));
+    console.log(`  [${mode}/${arm}] ${promptEntry.id}: spawn error -- ${res.error.message}`);
+  }
+
+  const { finalText, usedRefactor, usedTpp, refactorHits, tppHits, skillsInvoked } = extractResult(raw);
   fs.writeFileSync(path.join(outDir, 'answer.md'), finalText || '(no result text captured)\n');
 
   const meta = {
@@ -230,16 +290,18 @@ function runOne(claude, promptEntry, arm, mode, cwd) {
     cwd,
     model: MODEL,
     prompt_used: fullPrompt,
-    skill_referenced: skillHits > 0,
-    skill_hits: skillHits,
-    skill_tool_names: skillNames,
+    used_refactor: usedRefactor,
+    used_tpp: usedTpp,
+    refactor_hits: refactorHits,
+    tpp_hits: tppHits,
+    skills_invoked: skillsInvoked,
     exit_code: res.status,
     elapsed_ms: elapsedMs,
     answer_chars: (finalText || '').length,
   };
   fs.writeFileSync(path.join(outDir, 'meta.json'), JSON.stringify(meta, null, 2));
 
-  const flag = arm === 'with_skill' ? (skillHits > 0 ? 'skill-USED' : 'skill-NOT-used') : 'baseline';
+  const flag = skillFlag(meta);
   console.log(
     `  [${mode}/${arm}] ${promptEntry.id} (${promptEntry.target}) -> exit ${res.status}, ` +
       `${(elapsedMs / 1000).toFixed(0)}s, ${meta.answer_chars} chars, ${flag}`,
@@ -276,10 +338,9 @@ function report() {
   console.log('\n=== captured runs ===');
 
   for (const m of metas) {
-    const flag = m.arm === 'with_skill' ? (m.skill_referenced ? 'skill-USED' : 'skill-NOT-used') : 'baseline';
     console.log(
       `${m.mode.padEnd(9)} ${m.prompt_id} ${m.target.padEnd(3)} ${m.arm.padEnd(10)} ` +
-        `exit ${m.exit_code}  ${String(Math.round(m.elapsed_ms / 1000)).padStart(4)}s  ${m.answer_chars} chars  ${flag}`,
+        `exit ${m.exit_code}  ${String(Math.round(m.elapsed_ms / 1000)).padStart(4)}s  ${m.answer_chars} chars  ${skillFlag(m)}`,
     );
   }
 
@@ -350,11 +411,11 @@ function main() {
   }
 
   const withSkill = metas.filter((m) => m.arm === 'with_skill');
-  const used = withSkill.filter((m) => m.skill_referenced).length;
+  const used = withSkill.filter((m) => m.used_refactor || m.used_tpp).length;
   console.log(`\ndone. ${metas.length} runs captured under results/${args.mode}/`);
 
   if (withSkill.length) {
-    console.log(`with_skill: ${used}/${withSkill.length} runs referenced lz-refactor.`);
+    console.log(`with_skill: ${used}/${withSkill.length} runs invoked an lz skill (lz-refactor or lz-tpp).`);
   }
 
   console.log(`next: read results/${args.mode}/<arm>/<pN>/answer.md and grade against targets.json.`);

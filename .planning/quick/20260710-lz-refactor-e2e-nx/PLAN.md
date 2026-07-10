@@ -42,11 +42,16 @@ baseline on the same prompts for comparison. JavaScript/TypeScript only.
    Function; T2 `validateEntry` ~107 LOC + `mode` branching; T3 `findTransitiveExternalDependencies`
    imperative loops -> FP; T4 `groupImports` reduce -> clarity; T5 reference de-patterning; T6 seam).
 2. [done] Build harness (prompts + runner + README + manifest). Validate with `--dry-run` (no spend).
-3. [GATE] Get explicit run approval, then execute stage (a): `node run-e2e.mjs --mode recommend
-   --arm with_skill` (6 sessions).
-4. Grade stage (a) answers against `targets.json`; write findings. Decide on stage (b)/(c) with user.
-5. (Conditional) stage (b) apply+verify on a throwaway branch; (c) no_skill baseline for A/B.
-6. Write `E2E-RESULTS.md`; update STATE.md Quick Tasks; commit.
+3. [done] Ran stage (a): `node run-e2e.mjs --mode recommend --arm with_skill` (6 sessions, all exit
+   0, nx tree clean). Runner fixed mid-stage: resolve native claude.exe (not the .CMD shim), track
+   both lz skills.
+4. [done] Graded stage (a) vs `targets.json` -> `E2E-RESULTS.md`. KEY FINDING: coach mode (p1-p4)
+   did NOT auto-trigger lz-refactor (baseline Opus answered, and answered very well); skill fired
+   only for p5 (lz-refactor reference) and p6 (lz-tpp hand-off). Rubric correction: T3 expected FP
+   conversion is wrong for that hot-path code.
+5. [GATE / pending user] stage (b) apply+verify on a throwaway branch; stage (c) no_skill baseline
+   (most informative scoped to p5+p6, where the skill actually fired).
+6. Write final results; update STATE.md Quick Tasks; commit.
 
 ## Verification
 

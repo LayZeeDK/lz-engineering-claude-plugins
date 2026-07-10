@@ -15,6 +15,11 @@ const SKILL = "D:/projects/github/LayZeeDK/lz-engineering-claude-plugins/plugins
 const CHUNK_DIR = WS + "/evals/d07-chunks";
 const CHUNK_SIZE = 3;
 
+// Ensure the chunk-set dir exists (WR-02): the runner writes recall-chunk-*.json into it and it is
+// NOT guaranteed to pre-exist on a fresh checkout (the tracked chunk files living there today are
+// incidental). Without this, the first write throws an uncaught ENOENT and kills the resumable run.
+fs.mkdirSync(CHUNK_DIR, { recursive: true });
+
 const all = JSON.parse(fs.readFileSync(WS + "/evals/trigger-eval.json", "utf8"));
 // Canary = the Extract Function catalog lookup: a should-trigger positive proven to fire 9/9 in
 // healthy chunks (specificity run 2026-07-10). Used ONLY as the window-health validator here.
@@ -85,10 +90,10 @@ for (let i = 0; i < chunks.length; i++) {
   }
 
   const setPath = `${CHUNK_DIR}/recall-chunk-${i + 1}.json`;
-  fs.writeFileSync(setPath, JSON.stringify([...chunks[i], CANARY], null, 2));
   console.log(`chunk ${i + 1}: running (${chunks[i].length} positives + canary)...`);
 
   try {
+    fs.writeFileSync(setPath, JSON.stringify([...chunks[i], CANARY], null, 2));
     const out = execFileSync(
       "python",
       ["-m", "scripts.run_eval", "--eval-set", setPath, "--skill-path", SKILL, "--model", "claude-opus-4-8", "--runs-per-query", "3", "--num-workers", "1"],

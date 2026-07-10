@@ -4,7 +4,17 @@ Staged, resumable execution of the gated `claude -p` evals. Every runner is idem
 usage-limit hit mid-run is safe: re-invoke the SAME command and it resumes (skips valid/completed work).
 Update the **CURRENT STEP** marker below as each phase completes.
 
-## CURRENT STEP: 1 (baseline running)
+## CURRENT STEP: 3 done (SKILL.md edited; pending final in-context review + commit). Next: Step 4 after-eval (GATED) + new Step 4b e2e ground-truth (GATED).
+
+## KEY FINDING (2026-07-11): the isolated trigger-eval does NOT reproduce the e2e gap
+
+Baseline recall = 12/13 = 92%, specificity = 11/11 = 100% -- the OLD description already triggers ~92% in
+the ISOLATED probe harness (`--skill-path`, minimal session). The e2e coach-mode gap (1/18) is a
+BUSY-SESSION / multi-skill-competition effect (`--plugin-dir` in the nx/kata repos, sibling lz-tpp, 25
+tools), which the trigger-eval does not capture. So: (a) description headroom in the trigger-eval is small
+(one miss: `groupImports`, the readability-only prompt, 0/3 -- fixed by the new READABILITY language); (b)
+the MEANINGFUL test of the real gap is re-running the e2e coach prompts via `--plugin-dir` with the new
+description -> **Step 4b** below.
 
 ## Invariants (do not violate -- they make resume safe)
 
@@ -65,9 +75,18 @@ diff); advice-only recommend prompt still does not edit.
 **Step 6 -- Results + wrap.** Write before/after into the workspace docs; update STATE.md; commit.
 `/reload-plugins` at the END so the tuned skill is live in the interactive session (NOT a re-eval prereq).
 
-## Baseline results
+## Step 4b -- e2e GROUND-TRUTH trigger check (the real-gap test; GATED)
 
-(filled in at Step 2)
+Re-run the e2e coach prompts via `--plugin-dir` (busy-session, both lz skills) with the NEW description and
+compare the auto-trigger rate to the e2e baseline (nx coach 1/12, kata 0/6). Recommend recommend-mode,
+`--arm with_skill`, the coach prompts (nx p1/p3/p4, kata gr1), n=3. This is what tells us whether the
+description change closes the REAL gap, since the isolated trigger-eval was already 92%.
+
+## Baseline results (Step 1, OLD description, isolated harness)
+
+- RECALL: 12/13 = 92% (canary-validated). Miss: `groupImports` readability-only prompt (0/3).
+- SPECIFICITY: 11/11 = 100% quiet (0 false positives; seam p6, perf L20, SOLID L24 all correctly quiet).
+- Preserved in `baseline/` (7 result files).
 
 ## After results
 

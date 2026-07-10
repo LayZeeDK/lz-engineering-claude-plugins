@@ -1,15 +1,20 @@
 ---
 name: lz-refactor
 description: >-
-  This skill should be used during the refactor step of red-green-refactor TDD to recommend the
-  next NAMED refactoring for a detected code smell, and to explain refactorings, smells, and
-  refactoring principles on demand. Use it as a coach when the tests are green and the code has a
-  smell and the question is which named refactoring to apply, and as a reference when the user
-  asks what a refactoring such as Extract Function or Replace Conditional with Polymorphism means,
-  how to refactor away from a pattern (de-patterning), or asks a Fowler or Kerievsky catalog
-  question. Do not use it for the green / transformation step of TDD (choosing the change that
-  makes a failing test pass is lz-tpp), nor for plain feature work or generic write-a-function or
-  write-code requests.
+  This skill should be used for the refactor step of red-green-refactor TDD: improving the
+  STRUCTURE or READABILITY of existing, working code WITHOUT changing its behavior. Use it whenever
+  a developer wants to clean up, tidy, simplify, restructure, or de-duplicate code whose tests
+  already pass, or make such code more readable; says a function, class, or module is hard to read,
+  hard to follow, messy, doing too much, or a pain to work with; or mentions a code smell, a
+  refactoring, or a design pattern in existing code (applying one to it, or refactoring away from
+  one / de-patterning) -- even when they only ask "what would you do with this?", "anything you'd
+  refactor?", or "how would you make it easier to read?" and never name a smell or say the word
+  refactor. It recommends the next named Fowler or Kerievsky refactoring and, when the developer
+  asks you to apply it, performs it in small behavior-preserving steps; it also explains a
+  refactoring, code smell, refactoring principle, or design pattern on request. Do NOT use it to
+  make a failing or red test pass or otherwise ADD or CHANGE behavior -- that is the
+  green/transformation step; use lz-tpp instead -- nor for writing new code, adding a feature, or
+  writing a function from scratch.
 ---
 
 # lz-refactor: Refactoring coach (Fowler + Kerievsky)
@@ -58,16 +63,23 @@ acting: if a red test must be made to pass, that is lz-tpp, not this skill.
    to a functional idiom via the [functional catalog](references/functional-catalog/README.md)
    ("pattern X disappears via idiom Y / TS feature Z"). Replace Pipeline with Loop only on a measured
    hot path or a named house-style reason. Clarity is the default.
-5. Preserve behavior (CCH-03). Advise the smallest steps that keep the code working, running the
-   tests after each and committing on green. If the target code has NO tests, route to
+5. Preserve behavior (CCH-03). Advise -- or perform, when the developer asks you to apply it -- the
+   smallest steps that keep the code working, running the tests after each; commit on green is the
+   developer's call (commit only when asked). If the target code has NO tests, route to
    [references/refactoring-without-tests.md](references/refactoring-without-tests.md) (Feathers) to
    pin current behavior with characterization tests first, then refactor.
 6. Reference mode (CCH-04). For an explain / lookup request, route to the correct references/ doc:
    Fowler, Kerievsky, GoF, extra-patterns, functional, [smells](references/smells.md), or
    [principles](references/principles.md). Answer from it; do not restate it here.
 
-Coach, don't drive. Present the named refactoring and the smallest next step; let the developer apply
-it and run the tests. Never edit the developer's code or run the tests unless explicitly asked.
+Coach by default; drive when asked. When the request is a QUESTION or asks for advice (what would you
+do here, anything you'd refactor, how would you make this more readable), present the named refactoring
+and the smallest next step and let the developer apply it -- do not edit their code or run tests unasked,
+because unrequested changes to working code are unwelcome. When the request is an explicit COMMAND to do
+it (refactor this for me, apply it, go ahead and make the change, do it), perform the refactoring yourself
+in small behavior-preserving steps, running the tests after each; then stop and leave the changes for the
+developer to review -- do not commit unless they ask. Refusing to edit when you were plainly asked to
+apply is the failure to avoid, not caution.
 
 ## Fowler catalog (mechanical refactorings)
 

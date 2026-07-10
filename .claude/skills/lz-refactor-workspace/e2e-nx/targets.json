@@ -1,0 +1,68 @@
+{
+  "repo": "D:/projects/github/nrwl/nx",
+  "branch": "23.0.x",
+  "focus_package": "@nx/eslint-plugin",
+  "rationale": "Single focused package. Pure TS rule/utility logic (AST + project-graph). Recognizable, self-contained smells across mechanical (Fowler), FP/functional, and pattern-judgment axes. No cross-language code. Bounded blast radius for the apply suite.",
+  "targets": [
+    {
+      "id": "T1",
+      "file": "packages/eslint-plugin/src/rules/enforce-module-boundaries.ts",
+      "symbol": "function run(...)",
+      "approx_lines": "257-830 (~570 lines)",
+      "smells": ["Long Function", "Conditional Complexity", "Duplicated Code (two near-identical fix() closures)"],
+      "expected_family": "Fowler mechanical: Extract Function (per report phase) + Decompose Conditional. Guard clauses apply only INSIDE the two fix() closures -- the top level already returns early.",
+      "judgment": "Incremental extraction of the ~12 report phases into named helpers that still close over context/projectGraph; NOT a rewrite, NOT a premature class/Strategy. The closure-capture friction is the trap that tempts a class -- resist it (CCH-02/CCH-06). The two near-duplicate fix() closures are a Duplicated Code -> Extract Function bonus. Behavior must be preserved.",
+      "axis": "mechanical"
+    },
+    {
+      "id": "T2",
+      "file": "packages/eslint-plugin/src/rules/nx-plugin-checks.ts",
+      "symbol": "validateEntry(...)",
+      "approx_lines": "299-406 (~107 lines)",
+      "smells": ["Long Function", "Conditional Complexity"],
+      "expected_family": "Fowler mechanical: Extract Function per validation section (schema / implementation+prompt / migration version), Decompose Conditional",
+      "judgment": "The 3-value `mode` param is a whiff of type-code, but the over/under-engineering balance (CCH-02/CCH-06) should REJECT introducing Strategy/polymorphism here -- clarity via Extract Function is the earned move.",
+      "axis": "mechanical + pattern-judgment"
+    },
+    {
+      "id": "T3",
+      "file": "packages/eslint-plugin/src/utils/runtime-lint-utils.ts",
+      "symbol": "findTransitiveExternalDependencies(...)",
+      "approx_lines": "324-354",
+      "smells": ["Loops (imperative index accumulation)"],
+      "expected_family": "Functional idiom (filter / flatMap) via the functional catalog; Fowler Replace Loop with Pipeline. NOT Split Loop -- the two loops are already separate/sequential.",
+      "judgment": "First loop is a plain filter; second is flatMap + filter. Contrast with hasBannedDependencies (356-384) right below, which is ALREADY functional -- a good `match its neighbor` signal. Replace Pipeline with Loop should NOT be recommended (no measured hot path).",
+      "axis": "functional / FP"
+    },
+    {
+      "id": "T4",
+      "file": "packages/eslint-plugin/src/utils/runtime-lint-utils.ts",
+      "symbol": "groupImports(...)",
+      "approx_lines": "471-494",
+      "smells": ["Loops (reduce with nested conditional mutation)", "obscure grouping logic"],
+      "expected_family": "Functional group-by idiom (Map-based) and/or Extract Function; clarity default",
+      "judgment": "The reduce mutates an accumulator with a nested if/else to concatenate members. A Map group-by reads clearer. Small, low-risk -- a good clean apply candidate.",
+      "axis": "functional / FP"
+    },
+    {
+      "id": "T5",
+      "file": null,
+      "symbol": "(reference mode -- no code target)",
+      "approx_lines": null,
+      "smells": [],
+      "expected_family": "Reference routing: Kerievsky Replace Conditional with Polymorphism + de-patterning (moving AWAY from a pattern)",
+      "judgment": "Answer from references/ (Kerievsky + GoF + functional de-patterning). Must NOT restate SKILL.md; must paraphrase (DST-04, no near-verbatim Intents).",
+      "axis": "reference"
+    },
+    {
+      "id": "T6",
+      "file": null,
+      "symbol": "(seam / routing negative -- no refactor target)",
+      "approx_lines": null,
+      "smells": [],
+      "expected_family": "Recognize this is the green/transformation step (a behavior change) and route to lz-tpp -- not a refactoring.",
+      "judgment": "Making a failing test pass ADDS behavior, so it is the green step, not the refactor step (CCH-05). GRADING: credit any answer that names the behavior-preserving-vs-behavior-adding distinction and routes to lz-tpp, EVEN IF it also sketches the implementation (e.g. split(':')). 'Refactoring' is colloquially ambiguous, so do NOT require an outright refusal; fail only if the answer frames the change as a behavior-preserving refactoring and misses the distinction entirely.",
+      "axis": "seam / routing"
+    }
+  ]
+}

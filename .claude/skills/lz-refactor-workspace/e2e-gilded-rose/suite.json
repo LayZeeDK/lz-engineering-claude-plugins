@@ -1,0 +1,11 @@
+{
+  "name": "gilded-rose",
+  "repo": "D:/projects/github/emilybache/GildedRose-Refactoring-Kata/TypeScript",
+  "applyBase": "main",
+  "protectedBranches": ["main", "master"],
+  "skillCommand": "/lz-tdd:lz-refactor",
+  "prompts": [
+    { "id": "gr1", "file": "gr1-update-quality.md", "target": "G1", "code": true },
+    { "id": "gr2", "file": "gr2-item-type-subclass.md", "target": "G2", "code": true }
+  ]
+}

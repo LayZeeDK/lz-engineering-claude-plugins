@@ -35,31 +35,39 @@ import { fileURLToPath } from 'node:url';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(HERE, '../../../..');
-const PLUGIN_DIR = path.join(REPO_ROOT, 'plugins', 'lz-tdd');
-const NX_REPO = 'D:/projects/github/nrwl/nx';
+const PLUGIN_DIR = path.join(REPO_ROOT, 'plugins', 'lz-tdd'); // the plugin under test -- constant across suites
+
+// A suite is a directory with suite.json + prompts/ + targets.json; results land under it.
+// --suite <dir> selects it (default: this runner's own dir = the nx suite). Scanned from argv here,
+// before parseArgs, so the module-level config can derive from it.
+function argVal(flag, def) {
+  const i = process.argv.indexOf(flag);
+
+  return i >= 0 && process.argv[i + 1] ? process.argv[i + 1] : def;
+}
+
+const SUITE_DIR = path.resolve(argVal('--suite', HERE));
+const SUITE = JSON.parse(fs.readFileSync(path.join(SUITE_DIR, 'suite.json'), 'utf8'));
+const REPO = SUITE.repo; // the target repo/checkout claude -p runs against
+const PROMPTS_DIR = path.join(SUITE_DIR, 'prompts');
+const RESULTS_DIR = path.join(SUITE_DIR, 'results');
+const PROMPTS = SUITE.prompts; // [{ id, file, target, code }]
+const PROTECTED_BRANCHES = SUITE.protectedBranches || ['main', 'master'];
+
 const MODEL = process.env.E2E_MODEL || 'claude-opus-4-8';
 // Effort is pinned explicitly (not left to the CLI default) so runs are reproducible and the value
 // is recorded in meta.json. `high` is Anthropic's built-in default; --setting-sources project drops
 // the user's global effortLevel, so without this pin the runs would silently ride the default.
 const EFFORT = process.env.E2E_EFFORT || 'high';
 const SETTING_SOURCES = 'project';
+// The slash-command form of the skill, used by the invoke_skill arm to force activation.
+const SKILL_COMMAND = SUITE.skillCommand || '/lz-tdd:lz-refactor';
 // apply mode: the pristine ref each apply run is reset to before it starts, so the k=3 runs don't
 // stack edits on each other. The throwaway apply branch is checked out at this ref.
-const APPLY_BASE = process.env.E2E_APPLY_BASE || 'origin/23.0.x';
-// apply sessions edit + build + run jest; give them a generous ceiling so a hung test suite cannot
-// block forever. recommend sessions are read-only and fast (no timeout needed).
+const APPLY_BASE = process.env.E2E_APPLY_BASE || SUITE.applyBase;
+// apply sessions edit + build + run tests; give them a generous ceiling so a hung suite cannot block
+// forever. recommend sessions are read-only and fast (no timeout needed).
 const APPLY_TIMEOUT_MS = Number(process.env.E2E_APPLY_TIMEOUT_MS || 20 * 60 * 1000);
-
-// code: whether the prompt points at real source to APPLY a refactoring to. p5 (reference) and
-// p6 (seam/failing-test) have no code target, so they are recommend-only and excluded from apply.
-const PROMPTS = [
-  { id: 'p1', file: 'p1-enforce-module-boundaries-run.md', target: 'T1', code: true },
-  { id: 'p2', file: 'p2-validate-entry-mode.md', target: 'T2', code: true },
-  { id: 'p3', file: 'p3-transitive-deps-loops.md', target: 'T3', code: true },
-  { id: 'p4', file: 'p4-group-imports-reduce.md', target: 'T4', code: true },
-  { id: 'p5', file: 'p5-reference-depattern.md', target: 'T5', code: false },
-  { id: 'p6', file: 'p6-seam-handoff.md', target: 'T6', code: false },
-];
 
 // Mode preambles. Kept deliberately neutral and NON-LEADING: they establish only the harness
 // constraint (advise vs apply), not the answer. Each prompt body carries its own context (e.g.
@@ -104,6 +112,8 @@ function parseArgs(argv) {
       }
     } else if (a === '--cwd') {
       args.cwd = argv[++i];
+    } else if (a === '--suite') {
+      args.suite = argv[++i]; // consumed at module load via argVal; accept it here too
     } else {
       throw new Error(`unknown arg: ${a}`);
     }
@@ -113,8 +123,8 @@ function parseArgs(argv) {
     throw new Error(`--mode must be recommend|apply, got ${args.mode}`);
   }
 
-  if (!['with_skill', 'no_skill', 'both'].includes(args.arm)) {
-    throw new Error(`--arm must be with_skill|no_skill|both, got ${args.arm}`);
+  if (!['with_skill', 'no_skill', 'invoke_skill', 'both', 'all'].includes(args.arm)) {
+    throw new Error(`--arm must be with_skill|no_skill|invoke_skill|both|all, got ${args.arm}`);
   }
 
   if (!args.runs.length) {
@@ -166,8 +176,14 @@ function resolveClaude() {
   throw new Error("could not resolve a native 'claude.exe'; set CLAUDE_BIN to its full path");
 }
 
-function composePrompt(promptEntry, mode) {
-  const body = fs.readFileSync(path.join(HERE, 'prompts', promptEntry.file), 'utf8').trim();
+function composePrompt(promptEntry, mode, arm) {
+  const body = fs.readFileSync(path.join(PROMPTS_DIR, promptEntry.file), 'utf8').trim();
+
+  if (arm === 'invoke_skill') {
+    // Force skill activation via its slash command; the preamble + body become the skill's input.
+    // (Read-only in recommend mode is still enforced by --disallowedTools, not the text.)
+    return `${SKILL_COMMAND} ${PREAMBLE[mode]}${body}`;
+  }
 
   return PREAMBLE[mode] + body;
 }
@@ -192,7 +208,7 @@ function buildCmd(fullPrompt, arm, mode) {
     cmd.push('--permission-mode', 'bypassPermissions');
   }
 
-  if (arm === 'with_skill') {
+  if (arm === 'with_skill' || arm === 'invoke_skill') {
     cmd.push('--plugin-dir', PLUGIN_DIR);
   }
 
@@ -287,9 +303,9 @@ function skillFlag(meta) {
 }
 
 function runOne(claude, promptEntry, arm, mode, cwd, runIdx, force) {
-  const fullPrompt = composePrompt(promptEntry, mode);
+  const fullPrompt = composePrompt(promptEntry, mode, arm);
   const cmd = buildCmd(fullPrompt, arm, mode);
-  const outDir = path.join(HERE, 'results', mode, arm, promptEntry.id, `run-${runIdx}`);
+  const outDir = path.join(RESULTS_DIR, mode, arm, promptEntry.id, `run-${runIdx}`);
   const metaPath = path.join(outDir, 'meta.json');
 
   // Idempotent resume: a completed run (exit 0) is not re-spent unless --force.
@@ -314,9 +330,8 @@ function runOne(claude, promptEntry, arm, mode, cwd, runIdx, force) {
     // Safety: `git reset --hard` here would destroy work if cwd were on a real branch. Refuse to run
     // on a protected branch -- apply must run on a throwaway branch (see README).
     const cur = (git(cwd, ['rev-parse', '--abbrev-ref', 'HEAD']).stdout || '').trim();
-    const protectedBranches = ['23.0.x', 'main', 'master'];
 
-    if (protectedBranches.includes(cur)) {
+    if (PROTECTED_BRANCHES.includes(cur)) {
       throw new Error(
         `apply mode refuses to reset --hard on protected branch '${cur}' in ${cwd}. ` +
           `Checkout a throwaway branch there first (e.g. git checkout -b lz-refactor-e2e-apply).`,
@@ -430,7 +445,7 @@ function passHatK(n, c, k) {
 const pct = (v) => (v === null ? '  -  ' : v.toFixed(2));
 
 function report() {
-  const resultsRoot = path.join(HERE, 'results');
+  const resultsRoot = RESULTS_DIR;
 
   if (!fs.existsSync(resultsRoot)) {
     console.log('no results/ dir yet -- nothing to report');
@@ -540,8 +555,13 @@ function main() {
     }
   }
 
-  const arms = args.arm === 'both' ? ['with_skill', 'no_skill'] : [args.arm];
-  const cwd = args.cwd || NX_REPO;
+  const arms =
+    args.arm === 'both'
+      ? ['with_skill', 'no_skill']
+      : args.arm === 'all'
+        ? ['with_skill', 'no_skill', 'invoke_skill']
+        : [args.arm];
+  const cwd = args.cwd || REPO;
 
   if (args.mode === 'apply' && !args.cwd) {
     throw new Error('apply mode requires --cwd pointing at a THROWAWAY branch checkout of nx (never the pristine tree)');
@@ -556,6 +576,7 @@ function main() {
       }
     })();
     console.log(`DRY RUN -- nothing will be spent.`);
+    console.log(`suite    : ${SUITE.name} (${SUITE_DIR})`);
     console.log(`claude   : ${claude}`);
     console.log(`repo cwd : ${cwd}`);
     console.log(`plugin   : ${PLUGIN_DIR}`);
@@ -564,7 +585,7 @@ function main() {
 
     for (const p of selected) {
       for (const arm of arms) {
-        const full = composePrompt(p, args.mode);
+        const full = composePrompt(p, args.mode, arm);
         const cmd = buildCmd(full, arm, args.mode);
         console.log(`\n--- ${args.mode}/${arm}/${p.id} (${p.target}) ---`);
         console.log(`cmd: claude ${cmd.map((c) => (c.length > 60 ? c.slice(0, 57) + '...' : c)).map((c) => (/\s/.test(c) ? `"${c}"` : c)).join(' ')}`);

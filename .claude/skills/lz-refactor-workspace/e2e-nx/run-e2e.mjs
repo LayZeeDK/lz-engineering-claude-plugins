@@ -43,14 +43,22 @@ const MODEL = process.env.E2E_MODEL || 'claude-opus-4-8';
 // the user's global effortLevel, so without this pin the runs would silently ride the default.
 const EFFORT = process.env.E2E_EFFORT || 'high';
 const SETTING_SOURCES = 'project';
+// apply mode: the pristine ref each apply run is reset to before it starts, so the k=3 runs don't
+// stack edits on each other. The throwaway apply branch is checked out at this ref.
+const APPLY_BASE = process.env.E2E_APPLY_BASE || 'origin/23.0.x';
+// apply sessions edit + build + run jest; give them a generous ceiling so a hung test suite cannot
+// block forever. recommend sessions are read-only and fast (no timeout needed).
+const APPLY_TIMEOUT_MS = Number(process.env.E2E_APPLY_TIMEOUT_MS || 20 * 60 * 1000);
 
+// code: whether the prompt points at real source to APPLY a refactoring to. p5 (reference) and
+// p6 (seam/failing-test) have no code target, so they are recommend-only and excluded from apply.
 const PROMPTS = [
-  { id: 'p1', file: 'p1-enforce-module-boundaries-run.md', target: 'T1' },
-  { id: 'p2', file: 'p2-validate-entry-mode.md', target: 'T2' },
-  { id: 'p3', file: 'p3-transitive-deps-loops.md', target: 'T3' },
-  { id: 'p4', file: 'p4-group-imports-reduce.md', target: 'T4' },
-  { id: 'p5', file: 'p5-reference-depattern.md', target: 'T5' },
-  { id: 'p6', file: 'p6-seam-handoff.md', target: 'T6' },
+  { id: 'p1', file: 'p1-enforce-module-boundaries-run.md', target: 'T1', code: true },
+  { id: 'p2', file: 'p2-validate-entry-mode.md', target: 'T2', code: true },
+  { id: 'p3', file: 'p3-transitive-deps-loops.md', target: 'T3', code: true },
+  { id: 'p4', file: 'p4-group-imports-reduce.md', target: 'T4', code: true },
+  { id: 'p5', file: 'p5-reference-depattern.md', target: 'T5', code: false },
+  { id: 'p6', file: 'p6-seam-handoff.md', target: 'T6', code: false },
 ];
 
 // Mode preambles. Kept deliberately neutral and NON-LEADING: they establish only the harness
@@ -63,8 +71,8 @@ const PREAMBLE = {
     'approach it. Do NOT edit any file and do NOT run any command. Here is my question:\n\n',
   apply:
     'You are pair-programming with me. Read what I point you at and make the improvement in small ' +
-    'steps. After editing, typecheck the touched file(s) with the package tsc and run the affected ' +
-    'tests to confirm nothing broke. Here is my question:\n\n',
+    'steps. After editing, typecheck the touched file(s) and run the affected tests to confirm ' +
+    'nothing broke. Leave your edits in the working tree; do not commit. Here is my question:\n\n',
 };
 
 function parseArgs(argv) {
@@ -252,6 +260,13 @@ function extractResult(raw) {
   };
 }
 
+// Run a git command in a given working dir (the throwaway apply branch). Used only by apply mode
+// for pristine reset + diff capture; runs as the runner's own child process, so it is not gated by
+// the Claude Code permission classifier.
+function git(cwd, gitArgs) {
+  return spawnSync('git', gitArgs, { cwd, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024, windowsHide: true });
+}
+
 // One-line human signal of which lz skill(s) the run invoked.
 function skillFlag(meta) {
   if (meta.arm === 'no_skill') {
@@ -295,6 +310,24 @@ function runOne(claude, promptEntry, arm, mode, cwd, runIdx, force) {
   const rawDir = path.join(outDir, 'outputs'); // gitignored (**/outputs/)
   fs.mkdirSync(rawDir, { recursive: true });
 
+  if (mode === 'apply') {
+    // Safety: `git reset --hard` here would destroy work if cwd were on a real branch. Refuse to run
+    // on a protected branch -- apply must run on a throwaway branch (see README).
+    const cur = (git(cwd, ['rev-parse', '--abbrev-ref', 'HEAD']).stdout || '').trim();
+    const protectedBranches = ['23.0.x', 'main', 'master'];
+
+    if (protectedBranches.includes(cur)) {
+      throw new Error(
+        `apply mode refuses to reset --hard on protected branch '${cur}' in ${cwd}. ` +
+          `Checkout a throwaway branch there first (e.g. git checkout -b lz-refactor-e2e-apply).`,
+      );
+    }
+
+    // Pristine reset so this run starts from clean source, not a previous run's edits.
+    git(cwd, ['reset', '--hard', APPLY_BASE]);
+    git(cwd, ['clean', '-fd']);
+  }
+
   const env = { ...process.env };
   delete env.CLAUDECODE;
 
@@ -305,6 +338,7 @@ function runOne(claude, promptEntry, arm, mode, cwd, runIdx, force) {
     encoding: 'utf8',
     maxBuffer: 128 * 1024 * 1024,
     windowsHide: true,
+    timeout: mode === 'apply' ? APPLY_TIMEOUT_MS : undefined,
   });
   const elapsedMs = Date.now() - started;
 
@@ -323,6 +357,17 @@ function runOne(claude, promptEntry, arm, mode, cwd, runIdx, force) {
   const { finalText, usedRefactor, usedTpp, refactorHits, tppHits, skillsInvoked } = extractResult(raw);
   fs.writeFileSync(path.join(outDir, 'answer.md'), finalText || '(no result text captured)\n');
 
+  // apply mode: capture what the agent actually changed (the key artifact), then the branch is
+  // reset again before the next run.
+  let changedFiles = [];
+
+  if (mode === 'apply') {
+    const diff = git(cwd, ['diff', APPLY_BASE]);
+    fs.writeFileSync(path.join(outDir, 'diff.patch'), diff.stdout || '');
+    const names = git(cwd, ['diff', '--name-only', APPLY_BASE]);
+    changedFiles = (names.stdout || '').split('\n').map((s) => s.trim()).filter(Boolean);
+  }
+
   const meta = {
     prompt_id: promptEntry.id,
     target: promptEntry.target,
@@ -332,6 +377,7 @@ function runOne(claude, promptEntry, arm, mode, cwd, runIdx, force) {
     cwd,
     model: MODEL,
     effort: EFFORT,
+    changed_files: changedFiles,
     prompt_used: fullPrompt,
     used_refactor: usedRefactor,
     used_tpp: usedTpp,
@@ -471,12 +517,27 @@ function main() {
     return;
   }
 
-  const selected = args.prompts.length
+  let selected = args.prompts.length
     ? PROMPTS.filter((p) => args.prompts.includes(p.id))
     : PROMPTS;
 
   if (!selected.length) {
     throw new Error(`no prompts matched: ${args.prompts.join(', ')}`);
+  }
+
+  // apply mode only makes sense for prompts with real source to refactor (p1-p4).
+  if (args.mode === 'apply') {
+    const excluded = selected.filter((p) => !p.code).map((p) => p.id);
+
+    if (excluded.length) {
+      console.log(`apply mode: skipping non-code prompts ${excluded.join(', ')} (no source to apply to)`);
+    }
+
+    selected = selected.filter((p) => p.code);
+
+    if (!selected.length) {
+      throw new Error('apply mode: no code prompts selected (p1-p4 only)');
+    }
   }
 
   const arms = args.arm === 'both' ? ['with_skill', 'no_skill'] : [args.arm];

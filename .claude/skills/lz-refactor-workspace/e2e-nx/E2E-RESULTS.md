@@ -101,11 +101,16 @@ does). This confirms the p2 within-prompt natural experiment at the arm level.
   `../iteration-1/` trigger evals measure routing under a controlled harness and disagree with this
   natural path for coach-shaped prompts -- itself a finding worth a follow-up.
 
-## Open (not yet run)
+## Status of the other stages
 
-- **(c) no_skill baseline**: now largely redundant for p1-p4 (skill wasn't in the loop; p2's
-  within-prompt A/B already stands in). Informative only for p5/p6 (does firing beat a no-plugin
-  baseline?).
-- **(b) apply + typecheck + real tests** on a throwaway branch: exercises application mechanics.
+- **(c) no_skill baseline (p2/p5/p6, k=3): DONE.** See the with/without comparison above.
+- **(b) apply + typecheck + real tests: harness VALIDATED (p4 smoke); full n=3 pending.** The apply
+  harness works end-to-end: the p4 smoke run (~8.6 min) applied the expected **Map-based `groupImports`
+  rewrite**, ran the eslint-plugin Jest tests (pass), captured `diff.patch` + `changed_files`, and
+  left edits uncommitted -- and it independently flagged the same subtle duplicate-member behavior
+  difference the recommend run found, offering a `Set` variant. The skill did NOT fire (coach mode,
+  consistent). Tools executed despite the untrusted-workspace warning (`bypassPermissions` overrode
+  it). The full nx apply n=3 (p1-p4) is heavy (~8.6 min/run) and largely confirmatory given (b) and
+  the recommend findings; deferred pending a scope decision.
 - **Trigger-gap follow-up**: why coach mode doesn't auto-trigger via `--plugin-dir` -- highest
   leverage for the skill, but scope beyond "test end-to-end".

@@ -13,15 +13,24 @@ const WS = "D:/projects/github/LayZeeDK/lz-engineering-claude-plugins/.claude/sk
 const TOOL_DIR = WS + "/tools/skill-creator-eval";
 const SKILL = "D:/projects/github/LayZeeDK/lz-engineering-claude-plugins/plugins/lz-tdd/skills/lz-refactor";
 const CHUNK_DIR = WS + "/evals/d07-chunks";
-// Canary = the Extract Function catalog lookup: a should-trigger positive proven to fire 9/9 in
-// healthy chunks (specificity run 2026-07-10). Used ONLY as the window-health validator here.
-const CANARY = { query: "what does Extract Function actually do, and when should i reach for it over inlining?", should_trigger: true };
 const CHUNK_SIZE = 3;
 
 const all = JSON.parse(fs.readFileSync(WS + "/evals/trigger-eval.json", "utf8"));
+// Canary = the Extract Function catalog lookup: a should-trigger positive proven to fire 9/9 in
+// healthy chunks (specificity run 2026-07-10). Used ONLY as the window-health validator here.
+// Derived FROM the eval set (WR-01) so it is byte-for-byte the trigger-eval.json positive it stands
+// in for -- a genuine eval-set positive, never a hand-typed twin that can silently drift. The
+// exclude-filter below and the result-side canary lookups all key off the same CANARY_PREFIX.
+const CANARY_PREFIX = "what does Extract Function actually do";
+const CANARY = all.find((q) => q.should_trigger && q.query.startsWith(CANARY_PREFIX));
+
+if (!CANARY) {
+  throw new Error("canary positive missing from trigger-eval.json");
+}
+
 // Measure every should-trigger EXCEPT the canary query (its recall is measured by its own firing as
 // the appended validator across all chunks and reported separately).
-const positives = all.filter((q) => q.should_trigger && !q.query.startsWith("what does Extract Function actually do"));
+const positives = all.filter((q) => q.should_trigger && !q.query.startsWith(CANARY_PREFIX));
 const chunks = [];
 
 for (let i = 0; i < positives.length; i += CHUNK_SIZE) {
@@ -46,7 +55,7 @@ function assess(i) {
   }
 
   // The appended canary is the LAST result and is the Extract Function lookup.
-  const canary = r.results.find((q) => q.query.startsWith("what does Extract Function actually do"));
+  const canary = r.results.find((q) => q.query.startsWith(CANARY_PREFIX));
   const measured = r.results.filter((q) => q !== canary);
   const canaryFired = canary && canary.trigger_rate >= 0.5;
   const fired = measured.filter((q) => q.trigger_rate >= 0.5);
@@ -132,7 +141,7 @@ for (let i = 0; i < chunks.length; i++) {
 
   const p = resultPath(i);
   const r = JSON.parse(fs.readFileSync(p, "utf8"));
-  const canary = r.results.find((q) => q.query.startsWith("what does Extract Function actually do"));
+  const canary = r.results.find((q) => q.query.startsWith(CANARY_PREFIX));
 
   if (canary) {
     canaryFires += canary.triggers;

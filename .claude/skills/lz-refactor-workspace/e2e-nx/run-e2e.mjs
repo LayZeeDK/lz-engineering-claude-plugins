@@ -38,6 +38,10 @@ const REPO_ROOT = path.resolve(HERE, '../../../..');
 const PLUGIN_DIR = path.join(REPO_ROOT, 'plugins', 'lz-tdd');
 const NX_REPO = 'D:/projects/github/nrwl/nx';
 const MODEL = process.env.E2E_MODEL || 'claude-opus-4-8';
+// Effort is pinned explicitly (not left to the CLI default) so runs are reproducible and the value
+// is recorded in meta.json. `high` is Anthropic's built-in default; --setting-sources project drops
+// the user's global effortLevel, so without this pin the runs would silently ride the default.
+const EFFORT = process.env.E2E_EFFORT || 'high';
 const SETTING_SOURCES = 'project';
 
 const PROMPTS = [
@@ -64,7 +68,7 @@ const PREAMBLE = {
 };
 
 function parseArgs(argv) {
-  const args = { mode: 'recommend', arm: 'with_skill', prompts: [], dryRun: false, report: false, cwd: null };
+  const args = { mode: 'recommend', arm: 'with_skill', prompts: [], runs: [], dryRun: false, report: false, cwd: null, force: false };
 
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
@@ -73,12 +77,23 @@ function parseArgs(argv) {
       args.dryRun = true;
     } else if (a === '--report') {
       args.report = true;
+    } else if (a === '--force') {
+      args.force = true;
     } else if (a === '--mode') {
       args.mode = argv[++i];
     } else if (a === '--arm') {
       args.arm = argv[++i];
     } else if (a === '--prompt') {
       args.prompts.push(argv[++i]);
+    } else if (a === '--run') {
+      args.runs.push(Number(argv[++i]));
+    } else if (a === '--runs') {
+      // --runs N is shorthand for run indices 1..N
+      const n = Number(argv[++i]);
+
+      for (let k = 1; k <= n; k++) {
+        args.runs.push(k);
+      }
     } else if (a === '--cwd') {
       args.cwd = argv[++i];
     } else {
@@ -92,6 +107,14 @@ function parseArgs(argv) {
 
   if (!['with_skill', 'no_skill', 'both'].includes(args.arm)) {
     throw new Error(`--arm must be with_skill|no_skill|both, got ${args.arm}`);
+  }
+
+  if (!args.runs.length) {
+    args.runs = [1];
+  }
+
+  if (args.runs.some((k) => !Number.isInteger(k) || k < 1)) {
+    throw new Error(`--run/--runs indices must be positive integers, got ${args.runs.join(', ')}`);
   }
 
   return args;
@@ -150,6 +173,7 @@ function buildCmd(fullPrompt, arm, mode) {
     '--mcp-config', '{"mcpServers":{}}',
     '--setting-sources', SETTING_SOURCES,
     '--model', MODEL,
+    '--effort', EFFORT,
   ];
 
   if (mode === 'recommend') {
@@ -247,10 +271,27 @@ function skillFlag(meta) {
   return used.length ? `used: ${used.join('+')}` : 'NO lz skill invoked';
 }
 
-function runOne(claude, promptEntry, arm, mode, cwd) {
+function runOne(claude, promptEntry, arm, mode, cwd, runIdx, force) {
   const fullPrompt = composePrompt(promptEntry, mode);
   const cmd = buildCmd(fullPrompt, arm, mode);
-  const outDir = path.join(HERE, 'results', mode, arm, promptEntry.id);
+  const outDir = path.join(HERE, 'results', mode, arm, promptEntry.id, `run-${runIdx}`);
+  const metaPath = path.join(outDir, 'meta.json');
+
+  // Idempotent resume: a completed run (exit 0) is not re-spent unless --force.
+  if (!force && fs.existsSync(metaPath)) {
+    try {
+      const prev = JSON.parse(fs.readFileSync(metaPath, 'utf8'));
+
+      if (prev.exit_code === 0) {
+        console.log(`  [${mode}/${arm}] ${promptEntry.id} run-${runIdx}: already done (exit 0), skip`);
+
+        return prev;
+      }
+    } catch {
+      // fall through and re-run
+    }
+  }
+
   const rawDir = path.join(outDir, 'outputs'); // gitignored (**/outputs/)
   fs.mkdirSync(rawDir, { recursive: true });
 
@@ -285,10 +326,12 @@ function runOne(claude, promptEntry, arm, mode, cwd) {
   const meta = {
     prompt_id: promptEntry.id,
     target: promptEntry.target,
+    run_idx: runIdx,
     arm,
     mode,
     cwd,
     model: MODEL,
+    effort: EFFORT,
     prompt_used: fullPrompt,
     used_refactor: usedRefactor,
     used_tpp: usedTpp,
@@ -303,15 +346,44 @@ function runOne(claude, promptEntry, arm, mode, cwd) {
 
   const flag = skillFlag(meta);
   console.log(
-    `  [${mode}/${arm}] ${promptEntry.id} (${promptEntry.target}) -> exit ${res.status}, ` +
+    `  [${mode}/${arm}] ${promptEntry.id} run-${runIdx} (${promptEntry.target}) -> exit ${res.status}, ` +
       `${(elapsedMs / 1000).toFixed(0)}s, ${meta.answer_chars} chars, ${flag}`,
   );
 
   return meta;
 }
 
+// C(n, r) as an exact-ish float (small n here).
+function comb(n, r) {
+  if (r < 0 || r > n) {
+    return 0;
+  }
+
+  r = Math.min(r, n - r);
+  let num = 1;
+  let den = 1;
+
+  for (let i = 0; i < r; i++) {
+    num *= n - i;
+    den *= i + 1;
+  }
+
+  return num / den;
+}
+
+// Pass@k (optimistic): prob >=1 of k sampled runs "passes". Pass^k (conservative): all k pass.
+// n = total runs, c = passing runs. Returns null when k > n.
+function passAtK(n, c, k) {
+  return k > n ? null : 1 - comb(n - c, k) / comb(n, k);
+}
+
+function passHatK(n, c, k) {
+  return k > n ? null : comb(c, k) / comb(n, k);
+}
+
+const pct = (v) => (v === null ? '  -  ' : v.toFixed(2));
+
 function report() {
-  const rows = [];
   const resultsRoot = path.join(HERE, 'results');
 
   if (!fs.existsSync(resultsRoot)) {
@@ -334,17 +406,60 @@ function report() {
   };
   walk(resultsRoot);
 
-  metas.sort((a, b) => `${a.mode}${a.prompt_id}${a.arm}`.localeCompare(`${b.mode}${b.prompt_id}${b.arm}`));
+  metas.sort((a, b) => `${a.mode}${a.arm}${a.prompt_id}${a.run_idx || 0}`.localeCompare(`${b.mode}${b.arm}${b.prompt_id}${b.run_idx || 0}`));
   console.log('\n=== captured runs ===');
 
   for (const m of metas) {
     console.log(
-      `${m.mode.padEnd(9)} ${m.prompt_id} ${m.target.padEnd(3)} ${m.arm.padEnd(10)} ` +
-        `exit ${m.exit_code}  ${String(Math.round(m.elapsed_ms / 1000)).padStart(4)}s  ${m.answer_chars} chars  ${skillFlag(m)}`,
+      `${m.mode.padEnd(9)} ${m.arm.padEnd(10)} ${m.prompt_id} run-${m.run_idx || 1} ${(m.target || '').padEnd(3)} ` +
+        `exit ${m.exit_code}  ${String(Math.round((m.elapsed_ms || 0) / 1000)).padStart(4)}s  ${m.answer_chars} chars  ${skillFlag(m)}`,
     );
   }
 
-  console.log(`\n${metas.length} runs captured.`);
+  // Skill-fire reliability per (mode, arm, prompt). "fired" = an lz skill was invoked (the
+  // deterministic, gradeable signal). Answer-quality grading stays qualitative (read answer.md).
+  const groups = new Map();
+
+  for (const m of metas) {
+    const key = `${m.mode}|${m.arm}|${m.prompt_id}`;
+
+    if (!groups.has(key)) {
+      groups.set(key, []);
+    }
+
+    groups.get(key).push(m);
+  }
+
+  console.log('\n=== skill-fire reliability (fired = any lz skill invoked) ===');
+  console.log('mode/arm/prompt          n  fired  pass@1  pass@3  pass^3   skills');
+  const pooled = new Map(); // arm -> {n, c}
+
+  for (const [key, runs] of [...groups.entries()].sort()) {
+    const [mode, arm, pid] = key.split('|');
+    const n = runs.length;
+    const c = runs.filter((m) => m.used_refactor || m.used_tpp).length;
+    const skills = [...new Set(runs.flatMap((m) => [m.used_refactor ? 'lz-refactor' : null, m.used_tpp ? 'lz-tpp' : null]).filter(Boolean))].join('+') || '-';
+    console.log(
+      `${`${mode}/${arm}/${pid}`.padEnd(24)} ${n}  ${String(c).padStart(2)}/${n}   ${pct(passAtK(n, c, 1))}   ${pct(passAtK(n, c, 3))}   ${pct(passHatK(n, c, 3))}   ${skills}`,
+    );
+    const pk = `${mode}|${arm}`;
+
+    if (!pooled.has(pk)) {
+      pooled.set(pk, { n: 0, c: 0 });
+    }
+
+    const agg = pooled.get(pk);
+    agg.n += n;
+    agg.c += c;
+  }
+
+  console.log('\n=== overall (pooled across prompts) ===');
+
+  for (const [pk, { n, c }] of [...pooled.entries()].sort()) {
+    console.log(`${pk.replace('|', '/').padEnd(24)} ${n}  ${String(c).padStart(2)}/${n}   pass@1 ${pct(passAtK(n, c, 1))}`);
+  }
+
+  console.log(`\n${metas.length} runs captured. (Pass@k on skill-firing; grade answer quality by reading answer.md vs targets.json.)`);
 }
 
 function main() {
@@ -383,8 +498,8 @@ function main() {
     console.log(`claude   : ${claude}`);
     console.log(`repo cwd : ${cwd}`);
     console.log(`plugin   : ${PLUGIN_DIR}`);
-    console.log(`model    : ${MODEL}`);
-    console.log(`mode     : ${args.mode}   arms: ${arms.join(', ')}   prompts: ${selected.map((p) => p.id).join(', ')}`);
+    console.log(`model    : ${MODEL}   effort: ${EFFORT}`);
+    console.log(`mode     : ${args.mode}   arms: ${arms.join(', ')}   prompts: ${selected.map((p) => p.id).join(', ')}   runs: ${args.runs.join(',')}`);
 
     for (const p of selected) {
       for (const arm of arms) {
@@ -395,18 +510,21 @@ function main() {
       }
     }
 
-    console.log(`\n${selected.length * arms.length} runs would execute. Re-run without --dry-run to spend.`);
+    console.log(`\n${selected.length * arms.length * args.runs.length} runs would execute (${args.runs.length} run(s) each; completed runs skip). Re-run without --dry-run to spend.`);
 
     return;
   }
 
   const claude = resolveClaude();
-  console.log(`running ${selected.length * arms.length} claude -p sessions (mode=${args.mode}, model=${MODEL})...`);
+  const total = selected.length * arms.length * args.runs.length;
+  console.log(`running up to ${total} claude -p sessions (mode=${args.mode}, model=${MODEL}, runs=[${args.runs.join(',')}]; completed runs skipped)...`);
   const metas = [];
 
-  for (const p of selected) {
-    for (const arm of arms) {
-      metas.push(runOne(claude, p, arm, args.mode, cwd));
+  for (const k of args.runs) {
+    for (const p of selected) {
+      for (const arm of arms) {
+        metas.push(runOne(claude, p, arm, args.mode, cwd, k, args.force));
+      }
     }
   }
 

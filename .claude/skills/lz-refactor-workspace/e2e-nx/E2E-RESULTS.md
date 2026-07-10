@@ -1,83 +1,94 @@
 # lz-refactor end-to-end results -- nrwl/nx
 
-Stage (a): recommend-only, `with_skill`, 6 prompts, model `claude-opus-4-8`, read-only.
-Repo `D:/projects/github/nrwl/nx` @ `23.0.x`, package `@nx/eslint-plugin`. nx working tree verified
-clean after the run. Raw transcripts under `results/recommend/with_skill/<pN>/`.
+Stage (a): recommend-only, `with_skill`, 6 prompts x **k=3 runs** = 18 sessions.
+Model `claude-opus-4-8`; effort `high` (Anthropic's default -- these runs did not pin it, but
+`--setting-sources project` drops the user's global `effortLevel`, so the compiled default `high`
+applied; the runner now pins `--effort high` explicitly for future iterations). Read-only.
+Repo `D:/projects/github/nrwl/nx` @ `23.0.x`, package `@nx/eslint-plugin`. nx tree verified clean.
+Raw transcripts under `results/recommend/with_skill/<pN>/run-<k>/` (`outputs/` gitignored).
 
-## Run summary
+## Skill-fire reliability (k=3)
 
-| # | Target | smell / intent | skill invoked | answer quality vs `targets.json` | time | verdict |
-|---|--------|----------------|---------------|----------------------------------|------|---------|
-| p1 | T1 `enforce-module-boundaries.ts:run` | Long Function | **none** (baseline) | Excellent | 56s | PASS |
-| p2 | T2 `nx-plugin-checks.ts:validateEntry` | Long Function + polymorphism bait | **none** (baseline) | Excellent | 54s | PASS |
-| p3 | T3 `runtime-lint-utils.ts:findTransitiveExternalDependencies` | imperative loops -> FP | **none** (baseline) | Excellent (deviates from rubric, correctly) | 75s | PASS* |
-| p4 | T4 `runtime-lint-utils.ts:groupImports` | reduce -> clarity | **none** (baseline) | Excellent | 58s | PASS |
-| p5 | T5 reference / de-patterning | explain + reverse a pattern | **lz-refactor** | Excellent, catalog-grounded | 57s | PASS |
-| p6 | T6 seam (failing test) | route to green step | **lz-tpp** | Excellent, correct hand-off | 39s | PASS |
+"fired" = the run invoked an lz skill (the deterministic, gradeable signal). Pass@k on skill-firing:
 
-`*` p3 PASSes on judgment, not on the literal rubric -- see below.
+| prompt | intent | run-1 | run-2 | run-3 | fired | pass@1 | pass@3 | pass^3 |
+|--------|--------|-------|-------|-------|-------|--------|--------|--------|
+| p1 | coach: Long Function | - | - | - | **0/3** | 0.00 | 0.00 | 0.00 |
+| p2 | coach: polymorphism bait | - | lz-refactor | - | **1/3** | 0.33 | 1.00 | 0.00 |
+| p3 | coach: loops -> FP | - | - | - | **0/3** | 0.00 | 0.00 | 0.00 |
+| p4 | coach: reduce -> clarity | - | - | - | **0/3** | 0.00 | 0.00 | 0.00 |
+| p5 | reference / de-patterning | lz-refactor | lz-refactor | lz-refactor | **3/3** | 1.00 | 1.00 | 1.00 |
+| p6 | seam (failing test) | lz-tpp | lz-tpp | lz-tpp | **3/3** | 1.00 | 1.00 | 1.00 |
 
-## Headline findings
+- **Coach mode (p1-p4): 1/12 runs fired the skill.** Non-triggering is consistent across k=3, not a
+  single-sample fluke.
+- **Reference (p5): 3/3 fired lz-refactor.** Seam (p6): 3/3 fired lz-tpp (correct hand-off).
+- Overall with_skill: **7/18 fired**, pass@1 0.39 (dominated by the reference/seam prompts).
 
-1. **Coach mode did not auto-trigger.** For the four real "here is smelly code, what would you do"
-   prompts (p1-p4), the model NEVER invoked lz-refactor (0 Skill-tool calls in each transcript; the
-   skill was advertised in the session init but not called). It answered from its own knowledge.
-   The skill only fired for the explicit named-refactoring lookup (p5 -> lz-refactor) and the
-   transformation/seam question (p6 -> lz-tpp).
+## Answer quality (graded vs `targets.json`)
 
-2. **Baseline Opus 4.8 is already catalog-grade at refactoring coaching.** Without the skill, the
-   p1-p4 answers named the right Fowler refactorings, sequenced them by reward-to-risk, respected
-   the over/under-engineering balance, and independently applied Feathers-style
-   characterization-test discipline ("tests green only protects exercised behavior; pin the
-   ambiguous case first"). Specifics:
-   - **p1**: Extract Function in order (the two duplicated `fix()` closures first, then the
-     resolution phase, then the check cascade); explicitly rejected a premature class and a
-     data-driven `checks.forEach` (order/short-circuit matters). Matches T1 judgment exactly,
-     including the closure-capture seam call (module-level for fixers/resolution, nested helpers
-     for the cascade).
-   - **p2**: Declined the polymorphism bait for the right reason -- `generator` and `executor`
-     behave identically so `mode` collapses to migration-vs-not, and a sibling call site partitions
-     on a *different* axis; "doing too much is a Long Function smell, not a type-code smell."
-     Recommended finishing the half-done Extract Function, then a data descriptor if guards still
-     grate. This is the CCH-02/CCH-06 discipline, unaided.
-   - **p3**: **Deliberately declined** the FP loop->pipeline conversion the rubric expected, because
-     it read the neighbouring `graph-utils.ts`, found a comment measuring a ~10x perf difference,
-     and judged the imperative loops a deliberate hot-path house style. This is precisely the
-     skill's own "Replace Pipeline with Loop only on a measured hot path / named house-style reason"
-     rule -- reached independently. (It still fixed the misleading JSDoc + missing `any[]` types and
-     filed the redundant reachability scan as a follow-up.)
-   - **p4**: Recommended the Map-based group-by (the expected move), and additionally caught a
-     latent duplicate-member bug and a dead guard in the original `reduce`, and prescribed pinning
-     the duplicate case with a test before refactoring.
+All 18 answers PASS the rubric on substance -- including the 11 coach-mode runs where the skill did
+NOT fire. Quality is consistent across runs, so **baseline Opus 4.8 @ high is already catalog-grade
+at refactoring coaching**:
+- **p1** (all 3 runs): Extract Function sequenced (duplicated `fix()` closures first, then resolution,
+  then the check cascade); explicitly rejected a premature class / data-driven array.
+- **p2** (all 3 runs): rejected the polymorphism bait for the right reason (generator/executor are
+  identical -> binary axis; two identical subclasses = duplication smell); recommended finishing the
+  half-done Extract Function, with a mode-descriptor table as the lighter alternative.
+- **p3** (all 3 runs): declined the FP loop->pipeline conversion the rubric expected, citing the
+  measured ~10x perf comment in the neighbouring `graph-utils.ts` and the hot path -- the skill's own
+  "Replace Pipeline with Loop only on a measured hot path" rule, reached unaided. (Rubric corrected.)
+- **p4** (all 3 runs): Map-based group-by (expected) + caught the latent duplicate-member bug + dead
+  guard + prescribed a characterization test first.
+- **p5** (3/3): catalog-grounded de-patterning (Remove Subclass / Collapse Hierarchy / Inline).
+- **p6** (3/3): reframed the failing-test request as the green/transformation step and handed off to
+  lz-tpp per CCH-05.
 
-3. **When the skill fired, it added real value.** p5's answer is grounded in the skill's catalog
-   (de-patterning via Remove Subclass / Collapse Hierarchy / Inline; Decompose Conditional as the
-   lighter alternative), which is more specific than a generic model answer would likely be. p6
-   correctly reframed a failing-test request as the green/transformation step and handed off to
-   lz-tpp per CCH-05.
+## The natural experiment: p2 (fired once in 3)
 
-## What this means (careful reading)
+p2 is the single prompt where the skill fired in exactly one of three runs -- a free within-prompt
+A/B on the SAME input:
+- **run-2 (fired lz-refactor)** vs **run-1 / run-3 (baseline, no fire)**: all three reach the
+  *substantively identical* conclusion (reject polymorphism, finish Extract Function, offer the
+  descriptor table, note the Repeated Switches smell).
+- The only material difference in the fired run is an **explicit Fowler citation** ("Reserve it for
+  genuine type-based variation..."). The two baseline runs make the same argument in their own words.
 
-- The hard fact is **(1): coach mode did not trigger** under natural, non-leading prompts in a busy
-  real-repo session (25 tools, the repo's own slash-commands present). The trigger evals in
-  `../iteration-1/` measure routing under a controlled harness; this is the natural `--plugin-dir`
-  path, and the two disagree for coach-shaped prompts.
-- We CANNOT yet conclude the skill adds no value in coach mode. We can only say (a) it didn't fire,
-  and (b) the base model's unaided answers were already excellent. Measuring true marginal value
-  needs either the skill forced to fire in coach mode, or a no_skill comparison where it *did* fire
-  (p5/p6).
-- **Rubric correction from the run**: T3's `expected_family` (Replace Loop with Pipeline) is too
-  textbook for this specific code -- the adjacent perf comment makes "leave the loops" the better
-  call. The prompt/target is still good; the expected answer was wrong. Updated understanding, not a
-  prompt defect.
+**Read:** for these targets, the skill's coach-mode marginal value is *grounding/citation*, not a
+different or better recommendation. The base model already produces the right named refactoring and
+the right over/under-engineering judgment.
 
-## Open decisions (staged plan)
+## Conclusions
 
-- **(b) apply + typecheck + real tests** (`with_skill`, throwaway branch): tests application
-  mechanics, not the coaching-value crux. Lower priority given finding (1)/(2).
-- **(c) no_skill baseline**: most informative if scoped to **p5 + p6** (where the skill fired) to
-  measure the skill's marginal value; running it for p1-p4 would near-certainly reproduce the
-  identical answers (skill wasn't in the loop there).
-- **Trigger-gap follow-up**: understand WHY coach mode doesn't auto-trigger via `--plugin-dir`
-  (description phrasing vs. a strong base model that just answers). This is the highest-leverage
-  finding for the skill itself, but is scope beyond "test end-to-end".
+1. **Coach-mode auto-triggering is effectively absent** (1/12) under natural, non-leading "clean up
+   this code" prompts via `--plugin-dir` in a busy real-repo session (25 tools, the repo's own
+   slash-commands present). This is the skill's stated primary use case.
+2. **When it does fire (p2 once), the answer is not materially better** than the baseline non-fired
+   runs -- only more explicitly catalog-cited. Baseline Opus 4.8 @ high is already strong here.
+3. **The skill fires reliably and adds clear value for the two non-coach shapes**: explicit
+   named-refactoring / de-patterning lookups (p5 -> lz-refactor, 3/3) and the green-step seam
+   (p6 -> lz-tpp hand-off, 3/3).
+4. **Implication for the skill.** Either (a) strengthen coach-mode triggering (description / routing
+   so "tests green, tidy this smelly code" reliably loads lz-refactor), and/or (b) reframe the value
+   proposition toward reference + seam + de-patterning + cross-session consistency, where the skill
+   demonstrably fires and helps. The end-to-end evidence does not support a coach-mode value claim as
+   things stand.
+
+## Caveats / scope
+
+- Effort = `high` (Anthropic default), NOT the maintainer's personal `xhigh`; single model
+  (opus-4-8); `--setting-sources project` (clean, user-plugin-free env). A stronger/weaker model or
+  a busier/leaner session could shift triggering.
+- Grading is qualitative (author read of `answer.md` vs `targets.json`); N=3 per prompt.
+- `--plugin-dir` natural triggering may differ from marketplace-installed triggering; the
+  `../iteration-1/` trigger evals measure routing under a controlled harness and disagree with this
+  natural path for coach-shaped prompts -- itself a finding worth a follow-up.
+
+## Open (not yet run)
+
+- **(c) no_skill baseline**: now largely redundant for p1-p4 (skill wasn't in the loop; p2's
+  within-prompt A/B already stands in). Informative only for p5/p6 (does firing beat a no-plugin
+  baseline?).
+- **(b) apply + typecheck + real tests** on a throwaway branch: exercises application mechanics.
+- **Trigger-gap follow-up**: why coach mode doesn't auto-trigger via `--plugin-dir` -- highest
+  leverage for the skill, but scope beyond "test end-to-end".

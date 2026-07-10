@@ -28,7 +28,10 @@ kata + nx apply evals. Research: [RESEARCH.md](RESEARCH.md).
    / a pain to work with"; "what would you do / anything you'd refactor / make it easier to read") + one
    deliberately "pushy" clause ("even if they don't say 'refactor' or name a smell"). PRESERVE specificity
    vs (a) lz-tpp green step, (b) plain feature work / write-a-function, (c) performance rewrites. Generalize
-   (do NOT overfit to the 4 prompts). Keep < 1024 chars, ASCII-only.
+   (do NOT overfit to the 4 prompts). **Char budget: use the ~1000-1500 load-bearing window (target ~1200),
+   NOT trimmed to 1024** -- the field is not hard-capped at 1024 (validator-confirmed; separate-project
+   verification puts load-bearing at ~1000-1500; 1536 is the listing truncation). Keep all exclusions before
+   the 1536 cut. ASCII-only.
 3. **Coach/apply** (SKILL.md ~69-70, and soften step 5's "Advise"): reframe from prohibition to
    request-keyed mode -- coach by default for advice requests; drive (apply the same small
    behavior-preserving steps, tests after each, commit on green) when explicitly asked to apply. Name the
@@ -36,10 +39,19 @@ kata + nx apply evals. Research: [RESEARCH.md](RESEARCH.md).
 4. **Measurement:** extend the trigger-eval set with the e2e coach prompts as POSITIVES and the p6 seam as
    a NEGATIVE; capture a pre-change baseline, then re-measure after the edit (recall up, specificity held).
    Verify the wrinkle by re-running the kata gr1 + nx p2 apply evals with_skill (no 0-edit runs when asked).
-5. **Process gates (mandatory):** subagent review of the SKILL.md edits incl. >=1 UNBIASED reviewer before
-   acceptance -- and re-review the FINAL iterated description before the final commit (iterations are still
-   triggering-critical edits); all `claude -p` eval runs GATED on explicit user approval; keep
+5. **Process gates (mandatory):** subagent review of BOTH (i) the SKILL.md edits (incl. >=1 UNBIASED
+   reviewer; re-review the final iterated description before commit) AND (ii) the eval-set RUBRICS --
+   validate every positive is genuinely should-trigger and every negative is a genuine HARD near-miss (not
+   a mislabeled positive), per the research; all `claude -p` eval runs GATED on explicit user approval; keep
    `check-evals.mjs` green; route through GSD.
+7. **Research-grounded (web + local), persisted per GSD.** Reusable methodology in
+   [../../research/skill-trigger-optimization.md](../../research/skill-trigger-optimization.md);
+   quick-task local research in [RESEARCH.md](RESEARCH.md). Key rulings: term-misuse (the seam) is handled by
+   an exclude-and-reroute DESCRIPTION clause naming lz-tpp (NOT runtime handoff -- a Skill has no clean
+   primitive); the seam prompt (p6) is a HARD should-not-trigger negative graded as a SUPPORTING signal, with
+   the true check being a routing/outcome test (lz-tpp wins, both skills present -- the e2e p6 -> lz-tpp result
+   already shows this); match user INTENT not jargon; be "pushy" but pull back with near-miss negatives; do
+   NOT overfit to the added prompts (fix the category); ~50/50 pos/neg, run 3x, trigger-rate > 0.5.
 6. **Re-eval reads SKILL.md from disk, NOT the live session.** Both the trigger runners (`--skill-path`,
    ephemeral skill built from disk) and the apply runner (`--plugin-dir`, loaded from disk) spawn `claude -p`
    subprocesses that re-read the file each run. So what forces re-measurement of a new description is
@@ -73,7 +85,7 @@ stale `trigger-results-d07-{recall,spec}-chunk-*.json` and `evals/d07-chunks/{re
 4. **Subagent review** (mandatory): >=2 reviewers, >=1 UNBIASED (from-scratch brief, not primed) -- check
    recall-raising vs over-trigger risk, specificity preservation, the lz-tpp seam, DST-04 fidelity, and that
    the coach/apply rewrite removes the stall without losing the behavior-preserving guarantee. Revise to clean.
-5. Apply the two SKILL.md edits (verify description char count < 1024, ASCII, all three exclusions intact);
+5. Apply the two SKILL.md edits (verify description ~1000-1500 load-bearing chars, exclusions before the 1536 cut, ASCII, all three exclusions intact);
    `git commit`.
 6. **[GATE]** Re-measure the description. **FIRST `rm trigger-results-d07-recall-chunk-*.json
    trigger-results-d07-spec-chunk-*.json`** (the canary-valid skip-gate -- the eval SET is unchanged, so
@@ -101,8 +113,9 @@ stale `trigger-results-d07-{recall,spec}-chunk-*.json` and `evals/d07-chunks/{re
 - **Wrinkle:** every kata gr1 + nx p2 `with_skill` apply run applies edits (no 0-edit run); advice-only
   recommend prompts still do not edit.
 - **Gates honored:** SKILL.md edits reviewed (incl. unbiased, and the final iterated description re-reviewed);
-  `check-evals.mjs` green; description < 1024 chars, ASCII, with ALL THREE exclusions intact (seam / feature
-  work / perf) -- do not drop one to fit; stale `trigger-results-d07-*-chunk-*.json` deleted before each
+  `check-evals.mjs` green; description in the ~1000-1500 load-bearing window (currently 1198, NOT trimmed to
+  1024), ASCII, with ALL THREE exclusions intact before the 1536 truncation (seam / feature work / perf) --
+  do not drop one to fit; stale `trigger-results-d07-*-chunk-*.json` deleted before each
   re-measure (else the runners re-report the baseline); `/reload-plugins` done at the END for live use
   (NOT a re-eval prerequisite -- subprocesses read the file from disk).
 

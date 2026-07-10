@@ -9,6 +9,9 @@
   {"query": "i have a `Config` Singleton that everything reaches into globally and it's making my tests painful. should i refactor away from the Singleton?", "should_trigger": true},
   {"query": "whats the 'rule of three' about - the guideline for when you should actually refactor duplicated code?", "should_trigger": true},
   {"query": "tests pass. i've got ~12 near-identical methods each handling one combination of {currency, taxRegion, rounding}, and adding a currency means adding a dozen more. what refactoring gets me out of this?", "should_trigger": true},
+  {"query": "this class has quietly grown into a god object and every small change means touching it -- nothing's broken, i just can't stand working in it. how do i break it up?", "should_trigger": true},
+  {"query": "`groupImports` in `packages/eslint-plugin/src/utils/runtime-lint-utils.ts` took me a while to follow. the tests pass. how would you make it easier to read?", "should_trigger": true},
+  {"query": "the `updateQuality` method in `app/gilded-rose.ts` is hard to follow. the tests are green. what would you do with it?", "should_trigger": true},
 
   {"query": "red test `expect(of(2)).toBe(1)`, my `of` is `return n <= 1 ? n : 1;`. whats the smallest edit to get it passing? doing tdd", "should_trigger": false},
   {"query": "my failing test wants fib(3) to be 2 but the code returns 1 for anything above 1. whats the minimal transformation to green it without writing the whole recursion yet?", "should_trigger": false},
@@ -19,5 +22,6 @@
   {"query": "add pagination to the GET /users endpoint in this express app", "should_trigger": false},
   {"query": "explain the SOLID principles with a short typescript example for each", "should_trigger": false},
   {"query": "my CSV parse step throws on empty rows and one of my tests is red - help me find the bug", "should_trigger": false},
-  {"query": "whats the time and space complexity of this recursive merge sort?", "should_trigger": false}
+  {"query": "whats the time and space complexity of this recursive merge sort?", "should_trigger": false},
+  {"query": "i've got a failing test `expect(parseTag('a:b')).toEqual({ scope: 'a', name: 'b' })` and `parseTag` currently just returns `null`. what refactoring gets it to pass?", "should_trigger": false}
 ]

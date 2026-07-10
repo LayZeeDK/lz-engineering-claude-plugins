@@ -70,8 +70,8 @@ Requirements for this milestone. Each maps to exactly one roadmap phase.
 
 ### Skill-Effectiveness Evals
 
-- [ ] **EVL-01**: Trigger eval -- the `description` fires on in-scope refactoring / refactor-step / smell prompts and stays quiet on near-misses (recall + specificity), run on the native eval harness
-- [ ] **EVL-02**: Behavior eval -- the coach recommends the correct next refactoring for representative smell/scenario prompts across both layers (Fowler mechanical + Kerievsky pattern-directed routing), measured with-skill vs. baseline
+- [x] **EVL-01**: Trigger eval -- the `description` fires on in-scope refactoring / refactor-step / smell prompts and stays quiet on near-misses (recall + specificity), run on the native eval harness
+- [x] **EVL-02**: Behavior eval -- the coach recommends the correct next refactoring for representative smell/scenario prompts across both layers (Fowler mechanical + Kerievsky pattern-directed routing), measured with-skill vs. baseline
 
 ## Future Requirements
 
@@ -137,8 +137,8 @@ Which phase covers which requirement. Populated during roadmap creation.
 | DST-02 | Phase 10 | Pending |
 | DST-03 | Phase 10 | Pending |
 | DST-04 | Phase 10 | Pending |
-| EVL-01 | Phase 11 | Pending |
-| EVL-02 | Phase 11 | Pending |
+| EVL-01 | Phase 11 | Complete |
+| EVL-02 | Phase 11 | Complete |
 
 **Coverage:**
 - lz-tdd@0.0.2 requirements: 36 total

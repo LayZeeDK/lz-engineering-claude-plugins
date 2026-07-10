@@ -45,7 +45,7 @@ this milestone starts at Phase 6.
 - [x] **Phase 8: Kerievsky Catalog (Refactoring to Patterns)** - All 27 pattern-directed refactorings with To/Towards/Away directions, GoF cross-refs, Fowler-primitive composition, and Ch.4 smells folded into the unified taxonomy (completed 2026-07-07)
 - [x] **Phase 9: Coach Behavior & Principle-Backing** - Dual-mode smell->named-refactoring routing (incl. de-patterning), behavior-preservation discipline, the lz-tpp seam, and the three no-oracle Beck/Feathers cross-refs (completed 2026-07-09)
 - [x] **Phase 10: Distribution & Hygiene** - Version bump to 0.0.2, README + CHANGELOG, first-party review, no-verbatim-prose hygiene, public-repo hygiene preserved (completed 2026-07-09)
-- [ ] **Phase 11: Skill-Effectiveness Evals** - Native-harness trigger recall/specificity + smell->refactoring behavior accuracy (with-skill vs baseline), late and non-blocking
+- [x] **Phase 11: Skill-Effectiveness Evals** - Native-harness trigger recall/specificity + smell->refactoring behavior accuracy (with-skill vs baseline), late and non-blocking (completed 2026-07-10)
 
 ## Phase Details
 
@@ -215,7 +215,7 @@ this milestone starts at Phase 6.
 - [x] 11-01-PLAN.md -- Vendor the proven Phase-5 eval rig verbatim into `.claude/skills/lz-refactor-workspace/`: tools/skill-creator-eval (native-fixed probe), eval-status.mjs + merge-judge.mjs verbatim, run-spec-chunks.mjs light-edit, EVAL-RESULTS.md template (D-01, D-07, D-09) (wave 1)
 - [x] 11-02-PLAN.md -- EVL-01 trigger set: evals/trigger-eval.json (10 should-trigger + 10 near-miss, incl. >= 2 lz-tpp-seam green-step negatives) + check-evals.mjs schema/count/seam/ASCII lint (D-02) (wave 1)
 - [x] 11-03-PLAN.md -- EVL-02 behavior set: evals/evals.json (>= 8 leaf-sourced scenarios spanning both layers + de-patterning + routing-boundary) + grade-run.mjs rewrite (name+layer matcher, RUBRICS, alignment selfcheck preserved) (D-03, D-04-RUBRIC, D-05) (wave 1)
-- [ ] 11-04-PLAN.md -- Readiness gate: build-time selfchecks/lints only, present the ready-to-run EVL-01 + EVL-02 commands with the locked run config, then HALT for explicit user approval (D-06, D-08, D-10) (wave 2, autonomous: false)
+- [x] 11-04-PLAN.md -- Readiness gate: build-time selfchecks/lints only, present the ready-to-run EVL-01 + EVL-02 commands with the locked run config, then HALT for explicit user approval (D-06, D-08, D-10) (wave 2, autonomous: false)
 
 ## Progress
 
@@ -236,7 +236,7 @@ Phases execute in numeric order: 6 -> 7 -> 8 -> 8.1 -> 8.2 -> 9 -> 10 -> 11
 | 8.2. Functional Catalog (INSERTED) | lz-tdd@0.0.2 | 6/6 | Complete   | 2026-07-07 |
 | 9. Coach Behavior & Principle-Backing | lz-tdd@0.0.2 | 4/4 | Complete   | 2026-07-09 |
 | 10. Distribution & Hygiene | lz-tdd@0.0.2 | 4/4 | Complete   | 2026-07-09 |
-| 11. Skill-Effectiveness Evals | lz-tdd@0.0.2 | 3/4 | In Progress|  |
+| 11. Skill-Effectiveness Evals | lz-tdd@0.0.2 | 4/4 | Complete   | 2026-07-10 |
 
 ---
 *Roadmap created: 2026-07-02 | lz-tdd@0.0.1 completed: 2026-07-04 | lz-tdd@0.0.2 roadmap added: 2026-07-04 | Phase 6 planned: 2026-07-04 | Phase 7 planned: 2026-07-04 | Phase 7 re-planned (scope-correction: 62-scope + clean-room oracle, per-refactoring leaves): 2026-07-05 | Phase 8 planned: 2026-07-05 | Phase 8 completed: 2026-07-07 | Phase 8.2 inserted (Functional Catalog): 2026-07-07 | Phase 8.2 planned (6 plans, 4 waves): 2026-07-07 | Phase 11 planned (4 plans, 2 waves): 2026-07-10*

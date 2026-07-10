@@ -59,6 +59,13 @@ function assess(i) {
     return { valid: false, reason: "unparseable" };
   }
 
+  // Valid JSON but wrong shape (WR-03): run_eval may emit an error object or a partial {} with no
+  // .results array. Treat it as invalid rather than throwing an uncaught TypeError that would kill
+  // the whole resumable run.
+  if (!r || !Array.isArray(r.results)) {
+    return { valid: false, reason: "no results array" };
+  }
+
   // The appended canary is the LAST result and is the Extract Function lookup.
   const canary = r.results.find((q) => q.query.startsWith(CANARY_PREFIX));
   const measured = r.results.filter((q) => q !== canary);
@@ -145,7 +152,19 @@ for (let i = 0; i < chunks.length; i++) {
   }
 
   const p = resultPath(i);
-  const r = JSON.parse(fs.readFileSync(p, "utf8"));
+  let r;
+
+  try {
+    r = JSON.parse(fs.readFileSync(p, "utf8"));
+  } catch {
+    continue;
+  }
+
+  // Same shape guard as assess() (WR-03): skip a valid-JSON-but-wrong-shape file instead of throwing.
+  if (!r || !Array.isArray(r.results)) {
+    continue;
+  }
+
   const canary = r.results.find((q) => q.query.startsWith(CANARY_PREFIX));
 
   if (canary) {

@@ -75,12 +75,20 @@ diff); advice-only recommend prompt still does not edit.
 **Step 6 -- Results + wrap.** Write before/after into the workspace docs; update STATE.md; commit.
 `/reload-plugins` at the END so the tuned skill is live in the interactive session (NOT a re-eval prereq).
 
-## Step 4b -- e2e GROUND-TRUTH trigger check (the real-gap test; GATED)
+## Step 4b -- e2e GROUND-TRUTH trigger check (the real-gap test; GATED) -- FULL, fresh indices run-4/5/6
 
-Re-run the e2e coach prompts via `--plugin-dir` (busy-session, both lz skills) with the NEW description and
-compare the auto-trigger rate to the e2e baseline (nx coach 1/12, kata 0/6). Recommend recommend-mode,
-`--arm with_skill`, the coach prompts (nx p1/p3/p4, kata gr1), n=3. This is what tells us whether the
-description change closes the REAL gap, since the isolated trigger-eval was already 92%.
+Re-run the e2e coach recommend prompts via `--plugin-dir` (busy session, new SKILL.md on disk) at run
+indices 4/5/6 (run-1/2/3 = OLD desc, preserved for comparison). Compare with_skill auto-trigger rate to the
+e2e baseline (nx coach 1/12, kata 0/6). Read-only (recommend), resumable via the skip guard.
+```
+R=.claude/skills/lz-refactor-workspace/e2e-nx/run-e2e.mjs
+# nx coach p1-p4 (cwd defaults to nx @ 23.0.x, read-only):
+node $R --mode recommend --arm with_skill --prompt p1 --prompt p2 --prompt p3 --prompt p4 --run 4 --run 5 --run 6
+# kata gr1+gr2 (cwd defaults to the kata):
+node $R --suite .claude/skills/lz-refactor-workspace/e2e-gilded-rose --mode recommend --arm with_skill --prompt gr1 --prompt gr2 --run 4 --run 5 --run 6
+```
+Resume after a limit: re-run the same command(s); completed runs skip. Compare run-1/2/3 (old) vs run-4/5/6
+(new) `used_refactor` per prompt.
 
 ## Baseline results (Step 1, OLD description, isolated harness)
 

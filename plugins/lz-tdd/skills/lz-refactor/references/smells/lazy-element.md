@@ -2,7 +2,7 @@
 
 Recognize by: a program element that does too little to justify its own existence.
 
-Source: both. Also named by Kerievsky (Ch.4) as Lazy Class.
+Source: both (also named by Kerievsky in Ch.4 as Lazy Class).
 
 ## How to recognize
 

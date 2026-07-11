@@ -2,7 +2,7 @@
 
 Recognize by: a class trying to do too much, with too many fields and methods.
 
-Source: both. Also named by Kerievsky (Ch.4) as Large Class.
+Source: both (also named by Kerievsky in Ch.4 as Large Class).
 
 ## How to recognize
 

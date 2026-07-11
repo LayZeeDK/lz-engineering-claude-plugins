@@ -2,7 +2,7 @@
 
 Recognize by: one kind of change forcing many small edits scattered across many modules.
 
-Source: both. Also named by Kerievsky (Ch.4) as Solution Sprawl.
+Source: both (also named by Kerievsky in Ch.4 as Solution Sprawl).
 
 ## How to recognize
 

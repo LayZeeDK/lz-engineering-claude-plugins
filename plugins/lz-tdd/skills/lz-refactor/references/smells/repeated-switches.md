@@ -2,7 +2,7 @@
 
 Recognize by: the same switch (or if/else chain) on the same value showing up in several places.
 
-Source: both. Also named by Kerievsky (Ch.4) as Switch Statements.
+Source: both (also named by Kerievsky in Ch.4 as Switch Statements).
 
 ## How to recognize
 

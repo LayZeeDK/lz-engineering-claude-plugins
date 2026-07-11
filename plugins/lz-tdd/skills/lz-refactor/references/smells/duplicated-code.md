@@ -2,7 +2,7 @@
 
 Recognize by: the same or nearly-identical code structure appearing in more than one place.
 
-Source: both. Also named by Kerievsky (Ch.4) as Duplicated Code.
+Source: both (also named by Kerievsky in Ch.4 as Duplicated Code).
 
 ## How to recognize
 

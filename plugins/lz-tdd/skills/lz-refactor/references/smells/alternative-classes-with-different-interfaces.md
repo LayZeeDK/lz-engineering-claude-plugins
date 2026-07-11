@@ -2,7 +2,7 @@
 
 Recognize by: classes that do interchangeable jobs but expose them through mismatched interfaces.
 
-Source: both. Also named by Kerievsky (Ch.4) as Alternative Classes with Different Interfaces.
+Source: both (also named by Kerievsky in Ch.4 as Alternative Classes with Different Interfaces).
 
 ## How to recognize
 

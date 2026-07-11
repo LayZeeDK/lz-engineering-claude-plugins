@@ -2,7 +2,7 @@
 
 Recognize by: a function long enough that you have to scan it to understand what it does.
 
-Source: both. Also named by Kerievsky (Ch.4) as Long Method.
+Source: both (also named by Kerievsky in Ch.4 as Long Method).
 
 ## How to recognize
 

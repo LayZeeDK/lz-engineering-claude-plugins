@@ -24,7 +24,7 @@ Provenance legend:
 | [Introduce Parameter Object](introduce-parameter-object.md) | none | the same group of arguments travels together through several functions (a data clump). |
 | [Combine Functions into Class](combine-functions-into-class.md) | none | several functions operate closely on the same piece of data and keep passing it around. |
 | [Combine Functions into Transform](combine-functions-into-transform.md) | none | several functions derive extra values from the same source record, and the source is not updated after the fact. |
-| [Split Phase](split-phase.md) | none | one block of code does two distinct things in sequence: typically it prepares some data and then computes a result from it. |
+| [Split Phase](split-phase.md) | none | one block of code does two distinct things in sequence. Typically it prepares some data and then computes a result from it. |
 
 ## Ch.7: encapsulation
 
@@ -32,9 +32,9 @@ Provenance legend:
 |---|---|---|
 | [Encapsulate Record](encapsulate-record.md) | Replace Record with Data Class | a mutable record (a plain data structure) is passed around widely and you want to control access to it and hide how it stores its data. |
 | [Encapsulate Collection](encapsulate-collection.md) | none | a class exposes a collection field, so callers can add to or remove from it behind the owning class's back. |
-| [Replace Primitive with Object](replace-primitive-with-object.md) | Replace Data Value with Object, Replace Type Code with Class | a primitive value has started to carry meaning: it needs formatting, validation, or related behavior that is duplicating itself around the code. |
+| [Replace Primitive with Object](replace-primitive-with-object.md) | Replace Data Value with Object, Replace Type Code with Class | a primitive value has started to carry meaning. It needs formatting, validation, or related behavior that is duplicating itself around the code. |
 | [Replace Temp with Query](replace-temp-with-query.md) | none | a temporary variable holds the result of an expression, and you want that value reachable from other methods or to clear the way for extracting a function. |
-| [Extract Class](extract-class.md) | none | a class is doing the work of two: a subset of its fields and the methods that use them form a cohesive unit that could stand on its own. |
+| [Extract Class](extract-class.md) | none | a class is doing the work of two, where a subset of its fields and the methods that use them form a cohesive unit that could stand on its own. |
 | [Inline Class](inline-class.md) | none | a class no longer pulls its weight, often the leftover of a refactoring that moved most of its features elsewhere. |
 | [Hide Delegate](hide-delegate.md) | none | a client reaches through an object to call a method on one of its fields, coupling the client to that delegate's structure. |
 | [Remove Middle Man](remove-middle-man.md) | none | a class has grown so many simple delegating methods that the forwarding itself is the burden, and clients would be clearer talking to the delegate directly. |

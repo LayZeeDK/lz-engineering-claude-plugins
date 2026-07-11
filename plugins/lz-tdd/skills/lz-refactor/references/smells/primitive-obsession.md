@@ -2,7 +2,7 @@
 
 Recognize by: bare primitives standing in for concepts that deserve their own type.
 
-Source: both. Also named by Kerievsky (Ch.4) as Primitive Obsession.
+Source: both (also named by Kerievsky in Ch.4 as Primitive Obsession).
 
 ## How to recognize
 

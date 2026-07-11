@@ -19,7 +19,7 @@ targets no GoF pattern, so direction does not apply.
 | [Move Creation Knowledge to Factory](move-creation-knowledge-to-factory.md) | To | Factory | the knowledge of which concrete type to build, and how to wire it, is sprawled across the collaborator classes that produce or hold these objects. |
 | [Encapsulate Classes with Factory](encapsulate-classes-with-factory.md) | To | Factory | clients instantiate a family of related concrete classes directly, and you would rather they depend only on a shared interface plus one factory. |
 | [Introduce Polymorphic Creation with Factory Method](introduce-polymorphic-creation-with-factory-method.md) | To | Factory Method | sibling subclasses each carry a near-identical method that differs only in the object it creates. |
-| [Encapsulate Composite with Builder](encapsulate-composite-with-builder.md) | Away | Builder | clients build a Composite by hand (creating nodes and wiring parent to child), and that assembly is verbose and easy to get wrong. |
+| [Encapsulate Composite with Builder](encapsulate-composite-with-builder.md) | Away | Builder | clients build a Composite by hand (creating nodes and wiring parent to child) and that assembly is verbose and easy to get wrong. |
 | [Inline Singleton](inline-singleton.md) | Away | Singleton | a class is a Singleton, but its single-instance policy and global access are hiding a dependency and making the callers hard to test. |
 
 ## Ch.7: Simplification

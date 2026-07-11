@@ -76,7 +76,7 @@ in `SKILL.md` (241c1fb): single-target coach auto-trigger 1/18 -> 18/18 (specifi
   truncation. ASCII-only. (See [[skill-description-char-cap]].)
 
 ### Multi-round autonomy (Gap 2 -- SC2) -- GA-1, resolved WITH EVIDENCE
-- **D-05 [KEY, evidence-backed via the 3-lens panel]:** Refined Option A -- "scoped autonomous
+- **D-05:** [KEY, evidence-backed via the 3-lens panel] Refined Option A -- "scoped autonomous
   drive to a FIXPOINT, with a terminal review gate and structural guards." A sweep is NOT a new
   mode, flag, or sub-skill: it is the EXISTING command/drive arm with its termination changed
   from "do one refactoring, then stop" to "loop the decision procedure to a fixpoint WITHIN the

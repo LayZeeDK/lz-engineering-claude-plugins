@@ -342,19 +342,22 @@ node run-e2e.mjs --report   # Pass@1/@3/^3 per (mode,arm,prompt) + pooled
 
 **Note:** No package-name or version assumptions exist (no installs). The exact final `description` and sweep phrasings are Claude's-discretion and are selected empirically by held-out score, not asserted here.
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Does the broadened description leak onto feature-work / performance sweeps or the green step?**
+   - RESOLVED: keep the perf-sweep negative and broaden the description without a literal "not for performance" clause -- implemented by 12-01 (the 3 dual-written sweep negatives incl. perf-sweep, which carry the specificity guarantee) + 12-02 (description broadening, no perf-exclusion clause per Open Question 1); the metered specificity run (12-03) adjudicates any residual leak.
    - What we know: the 3 sweep-shaped hard negatives (feature, perf, red-test) plus the existing 3-boundary exclusions are the guard.
    - What's unclear: whether the perf-sweep negative stays quiet given the description already leaves single-target perf partly in scope (a known ambiguity carried from the quick task).
    - Recommendation: keep the perf-sweep negative; let the specificity run decide; sharpen the anchor only if it becomes a persistent false positive (do not add a literal "not for performance" clause -- overfitting).
 
 2. **One plan or two (Gap 1 vs Gap 2)?**
+   - RESOLVED: both edits (Gap 1 description + Gap 2 sweep-drive cluster) ship in ONE plan (12-02), sharing a single D-17 review and the single reload-plugins gate; the instruments (12-01) and the present-and-halt gate (12-03) are separate plans for wave/parallelism reasons, not a Gap-1/Gap-2 split.
    - What we know: D-01 splits the gaps conceptually; both edit the same SKILL.md.
    - What's unclear: whether shipping them as one plan (one review, one reload) or two is lower-friction.
    - Recommendation: discretion. One combined plan is likely lazier given both edits touch one file and share the D-17 review + the single reload-plugins gate; note the tradeoff if split.
 
 3. **`k` for the `no_skill` control?**
+   - RESOLVED: k=1 for the base-Opus no_skill control (a reproduction reference), k=3 for the with_skill / invoke_skill arms where autonomy-precision is measured -- implemented by the 12-03 presented protocol (D-15/D-16 locked run config).
    - What we know: k=1 acceptable if budget-bound (discretion), with a tradeoff note.
    - Recommendation: k=1 for the base-Opus control (it is a reproduction reference, not the headline); keep k=3 for the with_skill / invoke_skill arms where autonomy-precision is measured.
 

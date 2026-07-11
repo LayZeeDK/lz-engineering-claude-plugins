@@ -254,8 +254,16 @@ Phases execute in numeric order: 6 -> 7 -> 8 -> 8.1 -> 8.2 -> 9 -> 10 -> 11 -> 1
 **Plans**: 3 plans (3 waves)
 
 Plans:
+**Wave 1**
+
 - [ ] 12-01-PLAN.md -- Measurement instruments: +3 sweep trigger positives + 3 dual-written sweep negatives (check-evals green) + one multi-round sweep-command e2e scenario per suite (nx p7cmd + kata gr3cmd), each seeded with N safe rounds + one should-pause trap (wave 1)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 12-02-PLAN.md -- SKILL.md edits: broaden the description to the whole-package sweep intent category (Gap 1) + add the sweep-drive loop-to-fixpoint cluster in the command arm (Gap 2); D-17 subagent review (incl. unbiased) + hygiene/validate gates + commit (wave 2)
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 12-03-PLAN.md -- Readiness gate (autonomous: false): present the before/after protocol with the locked run config, ask the user to /reload-plugins, HALT (wave 3)
 
 ---

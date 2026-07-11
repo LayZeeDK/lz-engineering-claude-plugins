@@ -42,5 +42,17 @@
   {
     "query": "i've got a failing test `expect(parseTag('a:b')).toEqual({ scope: 'a', name: 'b' })` and `parseTag` currently just returns `null`. what refactoring gets it to pass?",
     "should_trigger": false
+  },
+  {
+    "query": "green across the `api` package - now go through every route module and add request-validation and rate-limiting to each one.",
+    "should_trigger": false
+  },
+  {
+    "query": "the whole `reporting` module is green but slow. sweep the package and rewrite the hot paths to be faster - i want to halve the current latency.",
+    "should_trigger": false
+  },
+  {
+    "query": "a bunch of failing tests across the `parser` package after a spec bump - whats the smallest edit to make each one pass? doing tdd.",
+    "should_trigger": false
   }
 ]

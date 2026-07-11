@@ -12,6 +12,9 @@
   {"query": "this class has quietly grown into a god object and every small change means touching it -- nothing's broken, i just can't stand working in it. how do i break it up?", "should_trigger": true},
   {"query": "`groupImports` in `packages/eslint-plugin/src/utils/runtime-lint-utils.ts` took me a while to follow. the tests pass. how would you make it easier to read?", "should_trigger": true},
   {"query": "the `updateQuality` method in `app/gilded-rose.ts` is hard to follow. the tests are green. what would you do with it?", "should_trigger": true},
+  {"query": "the whole `billing` package is green but it's grown messy over a few sprints - can you go through the module, spot the code smells, and clean them up with the right named refactorings?", "should_trigger": true},
+  {"query": "all green across `src/services`. i'd like to sweep the whole directory for smells and refactor them away in one pass - which patterns apply where?", "should_trigger": true},
+  {"query": "tests pass everywhere. our `auth` library has accumulated duplication and long functions across several files - identify the smells codebase-wide and tidy them up.", "should_trigger": true},
 
   {"query": "red test `expect(of(2)).toBe(1)`, my `of` is `return n <= 1 ? n : 1;`. whats the smallest edit to get it passing? doing tdd", "should_trigger": false},
   {"query": "my failing test wants fib(3) to be 2 but the code returns 1 for anything above 1. whats the minimal transformation to green it without writing the whole recursion yet?", "should_trigger": false},
@@ -23,5 +26,8 @@
   {"query": "explain the SOLID principles with a short typescript example for each", "should_trigger": false},
   {"query": "my CSV parse step throws on empty rows and one of my tests is red - help me find the bug", "should_trigger": false},
   {"query": "whats the time and space complexity of this recursive merge sort?", "should_trigger": false},
-  {"query": "i've got a failing test `expect(parseTag('a:b')).toEqual({ scope: 'a', name: 'b' })` and `parseTag` currently just returns `null`. what refactoring gets it to pass?", "should_trigger": false}
+  {"query": "i've got a failing test `expect(parseTag('a:b')).toEqual({ scope: 'a', name: 'b' })` and `parseTag` currently just returns `null`. what refactoring gets it to pass?", "should_trigger": false},
+  {"query": "green across the `api` package - now go through every route module and add request-validation and rate-limiting to each one.", "should_trigger": false},
+  {"query": "the whole `reporting` module is green but slow. sweep the package and rewrite the hot paths to be faster - i want to halve the current latency.", "should_trigger": false},
+  {"query": "a bunch of failing tests across the `parser` package after a spec bump - whats the smallest edit to make each one pass? doing tdd.", "should_trigger": false}
 ]

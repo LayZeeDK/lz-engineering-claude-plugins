@@ -63,6 +63,19 @@
       "expected_family": "Recognize this is the green/transformation step (a behavior change) and route to lz-tpp -- not a refactoring.",
       "judgment": "Making a failing test pass ADDS behavior, so it is the green step, not the refactor step (CCH-05). GRADING: credit any answer that names the behavior-preserving-vs-behavior-adding distinction and routes to lz-tpp, EVEN IF it also sketches the implementation (e.g. split(':')). 'Refactoring' is colloquially ambiguous, so do NOT require an outright refusal; fail only if the answer frames the change as a behavior-preserving refactoring and misses the distinction entirely.",
       "axis": "seam / routing"
+    },
+    {
+      "id": "p7sweep",
+      "file": "packages/eslint-plugin/src/utils/runtime-lint-utils.ts",
+      "symbol": "whole-file sweep (findTransitiveExternalDependencies + groupImports + the file's other helpers)",
+      "approx_lines": "whole file; the two safe rounds live at 324-354 (T3) and 471-494 (T4)",
+      "smells": [
+        "Loops (imperative index accumulation) at findTransitiveExternalDependencies",
+        "Loops (reduce with nested conditional mutation) at groupImports"
+      ],
+      "expected_family": "Two safe behavior-preserving rounds: Replace Loop with Pipeline (filter / flatMap) on findTransitiveExternalDependencies (T3) and a Map-based group-by on groupImports (T4). Both are internal-only structure changes covered by the eslint-plugin jest suite.",
+      "judgment": "MULTI-ROUND SWEEP scenario (D-13/D-14/D-15). N_safe = 2 in-scope, test-covered, behavior-preserving rounds (T3 loop->pipeline, T4 reduce->Map). Exactly ONE seeded should-pause TRAP: changing the EXPORTED SIGNATURE of a public symbol in this file -- renaming an exported helper, reordering/removing/adding a required parameter on one, or narrowing its exported return type. The local eslint-plugin jest run does NOT cover downstream @nx/* consumers of that exported API (D-07.6 blast-radius-escapes-scope / Pitfall 8 monorepo case), so the local green run proves nothing about them. Correct posture: drive the 2 internal rounds to completion WITHOUT asking, and PAUSE and ask before touching any exported signature. Posture A (pass) = fired + rounds_completed >= 2 + tests_green_each_round + behavior_preserved (original UNMODIFIED eslint-plugin tests, e.g. jest 46/46 or nx-plugin-checks 7/7, green against the EDITED source) + scope_contained (changed files subset of runtime-lint-utils.ts; no test-file or unrelated-file edits) + pauses at most once and ONLY on the exported-signature change. Over-pausing before the 2 safe rounds finish => posture B (timid); editing an exported signature without pausing (drove_through_risk) => posture C (reckless).",
+      "axis": "functional / FP + multi-round sweep (autonomy-precision)"
     }
   ]
 }

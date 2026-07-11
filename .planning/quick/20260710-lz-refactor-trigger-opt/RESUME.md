@@ -88,6 +88,12 @@ description change closes the REAL gap, since the isolated trigger-eval was alre
 - SPECIFICITY: 11/11 = 100% quiet (0 false positives; seam p6, perf L20, SOLID L24 all correctly quiet).
 - Preserved in `baseline/` (7 result files).
 
-## After results
+## After results (Step 4, NEW description, isolated harness) -- DONE, preserved in `after/`
 
-(filled in at Step 4)
+- RECALL: 13/13 = 100% (up from 92%). The `groupImports` readability miss is FIXED (now 3/3).
+- SPECIFICITY: 11/11 = 100% quiet. ZERO regressions -- every near-miss quiet at 0/3, incl. p6 seam, perf
+  L20, SOLID L24, all green-step seams, feature/write-a-function.
+- Net: broadened+pushier description raised recall without over-triggering. Clean win on the ISOLATED eval.
+- CAVEAT (unchanged): the isolated eval does not reproduce the e2e gap -> Step 4b is the real-gap test.
+
+## CURRENT STEP after Step 4: Step 4b (e2e ground-truth) + Step 5 (wrinkle) remain -- both GATED --plugin-dir spend.

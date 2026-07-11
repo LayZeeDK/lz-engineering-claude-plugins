@@ -7,6 +7,7 @@
   "prompts": [
     { "id": "p1", "file": "p1-enforce-module-boundaries-run.md", "target": "T1", "code": true },
     { "id": "p2", "file": "p2-validate-entry-mode.md", "target": "T2", "code": true },
+    { "id": "p2cmd", "file": "p2cmd-validate-entry-command.md", "target": "T2", "code": true },
     { "id": "p3", "file": "p3-transitive-deps-loops.md", "target": "T3", "code": true },
     { "id": "p4", "file": "p4-group-imports-reduce.md", "target": "T4", "code": true },
     { "id": "p5", "file": "p5-reference-depattern.md", "target": "T5", "code": false },

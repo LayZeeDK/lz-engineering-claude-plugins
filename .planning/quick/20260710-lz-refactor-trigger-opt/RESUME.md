@@ -4,7 +4,7 @@ Staged, resumable execution of the gated `claude -p` evals. Every runner is idem
 usage-limit hit mid-run is safe: re-invoke the SAME command and it resumes (skips valid/completed work).
 Update the **CURRENT STEP** marker below as each phase completes.
 
-## CURRENT STEP: 3 done (SKILL.md edited; pending final in-context review + commit). Next: Step 4 after-eval (GATED) + new Step 4b e2e ground-truth (GATED).
+## CURRENT STEP: COMPLETE (2026-07-11). Steps 1-6 done. Step 4b e2e ground-truth 1/18 -> 18/18 (commit ee95cd4); Step 5 apply-verify: command -> drives 6/6, question -> advises 7/8, incl. reviewed imperative prompts p2cmd/gr1cmd (commit c7942cb). Only remaining action: user runs /reload-plugins to make the tuned skill live in the interactive session.
 
 ## KEY FINDING (2026-07-11): the isolated trigger-eval does NOT reproduce the e2e gap
 
@@ -104,4 +104,4 @@ Resume after a limit: re-run the same command(s); completed runs skip. Compare r
 - Net: broadened+pushier description raised recall without over-triggering. Clean win on the ISOLATED eval.
 - CAVEAT (unchanged): the isolated eval does not reproduce the e2e gap -> Step 4b is the real-gap test.
 
-## CURRENT STEP after Step 4: Step 4b (e2e ground-truth) + Step 5 (wrinkle) remain -- both GATED --plugin-dir spend.
+## CURRENT STEP after Step 4: DONE. Step 4b (e2e ground-truth) closed the coach gap 1/18 -> 18/18; Step 5 (wrinkle) confirmed command-drives / question-advises. Both committed (ee95cd4, c7942cb).

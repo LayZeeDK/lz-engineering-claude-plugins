@@ -82,6 +82,37 @@ edits** -- advice only -- i.e. the skill's no-edit instruction can override an e
    measurably beats a strong baseline; on plain mechanical Extract Function the base model is already
    complete.
 
+## Resolution -- trigger-opt + coach/apply rewrite (2026-07-11)
+
+Both highest-leverage implications above were addressed and verified end-to-end (new `description` +
+question-vs-command coach/apply rewrite, SKILL.md commit 241c1fb; verification commits ee95cd4, c7942cb).
+
+**Implication 1 (coach-mode auto-triggering) -- CLOSED.** Re-running the coach `recommend` prompts with
+the new description, same busy `--plugin-dir` sessions, fresh run indices:
+
+| context | before | after |
+|---|---|---|
+| nx coach p1-p4 (recommend) | 1/12 | **12/12** |
+| kata gr1/gr2 (recommend) | 0/6 | **6/6** |
+| combined coach auto-trigger | **1/18 (6%)** | **18/18 (100%)** |
+
+The isolated trigger-eval moved 92% -> 100% recall with specificity held at 100% (11/11 quiet); the
+`groupImports` readability-only miss is fixed. The isolated harness did NOT reproduce the e2e gap, so the
+`--plugin-dir` re-run above is the ground-truth confirmation.
+
+**Implication 2 (coach-vs-apply tension) -- RESOLVED.** The rewrite bifurcates on user intent instead of a
+blanket "never edit":
+
+| prompt intent | edited/n | behavior |
+|---|---|---|
+| deliberative question ("is X a good idea?", "what would you do?") | 1/8 | advise + ask before editing |
+| explicit command ("refactor it now, apply it, run the tests") | **6/6** | drive edits + run tests, leave uncommitted |
+
+The command-path prompts (`p2cmd`, `gr1cmd`) were subagent-reviewed (including an unbiased reviewer) before
+the run to confirm they are genuine, non-leading commands. Driven refactors kept the target tests green and
+were behavior-preserving (nx `nx-plugin-checks` 7/7; kata approvals golden master green). The Finding 4
+"fired but zero edits" case is now the correct response to a *question*, not a stall on a *command*.
+
 ## Caveats
 
 - Effort = `high` (defacto default), not the maintainer's `xhigh`; single model (opus-4-8).

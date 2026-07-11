@@ -1,33 +1,45 @@
 {
   "version": "1.0",
-  "timestamp": "2026-07-07T17:42:55.330Z",
-  "phase": "8.2",
-  "phase_name": "Functional Catalog (INSERTED)",
-  "phase_dir": ".planning/phases/08.2-functional-catalog-inserted",
-  "plan": null,
-  "task": null,
-  "total_tasks": 0,
+  "timestamp": "2026-07-11T21:54:32.599Z",
+  "phase": "12",
+  "phase_name": "autonomous-multi-round-refactoring-for-whole-package-sweeps",
+  "phase_dir": ".planning/phases/12-autonomous-multi-round-refactoring-for-whole-package-sweeps",
+  "plan": 3,
+  "task": 1,
+  "total_tasks": 3,
   "status": "paused",
   "completed_tasks": [
-    {"id": 1, "name": "Board-ratified functional-catalog design (locked template + check-functional spec)", "status": "done", "commit": "9e9f7ed"},
-    {"id": 2, "name": "Roadmap structure: insert Phase 8.2, reconcile Phase 8, re-scope Phase 9", "status": "done", "commit": "e8a5082"},
-    {"id": 3, "name": "Phase 8.2 context gathered (08.2-CONTEXT.md, D-01..D-14)", "status": "done", "commit": "651fb99"}
+    {"id": "discuss", "name": "12-CONTEXT.md (D-01..D-18; GA-1 resolved via 3-lens panel to refined Option A)", "status": "done", "commit": "2200e78"},
+    {"id": "plan", "name": "3 plans + 1 revision; plan-checker VERIFICATION PASSED; decision-coverage 18/18", "status": "done", "commit": "a7cc869"},
+    {"id": "12-01", "name": "Measurement instruments: 3 sweep trigger positives + 3 dual-written negatives (check-evals green) + nx p7cmd + kata gr3cmd seeded sweep scenarios", "status": "done", "commit": "ba2af4e"},
+    {"id": "12-02", "name": "SKILL.md: broadened sweep-trigger description + sweep-drive loop-to-fixpoint cluster (7 D-07 pauses); D-17 reviewed incl. 1 unbiased; plugin validate + hygiene clean", "status": "done", "commit": "09e5c89"},
+    {"id": "sc1-isolated", "name": "SC1 isolated trigger AFTER: recall 16/16=100% (incl 3 sweep positives), specificity 14/14=100% quiet (incl 3 sweep negatives + 5 lz-tpp seam)", "status": "done", "commit": "n/a (eval run; results in workspace)"},
+    {"id": "npm-check-fix", "name": "Side fix: re-mirrored 3 Fowler + 1 Kerievsky README selectors + 8 smell Source tags -> npm run check GREEN; gated by oracle-reviewer + humanizer + code review", "status": "done", "commit": "73db6fe"}
   ],
   "remaining_tasks": [
-    {"id": 4, "name": "Run /gsd-plan-phase 8.2 (produces 08.2-RESEARCH + PATTERNS + PLAN(s))", "status": "not_started"},
-    {"id": 5, "name": "Execute plans (build check-functional RED-first, then author leaves + cross-links)", "status": "not_started"},
-    {"id": 6, "name": "verify_phase_goal + secure + validate + extract-learnings", "status": "not_started"},
-    {"id": 7, "name": "Proceed to Phase 9 (coach behavior + principle-backing)", "status": "not_started"}
+    {"id": "12-03-nx-smoke", "name": "nx e2e smoke (p7cmd apply, with_skill + invoke_skill, k=3): INTERRUPTED by user before any run completed (0 graded). Re-run (metered, gated) or grade whatever lands.", "status": "not_started"},
+    {"id": "12-03-grade", "name": "Grade posture per D-14 (fired / rounds>=2 / tests-green-each-round / behavior_preserved / scope_contained / stopped_at_seeded_risk); report autonomy-precision D-15.", "status": "not_started"},
+    {"id": "12-03-kata-baseline", "name": "Per staged plan: after nx smoke reads right, scope kata suite (gr3cmd) + optional pre-edit baseline (worktree @ e535070) for the {trigger,drive}x{nx,kata}x{before,after} matrix + 18/18 no-regression recommend re-run (SC1 e2e, SC4).", "status": "not_started"},
+    {"id": "12-close", "name": "Once both gaps measured CLOSED in both suites: mark 12-03 done, then verify_phase_goal -> secure-phase -> validate-phase -> extract-learnings; mark phase complete.", "status": "not_started"}
   ],
-  "blockers": [],
-  "human_actions_pending": [],
+  "blockers": [
+    {"description": "Metered claude -p e2e apply runs are user-gated and historically fragile on nx/Windows (~20 min/run)", "type": "human_action", "workaround": "User pre-approved the spend conditional on agent-reviewed Markdown (satisfied); run in background, grade from meta.json+diff.patch+transcript"},
+    {"description": "Isolated trigger harness does NOT reproduce the e2e sweep-trigger gap; isolated 100%/100% is necessary but not sufficient for Gap 1 e2e or Gap 2/SC2", "type": "technical", "workaround": "The e2e --plugin-dir apply runs are the ground-truth proof; isolated result only proves no-regression + sweep positives fire in isolation"}
+  ],
+  "human_actions_pending": [
+    {"action": "Decide whether to re-run the nx smoke and how far to scale the e2e (kata + baseline)", "context": "User chose staged: smoke-first then scope together; the smoke was interrupted before completing", "blocking": false}
+  ],
   "decisions": [
-    {"decision": "No owned oracle for this phase; correctness anchor is the committed research artifact + check-functional + tsc --strict. Do NOT open the oracle-access checkpoint that Phases 7/8/8.1 used.", "rationale": "There is no book to verify FP idioms against; the board-locked research artifact is the source. D-06.", "phase": "8.2"},
-    {"decision": "By-idiom organization on the locked Kerievsky-aligned template; one unified functional-catalog for de-patterning + native FP, distinguished by Correspondence: dissolves-from | alternative-to.", "rationale": "Two-round advisor board, unanimous RATIFY. D-01..D-04.", "phase": "8.2"},
-    {"decision": "Native FP (Option/Either, functor/monad, lens, currying, transducers) is in scope as alternative-to leaves; flagged FUT-04.", "rationale": "User-directed inclusion. D-08.", "phase": "8.2"},
-    {"decision": "Full decision set D-01..D-14 lives in 08.2-CONTEXT.md; the design source of record is research S10-13.", "rationale": "Downstream researcher/planner read these; decision-coverage gate expects D-NN citations.", "phase": "8.2"}
+    {"decision": "GA-1 multi-round autonomy = refined Option A (scoped autonomous drive to a fixpoint + terminal review gate + 7 structural pause guards)", "rationale": "Trap-quadrant resolved WITH EVIDENCE via a 3-lens independent panel (unbiased/adversarial/evals-design) since AskUserQuestion was declined and the user was away", "phase": "12"},
+    {"decision": "Ran 12-02 inline (not via executor); D-17 review at orchestrator level", "rationale": "gsd-executor cannot spawn review subagents; review-before-commit required an orchestrator-run panel incl. >=1 unbiased", "phase": "12"},
+    {"decision": "npm-check fix = README->leaf mirror + Source-tag reformat only (frozen leaf substance untouched)", "rationale": "Minimizes oracle/DST-04 exposure; passed oracle-reviewer + humanizer + code review", "phase": "12"},
+    {"decision": "Standing gate policy this session: Markdown changes must pass humanizer (preserve tags like Source:/Use when:) AND book-derived Markdown must pass oracle-reviewer (fidelity + no-prose-too-close/DST-04) AND code review", "rationale": "User directives this session", "phase": "12"}
   ],
-  "uncommitted_files": [],
-  "next_action": "In a fresh session run: /gsd-plan-phase 8.2 (padded id 08.2). It reads 08.2-CONTEXT.md (D-01..D-14) + research S10-13 as the source of record, builds check-functional to a RED baseline, then plans the functional-catalog leaves + README + OO-leaf cross-links.",
-  "context_notes": "Design is fully locked (two-round advisor board). Planning is mechanical from here. Heed the advisory anti-patterns in .continue-here.md: cite D-NN as '- **D-NN:**' (colon-flush) in plan must_haves for the decision-coverage gate; SKIP the UI gate (this is Markdown skill authoring, no frontend); NO oracle checkpoint; use padded phase id 08.2. The check-functional harness extends the existing non-shipped workspace at .claude/skills/lz-refactor-workspace/tools/."
+  "uncommitted_files": [
+    ".claude/skills/lz-refactor-workspace/evals/d07-chunks/recall-chunk-*.json (transient chunk inputs; delete before any re-run per D-12)",
+    ".claude/skills/lz-refactor-workspace/evals/d07-chunks/spec-chunk-*.json (transient)",
+    ".claude/skills/lz-refactor-workspace/trigger-results-d07-{recall,spec}-chunk-*.json (the AFTER isolated-trigger results: recall 100% / spec 100%)"
+  ],
+  "next_action": "Read this handoff + 12-03-PLAN.md. Confirm nx is on throwaway branch lz-refactor-e2e-smoke (clean). Then EITHER re-run the nx smoke (node .claude/skills/lz-refactor-workspace/e2e-nx/run-e2e.mjs --mode apply --prompt p7cmd --arm with_skill --cwd D:/projects/github/nrwl/nx --runs 3 ; then --arm invoke_skill) OR ask the user how far to scale. Do NOT start metered runs without the user's go-ahead.",
+  "context_notes": "Phase 12 autonomous chain (discuss->plan->execute) completed cleanly through the 12-03 readiness gate. SKILL.md edit is committed AND live (user ran /reload-plugins). SC1 isolated trigger is green (recall+spec 100%, seam held). The only remaining work is the metered e2e apply proof (Gap 1 e2e sweep auto-trigger + Gap 2/SC2 multi-round drive) in both suites, then the phase-completion sequence. The npm run check GREEN fix (73db6fe) was a separate pre-existing humanize-drift cleanup done mid-pause at user request, fully gated. nx repo is parked on throwaway branch lz-refactor-e2e-smoke @ origin/23.0.x (clean); restore to 23.0.x + delete the branch when e2e is done."
 }

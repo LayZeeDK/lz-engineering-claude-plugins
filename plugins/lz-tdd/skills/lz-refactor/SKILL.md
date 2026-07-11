@@ -4,13 +4,16 @@ description: >-
   This skill should be used for the refactor step of red-green-refactor TDD: improving the
   STRUCTURE or READABILITY of existing, working code WITHOUT changing its behavior. Use it whenever
   a developer wants to clean up, tidy, simplify, restructure, or de-duplicate code whose tests
-  already pass, or make such code more readable; says a function, class, or module is hard to read,
+  already pass, or make such code more readable; wants to sweep a whole package, directory, module,
+  or codebase -- finding the code smells across many files and refactoring them away, not just one
+  function; says a function, class, or module is hard to read,
   hard to follow, messy, doing too much, or a pain to work with; or mentions a code smell, a
   refactoring, or a design pattern in existing code (applying one to it, or refactoring away from
   one / de-patterning) -- even when they only ask "what would you do with this?", "anything you'd
   refactor?", or "how would you make it easier to read?" and never name a smell or say the word
   refactor. It recommends the next named Fowler or Kerievsky refactoring and, when the developer
-  asks you to apply it, performs it in small behavior-preserving steps; it also explains a
+  asks you to apply it, performs it in small behavior-preserving steps -- driving a whole-package
+  sweep across multiple rounds to completion when asked; it also explains a
   refactoring, code smell, refactoring principle, or design pattern on request. Do NOT use it to
   make a failing or red test pass or otherwise ADD or CHANGE behavior -- that is the
   green/transformation step; use lz-tpp instead -- nor for writing new code, adding a feature, or
@@ -80,6 +83,32 @@ it (refactor this for me, apply it, go ahead and make the change, do it), perfor
 in small behavior-preserving steps, running the tests after each; then stop and leave the changes for the
 developer to review -- do not commit unless they ask. Refusing to edit when you were plainly asked to
 apply is the failure to avoid, not caution.
+
+When the command names a whole-package, directory, module, or codebase scope -- sweep the package,
+refactor away every smell in this module, clean up the whole directory -- do not stop after a single
+refactoring. Repeat the decision procedure to a fixpoint within that named scope: scan for the next
+warranted, in-scope, test-covered refactoring, apply it in the same small behavior-preserving steps,
+run the tests, and keep going across rounds without asking between them. Work forward-only -- never
+re-touch a region an earlier round already refactored, and never introduce an abstraction in one
+round and remove it in another. Stop when a scan pass finds nothing warranted and actionable left in
+scope, or a sensible ceiling is reached; as a default, once a sweep has run several rounds or begun
+touching many files, checkpoint with the developer and confirm scope before pressing on rather than
+churning unbounded. Then land at a terminal review gate -- report how many rounds ran with the tests
+green after each, leave every change uncommitted for the developer to review, and never commit unless
+asked. The end goal is that fixpoint, not zero smells at any cost. Run the tests after every step; if
+a step turns them red, revert that step and take a smaller one, and halt the sweep if green cannot be
+restored (the behavior-preservation discipline of step 5 above). Even mid-sweep, pause and surface
+instead of silently proceeding on any of these: the green-step seam or a behavior-changing item --
+route it to lz-tpp and exclude it, per step 1 above; an untested target -- stop and pin current
+behavior with characterization tests first, per step 5 above; a pattern you would only be adding on
+spec -- leave it with a one-line reason, since the step-4 balance above decides whether a pattern
+earns its keep (de-patterning away stays autonomous); genuinely ambiguous behavior (pin it with a
+characterization test or ask, never guess); a change whose blast radius escapes the named scope,
+such as altering an exported or public-API symbol or editing a caller in another package outside this
+target's own test suite (pause and ask); and a flaky or too-slow-to-run-each-step suite (fall back to
+advising rather than driving). Lead with the pattern-directed, de-patterning, and seam judgment calls
+-- that is where this skill beats a strong model working unaided; on plain mechanical extractions a
+capable model is already close, so do not churn a package for its own sake.
 
 ## Fowler catalog (mechanical refactorings)
 

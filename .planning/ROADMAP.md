@@ -237,7 +237,7 @@ Phases execute in numeric order: 6 -> 7 -> 8 -> 8.1 -> 8.2 -> 9 -> 10 -> 11 -> 1
 | 9. Coach Behavior & Principle-Backing | lz-tdd@0.0.2 | 4/4 | Complete   | 2026-07-09 |
 | 10. Distribution & Hygiene | lz-tdd@0.0.2 | 4/4 | Complete   | 2026-07-09 |
 | 11. Skill-Effectiveness Evals | lz-tdd@0.0.2 | 4/4 | Complete    | 2026-07-10 |
-| 12. Autonomous multi-round refactoring for whole-package sweeps | lz-tdd@0.0.2 | 0/0 | Not planned | - |
+| 12. Autonomous multi-round refactoring for whole-package sweeps | lz-tdd@0.0.2 | 0/3 | Planned | - |
 
 ### Phase 12: Autonomous multi-round refactoring for whole-package sweeps
 
@@ -251,10 +251,12 @@ Phases execute in numeric order: 6 -> 7 -> 8 -> 8.1 -> 8.2 -> 9 -> 10 -> 11 -> 1
   3. Skill instruction, description, trigger-optimization, and eval-query changes are informed by research (source-authority precedence per PROJECT.md).
   4. Both gaps are measured CLOSED (before/after in both suites) -- the phase does not complete on assertion alone.
 
-**Plans**: 0 plans
+**Plans**: 3 plans (3 waves)
 
 Plans:
-- [ ] TBD (run /gsd-plan-phase 12 to break down)
+- [ ] 12-01-PLAN.md -- Measurement instruments: +3 sweep trigger positives + 3 dual-written sweep negatives (check-evals green) + one multi-round sweep-command e2e scenario per suite (nx p7cmd + kata gr3cmd), each seeded with N safe rounds + one should-pause trap (wave 1)
+- [ ] 12-02-PLAN.md -- SKILL.md edits: broaden the description to the whole-package sweep intent category (Gap 1) + add the sweep-drive loop-to-fixpoint cluster in the command arm (Gap 2); D-17 subagent review (incl. unbiased) + hygiene/validate gates + commit (wave 2)
+- [ ] 12-03-PLAN.md -- Readiness gate (autonomous: false): present the before/after protocol with the locked run config, ask the user to /reload-plugins, HALT (wave 3)
 
 ---
 *Roadmap created: 2026-07-02 | lz-tdd@0.0.1 completed: 2026-07-04 | lz-tdd@0.0.2 roadmap added: 2026-07-04 | Phase 6 planned: 2026-07-04 | Phase 7 planned: 2026-07-04 | Phase 7 re-planned (scope-correction: 62-scope + clean-room oracle, per-refactoring leaves): 2026-07-05 | Phase 8 planned: 2026-07-05 | Phase 8 completed: 2026-07-07 | Phase 8.2 inserted (Functional Catalog): 2026-07-07 | Phase 8.2 planned (6 plans, 4 waves): 2026-07-07 | Phase 11 planned (4 plans, 2 waves): 2026-07-10 | Phase 12 added: 2026-07-11*

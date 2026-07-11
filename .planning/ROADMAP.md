@@ -237,7 +237,7 @@ Phases execute in numeric order: 6 -> 7 -> 8 -> 8.1 -> 8.2 -> 9 -> 10 -> 11 -> 1
 | 9. Coach Behavior & Principle-Backing | lz-tdd@0.0.2 | 4/4 | Complete   | 2026-07-09 |
 | 10. Distribution & Hygiene | lz-tdd@0.0.2 | 4/4 | Complete   | 2026-07-09 |
 | 11. Skill-Effectiveness Evals | lz-tdd@0.0.2 | 4/4 | Complete    | 2026-07-10 |
-| 12. Autonomous multi-round refactoring for whole-package sweeps | lz-tdd@0.0.2 | 1/3 | In Progress|  |
+| 12. Autonomous multi-round refactoring for whole-package sweeps | lz-tdd@0.0.2 | 2/3 | In Progress|  |
 
 ### Phase 12: Autonomous multi-round refactoring for whole-package sweeps
 
@@ -260,7 +260,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 12-02-PLAN.md -- SKILL.md edits: broaden the description to the whole-package sweep intent category (Gap 1) + add the sweep-drive loop-to-fixpoint cluster in the command arm (Gap 2); D-17 subagent review (incl. unbiased) + hygiene/validate gates + commit (wave 2)
+- [x] 12-02-PLAN.md -- SKILL.md edits: broaden the description to the whole-package sweep intent category (Gap 1) + add the sweep-drive loop-to-fixpoint cluster in the command arm (Gap 2); D-17 subagent review (incl. unbiased) + hygiene/validate gates + commit (wave 2)
 
 **Wave 3** *(blocked on Wave 2 completion)*
 

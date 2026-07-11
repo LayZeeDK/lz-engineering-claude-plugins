@@ -237,7 +237,7 @@ Phases execute in numeric order: 6 -> 7 -> 8 -> 8.1 -> 8.2 -> 9 -> 10 -> 11 -> 1
 | 9. Coach Behavior & Principle-Backing | lz-tdd@0.0.2 | 4/4 | Complete   | 2026-07-09 |
 | 10. Distribution & Hygiene | lz-tdd@0.0.2 | 4/4 | Complete   | 2026-07-09 |
 | 11. Skill-Effectiveness Evals | lz-tdd@0.0.2 | 4/4 | Complete    | 2026-07-10 |
-| 12. Autonomous multi-round refactoring for whole-package sweeps | lz-tdd@0.0.2 | 0/3 | Planned | - |
+| 12. Autonomous multi-round refactoring for whole-package sweeps | lz-tdd@0.0.2 | 1/3 | In Progress|  |
 
 ### Phase 12: Autonomous multi-round refactoring for whole-package sweeps
 
@@ -256,7 +256,7 @@ Phases execute in numeric order: 6 -> 7 -> 8 -> 8.1 -> 8.2 -> 9 -> 10 -> 11 -> 1
 Plans:
 **Wave 1**
 
-- [ ] 12-01-PLAN.md -- Measurement instruments: +3 sweep trigger positives + 3 dual-written sweep negatives (check-evals green) + one multi-round sweep-command e2e scenario per suite (nx p7cmd + kata gr3cmd), each seeded with N safe rounds + one should-pause trap (wave 1)
+- [x] 12-01-PLAN.md -- Measurement instruments: +3 sweep trigger positives + 3 dual-written sweep negatives (check-evals green) + one multi-round sweep-command e2e scenario per suite (nx p7cmd + kata gr3cmd), each seeded with N safe rounds + one should-pause trap (wave 1)
 
 **Wave 2** *(blocked on Wave 1 completion)*
 

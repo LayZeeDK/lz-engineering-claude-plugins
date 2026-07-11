@@ -220,7 +220,7 @@ this milestone starts at Phase 6.
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 6 -> 7 -> 8 -> 8.1 -> 8.2 -> 9 -> 10 -> 11
+Phases execute in numeric order: 6 -> 7 -> 8 -> 8.1 -> 8.2 -> 9 -> 10 -> 11 -> 12
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 | ----- | --------- | -------------- | ------ | --------- |
@@ -237,6 +237,24 @@ Phases execute in numeric order: 6 -> 7 -> 8 -> 8.1 -> 8.2 -> 9 -> 10 -> 11
 | 9. Coach Behavior & Principle-Backing | lz-tdd@0.0.2 | 4/4 | Complete   | 2026-07-09 |
 | 10. Distribution & Hygiene | lz-tdd@0.0.2 | 4/4 | Complete   | 2026-07-09 |
 | 11. Skill-Effectiveness Evals | lz-tdd@0.0.2 | 4/4 | Complete    | 2026-07-10 |
+| 12. Autonomous multi-round refactoring for whole-package sweeps | lz-tdd@0.0.2 | 0/0 | Not planned | - |
+
+### Phase 12: Autonomous multi-round refactoring for whole-package sweeps
+
+**Goal**: Close the two gaps that block lz-refactor from serving the autonomous multi-round refactoring use case -- a natural prompt such as "Identify code smells in @nx/eslint-plugin and refactor them away" with NO explicit `/lz-tdd:lz-refactor`, where the package source is scanned for smells, refactorings are identified and applied using the right named patterns/idioms, and multiple rounds run autonomously to the end goal. Two gaps were empirically confirmed 2026-07-11 (e2e in both repos): (1) TRIGGER -- whole-package/sweep apply prompts do not auto-invoke the skill (0 activations; base Opus did the work); (2) BEHAVIOR -- even when force-invoked, the coach stops-and-asks on higher-risk items instead of driving rounds to completion. Close both via research-informed changes to the skill instructions, description, trigger-optimization queries, and eval queries.
+**Depends on**: Phase 11 (native eval harness + trigger/behavior eval sets exist to extend)
+**Requirements**: TBD -- formalized in /gsd-spec-phase 12 (see Goal + Success Criteria)
+**Success Criteria** (what must be TRUE):
+
+  1. The natural whole-package sweep prompt auto-triggers lz-refactor in BOTH suites (Gilded Rose TypeScript kata AND nrwl/nx `@nx/eslint-plugin`), measured before/after on the native + e2e harnesses, WITHOUT regressing coach-recommend triggering (18/18) or specificity.
+  2. When engaged on a sweep, the skill drives multiple refactoring rounds autonomously toward the end goal with behavior-preservation guards (tests between rounds), reconciled with the existing question->advise / command->drive coach/apply logic -- not stop-and-ask on every risk.
+  3. Skill instruction, description, trigger-optimization, and eval-query changes are informed by research (source-authority precedence per PROJECT.md).
+  4. Both gaps are measured CLOSED (before/after in both suites) -- the phase does not complete on assertion alone.
+
+**Plans**: 0 plans
+
+Plans:
+- [ ] TBD (run /gsd-plan-phase 12 to break down)
 
 ---
-*Roadmap created: 2026-07-02 | lz-tdd@0.0.1 completed: 2026-07-04 | lz-tdd@0.0.2 roadmap added: 2026-07-04 | Phase 6 planned: 2026-07-04 | Phase 7 planned: 2026-07-04 | Phase 7 re-planned (scope-correction: 62-scope + clean-room oracle, per-refactoring leaves): 2026-07-05 | Phase 8 planned: 2026-07-05 | Phase 8 completed: 2026-07-07 | Phase 8.2 inserted (Functional Catalog): 2026-07-07 | Phase 8.2 planned (6 plans, 4 waves): 2026-07-07 | Phase 11 planned (4 plans, 2 waves): 2026-07-10*
+*Roadmap created: 2026-07-02 | lz-tdd@0.0.1 completed: 2026-07-04 | lz-tdd@0.0.2 roadmap added: 2026-07-04 | Phase 6 planned: 2026-07-04 | Phase 7 planned: 2026-07-04 | Phase 7 re-planned (scope-correction: 62-scope + clean-room oracle, per-refactoring leaves): 2026-07-05 | Phase 8 planned: 2026-07-05 | Phase 8 completed: 2026-07-07 | Phase 8.2 inserted (Functional Catalog): 2026-07-07 | Phase 8.2 planned (6 plans, 4 waves): 2026-07-07 | Phase 11 planned (4 plans, 2 waves): 2026-07-10 | Phase 12 added: 2026-07-11*

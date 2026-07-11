@@ -78,6 +78,7 @@ Last activity: 2026-07-10
 - Phase 08.1 inserted after Phase 8: GoF Design Patterns catalog (URGENT)
 - Phase 8.2 inserted after Phase 8.1: Functional Catalog (by-idiom FP de-patterning + native FP; board-ratified shared template + check-functional spec in .planning/research/functional-depatterning-ts.md S13). Phase 9 re-scoped: +CCH-06, CCH-02 de-patterning routes to functional-catalog, +dep on 8.2.
 - Phase 8 status reconciled 2026-07-07: ROADMAP showed stale "5/6 In Progress" but Phase 8 was CLOSED (6/6, verified/secured/validated, commits a58aa22/8b98aa0); KRV-01..04 flipped to Complete.
+- Phase 12 added 2026-07-11: Autonomous multi-round refactoring for whole-package sweeps -- close the trigger + behavior gaps (confirmed 2026-07-11 e2e: natural sweep prompt does not auto-invoke lz-refactor; even force-invoked, coach stops-and-asks instead of driving rounds to completion) via research-informed trigger-opt + skill instruction/description changes, eval-verified in BOTH the Gilded Rose kata and nrwl/nx @nx/eslint-plugin.
 
 ### Decisions
 

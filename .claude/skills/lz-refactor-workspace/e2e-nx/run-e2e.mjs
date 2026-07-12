@@ -279,8 +279,16 @@ function extractResult(raw) {
 // Run a git command in a given working dir (the throwaway apply branch). Used only by apply mode
 // for pristine reset + diff capture; runs as the runner's own child process, so it is not gated by
 // the Claude Code permission classifier.
-function git(cwd, gitArgs) {
-  return spawnSync('git', gitArgs, { cwd, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024, windowsHide: true });
+function git(cwd, gitArgs, { mustSucceed = false } = {}) {
+  const r = spawnSync('git', gitArgs, { cwd, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024, windowsHide: true });
+
+  // I1: a silently-failed reset/clean leaves run k's edits in the tree so run k+1 stacks on
+  // top -- the k samples stop being independent and changed_files becomes cumulative garbage.
+  if (mustSucceed && r.status !== 0) {
+    throw new Error(`git ${gitArgs.join(' ')} failed (exit ${r.status}) in ${cwd}: ${(r.stderr || '').trim()}`);
+  }
+
+  return r;
 }
 
 // One-line human signal of which lz skill(s) the run invoked.
@@ -339,8 +347,9 @@ function runOne(claude, promptEntry, arm, mode, cwd, runIdx, force) {
     }
 
     // Pristine reset so this run starts from clean source, not a previous run's edits.
-    git(cwd, ['reset', '--hard', APPLY_BASE]);
-    git(cwd, ['clean', '-fd']);
+    // mustSucceed (I1): abort loudly rather than silently stacking edits across k runs.
+    git(cwd, ['reset', '--hard', APPLY_BASE], { mustSucceed: true });
+    git(cwd, ['clean', '-fd'], { mustSucceed: true });
   }
 
   const env = { ...process.env };
@@ -356,6 +365,17 @@ function runOne(claude, promptEntry, arm, mode, cwd, runIdx, force) {
     timeout: mode === 'apply' ? APPLY_TIMEOUT_MS : undefined,
   });
   const elapsedMs = Date.now() - started;
+
+  // I5: spawnSync's timeout only SIGTERMs claude.exe; on Windows the agent's grandchildren
+  // (node/jest/the nx daemon) survive and can keep writing during the next run's git reset,
+  // racing the working tree and holding locks. Kill the whole process tree by PID on timeout.
+  if (res.error && (res.error.code === 'ETIMEDOUT' || res.signal) && res.pid) {
+    try {
+      spawnSync('taskkill', ['/PID', String(res.pid), '/T', '/F'], { windowsHide: true });
+    } catch {
+      // best-effort; nothing more we can safely do here
+    }
+  }
 
   const raw = res.stdout || '';
   fs.writeFileSync(path.join(rawDir, 'transcript.stream.jsonl'), raw);
@@ -377,10 +397,15 @@ function runOne(claude, promptEntry, arm, mode, cwd, runIdx, force) {
   let changedFiles = [];
 
   if (mode === 'apply') {
-    const diff = git(cwd, ['diff', APPLY_BASE]);
+    // I3: stage everything (incl. untracked new files from Extract Class / extract-to-module)
+    // into the index so `diff --cached` captures them; new files are invisible to a plain
+    // `git diff <base>`. Unstage after (the next run's `reset --hard` + `clean -fd` still wipes).
+    git(cwd, ['add', '-A']);
+    const diff = git(cwd, ['diff', '--cached', APPLY_BASE]);
     fs.writeFileSync(path.join(outDir, 'diff.patch'), diff.stdout || '');
-    const names = git(cwd, ['diff', '--name-only', APPLY_BASE]);
+    const names = git(cwd, ['diff', '--cached', '--name-only', APPLY_BASE]);
     changedFiles = (names.stdout || '').split('\n').map((s) => s.trim()).filter(Boolean);
+    git(cwd, ['reset']);
   }
 
   const meta = {

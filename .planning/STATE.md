@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: lz-tdd@0.0.2
 milestone_name: lz-refactor Skill (Fowler + Kerievsky)
 status: executing
-stopped_at: Phase 12 waves 1-2 done (instruments + reviewed SKILL.md); HALTED at 12-03 readiness gate awaiting user /reload-plugins + metered before/after run
-last_updated: "2026-07-11T13:11:11.036Z"
-last_activity: 2026-07-11
+stopped_at: Phase 12 waves 1-2 done (instruments + reviewed SKILL.md, LIVE); SC1 isolated trigger 100%/100%; HALTED at 12-03 awaiting user go-ahead on the metered e2e before/after run (reload already done)
+last_updated: "2026-07-12T11:04:45.125Z"
+last_activity: 2026-07-12
 progress:
   total_phases: 9
   completed_phases: 8
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-07-04)
 Phase: 12 (autonomous-multi-round-refactoring-for-whole-package-sweeps) — EXECUTING
 Plan: 2 of 3
 Status: Ready to execute
-Last activity: 2026-07-11
+Last activity: 2026-07-12
 
 ## Performance Metrics
 
@@ -142,11 +142,12 @@ Items acknowledged and carried forward from previous milestone close:
 | 2026-07-09 | humanize-lz-refactor-docs | complete | Humanized all 178 lz-refactor Markdown files via parallel agents: rewrote em-dash/`--` connectors to ASCII punctuation and removed AI-writing tells; conservative, structure- and fidelity-preserving (162 changed, 16 already clean). Verified by mechanical gate + 10 review agents (162 pass, 0 fixes). Docs commit 00258e3 |
 | 2026-07-10 | lz-refactor-e2e-nx | complete | Suite-driven e2e harness (`.claude/skills/lz-refactor-workspace/`): nx (`@nx/eslint-plugin`) + Gilded Rose kata; arms no_skill/with_skill/invoke_skill; recommend + apply; k=3 (~50 `claude -p` runs). KEY FINDING: coach-mode auto-triggering is the gap (advise ~1/18; apply/do-it framing + big targets fire much more; forced invoke 100%); baseline Opus 4.8@high already catalog-grade, skill's edge concentrates on pattern-directed/de-patterning/seam. See `E2E-FINDINGS.md`. Both repos restored pristine |
 | 2026-07-11 | lz-refactor-trigger-opt | complete | Retuned lz-refactor `description` (intent-based/pushy, ~1245 char) + question-vs-command coach/apply rewrite (SKILL.md 241c1fb, 4-subagent reviewed). Isolated trigger-eval 92->100% recall, 100% spec. E2E ground-truth (`--plugin-dir`): coach auto-trigger **1/18 -> 18/18** (nx 1/12->12/12, kata 0/6->6/6; ee95cd4). Apply-verify: command drives **6/6** (reviewed imperative prompts p2cmd/gr1cmd), question advises 7/8; driven refactors test-green + behavior-preserving (c7942cb). Both repos restored. See `E2E-FINDINGS.md` Resolution. Pending: user `/reload-plugins` to make it live |
+| 2026-07-12 | pkg-natural-sweep-eval | complete | Package-scope DIRECTIVE prompt eval (no `/lz-refactor`), nx `@nx/eslint-plugin` (p8) + kata (gr4), live vs `no_skill` k=3, live-first. Auto-triggers 3/3, triages across 4-6 files, drives 4-6 behavior-preserving rounds to a SAFE fixpoint (checkpoints before ~530-line run() decomposition), traps avoided. **NULL skill delta vs base Opus 4.8@high** at package scale -- matches the full session drive+trigger ladder (OLD-OLD/e535070/live + no_skill, both suites): neither gap (natural-trigger, multi-round-drive) reproduces at any version; base Opus already catalog-grade. Gate: unbiased prompt review (relabeled `-natural`->`-directive`) + harness code review (applied I1/I3/I5 apply fixes). See `quick/260712-i5y`. Feeds keep/revert-12-02 decision (user's call) |
 
 ## Session Continuity
 
-Last session: 2026-07-11T13:11:11.025Z
-Stopped at: Phase 12 waves 1-2 done (instruments + reviewed SKILL.md); HALTED at 12-03 readiness gate awaiting user /reload-plugins + metered before/after run
+Last session: 2026-07-11 (resumed)
+Stopped at: Phase 12 waves 1-2 done + LIVE; SC1 isolated trigger 100%/100%; awaiting user go-ahead on the metered e2e before/after run
 Resume file: .planning/phases/12-autonomous-multi-round-refactoring-for-whole-package-sweeps/12-03-PLAN.md
 
 ## Operator Next Steps

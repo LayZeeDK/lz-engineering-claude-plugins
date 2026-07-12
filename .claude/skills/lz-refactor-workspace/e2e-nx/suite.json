@@ -12,6 +12,8 @@
     { "id": "p4", "file": "p4-group-imports-reduce.md", "target": "T4", "code": true },
     { "id": "p5", "file": "p5-reference-depattern.md", "target": "T5", "code": false },
     { "id": "p6", "file": "p6-seam-handoff.md", "target": "T6", "code": false },
-    { "id": "p7cmd", "file": "p7cmd-runtime-lint-utils-sweep-command.md", "target": "p7sweep", "code": true }
+    { "id": "p7cmd", "file": "p7cmd-runtime-lint-utils-sweep-command.md", "target": "p7sweep", "code": true },
+    { "id": "p7", "file": "p7-runtime-lint-utils-sweep-natural.md", "target": "p7sweep", "code": true },
+    { "id": "p8", "file": "p8-eslint-plugin-package-directive.md", "target": "pkgsweep", "code": true }
   ]
 }

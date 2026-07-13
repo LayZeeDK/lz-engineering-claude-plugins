@@ -4,16 +4,13 @@ description: >-
   This skill should be used for the refactor step of red-green-refactor TDD: improving the
   STRUCTURE or READABILITY of existing, working code WITHOUT changing its behavior. Use it whenever
   a developer wants to clean up, tidy, simplify, restructure, or de-duplicate code whose tests
-  already pass, or make such code more readable; wants to sweep a whole package, directory, module,
-  or codebase -- finding the code smells across many files and refactoring them away, not just one
-  function; says a function, class, or module is hard to read,
+  already pass, or make such code more readable; says a function, class, or module is hard to read,
   hard to follow, messy, doing too much, or a pain to work with; or mentions a code smell, a
   refactoring, or a design pattern in existing code (applying one to it, or refactoring away from
   one / de-patterning) -- even when they only ask "what would you do with this?", "anything you'd
   refactor?", or "how would you make it easier to read?" and never name a smell or say the word
   refactor. It recommends the next named Fowler or Kerievsky refactoring and, when the developer
-  asks you to apply it, performs it in small behavior-preserving steps -- driving a whole-package
-  sweep across multiple rounds to completion when asked; it also explains a
+  asks you to apply it, performs it in small behavior-preserving steps; it also explains a
   refactoring, code smell, refactoring principle, or design pattern on request. Do NOT use it to
   make a failing or red test pass or otherwise ADD or CHANGE behavior -- that is the
   green/transformation step; use lz-tpp instead -- nor for writing new code, adding a feature, or
@@ -56,21 +53,43 @@ acting: if a red test must be made to pass, that is lz-tpp, not this skill.
    - Mechanical smell (Long Function, Duplicated Code, Feature Envy) -> a Fowler refactoring from the
      [Fowler catalog](references/fowler-catalog/README.md).
    - Repeated / complex-structure smell (Conditional Complexity, Combinatorial Explosion) -> a
-     Kerievsky pattern-directed refactoring from the
-     [Kerievsky catalog](references/kerievsky-catalog/README.md); look the target pattern up in the
+     CANDIDATE Kerievsky pattern-directed refactoring from the
+     [Kerievsky catalog](references/kerievsky-catalog/README.md) (look the target pattern up in the
      [GoF](references/gof-catalog/README.md) or
-     [extra-patterns](references/extra-patterns-catalog/README.md) catalog.
-4. Apply the over/under-engineering balance (CCH-02, CCH-06). A pattern that earns its keep is
-   applied or kept; an unwarranted pattern is refactored AWAY: either a Kerievsky Away refactoring
-   (Inline Singleton, Encapsulate Composite with Builder, Move Accumulation to Visitor) or dissolved
-   to a functional idiom via the [functional catalog](references/functional-catalog/README.md)
-   ("pattern X disappears via idiom Y / TS feature Z"). Replace Pipeline with Loop only on a measured
-   hot path or a named house-style reason. Clarity is the default.
+     [extra-patterns](references/extra-patterns-catalog/README.md) catalog). Route to the candidate
+     but do not present it as chosen; step 4 decides whether it earns its keep.
+4. Decide whether the pattern earns its keep, and STATE the verdict before any code (CCH-02, CCH-06).
+   For each candidate pattern, emit one line:
+   `Pattern: <name> | APPLY: removes <duplication across 2+ sites, or genuinely divergent per-case
+   behavior>` or `Pattern: <name> | DECLINE: clarity default; keep <concrete simpler form>
+   (<one-line reason>)`. Default to the simplest form that removes the smell: keep the switch, use a
+   discriminated union, or dissolve the pattern to a functional idiom via the
+   [functional catalog](references/functional-catalog/README.md) ("pattern X disappears via idiom Y /
+   TS feature Z"). APPLY only when that line can name real duplication across two or more sites, or
+   genuinely divergent per-case behavior, AND the pattern removes more than it adds. A single
+   localized switch or conditional is by itself a DECLINE: introducing polymorphism there only
+   relocates its complexity into N class definitions, and naming the smell ("removes the conditional
+   complexity") does NOT satisfy APPLY. A pattern with nothing named to remove is a DECLINE. An
+   unwarranted pattern is pure cost: more classes and indirection to read, no behavior change, and no
+   duplication removed. Worked DECLINE: Conditional Complexity over 4 trivial type codes -> candidate
+   Replace Conditional with Polymorphism -> `DECLINE: clarity default; keep a switch / discriminated
+   union (4 trivial cases, polymorphism adds 4 classes and removes no duplication)`. When an
+   unwarranted pattern is already present, refactor it AWAY: a Kerievsky Away refactoring (Inline
+   Singleton, Encapsulate Composite with Builder, Move Accumulation to Visitor) or the functional
+   dissolution above. De-patterning away is a first-class direction but stays gated by the
+   QUESTION/COMMAND intent routing below, so do not edit working code on a question. Replace Pipeline
+   with Loop only on a measured hot path or a named house-style reason.
 5. Preserve behavior (CCH-03). Advise -- or perform, when the developer asks you to apply it -- the
-   smallest steps that keep the code working, running the tests after each; commit on green is the
-   developer's call (commit only when asked). If the target code has NO tests, route to
+   smallest steps that keep the code working, following the chosen refactoring's catalog-leaf
+   mechanics and running the tests after each; commit on green is the developer's call (commit only
+   when asked). If the target code has NO tests, route to
    [references/refactoring-without-tests.md](references/refactoring-without-tests.md) (Feathers) to
-   pin current behavior with characterization tests first, then refactor.
+   pin current behavior with characterization tests first, then refactor. If a change alters an
+   exported or public-API symbol (or a caller in another package) whose downstream consumers are not
+   covered by the local tests, pause and ask before applying, because green local tests prove nothing
+   about those consumers. Before you finish,
+   verify every pattern you introduced carries an APPLY verdict naming what it removes; for any that
+   cannot, refactor it away or, if keeping it, state that APPLY reason.
 6. Reference mode (CCH-04). For an explain / lookup request, route to the correct references/ doc:
    Fowler, Kerievsky, GoF, extra-patterns, functional, [smells](references/smells.md), or
    [principles](references/principles.md). Answer from it; do not restate it here.
@@ -84,31 +103,22 @@ in small behavior-preserving steps, running the tests after each; then stop and 
 developer to review -- do not commit unless they ask. Refusing to edit when you were plainly asked to
 apply is the failure to avoid, not caution.
 
-When the command names a whole-package, directory, module, or codebase scope -- sweep the package,
-refactor away every smell in this module, clean up the whole directory -- do not stop after a single
-refactoring. Repeat the decision procedure to a fixpoint within that named scope: scan for the next
-warranted, in-scope, test-covered refactoring, apply it in the same small behavior-preserving steps,
-run the tests, and keep going across rounds without asking between them. Work forward-only -- never
-re-touch a region an earlier round already refactored, and never introduce an abstraction in one
-round and remove it in another. Stop when a scan pass finds nothing warranted and actionable left in
-scope, or a sensible ceiling is reached; as a default, once a sweep has run several rounds or begun
-touching many files, checkpoint with the developer and confirm scope before pressing on rather than
-churning unbounded. Then land at a terminal review gate -- report how many rounds ran with the tests
-green after each, leave every change uncommitted for the developer to review, and never commit unless
-asked. The end goal is that fixpoint, not zero smells at any cost. Run the tests after every step; if
-a step turns them red, revert that step and take a smaller one, and halt the sweep if green cannot be
-restored (the behavior-preservation discipline of step 5 above). Even mid-sweep, pause and surface
-instead of silently proceeding on any of these: the green-step seam or a behavior-changing item --
-route it to lz-tpp and exclude it, per step 1 above; an untested target -- stop and pin current
-behavior with characterization tests first, per step 5 above; a pattern you would only be adding on
-spec -- leave it with a one-line reason, since the step-4 balance above decides whether a pattern
-earns its keep (de-patterning away stays autonomous); genuinely ambiguous behavior (pin it with a
-characterization test or ask, never guess); a change whose blast radius escapes the named scope,
-such as altering an exported or public-API symbol or editing a caller in another package outside this
-target's own test suite (pause and ask); and a flaky or too-slow-to-run-each-step suite (fall back to
-advising rather than driving). Lead with the pattern-directed, de-patterning, and seam judgment calls
--- that is where this skill beats a strong model working unaided; on plain mechanical extractions a
-capable model is already close, so do not churn a package for its own sake.
+## Whole-package / directory sweeps
+
+When the command names a package, directory, module, or codebase scope ("identify the code smells in
+<package> and refactor them away", "clean up this directory"), apply the coach decision procedure to
+each smell in turn and drive to a fixpoint: scan for the next warranted, in-scope, test-covered
+refactoring, run its step-4 APPLY/DECLINE verdict, and on APPLY perform it in behavior-preserving
+steps with the tests green after each (on DECLINE keep the simpler form and scan on); keep going
+across rounds without asking between them. Lead with the
+pattern-directed, de-patterning, and seam judgment calls, where this skill earns its keep over an
+unaided model; do not churn a package with mechanical edits for their own sake. Pause and ask
+(do not silently proceed) on the step-5 blast-radius guard and on an untested target (characterization
+test first, per step 5); route any behavior change to lz-tpp and exclude it (step 1). If a step turns
+the tests red, revert it and take a smaller step; halt the sweep if green cannot be restored. Once a
+sweep has touched many files or run several rounds, checkpoint scope with the developer rather than
+churning unbounded. Stop at the fixpoint (a scan finds nothing warranted left in scope), not at
+zero smells at any cost.
 
 ## Fowler catalog (mechanical refactorings)
 

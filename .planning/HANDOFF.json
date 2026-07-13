@@ -1,45 +1,46 @@
 {
   "version": "1.0",
-  "timestamp": "2026-07-11T21:54:32.599Z",
-  "phase": "12",
-  "phase_name": "autonomous-multi-round-refactoring-for-whole-package-sweeps",
-  "phase_dir": ".planning/phases/12-autonomous-multi-round-refactoring-for-whole-package-sweeps",
-  "plan": 3,
+  "timestamp": "2026-07-13T22:46:15.507Z",
+  "phase": "lz-refactor-skill-improvement",
+  "phase_name": "lz-refactor coach-quality improvement loop (post Phase-12 e2e)",
+  "phase_dir": ".planning/quick/260712-n5o-skill-methodical-nx-fleet",
+  "plan": "L1-re-measure",
   "task": 1,
-  "total_tasks": 3,
+  "total_tasks": 4,
   "status": "paused",
+  "supersedes": "The prior Phase-12 HANDOFF.json (2026-07-11) and .planning/phases/12-*/.continue-here.md are STALE. This session executed all of Phase-12's e2e proof and pivoted into a skill-improvement loop. THIS is the active state.",
   "completed_tasks": [
-    {"id": "discuss", "name": "12-CONTEXT.md (D-01..D-18; GA-1 resolved via 3-lens panel to refined Option A)", "status": "done", "commit": "2200e78"},
-    {"id": "plan", "name": "3 plans + 1 revision; plan-checker VERIFICATION PASSED; decision-coverage 18/18", "status": "done", "commit": "a7cc869"},
-    {"id": "12-01", "name": "Measurement instruments: 3 sweep trigger positives + 3 dual-written negatives (check-evals green) + nx p7cmd + kata gr3cmd seeded sweep scenarios", "status": "done", "commit": "ba2af4e"},
-    {"id": "12-02", "name": "SKILL.md: broadened sweep-trigger description + sweep-drive loop-to-fixpoint cluster (7 D-07 pauses); D-17 reviewed incl. 1 unbiased; plugin validate + hygiene clean", "status": "done", "commit": "09e5c89"},
-    {"id": "sc1-isolated", "name": "SC1 isolated trigger AFTER: recall 16/16=100% (incl 3 sweep positives), specificity 14/14=100% quiet (incl 3 sweep negatives + 5 lz-tpp seam)", "status": "done", "commit": "n/a (eval run; results in workspace)"},
-    {"id": "npm-check-fix", "name": "Side fix: re-mirrored 3 Fowler + 1 Kerievsky README selectors + 8 smell Source tags -> npm run check GREEN; gated by oracle-reviewer + humanizer + code review", "status": "done", "commit": "73db6fe"}
+    {"id": "phase12-e2e", "name": "Ran full Phase-12 e2e (nx smoke, kata after, pre-edit baselines, OLD-OLD ladder, natural-trigger ladder, tight-4 fleet). FINDING: null skill value-delta vs base Opus at every scope/gap; auto-trigger is the only skill-attributable win.", "status": "done", "commit": "n/a (results uncommitted, deferred)"},
+    {"id": "quick-i5y", "name": "Quick task 260712-i5y: package-scope directive eval p8/gr4 live-vs-no_skill + multi-aspect (blind quality judge = parity; efficiency = skill +66% cost). Null delta.", "status": "done", "commit": "4c45570"},
+    {"id": "quick-n5o", "name": "Quick task 260712-n5o: methodical-adherence research + nx fleet p9-p12 (null delta generalizes; with_skill auto-trigger 8/8).", "status": "done", "commit": "b215219"},
+    {"id": "skill-v1", "name": "Skill improvement v1: revert 12-02 + E1-E8 veto + blast-radius guard + lean sweep. Gated + committed + reloaded + re-measured -> veto STILL failed 1/3 kata over-engineering (run-1 built a 5-class ItemUpdater hierarchy, gamed 'duplication across 2 blocks').", "status": "done", "commit": "9832c74"},
+    {"id": "warrant-research", "name": "Research: general warrant (net-cost inequality) + enforcement (neutral+skeptic) + review-regimes. Verdict: verifiability is the dominant binding lever; same-model taste-reviewer NOT sound (shared blind spots); countable rubric is the move; reviewer/hook only measurement-gated; sound escalation = deterministic-count or CROSS-FAMILY, not same-model review.", "status": "done", "commit": "98cf482"},
+    {"id": "L1", "name": "L1: rewrote step-4 warrant to ONE countable net-cost test (removes duplication-sites/obscurity vs adds classes/types/files/indirection; APPLY only if removed>added). Branch-double-counting loophole closed per unbiased review. Gated: review PASS + humanizer. Committed, review-clean.", "status": "done", "commit": "98cf482"}
   ],
   "remaining_tasks": [
-    {"id": "12-03-nx-smoke", "name": "nx e2e smoke (p7cmd apply, with_skill + invoke_skill, k=3): INTERRUPTED by user before any run completed (0 graded). Re-run (metered, gated) or grade whatever lands.", "status": "not_started"},
-    {"id": "12-03-grade", "name": "Grade posture per D-14 (fired / rounds>=2 / tests-green-each-round / behavior_preserved / scope_contained / stopped_at_seeded_risk); report autonomy-precision D-15.", "status": "not_started"},
-    {"id": "12-03-kata-baseline", "name": "Per staged plan: after nx smoke reads right, scope kata suite (gr3cmd) + optional pre-edit baseline (worktree @ e535070) for the {trigger,drive}x{nx,kata}x{before,after} matrix + 18/18 no-regression recommend re-run (SC1 e2e, SC4).", "status": "not_started"},
-    {"id": "12-close", "name": "Once both gaps measured CLOSED in both suites: mark 12-03 done, then verify_phase_goal -> secure-phase -> validate-phase -> extract-learnings; mark phase complete.", "status": "not_started"}
+    {"id": "re-measure", "name": "RE-MEASURE L1: improved with_skill on kata gr4 (over-engineering testbed) + a SECOND pattern-tempting probe (test generalization, not re-fit kata), k=3, apply, --force. REUSE existing no_skill baselines (base unchanged; do NOT re-run no_skill). Grade: does the countable warrant DECLINE the over-build (target 0/3 hierarchy vs prior 1/3)?", "status": "not_started"},
+    {"id": "escalate-or-accept", "name": "If residual over-engineering still matters: escalate to a DETERMINISTIC structure-count check or CROSS-FAMILY reviewer (NOT same-model taste-reviewer -- research-disqualified). Else accept auto-trigger + L1, record findings.", "status": "not_started"},
+    {"id": "reference-eval", "name": "OPTIONAL untested value lever: build + run the REFERENCE use-case eval (on-demand 'explain refactoring/Direction/de-patterning' with_skill vs no_skill, recommend mode, no repo) -- where a curated oracle-verified catalog could beat base recall. Cheap.", "status": "not_started"},
+    {"id": "cleanup", "name": "Cleanup (deferred; needs user OK for destructive git): restore nx (origin/23.0.x) + kata (main) to pristine + drop throwaway branches + stashes; remove lz-plugins-baseline + lz-plugins-oldold worktrees; commit or discard deferred eval results/ (16 untracked trees + _archive_12-02/).", "status": "not_started"}
   ],
   "blockers": [
-    {"description": "Metered claude -p e2e apply runs are user-gated and historically fragile on nx/Windows (~20 min/run)", "type": "human_action", "workaround": "User pre-approved the spend conditional on agent-reviewed Markdown (satisfied); run in background, grade from meta.json+diff.patch+transcript"},
-    {"description": "Isolated trigger harness does NOT reproduce the e2e sweep-trigger gap; isolated 100%/100% is necessary but not sufficient for Gap 1 e2e or Gap 2/SC2", "type": "technical", "workaround": "The e2e --plugin-dir apply runs are the ground-truth proof; isolated result only proves no-regression + sweep positives fire in isolation"}
+    {"description": "Metered claude -p runs are user-gated + session-limit-fragile (hit the cap ~5x this session). Idempotent resume fills gaps.", "type": "human_action", "workaround": "Re-invoke the runner; exit-1 metas re-run, exit-0 skip. Use --force for improved with_skill (else it returns OLD-skill results)."},
+    {"description": "/reload-plugins is user-only, but the e2e runner reads the skill from --plugin-dir (repo tree on disk) = committed L1, so the re-measure runner uses L1 WITHOUT a reload.", "type": "human_action", "workaround": "L1 committed (98cf482); runner picks it up. Reload only for interactive."},
+    {"description": "git reset --hard on nx/kata is classifier-gated (needs the user to name the target). Only for cleanup.", "type": "human_action", "workaround": "Ask user to authorize, or use git stash."}
   ],
   "human_actions_pending": [
-    {"action": "Decide whether to re-run the nx smoke and how far to scale the e2e (kata + baseline)", "context": "User chose staged: smoke-first then scope together; the smoke was interrupted before completing", "blocking": false}
+    {"action": "Authorize + pace the metered re-measure runs (kata gr4 + 2nd probe, k=3 with_skill).", "context": "User asked to hand the RUNS to a fresh session.", "blocking": false}
   ],
   "decisions": [
-    {"decision": "GA-1 multi-round autonomy = refined Option A (scoped autonomous drive to a fixpoint + terminal review gate + 7 structural pause guards)", "rationale": "Trap-quadrant resolved WITH EVIDENCE via a 3-lens independent panel (unbiased/adversarial/evals-design) since AskUserQuestion was declined and the user was away", "phase": "12"},
-    {"decision": "Ran 12-02 inline (not via executor); D-17 review at orchestrator level", "rationale": "gsd-executor cannot spawn review subagents; review-before-commit required an orchestrator-run panel incl. >=1 unbiased", "phase": "12"},
-    {"decision": "npm-check fix = README->leaf mirror + Source-tag reformat only (frozen leaf substance untouched)", "rationale": "Minimizes oracle/DST-04 exposure; passed oracle-reviewer + humanizer + code review", "phase": "12"},
-    {"decision": "Standing gate policy this session: Markdown changes must pass humanizer (preserve tags like Source:/Use when:) AND book-derived Markdown must pass oracle-reviewer (fidelity + no-prose-too-close/DST-04) AND code review", "rationale": "User directives this session", "phase": "12"}
+    {"decision": "L1 = one countable net-cost warrant, refactoring-agnostic (not per-pattern rules).", "rationale": "Verifiability is the dominant binding lever; a countable added-vs-removed test generalizes and subsumes polymorphism.", "phase": "skill-improvement"},
+    {"decision": "Do NOT build a same-model reviewer-agent (L2) or hook (L3) now.", "rationale": "Unbiased research reversed the earlier (primed) pro-agent conclusion: same-model review shares blind spots on TASTE; ROI unjustified for infrequent failures; escalation, if needed, is deterministic-count or cross-family.", "phase": "skill-improvement"},
+    {"decision": "Reuse existing no_skill baselines; only re-run improved with_skill (--force).", "rationale": "Prompts unchanged + no_skill loads no plugin -> base identical.", "phase": "skill-improvement"},
+    {"decision": "Honest finding: base Opus 4.8@high is excellent; the skill's realizable value = auto-trigger (proven) + reference catalog (UNTESTED).", "rationale": "6+ e2e scenarios show null coach-output delta; output-gating to beat a strong base is not worth the machinery.", "phase": "skill-improvement"}
   ],
   "uncommitted_files": [
-    ".claude/skills/lz-refactor-workspace/evals/d07-chunks/recall-chunk-*.json (transient chunk inputs; delete before any re-run per D-12)",
-    ".claude/skills/lz-refactor-workspace/evals/d07-chunks/spec-chunk-*.json (transient)",
-    ".claude/skills/lz-refactor-workspace/trigger-results-d07-{recall,spec}-chunk-*.json (the AFTER isolated-trigger results: recall 100% / spec 100%)"
+    ".planning/HANDOFF.json + .planning/.continue-here.md (this handoff; WIP-committed)",
+    ".claude/skills/lz-refactor-workspace/**/results/ (16 untracked eval result trees incl. _archive_12-02/; deferred evidence)"
   ],
-  "next_action": "Read this handoff + 12-03-PLAN.md. Confirm nx is on throwaway branch lz-refactor-e2e-smoke (clean). Then EITHER re-run the nx smoke (node .claude/skills/lz-refactor-workspace/e2e-nx/run-e2e.mjs --mode apply --prompt p7cmd --arm with_skill --cwd D:/projects/github/nrwl/nx --runs 3 ; then --arm invoke_skill) OR ask the user how far to scale. Do NOT start metered runs without the user's go-ahead.",
-  "context_notes": "Phase 12 autonomous chain (discuss->plan->execute) completed cleanly through the 12-03 readiness gate. SKILL.md edit is committed AND live (user ran /reload-plugins). SC1 isolated trigger is green (recall+spec 100%, seam held). The only remaining work is the metered e2e apply proof (Gap 1 e2e sweep auto-trigger + Gap 2/SC2 multi-round drive) in both suites, then the phase-completion sequence. The npm run check GREEN fix (73db6fe) was a separate pre-existing humanize-drift cleanup done mid-pause at user request, fully gated. nx repo is parked on throwaway branch lz-refactor-e2e-smoke @ origin/23.0.x (clean); restore to 23.0.x + delete the branch when e2e is done."
+  "next_action": "Read .planning/.continue-here.md fully (it has the exact re-measure commands + grading rubric). Then run improved with_skill on kata gr4 + a 2nd pattern-tempting probe, k=3, --force; grade over-engineering (0/3 target). Do NOT re-run no_skill.",
+  "context_notes": "Arc: Phase-12 e2e proved the skill adds no measurable coach-output value over base Opus (only auto-trigger). We tried to MAKE it outperform via the over-engineering veto. Iteration 1 (per-case veto) failed 1/3 (kata hierarchy). L1 (countable net-cost warrant) is iteration 2 -- review-clean, committed (98cf482), UN-measured. The re-measure decides whether L1 binds; if not, escalate to deterministic-count/cross-family (NOT same-model review). The reference-catalog use case is the untested value lever if output-gating stays null. Grade from meta/diff/transcript, never used_refactor; the kata .snap Conjured lines are the golden master, not added behavior."
 }

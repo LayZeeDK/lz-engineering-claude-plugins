@@ -58,27 +58,22 @@ acting: if a red test must be made to pass, that is lz-tpp, not this skill.
      [GoF](references/gof-catalog/README.md) or
      [extra-patterns](references/extra-patterns-catalog/README.md) catalog). Route to the candidate
      but do not present it as chosen; step 4 decides whether it earns its keep.
-4. Decide whether the pattern earns its keep, and STATE the verdict before any code (CCH-02, CCH-06).
-   For each candidate pattern, emit one line:
-   `Pattern: <name> | APPLY: removes <duplication across 2+ sites, or genuinely divergent per-case
-   behavior>` or `Pattern: <name> | DECLINE: clarity default; keep <concrete simpler form>
-   (<one-line reason>)`. Default to the simplest form that removes the smell: keep the switch, use a
-   discriminated union, or dissolve the pattern to a functional idiom via the
-   [functional catalog](references/functional-catalog/README.md) ("pattern X disappears via idiom Y /
-   TS feature Z"). APPLY only when that line can name real duplication across two or more sites, or
-   genuinely divergent per-case behavior, AND the pattern removes more than it adds. A single
-   localized switch or conditional is by itself a DECLINE: introducing polymorphism there only
-   relocates its complexity into N class definitions, and naming the smell ("removes the conditional
-   complexity") does NOT satisfy APPLY. A pattern with nothing named to remove is a DECLINE. An
-   unwarranted pattern is pure cost: more classes and indirection to read, no behavior change, and no
-   duplication removed. Worked DECLINE: Conditional Complexity over 4 trivial type codes -> candidate
-   Replace Conditional with Polymorphism -> `DECLINE: clarity default; keep a switch / discriminated
-   union (4 trivial cases, polymorphism adds 4 classes and removes no duplication)`. When an
-   unwarranted pattern is already present, refactor it AWAY: a Kerievsky Away refactoring (Inline
-   Singleton, Encapsulate Composite with Builder, Move Accumulation to Visitor) or the functional
-   dissolution above. De-patterning away is a first-class direction but stays gated by the
-   QUESTION/COMMAND intent routing below, so do not edit working code on a question. Replace Pipeline
-   with Loop only on a measured hot path or a named house-style reason.
+4. Decide whether the pattern earns its keep by one net-cost count, and STATE the verdict before any
+   code (CCH-02, CCH-06). Count what it REMOVES (duplication sites collapsed, obscurity clarified)
+   against what it ADDS (new classes, types, files, indirection). A branch relocated into its own
+   class or method is added structure, not a removal, so never count it on both sides. Emit one line:
+   `Pattern: <name> | APPLY: removes <cost + count> > adds <structure + count>` or
+   `Pattern: <name> | DECLINE: adds <structure + count> >= removes <cost + count>; keep <simpler form>`.
+   APPLY only when removed exceeds added; otherwise DECLINE and keep the simplest form that clears the
+   smell: the switch, a discriminated union, or a functional idiom via the
+   [functional catalog](references/functional-catalog/README.md). Naming the smell ("removes the
+   conditional complexity") is not a cost count and does not satisfy APPLY. Instance: 4 type codes in
+   one switch -> Replace Conditional with Polymorphism adds 4 classes, removes 0 duplication sites ->
+   DECLINE. If an unwarranted pattern is already present, refactor it AWAY: a Kerievsky Away
+   refactoring (Inline Singleton, Encapsulate Composite with Builder, Move Accumulation to Visitor) or
+   the functional dissolution above. De-patterning away is a first-class direction but stays gated by
+   the QUESTION/COMMAND intent routing below, so do not edit working code on a question. Replace
+   Pipeline with Loop only on a measured hot path or a named house-style reason.
 5. Preserve behavior (CCH-03). Advise -- or perform, when the developer asks you to apply it -- the
    smallest steps that keep the code working, following the chosen refactoring's catalog-leaf
    mechanics and running the tests after each; commit on green is the developer's call (commit only

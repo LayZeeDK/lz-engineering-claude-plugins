@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: lz-tdd@0.0.2
 milestone_name: lz-refactor Skill (Fowler + Kerievsky)
 status: executing
-stopped_at: "lz-refactor skill-improvement loop COMPLETE: L1 net-cost warrant (98cf482) ACCEPTED (gr4 0/3 over-build, binds); positive-control axis CLOSED; reference-catalog eval (quick 260714-nxp) RUN + graded = essentially NULL (1/8 positive; lone edge q1 +1.00 niche direction-table fact). Borrowed repos cleaned. CONCLUSION: base Opus catalog-grade; skill value = auto-trigger (proven) + narrow reference edge; no further tuning. Next: reconcile superseded Phase 12, resume roadmap (Phase 10/11)."
-last_updated: "2026-07-14T00:00:00.000Z"
+stopped_at: "Phase-12 nx-sweep auto-trigger WARNING CLOSED (quick 260714-vmy): p8 with_skill apply k=3 -> 3/3 auto-triggered on HEAD post-revert (no regression from 9832c74); 12-VALIDATION + 12-VERIFICATION reconciled inferred->measured. Milestone lz-tdd@0.0.2 (phases 6-12) fully complete + reconciled on disk. Next: /gsd-audit-milestone lz-tdd@0.0.2 (user-scoped; not yet run) then /gsd-complete-milestone."
+last_updated: "2026-07-14T21:30:00.000Z"
 last_activity: 2026-07-14
 progress:
   total_phases: 9
-  completed_phases: 8
+  completed_phases: 9
   total_plans: 45
-  completed_plans: 44
-  percent: 89
+  completed_plans: 45
+  percent: 100
 ---
 
 # Project State
@@ -21,15 +21,15 @@ progress:
 See: .planning/PROJECT.md (updated 2026-07-04)
 
 **Core value:** `lz-tpp` helps Claude choose the next code transformation by TPP priority during red-green-refactor TDD, and explains the premise on demand. lz-tdd@0.0.2 adds `lz-refactor` to drive the refactor step.
-**Current focus:** Phase 12 — autonomous-multi-round-refactoring-for-whole-package-sweeps
-**Milestone:** lz-tdd@0.0.2 (lz-refactor Skill) -- executing
+**Current focus:** Milestone lz-tdd@0.0.2 close-out -- all phases (6-12) complete + reconciled; next is /gsd-audit-milestone
+**Milestone:** lz-tdd@0.0.2 (lz-refactor Skill) -- executing (all phases done; audit pending)
 
 ## Current Position
 
-Phase: 12 (autonomous-multi-round-refactoring-for-whole-package-sweeps) — EXECUTING
-Plan: 2 of 3
-Status: Ready to execute
-Last activity: 2026-07-12
+Phase: 12 (autonomous-multi-round-refactoring-for-whole-package-sweeps) — COMPLETE
+Plan: 3 of 3
+Status: Milestone lz-tdd@0.0.2 (phases 6-12) complete on disk; ready for /gsd-audit-milestone
+Last activity: 2026-07-14
 
 ## Performance Metrics
 
@@ -145,13 +145,14 @@ Items acknowledged and carried forward from previous milestone close:
 | 2026-07-12 | pkg-natural-sweep-eval | complete | Package-scope DIRECTIVE prompt eval (no `/lz-refactor`), nx `@nx/eslint-plugin` (p8) + kata (gr4), live vs `no_skill` k=3, live-first. Auto-triggers 3/3, triages across 4-6 files, drives 4-6 behavior-preserving rounds to a SAFE fixpoint (checkpoints before ~530-line run() decomposition), traps avoided. **NULL skill delta vs base Opus 4.8@high** at package scale -- matches the full session drive+trigger ladder (OLD-OLD/e535070/live + no_skill, both suites): neither gap (natural-trigger, multi-round-drive) reproduces at any version; base Opus already catalog-grade. Gate: unbiased prompt review (relabeled `-natural`->`-directive`) + harness code review (applied I1/I3/I5 apply fixes). See `quick/260712-i5y`. Feeds keep/revert-12-02 decision (user's call) |
 | 2026-07-12 | skill-methodical-nx-fleet | complete | (1) Web research (RESEARCH.md, E1-E8 cited): make skill steps bind methodically -- fuse veto INTO routing step, require APPLY-or-DECLINE verdict before code, positive-frame + promote pause-guard out of lost-in-middle, checklist + terminal self-check. RESEARCH-ONLY (SKILL.md edits pending own review + reload; citations need verifying). (2) Ran prepared @nx/* fleet (tight 4: eslint p9 / js p10 / module-federation p11 / vite p12) with_skill vs no_skill, apply k=2, live-first. **with_skill 8/8 auto-invoked (no `/lz-refactor`) -> trigger generalizes**; **NULL value-delta generalizes** across 4 axes (base Opus's best fleet sweep = a no_skill @nx/module-federation run, outclassed with_skill). Degenerate runs both arms (background-test-wait) at k=2; efficiency noisy (p8 +66% didn't generalize); no skill over-engineering (pat markers false-pos). p13/devkit deferred (thin net). Gate: unbiased prompt+config review PASSED. See `quick/260712-n5o` |
 | 2026-07-14 | build-review-and-run-the-reference-catal | complete | Reference-catalog eval (quick 260714-nxp) -- the last untested value lever: does the curated oracle-verified catalog beat base Opus recall on explain/lookup (recommend mode, no repo)? Full gated pipeline: research -> 2x plan-validate (1 blocker fixed) -> build instrument (f08ca62) -> 2x unbiased review (NEEDS-CHANGES -> fixes 714767e, GATE PASS) -> spend checkpoint -> RUN 60 (invoke_skill vs no_skill, k=3) -> grade. **RESULT: essentially NULL -- 1/8 discriminating positive; mean delta +0.13.** The lone edge q1 +1.00 (VERIFIED): Kerievsky Refactoring-Directions dual/Away placement (Move Accumulation to Visitor -> away from Iterator) which base gets confidently wrong; 7/8 parity (base already catalog-grade). Reference lever CLOSED -- catalog value concentrated in niche oracle-settled direction-table facts, null elsewhere. gsd-verifier 6/6 passed. See `e2e-reference/REFERENCE-RESULTS.md`. (Known: q10 grader anyOf symmetric false-fail, delta unaffected.) |
+| 2026-07-14 | nx-sweep-autotrigger-head-closeout | complete | Closed the Phase-12 non-blocking WARNING: nx whole-package sweep auto-trigger DIRECTLY MEASURED on HEAD post-revert -- p8 with_skill apply k=3 -> 3/3 auto-triggered (used_refactor, skills_invoked=[lz-tdd:lz-refactor]); no regression from 9832c74. Matches pre-revert p8 3/3 + post-revert kata gr4 3/3. Flipped 12-VALIDATION + 12-VERIFICATION inferred->measured. Metered run user-approved (eval-run-approval-gate). See quick/260714-vmy |
 
 ## Session Continuity
 
-Last session: 2026-07-14 (resumed)
+Last session: 2026-07-14 (resumed; nx-sweep auto-trigger close-out)
 Stopped at: lz-refactor skill-improvement loop COMPLETE. (1) L1 net-cost warrant (98cf482) ACCEPTED -- gr4 re-measure 0/3 over-build + 3/3 countable DECLINE (binds); positive-control axis CLOSED (step-4 has no growth term by design = intended YAGNI; probes disqualified pre-spend by unbiased review). (2) Reference-catalog eval (quick 260714-nxp) RUN + graded: essentially NULL (1/8 positive; the lone edge q1 +1.00 = Kerievsky direction-table dual/Away fact base gets confidently wrong; 7/8 parity). Borrowed repos (nx/kata) restored pristine + worktrees removed. CONCLUSION: base Opus 4.8@high is catalog-grade; the skill's realizable value = AUTO-TRIGGER (proven) + a narrow reference edge on niche direction-table facts. Output-gating, general reference recall, and coach-output value are all null/parity. No further skill tuning warranted.
-Resume file: .planning/.continue-here.md
-Open next: RECONCILE + CLOSE Phase 12, then complete the milestone. Phases 6-11 are ALL complete (roadmap.analyze). Phase 12 (autonomous multi-round sweeps) is 2/3: 12-01 instruments + 12-02 SKILL.md edits done; 12-03 is only a readiness-gate/HALT plan (present protocol + ask /reload-plugins). Both Phase-12 gaps are EMPIRICALLY CLOSED via the skill-improvement loop's e2e (Gap 1 trigger: auto-trigger 18/18 + gr4 3/3; Gap 2 drive: base + with_skill drive sweeps to fixpoint), so 12-03's gated before/after measurement is already satisfied -- but the deeper finding is the gaps were closed by base Opus being catalog-grade (null skill delta), which the milestone audit should note. Do NOT blind-execute 12-03; reconcile Phase 12 as complete (verify-work 12 or a 12-03 closure summary), then /gsd-complete-milestone lz-tdd@0.0.2.
+Resume file: none (HANDOFF.json + top-level .continue-here.md deleted -- one-shot resumption artifacts, task complete)
+Open next: /gsd-audit-milestone lz-tdd@0.0.2 (user-scoped; not yet run), then /gsd-complete-milestone lz-tdd@0.0.2. All milestone phases (6-12) are complete + reconciled on disk; Phase 12's last loose end (nx sweep auto-trigger re-confirmation on HEAD) is now CLOSED (quick 260714-vmy: p8 3/3, no regression). Milestone-audit note carried from 12-VERIFICATION audit_notes: the gaps closed while base Opus 4.8@high is ALSO catalog-grade (null skill output-delta); the skill's robust value is auto-trigger (proven) + a narrow reference edge. CLEANUP: nx throwaway branch lz-refactor-e2e-smoke left with run-3 edits (pristine 23.0.x intact) -- operator restores per quick/260714-vmy SUMMARY.
 
 ## Operator Next Steps
 

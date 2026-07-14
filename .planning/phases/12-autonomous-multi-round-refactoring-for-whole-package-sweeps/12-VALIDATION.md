@@ -20,8 +20,9 @@ validated: 2026-07-14
 > empirically-confirmed gaps were measured CLOSED before/after in BOTH suites (durable rates
 > in E2E-FINDINGS.md / GR-RESULTS.md / the quick-task VERIFICATIONs, deterministic from
 > `meta.json`). One genuine automation gap was found and FILLED (the D-12 dual-write invariant
-> had no guard); one WARNING remains (nx whole-package sweep auto-trigger re-confirmed post-revert
-> only inferentially -- a gated metered re-run, not a missing instrument).
+> had no guard). The single prior WARNING (nx whole-package sweep auto-trigger re-confirmed
+> post-revert only inferentially) was CLOSED 2026-07-14 by a gated metered re-run on HEAD
+> (quick 260714-vmy: p8 with_skill apply k=3 -> 3/3 auto-trigger), converting inferred to measured.
 
 ---
 
@@ -58,7 +59,7 @@ eval/e2e run whose durable rate is captured in a tracked results file.
 | 2 | D-12 dual-write byte-consistency (trigger-eval.json negatives == d07-chunks/negatives.json) | 12-01 | SC1 specificity integrity | build-time lint (NEW this audit) | `node check-evals.mjs` | green |
 | 3 | nx + kata multi-round sweep-command e2e scenarios (p7cmd/gr3cmd) + directive prompts (p8/gr4, p9-p12) | 12-01 | SC2/SC4 (instrument) | e2e (gated metered) | `node e2e-nx/run-e2e.mjs` / `--suite gilded-rose` | green (measured via loop) |
 | 4 | SKILL.md "Whole-package / directory sweeps" drive cluster (loop-to-fixpoint + guards) | 12-02 | SC2 | D-17 review + plugin validate + structural | `claude plugin validate .` | green |
-| 5 | SKILL.md trigger description (241c1fb intent-based; 12-02 sweep-bulk reverted 9832c74) | 12-02 | SC1 | D-17 review + plugin validate + metered recall/e2e | `claude plugin validate .` ; e2e recall | green (see WARNING) |
+| 5 | SKILL.md trigger description (241c1fb intent-based; 12-02 sweep-bulk reverted 9832c74) | 12-02 | SC1 | D-17 review + plugin validate + metered recall/e2e | `claude plugin validate .` ; e2e recall | green (nx p8 3/3 on HEAD, quick 260714-vmy) |
 | 6 | Research-informed changes (12-RESEARCH + n5o research; D-17 reviews on each SKILL.md commit) | 12-RESEARCH | SC3 | doc + subagent review | (manual review record) | green |
 | 7 | D-16 pre-edit baseline tree (OLD SKILL.md + NEW instruments) | 12-01 | D-16 protocol | git tree | `git show --stat ba2af4e` | green |
 
@@ -99,7 +100,7 @@ Both gaps measured CLOSED before/after in BOTH suites -- rates deterministic fro
 | TRIGGER (coach) | kata gr1/gr2 | 0/6 | 6/6 | E2E-FINDINGS.md Resolution |
 | TRIGGER (combined coach) | both | 1/18 (6%) | 18/18 (100%) | E2E-FINDINGS.md Resolution |
 | TRIGGER (isolated recall / specificity) | trigger-eval | 92% / 100% (11/11 quiet) | 100% / 100% | E2E-FINDINGS.md (old 13-pos set) |
-| TRIGGER (package sweep) | nx p8 / fleet p9-p12 | ~0 | 3/3 / 8/8 (pre-revert) | quick 260712-i5y / 260712-n5o |
+| TRIGGER (package sweep) | nx p8 / fleet p9-p12 | ~0 | p8 3/3 (HEAD post-revert, 2026-07-14) + 8/8 fleet (pre-revert) | quick 260714-vmy (p8) / 260712-i5y / 260712-n5o |
 | TRIGGER (package sweep) | kata gr4 | 0 | 3/3 (post-revert, 2026-07-14) | GR-RESULTS.md |
 | DRIVE (command) | both | stop-and-ask / fired-but-zero-edits | command 6/6 | E2E-FINDINGS.md Resolution |
 | DRIVE (package sweep) | nx p8 / kata gr4 / fleet | stop-and-ask | 4-6 behavior-preserving rounds to fixpoint | quick 260712-i5y / 260712-n5o |
@@ -121,19 +122,20 @@ kata Conjured 6/6).
   Fixed by adding assertion (5) to `check-evals.mjs` (harness .mjs, exempt from the D-17
   subagent-review gate per project convention; verified by running). Proven fail-closed.
 
-**WARNING (1, non-blocking; matches 12-VERIFICATION audit_notes):**
-- **nx whole-package sweep auto-trigger post-revert is inferred, not directly re-measured on HEAD.**
-  The nx sweep trigger (p8 3/3, fleet 8/8) was measured PRE-revert against the broadened 12-02
-  description (09e5c89), which was later reverted (9832c74). Post-revert, only the KATA sweep (gr4
-  3/3) was directly re-confirmed on HEAD. The nx sweep on HEAD is strongly inferred: the 241c1fb
-  intent-based description that carries auto-trigger REMAINS in HEAD and is validated 18/18 (incl.
-  nx coach p1-p4 12/12), and the p8 prompt intent matches the current description. Closing this
-  fully requires a gated metered `claude -p` re-run of the nx sweep e2e (and the isolated recall on
-  the current 16-positive set) after `/reload-plugins`, with user approval per the eval-run
-  approval gate -- an optional operator re-run, NOT a coverage gap or an unmet SC.
+**RESOLVED (1 prior WARNING, closed 2026-07-14):**
+- **nx whole-package sweep auto-trigger on HEAD post-revert is now DIRECTLY MEASURED (was inferred).**
+  Originally the nx sweep trigger (p8 3/3, fleet 8/8) was measured PRE-revert against the broadened
+  12-02 description (09e5c89), later reverted (9832c74); post-revert only the KATA sweep (gr4 3/3)
+  had been directly re-confirmed on HEAD, leaving the nx sweep strongly inferred. Closed by a gated,
+  user-approved metered re-run on HEAD (quick 260714-vmy): `run-e2e.mjs --mode apply --prompt p8
+  --arm with_skill --runs 3` against nx branch `lz-refactor-e2e-smoke` (= origin/23.0.x), reading the
+  live skill via `--plugin-dir` (= HEAD). Result: **3/3 auto-triggered** (`used_refactor=true`,
+  `skills_invoked=["lz-tdd:lz-refactor"]` each run; deterministic from meta.json), matching the
+  pre-revert p8 3/3 and the post-revert kata gr4 3/3. No regression from the 9832c74 revert. This
+  converts the last inferred measurement to measured; no coverage gap remains.
 
 **No BLOCKER.** All four ROADMAP Success Criteria are met and measured; 12-VERIFICATION is
-status: passed (4/4). The residual is the low-risk WARNING above.
+status: passed (4/4). The prior low-risk WARNING above is now CLOSED (measured on HEAD).
 
 ---
 
@@ -145,4 +147,4 @@ status: passed (4/4). The residual is the low-risk WARNING above.
 - [x] No watch-mode flags; `--num-workers 1` locked for eval runs (D-12)
 - [x] `nyquist_compliant: true` set in frontmatter (coverage contract met by instruments + measurement)
 
-**Approval:** validated (gsd-nyquist-auditor, 2026-07-14) -- coverage contract met; 1 gap filled (D-12 dual-write guard), 1 non-blocking WARNING (nx sweep post-revert re-confirmation, gated).
+**Approval:** validated (gsd-nyquist-auditor, 2026-07-14) -- coverage contract met; 1 gap filled (D-12 dual-write guard); the 1 non-blocking WARNING (nx sweep post-revert re-confirmation) was CLOSED 2026-07-14 by a gated metered re-run on HEAD (quick 260714-vmy: p8 with_skill apply 3/3 auto-trigger).

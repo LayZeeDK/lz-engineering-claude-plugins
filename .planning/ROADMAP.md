@@ -264,7 +264,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 12-03-PLAN.md -- Readiness gate (autonomous: false): present the before/after protocol with the locked run config, ask the user to /reload-plugins, HALT (wave 3)
+- [x] 12-03-PLAN.md -- Readiness gate (autonomous: false): present the before/after protocol with the locked run config, ask the user to /reload-plugins, HALT (wave 3) -- RECONCILED: gate satisfied; the deferred before/after measurement was performed via the skill-improvement loop (see 12-03-SUMMARY.md)
 
 ---
 *Roadmap created: 2026-07-02 | lz-tdd@0.0.1 completed: 2026-07-04 | lz-tdd@0.0.2 roadmap added: 2026-07-04 | Phase 6 planned: 2026-07-04 | Phase 7 planned: 2026-07-04 | Phase 7 re-planned (scope-correction: 62-scope + clean-room oracle, per-refactoring leaves): 2026-07-05 | Phase 8 planned: 2026-07-05 | Phase 8 completed: 2026-07-07 | Phase 8.2 inserted (Functional Catalog): 2026-07-07 | Phase 8.2 planned (6 plans, 4 waves): 2026-07-07 | Phase 11 planned (4 plans, 2 waves): 2026-07-10 | Phase 12 added: 2026-07-11*

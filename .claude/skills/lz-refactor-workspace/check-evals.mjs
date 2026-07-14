@@ -3,7 +3,9 @@
 // Asserts: (1) array of {query:string, should_trigger:boolean};
 //          (2) >= 8 should_trigger:true AND >= 8 should_trigger:false;
 //          (3) >= 2 should_trigger:false entries are lz-tpp-seam green-step negatives;
-//          (4) every query is ASCII-only (no byte > 0x7F).
+//          (4) every query is ASCII-only (no byte > 0x7F);
+//          (5) D-12 dual-write: negatives are byte-consistent (same strings, same order)
+//              with evals/d07-chunks/negatives.json (the file the spec runner reads).
 // Exits non-zero with a clear message on any violation (fail-closed).
 // ponytail: single self-contained script, no framework, no config file.
 // This is a local lint, NOT a claude -p run (D-10 respected).
@@ -14,6 +16,7 @@ import { dirname, join } from 'node:path';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const evalPath = join(here, 'evals', 'trigger-eval.json');
+const specNegPath = join(here, 'evals', 'd07-chunks', 'negatives.json');
 
 function fail(msg) {
   console.error(`check-evals: FAIL - ${msg}`);
@@ -84,6 +87,49 @@ data.forEach((el, i) => {
 
   if (nonAscii) {
     fail(`entry ${i} query contains a non-ASCII byte (> 0x7F)`);
+  }
+});
+
+// (5) D-12 dual-write invariant: every should_trigger:false negative must be
+//     byte-consistent (same query strings, same order) with evals/d07-chunks/negatives.json,
+//     the file the SPEC runner actually reads. Drift here silently makes the spec runner
+//     measure a stale negative set, invalidating the SC1 specificity guarantee.
+let specRaw;
+
+try {
+  specRaw = readFileSync(specNegPath, 'utf8');
+} catch (err) {
+  fail(`cannot read ${specNegPath}: ${err.message}`);
+}
+
+let specNeg;
+
+try {
+  specNeg = JSON.parse(specRaw);
+} catch (err) {
+  fail(`invalid JSON in ${specNegPath}: ${err.message}`);
+}
+
+if (!Array.isArray(specNeg)) {
+  fail(`${specNegPath} top-level value must be an array`);
+}
+
+const trigNegQueries = negatives.map((e) => e.query);
+const specNegQueries = specNeg.map((e) => e.query);
+
+if (trigNegQueries.length !== specNegQueries.length) {
+  fail(
+    `dual-write mismatch: trigger-eval.json has ${trigNegQueries.length} negatives ` +
+      `but d07-chunks/negatives.json has ${specNegQueries.length}`,
+  );
+}
+
+trigNegQueries.forEach((q, i) => {
+  if (q !== specNegQueries[i]) {
+    fail(
+      `dual-write mismatch at negative ${i}: trigger-eval.json and d07-chunks/negatives.json ` +
+        `differ (spec runner would measure a stale negative set)`,
+    );
   }
 });
 

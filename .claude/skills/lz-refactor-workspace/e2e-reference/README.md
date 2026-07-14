@@ -11,10 +11,38 @@ the SAME deterministic rubric on both arms. A positive delta on a non-saturated,
 fact is the only value signal. A NULL result is a decisive, valuable outcome (it closes the
 reference-mode value lever).
 
-- 12 discriminating questions (q1-q12) + 2 saturation controls (qc1-qc2).
 - Recommend mode only (read-only). Every prompt is `code:false` -- there is nothing to apply.
 - Primary A/B: `invoke_skill` (forced `/lz-tdd:lz-refactor`, catalog guaranteed loaded) vs
   `no_skill` (baseline). `with_skill` is a free secondary auto-trigger data point.
+
+### Clean core (post unbiased review, quick-260714-nxp)
+
+The unbiased review (neutral + adversarial) trimmed the discriminating set to a CLEAN CORE -- the
+questions whose graded discriminator is genuine catalog recall, not an echo of the injected SKILL.md
+preamble or of the stem itself:
+
+- CLEAN CORE (8, run): **q1, q6, q7, q8, q9, q10, q11, q12**.
+- DROPPED (removed from the suite): **q2** (saturated -- Builder+Composite are in the refactoring
+  title quoted in the stem, delta ~0 by construction) and **q4** (SKILL.md echo -- the three Away
+  refactorings are listed verbatim in the SKILL.md body).
+- EXCLUDED from the clean core (kept in the suite for grader coverage, NOT run): **q3** (SKILL.md
+  echo: "Inline Singleton" is in the SKILL.md body) and **q5** (SKILL.md echo: "Combinatorial
+  Explosion" is in the SKILL.md body routed to Kerievsky). Their `excluded_from_clean_core` field
+  in `targets.json` records why.
+- 2 saturation controls (qc1, qc2) are run alongside the core to feed the verbosity guard.
+
+The clean-core run is `--prompt q1 --prompt q6 --prompt q7 --prompt q8 --prompt q9 --prompt q10
+--prompt q11 --prompt q12 --prompt qc1 --prompt qc2` (10 prompts) x 2 arms (invoke_skill, no_skill)
+x k=3 = 60 runs.
+
+### SKILL.md-echo audit (what defines the clean core)
+
+A discriminating question is echo-tainted when its graded discriminator (or the subject->answer
+linkage it grades) appears in the SKILL.md BODY -- then invoke_skill can answer from the injected
+preamble rather than the catalog. The graded token that is merely restated in the STEM (e.g. q1's
+"Visitor" from the title "Move Accumulation to Visitor", or the author names in a provenance stem)
+is not the discriminator; the discriminator is the token the base model would plausibly miss
+(q1's "Iterator", q7's "Introduce Special Case", each smell's true author linkage).
 
 ## Fairness rule (the crux)
 
@@ -46,6 +74,11 @@ node ../e2e-nx/run-e2e.mjs --suite ../e2e-reference --mode recommend --arm all -
 node ../grade-reference.mjs --selfcheck
 node ../grade-reference.mjs --aggregate
 ```
+
+The aggregate prints, alongside each per-fact delta, a per-arm median `answer_chars` (from
+`meta.json`) as a verbosity guard: a skill arm with a much larger median answer length may be
+winning on token-naming/verbosity rather than recall, which the saturated qc1/qc2 controls cannot
+catch on their own.
 
 ## Eval-run approval gate
 

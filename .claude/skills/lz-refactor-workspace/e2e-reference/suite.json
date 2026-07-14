@@ -6,9 +6,7 @@
   "skillCommand": "/lz-tdd:lz-refactor",
   "prompts": [
     { "id": "q1", "file": "q1-move-accumulation-visitor.md", "target": "FC-1a", "code": false },
-    { "id": "q2", "file": "q2-encapsulate-composite-builder.md", "target": "FC-1a", "code": false },
     { "id": "q3", "file": "q3-unwarranted-singleton.md", "target": "FC-4", "code": false },
-    { "id": "q4", "file": "q4-away-refactorings.md", "target": "FC-1a", "code": false },
     { "id": "q5", "file": "q5-combinatorial-explosion-provenance.md", "target": "FC-5", "code": false },
     { "id": "q6", "file": "q6-primitive-obsession-provenance.md", "target": "FC-5", "code": false },
     { "id": "q7", "file": "q7-null-object-rename.md", "target": "FC-2", "code": false },

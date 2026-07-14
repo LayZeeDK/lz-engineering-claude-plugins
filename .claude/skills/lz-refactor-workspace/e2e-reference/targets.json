@@ -1,5 +1,5 @@
 {
-  "note": "Per-question fact rubric for the reference-catalog eval. FAIRNESS RULE: every independent:true question grades ONLY a fact whose ground truth exists in the real Fowler/Kerievsky books (pattern MEMBERSHIP in a refactoring's row, a real 1st->2nd-ed rename/merge, a real smell provenance, a real print-vs-web provenance). NO direction word (away/toward/towards/de-pattern/dismantle/retreat) is ever a required or forbidden grade token. mustName.all = AND list (each must appear affirmed); mustName.anyOf = array of OR-groups (each group needs >=1 affirmed hit); mustNotClaim = forbidden claims (fail if any appears un-negated). Matching is word-bounded + whitespace-tolerant + clause-scoped negation-aware (see grade-reference.mjs).",
+  "note": "Per-question fact rubric for the reference-catalog eval. FAIRNESS RULE: every independent:true question grades ONLY a fact whose ground truth exists in the real Fowler/Kerievsky books (pattern MEMBERSHIP in a refactoring's row, a real 1st->2nd-ed rename/merge, a real smell provenance, a real print-vs-web provenance). NO direction word (away/toward/towards/de-pattern/dismantle/retreat) is ever a required or forbidden grade token. mustName.all = AND list (each must appear affirmed); mustName.anyOf = array of OR-groups (each group needs >=1 affirmed hit); mustNotClaim = forbidden claims (fail if any appears un-negated). Matching is word-bounded + whitespace-tolerant + clause-scoped BIDIRECTIONAL negation-aware, with hedged-contrastive retraction (see grade-reference.mjs). A target with an 'excluded_from_clean_core' field is SKILL.md-echo-tainted: it is kept for grader coverage but is NOT part of the clean-core run (q3, q5). q2 and q4 were dropped from the suite entirely (saturated / SKILL.md-echo).",
   "targets": [
     {
       "id": "q1",
@@ -11,19 +11,11 @@
       "mustNotClaim": []
     },
     {
-      "id": "q2",
-      "class": "FC-1a",
-      "independent": true,
-      "control": false,
-      "fact": "Encapsulate Composite with Builder heads toward Builder but steps back from Composite. Membership of both patterns is the real table fact.",
-      "mustName": { "all": ["Builder", "Composite"], "anyOf": [] },
-      "mustNotClaim": []
-    },
-    {
       "id": "q3",
       "class": "FC-4",
       "independent": true,
       "control": false,
+      "excluded_from_clean_core": "SKILL.md-echo: the discriminator 'Inline Singleton' appears verbatim in the SKILL.md body (step 4 Away-refactoring list), so invoke_skill answers from the injected preamble, not the catalog. Retained for grader coverage; NOT in the clean-core run.",
       "fact": "The named Kerievsky move for an unwarranted Singleton is Inline Singleton; a plain functional alternative is a module namespace / module of functions.",
       "mustName": {
         "all": ["Inline Singleton"],
@@ -32,25 +24,14 @@
       "mustNotClaim": []
     },
     {
-      "id": "q4",
-      "class": "FC-1a",
-      "independent": true,
-      "control": false,
-      "fact": "Exactly three Kerievsky refactorings move away from a pattern: Inline Singleton, Encapsulate Composite with Builder, Move Accumulation to Visitor. Grade membership of the three real refactoring names.",
-      "mustName": {
-        "all": ["Inline Singleton", "Encapsulate Composite with Builder", "Move Accumulation to Visitor"],
-        "anyOf": []
-      },
-      "mustNotClaim": []
-    },
-    {
       "id": "q5",
       "class": "FC-5",
       "independent": true,
       "control": false,
+      "excluded_from_clean_core": "SKILL.md-echo: 'Combinatorial Explosion' appears in the SKILL.md body routed to a Kerievsky pattern-directed refactoring, so invoke_skill answers 'Kerievsky' from the injected preamble, not the catalog. Retained for grader-fix coverage; NOT in the clean-core run.",
       "fact": "Combinatorial Explosion is a Kerievsky-unique smell (Refactoring to Patterns Ch.4), not a Fowler smell.",
       "mustName": { "all": ["Kerievsky"], "anyOf": [] },
-      "mustNotClaim": ["a Fowler smell", "a Fowler code smell", "one of Fowler's smells", "Fowler's code smell"]
+      "mustNotClaim": ["a Fowler smell", "a Fowler code smell", "one of Fowler's smells", "Fowler's code smell", "both authors", "both catalogs", "Fowler and Kerievsky", "named by both", "catalogued by both", "catalogued by neither", "by neither of them"]
     },
     {
       "id": "q6",
@@ -58,7 +39,7 @@
       "independent": true,
       "control": false,
       "fact": "Primitive Obsession is catalogued by both Fowler and Kerievsky.",
-      "mustName": { "all": [], "anyOf": [["both", "both catalogs", "in both", "appears in both", "catalogued by both", "both authors"]] },
+      "mustName": { "all": [], "anyOf": [["both authors", "both catalogs", "both books", "Fowler and Kerievsky", "named by both", "catalogued by both", "appears in both catalogs"]] },
       "mustNotClaim": []
     },
     {
@@ -99,7 +80,7 @@
       "fact": "Fowler's 2nd ed has NO Extract Interface refactoring; the case maps to Change Function Declaration / Extract Superclass.",
       "mustName": {
         "all": [],
-        "anyOf": [["no Extract Interface", "does not include an Extract Interface", "does not include Extract Interface", "does not have an Extract Interface", "does not list Extract Interface", "not include Extract Interface", "not include an Extract Interface", "Extract Interface is not", "no such refactoring", "there is no Extract Interface"]]
+        "anyOf": [["no Extract Interface", "does not include an Extract Interface", "does not include Extract Interface", "does not have an Extract Interface", "does not list Extract Interface", "not include Extract Interface", "not include an Extract Interface", "Extract Interface is not", "no such refactoring", "there is no Extract Interface", "does not contain an Extract Interface", "does not contain Extract Interface", "lacks an Extract Interface", "lacks Extract Interface", "omits Extract Interface", "omits an Extract Interface", "has no Extract Interface", "Extract Interface is absent"]]
       },
       "mustNotClaim": []
     },
@@ -119,7 +100,7 @@
       "control": false,
       "fact": "Indecent Exposure is a Kerievsky-unique smell, not a Fowler smell and not absent from both.",
       "mustName": { "all": ["Kerievsky"], "anyOf": [] },
-      "mustNotClaim": ["a Fowler smell", "a Fowler code smell", "one of Fowler's smells", "Fowler's code smell", "catalogued by neither", "by neither of them"]
+      "mustNotClaim": ["a Fowler smell", "a Fowler code smell", "one of Fowler's smells", "Fowler's code smell", "catalogued by neither", "by neither of them", "both authors", "both catalogs", "Fowler and Kerievsky", "named by both", "catalogued by both"]
     },
     {
       "id": "qc1",

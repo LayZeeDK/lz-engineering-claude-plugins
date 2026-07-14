@@ -31,6 +31,10 @@ Thumbs.db
 .claude/skills/*-workspace/**/trigger-workspace/
 # Generated TS modules from the FWL-04 compile harness (extract-samples.mjs) -- never committed.
 .claude/skills/*-workspace/**/samples/
+# Reference-eval (quick 260714-nxp): raw per-run outputs + the generated aggregate are local
+# byproducts. The verdict is tracked in e2e-reference/REFERENCE-RESULTS.md; runs are re-runnable.
+.claude/skills/lz-refactor-workspace/e2e-reference/results/
+.claude/skills/lz-refactor-workspace/e2e-reference/aggregate.json
 
 # Clean-room oracle: authoritative copyrighted source excerpts (Fowler/Kerievsky/GoF book
 # patterns in Markdown). NEVER committed. Only the read-only oracle-reviewer subagent reads this;

@@ -61,10 +61,15 @@ not duplicated here.
   apply diffs (nx = `with_skill`; kata = `with_skill` + `invoke_skill`; verified present under
   `results/apply/.../diff.patch`); BACKFILL only the `no_skill` base arm (k=3) on the same
   targets/prompts. Prompts + targets already exist -- no authoring.
-- **D-02:** Sweep cells (nx `p8` target `pkgsweep`; kata `gr4` target `projsweep`): re-run BOTH arms
-  (`with_skill` + `no_skill`, k=3 each) from scratch -- no sweep applied diffs were persisted for
-  either arm. Both prompts (`p8-eslint-plugin-package-directive.md`, `gr4-project-directive.md`)
-  already exist in the suites.
+- **D-02 [AMENDED 2026-07-15 via research + OQ-1]:** Sweep cells (nx `p8` target `pkgsweep`; kata
+  `gr4` target `projsweep`). CORRECTION: the SPEC/ROADMAP premise "no sweep diffs for either arm" is
+  FALSIFIED for nx `p8` `with_skill` -- those diffs ARE persisted (committed, k=3, fresh 2026-07-14 on
+  HEAD `cfcbfa5`, against the unchanged shipped skill). User decision (OQ-1): REUSE the committed nx
+  `p8` `with_skill` diffs (skill unchanged since capture -> valid A/B baseline; ~40 min saved) and
+  backfill nx `p8` `no_skill` only (k=3). kata `gr4` is genuinely absent for BOTH arms -> re-run
+  `with_skill` + `no_skill` (k=3 each). Both prompts (`p8-eslint-plugin-package-directive.md`,
+  `gr4-project-directive.md`) already exist. Net missing metered runs = 18: single-target `no_skill`
+  backfill (p1/p2/gr1 = 9) + sweep (p8 `no_skill` 3 + gr4 both 6).
 
 ### Harness reuse (no new eval infrastructure)
 - **D-03:** Reuse the existing `.claude/skills/lz-refactor-workspace/e2e-{nx,gilded-rose}/run-e2e.mjs`

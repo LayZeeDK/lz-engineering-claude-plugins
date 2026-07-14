@@ -1,0 +1,38 @@
+{
+  "version": "1.0",
+  "timestamp": "2026-07-14T20:41:56.439Z",
+  "phase": "post-12-nx-sweep-autotrigger-closeout",
+  "phase_name": "Measure nx whole-package sweep auto-trigger on HEAD (close the Phase-12 WARNING)",
+  "phase_dir": ".planning/quick (to be created by /gsd-quick)",
+  "plan": 1,
+  "task": 1,
+  "total_tasks": 3,
+  "status": "paused",
+  "context_summary": "Phase 12 is CLOSED (verify 4/4 + secure 8/8 + validate nyquist_compliant + learnings pooled; commit 234d25f). The lz-tdd@0.0.2 milestone's phases 6-12 are all complete on disk. The ONLY loose end is one non-blocking WARNING from 12-VALIDATION/12-VERIFICATION: the nx whole-package sweep auto-trigger was measured PRE-revert (p8 3/3, fleet 8/8) against the broadened 12-02 description that was later REVERTED (9832c74). Post-revert, only the kata sweep (gr4 3/3) was DIRECTLY re-confirmed on HEAD; the nx sweep on HEAD is strongly inferred (the 241c1fb intent-based description carrying auto-trigger remains). This handoff sets up a fresh session to DIRECTLY measure the nx sweep auto-trigger on HEAD, converting inferred -> measured.",
+  "completed_tasks": [
+    {"id": "phase12-close", "name": "Closed Phase 12: reconciled 12-03 readiness gate + verify/secure/validate + learnings + global pool", "status": "done", "commit": "234d25f"},
+    {"id": "reference-eval", "name": "Reference-catalog eval (quick 260714-nxp): essentially null (1/8; q1 +1.00 niche edge)", "status": "done", "commit": "2776e49"},
+    {"id": "reload", "name": "User ran /reload-plugins -- skill now live interactively (runner already read HEAD via --plugin-dir)", "status": "done", "commit": "n/a"}
+  ],
+  "remaining_tasks": [
+    {"id": "recreate-branch", "name": "Re-create the nx throwaway apply branch (deleted in cleanup): git checkout -b lz-refactor-e2e-smoke origin/23.0.x in D:/projects/github/nrwl/nx", "status": "not_started"},
+    {"id": "run-nx-sweep", "name": "Run nx p8 (primary; optionally p7 + fleet p9-p12) with_skill apply k=3 on HEAD; grade AUTO-TRIGGER (used_refactor/skills_invoked fires). Target: fires (matches pre-revert 3/3 + kata gr4 3/3). Metered -- eval-run-approval-gate applies.", "status": "not_started"},
+    {"id": "update-artifacts", "name": "If it fires: flip the WARNING to CONFIRMED in 12-VALIDATION.md + 12-VERIFICATION.md (nx sweep auto-trigger measured on HEAD post-revert), commit. If it does NOT fire: real regression -- investigate the reverted description vs the 241c1fb description.", "status": "not_started"}
+  ],
+  "blockers": [
+    {"description": "Metered claude -p apply runs are user-gated + session-cap-fragile. Honor eval-run-approval-gate: halt for explicit approval before spend; run in background; idempotent resume.", "type": "human_action", "workaround": "Invoke /gsd-quick to run; surface run count/cost at the spend checkpoint."},
+    {"description": "nx throwaway apply branch was DELETED in cleanup; nx is pristine on 23.0.x. Apply mode requires a throwaway branch (never run apply on 23.0.x/master -- protected).", "type": "technical", "workaround": "git checkout -b lz-refactor-e2e-smoke origin/23.0.x FIRST."},
+    {"description": "git reset --hard / destructive git on nx is classifier-gated (needs the user to name the target). The runner's per-run reset --hard to applyBase is an internal spawnSync child (not gated); only manual resets need approval.", "type": "human_action", "workaround": "git checkout -b is not destructive; cleanup at the end needs user OK."}
+  ],
+  "human_actions_pending": [
+    {"action": "Authorize + pace the metered nx sweep apply runs (p8 with_skill k=3, ~3-9 runs).", "context": "eval-run-approval-gate; this is the fresh session's spend.", "blocking": false}
+  ],
+  "decisions": [
+    {"decision": "Measure the nx sweep auto-trigger in APPLY mode with the with_skill arm, NOT recommend or invoke_skill.", "rationale": "Phase-12 finding: whole-package sweep prompts auto-trigger in APPLY/directive framing (3/3) but NOT in recommend (0/6); invoke_skill FORCES activation so it cannot measure auto-trigger. with_skill apply on the directive prompt is the faithful auto-trigger measure.", "phase": "post-12"},
+    {"decision": "Do NOT re-run no_skill for p8/p7/fleet.", "rationale": "They are existing prompts (user rule: only run no_skill for NEW prompts); and auto-trigger has no meaning for no_skill (no skill loaded).", "phase": "post-12"},
+    {"decision": "The runner reads the live skill via --plugin-dir from the repo tree = HEAD (241c1fb description + 9832c74 revert + 98cf482 L1), so no reload is needed for the runner; the user's /reload-plugins covers interactive use.", "rationale": "--plugin-dir points at plugins/lz-tdd on disk at HEAD.", "phase": "post-12"}
+  ],
+  "uncommitted_files": [".planning/HANDOFF.json + .planning/.continue-here.md (this handoff, WIP-committed)"],
+  "next_action": "Read .planning/.continue-here.md fully. Then start /gsd-quick --validate --research with the task 'Measure the nx whole-package sweep auto-trigger on HEAD to close the Phase-12 WARNING'. First infra step: re-create the nx throwaway branch (git checkout -b lz-refactor-e2e-smoke origin/23.0.x). Then run nx p8 with_skill apply k=3 (halt for spend approval first); grade auto-trigger; update 12-VALIDATION/12-VERIFICATION.",
+  "context_notes": "This is a narrow close-out of a single non-blocking WARNING, not new feature work. The honest expectation: p8 auto-triggers on HEAD (the 241c1fb description that carries auto-trigger is unchanged by the 9832c74 revert; kata gr4 already re-confirmed 3/3 post-revert this session). A fire CLOSES the WARNING. A no-fire would be a genuine regression worth investigating (the revert removed something load-bearing). Grade ONLY auto-trigger (did the skill fire) -- the drive/quality is already settled (null skill delta; base catalog-grade). Do NOT re-open the output-value or reference-lever questions (both tested + closed; see memory lz-refactor-output-warrant-axis-exhausted). After this, the milestone is fully closable via /gsd-audit-milestone (NOT yet run -- user scoped it out)."
+}

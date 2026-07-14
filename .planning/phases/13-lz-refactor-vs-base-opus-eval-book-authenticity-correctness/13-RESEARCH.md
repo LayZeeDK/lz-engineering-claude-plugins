@@ -385,21 +385,24 @@ Verdict: <empirical finding -- parity, or delta with magnitude + direction; NOT 
 | A4 | Sweep name/layer correctness can be judged against the constituent per-target judgments | Pitfall 6 | If a sweep applies a refactoring outside T1-T4/p7sweep (nx) or G1 (kata), grade it against the general expectation (behavior-preserving Fowler/functional; DECLINE speculative patterns). |
 | A5 | Grading (oracle agent calls) runs on the Claude plan, not a separate metered pool, so only the `claude -p` apply runs are D-09-gated | D-09 / Summary | If oracle calls were metered separately, grading cost would need its own gate. CONTEXT D-09 states grading is on the plan; low risk. |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **OQ-1: Reuse the committed nx `p8` `with_skill` diffs, or re-run per D-02?**
    - What we know: p8 `with_skill` k=3 diffs exist on disk, git-tracked, dated 2026-07-14, captured via the persisting harness on current HEAD (post-revert; same shipped skill). D-02 says re-run both arms from scratch.
    - What's unclear: whether the user wants strict D-02 consistency (re-run, +3 metered runs ~40 min) or the reuse optimization (backfill p8 `no_skill` only).
    - Recommendation: REUSE the committed p8 `with_skill` and backfill p8 `no_skill` only (defensible: same skill, current HEAD, harness-captured; the sweep carries no version caveat per CONTEXT specifics). kata `gr4` IS absent for both arms -- re-run both there regardless. Surface this explicitly at the D-09 gate; it is a user call.
+   - RESOLVED (2026-07-15, discuss-phase OQ-1): user chose REUSE the committed p8 `with_skill`; backfill p8 `no_skill` only; re-run gr4 both arms. Locked in the amended D-02 (13-CONTEXT.md) and implemented by plan 13-02. Net-new = 18 metered runs.
 
 2. **OQ-2: kata behavior-oracle runner -- jest or vitest?**
    - What we know: both `test:jest` and `test:vitest` exist and both have `approvals.spec.ts`; GR-RESULTS references vitest; no snapshot recorded on disk.
    - What's unclear: which the plan should standardize on.
    - Recommendation: jest with `--ci` (cleanest "refuse to write, fail on mismatch" golden-master guard). Pick ONE and record it; the pristine-seed requirement holds either way.
+   - RESOLVED (planner, plans 13-01/13-04): jest `--ci` on `approvals.spec.ts`, snapshot seeded from pristine `main`.
 
 3. **OQ-3: where do the per-claim grading records live?**
    - What we know: `13-RESULTS.md` is the only artifact mandated in the phase dir (D-08); the workspace holds the rest.
    - Recommendation: keep per-run/per-claim grading records in the workspace (e.g. alongside `results/apply/.../`), ASCII-only; summarize into `13-RESULTS.md`. Discretion.
+   - RESOLVED (planner, plans 13-03/13-04/13-05): per-run/per-claim grading records live under the workspace `grading/` tree, ASCII-only; summarized into `13-RESULTS.md`.
 
 ## Environment Availability
 

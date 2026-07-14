@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: lz-tdd@0.0.2
 milestone_name: lz-refactor Skill (Fowler + Kerievsky)
 status: executing
-stopped_at: Phase 12 waves 1-2 done (instruments + reviewed SKILL.md, LIVE); SC1 isolated trigger 100%/100%; HALTED at 12-03 awaiting user go-ahead on the metered e2e before/after run (reload already done)
-last_updated: "2026-07-12T11:04:45.125Z"
-last_activity: 2026-07-12
+stopped_at: "lz-refactor skill-improvement loop: L1 net-cost warrant (98cf482) ACCEPTED -- gr4 re-measure 0/3 over-build + 3/3 countable DECLINE (binds); positive-control axis CLOSED (step-4 has no growth term by design; 2 probes disqualified pre-spend by unbiased review). Output-warrant validation exhausted (value = auto-trigger + untested reference catalog). Doing repo cleanup; reference-catalog eval deferred."
+last_updated: "2026-07-14T00:00:00.000Z"
+last_activity: 2026-07-14
 progress:
   total_phases: 9
   completed_phases: 8
@@ -147,9 +147,10 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-11 (resumed)
-Stopped at: Phase 12 waves 1-2 done + LIVE; SC1 isolated trigger 100%/100%; awaiting user go-ahead on the metered e2e before/after run
-Resume file: .planning/phases/12-autonomous-multi-round-refactoring-for-whole-package-sweeps/12-03-PLAN.md
+Last session: 2026-07-14 (resumed)
+Stopped at: L1 net-cost warrant (98cf482) ACCEPTED. gr4 re-measure: 0/3 over-build, 3/3 countable DECLINE (L1 binds; fixes iteration-1's 1/3). Positive-control axis CLOSED -- conceptually foreclosed (step-4 has no growth term by design = intended YAGNI); probes B (@nx/vite Extract, vacuous test gate + wrong path) and A (kata grown-types) disqualified pre-spend by unbiased review; p2 reuse disqualified (already run). Output-warrant validation exhausted: realizable value = auto-trigger (proven) + reference catalog (UNTESTED). Findings recorded in e2e-gilded-rose/GR-RESULTS.md + memory lz-refactor-output-warrant-axis-exhausted. Doing borrowed-repo cleanup this turn.
+Resume file: .planning/.continue-here.md
+Open next: (optional) reference-catalog eval -- the untested value lever; honor eval-run-approval-gate.
 
 ## Operator Next Steps
 

@@ -1,0 +1,143 @@
+{
+  "note": "Per-question fact rubric for the reference-catalog eval. FAIRNESS RULE: every independent:true question grades ONLY a fact whose ground truth exists in the real Fowler/Kerievsky books (pattern MEMBERSHIP in a refactoring's row, a real 1st->2nd-ed rename/merge, a real smell provenance, a real print-vs-web provenance). NO direction word (away/toward/towards/de-pattern/dismantle/retreat) is ever a required or forbidden grade token. mustName.all = AND list (each must appear affirmed); mustName.anyOf = array of OR-groups (each group needs >=1 affirmed hit); mustNotClaim = forbidden claims (fail if any appears un-negated). Matching is word-bounded + whitespace-tolerant + clause-scoped negation-aware (see grade-reference.mjs).",
+  "targets": [
+    {
+      "id": "q1",
+      "class": "FC-1a",
+      "independent": true,
+      "control": false,
+      "fact": "Move Accumulation to Visitor sits in two pattern rows: it heads toward Visitor and steps back from Iterator. Iterator is the discriminator (base may name only the pattern in the title).",
+      "mustName": { "all": ["Visitor", "Iterator"], "anyOf": [] },
+      "mustNotClaim": []
+    },
+    {
+      "id": "q2",
+      "class": "FC-1a",
+      "independent": true,
+      "control": false,
+      "fact": "Encapsulate Composite with Builder heads toward Builder but steps back from Composite. Membership of both patterns is the real table fact.",
+      "mustName": { "all": ["Builder", "Composite"], "anyOf": [] },
+      "mustNotClaim": []
+    },
+    {
+      "id": "q3",
+      "class": "FC-4",
+      "independent": true,
+      "control": false,
+      "fact": "The named Kerievsky move for an unwarranted Singleton is Inline Singleton; a plain functional alternative is a module namespace / module of functions.",
+      "mustName": {
+        "all": ["Inline Singleton"],
+        "anyOf": [["Module Namespace", "module of functions", "module of plain functions", "namespace of functions"]]
+      },
+      "mustNotClaim": []
+    },
+    {
+      "id": "q4",
+      "class": "FC-1a",
+      "independent": true,
+      "control": false,
+      "fact": "Exactly three Kerievsky refactorings move away from a pattern: Inline Singleton, Encapsulate Composite with Builder, Move Accumulation to Visitor. Grade membership of the three real refactoring names.",
+      "mustName": {
+        "all": ["Inline Singleton", "Encapsulate Composite with Builder", "Move Accumulation to Visitor"],
+        "anyOf": []
+      },
+      "mustNotClaim": []
+    },
+    {
+      "id": "q5",
+      "class": "FC-5",
+      "independent": true,
+      "control": false,
+      "fact": "Combinatorial Explosion is a Kerievsky-unique smell (Refactoring to Patterns Ch.4), not a Fowler smell.",
+      "mustName": { "all": ["Kerievsky"], "anyOf": [] },
+      "mustNotClaim": ["a Fowler smell", "a Fowler code smell", "one of Fowler's smells", "Fowler's code smell"]
+    },
+    {
+      "id": "q6",
+      "class": "FC-5",
+      "independent": true,
+      "control": false,
+      "fact": "Primitive Obsession is catalogued by both Fowler and Kerievsky.",
+      "mustName": { "all": [], "anyOf": [["both", "both catalogs", "in both", "appears in both", "catalogued by both", "both authors"]] },
+      "mustNotClaim": []
+    },
+    {
+      "id": "q7",
+      "class": "FC-2",
+      "independent": true,
+      "control": false,
+      "fact": "Fowler generalized 1st-ed Introduce Null Object into 2nd-ed Introduce Special Case.",
+      "mustName": { "all": ["Introduce Special Case"], "anyOf": [] },
+      "mustNotClaim": ["still Introduce Null Object", "still called Introduce Null Object", "remains Introduce Null Object", "unchanged in the second edition"]
+    },
+    {
+      "id": "q8",
+      "class": "FC-2",
+      "independent": true,
+      "control": false,
+      "fact": "One 2nd-ed refactoring, Change Function Declaration, absorbed Add Parameter + Remove Parameter + Rename Method.",
+      "mustName": { "all": ["Change Function Declaration"], "anyOf": [] },
+      "mustNotClaim": []
+    },
+    {
+      "id": "q9",
+      "class": "FC-6",
+      "independent": true,
+      "control": false,
+      "fact": "Return Modified Value is in Fowler's online catalog only, not in the printed 2nd edition.",
+      "mustName": {
+        "all": [],
+        "anyOf": [["web-only", "web only", "online only", "online catalog", "not in the print", "not in print", "only online", "not in the second edition print"]]
+      },
+      "mustNotClaim": ["in the print edition", "in the printed book", "in the second edition print", "part of the print edition", "included in the print"]
+    },
+    {
+      "id": "q10",
+      "class": "FC-6",
+      "independent": true,
+      "control": false,
+      "fact": "Fowler's 2nd ed has NO Extract Interface refactoring; the case maps to Change Function Declaration / Extract Superclass.",
+      "mustName": {
+        "all": [],
+        "anyOf": [["no Extract Interface", "does not include an Extract Interface", "does not include Extract Interface", "does not have an Extract Interface", "does not list Extract Interface", "not include Extract Interface", "not include an Extract Interface", "Extract Interface is not", "no such refactoring", "there is no Extract Interface"]]
+      },
+      "mustNotClaim": []
+    },
+    {
+      "id": "q11",
+      "class": "FC-2",
+      "independent": true,
+      "control": false,
+      "fact": "The 1st-ed Consolidate Duplicate Conditional Fragments case is covered by 2nd-ed Slide Statements (a real 2nd-ed rename/merge).",
+      "mustName": { "all": ["Slide Statements"], "anyOf": [] },
+      "mustNotClaim": []
+    },
+    {
+      "id": "q12",
+      "class": "FC-5",
+      "independent": true,
+      "control": false,
+      "fact": "Indecent Exposure is a Kerievsky-unique smell, not a Fowler smell and not absent from both.",
+      "mustName": { "all": ["Kerievsky"], "anyOf": [] },
+      "mustNotClaim": ["a Fowler smell", "a Fowler code smell", "one of Fowler's smells", "Fowler's code smell", "catalogued by neither", "by neither of them"]
+    },
+    {
+      "id": "qc1",
+      "class": "control",
+      "independent": false,
+      "control": true,
+      "fact": "Saturation control: base knows Extract Function cold. Loose match only; reported separately.",
+      "mustName": { "all": [], "anyOf": [["Extract Function", "extract a function", "extracting a function", "extract method"]] },
+      "mustNotClaim": []
+    },
+    {
+      "id": "qc2",
+      "class": "control",
+      "independent": false,
+      "control": true,
+      "fact": "Saturation control: base knows the Strategy pattern cold. Loose match only; reported separately.",
+      "mustName": { "all": [], "anyOf": [["interchangeable", "family of algorithms", "encapsulate", "select an algorithm", "vary the algorithm", "swap the algorithm"]] },
+      "mustNotClaim": []
+    }
+  ]
+}

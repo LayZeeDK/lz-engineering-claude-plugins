@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: lz-tdd@0.0.2
 milestone_name: lz-refactor Skill (Fowler + Kerievsky)
-status: executing
-stopped_at: "Phase-12 nx-sweep auto-trigger WARNING CLOSED (quick 260714-vmy): p8 with_skill apply k=3 -> 3/3 auto-triggered on HEAD post-revert (no regression from 9832c74); 12-VALIDATION + 12-VERIFICATION reconciled inferred->measured. Milestone lz-tdd@0.0.2 (phases 6-12) fully complete + reconciled on disk. Next: /gsd-audit-milestone lz-tdd@0.0.2 (user-scoped; not yet run) then /gsd-complete-milestone."
-last_updated: "2026-07-14T21:30:00.000Z"
+status: completed
+stopped_at: Phase 13 context gathered
+last_updated: "2026-07-14T22:23:51.786Z"
 last_activity: 2026-07-14
 progress:
-  total_phases: 9
+  total_phases: 10
   completed_phases: 9
   total_plans: 45
   completed_plans: 45
-  percent: 100
+  percent: 90
 ---
 
 # Project State
@@ -150,9 +150,9 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-14 (resumed; nx-sweep auto-trigger close-out)
-Stopped at: lz-refactor skill-improvement loop COMPLETE. (1) L1 net-cost warrant (98cf482) ACCEPTED -- gr4 re-measure 0/3 over-build + 3/3 countable DECLINE (binds); positive-control axis CLOSED (step-4 has no growth term by design = intended YAGNI; probes disqualified pre-spend by unbiased review). (2) Reference-catalog eval (quick 260714-nxp) RUN + graded: essentially NULL (1/8 positive; the lone edge q1 +1.00 = Kerievsky direction-table dual/Away fact base gets confidently wrong; 7/8 parity). Borrowed repos (nx/kata) restored pristine + worktrees removed. CONCLUSION: base Opus 4.8@high is catalog-grade; the skill's realizable value = AUTO-TRIGGER (proven) + a narrow reference edge on niche direction-table facts. Output-gating, general reference recall, and coach-output value are all null/parity. No further skill tuning warranted.
-Resume file: none (HANDOFF.json + top-level .continue-here.md deleted -- one-shot resumption artifacts, task complete)
+Last session: 2026-07-14T22:23:51.771Z
+Stopped at: Phase 13 context gathered
+Resume file: .planning/phases/13-lz-refactor-vs-base-opus-eval-book-authenticity-correctness/13-CONTEXT.md
 Open next: /gsd-audit-milestone lz-tdd@0.0.2 (user-scoped; not yet run), then /gsd-complete-milestone lz-tdd@0.0.2. All milestone phases (6-12) are complete + reconciled on disk; Phase 12's last loose end (nx sweep auto-trigger re-confirmation on HEAD) is now CLOSED (quick 260714-vmy: p8 3/3, no regression). Milestone-audit note carried from 12-VERIFICATION audit_notes: the gaps closed while base Opus 4.8@high is ALSO catalog-grade (null skill output-delta); the skill's robust value is auto-trigger (proven) + a narrow reference edge. CLEANUP: nx throwaway branch lz-refactor-e2e-smoke left with run-3 edits (pristine 23.0.x intact) -- operator restores per quick/260714-vmy SUMMARY.
 
 ## Operator Next Steps

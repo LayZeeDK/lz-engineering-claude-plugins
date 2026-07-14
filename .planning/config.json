@@ -45,8 +45,6 @@
   "mode": "yolo",
   "granularity": "coarse",
   "context_window": 1000000,
-  "branching_strategy": "none",
-  "quick_branch_template": null,
   "model_overrides": {
     "gsd-planner": "opus",
     "gsd-roadmapper": "opus",

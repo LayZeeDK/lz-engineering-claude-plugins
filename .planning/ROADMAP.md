@@ -238,7 +238,7 @@ Phases execute in numeric order: 6 -> 7 -> 8 -> 8.1 -> 8.2 -> 9 -> 10 -> 11 -> 1
 | 10. Distribution & Hygiene | lz-tdd@0.0.2 | 4/4 | Complete   | 2026-07-09 |
 | 11. Skill-Effectiveness Evals | lz-tdd@0.0.2 | 4/4 | Complete    | 2026-07-10 |
 | 12. Autonomous multi-round refactoring for whole-package sweeps | lz-tdd@0.0.2 | 3/3 | Complete   | 2026-07-14 |
-| 13. lz-refactor vs base Opus eval: book authenticity & correctness | lz-tdd@0.0.2 | 0/0 | Not planned |  |
+| 13. lz-refactor vs base Opus eval: book authenticity & correctness | lz-tdd@0.0.2 | 0/5 | Planned |  |
 
 ### Phase 12: Autonomous multi-round refactoring for whole-package sweeps
 
@@ -272,12 +272,28 @@ Plans:
 **Goal:** Compare the `lz-refactor` skill (with_skill / invoke_skill) against base Opus 4.8 @ high on two dimensions the prior eval loop (Phases 11-12 + quick tasks) never cleanly differenced against base: **book authenticity** and **correctness**. **Book authenticity = grade the OUTPUT of the drive/apply runs FIRST** -- the applied `diff.patch` / edited code the model actually produced when it DROVE a refactoring (apply/command mode), NOT the coach/reference prose -- **against what the `.oracle/` books prescribe** (Fowler / Kerievsky / GoF): did the applied change faithfully realize the named refactoring/pattern AND its book mechanics? Coach/recommend and reference/lookup run outputs are secondary/optional. This is the LIVE-APPLIED fidelity check, explicitly NOT a re-run of Phase 10's DST-04 authoring gate (which graded the shipped catalog, not run output). **Correctness** = right named refactoring at the right layer + behavior-preserving applied diffs, differenced against base. The drive/apply corpus spans BOTH single-target applies AND the whole-package sweep runs (nx `@nx/eslint-plugin` p8 + the `@nx/*` fleet p9-p13; kata gr3/gr4). **Backfill reality (verified 2026-07-15 against disk):**
 - **Single-target apply** (nx p1/p2/p3/p4, kata gr1): `with_skill`/`invoke_skill` `diff.patch` ARE persisted (tracked, `.claude/skills/lz-refactor-workspace/e2e-*/results/apply/.../diff.patch`) -> reuse the skill arm; **backfill the `no_skill` apply arm only** (it was never run).
 - **Per-package sweeps** (nx p8 + `@nx/*` fleet p9-p13, kata gr3/gr4): NO applied diffs persisted for EITHER arm -- the sweep quick-tasks (`260712-i5y`, `260712-n5o`, `260714-vmy`) kept only PLAN/RESEARCH/SUMMARY/VERIFICATION docs; borrowed repos were restored pristine + `outputs/` is gitignored -> **re-run BOTH arms from scratch** (multi-file/multi-round applies; the biggest metered-spend cell). Reuse existing with_skill/invoke_skill single-target drive outputs where they exist. Grade via the **`oracle`** (open-ended ground-truth from a book) and/or **`oracle-reviewer`** agents against the git-ignored `.oracle/` books (DST-04: no source prose crosses back), not author eyeballing. Produces a with/without comparison record and a verdict on whether the skill's book-grounding measurably beats base on either dimension.
-**Requirements**: TBD -- formalize via /gsd-spec-phase 13 or /gsd-plan-phase 13
+**Requirements**: SPEC-req-1..6 (locked in 13-SPEC.md; ROADMAP shows TBD, the SPEC is authoritative)
 **Depends on:** Phase 12 (existing eval workspace + run metadata to reuse/backfill)
-**Plans:** 0 plans
+**Plans:** 5 plans (4 waves)
 
 Plans:
-- [ ] TBD (run /gsd-plan-phase 13 to break down)
+
+**Wave 1**
+
+- [ ] 13-01-PLAN.md -- Behavior-oracle baselines (nx differential ~15-fail reference; kata pristine golden master); non-metered
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [ ] 13-02-PLAN.md -- Metered apply runs behind the D-09 gate: no_skill single-target backfill (p1/p2/gr1) + sweep pair (p8 no_skill; gr4 both arms) per amended D-02
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
+- [ ] 13-03-PLAN.md -- Book-authenticity grading via the oracle agent (every applied refactoring; pass/partial/fail; DST-04)
+- [ ] 13-04-PLAN.md -- Correctness grading (name/layer vs targets.json + independent behavior oracle: nx differential / kata jest --ci)
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
+- [ ] 13-05-PLAN.md -- 13-RESULTS.md head-to-head + empirical verdict + unbiased review + borrowed-repo restore + hygiene gate
 
 ---
 *Roadmap created: 2026-07-02 | lz-tdd@0.0.1 completed: 2026-07-04 | lz-tdd@0.0.2 roadmap added: 2026-07-04 | Phase 6 planned: 2026-07-04 | Phase 7 planned: 2026-07-04 | Phase 7 re-planned (scope-correction: 62-scope + clean-room oracle, per-refactoring leaves): 2026-07-05 | Phase 8 planned: 2026-07-05 | Phase 8 completed: 2026-07-07 | Phase 8.2 inserted (Functional Catalog): 2026-07-07 | Phase 8.2 planned (6 plans, 4 waves): 2026-07-07 | Phase 11 planned (4 plans, 2 waves): 2026-07-10 | Phase 12 added: 2026-07-11*

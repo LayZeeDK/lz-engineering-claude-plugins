@@ -68,6 +68,30 @@ Baseline = `no_skill` (no plugin). nx timeout raised to 45 min. All 12 runs exit
 4. **"FP idioms + design patterns" barely fired at package scale** -- warranted smells were
    duplication (mechanical Extract); both arms correctly declined premature patterns.
 
+## Multi-aspect comparison (live vs no_skill, package scale, k=3) -- no new spend
+
+Mined from existing transcripts/diffs/meta (`scratchpad/analyze-runs.mjs`) + a BLIND quality judge
+(6 nx p8 runs anonymized run1-6; private map run{1,3,5}=live / {2,4,6}=no_skill).
+
+| dimension | no_skill (base Opus) | live (skill) | verdict |
+|-----------|----------------------|--------------|---------|
+| wall-clock (median) | 577s | 714s | skill +24% slower |
+| tool calls | 53 | 84 | skill +58% |
+| Reads (catalog overhead) | 9 | 26 | skill +189% |
+| cost (median) | ~$3.54 | ~$5.88 | **skill +66%** |
+| files / net lines / FP markers / patterns | 5 / -18 / 5 / 0 | 5 / -20 / 4 / 0 | parity |
+| blind quality total /25 (medians) | 22 | 22 | **parity** |
+
+Blind judge cohorts did NOT split by arm: strong tier {run1,2,3,4} = 2 live + 2 base; weak tier
+{run5,6} = 1 live + 1 base; co-best = one live + one base; worst = base but 2nd-worst = live. Quality
+is per-run sampling variance, not a skill effect. Neither arm over-engineered; both correctly declined
+design patterns + the long-function decomps + the configs/flat-configs mirror.
+
+**Net: quality parity + a real efficiency penalty for the skill (cost/time/tokens) at equivalent output.**
+
+Un-measured (where skill value could still live): the REFERENCE use case (on-demand catalog
+explanation), weaker models, and consistency/determinism across a fleet.
+
 ## Disposition input
 
 Reinforces the open keep/revert-12-02 decision: the shipped skill's measurable e2e value is null

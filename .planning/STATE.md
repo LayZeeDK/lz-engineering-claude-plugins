@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: lz-tdd@0.0.2
 milestone_name: lz-refactor Skill (Fowler + Kerievsky)
 status: executing
-stopped_at: Phase 14 context gathered
-last_updated: "2026-07-15T10:48:37.021Z"
-last_activity: 2026-07-15 -- Phase 14 planning complete
+stopped_at: Completed 14-01-PLAN.md (Wave 0 harness extensions + offline self-check)
+last_updated: "2026-07-15T11:09:45.915Z"
+last_activity: 2026-07-15 -- 14-01 complete
 progress:
   total_phases: 11
   completed_phases: 10
@@ -21,15 +21,15 @@ progress:
 See: .planning/PROJECT.md (updated 2026-07-04)
 
 **Core value:** `lz-tpp` helps Claude choose the next code transformation by TPP priority during red-green-refactor TDD, and explains the premise on demand. lz-tdd@0.0.2 adds `lz-refactor` to drive the refactor step.
-**Current focus:** Phase 13 — lz-refactor-vs-base-opus-eval-book-authenticity-correctness
+**Current focus:** Phase 14 — compare-lz-refactor-to-mattpocock-skills-code-review-skill-k
 **Milestone:** lz-tdd@0.0.2 (lz-refactor Skill) -- executing (all phases done; audit pending)
 
 ## Current Position
 
-Phase: 13 (lz-refactor-vs-base-opus-eval-book-authenticity-correctness) — EXECUTING
-Plan: 1 of 5
-Status: Ready to execute
-Last activity: 2026-07-15 -- Phase 14 planning complete
+Phase: 14 (compare-lz-refactor-to-mattpocock-skills-code-review-skill-k) — EXECUTING
+Plan: 2 of 5
+Status: Executing Phase 14 (14-01 complete -- Wave 0 harness extensions + offline self-check, zero spend)
+Last activity: 2026-07-15 -- 14-01 complete (code_review arm + synthetic-base + token/tool meta; selfcheck green)
 
 ## Performance Metrics
 
@@ -114,6 +114,7 @@ Recent decisions affecting current work:
 - [Phase ?]: Phase 11 (11-01): vendored the Phase-5 skill-creator-eval rig verbatim into lz-refactor-workspace (run_eval/utils/__init__/LICENSE byte-identical; eval-status + merge-judge verbatim, merge-judge --selfcheck GREEN); run-spec-chunks re-pointed (WS/SKILL/CANARY); EVAL-RESULTS.md scaffolded with blank numbers + the locked serial run config (--num-workers 1, PONYTAIL off, MCP + user-plugins stripped). Shared eval infrastructure only -- EVL-01/EVL-02 NOT satisfied yet (eval DATA + grader rubric + gated run come in later 11-0N plans; D-10 halt).
 - [Phase ?]: Phase 11 (11-02): authored EVL-01 trigger-eval.json (10 trigger + 10 near-miss, incl. 3 lz-tpp-seam green-step negatives) grounded in the shipped lz-refactor description; check-evals.mjs build-time lint GREEN + fail-closed (schema, >= 8/>= 8 split, >= 2 seam, ASCII-only). Data + lint only; measured EVL-01 recall/specificity closes post gated run (D-10).
 - [Phase 11]: Phase 11 (11-03): rewrote grade-run.mjs as the lz-refactor deterministic grader -- nameRe word-bounded phrase matcher + NAME_LAYERS lookup (62 Fowler / 27 Kerievsky + 3 Away / 19 functional idiom leaves from the shipped catalog READMEs) + five D-04-RUBRIC check kinds (bestFit/candidateSet/layer/nodrive/judge), RUBRICS[0-8] count-aligned 1:1 with evals.json, selfcheck GREEN (matcher boundary + 4-layer resolve + nodrive cases + alignment + name-resolve gate). layer check is deterministic (resolve-via-lookup), judge reserved for rationale only. EVL-02 stays OPEN by design (D-10): data+grader built, empirical run gated to 11-04.
+- [Phase 14]: Phase 14 (14-01, Wave 0): extended run-e2e.mjs IN PLACE (D-06 "add the arm, do not rewrite") with (a) a `code_review` competitor arm -- its OWN tool profile (allow Bash + the Agent spawn tool, block Edit/Write/MultiEdit/NotebookEdit; the Bash asymmetry vs the lz-refactor arms is the D-04 tool-usage FINDING, not equalized) + `--plugin-dir` at the mattpocock 1.2.0 cache (os.homedir()-derived, MATTPOCOCK_DIR override), composing `/mattpocock-skills:code-review <ROOT_SHA>`; NOT in the both/all fan-outs; requires `--synthetic-base`. (b) `buildSyntheticBase` (D-02): empty-root ROOT -> target-only-tree TIP throwaway `review-<target>` branch built from applyBase (origin/23.0.x / main, NOT HEAD -- Pitfall 3), scoped to exactly the target path (Pitfall 2), kata `TypeScript/` root-relative prefix + armCwd = <worktree>/TypeScript (Pitfall 4), finally-style worktree/branch teardown (Pitfall 6); dry-run builds only the loose ROOT (repo stays clean). (c) D-07 token/cost/tool meta from the stream-json result event (usage/total_cost_usd/modelUsage/num_turns + tool_use-by-name histogram), added to meta.json keeping every existing field. New selfcheck-code-review.mjs gates all three cruxes offline zero-spend (composition; synthetic build/teardown+scope for BOTH nx T1 + kata G1; transcript parse) -- exits 0, borrowed repos left pristine. Module-main guard + exports so the selfcheck can import buildSyntheticBase/extractResult/git. No metered run (D-12 gate lives in 14-04). Commits d64226c, 6ea94e7, b427840.
 
 ### Pending Todos
 
@@ -151,9 +152,9 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-15T09:45:56.783Z
-Stopped at: Phase 14 context gathered
-Resume file: .planning/phases/14-compare-lz-refactor-to-mattpocock-skills-code-review-skill-k/14-CONTEXT.md
+Last session: 2026-07-15T11:09:45.896Z
+Stopped at: Completed 14-01-PLAN.md (Wave 0 harness extensions + offline self-check, zero spend)
+Resume file: None
 Open next: /gsd-audit-milestone lz-tdd@0.0.2 (user-scoped; not yet run), then /gsd-complete-milestone lz-tdd@0.0.2. All milestone phases (6-12) are complete + reconciled on disk; Phase 12's last loose end (nx sweep auto-trigger re-confirmation on HEAD) is now CLOSED (quick 260714-vmy: p8 3/3, no regression). Milestone-audit note carried from 12-VERIFICATION audit_notes: the gaps closed while base Opus 4.8@high is ALSO catalog-grade (null skill output-delta); the skill's robust value is auto-trigger (proven) + a narrow reference edge. CLEANUP: nx throwaway branch lz-refactor-e2e-smoke left with run-3 edits (pristine 23.0.x intact) -- operator restores per quick/260714-vmy SUMMARY.
 
 ## Operator Next Steps

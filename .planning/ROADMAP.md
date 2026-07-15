@@ -315,7 +315,7 @@ Plans:
 
 **Wave 0** (build + offline self-checks; autonomous)
 
-- [ ] 14-01-PLAN.md -- run-e2e.mjs harness extensions: code_review arm + token/tool meta (D-06/D-07) + synthetic whole-file-diff baseline (D-02) + offline selfcheck
+- [x] 14-01-PLAN.md -- run-e2e.mjs harness extensions: code_review arm + token/tool meta (D-06/D-07) + synthetic whole-file-diff baseline (D-02) + offline selfcheck
 - [ ] 14-02-PLAN.md -- report-framed cr-* recommend queries (D-08) + suite.json entries + subagent review (incl. unbiased)
 - [ ] 14-03-PLAN.md -- grading scaffolding: deterministic mechanical tabulator (tokens/tools/spawn/lift/Pass@k) + head-to-head rollup template (D-04/D-07)
 

@@ -31,11 +31,19 @@ import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
 import { spawnSync } from 'node:child_process';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(HERE, '../../../..');
 const PLUGIN_DIR = path.join(REPO_ROOT, 'plugins', 'lz-tdd'); // the plugin under test -- constant across suites
+
+// The competitor plugin on the code_review arm (D-06). Default to the installed mattpocock cache
+// (username-agnostic via os.homedir()); MATTPOCOCK_DIR overrides if it is relocated/updated. The
+// resolved dir is recorded in each code_review meta.json for drift detection (RESEARCH A4).
+const MATTPOCOCK_DIR =
+  process.env.MATTPOCOCK_DIR ||
+  path.join(os.homedir(), '.claude', 'plugins', 'cache', 'mattpocock', 'mattpocock-skills', '1.2.0');
+const CODE_REVIEW_COMMAND = '/mattpocock-skills:code-review';
 
 // A suite is a directory with suite.json + prompts/ + targets.json; results land under it.
 // --suite <dir> selects it (default: this runner's own dir = the nx suite). Scanned from argv here,
@@ -53,6 +61,9 @@ const PROMPTS_DIR = path.join(SUITE_DIR, 'prompts');
 const RESULTS_DIR = path.join(SUITE_DIR, 'results');
 const PROMPTS = SUITE.prompts; // [{ id, file, target, code }]
 const PROTECTED_BRANCHES = SUITE.protectedBranches || ['main', 'master'];
+// targets.json carries the file path per target id; the synthetic-base setup (D-02) needs it.
+const TARGETS = JSON.parse(fs.readFileSync(path.join(SUITE_DIR, 'targets.json'), 'utf8'));
+const TARGET_BY_ID = new Map((TARGETS.targets || []).map((t) => [t.id, t]));
 
 const MODEL = process.env.E2E_MODEL || 'claude-opus-4-8';
 // Effort is pinned explicitly (not left to the CLI default) so runs are reproducible and the value
@@ -84,7 +95,7 @@ const PREAMBLE = {
 };
 
 function parseArgs(argv) {
-  const args = { mode: 'recommend', arm: 'with_skill', prompts: [], runs: [], dryRun: false, report: false, cwd: null, force: false };
+  const args = { mode: 'recommend', arm: 'with_skill', prompts: [], runs: [], dryRun: false, report: false, cwd: null, force: false, syntheticBase: false };
 
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
@@ -95,6 +106,8 @@ function parseArgs(argv) {
       args.report = true;
     } else if (a === '--force') {
       args.force = true;
+    } else if (a === '--synthetic-base') {
+      args.syntheticBase = true;
     } else if (a === '--mode') {
       args.mode = argv[++i];
     } else if (a === '--arm') {
@@ -123,8 +136,13 @@ function parseArgs(argv) {
     throw new Error(`--mode must be recommend|apply, got ${args.mode}`);
   }
 
-  if (!['with_skill', 'no_skill', 'invoke_skill', 'both', 'all'].includes(args.arm)) {
-    throw new Error(`--arm must be with_skill|no_skill|invoke_skill|both|all, got ${args.arm}`);
+  if (!['with_skill', 'no_skill', 'invoke_skill', 'code_review', 'both', 'all'].includes(args.arm)) {
+    throw new Error(`--arm must be with_skill|no_skill|invoke_skill|code_review|both|all, got ${args.arm}`);
+  }
+
+  // code_review's fixed point is the synthetic empty-root SHA; without --synthetic-base there is none.
+  if (args.arm === 'code_review' && !args.syntheticBase) {
+    throw new Error('--arm code_review requires --synthetic-base (code-review needs a synthetic empty-root diff baseline as its fixed point)');
   }
 
   if (!args.runs.length) {
@@ -177,6 +195,16 @@ function resolveClaude() {
 }
 
 function composePrompt(promptEntry, mode, arm) {
+  if (arm === 'code_review') {
+    // A slash command with a positional fixed-point (the synthetic empty-root SHA from setup); no
+    // preamble/body. Off code-review's incremental grain by design (D-02 caveat).
+    if (!promptEntry.root_sha) {
+      throw new Error(`code_review arm needs promptEntry.root_sha (set by --synthetic-base setup) for ${promptEntry.id}`);
+    }
+
+    return `${CODE_REVIEW_COMMAND} ${promptEntry.root_sha}`;
+  }
+
   const body = fs.readFileSync(path.join(PROMPTS_DIR, promptEntry.file), 'utf8').trim();
 
   if (arm === 'invoke_skill') {
@@ -200,16 +228,22 @@ function buildCmd(fullPrompt, arm, mode) {
     '--effort', EFFORT,
   ];
 
-  if (mode === 'recommend') {
+  cmd.push('--permission-mode', 'bypassPermissions');
+
+  if (arm === 'code_review') {
+    // code-review runs git rev-parse/diff/log (needs Bash) and spawns sub-agents (needs the Agent
+    // spawn tool); block only the edit tools to keep it report-only. This Bash asymmetry vs the
+    // lz-refactor arms is the D-04 tool-usage FINDING -- do NOT equalize it (RESEARCH Pattern 1).
+    cmd.push('--disallowedTools', 'Edit', 'Write', 'MultiEdit', 'NotebookEdit');
+  } else if (mode === 'recommend') {
     // Read-only: reads never prompt, writes/shell are impossible.
-    cmd.push('--permission-mode', 'bypassPermissions');
     cmd.push('--disallowedTools', 'Edit', 'Write', 'MultiEdit', 'NotebookEdit', 'Bash');
-  } else {
-    cmd.push('--permission-mode', 'bypassPermissions');
   }
 
   if (arm === 'with_skill' || arm === 'invoke_skill') {
     cmd.push('--plugin-dir', PLUGIN_DIR);
+  } else if (arm === 'code_review') {
+    cmd.push('--plugin-dir', MATTPOCOCK_DIR);
   }
 
   return cmd;
@@ -325,8 +359,14 @@ function extractResult(raw) {
 // Run a git command in a given working dir (the throwaway apply branch). Used only by apply mode
 // for pristine reset + diff capture; runs as the runner's own child process, so it is not gated by
 // the Claude Code permission classifier.
-function git(cwd, gitArgs, { mustSucceed = false } = {}) {
-  const r = spawnSync('git', gitArgs, { cwd, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024, windowsHide: true });
+function git(cwd, gitArgs, { mustSucceed = false, env = undefined } = {}) {
+  const r = spawnSync('git', gitArgs, {
+    cwd,
+    env: env ? { ...process.env, ...env } : undefined,
+    encoding: 'utf8',
+    maxBuffer: 64 * 1024 * 1024,
+    windowsHide: true,
+  });
 
   // I1: a silently-failed reset/clean leaves run k's edits in the tree so run k+1 stacks on
   // top -- the k samples stop being independent and changed_files becomes cumulative garbage.
@@ -335,6 +375,78 @@ function git(cwd, gitArgs, { mustSucceed = false } = {}) {
   }
 
   return r;
+}
+
+// D-02 equal-input baseline for one target: a throwaway `review-<target>` branch whose tip adds ONLY
+// the target file (from the pristine applyBase, NOT HEAD -- RESEARCH Pitfall 3) on top of an empty-root
+// commit. code-review's fixed point is that empty ROOT, so `git diff ROOT...TIP` is exactly the whole
+// target file (three-dot, on code-review's documented grain). Runs as the runner's own ungated git
+// child. dryRun builds only the loose ROOT commit (for command composition) and touches no
+// branch/worktree, so the borrowed repo stays git-status clean. Returns a finally-style teardown.
+function buildSyntheticBase(promptEntry, suiteCtx, { dryRun = false } = {}) {
+  const { repo, applyBase, targetsById, protectedBranches } = suiteCtx;
+  const target = targetsById.get(promptEntry.target);
+
+  if (!target || !target.file) {
+    throw new Error(`--synthetic-base: target ${promptEntry.target} has no file in targets.json (prompt ${promptEntry.id})`);
+  }
+
+  // The suite repo may be a subdir of the git root (kata: TypeScript/). Run every plumbing step from
+  // the git root with a ROOT-relative target path; the arm cwd gets the subdir back (RESEARCH Pitfall 4).
+  const gitRoot = (git(repo, ['rev-parse', '--show-toplevel'], { mustSucceed: true }).stdout || '').trim();
+  const rel = path.relative(path.resolve(gitRoot), path.resolve(repo)).split(path.sep).join('/');
+  const prefix = rel ? `${rel}/` : '';
+  const rootRelPath = prefix + target.file;
+
+  const branchName = `review-${promptEntry.target}`;
+
+  if (protectedBranches.includes(branchName)) {
+    throw new Error(`--synthetic-base refuses to build on a protected branch name '${branchName}'`);
+  }
+
+  // Universal empty-tree object -> a real empty-root commit (the fixed point). The empty TREE itself
+  // is NOT usable as code-review's fixed point (three-dot diff exits 128) -- RESEARCH Anti-Patterns.
+  const EMPTY_TREE = '4b825dc642cb6eb9a060e54bf8d69288fbee4904';
+  const root = (git(gitRoot, ['commit-tree', EMPTY_TREE, '-m', 'review base: empty'], { mustSucceed: true }).stdout || '').trim();
+  promptEntry.root_sha = root;
+
+  if (dryRun) {
+    return { root, gitRoot, rootRelPath, prefix, branchName, tip: null, tree: null, armCwd: null, worktree: null, teardown: () => {} };
+  }
+
+  // Build a tree holding ONLY the target path, from the pristine applyBase blob, via a throwaway index
+  // (never touches the working tree). Scoping to one path keeps code-review reviewing the same file
+  // lz-refactor scans, not the whole repo (RESEARCH Pitfall 2).
+  const idxFile = path.join(os.tmpdir(), `lz-review-index-${process.pid}-${Date.now()}`);
+  const blob = (git(gitRoot, ['rev-parse', `${applyBase}:${rootRelPath}`], { mustSucceed: true }).stdout || '').trim();
+  const idxEnv = { GIT_INDEX_FILE: idxFile };
+  git(gitRoot, ['read-tree', '--empty'], { mustSucceed: true, env: idxEnv });
+  git(gitRoot, ['update-index', '--add', '--cacheinfo', `100644,${blob},${rootRelPath}`], { mustSucceed: true, env: idxEnv });
+  const tree = (git(gitRoot, ['write-tree'], { mustSucceed: true, env: idxEnv }).stdout || '').trim();
+
+  try {
+    fs.rmSync(idxFile, { force: true });
+  } catch {
+    // best-effort; the temp index lives outside the repo and is harmless if it lingers
+  }
+
+  const tip = (git(gitRoot, ['commit-tree', tree, '-p', root, '-m', 'target under review'], { mustSucceed: true }).stdout || '').trim();
+  git(gitRoot, ['branch', branchName, tip], { mustSucceed: true });
+
+  const worktree = path.join(os.tmpdir(), `lz-review-wt-${promptEntry.target}-${process.pid}-${Date.now()}`);
+  git(gitRoot, ['worktree', 'add', worktree, branchName], { mustSucceed: true });
+
+  // The arm cwd is the worktree's copy of the suite subdir, so lz-refactor resolves the subdir-relative
+  // target the prompt names (e.g. kata app/gilded-rose.ts) and code-review diffs ROOT...HEAD there.
+  const armCwd = prefix ? path.join(worktree, prefix.replace(/\/$/, '')) : worktree;
+
+  const teardown = () => {
+    git(gitRoot, ['worktree', 'remove', '--force', worktree]);
+    git(gitRoot, ['worktree', 'prune']);
+    git(gitRoot, ['branch', '-D', branchName]);
+  };
+
+  return { root, gitRoot, rootRelPath, prefix, branchName, tip, tree, armCwd, worktree, teardown };
 }
 
 // One-line human signal of which lz skill(s) the run invoked.
@@ -658,8 +770,9 @@ function main() {
         ? ['with_skill', 'no_skill', 'invoke_skill']
         : [args.arm];
   const cwd = args.cwd || REPO;
+  const suiteCtx = { repo: REPO, applyBase: APPLY_BASE, targetsById: TARGET_BY_ID, protectedBranches: PROTECTED_BRANCHES };
 
-  if (args.mode === 'apply' && !args.cwd) {
+  if (args.mode === 'apply' && !args.cwd && !args.syntheticBase) {
     throw new Error('apply mode requires --cwd pointing at a THROWAWAY branch checkout of nx (never the pristine tree)');
   }
 
@@ -680,11 +793,19 @@ function main() {
     console.log(`mode     : ${args.mode}   arms: ${arms.join(', ')}   prompts: ${selected.map((p) => p.id).join(', ')}   runs: ${args.runs.join(',')}`);
 
     for (const p of selected) {
+      // Build only the loose ROOT commit (no branch/worktree) so code_review can compose its
+      // fixed-point command; the borrowed repo stays git-status clean.
+      if (args.syntheticBase) {
+        buildSyntheticBase(p, suiteCtx, { dryRun: true });
+      }
+
       for (const arm of arms) {
         const full = composePrompt(p, args.mode, arm);
         const cmd = buildCmd(full, arm, args.mode);
         console.log(`\n--- ${args.mode}/${arm}/${p.id} (${p.target}) ---`);
         console.log(`cmd: claude ${cmd.map((c) => (c.length > 60 ? c.slice(0, 57) + '...' : c)).map((c) => (/\s/.test(c) ? `"${c}"` : c)).join(' ')}`);
+        // Machine-parseable, untruncated argv for the offline self-check (crux 1). See selfcheck-code-review.mjs.
+        console.log(`argv: ${JSON.stringify(['claude', ...cmd])}`);
       }
     }
 
@@ -694,6 +815,34 @@ function main() {
   }
 
   const claude = resolveClaude();
+
+  // --synthetic-base: build a per-target equal-input worktree (D-02), run all selected arms x runs
+  // in it, and tear it down finally-style so a failed run still cleans up (RESEARCH Pitfall 6).
+  if (args.syntheticBase) {
+    console.log(`running synthetic-base cells (mode=${args.mode}, arms=[${arms.join(',')}], prompts=[${selected.map((p) => p.id).join(',')}], runs=[${args.runs.join(',')}])...`);
+    const metas = [];
+
+    for (const p of selected) {
+      const syn = buildSyntheticBase(p, suiteCtx, { dryRun: false });
+      console.log(`  [synthetic-base] ${p.id} (${p.target}) ROOT=${syn.root.slice(0, 10)} cwd=${syn.armCwd}`);
+
+      try {
+        for (const k of args.runs) {
+          for (const arm of arms) {
+            metas.push(runOne(claude, p, arm, args.mode, syn.armCwd, k, args.force));
+          }
+        }
+      } finally {
+        syn.teardown();
+      }
+    }
+
+    console.log(`\ndone. ${metas.length} runs captured under results/${args.mode}/. Borrowed repo torn down (worktree + review-* branch removed).`);
+    console.log(`next: read results/${args.mode}/<arm>/<pN>/answer.md and grade against targets.json.`);
+
+    return;
+  }
+
   const total = selected.length * arms.length * args.runs.length;
   console.log(`running up to ${total} claude -p sessions (mode=${args.mode}, model=${MODEL}, runs=[${args.runs.join(',')}]; completed runs skipped)...`);
   const metas = [];
@@ -717,4 +866,12 @@ function main() {
   console.log(`next: read results/${args.mode}/<arm>/<pN>/answer.md and grade against targets.json.`);
 }
 
-main();
+// Run main() only when invoked as the CLI; when imported (e.g. by selfcheck-code-review.mjs) expose
+// the reusable pieces without executing the run loop.
+const isMainModule = process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href;
+
+if (isMainModule) {
+  main();
+}
+
+export { extractResult, buildSyntheticBase, git, MATTPOCOCK_DIR, CODE_REVIEW_COMMAND };

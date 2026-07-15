@@ -2,7 +2,8 @@
 slug: groupby-detection-variants
 created: 2026-07-15
 mode: quick --full --research --auto
-status: in-progress
+status: complete
+outcome: null (T4 0/3 even with the highest-leverage gate-cue fix; T3 3/3; variant reverted)
 ---
 
 # Quick Task: research-informed variant to close the groupImports blind spot

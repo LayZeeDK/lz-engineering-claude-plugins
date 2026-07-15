@@ -1,0 +1,407 @@
+{
+  "record_type": "correctness-behavior",
+  "generated": "2026-07-15",
+  "phase": "13-lz-refactor-vs-base-opus-eval-book-authenticity-correctness",
+  "plan": "13-04",
+  "method": "Independent behavior oracle (D-07 / Phase-12 D-14): each persisted diff.patch re-applied to a FRESH reset of the borrowed repo and the repo ORIGINAL tests run against the EDITED source -- never the in-session self-report. nx behavior oracle (differential): reset origin/23.0.x + clean -fd, git apply diff.patch, raw jest --config packages/eslint-plugin/jest.config.cts --ci (nx test eslint-plugin is unusable on this arm64 box -- fails at nx:build-native). Baseline = 15 failed / 169 passed / 184 total. tests_green = no NEW failures beyond the 15 pre-existing dependency-checks spyOn crashes. kata behavior oracle: reset main + clean -fd, seed pristine golden master into test/jest/__snapshots__/approvals.spec.ts.snap, git apply diff.patch, npx jest --ci test/jest/approvals.spec.ts (--ci refuses to write, fails on mismatch). tests_green = 2/2 snapshots pass vs the pristine golden master. gilded-rose.spec.ts (\"fixme\" placeholder) ignored. Pass@k/Pass^k computed with the verbatim passAtK/passHatK from run-e2e.mjs (not hand-rolled).",
+  "baselines": {
+    "nx": {
+      "runner": "npx jest --config packages/eslint-plugin/jest.config.cts --ci",
+      "failed": 15,
+      "passed": 169,
+      "total": 184,
+      "rule": "no NEW failures beyond baseline"
+    },
+    "kata": {
+      "runner": "npx jest --ci test/jest/approvals.spec.ts",
+      "golden_master": "e2e-gilded-rose/golden-master/approvals.spec.ts.snap (pristine main)",
+      "rule": "jest --ci refuses to write; PASS = matches pristine golden master"
+    }
+  },
+  "records": [
+    {
+      "cell": "p1",
+      "arm": "with_skill",
+      "run": 1,
+      "suite": "e2e-nx",
+      "tests_green": true,
+      "oracle": "nx-differential",
+      "detail": "15 failed / 169 passed / 184 total (raw jest); 0 new failures vs baseline"
+    },
+    {
+      "cell": "p1",
+      "arm": "with_skill",
+      "run": 2,
+      "suite": "e2e-nx",
+      "tests_green": true,
+      "oracle": "nx-differential",
+      "detail": "15 failed / 169 passed / 184 total (raw jest); 0 new failures vs baseline"
+    },
+    {
+      "cell": "p1",
+      "arm": "with_skill",
+      "run": 3,
+      "suite": "e2e-nx",
+      "tests_green": true,
+      "oracle": "nx-differential",
+      "detail": "15 failed / 169 passed / 184 total (raw jest); 0 new failures vs baseline"
+    },
+    {
+      "cell": "p1",
+      "arm": "no_skill",
+      "run": 1,
+      "suite": "e2e-nx",
+      "tests_green": true,
+      "oracle": "nx-differential",
+      "detail": "15 failed / 169 passed / 184 total (raw jest); 0 new failures vs baseline"
+    },
+    {
+      "cell": "p1",
+      "arm": "no_skill",
+      "run": 2,
+      "suite": "e2e-nx",
+      "tests_green": true,
+      "oracle": "nx-differential",
+      "detail": "15 failed / 169 passed / 184 total (raw jest); 0 new failures vs baseline"
+    },
+    {
+      "cell": "p1",
+      "arm": "no_skill",
+      "run": 3,
+      "suite": "e2e-nx",
+      "tests_green": true,
+      "oracle": "nx-differential",
+      "detail": "15 failed / 169 passed / 184 total (raw jest); 0 new failures vs baseline"
+    },
+    {
+      "cell": "p2",
+      "arm": "with_skill",
+      "run": 1,
+      "suite": "e2e-nx",
+      "tests_green": true,
+      "oracle": "nx-differential",
+      "detail": "15 failed / 169 passed / 184 total (raw jest); 0 new failures vs baseline"
+    },
+    {
+      "cell": "p2",
+      "arm": "with_skill",
+      "run": 2,
+      "suite": "e2e-nx",
+      "tests_green": true,
+      "oracle": "nx-differential",
+      "detail": "15 failed / 169 passed / 184 total (raw jest); 0 new failures vs baseline"
+    },
+    {
+      "cell": "p2",
+      "arm": "with_skill",
+      "run": 3,
+      "suite": "e2e-nx",
+      "tests_green": true,
+      "oracle": "nx-differential",
+      "detail": "empty diff (no-edit decline); no refactoring applied; trivially behavior-preserving",
+      "no_refactoring_applied": true
+    },
+    {
+      "cell": "p2",
+      "arm": "no_skill",
+      "run": 1,
+      "suite": "e2e-nx",
+      "tests_green": true,
+      "oracle": "nx-differential",
+      "detail": "15 failed / 169 passed / 184 total (raw jest); 0 new failures vs baseline"
+    },
+    {
+      "cell": "p2",
+      "arm": "no_skill",
+      "run": 2,
+      "suite": "e2e-nx",
+      "tests_green": true,
+      "oracle": "nx-differential",
+      "detail": "15 failed / 169 passed / 184 total (raw jest); 0 new failures vs baseline"
+    },
+    {
+      "cell": "p2",
+      "arm": "no_skill",
+      "run": 3,
+      "suite": "e2e-nx",
+      "tests_green": true,
+      "oracle": "nx-differential",
+      "detail": "15 failed / 169 passed / 184 total (raw jest); 0 new failures vs baseline"
+    },
+    {
+      "cell": "p8",
+      "arm": "with_skill",
+      "run": 1,
+      "suite": "e2e-nx",
+      "tests_green": true,
+      "oracle": "nx-differential",
+      "detail": "15 failed / 169 passed / 184 total (raw jest); 0 new failures vs baseline"
+    },
+    {
+      "cell": "p8",
+      "arm": "with_skill",
+      "run": 2,
+      "suite": "e2e-nx",
+      "tests_green": true,
+      "oracle": "nx-differential",
+      "detail": "15 failed / 169 passed / 184 total (raw jest); 0 new failures vs baseline"
+    },
+    {
+      "cell": "p8",
+      "arm": "with_skill",
+      "run": 3,
+      "suite": "e2e-nx",
+      "tests_green": true,
+      "oracle": "nx-differential",
+      "detail": "15 failed / 169 passed / 184 total (raw jest); 0 new failures vs baseline"
+    },
+    {
+      "cell": "p8",
+      "arm": "no_skill",
+      "run": 1,
+      "suite": "e2e-nx",
+      "tests_green": true,
+      "oracle": "nx-differential",
+      "detail": "15 failed / 169 passed / 184 total (raw jest); 0 new failures vs baseline"
+    },
+    {
+      "cell": "p8",
+      "arm": "no_skill",
+      "run": 2,
+      "suite": "e2e-nx",
+      "tests_green": true,
+      "oracle": "nx-differential",
+      "detail": "15 failed / 169 passed / 184 total (raw jest); 0 new failures vs baseline"
+    },
+    {
+      "cell": "p8",
+      "arm": "no_skill",
+      "run": 3,
+      "suite": "e2e-nx",
+      "tests_green": true,
+      "oracle": "nx-differential",
+      "detail": "15 failed / 169 passed / 184 total (raw jest); 0 new failures vs baseline"
+    },
+    {
+      "cell": "gr1",
+      "arm": "with_skill",
+      "run": 1,
+      "suite": "e2e-gilded-rose",
+      "tests_green": true,
+      "oracle": "kata-jest-ci",
+      "detail": "jest --ci approvals.spec.ts: 2 passed / 2 total; snapshots 2/2 vs pristine golden master"
+    },
+    {
+      "cell": "gr1",
+      "arm": "with_skill",
+      "run": 2,
+      "suite": "e2e-gilded-rose",
+      "tests_green": true,
+      "oracle": "kata-jest-ci",
+      "detail": "jest --ci approvals.spec.ts: 2 passed / 2 total; snapshots 2/2 vs pristine golden master"
+    },
+    {
+      "cell": "gr1",
+      "arm": "with_skill",
+      "run": 3,
+      "suite": "e2e-gilded-rose",
+      "tests_green": true,
+      "oracle": "kata-jest-ci",
+      "detail": "jest --ci approvals.spec.ts: 2 passed / 2 total; snapshots 2/2 vs pristine golden master"
+    },
+    {
+      "cell": "gr1",
+      "arm": "invoke_skill",
+      "run": 1,
+      "suite": "e2e-gilded-rose",
+      "tests_green": true,
+      "oracle": "kata-jest-ci",
+      "detail": "jest --ci approvals.spec.ts: 2 passed / 2 total; snapshots 2/2 vs pristine golden master"
+    },
+    {
+      "cell": "gr1",
+      "arm": "invoke_skill",
+      "run": 2,
+      "suite": "e2e-gilded-rose",
+      "tests_green": true,
+      "oracle": "kata-jest-ci",
+      "detail": "jest --ci approvals.spec.ts: 2 passed / 2 total; snapshots 2/2 vs pristine golden master"
+    },
+    {
+      "cell": "gr1",
+      "arm": "invoke_skill",
+      "run": 3,
+      "suite": "e2e-gilded-rose",
+      "tests_green": true,
+      "oracle": "kata-jest-ci",
+      "detail": "jest --ci approvals.spec.ts: 2 passed / 2 total; snapshots 2/2 vs pristine golden master"
+    },
+    {
+      "cell": "gr1",
+      "arm": "no_skill",
+      "run": 1,
+      "suite": "e2e-gilded-rose",
+      "tests_green": true,
+      "oracle": "kata-jest-ci",
+      "detail": "jest --ci approvals.spec.ts: 2 passed / 2 total; snapshots 2/2 vs pristine golden master"
+    },
+    {
+      "cell": "gr1",
+      "arm": "no_skill",
+      "run": 2,
+      "suite": "e2e-gilded-rose",
+      "tests_green": true,
+      "oracle": "kata-jest-ci",
+      "detail": "jest --ci approvals.spec.ts: 2 passed / 2 total; snapshots 2/2 vs pristine golden master"
+    },
+    {
+      "cell": "gr1",
+      "arm": "no_skill",
+      "run": 3,
+      "suite": "e2e-gilded-rose",
+      "tests_green": true,
+      "oracle": "kata-jest-ci",
+      "detail": "jest --ci approvals.spec.ts: 2 passed / 2 total; snapshots 2/2 vs pristine golden master"
+    },
+    {
+      "cell": "gr4",
+      "arm": "with_skill",
+      "run": 1,
+      "suite": "e2e-gilded-rose",
+      "tests_green": true,
+      "oracle": "kata-jest-ci",
+      "detail": "jest --ci approvals.spec.ts: 2 passed / 2 total; snapshots 2/2 vs pristine golden master"
+    },
+    {
+      "cell": "gr4",
+      "arm": "with_skill",
+      "run": 2,
+      "suite": "e2e-gilded-rose",
+      "tests_green": true,
+      "oracle": "kata-jest-ci",
+      "detail": "jest --ci approvals.spec.ts: 2 passed / 2 total; snapshots 2/2 vs pristine golden master"
+    },
+    {
+      "cell": "gr4",
+      "arm": "with_skill",
+      "run": 3,
+      "suite": "e2e-gilded-rose",
+      "tests_green": true,
+      "oracle": "kata-jest-ci",
+      "detail": "jest --ci approvals.spec.ts: 2 passed / 2 total; snapshots 2/2 vs pristine golden master"
+    },
+    {
+      "cell": "gr4",
+      "arm": "no_skill",
+      "run": 1,
+      "suite": "e2e-gilded-rose",
+      "tests_green": true,
+      "oracle": "kata-jest-ci",
+      "detail": "jest --ci approvals.spec.ts: 2 passed / 2 total; snapshots 2/2 vs pristine golden master"
+    },
+    {
+      "cell": "gr4",
+      "arm": "no_skill",
+      "run": 2,
+      "suite": "e2e-gilded-rose",
+      "tests_green": true,
+      "oracle": "kata-jest-ci",
+      "detail": "jest --ci approvals.spec.ts: 2 passed / 2 total; snapshots 2/2 vs pristine golden master"
+    },
+    {
+      "cell": "gr4",
+      "arm": "no_skill",
+      "run": 3,
+      "suite": "e2e-gilded-rose",
+      "tests_green": true,
+      "oracle": "kata-jest-ci",
+      "detail": "jest --ci approvals.spec.ts: 2 passed / 2 total; snapshots 2/2 vs pristine golden master"
+    }
+  ],
+  "passk": {
+    "p1/with_skill": {
+      "n": 3,
+      "c": 3,
+      "passAt1": 1,
+      "passAt3": 1,
+      "passHat3": 1
+    },
+    "p1/no_skill": {
+      "n": 3,
+      "c": 3,
+      "passAt1": 1,
+      "passAt3": 1,
+      "passHat3": 1
+    },
+    "p2/with_skill": {
+      "n": 3,
+      "c": 3,
+      "passAt1": 1,
+      "passAt3": 1,
+      "passHat3": 1
+    },
+    "p2/no_skill": {
+      "n": 3,
+      "c": 3,
+      "passAt1": 1,
+      "passAt3": 1,
+      "passHat3": 1
+    },
+    "p8/with_skill": {
+      "n": 3,
+      "c": 3,
+      "passAt1": 1,
+      "passAt3": 1,
+      "passHat3": 1
+    },
+    "p8/no_skill": {
+      "n": 3,
+      "c": 3,
+      "passAt1": 1,
+      "passAt3": 1,
+      "passHat3": 1
+    },
+    "gr1/with_skill": {
+      "n": 3,
+      "c": 3,
+      "passAt1": 1,
+      "passAt3": 1,
+      "passHat3": 1
+    },
+    "gr1/invoke_skill": {
+      "n": 3,
+      "c": 3,
+      "passAt1": 1,
+      "passAt3": 1,
+      "passHat3": 1
+    },
+    "gr1/no_skill": {
+      "n": 3,
+      "c": 3,
+      "passAt1": 1,
+      "passAt3": 1,
+      "passHat3": 1
+    },
+    "gr4/with_skill": {
+      "n": 3,
+      "c": 3,
+      "passAt1": 1,
+      "passAt3": 1,
+      "passHat3": 1
+    },
+    "gr4/no_skill": {
+      "n": 3,
+      "c": 3,
+      "passAt1": 1,
+      "passAt3": 1,
+      "passHat3": 1
+    }
+  },
+  "summary": {
+    "graded_runs": 33,
+    "tests_green_true": 33,
+    "tests_green_false": 0,
+    "declines": 1,
+    "finding": "Every graded run of both arms is behavior-preserving (33/33 tests_green). nx: all applied diffs reproduced the exact 15-fail/169-pass baseline (0 new failures). kata: all applied diffs passed 2/2 snapshots against the pristine golden master -- none took the Conjured/Sulfuras behavior-change bait. Pass@1 = Pass@3 = Pass^3 = 1.00 for every (cell, arm). Parity between with_skill/invoke_skill and no_skill on behavior preservation."
+  }
+}

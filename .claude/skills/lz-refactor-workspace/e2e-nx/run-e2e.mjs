@@ -225,6 +225,18 @@ function extractResult(raw) {
   let tppHits = 0;
   const skillsInvoked = new Set();
 
+  // D-07 meta capture. Read the CLI's OWN reported usage from the final `result` event -- do NOT
+  // recompute tokens from transcript text. `total_cost_usd`/`modelUsage` roll up sub-agents (the fair
+  // cross-arm cost); the top-level `usage` block is main-context-only and under-counts code_review.
+  const toolCalls = {};
+  let inputTokens = 0;
+  let outputTokens = 0;
+  let cacheReadInputTokens = 0;
+  let cacheCreationInputTokens = 0;
+  let totalCostUsd = 0;
+  let numTurns = 0;
+  let modelUsage = {};
+
   for (const line of lines) {
     let ev;
 
@@ -234,8 +246,30 @@ function extractResult(raw) {
       continue;
     }
 
-    if (ev.type === 'result' && typeof ev.result === 'string') {
-      finalText = ev.result;
+    if (ev.type === 'result') {
+      if (typeof ev.result === 'string') {
+        finalText = ev.result;
+      }
+
+      const u = ev.usage || {};
+      inputTokens = u.input_tokens || 0;
+      outputTokens = u.output_tokens || 0;
+      cacheReadInputTokens = u.cache_read_input_tokens || 0;
+      cacheCreationInputTokens = u.cache_creation_input_tokens || 0;
+      totalCostUsd = ev.total_cost_usd || 0;
+      numTurns = ev.num_turns || 0;
+
+      if (ev.modelUsage && typeof ev.modelUsage === 'object') {
+        modelUsage = {};
+
+        for (const [model, mu] of Object.entries(ev.modelUsage)) {
+          modelUsage[model] = {
+            input: mu.inputTokens || 0,
+            output: mu.outputTokens || 0,
+            costUSD: mu.costUSD || 0,
+          };
+        }
+      }
     }
 
     const content = ev?.message?.content;
@@ -247,6 +281,10 @@ function extractResult(raw) {
     for (const block of content) {
       if (block?.type !== 'tool_use') {
         continue;
+      }
+
+      if (block.name) {
+        toolCalls[block.name] = (toolCalls[block.name] || 0) + 1;
       }
 
       const blob = JSON.stringify(block).toLowerCase();
@@ -273,6 +311,14 @@ function extractResult(raw) {
     refactorHits,
     tppHits,
     skillsInvoked: [...skillsInvoked],
+    input_tokens: inputTokens,
+    output_tokens: outputTokens,
+    cache_read_input_tokens: cacheReadInputTokens,
+    cache_creation_input_tokens: cacheCreationInputTokens,
+    total_cost_usd: totalCostUsd,
+    num_turns: numTurns,
+    model_usage: modelUsage,
+    tool_calls: toolCalls,
   };
 }
 
@@ -389,7 +435,22 @@ function runOne(claude, promptEntry, arm, mode, cwd, runIdx, force) {
     console.log(`  [${mode}/${arm}] ${promptEntry.id}: spawn error -- ${res.error.message}`);
   }
 
-  const { finalText, usedRefactor, usedTpp, refactorHits, tppHits, skillsInvoked } = extractResult(raw);
+  const {
+    finalText,
+    usedRefactor,
+    usedTpp,
+    refactorHits,
+    tppHits,
+    skillsInvoked,
+    input_tokens,
+    output_tokens,
+    cache_read_input_tokens,
+    cache_creation_input_tokens,
+    total_cost_usd,
+    num_turns,
+    model_usage,
+    tool_calls,
+  } = extractResult(raw);
   fs.writeFileSync(path.join(outDir, 'answer.md'), finalText || '(no result text captured)\n');
 
   // apply mode: capture what the agent actually changed (the key artifact), then the branch is
@@ -427,6 +488,16 @@ function runOne(claude, promptEntry, arm, mode, cwd, runIdx, force) {
     exit_code: res.status,
     elapsed_ms: elapsedMs,
     answer_chars: (finalText || '').length,
+    // D-07 token/cost/tool meta. total_cost_usd + model_usage are the headline (roll up sub-agents);
+    // input/output_tokens are main-context-only.
+    input_tokens,
+    output_tokens,
+    cache_read_input_tokens,
+    cache_creation_input_tokens,
+    total_cost_usd,
+    num_turns,
+    model_usage,
+    tool_calls,
   };
   fs.writeFileSync(path.join(outDir, 'meta.json'), JSON.stringify(meta, null, 2));
 

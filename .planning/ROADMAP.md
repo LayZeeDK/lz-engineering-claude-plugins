@@ -309,7 +309,7 @@ Plans:
 Produces a head-to-head comparison record and a verdict on where lz-refactor's book-grounded catalog measurably differs from a general code-review skill on smell/refactoring analysis.
 **Requirements**: TBD (lock in 14-SPEC.md during discuss/plan)
 **Depends on:** Phase 13 (reuse eval workspace, target repos, and the oracle/oracle-reviewer grading pipeline)
-**Plans:** 3/5 plans executed
+**Plans:** 5/5 plans complete
 
 Plans:
 
@@ -321,11 +321,11 @@ Plans:
 
 **Wave 1** *(blocked on 14-01, 14-02; autonomous: false -- the D-12 spend gate)*
 
-- [ ] 14-04-PLAN.md -- metered claude -p runs behind the HARD eval-run gate: lz-refactor (invoke_skill) vs code_review, recommend mode, 3 cells x k=3 (D-01/D-09/D-10/D-12)
+- [x] 14-04-PLAN.md -- metered claude -p runs behind the HARD eval-run gate: lz-refactor (invoke_skill) vs code_review, recommend mode, 3 cells x k=3 (D-01/D-09/D-10/D-12)
 
 **Wave 2** *(blocked on 14-03, 14-04; autonomous)*
 
-- [ ] 14-05-PLAN.md -- grading across all 7 dimensions (mechanical + oracle/judge, DST-04) + 14-RESULTS.md head-to-head + empirical verdict + unbiased review + hygiene (D-03/D-04/D-05/D-11)
+- [x] 14-05-PLAN.md -- grading across all 7 dimensions (mechanical + oracle/judge, DST-04) + 14-RESULTS.md head-to-head + empirical verdict + unbiased review + hygiene (D-03/D-04/D-05/D-11)
 
 ---
 *Roadmap created: 2026-07-02 | lz-tdd@0.0.1 completed: 2026-07-04 | lz-tdd@0.0.2 roadmap added: 2026-07-04 | Phase 6 planned: 2026-07-04 | Phase 7 planned: 2026-07-04 | Phase 7 re-planned (scope-correction: 62-scope + clean-room oracle, per-refactoring leaves): 2026-07-05 | Phase 8 planned: 2026-07-05 | Phase 8 completed: 2026-07-07 | Phase 8.2 inserted (Functional Catalog): 2026-07-07 | Phase 8.2 planned (6 plans, 4 waves): 2026-07-07 | Phase 11 planned (4 plans, 2 waves): 2026-07-10 | Phase 12 added: 2026-07-11 | Phase 14 added: 2026-07-15*

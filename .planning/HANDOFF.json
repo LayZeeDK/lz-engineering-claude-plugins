@@ -7,7 +7,7 @@
   "plan": 5,
   "task": null,
   "total_tasks": 5,
-  "status": "phase_complete_pending_post_completion_audits",
+  "status": "post_audits_done_pending_milestone_close",
   "completed_tasks": [
     {"id": "14-01", "name": "run-e2e code_review arm + token/tool meta + synthetic whole-file-diff base + selfcheck", "status": "done", "commit": "d0b4d37"},
     {"id": "14-02", "name": "report-framed cr-* recommend queries + suites (2 reviewers PASS)", "status": "done", "commit": "03bf58d"},
@@ -16,11 +16,13 @@
     {"id": "14-05", "name": "grade 7 dimensions (mechanical + oracle DST-04 + judge + unbiased) + 14-RESULTS.md verdict", "status": "done", "commit": "8130de0"}
   ],
   "remaining_tasks": [
-    {"id": "post-1", "name": "/gsd-secure-phase 14 -> gsd-security-auditor -> 14-SECURITY.md (verify T-14-* mitigations)", "status": "not_started"},
-    {"id": "post-2", "name": "/gsd-validate-phase 14 -> gsd-nyquist-auditor -> flip 14-VALIDATION.md nyquist_compliant + fill gaps", "status": "not_started"},
-    {"id": "post-3", "name": "/gsd-extract-learnings 14 -> 14-LEARNINGS.md (LAST of the phase sequence)", "status": "not_started"},
     {"id": "post-4", "name": "/gsd-audit-milestone lz-tdd@0.0.2 (all phases 6-14 now done)", "status": "not_started"},
     {"id": "post-5", "name": "/gsd-complete-milestone lz-tdd@0.0.2", "status": "not_started"}
+  ],
+  "post_audits_completed": [
+    {"id": "post-1", "name": "/gsd-secure-phase 14 -> gsd-security-auditor -> 14-SECURITY.md", "status": "done", "result": "SECURED 9/9 closed (8 mitigate verified + 2 accept sound); threats_open 0", "commit": "docs(phase-14): add security threat verification"},
+    {"id": "post-2", "name": "/gsd-validate-phase 14 -> gsd-nyquist-auditor -> 14-VALIDATION.md", "status": "done", "result": "GAPS FILLED 4/4 cruxes COVERED (self-checks re-run green + proven can-fail); nyquist_compliant true, wave_0_complete true", "commit": "docs(phase-14): flip validation nyquist-compliant"},
+    {"id": "post-3", "name": "/gsd-extract-learnings 14 -> 14-LEARNINGS.md", "status": "done", "result": "22 items (7 decisions, 4 lessons, 6 patterns, 5 surprises); pooled to global store (learnings.copy created 22, skipped 0)", "commit": "docs(phase-14): extract learnings (22 items) + update state"}
   ],
   "blockers": [
     {"description": "Org monthly spend-limit hit TWICE this session (once during 14-03, once during gsd-verifier); user reset it both times", "type": "external", "workaround": "Run post-completion audits one at a time; each spawns agents that spend. If the limit re-triggers, the phase artifacts are durable and committed -- resume the specific audit after reset. Do NOT retry in a loop."}
@@ -33,6 +35,6 @@
     {"decision": "Kata run command fixed: use --suite e2e-gilded-rose (NOT ../e2e-gilded-rose) from the workspace root; run-e2e.mjs:57 resolves --suite vs CWD", "rationale": "the plan's documented command assumed CWD=e2e-nx/; the deviation is recorded in 14-04-SUMMARY", "phase": "14"}
   ],
   "uncommitted_files": [".planning/config.json (carries workflow._auto_chain_active: true -- left uncommitted by design; the orchestrator's ephemeral chain flag)"],
-  "next_action": "In a FRESH /clear'ed session: run /gsd-secure-phase 14, then /gsd-validate-phase 14, then /gsd-extract-learnings 14 (in that order), then /gsd-audit-milestone lz-tdd@0.0.2 -> /gsd-complete-milestone lz-tdd@0.0.2. Do NOT re-run any metered eval or re-execute phase-14 plans -- the phase is done and committed.",
+  "next_action": "Post-completion audits (secure + validate + extract-learnings) are DONE + committed (2026-07-15). Remaining: /gsd-audit-milestone lz-tdd@0.0.2 then /gsd-complete-milestone lz-tdd@0.0.2. Do NOT re-run any metered eval, re-execute phase-14 plans, or re-run the three completed audits -- all committed.",
   "context_notes": "Paused deliberately to move the mandatory post-completion audits (secure/validate/extract) into a fresh session: this session's context is very large and the org spend-limit hit twice, so running heavy audit agents here risked another mid-audit interruption. The audits are RETROACTIVE on the already-verified, committed phase -- they read existing artifacts, they do NOT re-run the 18 metered runs (those live in results/recommend/**/cr-*/ and are committed). _auto_chain_active is still true in config; running the audits as plain commands (not --auto) lets the workflows' 'sync chain flag with intent' step clear it."
 }

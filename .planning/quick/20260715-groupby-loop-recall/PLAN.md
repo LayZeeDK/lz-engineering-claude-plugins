@@ -2,7 +2,7 @@
 slug: groupby-loop-recall
 created: 2026-07-15
 mode: quick --full
-status: in-progress
+status: complete
 ---
 
 # Quick Task: Improve reduce->Map group-by recall in lz-refactor

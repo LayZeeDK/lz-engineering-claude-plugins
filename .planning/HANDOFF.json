@@ -1,0 +1,38 @@
+{
+  "version": "1.0",
+  "timestamp": "2026-07-15T14:13:26.842Z",
+  "phase": "14",
+  "phase_name": "compare-lz-refactor-to-mattpocock-skills-code-review-skill-k",
+  "phase_dir": ".planning/phases/14-compare-lz-refactor-to-mattpocock-skills-code-review-skill-k",
+  "plan": 5,
+  "task": null,
+  "total_tasks": 5,
+  "status": "phase_complete_pending_post_completion_audits",
+  "completed_tasks": [
+    {"id": "14-01", "name": "run-e2e code_review arm + token/tool meta + synthetic whole-file-diff base + selfcheck", "status": "done", "commit": "d0b4d37"},
+    {"id": "14-02", "name": "report-framed cr-* recommend queries + suites (2 reviewers PASS)", "status": "done", "commit": "03bf58d"},
+    {"id": "14-03", "name": "mechanical tabulator + fixtures + rollup template (--selfcheck exit 0)", "status": "done", "commit": "932a466"},
+    {"id": "14-04", "name": "18 metered head-to-head recommend runs (D-12 gate, user-approved 3-cell)", "status": "done", "commit": "55fce02"},
+    {"id": "14-05", "name": "grade 7 dimensions (mechanical + oracle DST-04 + judge + unbiased) + 14-RESULTS.md verdict", "status": "done", "commit": "8130de0"}
+  ],
+  "remaining_tasks": [
+    {"id": "post-1", "name": "/gsd-secure-phase 14 -> gsd-security-auditor -> 14-SECURITY.md (verify T-14-* mitigations)", "status": "not_started"},
+    {"id": "post-2", "name": "/gsd-validate-phase 14 -> gsd-nyquist-auditor -> flip 14-VALIDATION.md nyquist_compliant + fill gaps", "status": "not_started"},
+    {"id": "post-3", "name": "/gsd-extract-learnings 14 -> 14-LEARNINGS.md (LAST of the phase sequence)", "status": "not_started"},
+    {"id": "post-4", "name": "/gsd-audit-milestone lz-tdd@0.0.2 (all phases 6-14 now done)", "status": "not_started"},
+    {"id": "post-5", "name": "/gsd-complete-milestone lz-tdd@0.0.2", "status": "not_started"}
+  ],
+  "blockers": [
+    {"description": "Org monthly spend-limit hit TWICE this session (once during 14-03, once during gsd-verifier); user reset it both times", "type": "external", "workaround": "Run post-completion audits one at a time; each spawns agents that spend. If the limit re-triggers, the phase artifacts are durable and committed -- resume the specific audit after reset. Do NOT retry in a loop."}
+  ],
+  "human_actions_pending": [],
+  "decisions": [
+    {"decision": "Phase 14 is COMPLETE + gsd-verifier PASSED 12/12 + committed (8130de0); is_last_phase of milestone lz-tdd@0.0.2", "rationale": "Full discuss->plan->execute->verify chain ran; 14-RESULTS.md verdict is unbiased-reviewer-confirmed and matches grading records", "phase": "14"},
+    {"decision": "Empirical verdict = differently-shaped work (not a skill win): lz-refactor cheaper/named/proportionality-guarded/FP-capable; code_review broader with off-axis bug+spec value; ~139-vs-12 vocabulary breadth is the idiom/pattern headline", "rationale": "Head-to-head vs a real external code-review skill, not just base Opus", "phase": "14"},
+    {"decision": "D-12 metered spend gate was explicitly user-approved (approve-3cell = 18 runs); never self-approved", "rationale": "eval-run-approval-gate + D-12 no-self-approval", "phase": "14"},
+    {"decision": "Kata run command fixed: use --suite e2e-gilded-rose (NOT ../e2e-gilded-rose) from the workspace root; run-e2e.mjs:57 resolves --suite vs CWD", "rationale": "the plan's documented command assumed CWD=e2e-nx/; the deviation is recorded in 14-04-SUMMARY", "phase": "14"}
+  ],
+  "uncommitted_files": [".planning/config.json (carries workflow._auto_chain_active: true -- left uncommitted by design; the orchestrator's ephemeral chain flag)"],
+  "next_action": "In a FRESH /clear'ed session: run /gsd-secure-phase 14, then /gsd-validate-phase 14, then /gsd-extract-learnings 14 (in that order), then /gsd-audit-milestone lz-tdd@0.0.2 -> /gsd-complete-milestone lz-tdd@0.0.2. Do NOT re-run any metered eval or re-execute phase-14 plans -- the phase is done and committed.",
+  "context_notes": "Paused deliberately to move the mandatory post-completion audits (secure/validate/extract) into a fresh session: this session's context is very large and the org spend-limit hit twice, so running heavy audit agents here risked another mid-audit interruption. The audits are RETROACTIVE on the already-verified, committed phase -- they read existing artifacts, they do NOT re-run the 18 metered runs (those live in results/recommend/**/cr-*/ and are committed). _auto_chain_active is still true in config; running the audits as plain commands (not --auto) lets the workflows' 'sync chain flag with intent' step clear it."
+}

@@ -1,6 +1,6 @@
 # Loops
 
-Recognize by: an explicit loop whose real intent (filter, map, sum) is buried in bookkeeping.
+Recognize by: a loop, or a reduce or accumulator that buckets items into a Map or object under a key, whose real intent (filter, map, sum, group-by) is buried in bookkeeping.
 
 ## How to recognize
 

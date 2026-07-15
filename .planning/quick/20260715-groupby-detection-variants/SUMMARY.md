@@ -70,6 +70,12 @@ smell). It was reverted only to honor the pre-locked "revert if null" bar and ke
 tree minimal. If you value the broader cue on its own merit, it can be re-applied deliberately -- it is
 one Edit and carries no T3-regression / false-positive risk per the review.
 
+UPDATE (2026-07-15, per user request "broaden the gate cue"): variant A (the broadened gate cue) was
+RE-APPLIED to both mirrored files on its taxonomy-completeness merit, decoupled from the (null) eval
+outcome. Variant B (the O(n^2) leaf note) stays reverted. This is the reviewer-PASSED text; no new eval
+was run (the change is a taxonomy improvement, not a recall claim). Run `/reload-plugins` for interactive
+liveness.
+
 ## Recommendation
 
 Stop attacking this blind spot via the skill. Two metered experiments ($1.61 + $1.33 = $2.94) confirm

@@ -569,21 +569,27 @@ is no runtime attack surface.
 | A3 | `.oracle/` books are present for grading (as in Phase 13) | Grading Architecture | If missing, book-authenticity grading blocks; oracle agent will report. Verify before grading (not before runs) |
 | A4 | Loading the mattpocock plugin via `--plugin-dir` exposes only code-review as an invocable command we use, though all ~22 skills' descriptions load into context | Standard Stack / D-10 | Minor context-token inflation on the code_review arm; inherent to loading the competitor plugin; note as a caveat, not a blocker [VERIFIED: plugin.json lists 22 skills] |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Does the plan split nx and kata into one plan or two?** (D-09 discretion)
    - Known: both suites reuse the same runner + extension; targets differ.
    - Recommendation: ONE harness extension shared by both suites (the runner is suite-parameterized via
      `--suite`); target selection per suite. Splitting into two PLANs is fine for execution granularity but
      the code change is shared -- do it once.
+   - RESOLVED: resolved via discretion; recommendation implemented in plan 14-01 (one shared harness
+     extension to run-e2e.mjs, suite-parameterized via --suite; both suites reuse the same code change).
 2. **Include a base `no_skill` third arm?** (D-10 discretion)
    - Known: Phase 13 already characterized base Opus on applied output; this phase is recommend-mode.
    - Recommendation: OPTIONAL. The head-to-head is lz-refactor vs code_review. A `no_skill` reference arm
      would re-confirm the base baseline in recommend mode but adds spend; DEFER unless the verdict needs it.
+   - RESOLVED: resolved via discretion; recommendation implemented in plan 14-04 (base no_skill arm
+     DEFERRED per D-10 -- Phase 13 already characterized base).
 3. **Vendor the mattpocock plugin or point at the cache?** (discretion)
    - Recommendation: point at the cache + record version 1.2.0 + code-review SKILL.md content hash in
      meta for drift detection; vendor only the `code-review` skill subtree if durability is wanted (never
      the cache `node_modules/`).
+   - RESOLVED: resolved via discretion; recommendation implemented in plans 14-01/14-04 (point at the
+     mattpocock cache with the resolved version 1.2.0 recorded in meta for drift detection).
 
 ## Sources
 

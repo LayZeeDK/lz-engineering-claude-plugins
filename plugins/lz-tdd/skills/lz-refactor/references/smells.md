@@ -61,7 +61,7 @@ Recognize by: the same switch (or if/else chain) on the same value showing up in
 
 ### Loops
 
-Recognize by: an explicit loop whose real intent (filter, map, sum) is buried in bookkeeping. ([leaf](smells/loops.md))
+Recognize by: a loop, or a reduce or accumulator that buckets items into a Map or object under a key, whose real intent (filter, map, sum, group-by) is buried in bookkeeping. ([leaf](smells/loops.md))
 
 ### Lazy Element [both]
 

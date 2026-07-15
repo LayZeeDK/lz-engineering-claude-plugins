@@ -1,0 +1,135 @@
+{
+  "phase": 14,
+  "title": "head-to-head rollup: lz-refactor (recommend / invoke_skill) vs mattpocock code-review",
+  "status": "TEMPLATE -- numeric cells are null placeholders; MECHANICAL dims filled by tabulate-mechanical.mjs, GRADED dims by oracle/oracle-reviewer/judge in 14-05",
+  "model": "claude-opus-4-8 @ high, --setting-sources project, k=3 (D-10)",
+  "arms": ["lz-refactor", "code_review"],
+  "arm_aliases": {
+    "lz-refactor": "run-e2e.mjs arm invoke_skill (/lz-tdd:lz-refactor, recommend mode, read-only)",
+    "code_review": "run-e2e.mjs arm code_review (/mattpocock-skills:code-review <synthetic-root>, whole-file diff)"
+  },
+  "cells": [
+    { "cell": "cr-emb", "suite": "e2e-nx", "target": "T1", "file": "enforce-module-boundaries.ts" },
+    { "cell": "cr-rlu", "suite": "e2e-nx", "target": "T3", "file": "runtime-lint-utils.ts" },
+    { "cell": "cr-gr", "suite": "e2e-gilded-rose", "target": "G1", "file": "app/gilded-rose.ts" }
+  ],
+  "passk_source": "run-e2e.mjs comb/passAtK/passHatK -- formulas copied verbatim (PATTERNS Pattern F); the same helpers are copied into tabulate-mechanical.mjs for the MECHANICAL dims",
+  "dimension_kind": {
+    "lift": "MECHANICAL",
+    "token_usage": "MECHANICAL",
+    "tool_usage": "MECHANICAL",
+    "output_quality": "GRADED",
+    "book_authenticity": "GRADED",
+    "over_under_engineering": "GRADED",
+    "idiom_pattern": "GRADED"
+  },
+  "caveats": [
+    "D-02: code-review is designed for INCREMENTAL diffs; it is fed the whole target file as a diff vs an empty-root baseline, slightly off its natural grain. This is the price of an equal-input comparison and MUST be stated in 14-RESULTS.md.",
+    "D-03: the corpus (kata/nx) has no originating issue/PRD, so code-review's Spec sub-agent reports 'no spec available' and skips -- an EXPECTED structural asymmetry, not a defect."
+  ],
+  "dimensions": {
+    "lift": {
+      "kind": "MECHANICAL",
+      "filled_by": "tabulate-mechanical.mjs",
+      "definition": "count of distinct actionable named refactorings/smells surfaced per invocation (mechanical heuristic via the shipped word-bounded name matcher; a graded lift refinement is oracle-owned in 14-05)",
+      "rows": [
+        { "cell": "cr-emb", "arm": "lz-refactor", "passk": { "n": null, "c": null, "passAt1": null, "passAt3": null, "passHat3": null } },
+        { "cell": "cr-emb", "arm": "code_review", "passk": { "n": null, "c": null, "passAt1": null, "passAt3": null, "passHat3": null } },
+        { "cell": "cr-rlu", "arm": "lz-refactor", "passk": { "n": null, "c": null, "passAt1": null, "passAt3": null, "passHat3": null } },
+        { "cell": "cr-rlu", "arm": "code_review", "passk": { "n": null, "c": null, "passAt1": null, "passAt3": null, "passHat3": null } },
+        { "cell": "cr-gr", "arm": "lz-refactor", "passk": { "n": null, "c": null, "passAt1": null, "passAt3": null, "passHat3": null } },
+        { "cell": "cr-gr", "arm": "code_review", "passk": { "n": null, "c": null, "passAt1": null, "passAt3": null, "passHat3": null } }
+      ]
+    },
+    "token_usage": {
+      "kind": "MECHANICAL",
+      "filled_by": "tabulate-mechanical.mjs",
+      "definition": "headline = total_cost_usd + per-model model_usage (rolls up sub-agents); input/output_tokens are main-context-only and under-count code_review (D-07). Pass@k is N/A for a continuous measure -- record the totals, leave passk null.",
+      "rows": [
+        { "cell": "cr-emb", "arm": "lz-refactor", "passk": { "n": null, "c": null, "passAt1": null, "passAt3": null, "passHat3": null } },
+        { "cell": "cr-emb", "arm": "code_review", "passk": { "n": null, "c": null, "passAt1": null, "passAt3": null, "passHat3": null } },
+        { "cell": "cr-rlu", "arm": "lz-refactor", "passk": { "n": null, "c": null, "passAt1": null, "passAt3": null, "passHat3": null } },
+        { "cell": "cr-rlu", "arm": "code_review", "passk": { "n": null, "c": null, "passAt1": null, "passAt3": null, "passHat3": null } },
+        { "cell": "cr-gr", "arm": "lz-refactor", "passk": { "n": null, "c": null, "passAt1": null, "passAt3": null, "passHat3": null } },
+        { "cell": "cr-gr", "arm": "code_review", "passk": { "n": null, "c": null, "passAt1": null, "passAt3": null, "passHat3": null } }
+      ]
+    },
+    "tool_usage": {
+      "kind": "MECHANICAL",
+      "filled_by": "tabulate-mechanical.mjs",
+      "definition": "merged tool_calls histogram + sub-agent spawn count per arm. The 2-vs-0 spawn asymmetry (code_review spawns Standards/Spec sub-agents; lz-refactor recommend is a single read-only context) is the headline finding -- reported, not equalized (D-04). Pass@k N/A; leave passk null.",
+      "rows": [
+        { "cell": "cr-emb", "arm": "lz-refactor", "passk": { "n": null, "c": null, "passAt1": null, "passAt3": null, "passHat3": null } },
+        { "cell": "cr-emb", "arm": "code_review", "passk": { "n": null, "c": null, "passAt1": null, "passAt3": null, "passHat3": null } },
+        { "cell": "cr-rlu", "arm": "lz-refactor", "passk": { "n": null, "c": null, "passAt1": null, "passAt3": null, "passHat3": null } },
+        { "cell": "cr-rlu", "arm": "code_review", "passk": { "n": null, "c": null, "passAt1": null, "passAt3": null, "passHat3": null } },
+        { "cell": "cr-gr", "arm": "lz-refactor", "passk": { "n": null, "c": null, "passAt1": null, "passAt3": null, "passHat3": null } },
+        { "cell": "cr-gr", "arm": "code_review", "passk": { "n": null, "c": null, "passAt1": null, "passAt3": null, "passHat3": null } }
+      ]
+    },
+    "output_quality": {
+      "kind": "GRADED",
+      "filled_by": "judge (14-05): usefulness / accuracy / actionability of findings vs targets.json.judgment",
+      "definition": "GRADED/judge read of answer.md; per-run pass = a useful, accurate, actionable finding set",
+      "rows": [
+        { "cell": "cr-emb", "arm": "lz-refactor", "passk": { "n": null, "c": null, "passAt1": null, "passAt3": null, "passHat3": null } },
+        { "cell": "cr-emb", "arm": "code_review", "passk": { "n": null, "c": null, "passAt1": null, "passAt3": null, "passHat3": null } },
+        { "cell": "cr-rlu", "arm": "lz-refactor", "passk": { "n": null, "c": null, "passAt1": null, "passAt3": null, "passHat3": null } },
+        { "cell": "cr-rlu", "arm": "code_review", "passk": { "n": null, "c": null, "passAt1": null, "passAt3": null, "passHat3": null } },
+        { "cell": "cr-gr", "arm": "lz-refactor", "passk": { "n": null, "c": null, "passAt1": null, "passAt3": null, "passHat3": null } },
+        { "cell": "cr-gr", "arm": "code_review", "passk": { "n": null, "c": null, "passAt1": null, "passAt3": null, "passHat3": null } }
+      ]
+    },
+    "book_authenticity": {
+      "kind": "GRADED",
+      "filled_by": "oracle / oracle-reviewer (14-05, DST-04 firewall -- main context never reads .oracle/ prose)",
+      "definition": "per-claim pass/partial/fail fidelity of each named smell/refactoring/pattern to the .oracle/ books (Fowler / Kerievsky / GoF); functional idioms grade vs .planning/research/functional-depatterning-ts.md",
+      "rows": [
+        { "cell": "cr-emb", "arm": "lz-refactor", "passk": { "n": null, "c": null, "passAt1": null, "passAt3": null, "passHat3": null } },
+        { "cell": "cr-emb", "arm": "code_review", "passk": { "n": null, "c": null, "passAt1": null, "passAt3": null, "passHat3": null } },
+        { "cell": "cr-rlu", "arm": "lz-refactor", "passk": { "n": null, "c": null, "passAt1": null, "passAt3": null, "passHat3": null } },
+        { "cell": "cr-rlu", "arm": "code_review", "passk": { "n": null, "c": null, "passAt1": null, "passAt3": null, "passHat3": null } },
+        { "cell": "cr-gr", "arm": "lz-refactor", "passk": { "n": null, "c": null, "passAt1": null, "passAt3": null, "passHat3": null } },
+        { "cell": "cr-gr", "arm": "code_review", "passk": { "n": null, "c": null, "passAt1": null, "passAt3": null, "passHat3": null } }
+      ]
+    },
+    "over_under_engineering": {
+      "kind": "GRADED",
+      "filled_by": "judge + oracle where a pattern is named (14-05)",
+      "definition": "proportionality of recommendations vs targets.json.judgment -- no speculative patterns (over), no missed simplifications (under); e.g. the polymorphism-decline traps",
+      "rows": [
+        { "cell": "cr-emb", "arm": "lz-refactor", "passk": { "n": null, "c": null, "passAt1": null, "passAt3": null, "passHat3": null } },
+        { "cell": "cr-emb", "arm": "code_review", "passk": { "n": null, "c": null, "passAt1": null, "passAt3": null, "passHat3": null } },
+        { "cell": "cr-rlu", "arm": "lz-refactor", "passk": { "n": null, "c": null, "passAt1": null, "passAt3": null, "passHat3": null } },
+        { "cell": "cr-rlu", "arm": "code_review", "passk": { "n": null, "c": null, "passAt1": null, "passAt3": null, "passHat3": null } },
+        { "cell": "cr-gr", "arm": "lz-refactor", "passk": { "n": null, "c": null, "passAt1": null, "passAt3": null, "passHat3": null } },
+        { "cell": "cr-gr", "arm": "code_review", "passk": { "n": null, "c": null, "passAt1": null, "passAt3": null, "passHat3": null } }
+      ]
+    },
+    "idiom_pattern": {
+      "kind": "GRADED",
+      "filled_by": "oracle / oracle-reviewer (OO patterns vs GoF/Kerievsky) + functional-depatterning-ts.md (FP idioms) (14-05)",
+      "definition": "breadth + correctness of the TS/FP/OOP idiom + pattern vocabulary each skill brings (owner-added D-04 axis)",
+      "vocabulary_breadth_headline": {
+        "note": "The ~139-vs-12 breadth asymmetry is EXPECTED and is the headline on this axis -- reported, NOT normalized away (D-04).",
+        "lz-refactor": {
+          "named_vocabulary_count": 139,
+          "detail": "Fowler-catalog 62 + Kerievsky-catalog 30 + GoF-catalog 23 + extra-patterns 5 + functional-catalog 19 idioms",
+          "smell_leaves": 28
+        },
+        "code_review": {
+          "named_vocabulary_count": 12,
+          "detail": "12 Fowler code smells (its Step 3 baseline); NO refactoring/pattern/idiom vocabulary"
+        }
+      },
+      "rows": [
+        { "cell": "cr-emb", "arm": "lz-refactor", "passk": { "n": null, "c": null, "passAt1": null, "passAt3": null, "passHat3": null } },
+        { "cell": "cr-emb", "arm": "code_review", "passk": { "n": null, "c": null, "passAt1": null, "passAt3": null, "passHat3": null } },
+        { "cell": "cr-rlu", "arm": "lz-refactor", "passk": { "n": null, "c": null, "passAt1": null, "passAt3": null, "passHat3": null } },
+        { "cell": "cr-rlu", "arm": "code_review", "passk": { "n": null, "c": null, "passAt1": null, "passAt3": null, "passHat3": null } },
+        { "cell": "cr-gr", "arm": "lz-refactor", "passk": { "n": null, "c": null, "passAt1": null, "passAt3": null, "passHat3": null } },
+        { "cell": "cr-gr", "arm": "code_review", "passk": { "n": null, "c": null, "passAt1": null, "passAt3": null, "passHat3": null } }
+      ]
+    }
+  }
+}

@@ -76,6 +76,7 @@ Last activity: 2026-07-14 -- Phase 13 execution started
 
 ### Roadmap Evolution
 
+- Phase 14 added 2026-07-15: Compare lz-refactor to the third-party /mattpocock-skills:code-review skill (which also scans for code smells in its Step 3), positioning lz-refactor against a real external code-review skill rather than only base Opus (Phase 13). Both skills invoked explicitly via slash-command syntax in their respective arms; lz-refactor arm uses queries triggering the smell-scan/recommend (coach) mode most comparable to code-review. Corpus = kata + nx @nx/* packages (reuse prior-eval targets). Dimensions (non-exhaustive): lift, token usage, tool usage, output quality, book authenticity (oracle/oracle-reviewer vs .oracle/, DST-04), over-/under-engineering. Depends on Phase 13 (reuse eval workspace + grading pipeline). Extends milestone lz-tdd@0.0.2 (otherwise complete + audit-pending).
 - Phase 08.1 inserted after Phase 8: GoF Design Patterns catalog (URGENT)
 - Phase 8.2 inserted after Phase 8.1: Functional Catalog (by-idiom FP de-patterning + native FP; board-ratified shared template + check-functional spec in .planning/research/functional-depatterning-ts.md S13). Phase 9 re-scoped: +CCH-06, CCH-02 de-patterning routes to functional-catalog, +dep on 8.2.
 - Phase 8 status reconciled 2026-07-07: ROADMAP showed stale "5/6 In Progress" but Phase 8 was CLOSED (6/6, verified/secured/validated, commits a58aa22/8b98aa0); KRV-01..04 flipped to Complete.

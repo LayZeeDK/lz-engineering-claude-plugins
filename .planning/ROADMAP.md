@@ -295,5 +295,24 @@ Plans:
 
 - [x] 13-05-PLAN.md -- 13-RESULTS.md head-to-head + empirical verdict + unbiased review + borrowed-repo restore + hygiene gate
 
+### Phase 14: Compare lz-refactor to mattpocock-skills code-review skill (kata + nx)
+
+**Goal:** Head-to-head comparison of `/lz-tdd:lz-refactor` against the third-party `/mattpocock-skills:code-review` skill -- which also scans for code smells (in its Step 3) -- to position lz-refactor against a real external code-review skill rather than only against base Opus (Phase 13). Both skills are invoked **explicitly via their slash-command syntax** in their respective eval arms (`/lz-tdd:lz-refactor ...` vs `/mattpocock-skills:code-review ...`). The lz-refactor arm uses eval **queries that trigger the mode of lz-refactor most comparable to Matt Pocock's code-review skill** -- i.e., the smell-scan / recommend (coach) mode that surfaces smells and named refactorings, not necessarily the apply/drive mode -- so the two skills are compared on equivalent work. Corpus = **both the Gilded Rose kata and nx `@nx/*` packages**, reusing the prior-eval targets (Phases 11-13 workspace / repos). Compare on **multiple dimensions, including but not limited to**:
+
+- **Lift** -- how much useful refactoring/smell-analysis work each skill produces per invocation.
+- **Token usage** -- input/output token cost per arm.
+- **Tool usage** -- which and how many tools each skill drives.
+- **Output quality** -- usefulness, accuracy, and actionability of the findings.
+- **Book authenticity** -- fidelity of the named refactorings/smells to what the `.oracle/` books (Fowler / Kerievsky / GoF) prescribe, graded via the **`oracle` / `oracle-reviewer`** agents against the git-ignored `.oracle/` books (DST-04: no source prose crosses back), not author eyeballing.
+- **Over-engineering / under-engineering** -- whether each skill's recommendations are proportionate to the code.
+
+Produces a head-to-head comparison record and a verdict on where lz-refactor's book-grounded catalog measurably differs from a general code-review skill on smell/refactoring analysis.
+**Requirements**: TBD (lock in 14-SPEC.md during discuss/plan)
+**Depends on:** Phase 13 (reuse eval workspace, target repos, and the oracle/oracle-reviewer grading pipeline)
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd-plan-phase 14 to break down)
+
 ---
-*Roadmap created: 2026-07-02 | lz-tdd@0.0.1 completed: 2026-07-04 | lz-tdd@0.0.2 roadmap added: 2026-07-04 | Phase 6 planned: 2026-07-04 | Phase 7 planned: 2026-07-04 | Phase 7 re-planned (scope-correction: 62-scope + clean-room oracle, per-refactoring leaves): 2026-07-05 | Phase 8 planned: 2026-07-05 | Phase 8 completed: 2026-07-07 | Phase 8.2 inserted (Functional Catalog): 2026-07-07 | Phase 8.2 planned (6 plans, 4 waves): 2026-07-07 | Phase 11 planned (4 plans, 2 waves): 2026-07-10 | Phase 12 added: 2026-07-11*
+*Roadmap created: 2026-07-02 | lz-tdd@0.0.1 completed: 2026-07-04 | lz-tdd@0.0.2 roadmap added: 2026-07-04 | Phase 6 planned: 2026-07-04 | Phase 7 planned: 2026-07-04 | Phase 7 re-planned (scope-correction: 62-scope + clean-room oracle, per-refactoring leaves): 2026-07-05 | Phase 8 planned: 2026-07-05 | Phase 8 completed: 2026-07-07 | Phase 8.2 inserted (Functional Catalog): 2026-07-07 | Phase 8.2 planned (6 plans, 4 waves): 2026-07-07 | Phase 11 planned (4 plans, 2 waves): 2026-07-10 | Phase 12 added: 2026-07-11 | Phase 14 added: 2026-07-15*

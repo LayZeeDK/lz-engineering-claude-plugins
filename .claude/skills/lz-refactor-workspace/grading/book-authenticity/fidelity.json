@@ -1,0 +1,917 @@
+{
+  "dimension": "book-authenticity (fidelity of applied refactoring to the book mechanics)",
+  "grading_channel": "oracle agent (DST-04: main context never read the git-ignored source books; verdicts are the agent's own words)",
+  "cross_cutting_note": "Both arms' declining of Replace Conditional with Polymorphism (for nx type-code ladders and the small kata conditionals) is CONSISTENT with the book, which warns against polymorphism overuse and reserves it for genuinely type-varying, base-plus-variant conditionals.",
+  "records": [
+    {
+      "cell": "p1",
+      "arm": "with_skill",
+      "run": 1,
+      "book": "Fowler",
+      "named_refactoring": "Extract Function",
+      "verdict": "pass",
+      "why": "Faithful: names a coherent fragment, replaces the call site, and folds N recurrences onto one helper -- realizing the book's explicit look-for-similar-code de-duplication step; behavior preserved (tests green each step)."
+    },
+    {
+      "cell": "p1",
+      "arm": "with_skill",
+      "run": 2,
+      "book": "Fowler",
+      "named_refactoring": "Extract Function",
+      "verdict": "pass",
+      "why": "Faithful: names a coherent fragment, replaces the call site, and folds N recurrences onto one helper -- realizing the book's explicit look-for-similar-code de-duplication step; behavior preserved (tests green each step)."
+    },
+    {
+      "cell": "p1",
+      "arm": "with_skill",
+      "run": 3,
+      "book": "Fowler",
+      "named_refactoring": "Extract Function",
+      "verdict": "pass",
+      "why": "Faithful: names a coherent fragment, replaces the call site, and folds N recurrences onto one helper -- realizing the book's explicit look-for-similar-code de-duplication step; behavior preserved (tests green each step)."
+    },
+    {
+      "cell": "p1",
+      "arm": "no_skill",
+      "run": 1,
+      "book": "Fowler",
+      "named_refactoring": "Extract Function",
+      "verdict": "pass",
+      "why": "Faithful: names a coherent fragment, replaces the call site, and folds N recurrences onto one helper -- realizing the book's explicit look-for-similar-code de-duplication step; behavior preserved (tests green each step)."
+    },
+    {
+      "cell": "p1",
+      "arm": "no_skill",
+      "run": 2,
+      "book": "Fowler",
+      "named_refactoring": "Extract Function",
+      "verdict": "pass",
+      "why": "Faithful: names a coherent fragment, replaces the call site, and folds N recurrences onto one helper -- realizing the book's explicit look-for-similar-code de-duplication step; behavior preserved (tests green each step)."
+    },
+    {
+      "cell": "p1",
+      "arm": "no_skill",
+      "run": 3,
+      "book": "Fowler",
+      "named_refactoring": "Extract Function",
+      "verdict": "pass",
+      "why": "Faithful: names a coherent fragment, replaces the call site, and folds N recurrences onto one helper -- realizing the book's explicit look-for-similar-code de-duplication step; behavior preserved (tests green each step)."
+    },
+    {
+      "cell": "p2",
+      "arm": "with_skill",
+      "run": 1,
+      "book": "Fowler",
+      "named_refactoring": "Extract Function",
+      "verdict": "pass",
+      "why": "Faithful: names a coherent fragment, replaces the call site, and folds N recurrences onto one helper -- realizing the book's explicit look-for-similar-code de-duplication step; behavior preserved (tests green each step)."
+    },
+    {
+      "cell": "p2",
+      "arm": "with_skill",
+      "run": 2,
+      "book": "Fowler",
+      "named_refactoring": "Extract Function",
+      "verdict": "pass",
+      "why": "Faithful: names a coherent fragment, replaces the call site, and folds N recurrences onto one helper -- realizing the book's explicit look-for-similar-code de-duplication step; behavior preserved (tests green each step)."
+    },
+    {
+      "cell": "p2",
+      "arm": "with_skill",
+      "run": 3,
+      "book": null,
+      "named_refactoring": "none applied",
+      "verdict": "N/A",
+      "why": "No code applied (advise-only / no-edit decline) -- excluded from the fidelity denominator, retained as a data point."
+    },
+    {
+      "cell": "p2",
+      "arm": "no_skill",
+      "run": 1,
+      "book": "Fowler",
+      "named_refactoring": "Extract Function",
+      "verdict": "pass",
+      "why": "Faithful: names a coherent fragment, replaces the call site, and folds N recurrences onto one helper -- realizing the book's explicit look-for-similar-code de-duplication step; behavior preserved (tests green each step)."
+    },
+    {
+      "cell": "p2",
+      "arm": "no_skill",
+      "run": 2,
+      "book": "Fowler",
+      "named_refactoring": "Extract Function",
+      "verdict": "pass",
+      "why": "Faithful: names a coherent fragment, replaces the call site, and folds N recurrences onto one helper -- realizing the book's explicit look-for-similar-code de-duplication step; behavior preserved (tests green each step)."
+    },
+    {
+      "cell": "p2",
+      "arm": "no_skill",
+      "run": 3,
+      "book": "Fowler",
+      "named_refactoring": "Extract Function",
+      "verdict": "pass",
+      "why": "Faithful: names a coherent fragment, replaces the call site, and folds N recurrences onto one helper -- realizing the book's explicit look-for-similar-code de-duplication step; behavior preserved (tests green each step)."
+    },
+    {
+      "cell": "p8",
+      "arm": "with_skill",
+      "run": 1,
+      "book": "Fowler",
+      "named_refactoring": "Extract Function",
+      "verdict": "pass",
+      "why": "Faithful: names a coherent fragment, replaces the call site, and folds N recurrences onto one helper -- realizing the book's explicit look-for-similar-code de-duplication step; behavior preserved (tests green each step)."
+    },
+    {
+      "cell": "p8",
+      "arm": "with_skill",
+      "run": 2,
+      "book": "Fowler",
+      "named_refactoring": "Extract Function",
+      "verdict": "pass",
+      "why": "Faithful: names a coherent fragment, replaces the call site, and folds N recurrences onto one helper -- realizing the book's explicit look-for-similar-code de-duplication step; behavior preserved (tests green each step)."
+    },
+    {
+      "cell": "p8",
+      "arm": "with_skill",
+      "run": 3,
+      "book": "Fowler",
+      "named_refactoring": "Extract Function",
+      "verdict": "pass",
+      "why": "Faithful: names a coherent fragment, replaces the call site, and folds N recurrences onto one helper -- realizing the book's explicit look-for-similar-code de-duplication step; behavior preserved (tests green each step)."
+    },
+    {
+      "cell": "p8",
+      "arm": "no_skill",
+      "run": 1,
+      "book": "Fowler",
+      "named_refactoring": "Extract Function",
+      "verdict": "pass",
+      "why": "Faithful: names a coherent fragment, replaces the call site, and folds N recurrences onto one helper -- realizing the book's explicit look-for-similar-code de-duplication step; behavior preserved (tests green each step)."
+    },
+    {
+      "cell": "p8",
+      "arm": "no_skill",
+      "run": 2,
+      "book": "Fowler",
+      "named_refactoring": "Extract Function",
+      "verdict": "pass",
+      "why": "Faithful: names a coherent fragment, replaces the call site, and folds N recurrences onto one helper -- realizing the book's explicit look-for-similar-code de-duplication step; behavior preserved (tests green each step)."
+    },
+    {
+      "cell": "p8",
+      "arm": "no_skill",
+      "run": 3,
+      "book": "Fowler",
+      "named_refactoring": "Extract Function",
+      "verdict": "pass",
+      "why": "Faithful: names a coherent fragment, replaces the call site, and folds N recurrences onto one helper -- realizing the book's explicit look-for-similar-code de-duplication step; behavior preserved (tests green each step)."
+    },
+    {
+      "cell": "gr1",
+      "arm": "with_skill",
+      "run": 1,
+      "book": "Fowler",
+      "named_refactoring": "Extract Function",
+      "verdict": "pass",
+      "why": "Faithful: names a coherent fragment, replaces the call site, and folds N recurrences onto one helper -- realizing the book's explicit look-for-similar-code de-duplication step; behavior preserved (tests green each step)."
+    },
+    {
+      "cell": "gr1",
+      "arm": "with_skill",
+      "run": 2,
+      "book": "Fowler",
+      "named_refactoring": "Extract Function",
+      "verdict": "pass",
+      "why": "Faithful: names a coherent fragment, replaces the call site, and folds N recurrences onto one helper -- realizing the book's explicit look-for-similar-code de-duplication step; behavior preserved (tests green each step)."
+    },
+    {
+      "cell": "gr1",
+      "arm": "with_skill",
+      "run": 2,
+      "book": "Kerievsky",
+      "named_refactoring": "Replace Conditional Logic with Strategy",
+      "verdict": "pass",
+      "why": "Realizes the target smell + composition-based delegation + per-variant strategy classes + context-passed data + external outfitting; the name->updater lookup is a legitimate factory-equivalent selection, not a departure. (Item left untouched per the kata rule -- exactly the compose-over-subclass scenario the book favors.)"
+    },
+    {
+      "cell": "gr1",
+      "arm": "with_skill",
+      "run": 3,
+      "book": "Fowler",
+      "named_refactoring": "Extract Function",
+      "verdict": "pass",
+      "why": "Faithful: names a coherent fragment, replaces the call site, and folds N recurrences onto one helper -- realizing the book's explicit look-for-similar-code de-duplication step; behavior preserved (tests green each step)."
+    },
+    {
+      "cell": "gr1",
+      "arm": "with_skill",
+      "run": 3,
+      "book": "Fowler",
+      "named_refactoring": "Replace Nested Conditional with Guard Clauses",
+      "verdict": "pass",
+      "why": "Canonical: up-to-5-level pyramids become early returns; the never-changing legendary case short-circuits immediately, leaving the main path flat."
+    },
+    {
+      "cell": "gr1",
+      "arm": "invoke_skill",
+      "run": 1,
+      "book": "Fowler",
+      "named_refactoring": "Extract Function",
+      "verdict": "pass",
+      "why": "Faithful: names a coherent fragment, replaces the call site, and folds N recurrences onto one helper -- realizing the book's explicit look-for-similar-code de-duplication step; behavior preserved (tests green each step)."
+    },
+    {
+      "cell": "gr1",
+      "arm": "invoke_skill",
+      "run": 1,
+      "book": "Fowler",
+      "named_refactoring": "Decompose Conditional",
+      "verdict": "pass",
+      "why": "Faithful special case of Extract Function: condition and each leg become intention-named helpers; stays function-level, not a class hierarchy."
+    },
+    {
+      "cell": "gr1",
+      "arm": "invoke_skill",
+      "run": 1,
+      "book": "Fowler",
+      "named_refactoring": "Consolidate Conditional Expression",
+      "verdict": "pass",
+      "why": "Exact transformation: several same-result checks merged into one combined condition; the optional Extract-Function follow-up is omitted but that is explicitly optional."
+    },
+    {
+      "cell": "gr1",
+      "arm": "invoke_skill",
+      "run": 1,
+      "book": "Fowler",
+      "named_refactoring": "Replace Nested Conditional with Guard Clauses",
+      "verdict": "pass",
+      "why": "Canonical: up-to-5-level pyramids become early returns; the never-changing legendary case short-circuits immediately, leaving the main path flat."
+    },
+    {
+      "cell": "gr1",
+      "arm": "invoke_skill",
+      "run": 1,
+      "book": "Fowler",
+      "named_refactoring": "Replace Magic Literal with Symbolic Constant",
+      "verdict": "pass",
+      "why": "Correct-in-principle behavior-preserving substitution of repeated literals with intention-named constants. Caveat: not a dedicated named refactoring in the Fowler 2nd-ed catalog (online-only); graded against the book's general symbolic-constant/naming stance."
+    },
+    {
+      "cell": "gr1",
+      "arm": "invoke_skill",
+      "run": 2,
+      "book": "Fowler",
+      "named_refactoring": "Extract Variable",
+      "verdict": "pass",
+      "why": "Realizes the core intent (name a repeated subexpression, replace uses, behavior preserved); minor: introduced via a for-of element rather than a const-copy statement."
+    },
+    {
+      "cell": "gr1",
+      "arm": "invoke_skill",
+      "run": 2,
+      "book": "Fowler",
+      "named_refactoring": "Extract Function",
+      "verdict": "pass",
+      "why": "Faithful: names a coherent fragment, replaces the call site, and folds N recurrences onto one helper -- realizing the book's explicit look-for-similar-code de-duplication step; behavior preserved (tests green each step)."
+    },
+    {
+      "cell": "gr1",
+      "arm": "invoke_skill",
+      "run": 3,
+      "book": "Fowler",
+      "named_refactoring": "Extract Variable",
+      "verdict": "pass",
+      "why": "Realizes the core intent (name a repeated subexpression, replace uses, behavior preserved); minor: introduced via a for-of element rather than a const-copy statement."
+    },
+    {
+      "cell": "gr1",
+      "arm": "no_skill",
+      "run": 1,
+      "book": "Fowler",
+      "named_refactoring": "Extract Function",
+      "verdict": "pass",
+      "why": "Faithful: names a coherent fragment, replaces the call site, and folds N recurrences onto one helper -- realizing the book's explicit look-for-similar-code de-duplication step; behavior preserved (tests green each step)."
+    },
+    {
+      "cell": "gr1",
+      "arm": "no_skill",
+      "run": 1,
+      "book": "Fowler",
+      "named_refactoring": "Replace Nested Conditional with Guard Clauses",
+      "verdict": "pass",
+      "why": "Canonical: up-to-5-level pyramids become early returns; the never-changing legendary case short-circuits immediately, leaving the main path flat."
+    },
+    {
+      "cell": "gr1",
+      "arm": "no_skill",
+      "run": 1,
+      "book": "Fowler",
+      "named_refactoring": "Replace Magic Literal with Symbolic Constant",
+      "verdict": "pass",
+      "why": "Correct-in-principle behavior-preserving substitution of repeated literals with intention-named constants. Caveat: not a dedicated named refactoring in the Fowler 2nd-ed catalog (online-only); graded against the book's general symbolic-constant/naming stance."
+    },
+    {
+      "cell": "gr1",
+      "arm": "no_skill",
+      "run": 2,
+      "book": "Fowler",
+      "named_refactoring": "Extract Function",
+      "verdict": "pass",
+      "why": "Faithful: names a coherent fragment, replaces the call site, and folds N recurrences onto one helper -- realizing the book's explicit look-for-similar-code de-duplication step; behavior preserved (tests green each step)."
+    },
+    {
+      "cell": "gr1",
+      "arm": "no_skill",
+      "run": 3,
+      "book": "Fowler",
+      "named_refactoring": "Extract Function",
+      "verdict": "pass",
+      "why": "Faithful: names a coherent fragment, replaces the call site, and folds N recurrences onto one helper -- realizing the book's explicit look-for-similar-code de-duplication step; behavior preserved (tests green each step)."
+    },
+    {
+      "cell": "gr1",
+      "arm": "no_skill",
+      "run": 3,
+      "book": "Fowler",
+      "named_refactoring": "Decompose Conditional",
+      "verdict": "pass",
+      "why": "Faithful special case of Extract Function: condition and each leg become intention-named helpers; stays function-level, not a class hierarchy."
+    },
+    {
+      "cell": "gr1",
+      "arm": "no_skill",
+      "run": 3,
+      "book": "Fowler",
+      "named_refactoring": "Replace Magic Literal with Symbolic Constant",
+      "verdict": "pass",
+      "why": "Correct-in-principle behavior-preserving substitution of repeated literals with intention-named constants. Caveat: not a dedicated named refactoring in the Fowler 2nd-ed catalog (online-only); graded against the book's general symbolic-constant/naming stance."
+    },
+    {
+      "cell": "gr1",
+      "arm": "no_skill",
+      "run": 3,
+      "book": "Fowler",
+      "named_refactoring": "Replace Nested Conditional with Guard Clauses",
+      "verdict": "pass",
+      "why": "Canonical: up-to-5-level pyramids become early returns; the never-changing legendary case short-circuits immediately, leaving the main path flat."
+    },
+    {
+      "cell": "gr4",
+      "arm": "with_skill",
+      "run": 1,
+      "book": "Fowler",
+      "named_refactoring": "Extract Function",
+      "verdict": "pass",
+      "why": "Faithful: names a coherent fragment, replaces the call site, and folds N recurrences onto one helper -- realizing the book's explicit look-for-similar-code de-duplication step; behavior preserved (tests green each step)."
+    },
+    {
+      "cell": "gr4",
+      "arm": "with_skill",
+      "run": 1,
+      "book": "Fowler",
+      "named_refactoring": "Decompose Conditional",
+      "verdict": "pass",
+      "why": "Faithful special case of Extract Function: condition and each leg become intention-named helpers; stays function-level, not a class hierarchy."
+    },
+    {
+      "cell": "gr4",
+      "arm": "with_skill",
+      "run": 1,
+      "book": "Fowler",
+      "named_refactoring": "Replace Nested Conditional with Guard Clauses",
+      "verdict": "pass",
+      "why": "Canonical: up-to-5-level pyramids become early returns; the never-changing legendary case short-circuits immediately, leaving the main path flat."
+    },
+    {
+      "cell": "gr4",
+      "arm": "with_skill",
+      "run": 1,
+      "book": "Fowler",
+      "named_refactoring": "Replace Magic Literal with Symbolic Constant",
+      "verdict": "pass",
+      "why": "Correct-in-principle behavior-preserving substitution of repeated literals with intention-named constants. Caveat: not a dedicated named refactoring in the Fowler 2nd-ed catalog (online-only); graded against the book's general symbolic-constant/naming stance."
+    },
+    {
+      "cell": "gr4",
+      "arm": "with_skill",
+      "run": 2,
+      "book": "Fowler",
+      "named_refactoring": "Extract Function",
+      "verdict": "pass",
+      "why": "Faithful: names a coherent fragment, replaces the call site, and folds N recurrences onto one helper -- realizing the book's explicit look-for-similar-code de-duplication step; behavior preserved (tests green each step)."
+    },
+    {
+      "cell": "gr4",
+      "arm": "with_skill",
+      "run": 2,
+      "book": "Fowler",
+      "named_refactoring": "Decompose Conditional",
+      "verdict": "pass",
+      "why": "Faithful special case of Extract Function: condition and each leg become intention-named helpers; stays function-level, not a class hierarchy."
+    },
+    {
+      "cell": "gr4",
+      "arm": "with_skill",
+      "run": 2,
+      "book": "Fowler",
+      "named_refactoring": "Replace Nested Conditional with Guard Clauses",
+      "verdict": "pass",
+      "why": "Canonical: up-to-5-level pyramids become early returns; the never-changing legendary case short-circuits immediately, leaving the main path flat."
+    },
+    {
+      "cell": "gr4",
+      "arm": "with_skill",
+      "run": 2,
+      "book": "Fowler",
+      "named_refactoring": "Replace Magic Literal with Symbolic Constant",
+      "verdict": "pass",
+      "why": "Correct-in-principle behavior-preserving substitution of repeated literals with intention-named constants. Caveat: not a dedicated named refactoring in the Fowler 2nd-ed catalog (online-only); graded against the book's general symbolic-constant/naming stance."
+    },
+    {
+      "cell": "gr4",
+      "arm": "with_skill",
+      "run": 3,
+      "book": "Fowler",
+      "named_refactoring": "Extract Function",
+      "verdict": "pass",
+      "why": "Faithful: names a coherent fragment, replaces the call site, and folds N recurrences onto one helper -- realizing the book's explicit look-for-similar-code de-duplication step; behavior preserved (tests green each step)."
+    },
+    {
+      "cell": "gr4",
+      "arm": "with_skill",
+      "run": 3,
+      "book": "Fowler",
+      "named_refactoring": "Decompose Conditional",
+      "verdict": "pass",
+      "why": "Faithful special case of Extract Function: condition and each leg become intention-named helpers; stays function-level, not a class hierarchy."
+    },
+    {
+      "cell": "gr4",
+      "arm": "with_skill",
+      "run": 3,
+      "book": "Fowler",
+      "named_refactoring": "Replace Nested Conditional with Guard Clauses",
+      "verdict": "pass",
+      "why": "Canonical: up-to-5-level pyramids become early returns; the never-changing legendary case short-circuits immediately, leaving the main path flat."
+    },
+    {
+      "cell": "gr4",
+      "arm": "with_skill",
+      "run": 3,
+      "book": "Fowler",
+      "named_refactoring": "Replace Magic Literal with Symbolic Constant",
+      "verdict": "pass",
+      "why": "Correct-in-principle behavior-preserving substitution of repeated literals with intention-named constants. Caveat: not a dedicated named refactoring in the Fowler 2nd-ed catalog (online-only); graded against the book's general symbolic-constant/naming stance."
+    },
+    {
+      "cell": "gr4",
+      "arm": "no_skill",
+      "run": 1,
+      "book": "Fowler",
+      "named_refactoring": "Extract Function",
+      "verdict": "pass",
+      "why": "Faithful: names a coherent fragment, replaces the call site, and folds N recurrences onto one helper -- realizing the book's explicit look-for-similar-code de-duplication step; behavior preserved (tests green each step)."
+    },
+    {
+      "cell": "gr4",
+      "arm": "no_skill",
+      "run": 1,
+      "book": "Fowler",
+      "named_refactoring": "Decompose Conditional",
+      "verdict": "pass",
+      "why": "Faithful special case of Extract Function: condition and each leg become intention-named helpers; stays function-level, not a class hierarchy."
+    },
+    {
+      "cell": "gr4",
+      "arm": "no_skill",
+      "run": 1,
+      "book": "Fowler",
+      "named_refactoring": "Replace Nested Conditional with Guard Clauses",
+      "verdict": "pass",
+      "why": "Canonical: up-to-5-level pyramids become early returns; the never-changing legendary case short-circuits immediately, leaving the main path flat."
+    },
+    {
+      "cell": "gr4",
+      "arm": "no_skill",
+      "run": 1,
+      "book": "Fowler",
+      "named_refactoring": "Replace Magic Literal with Symbolic Constant",
+      "verdict": "pass",
+      "why": "Correct-in-principle behavior-preserving substitution of repeated literals with intention-named constants. Caveat: not a dedicated named refactoring in the Fowler 2nd-ed catalog (online-only); graded against the book's general symbolic-constant/naming stance."
+    },
+    {
+      "cell": "gr4",
+      "arm": "no_skill",
+      "run": 2,
+      "book": "Fowler",
+      "named_refactoring": "Extract Function",
+      "verdict": "pass",
+      "why": "Faithful: names a coherent fragment, replaces the call site, and folds N recurrences onto one helper -- realizing the book's explicit look-for-similar-code de-duplication step; behavior preserved (tests green each step)."
+    },
+    {
+      "cell": "gr4",
+      "arm": "no_skill",
+      "run": 2,
+      "book": "Fowler",
+      "named_refactoring": "Decompose Conditional",
+      "verdict": "pass",
+      "why": "Faithful special case of Extract Function: condition and each leg become intention-named helpers; stays function-level, not a class hierarchy."
+    },
+    {
+      "cell": "gr4",
+      "arm": "no_skill",
+      "run": 2,
+      "book": "Fowler",
+      "named_refactoring": "Replace Nested Conditional with Guard Clauses",
+      "verdict": "pass",
+      "why": "Canonical: up-to-5-level pyramids become early returns; the never-changing legendary case short-circuits immediately, leaving the main path flat."
+    },
+    {
+      "cell": "gr4",
+      "arm": "no_skill",
+      "run": 2,
+      "book": "Fowler",
+      "named_refactoring": "Replace Magic Literal with Symbolic Constant",
+      "verdict": "pass",
+      "why": "Correct-in-principle behavior-preserving substitution of repeated literals with intention-named constants. Caveat: not a dedicated named refactoring in the Fowler 2nd-ed catalog (online-only); graded against the book's general symbolic-constant/naming stance."
+    },
+    {
+      "cell": "gr4",
+      "arm": "no_skill",
+      "run": 3,
+      "book": "Fowler",
+      "named_refactoring": "Extract Function",
+      "verdict": "pass",
+      "why": "Faithful: names a coherent fragment, replaces the call site, and folds N recurrences onto one helper -- realizing the book's explicit look-for-similar-code de-duplication step; behavior preserved (tests green each step)."
+    },
+    {
+      "cell": "gr4",
+      "arm": "no_skill",
+      "run": 3,
+      "book": "Fowler",
+      "named_refactoring": "Decompose Conditional",
+      "verdict": "pass",
+      "why": "Faithful special case of Extract Function: condition and each leg become intention-named helpers; stays function-level, not a class hierarchy."
+    },
+    {
+      "cell": "gr4",
+      "arm": "no_skill",
+      "run": 3,
+      "book": "Fowler",
+      "named_refactoring": "Replace Nested Conditional with Guard Clauses",
+      "verdict": "pass",
+      "why": "Canonical: up-to-5-level pyramids become early returns; the never-changing legendary case short-circuits immediately, leaving the main path flat."
+    },
+    {
+      "cell": "gr4",
+      "arm": "no_skill",
+      "run": 3,
+      "book": "Fowler",
+      "named_refactoring": "Replace Magic Literal with Symbolic Constant",
+      "verdict": "pass",
+      "why": "Correct-in-principle behavior-preserving substitution of repeated literals with intention-named constants. Caveat: not a dedicated named refactoring in the Fowler 2nd-ed catalog (online-only); graded against the book's general symbolic-constant/naming stance."
+    }
+  ],
+  "tallies": [
+    {
+      "cell": "gr1",
+      "arm": "invoke_skill",
+      "claims": 8,
+      "runs_graded": 3,
+      "runs_na": 0,
+      "pass": 3,
+      "partial": 0,
+      "fail": 0,
+      "run_results": [
+        {
+          "run": 1,
+          "fidelity": "pass"
+        },
+        {
+          "run": 2,
+          "fidelity": "pass"
+        },
+        {
+          "run": 3,
+          "fidelity": "pass"
+        }
+      ],
+      "passk": {
+        "n": 3,
+        "c": 3,
+        "passAt1": 1,
+        "passAt3": 1,
+        "passHat3": 1
+      }
+    },
+    {
+      "cell": "gr1",
+      "arm": "no_skill",
+      "claims": 8,
+      "runs_graded": 3,
+      "runs_na": 0,
+      "pass": 3,
+      "partial": 0,
+      "fail": 0,
+      "run_results": [
+        {
+          "run": 1,
+          "fidelity": "pass"
+        },
+        {
+          "run": 2,
+          "fidelity": "pass"
+        },
+        {
+          "run": 3,
+          "fidelity": "pass"
+        }
+      ],
+      "passk": {
+        "n": 3,
+        "c": 3,
+        "passAt1": 1,
+        "passAt3": 1,
+        "passHat3": 1
+      }
+    },
+    {
+      "cell": "gr1",
+      "arm": "with_skill",
+      "claims": 5,
+      "runs_graded": 3,
+      "runs_na": 0,
+      "pass": 3,
+      "partial": 0,
+      "fail": 0,
+      "run_results": [
+        {
+          "run": 1,
+          "fidelity": "pass"
+        },
+        {
+          "run": 2,
+          "fidelity": "pass"
+        },
+        {
+          "run": 3,
+          "fidelity": "pass"
+        }
+      ],
+      "passk": {
+        "n": 3,
+        "c": 3,
+        "passAt1": 1,
+        "passAt3": 1,
+        "passHat3": 1
+      }
+    },
+    {
+      "cell": "gr4",
+      "arm": "no_skill",
+      "claims": 12,
+      "runs_graded": 3,
+      "runs_na": 0,
+      "pass": 3,
+      "partial": 0,
+      "fail": 0,
+      "run_results": [
+        {
+          "run": 1,
+          "fidelity": "pass"
+        },
+        {
+          "run": 2,
+          "fidelity": "pass"
+        },
+        {
+          "run": 3,
+          "fidelity": "pass"
+        }
+      ],
+      "passk": {
+        "n": 3,
+        "c": 3,
+        "passAt1": 1,
+        "passAt3": 1,
+        "passHat3": 1
+      }
+    },
+    {
+      "cell": "gr4",
+      "arm": "with_skill",
+      "claims": 12,
+      "runs_graded": 3,
+      "runs_na": 0,
+      "pass": 3,
+      "partial": 0,
+      "fail": 0,
+      "run_results": [
+        {
+          "run": 1,
+          "fidelity": "pass"
+        },
+        {
+          "run": 2,
+          "fidelity": "pass"
+        },
+        {
+          "run": 3,
+          "fidelity": "pass"
+        }
+      ],
+      "passk": {
+        "n": 3,
+        "c": 3,
+        "passAt1": 1,
+        "passAt3": 1,
+        "passHat3": 1
+      }
+    },
+    {
+      "cell": "p1",
+      "arm": "no_skill",
+      "claims": 3,
+      "runs_graded": 3,
+      "runs_na": 0,
+      "pass": 3,
+      "partial": 0,
+      "fail": 0,
+      "run_results": [
+        {
+          "run": 1,
+          "fidelity": "pass"
+        },
+        {
+          "run": 2,
+          "fidelity": "pass"
+        },
+        {
+          "run": 3,
+          "fidelity": "pass"
+        }
+      ],
+      "passk": {
+        "n": 3,
+        "c": 3,
+        "passAt1": 1,
+        "passAt3": 1,
+        "passHat3": 1
+      }
+    },
+    {
+      "cell": "p1",
+      "arm": "with_skill",
+      "claims": 3,
+      "runs_graded": 3,
+      "runs_na": 0,
+      "pass": 3,
+      "partial": 0,
+      "fail": 0,
+      "run_results": [
+        {
+          "run": 1,
+          "fidelity": "pass"
+        },
+        {
+          "run": 2,
+          "fidelity": "pass"
+        },
+        {
+          "run": 3,
+          "fidelity": "pass"
+        }
+      ],
+      "passk": {
+        "n": 3,
+        "c": 3,
+        "passAt1": 1,
+        "passAt3": 1,
+        "passHat3": 1
+      }
+    },
+    {
+      "cell": "p2",
+      "arm": "no_skill",
+      "claims": 3,
+      "runs_graded": 3,
+      "runs_na": 0,
+      "pass": 3,
+      "partial": 0,
+      "fail": 0,
+      "run_results": [
+        {
+          "run": 1,
+          "fidelity": "pass"
+        },
+        {
+          "run": 2,
+          "fidelity": "pass"
+        },
+        {
+          "run": 3,
+          "fidelity": "pass"
+        }
+      ],
+      "passk": {
+        "n": 3,
+        "c": 3,
+        "passAt1": 1,
+        "passAt3": 1,
+        "passHat3": 1
+      }
+    },
+    {
+      "cell": "p2",
+      "arm": "with_skill",
+      "claims": 2,
+      "runs_graded": 2,
+      "runs_na": 1,
+      "pass": 2,
+      "partial": 0,
+      "fail": 0,
+      "run_results": [
+        {
+          "run": 1,
+          "fidelity": "pass"
+        },
+        {
+          "run": 2,
+          "fidelity": "pass"
+        },
+        {
+          "run": 3,
+          "fidelity": "N/A"
+        }
+      ],
+      "passk": {
+        "n": 2,
+        "c": 2,
+        "passAt1": 1,
+        "passAt3": null,
+        "passHat3": null
+      }
+    },
+    {
+      "cell": "p8",
+      "arm": "no_skill",
+      "claims": 3,
+      "runs_graded": 3,
+      "runs_na": 0,
+      "pass": 3,
+      "partial": 0,
+      "fail": 0,
+      "run_results": [
+        {
+          "run": 1,
+          "fidelity": "pass"
+        },
+        {
+          "run": 2,
+          "fidelity": "pass"
+        },
+        {
+          "run": 3,
+          "fidelity": "pass"
+        }
+      ],
+      "passk": {
+        "n": 3,
+        "c": 3,
+        "passAt1": 1,
+        "passAt3": 1,
+        "passHat3": 1
+      }
+    },
+    {
+      "cell": "p8",
+      "arm": "with_skill",
+      "claims": 3,
+      "runs_graded": 3,
+      "runs_na": 0,
+      "pass": 3,
+      "partial": 0,
+      "fail": 0,
+      "run_results": [
+        {
+          "run": 1,
+          "fidelity": "pass"
+        },
+        {
+          "run": 2,
+          "fidelity": "pass"
+        },
+        {
+          "run": 3,
+          "fidelity": "pass"
+        }
+      ],
+      "passk": {
+        "n": 3,
+        "c": 3,
+        "passAt1": 1,
+        "passAt3": 1,
+        "passHat3": 1
+      }
+    }
+  ]
+}

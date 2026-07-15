@@ -1,0 +1,569 @@
+[
+  {
+    "cell": "p1",
+    "arm": "with_skill",
+    "run": 1,
+    "book": "Fowler",
+    "named_refactoring": "Extract Function",
+    "file_symbol": "enforce-module-boundaries.ts:run",
+    "functional_change": "extracted 2 inline autofix closures to named helpers (fixImportAcrossLibraries, fixSelfCircularDependency) + node-union type alias; run ~530->245 lines, tests green"
+  },
+  {
+    "cell": "p1",
+    "arm": "with_skill",
+    "run": 2,
+    "book": "Fowler",
+    "named_refactoring": "Extract Function",
+    "file_symbol": "enforce-module-boundaries.ts:run",
+    "functional_change": "extracted 2 autofix closures (fixCrossProjectImport, fixSelfCircularImport); run 530->388, 63/63 green"
+  },
+  {
+    "cell": "p1",
+    "arm": "with_skill",
+    "run": 3,
+    "book": "Fowler",
+    "named_refactoring": "Extract Function",
+    "file_symbol": "enforce-module-boundaries.ts:run",
+    "functional_change": "extracted resolveWildcardEntryPoint from a fix closure; behavior identical, tests green"
+  },
+  {
+    "cell": "p1",
+    "arm": "no_skill",
+    "run": 1,
+    "book": "Fowler",
+    "named_refactoring": "Extract Function",
+    "file_symbol": "enforce-module-boundaries.ts:run",
+    "functional_change": "extracted 2 fix-factory helpers + type alias, flattened nested ifs to early-returns; run 530->368, 63/63"
+  },
+  {
+    "cell": "p1",
+    "arm": "no_skill",
+    "run": 2,
+    "book": "Fowler",
+    "named_refactoring": "Extract Function",
+    "file_symbol": "enforce-module-boundaries.ts:run",
+    "functional_change": "extracted getSourceTag dedup (5 sites) + 2 fix-factory helpers across 2 files; 63/63 green"
+  },
+  {
+    "cell": "p1",
+    "arm": "no_skill",
+    "run": 3,
+    "book": "Fowler",
+    "named_refactoring": "Extract Function",
+    "file_symbol": "enforce-module-boundaries.ts:run",
+    "functional_change": "getSourceTag dedup + 2 fix factories hoisted + checkDepConstraints extracted; run now flat guard sequence, 63/63"
+  },
+  {
+    "cell": "p2",
+    "arm": "with_skill",
+    "run": 1,
+    "book": "Fowler",
+    "named_refactoring": "Extract Function",
+    "file_symbol": "nx-plugin-checks.ts:validateEntry",
+    "functional_change": "extracted validateSchemaNode + validateVersionNode; correctly declined Replace Conditional with Polymorphism (modes collapse to migration-vs-not); 7/7"
+  },
+  {
+    "cell": "p2",
+    "arm": "with_skill",
+    "run": 2,
+    "book": "Fowler",
+    "named_refactoring": "Extract Function",
+    "file_symbol": "nx-plugin-checks.ts:validateEntry",
+    "functional_change": "extracted validateSchemaNode + validateVersionNode (collapsed else/if); declined class hierarchy for Repeated Switches; 7/7"
+  },
+  {
+    "cell": "p2",
+    "arm": "with_skill",
+    "run": 3,
+    "book": null,
+    "named_refactoring": "none applied",
+    "file_symbol": "nx-plugin-checks.ts:validateEntry",
+    "functional_change": "QUESTION/advise-only: recommended Extract Function first + a data table over classes; NO code applied (empty diff)"
+  },
+  {
+    "cell": "p2",
+    "arm": "no_skill",
+    "run": 1,
+    "book": "Fowler",
+    "named_refactoring": "Extract Function",
+    "file_symbol": "nx-plugin-checks.ts:validateEntry",
+    "functional_change": "extracted validateSchemaNode + validateVersionNode (collapsed redundant conditional); declined polymorphism; 7/7"
+  },
+  {
+    "cell": "p2",
+    "arm": "no_skill",
+    "run": 2,
+    "book": "Fowler",
+    "named_refactoring": "Extract Function",
+    "file_symbol": "nx-plugin-checks.ts:validateEntry",
+    "functional_change": "extracted 3 validate*Node helpers, validateEntry now 6-line orchestrator; declined class hierarchy; 7/7"
+  },
+  {
+    "cell": "p2",
+    "arm": "no_skill",
+    "run": 3,
+    "book": "Fowler",
+    "named_refactoring": "Extract Function",
+    "file_symbol": "nx-plugin-checks.ts:validateEntry",
+    "functional_change": "extracted validateSchemaNode + validateVersionNode, 4-step orchestrator; declined polymorphism; 7/7"
+  },
+  {
+    "cell": "p8",
+    "arm": "with_skill",
+    "run": 1,
+    "book": "Fowler",
+    "named_refactoring": "Extract Function",
+    "file_symbol": "@nx/eslint-plugin (5 files)",
+    "functional_change": "Extract Function/dedup: getSourceTags, findJsonPropertyByKey (11 sites), getContextFileName (8 sites), getImportMembers, parseSourceFile+findIdentifierNodes; declined GoF/strategy; PAUSED on untested configs/ duplication; 169/15 baseline held"
+  },
+  {
+    "cell": "p8",
+    "arm": "with_skill",
+    "run": 2,
+    "book": "Fowler",
+    "named_refactoring": "Extract Function",
+    "file_symbol": "@nx/eslint-plugin (6 files)",
+    "functional_change": "Extract Function/dedup across 6 files (ensureReachInitialized, getSourceTag, generic visit(), findJsonProperty, DEPENDENCY_SECTIONS); declined type-code polymorphism (adds class per code, removes 0 dup); PAUSED on untested flat-configs duplication; baseline held"
+  },
+  {
+    "cell": "p8",
+    "arm": "with_skill",
+    "run": 3,
+    "book": "Fowler",
+    "named_refactoring": "Extract Function",
+    "file_symbol": "@nx/eslint-plugin (3 files)",
+    "functional_change": "Extract Function/dedup (findJsonProperty, getFileName, getSourceTag, getImportSpecifierMembers); self-caught+fixed an accidental infinite-recursion from replace_all; declined patterns; baseline held"
+  },
+  {
+    "cell": "p8",
+    "arm": "no_skill",
+    "run": 1,
+    "book": "Fowler",
+    "named_refactoring": "Extract Function",
+    "file_symbol": "@nx/eslint-plugin (5 files)",
+    "functional_change": "Extract Function/dedup (getSourceTag 5 sites, runForSourceNode for 4 identical visitors, ensureReach, findProperty 11 sites, DEPENDENCY_SECTIONS); left invasive rule-body extractions alone; 169/15 held"
+  },
+  {
+    "cell": "p8",
+    "arm": "no_skill",
+    "run": 2,
+    "book": "Fowler",
+    "named_refactoring": "Extract Function",
+    "file_symbol": "@nx/eslint-plugin (5 files)",
+    "functional_change": "Extract Function/dedup (ensureReachCache, getConstraintSourceTagText, generic visit(), getContextFileName 8 sites); left 530-line run() alone (needs more than mechanical); baseline held"
+  },
+  {
+    "cell": "p8",
+    "arm": "no_skill",
+    "run": 3,
+    "book": "Fowler",
+    "named_refactoring": "Extract Function",
+    "file_symbol": "@nx/eslint-plugin (5 files)",
+    "functional_change": "Extract Function/dedup (ensureReachMatrix, getSourceTags, stringifySourceTags 5 sites, findJsonProperty ~10 sites, DEPENDENCY_SECTIONS); -107/+87 lines; baseline held"
+  },
+  {
+    "cell": "gr1",
+    "arm": "with_skill",
+    "run": 1,
+    "book": "Fowler",
+    "named_refactoring": "Extract Function",
+    "file_symbol": "gilded-rose.ts:updateQuality",
+    "functional_change": "extracted updateItem from the loop; proposed Decompose Conditional -> Replace Conditional with Polymorphism next (coach stopped-and-asked); golden master green"
+  },
+  {
+    "cell": "gr1",
+    "arm": "with_skill",
+    "run": 2,
+    "book": "Fowler",
+    "named_refactoring": "Extract Function",
+    "file_symbol": "gilded-rose.ts:updateQuality",
+    "functional_change": "Extract Function updateItem, then applied Replace Conditional Logic with Strategy (Kerievsky): ItemUpdater interface + one updater class per item type + name->updater lookup + named MIN/MAX constants; Item left untouched (kata rule); golden master green"
+  },
+  {
+    "cell": "gr1",
+    "arm": "with_skill",
+    "run": 2,
+    "book": "Kerievsky",
+    "named_refactoring": "Replace Conditional Logic with Strategy",
+    "file_symbol": "gilded-rose.ts:updateQuality",
+    "functional_change": "Extract Function updateItem, then applied Replace Conditional Logic with Strategy (Kerievsky): ItemUpdater interface + one updater class per item type + name->updater lookup + named MIN/MAX constants; Item left untouched (kata rule); golden master green"
+  },
+  {
+    "cell": "gr1",
+    "arm": "with_skill",
+    "run": 3,
+    "book": "Fowler",
+    "named_refactoring": "Extract Function",
+    "file_symbol": "gilded-rose.ts:updateQuality",
+    "functional_change": "Extract Function updateItem + Sulfuras guard clause; PAUSED before Strategy (asked shape/scope); golden master green"
+  },
+  {
+    "cell": "gr1",
+    "arm": "with_skill",
+    "run": 3,
+    "book": "Fowler",
+    "named_refactoring": "Replace Nested Conditional with Guard Clauses",
+    "file_symbol": "gilded-rose.ts:updateQuality",
+    "functional_change": "Extract Function updateItem + Sulfuras guard clause; PAUSED before Strategy (asked shape/scope); golden master green"
+  },
+  {
+    "cell": "gr1",
+    "arm": "invoke_skill",
+    "run": 1,
+    "book": "Fowler",
+    "named_refactoring": "Extract Function",
+    "file_symbol": "gilded-rose.ts:updateQuality",
+    "functional_change": "for-of + Extract Function updateItem + increase/decreaseQuality dedup + Decompose/Consolidate Conditional + Sulfuras guard + magic-literal constants; nesting 5->2; recommended but declined RCLS (3 checks do not yet earn it); golden master green"
+  },
+  {
+    "cell": "gr1",
+    "arm": "invoke_skill",
+    "run": 1,
+    "book": "Fowler",
+    "named_refactoring": "Decompose Conditional",
+    "file_symbol": "gilded-rose.ts:updateQuality",
+    "functional_change": "for-of + Extract Function updateItem + increase/decreaseQuality dedup + Decompose/Consolidate Conditional + Sulfuras guard + magic-literal constants; nesting 5->2; recommended but declined RCLS (3 checks do not yet earn it); golden master green"
+  },
+  {
+    "cell": "gr1",
+    "arm": "invoke_skill",
+    "run": 1,
+    "book": "Fowler",
+    "named_refactoring": "Consolidate Conditional Expression",
+    "file_symbol": "gilded-rose.ts:updateQuality",
+    "functional_change": "for-of + Extract Function updateItem + increase/decreaseQuality dedup + Decompose/Consolidate Conditional + Sulfuras guard + magic-literal constants; nesting 5->2; recommended but declined RCLS (3 checks do not yet earn it); golden master green"
+  },
+  {
+    "cell": "gr1",
+    "arm": "invoke_skill",
+    "run": 1,
+    "book": "Fowler",
+    "named_refactoring": "Replace Nested Conditional with Guard Clauses",
+    "file_symbol": "gilded-rose.ts:updateQuality",
+    "functional_change": "for-of + Extract Function updateItem + increase/decreaseQuality dedup + Decompose/Consolidate Conditional + Sulfuras guard + magic-literal constants; nesting 5->2; recommended but declined RCLS (3 checks do not yet earn it); golden master green"
+  },
+  {
+    "cell": "gr1",
+    "arm": "invoke_skill",
+    "run": 1,
+    "book": "Fowler",
+    "named_refactoring": "Replace Magic Literal with Symbolic Constant",
+    "file_symbol": "gilded-rose.ts:updateQuality",
+    "functional_change": "for-of + Extract Function updateItem + increase/decreaseQuality dedup + Decompose/Consolidate Conditional + Sulfuras guard + magic-literal constants; nesting 5->2; recommended but declined RCLS (3 checks do not yet earn it); golden master green"
+  },
+  {
+    "cell": "gr1",
+    "arm": "invoke_skill",
+    "run": 2,
+    "book": "Fowler",
+    "named_refactoring": "Extract Variable",
+    "file_symbol": "gilded-rose.ts:updateQuality",
+    "functional_change": "Extract Variable (for-of) + Extract Function updateItem; stopped before Strategy, recommended Decompose Conditional first; golden master green"
+  },
+  {
+    "cell": "gr1",
+    "arm": "invoke_skill",
+    "run": 2,
+    "book": "Fowler",
+    "named_refactoring": "Extract Function",
+    "file_symbol": "gilded-rose.ts:updateQuality",
+    "functional_change": "Extract Variable (for-of) + Extract Function updateItem; stopped before Strategy, recommended Decompose Conditional first; golden master green"
+  },
+  {
+    "cell": "gr1",
+    "arm": "invoke_skill",
+    "run": 3,
+    "book": "Fowler",
+    "named_refactoring": "Extract Variable",
+    "file_symbol": "gilded-rose.ts:updateQuality",
+    "functional_change": "Extract Variable (for-of item) + replaced dead fixme placeholder test with a real characterization test; roadmapped RCLS but stopped; golden master green"
+  },
+  {
+    "cell": "gr1",
+    "arm": "no_skill",
+    "run": 1,
+    "book": "Fowler",
+    "named_refactoring": "Extract Function",
+    "file_symbol": "gilded-rose.ts:updateQuality",
+    "functional_change": "Extract Function updateItem + guard clauses + increase/decreaseQuality clamp helpers + magic-string constants; Conjured left as normal; golden master green"
+  },
+  {
+    "cell": "gr1",
+    "arm": "no_skill",
+    "run": 1,
+    "book": "Fowler",
+    "named_refactoring": "Replace Nested Conditional with Guard Clauses",
+    "file_symbol": "gilded-rose.ts:updateQuality",
+    "functional_change": "Extract Function updateItem + guard clauses + increase/decreaseQuality clamp helpers + magic-string constants; Conjured left as normal; golden master green"
+  },
+  {
+    "cell": "gr1",
+    "arm": "no_skill",
+    "run": 1,
+    "book": "Fowler",
+    "named_refactoring": "Replace Magic Literal with Symbolic Constant",
+    "file_symbol": "gilded-rose.ts:updateQuality",
+    "functional_change": "Extract Function updateItem + guard clauses + increase/decreaseQuality clamp helpers + magic-string constants; Conjured left as normal; golden master green"
+  },
+  {
+    "cell": "gr1",
+    "arm": "no_skill",
+    "run": 2,
+    "book": "Fowler",
+    "named_refactoring": "Extract Function",
+    "file_symbol": "gilded-rose.ts:updateQuality",
+    "functional_change": "minimal prep extraction + proposed step plan; golden master green"
+  },
+  {
+    "cell": "gr1",
+    "arm": "no_skill",
+    "run": 3,
+    "book": "Fowler",
+    "named_refactoring": "Extract Function",
+    "file_symbol": "gilded-rose.ts:updateQuality",
+    "functional_change": "switch dispatch per item type + per-type methods (Extract Function) + magic constants + Sulfuras guard + clamp helpers; Item untouched; golden master green"
+  },
+  {
+    "cell": "gr1",
+    "arm": "no_skill",
+    "run": 3,
+    "book": "Fowler",
+    "named_refactoring": "Decompose Conditional",
+    "file_symbol": "gilded-rose.ts:updateQuality",
+    "functional_change": "switch dispatch per item type + per-type methods (Extract Function) + magic constants + Sulfuras guard + clamp helpers; Item untouched; golden master green"
+  },
+  {
+    "cell": "gr1",
+    "arm": "no_skill",
+    "run": 3,
+    "book": "Fowler",
+    "named_refactoring": "Replace Magic Literal with Symbolic Constant",
+    "file_symbol": "gilded-rose.ts:updateQuality",
+    "functional_change": "switch dispatch per item type + per-type methods (Extract Function) + magic constants + Sulfuras guard + clamp helpers; Item untouched; golden master green"
+  },
+  {
+    "cell": "gr1",
+    "arm": "no_skill",
+    "run": 3,
+    "book": "Fowler",
+    "named_refactoring": "Replace Nested Conditional with Guard Clauses",
+    "file_symbol": "gilded-rose.ts:updateQuality",
+    "functional_change": "switch dispatch per item type + per-type methods (Extract Function) + magic constants + Sulfuras guard + clamp helpers; Item untouched; golden master green"
+  },
+  {
+    "cell": "gr4",
+    "arm": "with_skill",
+    "run": 1,
+    "book": "Fowler",
+    "named_refactoring": "Extract Function",
+    "file_symbol": "gilded-rose.ts:updateQuality",
+    "functional_change": "Extract Function (updateItem, before/after-sell helpers, clamp helpers) + Decompose Conditional + guard clauses + symbolic constants; explicitly DECLINED Replace Conditional with Polymorphism on net cost (4 strategies+registry vs dup already cleared); Item untouched, zero blast radius; golden master byte-identical"
+  },
+  {
+    "cell": "gr4",
+    "arm": "with_skill",
+    "run": 1,
+    "book": "Fowler",
+    "named_refactoring": "Decompose Conditional",
+    "file_symbol": "gilded-rose.ts:updateQuality",
+    "functional_change": "Extract Function (updateItem, before/after-sell helpers, clamp helpers) + Decompose Conditional + guard clauses + symbolic constants; explicitly DECLINED Replace Conditional with Polymorphism on net cost (4 strategies+registry vs dup already cleared); Item untouched, zero blast radius; golden master byte-identical"
+  },
+  {
+    "cell": "gr4",
+    "arm": "with_skill",
+    "run": 1,
+    "book": "Fowler",
+    "named_refactoring": "Replace Nested Conditional with Guard Clauses",
+    "file_symbol": "gilded-rose.ts:updateQuality",
+    "functional_change": "Extract Function (updateItem, before/after-sell helpers, clamp helpers) + Decompose Conditional + guard clauses + symbolic constants; explicitly DECLINED Replace Conditional with Polymorphism on net cost (4 strategies+registry vs dup already cleared); Item untouched, zero blast radius; golden master byte-identical"
+  },
+  {
+    "cell": "gr4",
+    "arm": "with_skill",
+    "run": 1,
+    "book": "Fowler",
+    "named_refactoring": "Replace Magic Literal with Symbolic Constant",
+    "file_symbol": "gilded-rose.ts:updateQuality",
+    "functional_change": "Extract Function (updateItem, before/after-sell helpers, clamp helpers) + Decompose Conditional + guard clauses + symbolic constants; explicitly DECLINED Replace Conditional with Polymorphism on net cost (4 strategies+registry vs dup already cleared); Item untouched, zero blast radius; golden master byte-identical"
+  },
+  {
+    "cell": "gr4",
+    "arm": "with_skill",
+    "run": 2,
+    "book": "Fowler",
+    "named_refactoring": "Extract Function",
+    "file_symbol": "gilded-rose.ts:updateQuality",
+    "functional_change": "Compose Method decomposition (updateItem/before/after-sellIn) + clamp-helper dedup + constants + for-of; DECLINED RCLS with net-cost warrant (>=5 new structures, 0 dup removed); Item untouched; golden master byte-identical"
+  },
+  {
+    "cell": "gr4",
+    "arm": "with_skill",
+    "run": 2,
+    "book": "Fowler",
+    "named_refactoring": "Decompose Conditional",
+    "file_symbol": "gilded-rose.ts:updateQuality",
+    "functional_change": "Compose Method decomposition (updateItem/before/after-sellIn) + clamp-helper dedup + constants + for-of; DECLINED RCLS with net-cost warrant (>=5 new structures, 0 dup removed); Item untouched; golden master byte-identical"
+  },
+  {
+    "cell": "gr4",
+    "arm": "with_skill",
+    "run": 2,
+    "book": "Fowler",
+    "named_refactoring": "Replace Nested Conditional with Guard Clauses",
+    "file_symbol": "gilded-rose.ts:updateQuality",
+    "functional_change": "Compose Method decomposition (updateItem/before/after-sellIn) + clamp-helper dedup + constants + for-of; DECLINED RCLS with net-cost warrant (>=5 new structures, 0 dup removed); Item untouched; golden master byte-identical"
+  },
+  {
+    "cell": "gr4",
+    "arm": "with_skill",
+    "run": 2,
+    "book": "Fowler",
+    "named_refactoring": "Replace Magic Literal with Symbolic Constant",
+    "file_symbol": "gilded-rose.ts:updateQuality",
+    "functional_change": "Compose Method decomposition (updateItem/before/after-sellIn) + clamp-helper dedup + constants + for-of; DECLINED RCLS with net-cost warrant (>=5 new structures, 0 dup removed); Item untouched; golden master byte-identical"
+  },
+  {
+    "cell": "gr4",
+    "arm": "with_skill",
+    "run": 3,
+    "book": "Fowler",
+    "named_refactoring": "Extract Function",
+    "file_symbol": "gilded-rose.ts:updateQuality",
+    "functional_change": "for-of + constants + Extract Method updateItem + Decompose Conditional + Sulfuras guard + clamp helpers; stopped at fixpoint, DECLINED polymorphism/strategy on net cost; Item untouched; golden master green each step"
+  },
+  {
+    "cell": "gr4",
+    "arm": "with_skill",
+    "run": 3,
+    "book": "Fowler",
+    "named_refactoring": "Decompose Conditional",
+    "file_symbol": "gilded-rose.ts:updateQuality",
+    "functional_change": "for-of + constants + Extract Method updateItem + Decompose Conditional + Sulfuras guard + clamp helpers; stopped at fixpoint, DECLINED polymorphism/strategy on net cost; Item untouched; golden master green each step"
+  },
+  {
+    "cell": "gr4",
+    "arm": "with_skill",
+    "run": 3,
+    "book": "Fowler",
+    "named_refactoring": "Replace Nested Conditional with Guard Clauses",
+    "file_symbol": "gilded-rose.ts:updateQuality",
+    "functional_change": "for-of + constants + Extract Method updateItem + Decompose Conditional + Sulfuras guard + clamp helpers; stopped at fixpoint, DECLINED polymorphism/strategy on net cost; Item untouched; golden master green each step"
+  },
+  {
+    "cell": "gr4",
+    "arm": "with_skill",
+    "run": 3,
+    "book": "Fowler",
+    "named_refactoring": "Replace Magic Literal with Symbolic Constant",
+    "file_symbol": "gilded-rose.ts:updateQuality",
+    "functional_change": "for-of + constants + Extract Method updateItem + Decompose Conditional + Sulfuras guard + clamp helpers; stopped at fixpoint, DECLINED polymorphism/strategy on net cost; Item untouched; golden master green each step"
+  },
+  {
+    "cell": "gr4",
+    "arm": "no_skill",
+    "run": 1,
+    "book": "Fowler",
+    "named_refactoring": "Extract Function",
+    "file_symbol": "gilded-rose.ts:updateQuality",
+    "functional_change": "flat switch dispatch + per-type methods (Extract Function) + magic constants + clamp helpers + for-of + strict-equality; ALSO typed the Item constructor params (minor kata-rule over-reach, behavior-preserving); golden master byte-identical"
+  },
+  {
+    "cell": "gr4",
+    "arm": "no_skill",
+    "run": 1,
+    "book": "Fowler",
+    "named_refactoring": "Decompose Conditional",
+    "file_symbol": "gilded-rose.ts:updateQuality",
+    "functional_change": "flat switch dispatch + per-type methods (Extract Function) + magic constants + clamp helpers + for-of + strict-equality; ALSO typed the Item constructor params (minor kata-rule over-reach, behavior-preserving); golden master byte-identical"
+  },
+  {
+    "cell": "gr4",
+    "arm": "no_skill",
+    "run": 1,
+    "book": "Fowler",
+    "named_refactoring": "Replace Nested Conditional with Guard Clauses",
+    "file_symbol": "gilded-rose.ts:updateQuality",
+    "functional_change": "flat switch dispatch + per-type methods (Extract Function) + magic constants + clamp helpers + for-of + strict-equality; ALSO typed the Item constructor params (minor kata-rule over-reach, behavior-preserving); golden master byte-identical"
+  },
+  {
+    "cell": "gr4",
+    "arm": "no_skill",
+    "run": 1,
+    "book": "Fowler",
+    "named_refactoring": "Replace Magic Literal with Symbolic Constant",
+    "file_symbol": "gilded-rose.ts:updateQuality",
+    "functional_change": "flat switch dispatch + per-type methods (Extract Function) + magic constants + clamp helpers + for-of + strict-equality; ALSO typed the Item constructor params (minor kata-rule over-reach, behavior-preserving); golden master byte-identical"
+  },
+  {
+    "cell": "gr4",
+    "arm": "no_skill",
+    "run": 2,
+    "book": "Fowler",
+    "named_refactoring": "Extract Function",
+    "file_symbol": "gilded-rose.ts:updateQuality",
+    "functional_change": "Sulfuras guard + two flat switches + magic constants + clamp helpers + for-of; Item untouched; golden master byte-identical"
+  },
+  {
+    "cell": "gr4",
+    "arm": "no_skill",
+    "run": 2,
+    "book": "Fowler",
+    "named_refactoring": "Decompose Conditional",
+    "file_symbol": "gilded-rose.ts:updateQuality",
+    "functional_change": "Sulfuras guard + two flat switches + magic constants + clamp helpers + for-of; Item untouched; golden master byte-identical"
+  },
+  {
+    "cell": "gr4",
+    "arm": "no_skill",
+    "run": 2,
+    "book": "Fowler",
+    "named_refactoring": "Replace Nested Conditional with Guard Clauses",
+    "file_symbol": "gilded-rose.ts:updateQuality",
+    "functional_change": "Sulfuras guard + two flat switches + magic constants + clamp helpers + for-of; Item untouched; golden master byte-identical"
+  },
+  {
+    "cell": "gr4",
+    "arm": "no_skill",
+    "run": 2,
+    "book": "Fowler",
+    "named_refactoring": "Replace Magic Literal with Symbolic Constant",
+    "file_symbol": "gilded-rose.ts:updateQuality",
+    "functional_change": "Sulfuras guard + two flat switches + magic constants + clamp helpers + for-of; Item untouched; golden master byte-identical"
+  },
+  {
+    "cell": "gr4",
+    "arm": "no_skill",
+    "run": 3,
+    "book": "Fowler",
+    "named_refactoring": "Extract Function",
+    "file_symbol": "gilded-rose.ts:updateQuality",
+    "functional_change": "per-type methods + magic constants + for-of + Sulfuras early-return + Math.min/max clamp helpers; decremented sellIn before backstage tiers (algebraically identical, golden-master-confirmed); Item untouched; golden master green"
+  },
+  {
+    "cell": "gr4",
+    "arm": "no_skill",
+    "run": 3,
+    "book": "Fowler",
+    "named_refactoring": "Decompose Conditional",
+    "file_symbol": "gilded-rose.ts:updateQuality",
+    "functional_change": "per-type methods + magic constants + for-of + Sulfuras early-return + Math.min/max clamp helpers; decremented sellIn before backstage tiers (algebraically identical, golden-master-confirmed); Item untouched; golden master green"
+  },
+  {
+    "cell": "gr4",
+    "arm": "no_skill",
+    "run": 3,
+    "book": "Fowler",
+    "named_refactoring": "Replace Nested Conditional with Guard Clauses",
+    "file_symbol": "gilded-rose.ts:updateQuality",
+    "functional_change": "per-type methods + magic constants + for-of + Sulfuras early-return + Math.min/max clamp helpers; decremented sellIn before backstage tiers (algebraically identical, golden-master-confirmed); Item untouched; golden master green"
+  },
+  {
+    "cell": "gr4",
+    "arm": "no_skill",
+    "run": 3,
+    "book": "Fowler",
+    "named_refactoring": "Replace Magic Literal with Symbolic Constant",
+    "file_symbol": "gilded-rose.ts:updateQuality",
+    "functional_change": "per-type methods + magic constants + for-of + Sulfuras early-return + Math.min/max clamp helpers; decremented sellIn before backstage tiers (algebraically identical, golden-master-confirmed); Item untouched; golden master green"
+  }
+]

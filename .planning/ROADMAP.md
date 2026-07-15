@@ -309,7 +309,7 @@ Plans:
 Produces a head-to-head comparison record and a verdict on where lz-refactor's book-grounded catalog measurably differs from a general code-review skill on smell/refactoring analysis.
 **Requirements**: TBD (lock in 14-SPEC.md during discuss/plan)
 **Depends on:** Phase 13 (reuse eval workspace, target repos, and the oracle/oracle-reviewer grading pipeline)
-**Plans:** 2/5 plans executed
+**Plans:** 3/5 plans executed
 
 Plans:
 
@@ -317,7 +317,7 @@ Plans:
 
 - [x] 14-01-PLAN.md -- run-e2e.mjs harness extensions: code_review arm + token/tool meta (D-06/D-07) + synthetic whole-file-diff baseline (D-02) + offline selfcheck
 - [x] 14-02-PLAN.md -- report-framed cr-* recommend queries (D-08) + suite.json entries + subagent review (incl. unbiased)
-- [ ] 14-03-PLAN.md -- grading scaffolding: deterministic mechanical tabulator (tokens/tools/spawn/lift/Pass@k) + head-to-head rollup template (D-04/D-07)
+- [x] 14-03-PLAN.md -- grading scaffolding: deterministic mechanical tabulator (tokens/tools/spawn/lift/Pass@k) + head-to-head rollup template (D-04/D-07)
 
 **Wave 1** *(blocked on 14-01, 14-02; autonomous: false -- the D-12 spend gate)*
 

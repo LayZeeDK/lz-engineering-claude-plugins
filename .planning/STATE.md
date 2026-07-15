@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: lz-tdd@0.0.2
 milestone_name: lz-refactor Skill (Fowler + Kerievsky)
 status: executing
-stopped_at: Completed 14-02-PLAN.md (report-framed cr-* recommend queries + suite wiring + subagent review, zero spend)
-last_updated: "2026-07-15T11:24:21.152Z"
+stopped_at: Completed 14-03-PLAN.md (zero-spend mechanical tabulator + fixtures + --selfcheck + 7-dimension rollup template)
+last_updated: "2026-07-15T11:41:07.561Z"
 last_activity: 2026-07-15
 progress:
   total_phases: 11
   completed_phases: 10
   total_plans: 55
-  completed_plans: 52
+  completed_plans: 53
   percent: 91
 ---
 
@@ -27,9 +27,9 @@ See: .planning/PROJECT.md (updated 2026-07-04)
 ## Current Position
 
 Phase: 14 (compare-lz-refactor-to-mattpocock-skills-code-review-skill-k) — EXECUTING
-Plan: 3 of 5
+Plan: 4 of 5
 Status: Ready to execute
-Last activity: 2026-07-15 -- 14-02 complete (3 report-framed cr-* queries + suite wiring; 2-reviewer PASS incl. 1 unbiased; zero spend)
+Last activity: 2026-07-15
 
 ## Performance Metrics
 
@@ -116,6 +116,7 @@ Recent decisions affecting current work:
 - [Phase 11]: Phase 11 (11-03): rewrote grade-run.mjs as the lz-refactor deterministic grader -- nameRe word-bounded phrase matcher + NAME_LAYERS lookup (62 Fowler / 27 Kerievsky + 3 Away / 19 functional idiom leaves from the shipped catalog READMEs) + five D-04-RUBRIC check kinds (bestFit/candidateSet/layer/nodrive/judge), RUBRICS[0-8] count-aligned 1:1 with evals.json, selfcheck GREEN (matcher boundary + 4-layer resolve + nodrive cases + alignment + name-resolve gate). layer check is deterministic (resolve-via-lookup), judge reserved for rationale only. EVL-02 stays OPEN by design (D-10): data+grader built, empirical run gated to 11-04.
 - [Phase 14]: Phase 14 (14-01, Wave 0): extended run-e2e.mjs IN PLACE (D-06 "add the arm, do not rewrite") with (a) a `code_review` competitor arm -- its OWN tool profile (allow Bash + the Agent spawn tool, block Edit/Write/MultiEdit/NotebookEdit; the Bash asymmetry vs the lz-refactor arms is the D-04 tool-usage FINDING, not equalized) + `--plugin-dir` at the mattpocock 1.2.0 cache (os.homedir()-derived, MATTPOCOCK_DIR override), composing `/mattpocock-skills:code-review <ROOT_SHA>`; NOT in the both/all fan-outs; requires `--synthetic-base`. (b) `buildSyntheticBase` (D-02): empty-root ROOT -> target-only-tree TIP throwaway `review-<target>` branch built from applyBase (origin/23.0.x / main, NOT HEAD -- Pitfall 3), scoped to exactly the target path (Pitfall 2), kata `TypeScript/` root-relative prefix + armCwd = <worktree>/TypeScript (Pitfall 4), finally-style worktree/branch teardown (Pitfall 6); dry-run builds only the loose ROOT (repo stays clean). (c) D-07 token/cost/tool meta from the stream-json result event (usage/total_cost_usd/modelUsage/num_turns + tool_use-by-name histogram), added to meta.json keeping every existing field. New selfcheck-code-review.mjs gates all three cruxes offline zero-spend (composition; synthetic build/teardown+scope for BOTH nx T1 + kata G1; transcript parse) -- exits 0, borrowed repos left pristine. Module-main guard + exports so the selfcheck can import buildSyntheticBase/extractResult/git. No metered run (D-12 gate lives in 14-04). Commits d64226c, 6ea94e7, b427840.
 - [Phase 14]: Phase 14 (14-02): authored the three report-framed cr-* lz-refactor queries (D-08) -- one framing sentence each ("Review `<path>`. The tests are green. Surface the code smells you see and the named refactorings you would recommend for each. Do not edit anything."), byte-identical across all 3 targets except the path, read-only, naming no expected smell/refactoring/pattern (non-leading). Point at the EXACT single files code_review reviews as whole-file diffs: nx T1 `enforce-module-boundaries.ts` (cr-emb), nx T3/T4 `runtime-lint-utils.ts` (cr-rlu, both smells graded), kata G1 `app/gilded-rose.ts` (cr-gr). Bodies stay framing-only; the invoke_skill arm prepends `/lz-tdd:lz-refactor` at composePrompt time. Wired matching `suite.json.prompts` entries in both suites. Task 2 subagent review: >= 2 reviewers, >= 1 unbiased from-scratch, BOTH PASS, ZERO leading-language / read-only defects -> NO prompt edits (mitigates T-14-06). Two non-blocking notes forwarded to 14-05: (1) code_review whole-file scope parity already guaranteed by D-02's synthetic whole-file-diff base (14-01); (2) 14-RESULTS.md should state both arms were asked for named fixes so vocabulary-breadth reads as the intended D-04 finding. No metered run (D-12 gate lives in 14-04). Commit f5f7f1d.
+- [Phase 14]: Phase 14 (14-03): built the zero-spend mechanical grading scaffolding. tabulate-mechanical.mjs walks the two phase-14 recommend trees, reads each meta.json + sibling answer.md, and emits per (cell, arm): token/cost (total_cost_usd + per-model model_usage headline that rolls up sub-agents; input/output_tokens main-context-only), merged tool_calls histogram + spelling-agnostic sub-agent spawn count (name set {task,agent}, ~2 code_review / 0 lz-refactor), distinct-named-refactoring lift via the reused word-bounded nameRe over FOWLER+KERIEVSKY (longest-match shadow-suppressed), and Pass@k/Pass^k on lift>0 (comb/passAtK/passHatK). nameRe + name arrays copied verbatim from grade-run.mjs, stats copied verbatim from run-e2e.mjs (neither importable: grade-run runs main() on import, run-e2e does not export the stats). Consumes the EXACT D-07 fields 14-01's extractResult emits; fail-closed (exit 1) on a garbled/keyless meta. --selfcheck asserts token totals, opus model-row cost, spawn count 2, lift 2, Pass@k against fixtures/{meta.sample.json,answer.sample.md} and exits 0 (one of the two 14-04 D-12 zero-spend gates). summary.template.json fixes the 7 D-04 dimensions (lift/token_usage/tool_usage MECHANICAL; output_quality/book_authenticity/over_under_engineering/idiom_pattern GRADED) x 2 arms (lz-refactor=invoke_skill, code_review) rollup with null passk placeholders + the ~139-vs-12 vocab-breadth headline on idiom_pattern + the D-02 whole-file-diff and D-03 Spec-skip caveats; GRADED blocks fill in 14-05 (DST-04). mechanical.json is a 14-05 output, NOT committed here. No metered run. Commits afe77ba, 4754eec.
 
 ### Pending Todos
 
@@ -153,8 +154,8 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-15T11:23:12Z
-Stopped at: Completed 14-02-PLAN.md (report-framed cr-* recommend queries + suite wiring + subagent review, zero spend)
+Last session: 2026-07-15T11:41:06.938Z
+Stopped at: Completed 14-03-PLAN.md (zero-spend mechanical grading scaffolding: tabulate-mechanical.mjs + fixtures + --selfcheck exits 0, and summary.template.json 7-dimension x 2-arm rollup skeleton)
 Resume file: None
 Open next: /gsd-audit-milestone lz-tdd@0.0.2 (user-scoped; not yet run), then /gsd-complete-milestone lz-tdd@0.0.2. All milestone phases (6-12) are complete + reconciled on disk; Phase 12's last loose end (nx sweep auto-trigger re-confirmation on HEAD) is now CLOSED (quick 260714-vmy: p8 3/3, no regression). Milestone-audit note carried from 12-VERIFICATION audit_notes: the gaps closed while base Opus 4.8@high is ALSO catalog-grade (null skill output-delta); the skill's robust value is auto-trigger (proven) + a narrow reference edge. CLEANUP: nx throwaway branch lz-refactor-e2e-smoke left with run-3 edits (pristine 23.0.x intact) -- operator restores per quick/260714-vmy SUMMARY.
 

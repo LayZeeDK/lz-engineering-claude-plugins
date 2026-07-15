@@ -1,0 +1,462 @@
+{
+  "phase": 13,
+  "dimensions": [
+    "book-authenticity (oracle fidelity)",
+    "correctness (name/layer + independent behavior oracle)"
+  ],
+  "model": "claude-opus-4-8 @ high, --setting-sources project, k=3",
+  "passk_source": "run-e2e.mjs passAtK/passHatK (formulas copied verbatim)",
+  "rows": [
+    {
+      "cell": "p1",
+      "arm": "with_skill",
+      "book_authenticity": {
+        "claims": 3,
+        "pass": 3,
+        "partial": 0,
+        "fail": 0,
+        "runs_na": 0,
+        "passk": {
+          "n": 3,
+          "c": 3,
+          "passAt1": 1,
+          "passAt3": 1,
+          "passHat3": 1
+        }
+      },
+      "name_layer": {
+        "n": 3,
+        "c": 3,
+        "na": 0,
+        "passk": {
+          "n": 3,
+          "c": 3,
+          "passAt1": 1,
+          "passAt3": 1,
+          "passHat3": 1
+        }
+      },
+      "behavior": {
+        "n": 3,
+        "c": 3,
+        "passk": {
+          "n": 3,
+          "c": 3,
+          "passAt1": 1,
+          "passAt3": 1,
+          "passHat3": 1
+        }
+      }
+    },
+    {
+      "cell": "p1",
+      "arm": "no_skill",
+      "book_authenticity": {
+        "claims": 3,
+        "pass": 3,
+        "partial": 0,
+        "fail": 0,
+        "runs_na": 0,
+        "passk": {
+          "n": 3,
+          "c": 3,
+          "passAt1": 1,
+          "passAt3": 1,
+          "passHat3": 1
+        }
+      },
+      "name_layer": {
+        "n": 3,
+        "c": 3,
+        "na": 0,
+        "passk": {
+          "n": 3,
+          "c": 3,
+          "passAt1": 1,
+          "passAt3": 1,
+          "passHat3": 1
+        }
+      },
+      "behavior": {
+        "n": 3,
+        "c": 3,
+        "passk": {
+          "n": 3,
+          "c": 3,
+          "passAt1": 1,
+          "passAt3": 1,
+          "passHat3": 1
+        }
+      }
+    },
+    {
+      "cell": "p2",
+      "arm": "with_skill",
+      "book_authenticity": {
+        "claims": 2,
+        "pass": 2,
+        "partial": 0,
+        "fail": 0,
+        "runs_na": 1,
+        "passk": {
+          "n": 2,
+          "c": 2,
+          "passAt1": 1,
+          "passAt3": null,
+          "passHat3": null
+        }
+      },
+      "name_layer": {
+        "n": 3,
+        "c": 2,
+        "na": 0,
+        "passk": {
+          "n": 3,
+          "c": 2,
+          "passAt1": 0.6666666666666667,
+          "passAt3": 1,
+          "passHat3": 0
+        }
+      },
+      "behavior": {
+        "n": 3,
+        "c": 3,
+        "passk": {
+          "n": 3,
+          "c": 3,
+          "passAt1": 1,
+          "passAt3": 1,
+          "passHat3": 1
+        }
+      }
+    },
+    {
+      "cell": "p2",
+      "arm": "no_skill",
+      "book_authenticity": {
+        "claims": 3,
+        "pass": 3,
+        "partial": 0,
+        "fail": 0,
+        "runs_na": 0,
+        "passk": {
+          "n": 3,
+          "c": 3,
+          "passAt1": 1,
+          "passAt3": 1,
+          "passHat3": 1
+        }
+      },
+      "name_layer": {
+        "n": 3,
+        "c": 3,
+        "na": 0,
+        "passk": {
+          "n": 3,
+          "c": 3,
+          "passAt1": 1,
+          "passAt3": 1,
+          "passHat3": 1
+        }
+      },
+      "behavior": {
+        "n": 3,
+        "c": 3,
+        "passk": {
+          "n": 3,
+          "c": 3,
+          "passAt1": 1,
+          "passAt3": 1,
+          "passHat3": 1
+        }
+      }
+    },
+    {
+      "cell": "p8",
+      "arm": "with_skill",
+      "book_authenticity": {
+        "claims": 3,
+        "pass": 3,
+        "partial": 0,
+        "fail": 0,
+        "runs_na": 0,
+        "passk": {
+          "n": 3,
+          "c": 3,
+          "passAt1": 1,
+          "passAt3": 1,
+          "passHat3": 1
+        }
+      },
+      "name_layer": {
+        "n": 3,
+        "c": 3,
+        "na": 0,
+        "passk": {
+          "n": 3,
+          "c": 3,
+          "passAt1": 1,
+          "passAt3": 1,
+          "passHat3": 1
+        }
+      },
+      "behavior": {
+        "n": 3,
+        "c": 3,
+        "passk": {
+          "n": 3,
+          "c": 3,
+          "passAt1": 1,
+          "passAt3": 1,
+          "passHat3": 1
+        }
+      }
+    },
+    {
+      "cell": "p8",
+      "arm": "no_skill",
+      "book_authenticity": {
+        "claims": 3,
+        "pass": 3,
+        "partial": 0,
+        "fail": 0,
+        "runs_na": 0,
+        "passk": {
+          "n": 3,
+          "c": 3,
+          "passAt1": 1,
+          "passAt3": 1,
+          "passHat3": 1
+        }
+      },
+      "name_layer": {
+        "n": 3,
+        "c": 3,
+        "na": 0,
+        "passk": {
+          "n": 3,
+          "c": 3,
+          "passAt1": 1,
+          "passAt3": 1,
+          "passHat3": 1
+        }
+      },
+      "behavior": {
+        "n": 3,
+        "c": 3,
+        "passk": {
+          "n": 3,
+          "c": 3,
+          "passAt1": 1,
+          "passAt3": 1,
+          "passHat3": 1
+        }
+      }
+    },
+    {
+      "cell": "gr1",
+      "arm": "with_skill",
+      "book_authenticity": {
+        "claims": 5,
+        "pass": 3,
+        "partial": 0,
+        "fail": 0,
+        "runs_na": 0,
+        "passk": {
+          "n": 3,
+          "c": 3,
+          "passAt1": 1,
+          "passAt3": 1,
+          "passHat3": 1
+        }
+      },
+      "name_layer": {
+        "n": 3,
+        "c": 3,
+        "na": 0,
+        "passk": {
+          "n": 3,
+          "c": 3,
+          "passAt1": 1,
+          "passAt3": 1,
+          "passHat3": 1
+        }
+      },
+      "behavior": {
+        "n": 3,
+        "c": 3,
+        "passk": {
+          "n": 3,
+          "c": 3,
+          "passAt1": 1,
+          "passAt3": 1,
+          "passHat3": 1
+        }
+      }
+    },
+    {
+      "cell": "gr1",
+      "arm": "invoke_skill",
+      "book_authenticity": {
+        "claims": 8,
+        "pass": 3,
+        "partial": 0,
+        "fail": 0,
+        "runs_na": 0,
+        "passk": {
+          "n": 3,
+          "c": 3,
+          "passAt1": 1,
+          "passAt3": 1,
+          "passHat3": 1
+        }
+      },
+      "name_layer": {
+        "n": 3,
+        "c": 3,
+        "na": 0,
+        "passk": {
+          "n": 3,
+          "c": 3,
+          "passAt1": 1,
+          "passAt3": 1,
+          "passHat3": 1
+        }
+      },
+      "behavior": {
+        "n": 3,
+        "c": 3,
+        "passk": {
+          "n": 3,
+          "c": 3,
+          "passAt1": 1,
+          "passAt3": 1,
+          "passHat3": 1
+        }
+      }
+    },
+    {
+      "cell": "gr1",
+      "arm": "no_skill",
+      "book_authenticity": {
+        "claims": 8,
+        "pass": 3,
+        "partial": 0,
+        "fail": 0,
+        "runs_na": 0,
+        "passk": {
+          "n": 3,
+          "c": 3,
+          "passAt1": 1,
+          "passAt3": 1,
+          "passHat3": 1
+        }
+      },
+      "name_layer": {
+        "n": 3,
+        "c": 3,
+        "na": 0,
+        "passk": {
+          "n": 3,
+          "c": 3,
+          "passAt1": 1,
+          "passAt3": 1,
+          "passHat3": 1
+        }
+      },
+      "behavior": {
+        "n": 3,
+        "c": 3,
+        "passk": {
+          "n": 3,
+          "c": 3,
+          "passAt1": 1,
+          "passAt3": 1,
+          "passHat3": 1
+        }
+      }
+    },
+    {
+      "cell": "gr4",
+      "arm": "with_skill",
+      "book_authenticity": {
+        "claims": 12,
+        "pass": 3,
+        "partial": 0,
+        "fail": 0,
+        "runs_na": 0,
+        "passk": {
+          "n": 3,
+          "c": 3,
+          "passAt1": 1,
+          "passAt3": 1,
+          "passHat3": 1
+        }
+      },
+      "name_layer": {
+        "n": 3,
+        "c": 3,
+        "na": 0,
+        "passk": {
+          "n": 3,
+          "c": 3,
+          "passAt1": 1,
+          "passAt3": 1,
+          "passHat3": 1
+        }
+      },
+      "behavior": {
+        "n": 3,
+        "c": 3,
+        "passk": {
+          "n": 3,
+          "c": 3,
+          "passAt1": 1,
+          "passAt3": 1,
+          "passHat3": 1
+        }
+      }
+    },
+    {
+      "cell": "gr4",
+      "arm": "no_skill",
+      "book_authenticity": {
+        "claims": 12,
+        "pass": 3,
+        "partial": 0,
+        "fail": 0,
+        "runs_na": 0,
+        "passk": {
+          "n": 3,
+          "c": 3,
+          "passAt1": 1,
+          "passAt3": 1,
+          "passHat3": 1
+        }
+      },
+      "name_layer": {
+        "n": 3,
+        "c": 3,
+        "na": 0,
+        "passk": {
+          "n": 3,
+          "c": 3,
+          "passAt1": 1,
+          "passAt3": 1,
+          "passHat3": 1
+        }
+      },
+      "behavior": {
+        "n": 3,
+        "c": 3,
+        "passk": {
+          "n": 3,
+          "c": 3,
+          "passAt1": 1,
+          "passAt3": 1,
+          "passHat3": 1
+        }
+      }
+    }
+  ]
+}

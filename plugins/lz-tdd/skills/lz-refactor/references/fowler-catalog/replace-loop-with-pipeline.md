@@ -11,6 +11,12 @@ data top to bottom, one transformation at a time, without holding loop state in 
 the logic as a pipeline turns "how the collection is walked" into "what happens to the collection",
 which is usually the clearer story.
 
+Grouping is a common instance to name directly: a `reduce` or loop that mutates a `Map` (or object)
+with a nested conditional to bucket items under a key is a group-by. Restate it as a single grouping
+step -- fold each item into the array for its key -- so the intent reads as "group these by X" instead
+of accumulator bookkeeping. Native `Map.groupBy` / `Object.groupBy` express the same step in one call
+where the runtime supports them; the equivalence to the pipeline form is what matters, not the API.
+
 ## Mechanics
 
 1. Create a variable holding the collection the loop iterates over, independent of the loop.

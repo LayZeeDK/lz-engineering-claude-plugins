@@ -55,3 +55,5 @@ Same behavior; mechanics: [Replace Loop with Pipeline](../fowler-catalog/replace
 ## When each fits
 
 Reach for transducers when a multi-stage map/filter over a large sequence shows intermediate-array allocation in a profile and you want a single pass without giving up the composability of separate steps. Keep a plain pipeline (the result of Replace Loop with Pipeline) when the collection is small, when the per-stage arrays are cheap relative to the readability they buy, or when you want to see the intermediate results, since the reducer-wrapping machinery costs clarity to earn its one pass.
+
+A `reduce` that folds items into a `Map` keyed by some field is a group-by, a common single-step fold in this family. It is not a transducer (it is one grouping step, not a composed map/filter chain); prefer the plain grouping pipeline, or native `Map.groupBy` / `Object.groupBy` where available. Reach here only when a group-by sits inside a longer map/filter chain whose intermediate arrays you want to collapse into one pass.

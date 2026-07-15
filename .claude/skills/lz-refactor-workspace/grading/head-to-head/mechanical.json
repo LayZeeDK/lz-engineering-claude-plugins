@@ -1,0 +1,390 @@
+{
+  "generated_by": "tabulate-mechanical.mjs",
+  "generated_at": "2026-07-15T12:51:16.876Z",
+  "note": "MECHANICAL D-04 dimensions only (tokens, tool usage + sub-agent spawn count, lift). GRADED dimensions (book authenticity, output quality, over/under-engineering, idiom/pattern) are oracle/judge-owned in 14-05 (DST-04) and are NOT computed here.",
+  "passk_source": "run-e2e.mjs comb/passAtK/passHatK -- formulas copied verbatim (PATTERNS Pattern F)",
+  "name_source": "grade-run.mjs FOWLER+KERIEVSKY name arrays -- copied verbatim",
+  "spawn_tool_names": [
+    "task",
+    "agent"
+  ],
+  "lift_predicate": "distinct named Fowler/Kerievsky refactorings in answer.md (mechanical heuristic; graded lift is oracle-owned in 14-05)",
+  "arms": [
+    "invoke_skill",
+    "code_review"
+  ],
+  "cell_filter": [
+    "cr-emb",
+    "cr-rlu",
+    "cr-gr"
+  ],
+  "results_roots": [
+    "D:\\projects\\github\\LayZeeDK\\lz-engineering-claude-plugins\\.claude\\skills\\lz-refactor-workspace\\e2e-nx\\results\\recommend",
+    "D:\\projects\\github\\LayZeeDK\\lz-engineering-claude-plugins\\.claude\\skills\\lz-refactor-workspace\\e2e-gilded-rose\\results\\recommend"
+  ],
+  "cells": [
+    {
+      "suite": "e2e-gilded-rose",
+      "cell": "cr-gr",
+      "arm": "code_review",
+      "runs": 3,
+      "tokens": {
+        "input_total": 103,
+        "output_total": 21736,
+        "cache_read_total": 939125,
+        "cache_creation_total": 59720,
+        "total_cost_usd_total": 3.129103,
+        "num_turns_total": 26,
+        "total_cost_usd_mean": 1.0430343333333334
+      },
+      "model_usage_total": {
+        "claude-haiku-4-5-20251001": {
+          "input": 1644,
+          "output": 46,
+          "costUSD": 0.0018739999999999998
+        },
+        "claude-opus-4-8": {
+          "input": 123,
+          "output": 32163,
+          "costUSD": 3.127229
+        }
+      },
+      "tools": {
+        "merged": {
+          "Bash": 16,
+          "Agent": 6,
+          "ToolSearch": 1,
+          "Read": 2,
+          "Glob": 2
+        },
+        "spawn_count_total": 6,
+        "spawn_count_mean": 2
+      },
+      "lift": {
+        "per_run": [
+          0,
+          0,
+          0
+        ],
+        "mean": 0,
+        "union_names": [],
+        "union_count": 0
+      },
+      "passk": {
+        "dimension": "lift>0 (surfaced >= 1 named Fowler/Kerievsky refactoring)",
+        "n": 3,
+        "c": 0,
+        "passAt1": 0,
+        "passAt3": 0,
+        "passHat3": 0
+      }
+    },
+    {
+      "suite": "e2e-gilded-rose",
+      "cell": "cr-gr",
+      "arm": "invoke_skill",
+      "runs": 3,
+      "tokens": {
+        "input_total": 44,
+        "output_total": 22651,
+        "cache_read_total": 1163546,
+        "cache_creation_total": 55690,
+        "total_cost_usd_total": 1.7072880000000001,
+        "num_turns_total": 30,
+        "total_cost_usd_mean": 0.569096
+      },
+      "model_usage_total": {
+        "claude-haiku-4-5-20251001": {
+          "input": 1830,
+          "output": 58,
+          "costUSD": 0.00212
+        },
+        "claude-opus-4-8": {
+          "input": 44,
+          "output": 22651,
+          "costUSD": 1.705168
+        }
+      },
+      "tools": {
+        "merged": {
+          "Glob": 11,
+          "Read": 13,
+          "PowerShell": 3
+        },
+        "spawn_count_total": 0,
+        "spawn_count_mean": 0
+      },
+      "lift": {
+        "per_run": [
+          9,
+          5,
+          10
+        ],
+        "mean": 8,
+        "union_names": [
+          "Extract Function",
+          "Extract Variable",
+          "Substitute Algorithm",
+          "Slide Statements",
+          "Decompose Conditional",
+          "Replace Nested Conditional with Guard Clauses",
+          "Replace Conditional with Polymorphism",
+          "Replace Type Code with Subclasses",
+          "Replace Conditional Logic with Strategy",
+          "Move Function",
+          "Replace Loop with Pipeline",
+          "Consolidate Conditional Expression"
+        ],
+        "union_count": 12
+      },
+      "passk": {
+        "dimension": "lift>0 (surfaced >= 1 named Fowler/Kerievsky refactoring)",
+        "n": 3,
+        "c": 3,
+        "passAt1": 1,
+        "passAt3": 1,
+        "passHat3": 1
+      }
+    },
+    {
+      "suite": "e2e-nx",
+      "cell": "cr-emb",
+      "arm": "code_review",
+      "runs": 3,
+      "tokens": {
+        "input_total": 40,
+        "output_total": 14605,
+        "cache_read_total": 1009537,
+        "cache_creation_total": 89381,
+        "total_cost_usd_total": 2.8476515,
+        "num_turns_total": 21,
+        "total_cost_usd_mean": 0.9492171666666667
+      },
+      "model_usage_total": {
+        "claude-haiku-4-5-20251001": {
+          "input": 1647,
+          "output": 41,
+          "costUSD": 0.001852
+        },
+        "claude-opus-4-8": {
+          "input": 54,
+          "output": 21064,
+          "costUSD": 2.8457995000000005
+        }
+      },
+      "tools": {
+        "merged": {
+          "Bash": 14,
+          "Read": 5,
+          "Agent": 3
+        },
+        "spawn_count_total": 3,
+        "spawn_count_mean": 1
+      },
+      "lift": {
+        "per_run": [
+          0,
+          0,
+          0
+        ],
+        "mean": 0,
+        "union_names": [],
+        "union_count": 0
+      },
+      "passk": {
+        "dimension": "lift>0 (surfaced >= 1 named Fowler/Kerievsky refactoring)",
+        "n": 3,
+        "c": 0,
+        "passAt1": 0,
+        "passAt3": 0,
+        "passHat3": 0
+      }
+    },
+    {
+      "suite": "e2e-nx",
+      "cell": "cr-emb",
+      "arm": "invoke_skill",
+      "runs": 3,
+      "tokens": {
+        "input_total": 32,
+        "output_total": 18858,
+        "cache_read_total": 939208,
+        "cache_creation_total": 103751,
+        "total_cost_usd_total": 1.9808690000000002,
+        "num_turns_total": 25,
+        "total_cost_usd_mean": 0.6602896666666668
+      },
+      "model_usage_total": {
+        "claude-haiku-4-5-20251001": {
+          "input": 1860,
+          "output": 57,
+          "costUSD": 0.002145
+        },
+        "claude-opus-4-8": {
+          "input": 32,
+          "output": 18858,
+          "costUSD": 1.9787240000000001
+        }
+      },
+      "tools": {
+        "merged": {
+          "Glob": 4,
+          "Read": 18
+        },
+        "spawn_count_total": 0,
+        "spawn_count_mean": 0
+      },
+      "lift": {
+        "per_run": [
+          5,
+          4,
+          5
+        ],
+        "mean": 4.666666666666667,
+        "union_names": [
+          "Extract Function",
+          "Replace Nested Conditional with Guard Clauses",
+          "Replace Conditional with Polymorphism",
+          "Parameterize Function",
+          "Replace Function with Command",
+          "Extract Variable",
+          "Replace Conditional Logic with Strategy",
+          "Replace State-Altering Conditionals with State",
+          "Introduce Parameter Object",
+          "Replace Temp with Query",
+          "Preserve Whole Object"
+        ],
+        "union_count": 11
+      },
+      "passk": {
+        "dimension": "lift>0 (surfaced >= 1 named Fowler/Kerievsky refactoring)",
+        "n": 3,
+        "c": 3,
+        "passAt1": 1,
+        "passAt3": 1,
+        "passHat3": 1
+      }
+    },
+    {
+      "suite": "e2e-nx",
+      "cell": "cr-rlu",
+      "arm": "code_review",
+      "runs": 3,
+      "tokens": {
+        "input_total": 42,
+        "output_total": 14586,
+        "cache_read_total": 1134316,
+        "cache_creation_total": 66345,
+        "total_cost_usd_total": 2.56206375,
+        "num_turns_total": 23,
+        "total_cost_usd_mean": 0.8540212500000001
+      },
+      "model_usage_total": {
+        "claude-haiku-4-5-20251001": {
+          "input": 1644,
+          "output": 42,
+          "costUSD": 0.0018540000000000002
+        },
+        "claude-opus-4-8": {
+          "input": 54,
+          "output": 21757,
+          "costUSD": 2.5602097500000003
+        }
+      },
+      "tools": {
+        "merged": {
+          "Bash": 14,
+          "Glob": 2,
+          "Agent": 3,
+          "Read": 4
+        },
+        "spawn_count_total": 3,
+        "spawn_count_mean": 1
+      },
+      "lift": {
+        "per_run": [
+          0,
+          0,
+          0
+        ],
+        "mean": 0,
+        "union_names": [],
+        "union_count": 0
+      },
+      "passk": {
+        "dimension": "lift>0 (surfaced >= 1 named Fowler/Kerievsky refactoring)",
+        "n": 3,
+        "c": 0,
+        "passAt1": 0,
+        "passAt3": 0,
+        "passHat3": 0
+      }
+    },
+    {
+      "suite": "e2e-nx",
+      "cell": "cr-rlu",
+      "arm": "invoke_skill",
+      "runs": 3,
+      "tokens": {
+        "input_total": 17,
+        "output_total": 20283,
+        "cache_read_total": 437719,
+        "cache_creation_total": 73514,
+        "total_cost_usd_total": 1.4632495,
+        "num_turns_total": 14,
+        "total_cost_usd_mean": 0.4877498333333334
+      },
+      "model_usage_total": {
+        "claude-haiku-4-5-20251001": {
+          "input": 1860,
+          "output": 46,
+          "costUSD": 0.00209
+        },
+        "claude-opus-4-8": {
+          "input": 17,
+          "output": 20283,
+          "costUSD": 1.4611595
+        }
+      },
+      "tools": {
+        "merged": {
+          "Read": 8,
+          "Glob": 3
+        },
+        "spawn_count_total": 0,
+        "spawn_count_mean": 0
+      },
+      "lift": {
+        "per_run": [
+          5,
+          5,
+          12
+        ],
+        "mean": 7.333333333333333,
+        "union_names": [
+          "Extract Function",
+          "Extract Variable",
+          "Change Function Declaration",
+          "Replace Loop with Pipeline",
+          "Replace Conditional with Polymorphism",
+          "Decompose Conditional",
+          "Inline Variable",
+          "Replace Temp with Query",
+          "Substitute Algorithm",
+          "Move Function",
+          "Consolidate Conditional Expression",
+          "Extract Superclass"
+        ],
+        "union_count": 12
+      },
+      "passk": {
+        "dimension": "lift>0 (surfaced >= 1 named Fowler/Kerievsky refactoring)",
+        "n": 3,
+        "c": 3,
+        "passAt1": 1,
+        "passAt3": 1,
+        "passHat3": 1
+      }
+    }
+  ]
+}

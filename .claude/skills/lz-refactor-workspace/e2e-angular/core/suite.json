@@ -1,0 +1,10 @@
+{
+  "name": "angular-core-schematics",
+  "repo": "D:/projects/github/angular/angular",
+  "applyBase": "d109cc5e9d",
+  "protectedBranches": ["main", "master"],
+  "skillCommand": "/lz-tdd:lz-refactor",
+  "prompts": [
+    { "id": "an1", "file": "an1-change-tracker-record-imports.md", "target": "an1", "code": true }
+  ]
+}

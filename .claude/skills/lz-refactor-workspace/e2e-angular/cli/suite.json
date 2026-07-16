@@ -1,0 +1,11 @@
+{
+  "name": "angular-cli-devkit-core",
+  "repo": "D:/projects/github/angular/angular-cli",
+  "applyBase": "5584a589a",
+  "protectedBranches": ["22.0.x", "main", "master"],
+  "skillCommand": "/lz-tdd:lz-refactor",
+  "prompts": [
+    { "id": "ac1", "file": "ac1-registry-compile.md", "target": "ac1", "code": true },
+    { "id": "ac2", "file": "ac2-writer-collection-dup.md", "target": "ac2", "code": true }
+  ]
+}

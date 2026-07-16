@@ -1,0 +1,17 @@
+{
+  "repo": "D:/projects/github/angular/angular",
+  "focus_package": "@angular/core (schematics utils)",
+  "targets": [
+    {
+      "id": "an1",
+      "file": "packages/core/schematics/utils/change_tracker.ts",
+      "symbol": "ChangeTracker.prototype._recordImports",
+      "approx_lines": "225-262",
+      "smells": ["Long-ish Method with mixed concerns", "Loops (lastImport findLast; importLines map)"],
+      "expected_family": "Extract Function (recordUpdated/recordDeleted/insertNewImportsForFile); Replace Loop with Pipeline (findLast; map)",
+      "judgment": "Split three sequential responsibilities; convert inner loops to pipeline. Preserve reverse-order insertion of _trackChange. Already fairly clean -> mild smell.",
+      "axis": "mechanical + FP",
+      "verification": "tsc --noEmit + golden-master attempt via typescript Printer over a fixture SourceFile; else diff-judge"
+    }
+  ]
+}

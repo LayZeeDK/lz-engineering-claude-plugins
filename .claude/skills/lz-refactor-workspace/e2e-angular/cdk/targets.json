@@ -1,0 +1,17 @@
+{
+  "repo": "D:/projects/github/angular/components",
+  "focus_package": "@angular/cdk (table)",
+  "targets": [
+    {
+      "id": "cd1",
+      "file": "src/cdk/table/sticky-styler.ts",
+      "symbol": "StickyStyler.prototype.stickRows",
+      "approx_lines": "211-275",
+      "smells": ["Long Method", "Loops (measure phase + apply phase index accumulation)", "Consolidatable Conditional (top/bottom listener branch)"],
+      "expected_family": "Extract Function (measure/apply/notify) inside the schedule callback; Consolidate Conditional on the position-listener branch",
+      "judgment": "Extract the two loop phases; collapse the listener branch. Trap: do NOT introduce a top/bottom Strategy (difference is data, not behavior). Behavior-preserving.",
+      "axis": "mechanical + FP",
+      "verification": "tsc --noEmit + diff-judge (DOM-bound, no node golden-master)"
+    }
+  ]
+}

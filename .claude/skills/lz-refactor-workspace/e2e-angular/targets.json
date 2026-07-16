@@ -1,0 +1,95 @@
+{
+  "suite": "e2e-angular",
+  "mode": "apply / drive (skill EDITS the code in small behavior-preserving steps; NOT recommend-only)",
+  "constraint": "TypeScript source only; targets pre-identified (nx-style), package-agnostic per user.",
+  "verification": {
+    "hard_gate": "tsc --noEmit on the target's tsconfig (edit must compile). angular-cli needs `pnpm install` first (no node_modules).",
+    "behavior_guard": "golden-master characterization where the target is node-callable + deps resolve (run before edit -> baseline; after edit -> must match). DOM-bound targets get typecheck + diff-judge only.",
+    "grade": "LLM diff-judge: behavior-preserving? correct NAMED refactoring (Fowler/Kerievsky/functional)? small incremental steps? over/under-engineering judgment sound? Plus did the skill actually DRIVE (edit) vs only advise (the nx coach-vs-apply no-edit tension)."
+  },
+  "repos": [
+    {
+      "repo": "D:/projects/github/angular/angular-cli",
+      "branch": "22.0.x",
+      "head": "5584a589a",
+      "focus_package": "@angular-devkit/core",
+      "node_callable": "yes (pure JSON/TS logic, no DOM) -- BUT node_modules absent; requires `pnpm install` before tsc/golden-master",
+      "targets": [
+        {
+          "id": "ac1",
+          "file": "packages/angular_devkit/core/src/json/schema/registry.ts",
+          "symbol": "SchemaRegistry.prototype._compile (returns the async validator closure)",
+          "approx_lines": "278-383 (~105 lines)",
+          "smells": ["Long Function (5 sequential validation phases)", "Duplicated Code (pre-transform loop 321-327 vs post-transform loop 373-379 are near-identical)"],
+          "expected_family": "Fowler mechanical: Extract Function per phase (applyPreTransforms / applySmartDefaults(already extracted) / applyPrompts(already extracted) / ajvValidate / applyPostTransforms); factor the two transform loops into ONE helper applyTransforms(visitors, data, schema, validator).",
+          "judgment": "Incremental Extract Function on the returned closure. NOT a class/Strategy -- the phases are a linear pipeline over captured context. The pre/post loop dup is the clean win. Behavior must be preserved (ajv compile + smart defaults + prompts ordering).",
+          "axis": "mechanical + FP",
+          "verification": "golden-master via public compile()/validate() over a fixture schema+data (after pnpm install)"
+        },
+        {
+          "id": "ac2",
+          "file": "packages/angular_devkit/core/src/workspace/json/writer.ts",
+          "symbol": "convertJsonProjectCollection (65-75) + convertJsonTargetCollection (114-122)",
+          "approx_lines": "65-122",
+          "smells": ["Duplicated Code (two structurally identical Object.create(null) + for-of assign loops differing only in the element converter)"],
+          "expected_family": "Fowler: Parameterize Function -> one convertCollection(collection, convertElement) helper. Optionally Replace Loop with Pipeline (Object.fromEntries + map).",
+          "judgment": "Small, low-risk, clean apply candidate. The trap is over-generalizing beyond the two callers -- resist adding config knobs; a single parameterized helper is the earned move.",
+          "axis": "mechanical (dup)",
+          "verification": "golden-master via writeJsonWorkspace over a fixture WorkspaceDefinition (after pnpm install); tiny."
+        }
+      ]
+    },
+    {
+      "repo": "D:/projects/github/angular/components",
+      "branch": "18.2.x",
+      "head": "cfc8cf7eb",
+      "focus_package": "@angular/cdk (table)",
+      "node_callable": "no (DOM-bound: HTMLElement/layout) -> tsc typecheck + diff-judge, no golden-master",
+      "targets": [
+        {
+          "id": "cd1",
+          "file": "src/cdk/table/sticky-styler.ts",
+          "symbol": "StickyStyler.prototype.stickRows",
+          "approx_lines": "211-275 (~64 lines)",
+          "smells": ["Long Method", "Loops (two index-accumulation loops: measure phase 231-245, apply phase 249-259)", "Consolidatable Conditional (top/bottom if-else 261-273 differs only in which position-listener method fires)"],
+          "expected_family": "Fowler: Extract Function (measureStickyRows -> offsets/heights/elements; applyStickyStyles; notifyPositionListener) inside the coalesced-schedule callback; Consolidate Conditional Expression on the 261-273 branch.",
+          "judgment": "Extract the two loop phases into named helpers; collapse the position-listener branch (pick the method by position, call once). Trap: do NOT introduce a top/bottom Strategy -- the difference is data (which callback), not behavior. Behavior-preserving; verify via tsc + diff-judge (DOM prevents node golden-master).",
+          "axis": "mechanical + FP",
+          "verification": "tsc --noEmit (node_modules present) + LLM diff-judge"
+        },
+        {
+          "id": "cd2",
+          "file": "src/cdk/a11y/key-manager/list-key-manager.ts",
+          "symbol": "ListKeyManager.prototype.onKeydown",
+          "approx_lines": "verify at read (keyCode dispatch switch/if-cascade)",
+          "smells": ["Conditional Complexity (keyCode dispatch)"],
+          "expected_family": "Fowler: Decompose Conditional / Replace nested conditional with guard clauses; possibly a key->handler map (Replace Conditional Dispatcher, judged).",
+          "judgment": "OPTIONAL second components target if a single is too thin. Trap: a full command/dispatcher table may be over-engineering for a switch that mostly calls this.setActiveItem variants -- judge earned-ness. Strong spec net (1141 loc) if golden-master via jsdom is ever wired.",
+          "axis": "mechanical + pattern-judgment",
+          "verification": "tsc --noEmit + diff-judge",
+          "status": "optional"
+        }
+      ]
+    },
+    {
+      "repo": "D:/projects/github/angular/angular",
+      "branch": "main",
+      "head": "d109cc5e9d",
+      "focus_package": "@angular/core (schematics utils)",
+      "node_callable": "yes-ish (typescript compiler API, no DOM); confirm @angular/compiler-cli/private/migrations resolves outside bazel for golden-master",
+      "targets": [
+        {
+          "id": "an1",
+          "file": "packages/core/schematics/utils/change_tracker.ts",
+          "symbol": "ChangeTracker.prototype._recordImports",
+          "approx_lines": "225-262 (~38 lines)",
+          "smells": ["Long-ish Method with mixed concerns (record updated imports / record deleted imports / per-file insert new imports)", "Loops (lastImport-finding loop 244-250 is a findLast; importLines build 252-254 is a map)"],
+          "expected_family": "Fowler: Extract Function (recordUpdatedImports / recordDeletedImports / insertNewImportsForFile); Replace Loop with Pipeline (findLast for lastImport; map for importLines).",
+          "judgment": "Split the three sequential responsibilities into named helpers; convert the two inner loops to array pipeline methods. Behavior-preserving. Trap: keep the reverse-order insertion semantics of _trackChange intact. Note: this file is already fairly clean -- mild smell (reinforces the mature-code parity prediction).",
+          "axis": "mechanical + FP",
+          "verification": "tsc --noEmit (node_modules present) + golden-master attempt via typescript Printer over a fixture SourceFile if ImportManager resolves; else diff-judge"
+        }
+      ]
+    }
+  ]
+}

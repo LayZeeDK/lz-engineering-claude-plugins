@@ -1,0 +1,35 @@
+{
+  "invoke_skill": {
+    "drove": 13,
+    "ran": 15,
+    "dims": {
+      "output_quality": 13,
+      "behavior_preservation": 13,
+      "over_under": 13,
+      "idiom": 10,
+      "incrementality": 13
+    }
+  },
+  "with_skill": {
+    "drove": 9,
+    "ran": 15,
+    "dims": {
+      "output_quality": 7,
+      "behavior_preservation": 7,
+      "over_under": 9,
+      "idiom": 8,
+      "incrementality": 9
+    }
+  },
+  "no_skill": {
+    "drove": 15,
+    "ran": 15,
+    "dims": {
+      "output_quality": 9,
+      "behavior_preservation": 10,
+      "over_under": 11,
+      "idiom": 11,
+      "incrementality": 9
+    }
+  }
+}

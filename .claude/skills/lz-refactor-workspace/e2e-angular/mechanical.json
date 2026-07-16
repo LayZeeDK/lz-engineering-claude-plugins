@@ -1,0 +1,238 @@
+{
+  "cdk:cd1|invoke_skill": {
+    "n": 3,
+    "drove": 3,
+    "liftMean": 1,
+    "union": [
+      "Extract Function"
+    ],
+    "costMean": 0.87,
+    "turnsMean": 13,
+    "passAt1_lift": 1,
+    "passHat3_lift": 1,
+    "toolAgg": {
+      "Read": 13,
+      "Edit": 8,
+      "Bash": 11,
+      "Glob": 3
+    }
+  },
+  "cdk:cd1|no_skill": {
+    "n": 3,
+    "drove": 3,
+    "liftMean": 0,
+    "union": [],
+    "costMean": 0.84,
+    "turnsMean": 13,
+    "passAt1_lift": 0,
+    "passHat3_lift": 0,
+    "toolAgg": {
+      "Read": 11,
+      "Bash": 8,
+      "Grep": 9,
+      "Edit": 5,
+      "Glob": 2
+    }
+  },
+  "cdk:cd1|with_skill": {
+    "n": 3,
+    "drove": 1,
+    "liftMean": 1.3,
+    "union": [
+      "Extract Function",
+      "Extract Variable"
+    ],
+    "costMean": 0.48,
+    "turnsMean": 8,
+    "passAt1_lift": 1,
+    "passHat3_lift": 1,
+    "toolAgg": {
+      "Skill": 3,
+      "Read": 8,
+      "Grep": 1,
+      "Edit": 3,
+      "Glob": 1,
+      "PowerShell": 2
+    }
+  },
+  "cli:ac1|invoke_skill": {
+    "n": 3,
+    "drove": 3,
+    "liftMean": 1,
+    "union": [
+      "Extract Function"
+    ],
+    "costMean": 1.63,
+    "turnsMean": 24,
+    "passAt1_lift": 1,
+    "passHat3_lift": 1,
+    "toolAgg": {
+      "Read": 20,
+      "Glob": 7,
+      "Grep": 5,
+      "Bash": 13,
+      "Edit": 18,
+      "PowerShell": 4,
+      "Write": 2
+    }
+  },
+  "cli:ac1|no_skill": {
+    "n": 3,
+    "drove": 3,
+    "liftMean": 0.3,
+    "union": [
+      "Inline Function"
+    ],
+    "costMean": 1.04,
+    "turnsMean": 14,
+    "passAt1_lift": 0.33333333333333337,
+    "passHat3_lift": 0,
+    "toolAgg": {
+      "Read": 14,
+      "Grep": 4,
+      "Edit": 4,
+      "Glob": 8,
+      "PowerShell": 3,
+      "Bash": 7
+    }
+  },
+  "cli:ac1|with_skill": {
+    "n": 3,
+    "drove": 3,
+    "liftMean": 1,
+    "union": [
+      "Extract Function"
+    ],
+    "costMean": 1.07,
+    "turnsMean": 17,
+    "passAt1_lift": 1,
+    "passHat3_lift": 1,
+    "toolAgg": {
+      "Skill": 3,
+      "Read": 11,
+      "Bash": 13,
+      "ToolSearch": 1,
+      "Edit": 11,
+      "Grep": 3,
+      "Glob": 3
+    }
+  },
+  "cli:ac2|invoke_skill": {
+    "n": 3,
+    "drove": 3,
+    "liftMean": 1.3,
+    "union": [
+      "Parameterize Function",
+      "Extract Function"
+    ],
+    "costMean": 0.69,
+    "turnsMean": 15,
+    "passAt1_lift": 1,
+    "passHat3_lift": 1,
+    "toolAgg": {
+      "Read": 7,
+      "Edit": 15,
+      "Glob": 6,
+      "Bash": 13,
+      "Grep": 2
+    }
+  },
+  "cli:ac2|no_skill": {
+    "n": 3,
+    "drove": 3,
+    "liftMean": 0,
+    "union": [],
+    "costMean": 0.58,
+    "turnsMean": 14,
+    "passAt1_lift": 0,
+    "passHat3_lift": 0,
+    "toolAgg": {
+      "Read": 8,
+      "Edit": 14,
+      "Bash": 12,
+      "Glob": 3,
+      "Grep": 1
+    }
+  },
+  "cli:ac2|with_skill": {
+    "n": 3,
+    "drove": 2,
+    "liftMean": 1,
+    "union": [
+      "Extract Function",
+      "Parameterize Function"
+    ],
+    "costMean": 0.59,
+    "turnsMean": 14,
+    "passAt1_lift": 0.6666666666666667,
+    "passHat3_lift": 0,
+    "toolAgg": {
+      "Skill": 3,
+      "Read": 8,
+      "Grep": 2,
+      "Glob": 5,
+      "Edit": 11,
+      "Bash": 6
+    }
+  },
+  "core:an1|invoke_skill": {
+    "n": 3,
+    "drove": 3,
+    "liftMean": 1.3,
+    "union": [
+      "Extract Function",
+      "Replace Loop with Pipeline"
+    ],
+    "costMean": 0.61,
+    "turnsMean": 10,
+    "passAt1_lift": 1,
+    "passHat3_lift": 1,
+    "toolAgg": {
+      "Read": 11,
+      "Glob": 3,
+      "Grep": 4,
+      "Edit": 4,
+      "Bash": 6
+    }
+  },
+  "core:an1|no_skill": {
+    "n": 3,
+    "drove": 3,
+    "liftMean": 0,
+    "union": [],
+    "costMean": 0.52,
+    "turnsMean": 11,
+    "passAt1_lift": 0,
+    "passHat3_lift": 0,
+    "toolAgg": {
+      "Read": 7,
+      "Grep": 9,
+      "Glob": 4,
+      "Edit": 3,
+      "PowerShell": 5,
+      "Bash": 2
+    }
+  },
+  "core:an1|with_skill": {
+    "n": 3,
+    "drove": 2,
+    "liftMean": 1.3,
+    "union": [
+      "Extract Function",
+      "Replace Loop with Pipeline",
+      "Compose Method"
+    ],
+    "costMean": 0.48,
+    "turnsMean": 9,
+    "passAt1_lift": 1,
+    "passHat3_lift": 1,
+    "toolAgg": {
+      "Skill": 3,
+      "Grep": 3,
+      "Read": 6,
+      "Bash": 6,
+      "Edit": 2,
+      "Glob": 1
+    }
+  }
+}

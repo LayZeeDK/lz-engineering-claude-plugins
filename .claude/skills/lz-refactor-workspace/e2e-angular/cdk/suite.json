@@ -1,0 +1,10 @@
+{
+  "name": "angular-cdk-table",
+  "repo": "D:/projects/github/angular/components",
+  "applyBase": "cfc8cf7eb",
+  "protectedBranches": ["18.2.x", "main", "master"],
+  "skillCommand": "/lz-tdd:lz-refactor",
+  "prompts": [
+    { "id": "cd1", "file": "cd1-sticky-styler-stickrows.md", "target": "cd1", "code": true }
+  ]
+}

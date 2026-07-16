@@ -1,40 +1,39 @@
 {
   "version": "1.0",
-  "timestamp": "2026-07-15T14:13:26.842Z",
-  "phase": "14",
-  "phase_name": "compare-lz-refactor-to-mattpocock-skills-code-review-skill-k",
-  "phase_dir": ".planning/phases/14-compare-lz-refactor-to-mattpocock-skills-code-review-skill-k",
-  "plan": 5,
-  "task": null,
-  "total_tasks": 5,
-  "status": "post_audits_done_pending_milestone_close",
+  "timestamp": "2026-07-16T13:20:06.102Z",
+  "context": "queued-quick-task (NOT phase work; eval ran ad-hoc, artifacts in the workspace)",
+  "phase": null,
+  "phase_name": "lz-refactor apply-mode eval (done) -> queued idiom-lift quick task",
+  "phase_dir": ".planning/",
+  "status": "paused",
+  "branch": "gsd/lz-tdd-0.0.2-lz-refactor",
+  "prior_handoff_preserved": "Phase 14 is COMPLETE + verified + all post-audits (secure/validate/extract) committed (2026-07-15). The milestone-close items below are INHERITED from that handoff and still pending -- do not lose them.",
   "completed_tasks": [
-    {"id": "14-01", "name": "run-e2e code_review arm + token/tool meta + synthetic whole-file-diff base + selfcheck", "status": "done", "commit": "d0b4d37"},
-    {"id": "14-02", "name": "report-framed cr-* recommend queries + suites (2 reviewers PASS)", "status": "done", "commit": "03bf58d"},
-    {"id": "14-03", "name": "mechanical tabulator + fixtures + rollup template (--selfcheck exit 0)", "status": "done", "commit": "932a466"},
-    {"id": "14-04", "name": "18 metered head-to-head recommend runs (D-12 gate, user-approved 3-cell)", "status": "done", "commit": "55fce02"},
-    {"id": "14-05", "name": "grade 7 dimensions (mechanical + oracle DST-04 + judge + unbiased) + 14-RESULTS.md verdict", "status": "done", "commit": "8130de0"}
+    {"id": "eval-1", "name": "Design + run lz-refactor APPLY/drive-mode eval on 3 real Angular repos (angular-cli @angular-devkit/core; components @angular/cdk; angular @angular/core schematics). Targets: ac1 registry._compile, ac2 writer.convert*Collection, cd1 sticky-styler.stickRows, an1 change_tracker._recordImports", "status": "done"},
+    {"id": "eval-2", "name": "3 arms (no_skill/invoke_skill/with_skill), k=5 on ac1/cd1/an1 + k=3 on ac2 (saturated); all runs exit 0", "status": "done"},
+    {"id": "eval-3", "name": "Multi-dim graded comparison (Phase-14 rubric, apply-adapted): mechanical + blind judges + oracle book_authenticity (DST-04); RESULTS.md + k5-aggregate.json written; repos restored clean; eval branches deleted; nrwl/nx untouched", "status": "done"}
   ],
   "remaining_tasks": [
-    {"id": "post-4", "name": "/gsd-audit-milestone lz-tdd@0.0.2 (all phases 6-14 now done)", "status": "not_started"},
-    {"id": "post-5", "name": "/gsd-complete-milestone lz-tdd@0.0.2", "status": "not_started"}
-  ],
-  "post_audits_completed": [
-    {"id": "post-1", "name": "/gsd-secure-phase 14 -> gsd-security-auditor -> 14-SECURITY.md", "status": "done", "result": "SECURED 9/9 closed (8 mitigate verified + 2 accept sound); threats_open 0", "commit": "docs(phase-14): add security threat verification"},
-    {"id": "post-2", "name": "/gsd-validate-phase 14 -> gsd-nyquist-auditor -> 14-VALIDATION.md", "status": "done", "result": "GAPS FILLED 4/4 cruxes COVERED (self-checks re-run green + proven can-fail); nyquist_compliant true, wave_0_complete true", "commit": "docs(phase-14): flip validation nyquist-compliant"},
-    {"id": "post-3", "name": "/gsd-extract-learnings 14 -> 14-LEARNINGS.md", "status": "done", "result": "22 items (7 decisions, 4 lessons, 6 patterns, 5 surprises); pooled to global store (learnings.copy created 22, skipped 0)", "commit": "docs(phase-14): extract learnings (22 items) + update state"}
+    {"id": "queued-1", "name": "QUEUED (top of stack): /gsd-quick --full --auto -- Extend drive-to-fixpoint from package/directory scope to single-target apply. Must lift idiom_pattern without regressions across other grades.", "status": "not_started", "priority": "primary"},
+    {"id": "milestone-1", "name": "INHERITED: /gsd-audit-milestone lz-tdd@0.0.2 (phases 6-14 done)", "status": "not_started"},
+    {"id": "milestone-2", "name": "INHERITED: /gsd-complete-milestone lz-tdd@0.0.2", "status": "not_started"}
   ],
   "blockers": [
-    {"description": "Org monthly spend-limit hit TWICE this session (once during 14-03, once during gsd-verifier); user reset it both times", "type": "external", "workaround": "Run post-completion audits one at a time; each spawns agents that spend. If the limit re-triggers, the phase artifacts are durable and committed -- resume the specific audit after reset. Do NOT retry in a loop."}
+    {"description": "Eval-run approval gate: the queued task's success criterion (lift idiom without regressions) needs a held-out validation eval = claude -p spend", "type": "human_action", "workaround": "get explicit user approval before the validation run; never self-approve"},
+    {"description": "Background eval-run chains were KILLED intermittently mid-run this session. User confirmed it is NOT a usage/spend limit; cause unknown", "type": "technical", "workaround": "harness is idempotent/resumable -- re-launch the SAME command (exit0 runs skip, each completed run banks). Resume, do NOT restart. Consider smaller batches."}
   ],
-  "human_actions_pending": [],
+  "human_actions_pending": [
+    {"action": "Approve held-out validation eval spend before running it", "context": "eval-run approval gate", "blocking": true},
+    {"action": "Run /reload-plugins after any SKILL.md commit", "context": "Claude cannot run it; committed != live; re-eval must measure the LIVE skill", "blocking": true}
+  ],
   "decisions": [
-    {"decision": "Phase 14 is COMPLETE + gsd-verifier PASSED 12/12 + committed (8130de0); is_last_phase of milestone lz-tdd@0.0.2", "rationale": "Full discuss->plan->execute->verify chain ran; 14-RESULTS.md verdict is unbiased-reviewer-confirmed and matches grading records", "phase": "14"},
-    {"decision": "Empirical verdict = differently-shaped work (not a skill win): lz-refactor cheaper/named/proportionality-guarded/FP-capable; code_review broader with off-axis bug+spec value; ~139-vs-12 vocabulary breadth is the idiom/pattern headline", "rationale": "Head-to-head vs a real external code-review skill, not just base Opus", "phase": "14"},
-    {"decision": "D-12 metered spend gate was explicitly user-approved (approve-3cell = 18 runs); never self-approved", "rationale": "eval-run-approval-gate + D-12 no-self-approval", "phase": "14"},
-    {"decision": "Kata run command fixed: use --suite e2e-gilded-rose (NOT ../e2e-gilded-rose) from the workspace root; run-e2e.mjs:57 resolves --suite vs CWD", "rationale": "the plan's documented command assumed CWD=e2e-nx/; the deviation is recorded in 14-04-SUMMARY", "phase": "14"}
+    {"decision": "Concrete change = broaden SKILL.md drive-to-fixpoint from package/dir/module scope to SINGLE-TARGET apply, keeping ALL guards (step-4 APPLY/DECLINE, step-5 blast-radius pause, verify-between-rounds)", "rationale": "single-target apply currently applies ONE refactoring then defers exposed follow-ons; completing bounded safe rounds is the lever to lift idiom_pattern without over-reaching"},
+    {"decision": "Validate on HELD-OUT targets (new smells), NOT ac1/cd1/an1", "rationale": "those are trained-on; a real lift must generalize"},
+    {"decision": "Skill-instruction edit requires subagent review before acceptance + reload-plugins after commit + public-repo hygiene (gmail identity, allowlist scan)", "rationale": "standing rules"}
   ],
-  "uncommitted_files": [".planning/config.json (carries workflow._auto_chain_active: true -- left uncommitted by design; the orchestrator's ephemeral chain flag)"],
-  "next_action": "Post-completion audits (secure + validate + extract-learnings) are DONE + committed (2026-07-15). Remaining: /gsd-audit-milestone lz-tdd@0.0.2 then /gsd-complete-milestone lz-tdd@0.0.2. Do NOT re-run any metered eval, re-execute phase-14 plans, or re-run the three completed audits -- all committed.",
-  "context_notes": "Paused deliberately to move the mandatory post-completion audits (secure/validate/extract) into a fresh session: this session's context is very large and the org spend-limit hit twice, so running heavy audit agents here risked another mid-audit interruption. The audits are RETROACTIVE on the already-verified, committed phase -- they read existing artifacts, they do NOT re-run the 18 metered runs (those live in results/recommend/**/cr-*/ and are committed). _auto_chain_active is still true in config; running the audits as plain commands (not --auto) lets the workflows' 'sync chain flag with intent' step clear it."
+  "uncommitted_files": [
+    ".claude/skills/lz-refactor-workspace/e2e-angular/ (UNTRACKED, on-disk only. NOT gitignored except outputs/ + *.stream.jsonl byproducts. Contains RESULTS.md, k5-aggregate.json, targets.json, GRADING.md, per-suite results, tabulate/synth scripts, blinded bundles graded*/. Committing it as a tracked eval record like e2e-nx is OPTIONAL -- if so, hygiene-scan + drop the throwaway blinded bundles/prep scripts first.)"
+  ],
+  "next_action": "Confirm go/no-go on queued-1 given k=5 shows idiom_pattern is NOT a measured defect (with_skill 89%, invoke 77%, baseline 73%). If go: design SKILL.md edit -> subagent review -> apply -> /reload-plugins -> approval-gated held-out validation eval -> commit ONLY if idiom lifts with no regression; else report null and do not ship.",
+  "context_notes": "Eval verdict (in e2e-angular/RESULTS.md): the skill's applied-quality edge is REAL when it drives (invoke 100% on output/behavior/over/incrementality vs baseline 60-73%; baseline recurringly drops an await -> async regression on ac1, 2/5). Auto-trigger fires 100% but drives only 60% (question->coach routing on question-phrased prompts; partly a prompt-phrasing confound). idiom_pattern ~tied. The queued task targets a marginal/non-defect signal; justification is thoroughness, expect possibly-null lift. Power-mode caveat: k=3 ran Performance, k=5 Balanced -> wall-clock not cross-batch comparable; cost/tokens/graded dims fine."
 }

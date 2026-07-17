@@ -1,7 +1,10 @@
 // Single source of truth for GitHub-flavored heading -> anchor slugs across the checker
-// battery. Matches github-slugger's rule: lowercase, drop the characters GitHub drops
-// (anything outside word chars / whitespace / hyphen), then collapse whitespace runs to a
-// single hyphen. Shared by check-kerievsky (which BUILDS the required cross-link anchors)
+// battery. Rule: lowercase, drop the characters GitHub drops (anything outside word chars /
+// whitespace / hyphen), then COLLAPSE each whitespace run to a single hyphen. Note this is not
+// exact github-slugger parity on whitespace: github-slugger replaces each individual space with a
+// hyphen (so a run of N spaces yields N hyphens), whereas `.replace(/\s+/g, "-")` here yields one
+// hyphen per run. The two agree for headings with single-space separators (all our catalog
+// headings). Shared by check-kerievsky (which BUILDS the required cross-link anchors)
 // and check-crossrefs (which VALIDATES anchors against a file's headings) so the anchor a
 // checker DEMANDS can never diverge from the anchor a checker VALIDATES -- or from the
 // anchor github.com actually generates.

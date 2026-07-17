@@ -6,7 +6,9 @@
 //     and, when an #anchor is given, it resolves to a GitHub-style heading slug in that file;
 //   - links whose target is principles.md are FILE-LEVEL (assert the file exists; do NOT resolve an
 //     #anchor into it -- it is a hub doc named by link text, not anchor);
-//   - no self-referential link (a leaf linking its own file / its own anchor);
+//   - no self-referential link where a leaf links its own FILE (a `.md` link, including its own
+//     `.md#anchor`); note linkRe requires a `.md` target, so a bare `](#fragment)` same-file anchor
+//     self-link is NOT scanned;
 //   - inverse-of pairs are MUTUALLY declared: if leaf A declares an inverse-of link to leaf B, leaf
 //     B must declare an inverse-of link back to A (an inverse-of declaration = a line mentioning
 //     "inverse" that carries a catalog-leaf link).

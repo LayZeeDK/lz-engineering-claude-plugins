@@ -329,15 +329,39 @@ if (!fs.existsSync(SMELLS_INDEX)) {
   report(false, "smells.md index exists", "not found");
 } else {
   const indexText = fs.readFileSync(SMELLS_INDEX, "utf8");
-  // Per-smell (not a single global match): the index must carry one recognize-by line
-  // for every smell it links, else 23 of 24 could lack one and still pass on a lone stray.
-  const recognizeCount = (indexText.match(/recognize by:/gi) || []).length;
-  const smellLinkCount = (indexText.match(/\]\((?:\.\/)?smells\/[a-z0-9-]+\.md(?:#[^)\s]+)?\)/gi) || []).length;
-  report(
-    smellLinkCount > 0 && recognizeCount === smellLinkCount,
-    "smells.md carries a recognize-by line per linked smell",
-    recognizeCount === smellLinkCount ? "" : `${recognizeCount} recognize-by vs ${smellLinkCount} smell link(s)`
-  );
+  const indexLines = indexText.split(/\r?\n/);
+  // Per-smell CO-OCCURRENCE (not a single global tally): every line that links a smell leaf must
+  // carry a recognize-by cue within its row -- the text from the previous smell-link line (exclusive)
+  // up to and including this link line. A global count-equality let 23 of 24 rows drop their cue and
+  // still pass on a lone stray line; this fails if ANY linked smell's row lacks a recognize-by cue.
+  const smellLinkRe = /\]\((?:\.\/)?smells\/[a-z0-9-]+\.md(?:#[^)\s]+)?\)/i;
+  const recognizeRe = /recognize by:/i;
+  const linkLineIdxs = indexLines
+    .map((line, i) => (smellLinkRe.test(line) ? i : -1))
+    .filter((i) => i >= 0);
+
+  if (linkLineIdxs.length === 0) {
+    report(false, "smells.md carries a recognize-by cue per linked smell (co-occurrence)", "no smell-leaf links found");
+  } else {
+    const rowsMissingCue = [];
+    let prev = -1;
+
+    for (const idx of linkLineIdxs) {
+      const scope = indexLines.slice(prev + 1, idx + 1).join("\n");
+
+      if (!recognizeRe.test(scope)) {
+        rowsMissingCue.push(indexLines[idx].trim());
+      }
+
+      prev = idx;
+    }
+
+    report(
+      rowsMissingCue.length === 0,
+      "smells.md carries a recognize-by cue per linked smell (co-occurrence)",
+      rowsMissingCue.length === 0 ? "" : `${rowsMissingCue.length} linked row(s) without a recognize-by cue: ${rowsMissingCue.join(" | ")}`
+    );
+  }
 
   let indexed = 0;
   const indexMissing = [];

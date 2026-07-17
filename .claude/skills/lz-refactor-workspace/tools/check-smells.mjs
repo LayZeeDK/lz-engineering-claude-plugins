@@ -332,8 +332,15 @@ if (!fs.existsSync(SMELLS_INDEX)) {
   report(false, "smells.md index exists", "not found");
 } else {
   const indexText = fs.readFileSync(SMELLS_INDEX, "utf8");
-  const hasRecognize = /recognize by:/i.test(indexText);
-  report(hasRecognize, "smells.md carries recognize-by lines", hasRecognize ? "" : "none found");
+  // Per-smell (not a single global match): the index must carry one recognize-by line
+  // for every smell it links, else 23 of 24 could lack one and still pass on a lone stray.
+  const recognizeCount = (indexText.match(/recognize by:/gi) || []).length;
+  const smellLinkCount = (indexText.match(/\]\((?:\.\/)?smells\/[a-z0-9-]+\.md(?:#[^)\s]+)?\)/gi) || []).length;
+  report(
+    smellLinkCount > 0 && recognizeCount === smellLinkCount,
+    "smells.md carries a recognize-by line per linked smell",
+    recognizeCount === smellLinkCount ? "" : `${recognizeCount} recognize-by vs ${smellLinkCount} smell link(s)`
+  );
 
   let indexed = 0;
   const indexMissing = [];

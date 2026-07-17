@@ -227,6 +227,12 @@ function checkTranscriptParse() {
   try {
     raw = readFileSync(transcript, 'utf8');
   } catch (err) {
+    if (err.code === 'ENOENT') {
+      console.log('  [crux 3] SKIP -- transcript absent (gitignored); run a metered apply run to exercise it');
+
+      return;
+    }
+
     fail(`cannot read on-disk transcript ${transcript}: ${err.message}`);
   }
 

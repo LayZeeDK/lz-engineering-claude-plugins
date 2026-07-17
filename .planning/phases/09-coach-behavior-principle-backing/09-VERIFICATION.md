@@ -1,7 +1,8 @@
 ---
 phase: 09-coach-behavior-principle-backing
 verified: 2026-07-09T07:20:00Z
-status: human_needed
+status: passed
+resolved: "2026-07-17 -- the sole human_needed item (skill-reviewer PASS, the DST-04/IP anchor) was obtained by Phase 10-04; 10-VERIFICATION.md (status passed, Truth 3) documents plugin-validator + skill-reviewer PASS on both skills. Per this report's own note below, that closes the phase at 9/9."
 score: 9/9 must-haves verified
 overrides_applied: 0
 human_verification:
@@ -14,7 +15,7 @@ human_verification:
 
 **Phase Goal:** The dual-mode coach behavior is wired on top of both catalogs -- smell->named-refactoring routing (mechanical->Fowler, structural->Kerievsky), the over-/under-engineering (de-patterning) balance routed to the functional-catalog, behavior-preservation discipline with a no-tests fallback, and the red-green-refactor seam with lz-tpp -- backed by the three no-oracle, high-confidence-core principle cross-references.
 **Verified:** 2026-07-09T07:20:00Z
-**Status:** human_needed
+**Status:** passed (resolved 2026-07-17 -- see resolution note below)
 **Re-verification:** No -- initial verification
 
 ## Goal Achievement
@@ -103,7 +104,19 @@ No content or wiring gaps. All 9 requirements are structurally delivered and eve
 
 The sole outstanding item is the mandatory **skill-reviewer PASS** (the DST-04/IP anchor), which is not programmatically verifiable and is recorded as pending in the phase artifacts. This is why the status is `human_needed` rather than `passed`: the content is complete, but the required first-party review must be run/confirmed by the orchestrator before the phase closes. There is nothing to re-plan or re-execute unless skill-reviewer subsequently flags a DST-04 issue.
 
+### Resolution (2026-07-17)
+
+The sole `human_needed` item -- the plugin-dev **skill-reviewer PASS** on `lz-refactor` -- was
+obtained during Phase 10. `10-VERIFICATION.md` (status `passed`, Truth 3 / DST-02) records
+`plugin-validator + skill-reviewer (both skills) PASS documented in 10-04`, confirming no verbatim
+Beck/Feathers book prose or code across the three no-oracle refs and the `SKILL.md` coach procedure.
+Per this report's own note above (Human Verification Required), that satisfies the item and closes
+the phase at **9/9 passed**. Status flipped `human_needed -> passed` at milestone close; no content
+was re-verified here -- this only reconciles the frontmatter to the already-documented closure. The
+milestone audit (`lz-tdd@0.0.2-MILESTONE-AUDIT.md`, status `passed`) independently confirms the same.
+
 ---
 
 _Verified: 2026-07-09T07:20:00Z_
 _Verifier: Claude (gsd-verifier)_
+_Resolution appended: 2026-07-17 (milestone close; skill-reviewer PASS obtained by Phase 10-04)_

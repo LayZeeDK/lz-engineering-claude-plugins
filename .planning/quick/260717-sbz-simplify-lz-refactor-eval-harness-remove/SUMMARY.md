@@ -1,6 +1,7 @@
 ---
 phase: quick-260717-sbz
 plan: 01
+status: complete
 subsystem: testing
 tags: [eval-harness, dead-code, refactor, node-mjs, lz-refactor]
 

@@ -1,0 +1,36 @@
+{
+  "suite": "heldout-precision-loop-audit",
+  "mode": "apply (COMMAND) -- PRECISION test for the SKILL.md step-5 loop-audit forcing-function (Option B). Tests over-conversion: does the skill-embedded loop audit correctly LEAVE non-convertible loops rather than blanket-converting?",
+  "constraint": "HELD-OUT LEAVE-dominant target (distinct from the getTypesOfSchema recall target). Grade PRECISION = fraction of non-convertible (LEAVE) loops correctly left as loops. Any wrongful conversion of a LEAVE loop to map/filter/reduce/flatMap is a precision miss. behavior_preservation must hold (a wrongful conversion that changes behavior is the worst outcome). The prompt is neutral (names no loop/pipeline) so the skill, not the prompt, drives the audit.",
+  "repos": [
+    {
+      "repo": "D:/projects/github/angular/angular-cli",
+      "branch": "22.0.x",
+      "head": "5584a589a",
+      "focus_package": "@schematics/angular",
+      "targets": [
+        {
+          "id": "pb1",
+          "file": "packages/schematics/angular/migrations/use-application-builder/stylesheet-updates.ts",
+          "symbols": ["hasLessStylesheets", "hasPostcssConfiguration", "analyzeStylesheet", "updateStyleImports"],
+          "expected_family": "Fowler mechanical clean-ups are fine (rename, extract, guard-clause). The KEY signal is NEGATIVE: the loop audit should mark every loop below LEAVE and NOT convert it.",
+          "loops": [
+            {"id": "L1", "sig": "while ((current = directories.pop()))", "approx_line": 47, "verdict": "LEAVE", "reason": "worklist / consume-as-you-go: drains + mutates the same collection; assignment-in-condition; no fixed source array"},
+            {"id": "L2", "sig": "for (path of current.subfiles) return true on .less", "approx_line": 48, "verdict": "LEAVE", "reason": "early return mid-iteration (a .some fits; a map/filter/reduce pipeline does not preserve behavior)"},
+            {"id": "L3", "sig": "for (path of current.subdirs) continue/push", "approx_line": 54, "verdict": "LEAVE", "reason": "continue mid-iteration + side effect (pushes into the worklist being consumed)"},
+            {"id": "Lb", "sig": "for (dir of searchDirectories) if exists return true", "approx_line": 77, "verdict": "LEAVE", "reason": "early return + I/O (tree.exists)"},
+            {"id": "L4", "sig": "for ({start,specifier,fromUse} of findImports(...)) if/elseif", "approx_line": 158, "verdict": "LEAVE", "reason": "multiple accumulators updated together (contentChanges, externalDependencies, needsWorkspaceIncludePath) + side-effecting predicate (I/O)"},
+            {"id": "L5", "sig": "for ([path,content] of visitStylesheets(...))", "approx_line": 189, "verdict": "LEAVE", "reason": "per-iteration I/O (tree.beginUpdate/commitUpdate) + multiple accumulators; source is a generator"},
+            {"id": "L6", "sig": "for (dep of externalDependencies) allExternalDeps.add(dep)", "approx_line": 200, "verdict": "LEAVE", "reason": "DECOY: Set-merge, not an element transform; idiomatic fix is spread/forEach, not a map/filter/reduce pipeline"},
+            {"id": "L7", "sig": "for (change of contentChanges.sort(...)) updater.remove(...)", "approx_line": 207, "verdict": "LEAVE", "reason": "iteration-order interdependence (reverse to avoid index shifting) + side effect on updater"}
+          ],
+          "leave_count": 8,
+          "convert_count": 0,
+          "judgment": "Every side effect is an explicit tree.*/updater.* call or an accumulator mutation, so a wrongful pipeline conversion is visible in the diff. Extract/rename/guard-clause clean-ups are acceptable and not graded; only loop over-conversion and behavior changes are graded.",
+          "axis": "precision / restraint (over-conversion guard)",
+          "verification": "npx tsc --noEmit on the touched project + diff inspection: did any LEAVE loop become a map/filter/reduce/flatMap pipeline? did behavior change?"
+        }
+      ]
+    }
+  ]
+}

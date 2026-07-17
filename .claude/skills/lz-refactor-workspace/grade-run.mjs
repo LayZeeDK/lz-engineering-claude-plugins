@@ -595,7 +595,7 @@ function main() {
   // requested final path. Remove any stale FINAL grading.json left in that dir from a prior grading
   // of the same run, so aggregate_benchmark.py cannot count it as a completed scored-only summary.
   if (result.judge_required.length > 0) {
-    const stale = path.join(path.dirname(args.out), path.basename(args.out));
+    const stale = args.out;
 
     if (fs.existsSync(stale)) {
       fs.rmSync(stale);

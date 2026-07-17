@@ -1,35 +1,34 @@
 ---
 gsd_state_version: 1.0
-milestone: lz-tdd@0.0.2
-milestone_name: lz-refactor Skill (Fowler + Kerievsky)
-status: completed
-stopped_at: "2026-07-17: MILESTONE lz-tdd@0.0.2 CLOSED via /gsd-complete-milestone. Pre-close audit-open resolved 10 -> 0 open items; ROADMAP/REQUIREMENTS/audit archived to .planning/milestones/; REQUIREMENTS.md removed (fresh for next milestone); phases 6-14 archived to milestones/lz-tdd@0.0.2-phases/; git tag lz-tdd@0.0.2 cut. Pending: user /reload-plugins (loop-audit forcing-function 01208c8 + internal-ID strip 7ddf41b); /gsd-cleanup 01-05 (archive prior-milestone phase dirs). Next: /gsd-new-milestone."
-last_updated: "2026-07-17T00:00:00.000Z"
+milestone: lz-tdd@0.0.3
+milestone_name: lz-red Skill (RED phase)
+status: planning
+last_updated: "2026-07-17T23:31:55.315Z"
 last_activity: 2026-07-17
 progress:
-  total_phases: 11
-  completed_phases: 11
-  total_plans: 55
-  completed_plans: 66
-  percent: 100
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-07-17 after the lz-tdd@0.0.2 milestone)
+See: .planning/PROJECT.md (updated 2026-07-18 -- started milestone lz-tdd@0.0.3)
 
-**Core value:** `lz-tpp` helps Claude choose the next code transformation by TPP priority during red-green-refactor TDD, and explains the premise on demand. lz-tdd@0.0.2 added `lz-refactor` to drive the refactor step.
-**Current focus:** Planning next milestone (lz-tdd@0.0.2 shipped + tagged 2026-07-17)
-**Milestone:** lz-tdd@0.0.2 (lz-refactor Skill) -- SHIPPED 2026-07-17 (audit passed; archived)
+**Core value:** `lz-tpp` helps Claude choose the next code transformation by TPP priority during red-green-refactor TDD, and explains the premise on demand. lz-tdd@0.0.2 added `lz-refactor` (refactor step); lz-tdd@0.0.3 adds `lz-red` (red step) to complete the loop.
+**Current focus:** lz-tdd@0.0.3 (`lz-red` skill, RED phase) -- defining requirements
+**Milestone:** lz-tdd@0.0.3 (lz-red Skill, RED phase) -- planning (started 2026-07-18)
 
 ## Current Position
 
-Phase: 14
-Plan: Not started
-Status: Milestone complete
-Last activity: 2026-07-17 - Quick task 260717-sbz: /simplify eval-harness cleanup -- 3 dead-code/no-op findings applied (3 atomic commits 9e1adf6..629e0dc, battery GREEN, verified 4/4)
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-07-17 — Milestone lz-tdd@0.0.3 started
 
 ## Performance Metrics
 

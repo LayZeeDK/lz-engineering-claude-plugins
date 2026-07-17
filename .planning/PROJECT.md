@@ -4,12 +4,14 @@
 
 A public Claude Code plugin marketplace repository that hosts engineering-focused
 plugins for Claude Code. The first plugin is `lz-tdd`, a test-driven-development
-plugin. It ships two dual-mode agent skills that cover the red-green-refactor loop:
-`lz-tpp` (`/lz-tdd:lz-tpp`) operationalizes Robert C. Martin's Transformation Priority
-Premise for the green step, and `lz-refactor` (`/lz-tdd:lz-refactor`, added in
-lz-tdd@0.0.2) operationalizes Martin Fowler's *Refactoring* (2nd ed) and Joshua
-Kerievsky's *Refactoring to Patterns* for the refactor step. It is for software
-engineers who use Claude Code and practice TDD.
+plugin. It ships two dual-mode agent skills covering the green and refactor steps of
+the red-green-refactor loop: `lz-tpp` (`/lz-tdd:lz-tpp`) operationalizes Robert C.
+Martin's Transformation Priority Premise for the green step, and `lz-refactor`
+(`/lz-tdd:lz-refactor`, added in lz-tdd@0.0.2) operationalizes Martin Fowler's
+*Refactoring* (2nd ed) and Joshua Kerievsky's *Refactoring to Patterns* for the refactor
+step. A third skill, `lz-red` (`/lz-tdd:lz-red`), for the red (failing-test) step is in
+progress under lz-tdd@0.0.3. It is for software engineers who use Claude Code and practice
+TDD.
 
 ## Core Value
 
@@ -18,6 +20,39 @@ during red-green-refactor TDD -- keeping the implementation at the simplest
 transformation that passes the failing test -- and explains the premise on demand.
 If everything else fails, this transformation-priority guidance must be correct and
 usable.
+
+## Current Milestone: lz-tdd@0.0.3 -- lz-red Skill (RED phase)
+
+**Goal:** Add a third dual-mode agent skill, `/lz-tdd:lz-red`, that coaches the RED step of
+red-green-refactor -- choosing and writing the next failing unit test well, adaptively
+matching the codebase's testing stance -- completing the RGR loop and handing off to `lz-tpp`
+at the green step.
+
+**Target features:**
+
+- Dual-mode `lz-red` skill (auto-triggering coach + on-demand reference) at
+  `plugins/lz-tdd/skills/lz-red/`, mirroring lz-tpp/lz-refactor progressive disclosure (lean
+  `SKILL.md` + lazy `references/`).
+- RED decision procedure on the Three Laws of TDD spine: pick the next test (test list,
+  one-step, starter/degenerate, triangulation) -> structure it (AAA / Given-When-Then,
+  assert-first, evident data, one concept) -> assert observable behavior not implementation
+  -> behavior-shaped naming -> fail for the right reason -> hand off to lz-tpp.
+- Adaptive testing-stance router: match house idiom always; route by structural control /
+  seams to Bernhardt (functional core-imperative shell) / Metz (Magic Tricks query-command
+  matrix) / Feathers (no-seam legacy); "listen to the tests" as the meta-rule; optional
+  override phrase (no flag).
+- TypeScript + Vitest specialization: `it.todo` as the test list, `test.each` for
+  triangulation, `expectTypeOf`/`assertType` for type-level RED, `vi.*` doubles with
+  restraint, watch-mode feedback loop; TS examples throughout SKILL.md and references.
+- lz-tpp seam (Three Laws 1/2 -> Law 3 handoff) + reverse pointer; anti-pattern leaf
+  including Ian Cooper's over-mock / test-per-class warning.
+- Skill-effectiveness evals (trigger recall/specificity + RED-behavior accuracy), as in
+  0.0.1/0.0.2.
+
+**Scope:** unit RED only; outside-in / acceptance / double-loop TDD deferred to a later
+milestone. Grounding sources and their access tiers (owned-book/transcribed-talk clean-room
+via git-ignored `.oracle/`; no-oracle high-confidence core; DHH banned) are recorded in Key
+Decisions; full requirements are defined in `.planning/REQUIREMENTS.md`.
 
 ## Current State: lz-tdd@0.0.2 SHIPPED (2026-07-17)
 
@@ -121,7 +156,7 @@ lz-refactor catalogs, coach, distribution & evals (Phases 7-14, shipped lz-tdd@0
 
 <!-- Current scope. Hypotheses until shipped and validated. -->
 
-No active milestone. lz-tdd@0.0.2 is shipped and archived; the next milestone is defined via `/gsd-new-milestone` (which creates a fresh `.planning/REQUIREMENTS.md`). Deferred candidates still tracked as the starting backlog: additional TDD skills under `lz-tdd`, additional plugins, npm packaging/distribution, multi-language example sets beyond TypeScript, and the Future Requirements from the archived 0.0.2 requirements (FUT-01 full Tidy First? tidyings catalog; FUT-02 multi-language examples; FUT-03 automated refactoring execution / codemods; FUT-04 split the Kerievsky layer into its own skill). One carried-forward tech-debt touch: add a reverse `lz-tpp -> lz-refactor` pointer on the next lz-tpp edit (the seam is currently one-directional).
+Active milestone: **lz-tdd@0.0.3 -- `lz-red` skill (RED phase)** (see Current Milestone above). Requirements are being defined in a fresh `.planning/REQUIREMENTS.md`. Deferred candidates still tracked as backlog: additional plugins, npm packaging/distribution, multi-language example sets beyond TypeScript, outside-in / acceptance / double-loop TDD (deferred out of 0.0.3), and the archived 0.0.2 Future Requirements (FUT-01 full Tidy First? tidyings catalog; FUT-02 multi-language examples; FUT-03 automated refactoring execution / codemods; FUT-04 split the Kerievsky layer into its own skill). Carried-forward tech-debt: add a reverse `lz-tpp -> lz-refactor` pointer on the next lz-tpp edit (the seam is one-directional); when `lz-red` ships, wire the `lz-red -> lz-tpp` seam and a reverse `lz-tpp -> lz-red` pointer.
 
 ### Out of Scope
 
@@ -132,6 +167,8 @@ No active milestone. lz-tdd@0.0.2 is shipped and archived; the next milestone is
 - npm packaging/distribution -- git-based marketplace install is sufficient for 0.0.1
 - Deep language-specific guides beyond TypeScript examples -- agnostic principles + TS examples cover 0.0.1
 - Additional TDD skills under `lz-tdd` (e.g., test naming, triangulation) -- future skills, not 0.0.1
+- Outside-in / acceptance / double-loop TDD in `lz-red` (lz-tdd@0.0.3) -- deferred to a later milestone; unit RED first
+- DHH's "TDD is dead" / test-induced design damage as an `lz-red` source -- excluded by maintainer decision (hard ban)
 
 ## Context
 
@@ -177,6 +214,11 @@ No active milestone. lz-tdd@0.0.2 is shipped and archived; the next milestone is
 | Clean-room oracle model for copyrighted books in `.oracle/` (oracle/oracle-reviewer agents only; main context never reads book prose; own-words only crosses back) | DST-04 / copyright: ship original prose + code + names + facts, never verbatim source | Good -- Fowler/Kerievsky/GoF catalogs authored + verified this way; no-verbatim hygiene gate GREEN; skill-reviewer PASS |
 | Plugin-scoped milestone id (`<plugin>@<semver>`) from the start of 0.0.2 | 0.0.1's late relabel churn (v1.0 -> v0.0.1 -> lz-tdd@0.0.1); the marketplace hosts multiple plugins | Good -- lz-tdd@0.0.2 used the scoped id throughout; no rename sweep at close |
 | Skill-level loop-audit forcing-function (SKILL.md AUDIT+DECIDE step), shipped post-Phase-14 | Five prior passive-content probes were null on the output-warrant axis; an active enumeration step reproduced skill-alone recall while staying precise | Pending -- first non-null + safe lever; held-out A/B recall 5/5 vs 0/3 control, 0/5 over-conversions; needs `/reload-plugins` to go live in-session |
+| Third skill `lz-red` (`/lz-tdd:lz-red`) under `lz-tdd` for the RED step (lz-tdd@0.0.3) | Completes red-green-refactor alongside lz-tpp (green) + lz-refactor (refactor); keeps TDD skills grouped | Pending |
+| `lz-red` testing stance = adaptive auto-detect (match house idiom; route by structural control/seams -> Bernhardt FCIS / Metz Magic-Tricks matrix / Feathers no-seam legacy; "listen to the tests"), not one fixed school | Brownfield cannot assume functional core-imperative shell; Metz's message matrix is design-agnostic; Feathers creates a seam first | Pending |
+| `lz-red` source access model: owned books (RCM *Clean Code*; Metz *99 Bottles JS Ed*) + transcribed talks live git-ignored in `.oracle/` clean-room (own-words only, DST-04); unowned books = no-oracle high-confidence core; DHH hard-banned | Copyright hygiene: never commit verbatim copyrighted transcripts/prose; ship own-words synthesis | Pending |
+| Verbatim transcripts of copyrighted talks are never committed to this public repo (git-ignored `.oracle/` only) | Open-source copyright hygiene; recorded talks are all-rights-reserved by default | Good -- NDC-2011 TPP transcript removed from HEAD (b79adef), no history rewrite |
+| lz-tdd@0.0.3 scope = unit RED only; outside-in / acceptance / double-loop deferred | Keep `lz-red` lz-tpp-sized; avoid premature scope | Pending |
 
 ## Evolution
 
@@ -196,4 +238,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-07-17 after shipping the lz-tdd@0.0.2 milestone (lz-refactor Skill). Full PROJECT.md evolution review completed at milestone close: "What This Is" updated to two skills, Core Value verified, all 36 shipped requirements moved to Validated, Active reset to next-milestone planning, Out of Scope audited, Context refreshed, Key Decisions updated with 0.0.2 outcomes.*
+*Last updated: 2026-07-18 -- started milestone lz-tdd@0.0.3 (`lz-red` skill, RED phase): added the Current Milestone section, reset Active scope to lz-red, added Out of Scope boundaries (outside-in deferred; DHH banned), and logged Key Decisions (adaptive testing-stance router, source access model, talk-transcript copyright rule + NDC-2011 removal). Previous: 2026-07-17 after shipping lz-tdd@0.0.2 (lz-refactor Skill).*

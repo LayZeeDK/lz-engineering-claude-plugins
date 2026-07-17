@@ -30,9 +30,9 @@
 //   C8 -- README `## Sources` cites `.planning/research/functional-depatterning-ts.md` (the no-oracle
 //         correctness anchor; D-06).
 // Link RESOLUTION (target file exists + anchor resolves) is DELEGATED to check-crossrefs (which now
-// lists functional-catalog as a source dir) -- there is NO second resolver here, and no second slug
-// function (FILENAME uses slugFor; #anchor uses the imported githubSlug so a DEMANDED anchor can
-// never diverge from the anchor check-crossrefs VALIDATES, WR-02). check-hygiene already guards
+// lists functional-catalog as a source dir) -- there is NO second resolver here: the FILENAME is the
+// kebab-case slug of the leaf H1 while the #anchor uses the imported githubSlug, so a demanded anchor
+// can never diverge from what check-crossrefs VALIDATES (WR-02). check-hygiene already guards
 // ASCII-only + no-verbatim + work-email over references/ recursively. Throwaway; node builtins only.
 // RED against the empty catalog (0/19 leaves; 55 missing `Functional alternative:` lines; no README
 // rows) is the EXPECTED instrument-first Wave-1 baseline, not a failure -- FUN-01..04 close only when
@@ -54,8 +54,9 @@ const FUNCTIONAL = path.join(REFERENCES, "functional-catalog");
 const README = path.join(FUNCTIONAL, "README.md");
 
 // The 19 canonical idiom leaves (D-13, RESEARCH.md Deliverable 1): 13 dissolves-from + 6
-// alternative-to. `name` is the exact H1 text (identity); `slug` is slugFor(name) == the filename
-// AND githubSlug(name) (they agree -- all names are alphanumeric + single spaces + one hyphen);
+// alternative-to. `name` is the exact H1 text (identity); `slug` is the kebab-case filename slug of
+// `name`, equal to the filename and to githubSlug(name) (they agree -- all names are alphanumeric +
+// single spaces + one hyphen);
 // `correspondence` is the closed-enum direction; `served` is the set of distinct gof/extra target
 // patterns that map to an N:1 leaf and therefore need a `### <Pattern>` residual anchor (C5). A leaf
 // with fewer than 2 served patterns is 1:1 (no per-pattern split). The served sets are the distinct
@@ -133,9 +134,6 @@ const isDir = (p) => {
     return false;
   }
 };
-
-// kebab-case FILENAME slug of a canonical name (deterministic cross-link target).
-const slugFor = (name) => name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
 
 // Escape a pattern name for use inside a dynamically built RegExp (the served/OO names are plain
 // today, but this keeps the sub-heading + back-link matches robust). Still used at the served

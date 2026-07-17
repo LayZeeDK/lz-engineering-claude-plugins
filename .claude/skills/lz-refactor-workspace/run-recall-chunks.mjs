@@ -7,11 +7,16 @@
 //   node run-recall-chunks.mjs           # run/resume all chunks
 //   node run-recall-chunks.mjs --report  # print combined result, run nothing
 import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { execFileSync } from "node:child_process";
 
-const WS = "D:/projects/github/LayZeeDK/lz-engineering-claude-plugins/.claude/skills/lz-refactor-workspace";
+// Resolve roots from this file's location (workspace root) so the runner works on any
+// clone / CI, not just the maintainer's checkout. Normalize to forward slashes so the
+// downstream `WS + "/..."` concatenation is unchanged on every platform.
+const WS = path.dirname(fileURLToPath(import.meta.url)).replace(/\\/g, "/");
 const TOOL_DIR = WS + "/tools/skill-creator-eval";
-const SKILL = "D:/projects/github/LayZeeDK/lz-engineering-claude-plugins/plugins/lz-tdd/skills/lz-refactor";
+const SKILL = path.resolve(WS, "..", "..", "..", "plugins", "lz-tdd", "skills", "lz-refactor").replace(/\\/g, "/");
 const CHUNK_DIR = WS + "/evals/d07-chunks";
 const CHUNK_SIZE = 3;
 

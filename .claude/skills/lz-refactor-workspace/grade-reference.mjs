@@ -403,6 +403,34 @@ function runAggregate() {
     return;
   }
 
+  // Refuse to emit a verdict over a silently-truncated / unbalanced sample. walkResults
+  // grades a run only when its answer.md exists, so a killed or timed-out run drops from
+  // the cell with no signal -- biasing the A/B delta (unequal n across arms) or nulling a
+  // whole question out of the discriminating summary. Require every (arm, qid) cell to hold
+  // as many runs as the fullest cell for that qid; list any shortfall and exit non-zero.
+  const shortfalls = [];
+
+  for (const t of targets) {
+    const counts = armsSeen.map((arm) => (perArmQ[arm]?.[t.id] || []).length);
+    const expected = Math.max(0, ...counts);
+
+    armsSeen.forEach((arm, i) => {
+      if (counts[i] < expected) {
+        shortfalls.push(`${arm}/${t.id}: ${counts[i]}/${expected} runs`);
+      }
+    });
+  }
+
+  if (shortfalls.length) {
+    console.error("AGGREGATE REFUSED -- incomplete/unbalanced sample (re-run the missing indices):");
+
+    for (const s of shortfalls) {
+      console.error(`  ${s}`);
+    }
+
+    process.exit(1);
+  }
+
   const agg = aggregate(perArmQ, targets, perArmChars);
   printTable(agg, targets);
   const outPath = path.join(SUITE_DIR, "aggregate.json");

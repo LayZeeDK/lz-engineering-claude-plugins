@@ -39,8 +39,18 @@ let missing = 0;
 
 for (const slug of evalsArg) {
   console.log(`\n${slug}`);
+  const slugDir = path.join(iter, slug);
 
-  for (const cfg of ["with_skill", "without_skill"]) {
+  if (!exists(slugDir)) {
+    console.log("  (no runs on disk)");
+    continue;
+  }
+
+  // Enumerate config dirs from disk rather than a hardcoded pair, so runs under invoke_skill /
+  // no_skill (or any other config dir present) are shown, not hidden.
+  const cfgs = fs.readdirSync(slugDir, { withFileTypes: true }).filter((d) => d.isDirectory()).map((d) => d.name);
+
+  for (const cfg of cfgs) {
     for (let k = 1; k <= runsExpected; k++) {
       const run = path.join(iter, slug, cfg, `run-${k}`);
       const t = exists(path.join(run, "outputs", "transcript.md")) && nonEmpty(path.join(run, "outputs", "transcript.md"));

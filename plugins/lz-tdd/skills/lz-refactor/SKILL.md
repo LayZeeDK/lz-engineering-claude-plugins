@@ -42,14 +42,14 @@ acting: if a red test must be made to pass, that is lz-tpp, not this skill.
 
 ## Coach decision procedure
 
-1. Classify the request against the lz-tpp seam (CCH-05). If a red / failing test must be made to
+1. Classify the request against the lz-tpp seam. If a red / failing test must be made to
    pass, that is the green step. Hand off to lz-tpp and stop. If the tests are green and the code
    has a structure-only smell, continue here (the refactor step). See "Refactoring vs the green step"
    above; do not restate it.
-2. Recognize the smell (CCH-01). Scan the recognize-by cues in
+2. Recognize the smell. Scan the recognize-by cues in
    [references/smells.md](references/smells.md), then OPEN the matching smell leaf for its candidate
    refactorings. The index is navigation-only, so never guess a refactoring from it.
-3. Route by smell kind to a NAMED refactoring (CCH-01):
+3. Route by smell kind to a NAMED refactoring:
    - Mechanical smell (Long Function, Duplicated Code, Feature Envy) -> a Fowler refactoring from the
      [Fowler catalog](references/fowler-catalog/README.md).
    - Repeated / complex-structure smell (Conditional Complexity, Combinatorial Explosion) -> a
@@ -59,7 +59,7 @@ acting: if a red test must be made to pass, that is lz-tpp, not this skill.
      [extra-patterns](references/extra-patterns-catalog/README.md) catalog). Route to the candidate
      but do not present it as chosen; step 4 decides whether it earns its keep.
 4. Decide whether the pattern earns its keep by one net-cost count, and STATE the verdict before any
-   code (CCH-02, CCH-06). Count what it REMOVES (duplication sites collapsed, obscurity clarified)
+   code. Count what it REMOVES (duplication sites collapsed, obscurity clarified)
    against what it ADDS (new classes, types, files, indirection). A branch relocated into its own
    class or method is added structure, not a removal, so never count it on both sides. Emit one line:
    `Pattern: <name> | APPLY: removes <cost + count> > adds <structure + count>` or
@@ -74,7 +74,7 @@ acting: if a red test must be made to pass, that is lz-tpp, not this skill.
    the functional dissolution above. De-patterning away is a first-class direction but stays gated by
    the QUESTION/COMMAND intent routing below, so do not edit working code on a question. Replace
    Pipeline with Loop only on a measured hot path or a named house-style reason.
-5. Preserve behavior (CCH-03). Advise -- or perform, when the developer asks you to apply it -- the
+5. Preserve behavior. Advise -- or perform, when the developer asks you to apply it -- the
    smallest steps that keep the code working, following the chosen refactoring's catalog-leaf
    mechanics and running the tests after each; commit on green is the developer's call (commit only
    when asked). If the target code has NO tests, route to
@@ -85,7 +85,7 @@ acting: if a red test must be made to pass, that is lz-tpp, not this skill.
    about those consumers. Before you finish,
    verify every pattern you introduced carries an APPLY verdict naming what it removes; for any that
    cannot, refactor it away or, if keeping it, state that APPLY reason.
-   Also before you finish, audit the loops in the code you refactored (CCH-01 -- the
+   Also before you finish, audit the loops in the code you refactored (the
    [Loops](references/smells/loops.md) smell; run this even when step 2 never flagged the Loops smell in
    the code you refactored). List every `for` / `for-of` / `while` loop, every `.reduce()`, and every in-loop accumulator
    (`result.push(...)`, `set.add(...)`, `map.set(...)`, a running `total +=`, or a collection rebuilt
@@ -107,7 +107,7 @@ acting: if a red test must be made to pass, that is lz-tpp, not this skill.
    refactoring: on a COMMAND to refactor, convert them in behavior-preserving steps within the scope you
    were asked to touch; on a QUESTION, present them as the next steps and do not edit. This audit is not
    a mandate to convert every loop -- an unwarranted pipeline is as unwelcome as an unwarranted pattern.
-6. Reference mode (CCH-04). For an explain / lookup request, route to the correct references/ doc:
+6. Reference mode. For an explain / lookup request, route to the correct references/ doc:
    Fowler, Kerievsky, GoF, extra-patterns, functional, [smells](references/smells.md), or
    [principles](references/principles.md). Answer from it; do not restate it here.
 

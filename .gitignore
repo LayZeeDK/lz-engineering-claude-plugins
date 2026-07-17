@@ -52,3 +52,4 @@ Thumbs.db
 # patterns in Markdown). NEVER committed. Only the read-only oracle-reviewer subagent reads this;
 # the main authoring context never does, so verbatim book prose cannot leak into the repo (DST-04).
 .oracle/
+.gsd-opengsd/

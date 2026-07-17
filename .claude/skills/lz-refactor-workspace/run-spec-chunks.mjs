@@ -19,8 +19,19 @@ const WS = path.dirname(fileURLToPath(import.meta.url)).replace(/\\/g, "/");
 const TOOL_DIR = WS + "/tools/skill-creator-eval";
 const SKILL = path.resolve(WS, "..", "..", "..", "plugins", "lz-tdd", "skills", "lz-refactor").replace(/\\/g, "/");
 const CHUNK_DIR = WS + "/evals/d07-chunks";
-const CANARY = { query: "what does Extract Function actually do, and when should I reach for it over inlining?", should_trigger: true };
 const CHUNK_SIZE = 4; // negatives per chunk (+1 canary each)
+
+// Canary = the Extract Function catalog lookup, derived FROM the eval set (WR-01) so it is
+// byte-for-byte the trigger-eval.json positive it stands in for -- never a hand-typed twin that
+// can silently drift if the canonical query is edited. Same prefix the recall runner keys off.
+const CANARY_PREFIX = "what does Extract Function actually do";
+const CANARY = JSON.parse(fs.readFileSync(WS + "/evals/trigger-eval.json", "utf8")).find(
+  (q) => q.should_trigger && q.query.startsWith(CANARY_PREFIX),
+);
+
+if (!CANARY) {
+  throw new Error("canary positive missing from trigger-eval.json");
+}
 
 const negatives = JSON.parse(fs.readFileSync(CHUNK_DIR + "/negatives.json", "utf8"));
 const chunks = [];
@@ -45,6 +56,13 @@ function assess(i) {
     r = JSON.parse(fs.readFileSync(p, "utf8"));
   } catch {
     return { valid: false, reason: "unparseable" };
+  }
+
+  // Valid JSON but wrong shape (WR-03): run_eval may emit an error object or a partial {} with no
+  // .results array. Treat it as invalid rather than throwing an uncaught TypeError that would kill
+  // the whole resumable run.
+  if (!r || !Array.isArray(r.results)) {
+    return { valid: false, reason: "no results array" };
   }
 
   const canary = r.results.find((q) => q.should_trigger);

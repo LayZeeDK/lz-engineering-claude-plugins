@@ -85,6 +85,28 @@ acting: if a red test must be made to pass, that is lz-tpp, not this skill.
    about those consumers. Before you finish,
    verify every pattern you introduced carries an APPLY verdict naming what it removes; for any that
    cannot, refactor it away or, if keeping it, state that APPLY reason.
+   Also before you finish, audit the loops in the code you refactored (CCH-01 -- the
+   [Loops](references/smells/loops.md) smell; run this even when step 2 never flagged the Loops smell in
+   the code you refactored). List every `for` / `for-of` / `while` loop, every `.reduce()`, and every in-loop accumulator
+   (`result.push(...)`, `set.add(...)`, `map.set(...)`, a running `total +=`, or a collection rebuilt
+   from itself such as `x = new Set([...x, ...])`). For each, name its intent in one word (filter, map,
+   sum, group-by, union, classify, or none) and DECIDE whether a clearer collection pipeline expresses
+   that same intent WITHOUT changing behavior -- answer yes or no with a one-line reason. A plain
+   sequence-building loop, or a `.reduce()` / accumulator that hides a group-by, sum, or union, earns a
+   yes ([Replace Loop with Pipeline](references/fowler-catalog/replace-loop-with-pipeline.md):
+   `map` / `filter` / `reduce` / `flatMap` producing the result); a loop that exits early may still
+   become `find` / `some` / `every`. The audit covers loops you relocate into a helper you extract, not
+   only loops left in place -- extracting a helper does not exempt its loop from the audit. In
+   particular, a loop or helper that unions each item's sub-collection into one result can be expressed
+   as a `flatMap` into a Set (`new Set(items.flatMap((item) => [...subCollectionOf(item)]))`), subject to
+   the Mark no criteria below. But merging one whole collection into another, where each item is a single
+   element (`for (const x of a) b.add(x)`), is a spread (`new Set([...b, ...a])`), not a `flatMap` -- and
+   if the merged-into target is external, leave it (mark no). Mark no for a loop with a side effect (I/O, logging, external
+   mutation), an index or neighbor dependency, several accumulators at once, or on a measured hot path
+   (the Replace Pipeline with Loop reverse case). Then handle the yes list as step 5 handles any
+   refactoring: on a COMMAND to refactor, convert them in behavior-preserving steps within the scope you
+   were asked to touch; on a QUESTION, present them as the next steps and do not edit. This audit is not
+   a mandate to convert every loop -- an unwarranted pipeline is as unwelcome as an unwarranted pattern.
 6. Reference mode (CCH-04). For an explain / lookup request, route to the correct references/ doc:
    Fowler, Kerievsky, GoF, extra-patterns, functional, [smells](references/smells.md), or
    [principles](references/principles.md). Answer from it; do not restate it here.

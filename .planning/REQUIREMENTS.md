@@ -26,10 +26,10 @@ Requirements for this milestone. Each maps to exactly one roadmap phase.
 
 ### Kerievsky Catalog (Refactoring to Patterns)
 
-- [ ] **KRV-01**: The reference covers all 27 Kerievsky pattern-directed refactorings -- each with name, intent, distilled mechanics (original words), an original TS/JS example re-rendered from the book's Java, and the Fowler primitive(s) it composes
-- [ ] **KRV-02**: The To / Towards / Away directions model is captured, with the "refactor AWAY from a pattern" (de-patterning) cases called out (Inline Singleton; Move Accumulation to Visitor away from Iterator; Encapsulate Composite with Builder away from Composite)
-- [ ] **KRV-03**: Kerievsky's Ch.4 smells (including Conditional Complexity, Indecent Exposure, Solution Sprawl, Combinatorial Explosion, Oddball Solution) are folded into the unified smell taxonomy with source tags and deduplicated against Fowler's list
-- [ ] **KRV-04**: Each Kerievsky refactoring cross-references its target GoF pattern (from the owner's GoF e-book) for vocabulary, without reproducing GoF text
+- [x] **KRV-01**: The reference covers all 27 Kerievsky pattern-directed refactorings -- each with name, intent, distilled mechanics (original words), an original TS/JS example re-rendered from the book's Java, and the Fowler primitive(s) it composes
+- [x] **KRV-02**: The To / Towards / Away directions model is captured, with the "refactor AWAY from a pattern" (de-patterning) cases called out (Inline Singleton; Move Accumulation to Visitor away from Iterator; Encapsulate Composite with Builder away from Composite)
+- [x] **KRV-03**: Kerievsky's Ch.4 smells (including Conditional Complexity, Indecent Exposure, Solution Sprawl, Combinatorial Explosion, Oddball Solution) are folded into the unified smell taxonomy with source tags and deduplicated against Fowler's list
+- [x] **KRV-04**: Each Kerievsky refactoring cross-references its target GoF pattern (from the owner's GoF e-book) for vocabulary, without reproducing GoF text
 
 ### GoF Design Patterns Catalog (Phase 8.1)
 
@@ -63,10 +63,10 @@ Requirements for this milestone. Each maps to exactly one roadmap phase.
 
 ### Distribution & Hygiene
 
-- [ ] **DST-01**: `plugins/lz-tdd/.claude-plugin/plugin.json` version is bumped to `0.0.2` and the root `README.md` documents the `lz-refactor` skill (what it does + `/lz-tdd:lz-refactor` invocation) alongside `lz-tpp`
-- [ ] **DST-02**: The repo passes `claude plugin validate .` and `--strict` with the new skill, and first-party review (plugin-validator + skill-reviewer) PASSes; public-repo hygiene preserved (work email absent, MIT, ASCII-only)
-- [ ] **DST-03**: `CHANGELOG.md` gains an `lz-tdd@0.0.2` entry describing the lz-refactor skill
-- [ ] **DST-04**: No verbatim Fowler/Kerievsky/GoF prose or code listings appear in the shipped tree -- only original prose, original code, names, and facts
+- [x] **DST-01**: `plugins/lz-tdd/.claude-plugin/plugin.json` version is bumped to `0.0.2` and the root `README.md` documents the `lz-refactor` skill (what it does + `/lz-tdd:lz-refactor` invocation) alongside `lz-tpp`
+- [x] **DST-02**: The repo passes `claude plugin validate .` and `--strict` with the new skill, and first-party review (plugin-validator + skill-reviewer) PASSes; public-repo hygiene preserved (work email absent, MIT, ASCII-only)
+- [x] **DST-03**: `CHANGELOG.md` gains an `lz-tdd@0.0.2` entry describing the lz-refactor skill
+- [x] **DST-04**: No verbatim Fowler/Kerievsky/GoF prose or code listings appear in the shipped tree -- only original prose, original code, names, and facts
 
 ### Skill-Effectiveness Evals
 
@@ -133,10 +133,10 @@ Which phase covers which requirement. Populated during roadmap creation.
 | PRIN-01 | Phase 9 | Complete |
 | PRIN-02 | Phase 9 | Complete |
 | PRIN-03 | Phase 9 | Complete |
-| DST-01 | Phase 10 | Pending |
-| DST-02 | Phase 10 | Pending |
-| DST-03 | Phase 10 | Pending |
-| DST-04 | Phase 10 | Pending |
+| DST-01 | Phase 10 | Complete |
+| DST-02 | Phase 10 | Complete |
+| DST-03 | Phase 10 | Complete |
+| DST-04 | Phase 10 | Complete |
 | EVL-01 | Phase 11 | Complete |
 | EVL-02 | Phase 11 | Complete |
 
@@ -150,3 +150,4 @@ Which phase covers which requirement. Populated during roadmap creation.
 *Last updated: 2026-07-07 -- added GOF-01..04 + XTR-01 (5) for inserted Phase 8.1 (GoF Design Patterns Catalog); mapped all to Phase 8.1*
 *Last updated: 2026-07-07 -- added FUN-01..04 + CCH-06 (5) for inserted Phase 8.2 (Functional Catalog) and Phase 9 re-scope; flipped KRV-01..04 to Complete (Phase 8 closed)*
 *Last updated: 2026-07-08 -- flipped FUN-01..04 to Complete (Phase 8.2 executed 6/6, verified 4/4 must-haves, secured 4/4, nyquist-validated, skill-reviewer PASS)*
+*Last updated: 2026-07-17 -- milestone audit reconciled stale checkboxes: KRV-01..04 inline boxes ticked (traceability was already Complete after Phase 8 closed); DST-01..04 flipped to Complete inline + traceability (Phase 10 verified passed 2026-07-09). All 36 requirements satisfied via 3-source cross-reference.*

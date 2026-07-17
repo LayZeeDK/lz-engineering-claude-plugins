@@ -169,7 +169,10 @@ report(descLen <= DESC_CAP, "SC3 description length <= 1536", `${descLen} chars 
 const lineCount = skillText.split(/\r?\n/).length;
 report(lineCount < LINE_CAP, "SC2 SKILL.md line count < 500", `${lineCount} lines (target ~90-150)`);
 
-// Check 5: exactly 5 distinct references/ pointers.
+// Check 5: SKILL.md wires up its references. The Wave-0 scaffold had exactly 5 pointers;
+// the finished skill has more (each new catalog adds one), so assert a lower bound rather
+// than an exact count -- Check 6 (all resolve) + Check 7 (subdirs exist) cover integrity.
+const POINTER_FLOOR = 5;
 const pointerRe = /\]\((references\/[^)]+)\)/g;
 const pointers = new Set();
 let pm;
@@ -179,7 +182,11 @@ while ((pm = pointerRe.exec(skillText)) !== null) {
 }
 
 const pointerList = [...pointers];
-report(pointerList.length === 5, "SC2 exactly 5 distinct references/ pointers", `${pointerList.length} found`);
+report(
+  pointerList.length >= POINTER_FLOOR,
+  `SC2 at least ${POINTER_FLOOR} distinct references/ pointers`,
+  `${pointerList.length} found`
+);
 
 // Check 6: every pointer resolves on disk (relative to SKILL_DIR).
 let unresolved = [];

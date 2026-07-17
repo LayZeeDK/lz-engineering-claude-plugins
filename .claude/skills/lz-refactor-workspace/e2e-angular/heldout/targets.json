@@ -1,0 +1,27 @@
+{
+  "suite": "heldout-single-target-drive",
+  "mode": "apply / drive (single-target COMMAND; tests the SKILL.md single-target drive-to-fixpoint edit)",
+  "constraint": "HELD-OUT targets (new symbols, NOT the k=5 trained-on ac1/ac2/cd1/an1). Extract-then-exposed-pipeline shape: an extraction leaves a residual accumulation loop that should become a map/filter/flatMap pipeline. The edit's hypothesis: the coach now completes that exposed follow-on instead of deferring it. Regression watch: over_under_engineering / behavior_preservation / incrementality must not drop.",
+  "repos": [
+    {
+      "repo": "D:/projects/github/angular/angular-cli",
+      "branch": "22.0.x",
+      "head": "5584a589a",
+      "focus_package": "@angular-devkit/core",
+      "targets": [
+        {
+          "id": "ho1",
+          "file": "packages/angular_devkit/core/src/json/schema/utility.ts",
+          "symbol": "getTypesOfSchema (free function)",
+          "approx_lines": "14-91 (~78 lines)",
+          "smells": ["Long Function (7 sequential narrowing steps)", "Duplicated Code (oneOf and anyOf branch blocks are identical)", "Loops (enum typeof-classifier accumulation; two union-building loops)"],
+          "expected_family": "Fowler: Extract Function (typesFromEnum; narrowByUnion shared by oneOf/anyOf; optional narrowByAllOf) then Replace Loop with Pipeline on the residual loops -- enum -> new Set(enum.map(classify).filter(...)); union -> new Set(branches.flatMap(sub => [...getTypesOfSchema(sub)])).",
+          "idiom_followon": "The KEY signal: after the extractions, the residual enum loop should become a .map().filter() into a Set and the union loops a .flatMap() into a Set. Deferring these = the pre-edit behavior; taking them = the edit's intended lift.",
+          "judgment": "Pure, side-effect-free function -> behavior fully judgeable from the diff. Pipeline conversions are genuine readability wins, not over-engineering. Trap: do NOT introduce a class/Strategy; the narrowing steps are a linear pipeline over one Set.",
+          "axis": "mechanical + FP",
+          "verification": "npx tsc --noEmit on the touched project + LLM diff-judge (behavior-preserving? took the exposed pipeline follow-on? incremental? over/under-engineered?)"
+        }
+      ]
+    }
+  ]
+}

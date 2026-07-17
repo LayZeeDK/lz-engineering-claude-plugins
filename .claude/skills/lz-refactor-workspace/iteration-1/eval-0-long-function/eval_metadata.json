@@ -1,0 +1,12 @@
+{
+  "eval_id": 0,
+  "eval_name": "long-function",
+  "prompt": "all tests pass. this `processOrder(order)` is about 60 lines: it validates the cart, then computes line totals and tax in the middle, then formats a receipt string at the end, all inline in one body. i keep scrolling to follow it. tests are green -- whats the next refactoring?",
+  "assertions": [
+    "Names Extract Function as the best-fit next refactoring (the workhorse move for a long function)",
+    "Names an in-set Long Function refactoring (Extract Function, Replace Temp with Query, Introduce Parameter Object, Preserve Whole Object, Replace Function with Command, Decompose Conditional, Split Loop, or Replace Conditional with Polymorphism)",
+    "Routes to the Fowler mechanical layer",
+    "Ties the pick to a nameable block within the long body (validate / compute totals / format receipt), not a generic 'shorten it'",
+    "Does not edit any source file and does not run tests (coach, don't drive)"
+  ]
+}

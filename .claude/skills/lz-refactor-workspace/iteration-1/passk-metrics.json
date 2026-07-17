@@ -1,0 +1,355 @@
+{
+  "runs_per_config": 3,
+  "k_values": [
+    1,
+    3
+  ],
+  "per_eval": {
+    "eval-0-long-function": {
+      "with_skill": {
+        "n": 3,
+        "fully_correct": 3,
+        "pass@1": 1,
+        "pass^1": 1,
+        "pass@3": 1,
+        "pass^3": 1
+      },
+      "without_skill": {
+        "n": 3,
+        "fully_correct": 3,
+        "pass@1": 1,
+        "pass^1": 1,
+        "pass@3": 1,
+        "pass^3": 1
+      }
+    },
+    "eval-1-long-parameter-list": {
+      "with_skill": {
+        "n": 3,
+        "fully_correct": 3,
+        "pass@1": 1,
+        "pass^1": 1,
+        "pass@3": 1,
+        "pass^3": 1
+      },
+      "without_skill": {
+        "n": 3,
+        "fully_correct": 3,
+        "pass@1": 1,
+        "pass^1": 1,
+        "pass@3": 1,
+        "pass^3": 1
+      }
+    },
+    "eval-2-duplicated-code": {
+      "with_skill": {
+        "n": 3,
+        "fully_correct": 3,
+        "pass@1": 1,
+        "pass^1": 1,
+        "pass@3": 1,
+        "pass^3": 1
+      },
+      "without_skill": {
+        "n": 3,
+        "fully_correct": 3,
+        "pass@1": 1,
+        "pass^1": 1,
+        "pass@3": 1,
+        "pass^3": 1
+      }
+    },
+    "eval-3-feature-envy": {
+      "with_skill": {
+        "n": 3,
+        "fully_correct": 3,
+        "pass@1": 1,
+        "pass^1": 1,
+        "pass@3": 1,
+        "pass^3": 1
+      },
+      "without_skill": {
+        "n": 3,
+        "fully_correct": 3,
+        "pass@1": 1,
+        "pass^1": 1,
+        "pass@3": 1,
+        "pass^3": 1
+      }
+    },
+    "eval-4-conditional-strategy": {
+      "with_skill": {
+        "n": 3,
+        "fully_correct": 3,
+        "pass@1": 1,
+        "pass^1": 1,
+        "pass@3": 1,
+        "pass^3": 1
+      },
+      "without_skill": {
+        "n": 3,
+        "fully_correct": 3,
+        "pass@1": 1,
+        "pass^1": 1,
+        "pass@3": 1,
+        "pass^3": 1
+      }
+    },
+    "eval-5-state-altering": {
+      "with_skill": {
+        "n": 3,
+        "fully_correct": 3,
+        "pass@1": 1,
+        "pass^1": 1,
+        "pass@3": 1,
+        "pass^3": 1
+      },
+      "without_skill": {
+        "n": 3,
+        "fully_correct": 3,
+        "pass@1": 1,
+        "pass^1": 1,
+        "pass@3": 1,
+        "pass^3": 1
+      }
+    },
+    "eval-6-combinatorial-interpreter": {
+      "with_skill": {
+        "n": 3,
+        "fully_correct": 3,
+        "pass@1": 1,
+        "pass^1": 1,
+        "pass@3": 1,
+        "pass^3": 1
+      },
+      "without_skill": {
+        "n": 3,
+        "fully_correct": 3,
+        "pass@1": 1,
+        "pass^1": 1,
+        "pass@3": 1,
+        "pass^3": 1
+      }
+    },
+    "eval-7-singleton-depattern": {
+      "with_skill": {
+        "n": 3,
+        "fully_correct": 3,
+        "pass@1": 1,
+        "pass^1": 1,
+        "pass@3": 1,
+        "pass^3": 1
+      },
+      "without_skill": {
+        "n": 3,
+        "fully_correct": 3,
+        "pass@1": 1,
+        "pass^1": 1,
+        "pass@3": 1,
+        "pass^3": 1
+      }
+    },
+    "eval-8-repeated-switch": {
+      "with_skill": {
+        "n": 3,
+        "fully_correct": 3,
+        "pass@1": 1,
+        "pass^1": 1,
+        "pass@3": 1,
+        "pass^3": 1
+      },
+      "without_skill": {
+        "n": 3,
+        "fully_correct": 2,
+        "pass@1": 0.6666666666666667,
+        "pass^1": 0.6666666666666666,
+        "pass@3": 1,
+        "pass^3": 0
+      }
+    }
+  },
+  "overall": {
+    "with_skill": {
+      "n": 27,
+      "fully_correct": 27,
+      "pass@1": 1,
+      "pass@3": 1,
+      "pass@5": 1,
+      "pass@27": 1
+    },
+    "without_skill": {
+      "n": 27,
+      "fully_correct": 26,
+      "pass@1": 0.962962962962963,
+      "pass@3": 1,
+      "pass@5": 1,
+      "pass@27": 1
+    }
+  },
+  "saturated_assertions": [
+    {
+      "key": "0|0",
+      "text": "Names Extract Function as the best-fit next refactoring"
+    },
+    {
+      "key": "0|1",
+      "text": "Names an in-set Long Function refactoring"
+    },
+    {
+      "key": "0|2",
+      "text": "Routes to the Fowler mechanical layer"
+    },
+    {
+      "key": "0|3",
+      "text": "Ties the pick to a nameable block within the long body (validate / compute totals / format receipt), not a generic 'shorten it'"
+    },
+    {
+      "key": "0|4",
+      "text": "Coach, don't drive (no edit / no test run)"
+    },
+    {
+      "key": "1|0",
+      "text": "Names Introduce Parameter Object as the best-fit next refactoring"
+    },
+    {
+      "key": "1|1",
+      "text": "Names an in-set Long Parameter List refactoring"
+    },
+    {
+      "key": "1|2",
+      "text": "Routes to the Fowler mechanical layer"
+    },
+    {
+      "key": "1|3",
+      "text": "Ties the pick to the street/city/zip clump that travels together, not a generic parameter reduction"
+    },
+    {
+      "key": "1|4",
+      "text": "Coach, don't drive (no edit / no test run)"
+    },
+    {
+      "key": "2|0",
+      "text": "Names Pull Up Method as the best-fit next refactoring"
+    },
+    {
+      "key": "2|1",
+      "text": "Names an in-set Duplicated Code refactoring"
+    },
+    {
+      "key": "2|2",
+      "text": "Routes to the Fowler mechanical layer"
+    },
+    {
+      "key": "2|3",
+      "text": "Ties the pick to WHERE the duplication lives (identical code in sibling subclasses -> lift to the shared parent), not a generic dedup"
+    },
+    {
+      "key": "2|4",
+      "text": "Coach, don't drive (no edit / no test run)"
+    },
+    {
+      "key": "3|0",
+      "text": "Names Move Function as the best-fit next refactoring"
+    },
+    {
+      "key": "3|1",
+      "text": "Names an in-set Feature Envy refactoring"
+    },
+    {
+      "key": "3|2",
+      "text": "Routes to the Fowler mechanical layer"
+    },
+    {
+      "key": "3|3",
+      "text": "Ties the pick to the whole function computing from Customer's fields (it envies the other module), siting it with that data"
+    },
+    {
+      "key": "3|4",
+      "text": "Coach, don't drive (no edit / no test run)"
+    },
+    {
+      "key": "4|0",
+      "text": "Names Replace Conditional Logic with Strategy as the best-fit next refactoring"
+    },
+    {
+      "key": "4|1",
+      "text": "Names an in-set Conditional Complexity refactoring"
+    },
+    {
+      "key": "4|2",
+      "text": "Routes to the Kerievsky pattern-directed layer"
+    },
+    {
+      "key": "4|3",
+      "text": "Ties the pick to the conditional choosing among whole interchangeable algorithms (not optional embellishment or next-state selection)"
+    },
+    {
+      "key": "4|4",
+      "text": "Coach, don't drive (no edit / no test run)"
+    },
+    {
+      "key": "5|0",
+      "text": "Names Replace State-Altering Conditionals with State as the best-fit next refactoring"
+    },
+    {
+      "key": "5|1",
+      "text": "Names an in-set Conditional Complexity refactoring"
+    },
+    {
+      "key": "5|2",
+      "text": "Routes to the Kerievsky pattern-directed layer"
+    },
+    {
+      "key": "5|3",
+      "text": "Ties the pick to conditionals that both decide what may happen now AND choose which status comes next (state-altering), not whole-algorithm selection"
+    },
+    {
+      "key": "5|4",
+      "text": "Coach, don't drive (no edit / no test run)"
+    },
+    {
+      "key": "6|0",
+      "text": "Names Replace Implicit Language with Interpreter as the best-fit next refactoring"
+    },
+    {
+      "key": "6|1",
+      "text": "Routes to the Kerievsky pattern-directed layer"
+    },
+    {
+      "key": "6|2",
+      "text": "Frames the near-identical combination methods as an unnamed mini-language whose terms become composable objects, not plain incidental duplication"
+    },
+    {
+      "key": "6|3",
+      "text": "Coach, don't drive (no edit / no test run)"
+    },
+    {
+      "key": "7|0",
+      "text": "Names an accepted de-patterning route: Inline Singleton or the Module Namespace functional dissolution"
+    },
+    {
+      "key": "7|1",
+      "text": "Routes to the Kerievsky-Away or functional layer (either is accepted)"
+    },
+    {
+      "key": "7|2",
+      "text": "Frames the Singleton as unwarranted (nothing needs single-instance policy) and names the dissolution, rather than keeping or embellishing the pattern"
+    },
+    {
+      "key": "7|3",
+      "text": "Coach, don't drive (no edit / no test run)"
+    },
+    {
+      "key": "8|0",
+      "text": "Names Replace Conditional with Polymorphism as the best-fit next refactoring"
+    },
+    {
+      "key": "8|1",
+      "text": "Routes to the Fowler mechanical layer (NOT a Kerievsky pattern-directed refactoring)"
+    },
+    {
+      "key": "8|3",
+      "text": "Coach, don't drive (no edit / no test run)"
+    }
+  ]
+}

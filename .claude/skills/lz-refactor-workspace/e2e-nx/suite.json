@@ -1,0 +1,26 @@
+{
+  "name": "nx-eslint-plugin",
+  "repo": "D:/projects/github/nrwl/nx",
+  "applyBase": "origin/23.0.x",
+  "protectedBranches": ["23.0.x", "main", "master"],
+  "skillCommand": "/lz-tdd:lz-refactor",
+  "prompts": [
+    { "id": "p1", "file": "p1-enforce-module-boundaries-run.md", "target": "T1", "code": true },
+    { "id": "p2", "file": "p2-validate-entry-mode.md", "target": "T2", "code": true },
+    { "id": "p2cmd", "file": "p2cmd-validate-entry-command.md", "target": "T2", "code": true },
+    { "id": "p3", "file": "p3-transitive-deps-loops.md", "target": "T3", "code": true },
+    { "id": "p4", "file": "p4-group-imports-reduce.md", "target": "T4", "code": true },
+    { "id": "p5", "file": "p5-reference-depattern.md", "target": "T5", "code": false },
+    { "id": "p6", "file": "p6-seam-handoff.md", "target": "T6", "code": false },
+    { "id": "p7cmd", "file": "p7cmd-runtime-lint-utils-sweep-command.md", "target": "p7sweep", "code": true },
+    { "id": "p7", "file": "p7-runtime-lint-utils-sweep-natural.md", "target": "p7sweep", "code": true },
+    { "id": "p8", "file": "p8-eslint-plugin-package-directive.md", "target": "pkgsweep", "code": true },
+    { "id": "p9", "file": "p9-eslint-package-directive.md", "target": "eslintpkg", "code": true },
+    { "id": "p10", "file": "p10-js-package-directive.md", "target": "jspkg", "code": true },
+    { "id": "p11", "file": "p11-module-federation-package-directive.md", "target": "mfpkg", "code": true },
+    { "id": "p12", "file": "p12-vite-package-directive.md", "target": "vitepkg", "code": true },
+    { "id": "p13", "file": "p13-devkit-package-directive.md", "target": "devkitpkg", "code": true },
+    { "id": "cr-emb", "file": "cr-enforce-module-boundaries.md", "target": "T1", "code": true },
+    { "id": "cr-rlu", "file": "cr-runtime-lint-utils.md", "target": "T3", "code": true }
+  ]
+}

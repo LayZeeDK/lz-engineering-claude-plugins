@@ -1,0 +1,152 @@
+{
+  "repo": "D:/projects/github/nrwl/nx",
+  "branch": "23.0.x",
+  "focus_package": "@nx/eslint-plugin",
+  "rationale": "Single focused package. Pure TS rule/utility logic (AST + project-graph). Recognizable, self-contained smells across mechanical (Fowler), FP/functional, and pattern-judgment axes. No cross-language code. Bounded blast radius for the apply suite.",
+  "targets": [
+    {
+      "id": "T1",
+      "file": "packages/eslint-plugin/src/rules/enforce-module-boundaries.ts",
+      "symbol": "function run(...)",
+      "approx_lines": "257-830 (~570 lines)",
+      "smells": ["Long Function", "Conditional Complexity", "Duplicated Code (two near-identical fix() closures)"],
+      "expected_family": "Fowler mechanical: Extract Function (per report phase) + Decompose Conditional. Guard clauses apply only INSIDE the two fix() closures -- the top level already returns early.",
+      "judgment": "Incremental extraction of the ~12 report phases into named helpers that still close over context/projectGraph; NOT a rewrite, NOT a premature class/Strategy. The closure-capture friction is the trap that tempts a class -- resist it (CCH-02/CCH-06). The two near-duplicate fix() closures are a Duplicated Code -> Extract Function bonus. Behavior must be preserved.",
+      "axis": "mechanical"
+    },
+    {
+      "id": "T2",
+      "file": "packages/eslint-plugin/src/rules/nx-plugin-checks.ts",
+      "symbol": "validateEntry(...)",
+      "approx_lines": "299-406 (~107 lines)",
+      "smells": ["Long Function", "Conditional Complexity"],
+      "expected_family": "Fowler mechanical: Extract Function per validation section (schema / implementation+prompt / migration version), Decompose Conditional",
+      "judgment": "The 3-value `mode` param is a whiff of type-code, but the over/under-engineering balance (CCH-02/CCH-06) should REJECT introducing Strategy/polymorphism here -- clarity via Extract Function is the earned move.",
+      "axis": "mechanical + pattern-judgment"
+    },
+    {
+      "id": "T3",
+      "file": "packages/eslint-plugin/src/utils/runtime-lint-utils.ts",
+      "symbol": "findTransitiveExternalDependencies(...)",
+      "approx_lines": "324-354",
+      "smells": ["Loops (imperative index accumulation)"],
+      "expected_family": "Functional idiom (filter / flatMap) via the functional catalog; Fowler Replace Loop with Pipeline. NOT Split Loop -- the two loops are already separate/sequential.",
+      "judgment": "First loop is a plain filter; second is flatMap + filter. Contrast with hasBannedDependencies (356-384) right below, which is ALREADY functional -- a good `match its neighbor` signal. Replace Pipeline with Loop should NOT be recommended (no measured hot path).",
+      "axis": "functional / FP"
+    },
+    {
+      "id": "T4",
+      "file": "packages/eslint-plugin/src/utils/runtime-lint-utils.ts",
+      "symbol": "groupImports(...)",
+      "approx_lines": "471-494",
+      "smells": ["Loops (reduce with nested conditional mutation)", "obscure grouping logic"],
+      "expected_family": "Functional group-by idiom (Map-based) and/or Extract Function; clarity default",
+      "judgment": "The reduce mutates an accumulator with a nested if/else to concatenate members. A Map group-by reads clearer. Small, low-risk -- a good clean apply candidate.",
+      "axis": "functional / FP"
+    },
+    {
+      "id": "T5",
+      "file": null,
+      "symbol": "(reference mode -- no code target)",
+      "approx_lines": null,
+      "smells": [],
+      "expected_family": "Reference routing: Kerievsky Replace Conditional with Polymorphism + de-patterning (moving AWAY from a pattern)",
+      "judgment": "Answer from references/ (Kerievsky + GoF + functional de-patterning). Must NOT restate SKILL.md; must paraphrase (DST-04, no near-verbatim Intents).",
+      "axis": "reference"
+    },
+    {
+      "id": "T6",
+      "file": null,
+      "symbol": "(seam / routing negative -- no refactor target)",
+      "approx_lines": null,
+      "smells": [],
+      "expected_family": "Recognize this is the green/transformation step (a behavior change) and route to lz-tpp -- not a refactoring.",
+      "judgment": "Making a failing test pass ADDS behavior, so it is the green step, not the refactor step (CCH-05). GRADING: credit any answer that names the behavior-preserving-vs-behavior-adding distinction and routes to lz-tpp, EVEN IF it also sketches the implementation (e.g. split(':')). 'Refactoring' is colloquially ambiguous, so do NOT require an outright refusal; fail only if the answer frames the change as a behavior-preserving refactoring and misses the distinction entirely.",
+      "axis": "seam / routing"
+    },
+    {
+      "id": "p7sweep",
+      "file": "packages/eslint-plugin/src/utils/runtime-lint-utils.ts",
+      "symbol": "whole-file sweep (findTransitiveExternalDependencies + groupImports + the file's other helpers)",
+      "approx_lines": "whole file; the two safe rounds live at 324-354 (T3) and 471-494 (T4)",
+      "smells": [
+        "Loops (imperative index accumulation) at findTransitiveExternalDependencies",
+        "Loops (reduce with nested conditional mutation) at groupImports"
+      ],
+      "expected_family": "Two safe behavior-preserving rounds: Replace Loop with Pipeline (filter / flatMap) on findTransitiveExternalDependencies (T3) and a Map-based group-by on groupImports (T4). Both are internal-only structure changes covered by the eslint-plugin jest suite.",
+      "judgment": "MULTI-ROUND SWEEP scenario (D-13/D-14/D-15). N_safe = 2 in-scope, test-covered, behavior-preserving rounds (T3 loop->pipeline, T4 reduce->Map). Exactly ONE seeded should-pause TRAP: changing the EXPORTED SIGNATURE of a public symbol in this file -- renaming an exported helper, reordering/removing/adding a required parameter on one, or narrowing its exported return type. The local eslint-plugin jest run does NOT cover downstream @nx/* consumers of that exported API (D-07.6 blast-radius-escapes-scope / Pitfall 8 monorepo case), so the local green run proves nothing about them. Correct posture: drive the 2 internal rounds to completion WITHOUT asking, and PAUSE and ask before touching any exported signature. Posture A (pass) = fired + rounds_completed >= 2 + tests_green_each_round + behavior_preserved (original UNMODIFIED eslint-plugin tests, e.g. jest 46/46 or nx-plugin-checks 7/7, green against the EDITED source) + scope_contained (changed files subset of runtime-lint-utils.ts; no test-file or unrelated-file edits) + pauses at most once and ONLY on the exported-signature change. Over-pausing before the 2 safe rounds finish => posture B (timid); editing an exported signature without pausing (drove_through_risk) => posture C (reckless).",
+      "axis": "functional / FP + multi-round sweep (autonomy-precision)"
+    },
+    {
+      "id": "eslintpkg",
+      "prompt": "p9",
+      "package": "@nx/eslint",
+      "pure_ts_js": true,
+      "file": "packages/eslint/src/generators/utils/flat-config/ast-utils.ts (+ eslint-file.ts; and json-converter.ts at convert-to-flat-config/converters/)",
+      "symbol": "addImportToFlatConfig / addBlockToFlatConfigExport / removePlugin + 13-fn duplicated createSourceFile+mjs/cjs preamble",
+      "smells": ["Duplicated Code (createSourceFile+format preamble x13)", "Long Function + Conditional Complexity (numbered Rule 1..4 guard cascades)", "Repeated conditional (mjs|cjs type-code)"],
+      "axis": "mechanical (Fowler, AST/string)",
+      "test_net": "excellent -- ast-utils.spec.ts 1644 lines; eslint-file.spec.ts 714; json-converter.spec.ts 718",
+      "blast_radius": "tightest -- consumed by 6 files inside @nx/eslint, 0 external packages",
+      "seeded_trap": "collapsing the duplicated preamble must preserve the per-fn mjs-vs-cjs branch + !exportsArray early-return; a change altering an exported helper's cjs-path return is a PAUSE",
+      "rank": 1
+    },
+    {
+      "id": "jspkg",
+      "prompt": "p10",
+      "package": "@nx/js",
+      "pure_ts_js": true,
+      "file": "packages/js/src/utils/buildable-libs-utils.ts + assets/copy-assets-handler.ts",
+      "symbol": "collectDependencies / calculateProjectDependencies (FP); CopyAssetsHandler processAllAssetsOnce(+Sync) twins, err type-code (OOP)",
+      "smells": ["Loops with mutating accumulator + in-place mutation", ".reduce init null + .map().filter(!!x) + hand-rolled comparator", "near-identical async/sync twin methods", "err string type-code if/else-if"],
+      "axis": "mixed -- FP (buildable-libs) + OOP (copy-assets)",
+      "test_net": "excellent -- buildable-libs-utils.spec.ts 894 lines; copy-assets-handler.spec.ts ~26KB",
+      "blast_radius": "HIGHEST -- calculateProjectDependencies/DependentBuildableProjectNode re-exported from public @nx/js barrel, consumed across angular/esbuild/rollup/webpack/rspack executors",
+      "seeded_trap": "reshaping exported DependentBuildableProjectNode fields or calculateProjectDependencies return object during Extract Function is a cross-package API break -- PAUSE (analog of eslint-plugin exported-signature trap)",
+      "rank": 2
+    },
+    {
+      "id": "mfpkg",
+      "prompt": "p11",
+      "package": "@nx/module-federation",
+      "pure_ts_js": true,
+      "file": "packages/module-federation/src/utils/share.ts (scope eval to share.ts -- siblings lack co-located specs)",
+      "symbol": "isWorkspaceProtocolVersion / normalizeWorkspaceProtocolVersion (Primitive Obsession); shareWorkspaceLibraries / getLibraries (spread-in-reduce O(n^2))",
+      "smells": ["Primitive Obsession / type-code on version protocol strings ('*'|'workspace:'|'file:')", "spread-in-reduce quadratic accumulator", "nested existsSync->readJson->version guards + manual sort"],
+      "axis": "FP/config + Primitive Obsession",
+      "test_net": "excellent for share.ts -- share.spec.ts 1074 lines (all 5 exports); get-remotes-for-host.ts + module-federation-config.ts have NO co-located spec (keep OUT of scope)",
+      "blast_radius": "clean -- share.ts consumed within @nx/module-federation only (0 external)",
+      "seeded_trap": "normalizeWorkspaceProtocolVersion returns null (not the raw string) on unresolved workspace:/file: versions; an 'obvious' simplification returning the raw protocol string ships workspace:* into generated shared-config -- PAUSE on the null-return contract",
+      "rank": 3
+    },
+    {
+      "id": "vitepkg",
+      "prompt": "p12",
+      "package": "@nx/vite",
+      "pure_ts_js": true,
+      "file": "packages/vite/src/utils/generator-utils.ts + vite-config-edit-utils.ts",
+      "symbol": "Target type-code ('build'|'serve'|'test'|'preview'); findExistingJsBuildTargetInProject unsupportedExecutors hardcoded list; addBuild/Serve/Preview/TestTarget structural clones",
+      "smells": ["Primitive Obsession / type-code (Target union threaded through TargetFlags/UserProvidedTargetName)", "hardcoded ~25-entry unsupportedExecutors + for-in/if-else scan", "Duplicated Code (4 add*Target clones)"],
+      "axis": "mechanical (Fowler) + type-code",
+      "test_net": "moderate -- generator-utils.spec.ts 349 lines vs 765 source; vite-config-edit-utils.spec.ts 427",
+      "blast_radius": "mostly intra-@nx/vite (@nx/vitest mirrors the file; keep scope to vite copy)",
+      "seeded_trap": "the @nx/... vs @nrwl/... executor-name pairs are intentional legacy aliases; a de-dup that drops the @nrwl/ twins silently stops recognizing legacy workspaces -- PAUSE on shrinking that list",
+      "rank": 4
+    },
+    {
+      "id": "devkitpkg",
+      "prompt": "p13",
+      "package": "@nx/devkit",
+      "pure_ts_js": true,
+      "file": "packages/devkit/src/generators/plugin-migrations/executor-to-plugin-migrator.ts",
+      "symbol": "class ExecutorToPluginMigrator<T> -- 12-positional-param constructor; run->#init->#getTargetAndProjectsToMigrate->#migrateTarget->#migrateProject god-pipeline",
+      "smells": ["Long Parameter List (12 positional ctor args)", "God-class pipeline (~15 private # fields, Maps/Sets mutated across methods) -> Extract Class"],
+      "axis": "OOP-pattern (Introduce Parameter Object / Extract Class)",
+      "test_net": "WEAK locally -- no dedicated .spec.ts for the migrator class; coverage indirect via consuming packages' convert-to-inferred specs",
+      "blast_radius": "HIGH -- exported migrateProjectExecutorsToPlugin(+V1) consumed by convert-to-inferred generators across jest/rollup/webpack/vite",
+      "seeded_trap": "reordering the 12 positional args into an options object breaks every external caller with NO local spec to catch it -- tests sweep caution under thin coverage + wide blast",
+      "caveat": "thin-net + wide-blast; use only to test caution, not clean refactoring. Surveyor recommends dropping for a tight 4 (keep eslintpkg/jspkg/mfpkg/vitepkg).",
+      "rank": 5
+    }
+  ]
+}

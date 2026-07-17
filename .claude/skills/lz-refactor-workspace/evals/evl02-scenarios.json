@@ -1,0 +1,56 @@
+[
+  {
+    "id": 0,
+    "slug": "eval-0-long-function",
+    "prompt": "all tests pass. this `processOrder(order)` is about 60 lines: it validates the cart, then computes line totals and tax in the middle, then formats a receipt string at the end, all inline in one body. i keep scrolling to follow it. tests are green -- whats the next refactoring?",
+    "judge": "Ties the pick to a nameable block within the long body (validate / compute totals / format receipt), not a generic 'shorten it'"
+  },
+  {
+    "id": 1,
+    "slug": "eval-1-long-parameter-list",
+    "prompt": "green bar. `createShipment(name, street, city, zip, weightKg, carrier, priority)` -- the street/city/zip trio always travels together and i pass that same trio into three other functions the same way. tests pass. whats the right named refactoring for this signature?",
+    "judge": "Ties the pick to the street/city/zip clump that travels together, not a generic parameter reduction"
+  },
+  {
+    "id": 2,
+    "slug": "eval-2-duplicated-code",
+    "prompt": "tests are green. `SavingsAccount` and `CheckingAccount` both extend `Account` and each has an identical `validateWithdrawal(amount)` method -- same body, copy-pasted into both siblings. whats the next refactoring to remove that duplication?",
+    "judge": "Ties the pick to WHERE the duplication lives (identical code in sibling subclasses -> lift to the shared parent), not a generic dedup"
+  },
+  {
+    "id": 3,
+    "slug": "eval-3-feature-envy",
+    "prompt": "all green. `Invoice.total()` reads almost entirely from the `Customer` it holds -- customer.discountRate, customer.taxRegion, customer.loyaltyTier -- and barely touches any Invoice field of its own. tests pass. whats the named refactoring here?",
+    "judge": "Ties the pick to the whole function computing from Customer's fields (it envies the other module), siting it with that data"
+  },
+  {
+    "id": 4,
+    "slug": "eval-4-conditional-strategy",
+    "prompt": "green. this `price(order)` has a big if/else that picks a WHOLE pricing algorithm by customer segment (retail vs wholesale vs promo) -- each branch is a self-contained calculation and i want to add and vary those algorithms independently of the code that runs them. tests pass. which refactoring?",
+    "judge": "Ties the pick to the conditional choosing among whole interchangeable algorithms (not optional embellishment or next-state selection)"
+  },
+  {
+    "id": 5,
+    "slug": "eval-5-state-altering",
+    "prompt": "tests green. my `Document` class is full of conditionals on `this.status` that both decide what an action is allowed to do right now AND set which status comes next (draft -> moderation -> published). adding a status means touching all of them. whats the refactoring?",
+    "judge": "Ties the pick to conditionals that both decide what may happen now AND choose which status comes next (state-altering), not whole-algorithm selection"
+  },
+  {
+    "id": 6,
+    "slug": "eval-6-combinatorial-interpreter",
+    "prompt": "all tests pass. i have a stack of near-identical methods -- matchExactWord, matchWordPrefix, matchExactPhrase, matchPhrasePrefix, and the same set again for the 'or' join -- each one hand-coding a single combination of {exact|prefix} x {word|phrase} x {and|or}. adding a dimension multiplies the methods again. tests green. whats the refactoring?",
+    "judge": "Frames the near-identical combination methods as an unnamed mini-language whose terms become composable objects, not plain incidental duplication"
+  },
+  {
+    "id": 7,
+    "slug": "eval-7-singleton-depattern",
+    "prompt": "green bar. `Config` is a Singleton -- private constructor, static `getInstance()` -- and every module reaches into `Config.getInstance()` globally, which hides the dependency and makes tests painful. nothing actually needs a single-instance policy. tests pass. should i refactor away from the Singleton, and to what?",
+    "judge": "Frames the Singleton as unwarranted (nothing needs single-instance policy) and names the dissolution, rather than keeping or embellishing the pattern"
+  },
+  {
+    "id": 8,
+    "slug": "eval-8-repeated-switch",
+    "prompt": "tests are green. the SAME `switch (shape.kind)` (circle / square / triangle) appears in three separate functions -- `area(shape)`, `perimeter(shape)`, and `boundingBox(shape)` -- so adding a new shape means editing all three switches. tests pass. whats the next refactoring?",
+    "judge": "Justifies the Fowler mechanical route over a pattern-directed one: it is the SAME type switch repeated across sites, not a single complex conditional wanting a design pattern"
+  }
+]

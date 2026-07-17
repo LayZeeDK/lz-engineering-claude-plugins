@@ -1,0 +1,11 @@
+{
+  "eval_id": 8,
+  "eval_name": "repeated-switch",
+  "prompt": "tests are green. the SAME `switch (shape.kind)` (circle / square / triangle) appears in three separate functions -- `area(shape)`, `perimeter(shape)`, and `boundingBox(shape)` -- so adding a new shape means editing all three switches. tests pass. whats the next refactoring?",
+  "assertions": [
+    "Names Replace Conditional with Polymorphism as the best-fit next refactoring",
+    "Routes to the Fowler mechanical layer (NOT a Kerievsky pattern-directed refactoring)",
+    "Justifies the Fowler mechanical route over a pattern-directed one: it is the SAME type switch repeated across sites, not a single complex conditional wanting a design pattern",
+    "Does not edit any source file and does not run tests (coach, don't drive)"
+  ]
+}

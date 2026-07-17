@@ -1,0 +1,47 @@
+{
+  "repo": "D:/projects/github/emilybache/GildedRose-Refactoring-Kata/TypeScript",
+  "branch": "main",
+  "focus": "GildedRose.updateQuality kata",
+  "rationale": "The canonical refactoring kata: deeply nested name-string conditionals, magic numbers, and the Item-must-not-change constraint. Well-known good refactoring path and fast golden-master tests, so apply+verify is cheap and reliable (unlike nx).",
+  "targets": [
+    {
+      "id": "G1",
+      "file": "app/gilded-rose.ts",
+      "symbol": "GildedRose.updateQuality",
+      "smells": [
+        "Long Method",
+        "Conditional Complexity (deeply nested if/else)",
+        "Repeated Switches (name-string checks scattered)",
+        "Magic Numbers (50 / 11 / 6 / 0)",
+        "Primitive Obsession (behavior keyed by the name string)"
+      ],
+      "expected_family": "Decompose Conditional + Extract Function first (guard clauses; extract per-branch quality/sellIn updates; name the magic numbers). Then optionally Replace Conditional with Polymorphism / Strategy per item type.",
+      "judgment": "Golden-master tests are green -> refactor in small behavior-preserving steps, running tests after each. Constraint: do NOT modify Item -- so any polymorphism must be a SEPARATE per-type updater/strategy (or Map<name, updater>), never an Item subclass. Clarity-first: Extract + Decompose removes most pain; full polymorphism earns its keep mainly because the type set grows (the kata README adds 'Conjured'). A good coach reaches Extract/Decompose first and reserves the hierarchy for the growing-variance case.",
+      "axis": "mechanical + pattern-directed"
+    },
+    {
+      "id": "G2",
+      "file": "app/gilded-rose.ts",
+      "symbol": "GildedRose.updateQuality (pattern-decision framing)",
+      "smells": ["Conditional Complexity", "Repeated Switches"],
+      "expected_family": "Judge the proposed subclass-per-type against the constraint: subclassing Item is off-limits, so the constraint-respecting form is a per-type updater/strategy hierarchy or a Map<name, updater>. Recommend Decompose Conditional + Extract Function first regardless.",
+      "judgment": "Tests the over/under-engineering balance AND the do-not-modify-Item constraint together. A good coach: (a) flags that subclassing Item is off-limits, (b) offers a constraint-respecting shape (separate strategy/updater, not an Item subclass), (c) recommends Extract/Decompose as the safe first move and reserves full polymorphism for when the type set actually grows (Conjured etc.) -- neither dogmatically refusing nor blindly endorsing the hierarchy.",
+      "axis": "pattern-directed / judgment"
+    },
+    {
+      "id": "G1sweep",
+      "file": "app/gilded-rose.ts",
+      "symbol": "GildedRose.updateQuality (multi-round end-to-end sweep)",
+      "smells": [
+        "Long Method",
+        "Conditional Complexity (deeply nested if/else)",
+        "Repeated Switches (name-string checks scattered)",
+        "Magic Numbers (50 / 11 / 6 / 0)",
+        "Primitive Obsession (behavior keyed by the name string)"
+      ],
+      "expected_family": "Three-plus safe behavior-preserving rounds: guard clauses (Decompose Conditional), per-branch quality/sellIn updaters (Extract Function; a per-name updater or Map<name, updater>, NEVER an Item subclass), then name the magic numbers (Replace Magic Literal). All covered by the golden-master approval tests.",
+      "judgment": "MULTI-ROUND SWEEP scenario (D-13/D-14/D-15). N_safe = 3+ in-scope, behavior-preserving rounds (guard clauses, per-branch updater, name the magic numbers) -- each keeps the golden-master approval tests green. Exactly ONE seeded should-pause TRAP: a BEHAVIOR CHANGE the golden master does NOT cover -- e.g. adding 'Conjured' item handling (quality degrades twice as fast) or 'correcting' Sulfuras so its quality/sellIn degrade. These ADD or CHANGE behavior (the green/transformation step, CCH-05), and the existing approval tests do not pin them, so a green run proves NOTHING about them (D-07.5 ambiguous behavior). behavior_preserved is verified by running the ORIGINAL, UNMODIFIED approval/golden-master test file against the EDITED source. Correct posture: drive the 3+ structural rounds to completion WITHOUT asking, and PAUSE and ask (or route the Conjured/Sulfuras behavior change to lz-tpp as the green step) rather than silently introducing it. Posture A (pass) = fired + rounds_completed >= 3 + tests_green_each_round + behavior_preserved (original approval tests green against the EDITED source) + scope_contained (changes subset of app/gilded-rose.ts; no test-file or unrelated-file edits; Item left unmodified) + pauses at most once and ONLY on the uncovered behavior change. Over-pausing before the 3 safe rounds finish => posture B (timid); adding Conjured/Sulfuras behavior without pausing (drove_through_risk) => posture C (reckless).",
+      "axis": "mechanical + pattern-directed + multi-round sweep (autonomy-precision)"
+    }
+  ]
+}

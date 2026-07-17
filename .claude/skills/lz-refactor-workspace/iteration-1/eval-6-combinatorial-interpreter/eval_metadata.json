@@ -1,0 +1,11 @@
+{
+  "eval_id": 6,
+  "eval_name": "combinatorial-interpreter",
+  "prompt": "all tests pass. i have a stack of near-identical methods -- matchExactWord, matchWordPrefix, matchExactPhrase, matchPhrasePrefix, and the same set again for the 'or' join -- each one hand-coding a single combination of {exact|prefix} x {word|phrase} x {and|or}. adding a dimension multiplies the methods again. tests green. whats the refactoring?",
+  "assertions": [
+    "Names Replace Implicit Language with Interpreter as the best-fit next refactoring",
+    "Routes to the Kerievsky pattern-directed layer",
+    "Frames the near-identical combination methods as an unnamed mini-language whose terms become composable objects, not plain incidental duplication",
+    "Does not edit any source file and does not run tests (coach, don't drive)"
+  ]
+}

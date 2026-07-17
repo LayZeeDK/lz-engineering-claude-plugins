@@ -1,0 +1,12 @@
+{
+  "eval_id": 5,
+  "eval_name": "state-altering",
+  "prompt": "tests green. my `Document` class is full of conditionals on `this.status` that both decide what an action is allowed to do right now AND set which status comes next (draft -> moderation -> published). adding a status means touching all of them. whats the refactoring?",
+  "assertions": [
+    "Names Replace State-Altering Conditionals with State as the best-fit next refactoring",
+    "Names an in-set Conditional Complexity refactoring (Replace Conditional Logic with Strategy, Move Embellishment to Decorator, Replace State-Altering Conditionals with State, or Introduce Null Object)",
+    "Routes to the Kerievsky pattern-directed layer",
+    "Ties the pick to conditionals that both decide what may happen now AND choose which status comes next (state-altering), not whole-algorithm selection",
+    "Does not edit any source file and does not run tests (coach, don't drive)"
+  ]
+}

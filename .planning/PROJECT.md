@@ -16,6 +16,39 @@ transformation that passes the failing test -- and explains the premise on deman
 If everything else fails, this transformation-priority guidance must be correct and
 usable.
 
+## Current Milestone: lz-tdd@0.0.2 lz-refactor Skill (Fowler + Kerievsky)
+
+**Goal:** Add a single `/lz-tdd:lz-refactor` agent skill -- a dual-mode refactoring
+coach + reference that operationalizes Martin Fowler's *Refactoring* (2nd ed) and
+Joshua Kerievsky's *Refactoring to Patterns* -- completing the red-green-refactor
+seam alongside `lz-tpp` (lz-tpp drives the green step; lz-refactor drives the
+refactor step).
+
+**Target features:**
+
+- Single `lz-refactor` skill built on progressive disclosure: a lean router
+  `SKILL.md` plus lazy-loaded `references/` docs, modeled on the `angular-developer`
+  skill and the skill-creator / plugin-dev authoring guidelines.
+- Dual-mode: an auto-triggering refactor-step coach (smell -> named refactoring,
+  including "refactor away from a pattern" de-patterning) and an on-demand catalog
+  reference.
+- Fowler layer at full grain: all 62 2nd-ed refactorings (mechanics + original TS/JS), a
+  unified smell taxonomy, and Ch.2 principles; provenance-labeled (Return Modified Value
+  `[web-only]` + Split Phase's online-only examples). (4 web-only 1st-ed relics cut.)
+- Kerievsky layer at full grain: all 27 pattern-directed refactorings (mechanics +
+  original TS/JS re-rendered from Java), the To/Towards/Away directions, and the
+  Ch.4 smells; cross-mapped to the Fowler primitives each composes.
+- Oracle-access convention (how copyrighted book content is sourced across phases): books
+  present as Markdown under git-ignored `.oracle/` (Fowler 2nd ed; Kerievsky) are accessed
+  ONLY via the clean-room `oracle`/`oracle-reviewer` agents -- the main context never reads
+  book prose; only own-words answers/verdicts cross back (DST-04). Books NOT in `.oracle/`
+  (GoF, Beck, RCM) use AskUserQuestion (the owner answers). See phase `07-ORACLE-MODEL.md`.
+- Principle-backing cross-references (no oracle copy owned -- high-confidence core
+  only): Beck *TDD by Example* + *Tidy First?* and Feathers *Working Effectively
+  with Legacy Code* (refactoring safely without tests).
+- Skill-effectiveness evals (trigger recall/specificity + smell->refactoring
+  behavior accuracy), as in 0.0.1's Phase 5.
+
 ## Requirements
 
 ### Validated
@@ -57,11 +90,18 @@ Skill effectiveness evals (Phase 5: Skill Effectiveness Evals, 2026-07-03):
 - [x] EVAL-01 trigger eval: the `description` fires on in-scope TDD / red-green-refactor / TPP / transformation-priority prompts and stays quiet on near-misses -- 100% recall (13/13) and 100% specificity (14/14) on the shipped description, run natively (EVAL-01)
 - [x] EVAL-02 behavior eval: the coach recommends the correct next transformation -- with_skill 29/30 (Pass@1 0.97, Pass@3 1.00) vs 15/30 baseline; no tuning applied, shipped skill unchanged (EVAL-02)
 
+lz-refactor skill scaffold (Phase 6: lz-refactor Skill Scaffold & Progressive Disclosure, 2026-07-04):
+
+- [x] SKEL-01: `/lz-tdd:lz-refactor` invocable; skill at `plugins/lz-tdd/skills/lz-refactor/SKILL.md` with dual-mode-by-omission frontmatter (name + description only; `name` == dir)
+- [x] SKEL-02: lean 69-line router (< 500) lazy-loading five `references/` task-area groups (Fowler catalog, smell taxonomy, principles, Kerievsky patterns, refactoring-without-tests), each a one-level-deep pointer -- modeled on angular-developer sectioning + lz-tpp dual-mode framing
+- [x] SKEL-03: 774-char seam-aware `description` (should-be-used + Do-not-use near-miss + lz-tpp green/refactor seam), within the char cap; empirical trigger tuning deferred to Phase 11 (EVL-01)
+- [x] SKEL-04: heavy catalog material bundled, not inlined -- two splittable catalog subdirs behind thin index stubs; every `references/` stub carries its per-entry content contract; catalog stubs carry the D-09 Phase 7/8 oracle-access checkpoint note. Verified: Wave-0 checker + `claude plugin validate .` both exit 0
+
 ### Active
 
 <!-- Current scope. Hypotheses until shipped and validated. -->
 
-Milestone 0.0.1 is fully shipped and validated (Phases 1-5). No active requirements -- the next milestone (post-0.0.1) defines fresh scope. Candidate directions tracked as NEXT-01..04: additional TDD skills under `lz-tdd` (test naming, triangulation, red-green discipline), additional plugins in the marketplace, npm packaging/distribution, and multi-language example sets beyond TypeScript.
+Milestone lz-tdd@0.0.2 (lz-refactor Skill) is the active scope -- the `/lz-tdd:lz-refactor` dual-mode coach + reference grounded in Fowler's *Refactoring* (2nd ed) and Kerievsky's *Refactoring to Patterns*. Requirements are enumerated in `.planning/REQUIREMENTS.md` (categories: skill structure/progressive disclosure, Fowler catalog, Kerievsky catalog, coach behavior, principle-backing cross-refs, distribution/hygiene, evals). Deferred candidates still tracked: additional TDD skills under `lz-tdd`, additional plugins, npm packaging/distribution, and multi-language example sets beyond TypeScript.
 
 ### Out of Scope
 
@@ -131,4 +171,5 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-07-04 after lz-tdd@0.0.1 milestone completion*
+*Last updated: 2026-07-04 after completing Phase 6 (lz-refactor skill scaffold) of the lz-tdd@0.0.2 milestone*
+*Progress note 2026-07-08: Phases 7 (Fowler catalog), 8 (Kerievsky catalog), 8.1 (GoF + extra patterns), and 8.2 (Functional catalog -- FUN-01..04 complete) are all shipped and verified; the shipped `lz-refactor` skill now carries all five catalogs + the unified smell taxonomy. The per-phase `### Validated` backfill for Phases 7-8.2 is deferred to `/gsd-audit-milestone` (pre-existing drift, not introduced by any single phase); `.planning/REQUIREMENTS.md` remains the authoritative traceability.*

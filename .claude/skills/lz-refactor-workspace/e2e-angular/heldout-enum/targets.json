@@ -1,0 +1,11 @@
+{
+  "suite": "heldout-enum-loop-audit",
+  "note": "Minimal targets file (run-e2e loads it at module init; only --synthetic-base consumes the entries, which this probe does not use). Same held-out target as heldout/ (getTypesOfSchema).",
+  "targets": [
+    {
+      "id": "ho1",
+      "file": "packages/angular_devkit/core/src/json/schema/utility.ts",
+      "symbol": "getTypesOfSchema (free function)"
+    }
+  ]
+}

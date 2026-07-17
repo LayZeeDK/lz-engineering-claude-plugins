@@ -1,0 +1,11 @@
+{
+  "eval_id": 7,
+  "eval_name": "singleton-depattern",
+  "prompt": "green bar. `Config` is a Singleton -- private constructor, static `getInstance()` -- and every module reaches into `Config.getInstance()` globally, which hides the dependency and makes tests painful. nothing actually needs a single-instance policy. tests pass. should i refactor away from the Singleton, and to what?",
+  "assertions": [
+    "Names an accepted de-patterning route: Inline Singleton or the Module Namespace functional dissolution",
+    "Routes to the Kerievsky-Away or functional layer (either is accepted)",
+    "Frames the Singleton as unwarranted (nothing needs single-instance policy) and names the dissolution, rather than keeping or embellishing the pattern",
+    "Does not edit any source file and does not run tests (coach, don't drive)"
+  ]
+}

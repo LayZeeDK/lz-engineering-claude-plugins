@@ -1,0 +1,10 @@
+{
+  "name": "heldout-precision-loop-audit",
+  "repo": "D:/projects/github/angular/angular-cli",
+  "applyBase": "5584a589a",
+  "protectedBranches": ["22.0.x", "main", "master"],
+  "skillCommand": "/lz-tdd:lz-refactor",
+  "prompts": [
+    { "id": "pb1", "file": "pb1-stylesheet.md", "target": "pb1", "code": true }
+  ]
+}

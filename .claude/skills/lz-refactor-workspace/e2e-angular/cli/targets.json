@@ -1,0 +1,28 @@
+{
+  "repo": "D:/projects/github/angular/angular-cli",
+  "focus_package": "@angular-devkit/core",
+  "targets": [
+    {
+      "id": "ac1",
+      "file": "packages/angular_devkit/core/src/json/schema/registry.ts",
+      "symbol": "SchemaRegistry.prototype._compile",
+      "approx_lines": "278-383",
+      "smells": ["Long Function", "Duplicated Code (pre/post transform loops)"],
+      "expected_family": "Extract Function per phase; factor pre/post transform loops into one applyTransforms helper",
+      "judgment": "Incremental Extract Function; NOT a class/Strategy; the pre/post loop dup is the clean win; preserve ajv/prompts/defaults ordering",
+      "axis": "mechanical + FP",
+      "verification": "tsc --noEmit + golden-master via public compile()/validate()"
+    },
+    {
+      "id": "ac2",
+      "file": "packages/angular_devkit/core/src/workspace/json/writer.ts",
+      "symbol": "convertJsonProjectCollection + convertJsonTargetCollection",
+      "approx_lines": "65-122",
+      "smells": ["Duplicated Code (two identical Object.create(null)+for-of loops)"],
+      "expected_family": "Parameterize Function -> one convertCollection(collection, convertElement); optionally Object.fromEntries+map",
+      "judgment": "Small, low-risk; resist over-generalizing beyond the two callers",
+      "axis": "mechanical (dup)",
+      "verification": "tsc --noEmit + golden-master via writeJsonWorkspace"
+    }
+  ]
+}

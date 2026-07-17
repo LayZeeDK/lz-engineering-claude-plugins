@@ -1,0 +1,21 @@
+{
+  "captured": "2026-07-15",
+  "repo": "nx @nx/eslint-plugin",
+  "base_ref": "origin/23.0.x",
+  "base_commit": "fea2cabbcc",
+  "runner": "npx nx test eslint-plugin --exclude-task-dependencies",
+  "runner_note": "Verified 2026-07-15: `npx nx test eslint-plugin --exclude-task-dependencies` works on this arm64 Windows box and reproduces this baseline byte-for-byte (169 passed / 15 failed / 184 total, 31 snapshots). The flag skips the test target's dependsOn prerequisites (test-native, build-native, ^build-native) and reuses the already-built packages/nx/src/native/nx.win32-arm64-msvc.node. WITHOUT the flag, nx test fails at the nx:build-native Rust prerequisite (napi 'Failed to copy artifact', exit 130) before jest runs -- the native binary already exists, so it is the rebuild+copy that fails, not the toolchain (Rust aarch64-pc-windows-msvc target and cargo are installed). Fallback if the flag is ever unavailable: `npx jest --config packages/eslint-plugin/jest.config.cts --ci` (raw jest, bypasses nx entirely).",
+  "passed": 169,
+  "failed": 15,
+  "total": 184,
+  "test_suites": { "failed": 1, "passed": 6, "total": 7 },
+  "tests": { "failed": 15, "passed": 169, "total": 184 },
+  "snapshots": { "passed": 31, "total": 31 },
+  "failing_suites": [
+    "packages/eslint-plugin/src/rules/dependency-checks.spec.ts"
+  ],
+  "failure_signature": "TypeError: Cannot redefine property: detectPackageManager -- from spyOn(packageManager, 'detectPackageManager') at dependency-checks.spec.ts:1714 (jest-mock 30.3.0). All 15 failures share this single pre-existing spyOn/interop cause; unrelated to any refactoring under test.",
+  "differential_rule": "A run is behavior-preserving when it introduces NO NEW failures beyond this baseline (same-or-fewer failures; the 15 dependency-checks failures are expected pre-existing). Specs covering the touched files must still pass. If the import-time crash blocks a whole suite for a run, run the affected spec(s) directly via raw jest and compare against these per-suite counts.",
+  "expected_pass_baseline": 169,
+  "expected_fail_baseline": 15
+}

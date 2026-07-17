@@ -1,0 +1,77 @@
+{
+  "_meta": {
+    "description": "Book-authenticity + idiom/pattern fidelity verdicts per named claim, per arm. Graded by the `oracle` agent against the git-ignored .oracle/ books (Fowler refactoring-2e, Kerievsky refactoring-to-patterns, GoF design-patterns). DST-04: main context never read book prose; all justifications are the oracle's own words. FP idioms are no-oracle (graded vs functional-depatterning-ts.md + the shipped functional-catalog).",
+    "oracle_confidence": "88/100",
+    "oracle_caveat": "Graded a deduplicated vocabulary list, not raw per-cell transcripts; whether each code_review smell label attached to the correct construct is corroborated by the claims-normalizer's read of the actual outputs + code, not re-verified by the oracle.",
+    "verdict_scale": "pass | partial | fail | no-oracle"
+  },
+  "smells": [
+    { "item": "Long Function", "verdict": "pass", "arms": ["invoke_skill", "code_review"], "why": "Exact Fowler 2e ch.3 smell (Kerievsky uses the older Long Method)." },
+    { "item": "Duplicated Code", "verdict": "pass", "arms": ["invoke_skill", "code_review"], "why": "Named smell in both Fowler ch.3 and Kerievsky ch.4." },
+    { "item": "Duplicated (Conditional) Fragments", "verdict": "partial", "arms": ["invoke_skill"], "why": "Not a canonically named smell; target of a 1st-ed Fowler refactoring dropped from the owned 2e; sits under Duplicated Code." },
+    { "item": "Repeated Switches", "verdict": "pass", "arms": ["invoke_skill", "code_review"], "why": "Exact Fowler 2e ch.3 smell (Kerievsky equivalent: Switch Statements)." },
+    { "item": "Conditional Complexity (Kerievsky)", "verdict": "pass", "arms": ["invoke_skill"], "why": "Genuine Kerievsky ch.4 smell." },
+    { "item": "Comments (as a smell)", "verdict": "pass", "arms": ["invoke_skill", "code_review"], "why": "Genuine Fowler ch.3 smell." },
+    { "item": "Mysterious Name", "verdict": "pass", "arms": ["invoke_skill", "code_review"], "why": "Genuine Fowler 2e ch.3 smell." },
+    { "item": "Primitive Obsession", "verdict": "pass", "arms": ["invoke_skill", "code_review"], "why": "Named smell in Fowler ch.3 and Kerievsky ch.4." },
+    { "item": "Data Clumps", "verdict": "pass", "arms": ["invoke_skill", "code_review"], "why": "Genuine Fowler ch.3 smell." },
+    { "item": "Data Class", "verdict": "pass", "arms": ["invoke_skill"], "why": "Genuine Fowler ch.3 smell." },
+    { "item": "Feature Envy", "verdict": "pass", "arms": ["invoke_skill"], "why": "Genuine Fowler ch.3 smell." },
+    { "item": "Message Chains", "verdict": "pass", "arms": ["code_review"], "why": "Genuine Fowler ch.3 smell." },
+    { "item": "Loops (as a smell)", "verdict": "pass", "arms": ["invoke_skill"], "why": "Genuine Fowler 2e ch.3 smell (new in 2e; routed to Replace Loop with Pipeline)." },
+    { "item": "Magic Numbers/Literals", "verdict": "partial", "arms": ["invoke_skill", "code_review"], "why": "Not a standalone named smell; folded under Primitive Obsession / Mysterious Name. Real concern, non-canonical name." },
+    { "item": "Nested conditionals", "verdict": "partial", "arms": ["invoke_skill", "code_review"], "why": "Not a named smell; concept lives inside Kerievsky Conditional Complexity, addressed by guard-clause/decompose refactorings." }
+  ],
+  "refactorings": [
+    { "item": "Extract Function", "verdict": "pass", "arms": ["invoke_skill"], "why": "Fowler 2e catalog; correct primary cure for Long Function / Duplicated Code." },
+    { "item": "Replace Method with Method Object", "verdict": "partial", "arms": ["invoke_skill"], "why": "Genuine 1st-ed Fowler refactoring, absent from owned 2e; 2e successor is Replace Function with Command. Concept faithful, name superseded." },
+    { "item": "Replace Function with Command", "verdict": "pass", "arms": ["invoke_skill"], "why": "Exact Fowler 2e catalog refactoring." },
+    { "item": "Composed Method (Kerievsky)", "verdict": "partial", "arms": ["invoke_skill"], "why": "Kerievsky's refactoring is Compose Method; Composed Method is the Beck pattern it targets. Right concept, slightly off name." },
+    { "item": "Parameterize Function", "verdict": "pass", "arms": ["invoke_skill"], "why": "Fowler 2e catalog refactoring." },
+    { "item": "Replace Temp with Query", "verdict": "pass", "arms": ["invoke_skill"], "why": "Fowler 2e catalog refactoring." },
+    { "item": "Introduce Parameter Object", "verdict": "pass", "arms": ["invoke_skill"], "why": "Fowler 2e catalog; correct for Data Clumps / long parameter lists." },
+    { "item": "Preserve Whole Object", "verdict": "pass", "arms": ["invoke_skill"], "why": "Fowler 2e catalog refactoring." },
+    { "item": "Replace Loop with Pipeline", "verdict": "pass", "arms": ["invoke_skill"], "why": "Fowler 2e catalog; correct cure for the Loops smell (the FP-axis target T3)." },
+    { "item": "Change Function Declaration", "verdict": "pass", "arms": ["invoke_skill"], "why": "Fowler 2e catalog (renames + signature changes)." },
+    { "item": "Extract Variable", "verdict": "pass", "arms": ["invoke_skill"], "why": "Fowler 2e catalog refactoring." },
+    { "item": "Consolidate Conditional Expression", "verdict": "pass", "arms": ["invoke_skill"], "why": "Fowler 2e catalog refactoring." },
+    { "item": "Consolidate Duplicate Conditional Fragments", "verdict": "partial", "arms": ["invoke_skill"], "why": "Genuine 1st-ed Fowler refactoring; not in owned 2e (subsumed by Slide Statements + consolidation). Legacy name." },
+    { "item": "Extract Type", "verdict": "partial", "arms": ["invoke_skill"], "why": "Not a named book refactoring; maps to the Extract Class family (TS-flavored variant). Faithful concept, non-canonical name." },
+    { "item": "Extract Superclass", "verdict": "pass", "arms": ["invoke_skill"], "why": "Fowler 2e catalog refactoring." },
+    { "item": "Substitute Algorithm", "verdict": "pass", "arms": ["invoke_skill"], "why": "Fowler 2e catalog (also Kerievsky's cure for Oddball Solution)." },
+    { "item": "Inline Variable", "verdict": "pass", "arms": ["invoke_skill"], "why": "Fowler 2e catalog refactoring." },
+    { "item": "Decompose Conditional", "verdict": "pass", "arms": ["invoke_skill"], "why": "Fowler 2e catalog refactoring." },
+    { "item": "Replace Nested Conditional with Guard Clauses", "verdict": "pass", "arms": ["invoke_skill"], "why": "Fowler 2e catalog refactoring." },
+    { "item": "Extract Constant / Replace Magic Literal", "verdict": "partial", "arms": ["invoke_skill"], "why": "Neither exact name in owned 2e (1e name: Replace Magic Number with Symbolic Constant). Concept faithful, name non-canonical." },
+    { "item": "Slide Statements", "verdict": "pass", "arms": ["invoke_skill"], "why": "Fowler 2e catalog refactoring." },
+    { "item": "Replace Type Code with Subclasses", "verdict": "pass", "arms": ["invoke_skill"], "why": "Fowler 2e catalog (routed before Replace Conditional with Polymorphism for a type code)." }
+  ],
+  "patterns": [
+    { "item": "Replace Conditional with Polymorphism", "verdict": "pass", "arms": ["invoke_skill"], "why": "Genuine Fowler 2e refactoring; Fowler gates it (only when the same switch repeats), so declining for simple conditionals and splitting on growth is book-consistent." },
+    { "item": "Replace Conditional Logic with Strategy (Kerievsky)", "verdict": "pass", "arms": ["invoke_skill"], "why": "Exact Kerievsky ch.7 refactoring (Strategy); gating/declining on net-cost matches his over-engineering caution." },
+    { "item": "Replace State-Altering Conditionals with State", "verdict": "pass", "arms": ["invoke_skill"], "why": "Exact Kerievsky ch.7 refactoring (State); declining unless genuinely complex is consistent." },
+    { "item": "Chain of Responsibility (declined)", "verdict": "pass", "arms": ["invoke_skill"], "why": "Genuine GoF pattern; declining for ordinary conditional logic matches GoF applicability." },
+    { "item": "Replace Type Code with Subclasses (gated behind growth)", "verdict": "pass", "arms": ["invoke_skill"], "why": "Genuine Fowler refactoring; gating behind growth is faithful to YAGNI-aware framing." },
+    { "item": "Null Object (declined)", "verdict": "pass", "arms": ["invoke_skill"], "why": "Authentic in Kerievsky (Introduce Null Object) and Fowler 2e (Introduce Special Case); declining when null-handling not duplicated is book-consistent." },
+    { "item": "Collecting Parameter", "verdict": "pass", "arms": ["invoke_skill"], "why": "Genuine Kerievsky/Beck pattern (target of Move Accumulation to Collecting Parameter)." },
+    { "item": "Strategy lookup table / Map<name,updater> (FP form)", "verdict": "no-oracle", "arms": ["invoke_skill"], "why": "Pure functional idiom, not one of the owned OO books; correctly not treated as a book pattern." },
+    { "item": "discriminated-union dispatch", "verdict": "no-oracle", "arms": ["invoke_skill"], "why": "Functional idiom (functional-catalog / functional-depatterning-ts.md), not an owned-book pattern." },
+    { "item": "pipeline (filter/flatMap)", "verdict": "no-oracle", "arms": ["invoke_skill"], "why": "FP idiom; the OO-book-graded counterpart is the refactoring Replace Loop with Pipeline (graded pass above)." },
+    { "item": "polymorphism / per-item strategy map (candidate, no APPLY/DECLINE)", "verdict": "partial", "arms": ["code_review"], "why": "The pattern named is a real concept, but floated without a net-cost weighing -- the unguarded framing Kerievsky's balance warns against; the coverage is authentic, the proportionality guidance is absent." }
+  ],
+  "rollup": {
+    "cr-emb": {
+      "invoke_skill": { "fidelity": "pass", "note": "Fowler mechanical refactorings + Kerievsky routing authentic; declining Replace Conditional with Polymorphism here is book-consistent." },
+      "code_review": { "fidelity": "pass", "note": "Named smells drawn from Fowler ch.3 (authentic); no refactoring/pattern vocabulary -- a coverage gap, not a fidelity failure." }
+    },
+    "cr-rlu": {
+      "invoke_skill": { "fidelity": "pass", "note": "Authentic; declining Strategy/polymorphism on net-cost mirrors Kerievsky's caution + GoF applicability; the Map/lookup form is a no-oracle FP idiom, correctly not booked as a pattern." },
+      "code_review": { "fidelity": "pass", "note": "Fowler ch.3 smell names authentic; no canonical refactoring/pattern names (coverage, not fidelity)." }
+    },
+    "cr-gr": {
+      "invoke_skill": { "fidelity": "pass", "note": "Growth scenario book-consistent: gating Replace Type Code with Subclasses behind actual growth + split verdict on Replace Conditional with Polymorphism matches Fowler's Repeated-Switches rule + Kerievsky's balance." },
+      "code_review": { "fidelity": "pass", "note": "Fowler ch.3 smell naming authentic; absence of refactoring/pattern vocabulary is expected coverage, not a fidelity defect; the one named pattern (polymorphism/strategy map) is floated unguarded (partial on proportionality)." }
+    }
+  },
+  "cross_cutting": "invoke_skill routing is faithful to the books (mechanical/local -> Fowler catalog; repeated/complex-structure -> Kerievsky; GoF/Kerievsky patterns only when warranted, otherwise declined on net-cost). The only fidelity blemishes are legacy 1st-ed names (Replace Method with Method Object, Consolidate Duplicate Conditional Fragments) and TS-flavored labels (Extract Type, Extract Constant) -- concepts faithful, names off-catalog; all graded partial, none fail. code_review names authentic Fowler ch.3 smells and no canonical refactoring/pattern vocabulary. No fail verdicts on either arm."
+}

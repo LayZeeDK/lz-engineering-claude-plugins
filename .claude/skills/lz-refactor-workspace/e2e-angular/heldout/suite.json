@@ -1,0 +1,10 @@
+{
+  "name": "heldout-single-target-drive",
+  "repo": "D:/projects/github/angular/angular-cli",
+  "applyBase": "5584a589a",
+  "protectedBranches": ["22.0.x", "main", "master"],
+  "skillCommand": "/lz-tdd:lz-refactor",
+  "prompts": [
+    { "id": "ho1", "file": "ho1-gettypesofschema.md", "target": "ho1", "code": true }
+  ]
+}

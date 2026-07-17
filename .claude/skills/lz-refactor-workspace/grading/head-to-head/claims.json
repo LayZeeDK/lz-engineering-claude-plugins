@@ -1,0 +1,197 @@
+{
+  "_meta": {
+    "description": "Normalized union claims per (cell, arm) across 3 recommend-mode runs each. Substrate for oracle book-fidelity grading. DST-04: grader did NOT read .oracle/.",
+    "arms": {
+      "invoke_skill": "lz-refactor skill (smells + named Fowler/Kerievsky refactorings + GoF/FP patterns/idioms)",
+      "code_review": "mattpocock code-review skill (Standards axis = 12-Fowler-smell baseline; names smells + generic prose fixes; no named-refactoring/pattern vocabulary; Spec axis skips when no issue/PRD)"
+    },
+    "note": "For code_review, refactorings_named is intentionally near-empty (design). Its real lift is captured in smells_named + notable_fixes_prose. Declined patterns are recorded in patterns_idioms_named with a (declined) marker."
+  },
+  "cr-emb": {
+    "file": "packages/eslint-plugin/src/rules/enforce-module-boundaries.ts (run() ~257-786)",
+    "invoke_skill": {
+      "smells_named": [
+        "Long Function (run ~530 lines, sequence of ~9 boundary checks)",
+        "Duplicated Code (two near-identical fix() closures)",
+        "Duplicated Code (source-tag ternary repeated 5 sites)",
+        "Duplicated Code (five near-identical visitor callbacks)",
+        "Conditional Complexity (Kerievsky framing of run's branch accretion)",
+        "Comments explaining a block (Step 1/2/3 wildcard comments)"
+      ],
+      "refactorings_named": [
+        "Extract Function (per-guard, per boundary check)",
+        "Replace Method with Method Object / Replace Function with Command",
+        "Composed Method (Kerievsky target shape)",
+        "Parameterize Function (shared fix skeleton + resolver callback)",
+        "Replace Temp with Query (awkward shared temps)",
+        "Introduce Parameter Object / Preserve Whole Object (fat arg clump)"
+      ],
+      "patterns_idioms_named": [
+        "Replace Conditional with Polymorphism (declined; rule objects unwarranted)",
+        "Replace Conditional Logic with Strategy (declined; ordered guards not one axis)",
+        "Replace State-Altering Conditionals with State (declined)",
+        "Chain of Responsibility (named as over-reach, declined)"
+      ],
+      "notable_fixes_prose": [
+        "Type escape hatches (node as any)/(global as any) noted as non-Fowler; localize with typed helper",
+        "Preserve fixer output strings + report messageId/data byte-identical through extraction"
+      ]
+    },
+    "code_review": {
+      "smells_named": [
+        "Duplicated Code (two fix(fixer) closures 307-386 / 450-514)",
+        "Duplicated Code / Repeated Switches (sourceTag ternary 5 sites)",
+        "Long Function (run 257-786 does too much)",
+        "Mysterious Name (run; opaque params a/s)",
+        "Primitive Obsession / hidden global ((global as any) bag)",
+        "Data Clumps (graph tuple threaded through calls)"
+      ],
+      "refactorings_named": [],
+      "patterns_idioms_named": [],
+      "notable_fixes_prose": [
+        "GENUINE BUG: unescaped-dot regex /.tsx?$/ at line 500 should be /\\.tsx?$/ (strips wrong chars)",
+        "Unsafe any casts: narrow on node.type instead of (node as any).specifiers",
+        "Extract buildRemapFix(node, entryPoints, resolvePath) helper for duplicated fix bodies",
+        "Extract sourceTagLabel(constraint) helper for the 5x ternary",
+        "Split run into focused checkers (checkCrossProjectImport, checkCircular, checkDepConstraints)",
+        "Rename run -> checkImport / validateImport",
+        "Variable shadowing at line 768: rename inner binding, drop unused target",
+        "Style (judgement): missing blank lines around control flow / returns"
+      ]
+    }
+  },
+  "cr-rlu": {
+    "file": "packages/eslint-plugin/src/utils/runtime-lint-utils.ts (T3 findTransitiveExternalDependencies 324-354; T4 groupImports 471-494)",
+    "invoke_skill": {
+      "smells_named": [
+        "Duplicated Code (reachability computed twice: findDependenciesWithTags vs findTransitiveExternalDependencies)",
+        "Duplicated Code (constraint-to-source-tag matching: findConstraintsFor vs hasBannedImport)",
+        "Loops (findTransitiveExternalDependencies C-style index arithmetic) [T3]",
+        "Comments (JSDoc on findDependenciesWithTags lies about behavior)",
+        "Mysterious Name / dishonest signature (parseExports return type; getEntryPoint)",
+        "Duplicated Expression (hasTag proj.data.tags||[] x3)",
+        "Duplicated Conditional Fragments (packageExistsInPackageJson 3 blocks)",
+        "Long Function / mixed concerns (getEntryPoint ng-package fallback)",
+        "Data Clump (inline {path,file} / {member,importPath} type literals)",
+        "Conditional Complexity (matchImportWithWildcard if/else ladder)",
+        "Feature Envy on graph (deliberately NOT recommended; external type)"
+      ],
+      "refactorings_named": [
+        "Extract Function (reachableProjects, constraintAppliesToSource, ng-package resolver)",
+        "Replace Loop with Pipeline (findTransitiveExternalDependencies -> filter/flatMap/filter) [T3]",
+        "Change Function Declaration (parseExports -> void; getEntryPoint -> string|undefined)",
+        "Extract Variable (hasTag tags; isTerminalRun argv[1])",
+        "Consolidate Duplicate Conditional Fragments / Consolidate Conditional Expression (packageExistsInPackageJson, isTerminalRun)",
+        "Extract Type (PackageEntryPoint alias)",
+        "Extract Superclass (BaseDepConstraint interface for 4 shared fields)",
+        "Substitute Algorithm (hasNoneOfTheseTags -> !some)",
+        "Inline Variable (getSecondaryEntryPointPath entryPoint)",
+        "Decompose Conditional (matchImportWithWildcard branches, optional)"
+      ],
+      "patterns_idioms_named": [
+        "Replace Conditional with Polymorphism / Strategy (declined; matchImportWithWildcard, 0 dup removed)",
+        "Null Object (declined for constraint handling)",
+        "pipeline (FP idiom: filter/flatMap)",
+        "Collecting Parameter (names parseExports's entryPaths accumulator pattern)"
+      ],
+      "notable_fixes_prose": [
+        "Non-boolean returns behind :boolean (hasBuildExecutor, isConstraintBanningProject) -> !!/?? false, flagged as behavior-adjacent (route to lz-tpp)",
+        "Blast-radius: separate body-only (safe) vs exported-signature changes (pause before applying)"
+      ]
+    },
+    "code_review": {
+      "smells_named": [
+        "Duplicated Code / Repeated Switches (tag-resolution: findConstraintsFor vs hasBannedImport)",
+        "Data Clumps (SingleSourceTagConstraint vs ComboSourceTagConstraint share 4 fields)",
+        "Data Clumps (inline {path,file} shape declared 3x)",
+        "Duplicated Code (hasTag proj.data.tags||[] x3)",
+        "Duplicated Code (two wildcard->match engines: matchImportWithWildcard vs mapGlobToRegExp)",
+        "Duplicated Code (readFileIfExisting(path.join(workspaceRoot,...)) recurs)",
+        "Mysterious Name (findDependenciesWithTags returns paths not deps; filter param f)",
+        "Primitive Obsession (tag:string overloaded: literal * / /regex/ / glob)",
+        "Braceless control-flow bodies (HARD violation vs user style rule) [run3 only]",
+        "Missing blank lines around control flow/return (style) [run3 only]"
+      ],
+      "refactorings_named": [],
+      "patterns_idioms_named": [],
+      "notable_fixes_prose": [
+        "Extract sourceTagsOf / getSourceTags / matchesSourceTags accessor for the dup tag resolution",
+        "Shared base type for the two constraint variants",
+        "Hoist const projectTags in hasTag",
+        "Name a type EntryPoint / {path,file}",
+        "Unify the two wildcard matchers behind one",
+        "Rename findDependenciesWithTags / fix misleading JSDoc",
+        "for-loops in findTransitiveExternalDependencies dismissed as out-of-scope (T3 missed as opportunity)"
+      ]
+    }
+  },
+  "cr-gr": {
+    "file": "app/gilded-rose.ts (GildedRose.updateQuality 20-68)",
+    "invoke_skill": {
+      "smells_named": [
+        "Long Function (updateQuality 20-68)",
+        "Conditional Complexity (Kerievsky; nested if tangle)",
+        "Repeated Switches (name checks scattered across top + sellIn<0 blocks)",
+        "Duplicated Code (post-sell-by block mirrors top; !=Sulfuras x3, <50 x4, >0 x2)",
+        "Primitive Obsession (item name string as type code)",
+        "Magic Numbers / Literals (50, 0, 11, 6; name strings)",
+        "Nested conditionals hiding the main path",
+        "Obscure expression (quality = quality - quality)",
+        "Loops (C-style indexed for)",
+        "Repeated navigation (this.items[i] ~30x)",
+        "Data Class / Feature Envy (Item holds data; constraint forbids moving behavior)"
+      ],
+      "refactorings_named": [
+        "Extract Function (updateItem; increaseQuality/decreaseQuality/expire)",
+        "Decompose Conditional (named predicates isAgedBrie/isBackstage/isSulfuras)",
+        "Replace Nested Conditional with Guard Clauses (Sulfuras early return)",
+        "Extract Constant / Replace Magic Literal (MAX_QUALITY, MIN_QUALITY, name consts)",
+        "Consolidate Duplicate Conditional Fragments / Consolidate Conditional Expression",
+        "Substitute Algorithm (quality-quality -> 0)",
+        "Replace Loop with Pipeline / for...of",
+        "Extract Variable (const item)",
+        "Slide Statements",
+        "Change Function Declaration / typing (flagged on frozen Item, not acted)",
+        "Characterization tests / Refactoring Without Tests (Feathers) as step zero"
+      ],
+      "patterns_idioms_named": [
+        "Replace Conditional with Polymorphism (declined run1/run3; APPLY run2)",
+        "Replace Conditional Logic with Strategy (Kerievsky; same verdict split)",
+        "Replace Type Code with Subclasses (named; gated behind growth)",
+        "Strategy lookup table / Map<name, updater> (lightweight FP form preferred over subclasses)",
+        "discriminated-union dispatch"
+      ],
+      "notable_fixes_prose": [
+        "Untyped Item constructor params (implicit any) flagged, not acted (frozen Item)",
+        "!= / == -> !== / === noted as lint, behavior-preserving",
+        "Do-not-modify-Item constraint: any polymorphism must wrap Item, never subclass it"
+      ]
+    },
+    "code_review": {
+      "smells_named": [
+        "Repeated Switches (name string cascade re-tested in two blocks)",
+        "Primitive Obsession (raw name strings as categories)",
+        "Duplicated Code (clamp <50 x4-5; !=Sulfuras decrement guard x2)",
+        "Magic Numbers (50, 11, 6)",
+        "Message Chains / repeated navigation (this.items[i] ~30x)",
+        "Obscure conditional / Mysterious construct (quality - quality)",
+        "Mysterious Name (updateQuality also mutates sellIn, returns array)",
+        "Untyped constructor params (type-safety gap / implicit any)",
+        "Deeply nested conditionals (up to 5 levels)",
+        "Loose equality != / == (eqeqeq)"
+      ],
+      "refactorings_named": [],
+      "patterns_idioms_named": [
+        "polymorphism / per-item strategy map (named as candidate fix; no APPLY/DECLINE net-cost judgment)"
+      ],
+      "notable_fixes_prose": [
+        "Extract increaseQuality/decreaseQuality clamp helpers enforcing 0..50 once",
+        "Extract name constants + MAX_QUALITY / named backstage thresholds",
+        "Hoist const item = this.items[i]",
+        "Rewrite quality - quality as = 0",
+        "Annotate constructor params",
+        "SPEC axis: code faithfully implements canonical kata; 0 defects; Sulfuras=80 not enforced (non-defect)"
+      ]
+    }
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "eval_id": 3,
+  "eval_name": "feature-envy",
+  "prompt": "all green. `Invoice.total()` reads almost entirely from the `Customer` it holds -- customer.discountRate, customer.taxRegion, customer.loyaltyTier -- and barely touches any Invoice field of its own. tests pass. whats the named refactoring here?",
+  "assertions": [
+    "Names Move Function as the best-fit next refactoring",
+    "Names an in-set Feature Envy refactoring (Move Function or Extract Function)",
+    "Routes to the Fowler mechanical layer",
+    "Ties the pick to the whole function computing from Customer's fields (it envies the other module), siting it with that data",
+    "Does not edit any source file and does not run tests (coach, don't drive)"
+  ]
+}

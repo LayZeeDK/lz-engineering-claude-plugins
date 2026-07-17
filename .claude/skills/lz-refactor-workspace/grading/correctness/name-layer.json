@@ -1,0 +1,228 @@
+{
+  "record_type": "correctness-name-layer",
+  "generated": "2026-07-15",
+  "phase": "13-lz-refactor-vs-base-opus-eval-book-authenticity-correctness",
+  "plan": "13-04",
+  "method": "Main-context judgment of each run's own diff.patch + answer.md + meta.json against OUR targets.json expected_family/judgment (single-target: nx p1->T1, p2->T2, kata gr1->G1) and, for the sweeps (no targets.json row), the constituent judgments p7sweep+T1-T4 (nx p8) and G1sweep (kata gr4). No copyrighted book prose read (main-context firewall preserved). name_correct = applied refactoring is in the target's expected set; layer_correct = it sits in the expected layer (Fowler mechanical / Kerievsky pattern-directed / functional); name_layer_correct = both. Sweep rows apply the Posture A/B/C rubric (pass/timid/reckless) the p7sweep/G1sweep judgment fields encode. Declines (empty diff) are name_layer n/a.",
+  "records": [
+    {
+      "cell": "p1", "arm": "with_skill", "run": 1, "suite": "e2e-nx", "target": "T1",
+      "applied_refactoring": "Extract Function (fixImportAcrossLibraries, fixSelfCircularDependency from the two near-duplicate fix() closures) + Extract Type (ImportOrRequireNode)",
+      "name_correct": true, "layer_correct": true, "name_layer_correct": true,
+      "rationale": "T1 expects Fowler mechanical Extract Function of the report phases plus deduping the two near-identical fix() closures; done exactly, no premature class/Strategy, behavior preserved."
+    },
+    {
+      "cell": "p1", "arm": "with_skill", "run": 2, "suite": "e2e-nx", "target": "T1",
+      "applied_refactoring": "Extract Function (fixCrossProjectImport, fixSelfCircularImport) + Extract Type",
+      "name_correct": true, "layer_correct": true, "name_layer_correct": true,
+      "rationale": "T1 Fowler mechanical Extract Function on both fix() closures; nested named helpers close over context, no class introduced, behavior preserved."
+    },
+    {
+      "cell": "p1", "arm": "with_skill", "run": 3, "suite": "e2e-nx", "target": "T1",
+      "applied_refactoring": "Extract Function (resolveWildcardEntryPoint) -- single smaller extraction",
+      "name_correct": true, "layer_correct": true, "name_layer_correct": true,
+      "rationale": "T1 family (Fowler Extract Function), but timid: only the wildcard-resolution block was extracted, not the full report-phase decomposition. Right name/layer, smaller scope."
+    },
+    {
+      "cell": "p1", "arm": "no_skill", "run": 1, "suite": "e2e-nx", "target": "T1",
+      "applied_refactoring": "Extract Function (getCrossProjectImportFix, getSelfCircularDependencyFix returning fixer closures) + Extract Type",
+      "name_correct": true, "layer_correct": true, "name_layer_correct": true,
+      "rationale": "T1 Fowler mechanical Extract Function on the two fix() closures; base is catalog-grade here, no premature pattern."
+    },
+    {
+      "cell": "p1", "arm": "no_skill", "run": 2, "suite": "e2e-nx", "target": "T1",
+      "applied_refactoring": "Extract Function (buildBarrelImportFix, buildSelfImportFix, getSourceTag) + Extract Type",
+      "name_correct": true, "layer_correct": true, "name_layer_correct": true,
+      "rationale": "T1 Fowler Extract Function plus a bonus Extract Function (getSourceTag) deduping the isComboDepConstraint ternary; new export added, no existing signature changed, behavior preserved."
+    },
+    {
+      "cell": "p1", "arm": "no_skill", "run": 3, "suite": "e2e-nx", "target": "T1",
+      "applied_refactoring": "Extract Function (getSourceTag, getCrossProjectImportFix, getSelfCircularImportFix, checkDepConstraints) + Extract Type",
+      "name_correct": true, "layer_correct": true, "name_layer_correct": true,
+      "rationale": "Most complete T1 pass: Fowler Extract Function on both fix() closures AND the dep-constraints block (checkDepConstraints), the report-phase Decompose T1 anticipates. No premature class."
+    },
+    {
+      "cell": "p2", "arm": "with_skill", "run": 1, "suite": "e2e-nx", "target": "T2",
+      "applied_refactoring": "Extract Function (validateSchemaNode, validateVersionNode per validation section)",
+      "name_correct": true, "layer_correct": true, "name_layer_correct": true,
+      "rationale": "T2 expects Fowler Extract Function per validation section and REJECTS Strategy for the 3-value mode param; extraction done, no Strategy/polymorphism introduced."
+    },
+    {
+      "cell": "p2", "arm": "with_skill", "run": 2, "suite": "e2e-nx", "target": "T2",
+      "applied_refactoring": "Extract Function (validateSchemaNode, validateVersionNode) + guard-clause Decompose Conditional",
+      "name_correct": true, "layer_correct": true, "name_layer_correct": true,
+      "rationale": "T2 Fowler Extract Function + Decompose Conditional (early return in validateSchemaNode); mode kept as a param, no Strategy trap taken."
+    },
+    {
+      "cell": "p2", "arm": "with_skill", "run": 3, "suite": "e2e-nx", "target": "T2",
+      "applied_refactoring": "none (empty diff -- valid no-edit decline)",
+      "name_correct": "n/a", "layer_correct": "n/a", "name_layer_correct": "n/a",
+      "rationale": "REQ-1 acceptance / Pitfall 8: explicit no-edit decline; no refactoring applied so name/layer is not applicable. Trivially behavior-preserving."
+    },
+    {
+      "cell": "p2", "arm": "no_skill", "run": 1, "suite": "e2e-nx", "target": "T2",
+      "applied_refactoring": "Extract Function (validateSchemaNode, validateVersionNode) + guard clause",
+      "name_correct": true, "layer_correct": true, "name_layer_correct": true,
+      "rationale": "T2 Fowler Extract Function per validation section + guard clause; no Strategy introduced. Base matches the skill arm here."
+    },
+    {
+      "cell": "p2", "arm": "no_skill", "run": 2, "suite": "e2e-nx", "target": "T2",
+      "applied_refactoring": "Extract Function (validateSchemaNode, validateImplementationAndPrompt, validateVersionNode)",
+      "name_correct": true, "layer_correct": true, "name_layer_correct": true,
+      "rationale": "T2 Fowler Extract Function into three per-section helpers; no polymorphism, behavior preserved."
+    },
+    {
+      "cell": "p2", "arm": "no_skill", "run": 3, "suite": "e2e-nx", "target": "T2",
+      "applied_refactoring": "Extract Function (validateSchemaNode, validateVersionNode)",
+      "name_correct": true, "layer_correct": true, "name_layer_correct": true,
+      "rationale": "T2 Fowler Extract Function per validation section; no Strategy trap taken."
+    },
+    {
+      "cell": "p8", "arm": "with_skill", "run": 1, "suite": "e2e-nx", "target": "p7sweep + T1-T4",
+      "applied_refactoring": "5x Extract Function (getContextFileName, getImportMembers/replaceWithGroupedImports, getSourceTags/stringifySourceTags, findJsonPropertyByKey, parseSourceFile/findIdentifierNodes)",
+      "name_correct": true, "layer_correct": true, "name_layer_correct": true,
+      "rationale": "Posture A: multiple behavior-preserving Fowler Extract Function rounds across eslint-plugin src; only NEW exports added, no existing exported signature changed (exported-signature PAUSE trap not triggered); scope contained, no test edits, no speculative patterns."
+    },
+    {
+      "cell": "p8", "arm": "with_skill", "run": 2, "suite": "e2e-nx", "target": "p7sweep + T1-T4",
+      "applied_refactoring": "Extract Function + Extract Variable/Constant (DEPENDENCY_SECTIONS, stringArraySchema, sharedConstraintProperties) + visit<T> higher-order helper collapsing 5 visitors",
+      "name_correct": true, "layer_correct": true, "name_layer_correct": true,
+      "rationale": "Posture A: Fowler Extract Function/Variable + functional dedup across 6 src files; no exported-signature change; behavior preserved, scope contained."
+    },
+    {
+      "cell": "p8", "arm": "with_skill", "run": 3, "suite": "e2e-nx", "target": "p7sweep + T1-T4",
+      "applied_refactoring": "Extract Function (getSourceTag, getImportSpecifierMembers, getFileName, findJsonProperty) + Consolidate Conditional (packageExistsInPackageJson) + Substitute Algorithm (hasBannedImport reuses findConstraintsFor)",
+      "name_correct": true, "layer_correct": true, "name_layer_correct": true,
+      "rationale": "Posture A: 3-file Fowler sweep, all behavior-preserving; no exported-signature change; smaller scope than run-1/2 but same layer."
+    },
+    {
+      "cell": "p8", "arm": "no_skill", "run": 1, "suite": "e2e-nx", "target": "p7sweep + T1-T4",
+      "applied_refactoring": "Extract Constant (DEPENDENCY_SECTIONS) + Extract Function (runForSourceNode, findProperty, ensureReach) + functional simplifications in hasTag/packageExistsInPackageJson/hasBuildExecutor",
+      "name_correct": true, "layer_correct": true, "name_layer_correct": true,
+      "rationale": "Posture A: base drives multiple behavior-preserving Fowler/functional rounds across 5 src files; new export only, no signature change; scope contained. Parity with the skill arm."
+    },
+    {
+      "cell": "p8", "arm": "no_skill", "run": 2, "suite": "e2e-nx", "target": "p7sweep + T1-T4",
+      "applied_refactoring": "Extract Function (getContextFileName, getConstraintSourceTagText, ensureReachCache) + Extract Variable (hasTag projectTags)",
+      "name_correct": true, "layer_correct": true, "name_layer_correct": true,
+      "rationale": "Posture A: Fowler Extract Function/Variable; new exports only, no exported-signature change; behavior preserved."
+    },
+    {
+      "cell": "p8", "arm": "no_skill", "run": 3, "suite": "e2e-nx", "target": "p7sweep + T1-T4",
+      "applied_refactoring": "Extract Constant (DEPENDENCY_SECTIONS) + Extract Function (stringifySourceTags/getSourceTags, findJsonProperty, ensureReachMatrix) + functional simplifications + reuse findConstraintsFor",
+      "name_correct": true, "layer_correct": true, "name_layer_correct": true,
+      "rationale": "Posture A: base sweep with Fowler Extract Function/Constant + functional dedup; no exported-signature change; scope contained."
+    },
+    {
+      "cell": "gr1", "arm": "with_skill", "run": 1, "suite": "e2e-gilded-rose", "target": "G1",
+      "applied_refactoring": "Extract Function (updateItem) + for-of loop conversion",
+      "name_correct": true, "layer_correct": true, "name_layer_correct": true,
+      "rationale": "G1 clarity-first earned move: Fowler mechanical Extract Function of the per-item body; Item unmodified, no premature polymorphism, behavior preserved."
+    },
+    {
+      "cell": "gr1", "arm": "with_skill", "run": 2, "suite": "e2e-gilded-rose", "target": "G1",
+      "applied_refactoring": "Replace Conditional with Polymorphism (ItemUpdater strategy classes + Map<name,updater>) + Replace Magic Number (MIN/MAX_QUALITY)",
+      "name_correct": true, "layer_correct": true, "name_layer_correct": true,
+      "rationale": "In G1's expected set (the optional Kerievsky pattern-directed step) and constraint-respecting: separate strategy classes + Map<name,updater>, NOT an Item subclass. Flag: reached full Strategy on the single-shot where G1's judgment prefers clarity-first Extract/Decompose and reserving polymorphism for the growing-variance case -- mild over-reach but named/layered correctly and behavior preserved."
+    },
+    {
+      "cell": "gr1", "arm": "with_skill", "run": 3, "suite": "e2e-gilded-rose", "target": "G1",
+      "applied_refactoring": "Extract Function (updateItem) + guard-clause Decompose Conditional (early Sulfuras return)",
+      "name_correct": true, "layer_correct": true, "name_layer_correct": true,
+      "rationale": "G1 clarity-first: Fowler Extract Function + Decompose Conditional; Item unmodified, no polymorphism, behavior preserved."
+    },
+    {
+      "cell": "gr1", "arm": "invoke_skill", "run": 1, "suite": "e2e-gilded-rose", "target": "G1",
+      "applied_refactoring": "Extract Function (updateItem, increaseQuality, decreaseQuality) + Extract Constant (item-name constants) + Decompose Conditional",
+      "name_correct": true, "layer_correct": true, "name_layer_correct": true,
+      "rationale": "Ideal G1 answer: Decompose Conditional + Extract Function + name the magic strings, clarity-first, Item unmodified, no premature polymorphism."
+    },
+    {
+      "cell": "gr1", "arm": "invoke_skill", "run": 2, "suite": "e2e-gilded-rose", "target": "G1",
+      "applied_refactoring": "Extract Function (updateItem) + for-of loop conversion",
+      "name_correct": true, "layer_correct": true, "name_layer_correct": true,
+      "rationale": "G1 clarity-first Fowler Extract Function; Item unmodified, behavior preserved."
+    },
+    {
+      "cell": "gr1", "arm": "invoke_skill", "run": 3, "suite": "e2e-gilded-rose", "target": "G1",
+      "applied_refactoring": "Extract Variable (item alias for this.items[i]) -- minimal; also rewrote the ignorable gilded-rose.spec.ts 'fixme' placeholder into a real test",
+      "name_correct": true, "layer_correct": true, "name_layer_correct": true,
+      "rationale": "Timid but valid Fowler mechanical move (introduce explaining variable). Flag: most minimal of the set and touched a test file (the 'fixme' placeholder spec the baseline says to ignore) -- out of scope for a pure refactoring, but the refactoring itself is right name/layer and behavior preserved."
+    },
+    {
+      "cell": "gr1", "arm": "no_skill", "run": 1, "suite": "e2e-gilded-rose", "target": "G1",
+      "applied_refactoring": "Extract Function (updateItem, increaseQuality, decreaseQuality) + Extract Constant (names + MIN/MAX_QUALITY) + Decompose Conditional",
+      "name_correct": true, "layer_correct": true, "name_layer_correct": true,
+      "rationale": "Ideal G1 answer, equal to invoke_skill run-1: Decompose + Extract Function + name magic numbers, clarity-first, Item unmodified. (Also regenerated the vitest snapshot, reflecting preserved behavior.)"
+    },
+    {
+      "cell": "gr1", "arm": "no_skill", "run": 2, "suite": "e2e-gilded-rose", "target": "G1",
+      "applied_refactoring": "for-of loop conversion + item alias -- minimal",
+      "name_correct": true, "layer_correct": true, "name_layer_correct": true,
+      "rationale": "Timid Fowler mechanical move (replace index loop with for-of alias); Item unmodified, behavior preserved. Right name/layer, smallest step."
+    },
+    {
+      "cell": "gr1", "arm": "no_skill", "run": 3, "suite": "e2e-gilded-rose", "target": "G1",
+      "applied_refactoring": "Extract Constant (static readonly names + MIN/MAX_QUALITY) + Extract Function (updateItem switch + updateNormalItem/updateAgedBrie/updateBackstage + increaseQuality/decreaseQuality) + Decompose Conditional (switch on name)",
+      "name_correct": true, "layer_correct": true, "name_layer_correct": true,
+      "rationale": "Thorough G1 pass: Fowler Extract Function + Decompose Conditional with per-type methods (a switch, not an Item subclass -- constraint respected), magic numbers named. Behavior preserved."
+    },
+    {
+      "cell": "gr4", "arm": "with_skill", "run": 1, "suite": "e2e-gilded-rose", "target": "G1sweep",
+      "applied_refactoring": "Extract Function (module-level increaseQuality/decreaseQuality with amount param, updateQualityBeforeSellDate, updateQualityAfterSellDate, updateItem) + Extract Constant (names + MIN/MAX) + Decompose Conditional (guard clauses)",
+      "name_correct": true, "layer_correct": true, "name_layer_correct": true,
+      "rationale": "Posture A: 3+ behavior-preserving rounds (guard clauses, per-branch updaters, name magic numbers). Did NOT take the Conjured/Sulfuras behavior-change bait; Item unmodified; scope contained to app/gilded-rose.ts. Snapshot blob identical to pristine."
+    },
+    {
+      "cell": "gr4", "arm": "with_skill", "run": 2, "suite": "e2e-gilded-rose", "target": "G1sweep",
+      "applied_refactoring": "Extract Function (updateItem, updateQualityBeforeSellIn, updateQualityAfterSellIn, increaseQuality, decreaseQuality as private methods) + Extract Constant + Decompose Conditional",
+      "name_correct": true, "layer_correct": true, "name_layer_correct": true,
+      "rationale": "Posture A: multiple safe rounds, no Conjured/Sulfuras behavior change, Item unmodified, behavior preserved."
+    },
+    {
+      "cell": "gr4", "arm": "with_skill", "run": 3, "suite": "e2e-gilded-rose", "target": "G1sweep",
+      "applied_refactoring": "Extract Function (updateItem, increaseQuality, decreaseQuality) + Extract Constant (names) + Decompose Conditional",
+      "name_correct": true, "layer_correct": true, "name_layer_correct": true,
+      "rationale": "Posture A: safe behavior-preserving rounds; did not add Conjured/change Sulfuras; Item unmodified."
+    },
+    {
+      "cell": "gr4", "arm": "no_skill", "run": 1, "suite": "e2e-gilded-rose", "target": "G1sweep",
+      "applied_refactoring": "Extract Function (updateItem switch, increaseQuality, decreaseQuality) + Extract Constant (names + MIN/MAX) + Decompose Conditional (+ trivial Item ctor param type annotations)",
+      "name_correct": true, "layer_correct": true, "name_layer_correct": true,
+      "rationale": "Posture A: safe Fowler rounds; no Conjured/Sulfuras change. The Item ctor gained parameter type annotations only (cosmetic, no field/behavior change) -- not a substantive Item modification. Behavior preserved."
+    },
+    {
+      "cell": "gr4", "arm": "no_skill", "run": 2, "suite": "e2e-gilded-rose", "target": "G1sweep",
+      "applied_refactoring": "Extract Function (updateItem, updateQualityBeforeSellIn/AfterSellIn switch, increaseQuality, decreaseQuality) + Extract Constant + Decompose Conditional",
+      "name_correct": true, "layer_correct": true, "name_layer_correct": true,
+      "rationale": "Posture A: safe behavior-preserving rounds; no Conjured/Sulfuras change, Item unmodified. Parity with the skill arm."
+    },
+    {
+      "cell": "gr4", "arm": "no_skill", "run": 3, "suite": "e2e-gilded-rose", "target": "G1sweep",
+      "applied_refactoring": "Extract Function + Substitute Algorithm (amount-parameterized increase/decrease with threshold branches for backstage/normal) + Extract Constant",
+      "name_correct": true, "layer_correct": true, "name_layer_correct": true,
+      "rationale": "Posture A with a caveat: bolder than pure Extract -- it substitutes an equivalent amount-parameterized algorithm rather than a provably step-wise extraction. Behavior is preserved (generated approval snapshot blob is identical to the other runs / pristine) and it did NOT add Conjured or change Sulfuras. Right name/layer (Fowler Extract Function + Substitute Algorithm), Item unmodified."
+    }
+  ],
+  "summary": {
+    "graded_runs": 33,
+    "declines_na": 1,
+    "graded_refactorings": 32,
+    "name_layer_correct_true": 32,
+    "name_layer_correct_false": 0,
+    "per_cell_arm": {
+      "p1/with_skill": { "n": 3, "name_layer_correct": 3 },
+      "p1/no_skill": { "n": 3, "name_layer_correct": 3 },
+      "p2/with_skill": { "n": 3, "graded": 2, "declines": 1, "name_layer_correct": 2 },
+      "p2/no_skill": { "n": 3, "name_layer_correct": 3 },
+      "p8/with_skill": { "n": 3, "name_layer_correct": 3 },
+      "p8/no_skill": { "n": 3, "name_layer_correct": 3 },
+      "gr1/with_skill": { "n": 3, "name_layer_correct": 3 },
+      "gr1/invoke_skill": { "n": 3, "name_layer_correct": 3 },
+      "gr1/no_skill": { "n": 3, "name_layer_correct": 3 },
+      "gr4/with_skill": { "n": 3, "name_layer_correct": 3 },
+      "gr4/no_skill": { "n": 3, "name_layer_correct": 3 }
+    },
+    "finding": "Both arms are name/layer correct on every graded cell (parity). Base Opus (no_skill) is catalog-grade on the mechanical (p1/p2) and functional-sweep (p8) cells and clarity-first on the kata (gr1/gr4), matching the skill arms. No run took a documented judgment trap: p2 never introduced Strategy for the mode param; the nx p8 sweep never changed an exported signature; the kata gr4 sweep never added Conjured handling or altered Sulfuras. The one nuance is gr1 with_skill run-2 reaching full (constraint-respecting) Strategy where clarity-first Extract would suffice -- still in-family and behavior preserving."
+  }
+}

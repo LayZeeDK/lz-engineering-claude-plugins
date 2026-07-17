@@ -1,0 +1,119 @@
+{
+  "skill_name": "lz-refactor",
+  "evals": [
+    {
+      "id": 0,
+      "prompt": "all tests pass. this `processOrder(order)` is about 60 lines: it validates the cart, then computes line totals and tax in the middle, then formats a receipt string at the end, all inline in one body. i keep scrolling to follow it. tests are green -- whats the next refactoring?",
+      "expected_output": "Names Extract Function (Fowler) as the workhorse move for a long function; an in-set Long Function refactoring routed to the Fowler mechanical layer; does not edit code or run tests.",
+      "files": [],
+      "expectations": [
+        "Names Extract Function as the best-fit next refactoring (the workhorse move for a long function)",
+        "Names an in-set Long Function refactoring (Extract Function, Replace Temp with Query, Introduce Parameter Object, Preserve Whole Object, Replace Function with Command, Decompose Conditional, Split Loop, or Replace Conditional with Polymorphism)",
+        "Routes to the Fowler mechanical layer",
+        "Ties the pick to a nameable block within the long body (validate / compute totals / format receipt), not a generic 'shorten it'",
+        "Does not edit any source file and does not run tests (coach, don't drive)"
+      ]
+    },
+    {
+      "id": 1,
+      "prompt": "green bar. `createShipment(name, street, city, zip, weightKg, carrier, priority)` -- the street/city/zip trio always travels together and i pass that same trio into three other functions the same way. tests pass. whats the right named refactoring for this signature?",
+      "expected_output": "Names Introduce Parameter Object (Fowler) for the argument clump that travels together; an in-set Long Parameter List refactoring in the Fowler layer; does not edit code or run tests.",
+      "files": [],
+      "expectations": [
+        "Names Introduce Parameter Object as the best-fit next refactoring",
+        "Names an in-set Long Parameter List refactoring (Replace Parameter with Query, Preserve Whole Object, Introduce Parameter Object, Remove Flag Argument, or Combine Functions into Class)",
+        "Routes to the Fowler mechanical layer",
+        "Ties the pick to the street/city/zip clump that travels together, not a generic parameter reduction",
+        "Does not edit any source file and does not run tests (coach, don't drive)"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "tests are green. `SavingsAccount` and `CheckingAccount` both extend `Account` and each has an identical `validateWithdrawal(amount)` method -- same body, copy-pasted into both siblings. whats the next refactoring to remove that duplication?",
+      "expected_output": "Names Pull Up Method (Fowler) to lift the identical code from sibling subclasses to the shared parent; an in-set Duplicated Code refactoring in the Fowler layer; does not edit code or run tests.",
+      "files": [],
+      "expectations": [
+        "Names Pull Up Method as the best-fit next refactoring",
+        "Names an in-set Duplicated Code refactoring (Extract Function, Slide Statements, or Pull Up Method)",
+        "Routes to the Fowler mechanical layer",
+        "Ties the pick to WHERE the duplication lives (identical code in sibling subclasses -> lift to the shared parent), not a generic dedup",
+        "Does not edit any source file and does not run tests (coach, don't drive)"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "all green. `Invoice.total()` reads almost entirely from the `Customer` it holds -- customer.discountRate, customer.taxRegion, customer.loyaltyTier -- and barely touches any Invoice field of its own. tests pass. whats the named refactoring here?",
+      "expected_output": "Names Move Function (Fowler) to site the whole function with the Customer data it envies; an in-set Feature Envy refactoring in the Fowler layer; does not edit code or run tests.",
+      "files": [],
+      "expectations": [
+        "Names Move Function as the best-fit next refactoring",
+        "Names an in-set Feature Envy refactoring (Move Function or Extract Function)",
+        "Routes to the Fowler mechanical layer",
+        "Ties the pick to the whole function computing from Customer's fields (it envies the other module), siting it with that data",
+        "Does not edit any source file and does not run tests (coach, don't drive)"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "green. this `price(order)` has a big if/else that picks a WHOLE pricing algorithm by customer segment (retail vs wholesale vs promo) -- each branch is a self-contained calculation and i want to add and vary those algorithms independently of the code that runs them. tests pass. which refactoring?",
+      "expected_output": "Names Replace Conditional Logic with Strategy (Kerievsky) for a conditional choosing among whole interchangeable algorithms; an in-set Conditional Complexity refactoring in the Kerievsky pattern-directed layer; does not edit code or run tests.",
+      "files": [],
+      "expectations": [
+        "Names Replace Conditional Logic with Strategy as the best-fit next refactoring",
+        "Names an in-set Conditional Complexity refactoring (Replace Conditional Logic with Strategy, Move Embellishment to Decorator, Replace State-Altering Conditionals with State, or Introduce Null Object)",
+        "Routes to the Kerievsky pattern-directed layer",
+        "Ties the pick to the conditional choosing among whole interchangeable algorithms (not optional embellishment or next-state selection)",
+        "Does not edit any source file and does not run tests (coach, don't drive)"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "tests green. my `Document` class is full of conditionals on `this.status` that both decide what an action is allowed to do right now AND set which status comes next (draft -> moderation -> published). adding a status means touching all of them. whats the refactoring?",
+      "expected_output": "Names Replace State-Altering Conditionals with State (Kerievsky) for conditionals that both gate the current action and choose the next state; an in-set Conditional Complexity refactoring in the Kerievsky pattern-directed layer; does not edit code or run tests.",
+      "files": [],
+      "expectations": [
+        "Names Replace State-Altering Conditionals with State as the best-fit next refactoring",
+        "Names an in-set Conditional Complexity refactoring (Replace Conditional Logic with Strategy, Move Embellishment to Decorator, Replace State-Altering Conditionals with State, or Introduce Null Object)",
+        "Routes to the Kerievsky pattern-directed layer",
+        "Ties the pick to conditionals that both decide what may happen now AND choose which status comes next (state-altering), not whole-algorithm selection",
+        "Does not edit any source file and does not run tests (coach, don't drive)"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "all tests pass. i have a stack of near-identical methods -- matchExactWord, matchWordPrefix, matchExactPhrase, matchPhrasePrefix, and the same set again for the 'or' join -- each one hand-coding a single combination of {exact|prefix} x {word|phrase} x {and|or}. adding a dimension multiplies the methods again. tests green. whats the refactoring?",
+      "expected_output": "Names Replace Implicit Language with Interpreter (Kerievsky) for the unnamed combination language; routed to the Kerievsky pattern-directed layer; does not edit code or run tests.",
+      "files": [],
+      "expectations": [
+        "Names Replace Implicit Language with Interpreter as the best-fit next refactoring",
+        "Routes to the Kerievsky pattern-directed layer",
+        "Frames the near-identical combination methods as an unnamed mini-language whose terms become composable objects, not plain incidental duplication",
+        "Does not edit any source file and does not run tests (coach, don't drive)"
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "green bar. `Config` is a Singleton -- private constructor, static `getInstance()` -- and every module reaches into `Config.getInstance()` globally, which hides the dependency and makes tests painful. nothing actually needs a single-instance policy. tests pass. should i refactor away from the Singleton, and to what?",
+      "expected_output": "Refactors away from the unwarranted Singleton via Inline Singleton (Kerievsky Away) OR the Module Namespace functional dissolution; the Kerievsky-Away or functional layer is accepted; does not edit code or run tests.",
+      "files": [],
+      "expectations": [
+        "Names an accepted de-patterning route: Inline Singleton or the Module Namespace functional dissolution",
+        "Routes to the Kerievsky-Away or functional layer (either is accepted)",
+        "Frames the Singleton as unwarranted (nothing needs single-instance policy) and names the dissolution, rather than keeping or embellishing the pattern",
+        "Does not edit any source file and does not run tests (coach, don't drive)"
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "tests are green. the SAME `switch (shape.kind)` (circle / square / triangle) appears in three separate functions -- `area(shape)`, `perimeter(shape)`, and `boundingBox(shape)` -- so adding a new shape means editing all three switches. tests pass. whats the next refactoring?",
+      "expected_output": "Names Replace Conditional with Polymorphism (Fowler, NOT a Kerievsky pattern) for the same type switch repeated across sites; routed to the Fowler mechanical layer; does not edit code or run tests.",
+      "files": [],
+      "expectations": [
+        "Names Replace Conditional with Polymorphism as the best-fit next refactoring",
+        "Routes to the Fowler mechanical layer (NOT a Kerievsky pattern-directed refactoring)",
+        "Justifies the Fowler mechanical route over a pattern-directed one: it is the SAME type switch repeated across sites, not a single complex conditional wanting a design pattern",
+        "Does not edit any source file and does not run tests (coach, don't drive)"
+      ]
+    }
+  ]
+}

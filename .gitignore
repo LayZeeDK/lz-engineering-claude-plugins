@@ -18,6 +18,9 @@ Thumbs.db
 .idea/
 *.swp
 
+# Session/handoff scratch (GSD resume notes) -- never distributed.
+.continue-here.md
+
 # Skill-creator eval workspaces (.claude/skills/<skill-name>-workspace/).
 # Keep the eval RECORD tracked -- eval sets, eval_metadata.json, benchmark.json/.md,
 # grading.json, EVAL-RESULTS.md, and the vendored tools/ harness. Ignore only caches
@@ -29,3 +32,23 @@ Thumbs.db
 .claude/skills/*-workspace/**/*.stream.jsonl
 .claude/skills/*-workspace/**/run_loop_stdout.json
 .claude/skills/*-workspace/**/trigger-workspace/
+# Generated TS modules from the FWL-04 compile harness (extract-samples.mjs) -- never committed.
+.claude/skills/*-workspace/**/samples/
+# Per-run eval captures: every results/ tree under the workspace holds re-runnable
+# answer.md / diff.patch / meta.json byproducts (same rationale as the e2e-reference rule
+# below). The verdicts live in the tracked *-RESULTS.md / *-FINDINGS.md + aggregate.json.
+# results*/ also covers suffixed variants (results-v1/, results-edited/, ...); run-*/ covers
+# arm-nested captures with no results/ segment (iteration-1/eval-*/{with,without}_skill/run-N/);
+# trigger-results-*.json covers the after/ + baseline/ trigger-eval chunks.
+.claude/skills/lz-refactor-workspace/**/results*/
+.claude/skills/lz-refactor-workspace/**/run-*/
+.claude/skills/lz-refactor-workspace/**/trigger-results-*.json
+# Reference-eval (quick 260714-nxp): raw per-run outputs + the generated aggregate are local
+# byproducts. The verdict is tracked in e2e-reference/REFERENCE-RESULTS.md; runs are re-runnable.
+.claude/skills/lz-refactor-workspace/e2e-reference/results/
+.claude/skills/lz-refactor-workspace/e2e-reference/aggregate.json
+
+# Clean-room oracle: authoritative copyrighted source excerpts (Fowler/Kerievsky/GoF book
+# patterns in Markdown). NEVER committed. Only the read-only oracle-reviewer subagent reads this;
+# the main authoring context never does, so verbatim book prose cannot leak into the repo (DST-04).
+.oracle/

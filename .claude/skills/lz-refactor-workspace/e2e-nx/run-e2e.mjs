@@ -504,6 +504,19 @@ function runOne(claude, promptEntry, arm, mode, cwd, runIdx, force) {
       );
     }
 
+    // Safety: a `git reset --hard APPLY_BASE` silently discards any commit on HEAD that is ahead of
+    // APPLY_BASE (the APPLY_BASE..HEAD range), even on a throwaway branch. Refuse when that range is
+    // non-empty so a mis-positioned checkout cannot orphan real commits.
+    const ahead = (git(cwd, ['rev-list', `${APPLY_BASE}..HEAD`]).stdout || '').trim();
+
+    if (ahead) {
+      throw new Error(
+        `apply mode refuses to reset --hard in ${cwd}: HEAD has commit(s) ahead of ${APPLY_BASE} ` +
+          `(${APPLY_BASE}..HEAD) that the reset would orphan. ` +
+          `Checkout a throwaway branch at or behind ${APPLY_BASE} first.`,
+      );
+    }
+
     // Pristine reset so this run starts from clean source, not a previous run's edits.
     // mustSucceed (I1): abort loudly rather than silently stacking edits across k runs.
     git(cwd, ['reset', '--hard', APPLY_BASE], { mustSucceed: true });

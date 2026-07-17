@@ -22,6 +22,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { collectH1Lines } from "./lib/heading-scan.mjs";
 import { SCAFFOLD_RES } from "./lib/scaffold-phrases.mjs";
+import { sectionBody } from "./lib/section-body.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 // tools -> lz-refactor-workspace -> skills -> .claude -> repo root
@@ -262,12 +263,20 @@ for (const name of NAMES) {
     missing.push("## Mechanics");
   }
 
-  if (!/^##\s+Example\b/m.test(leaf.text)) {
+  // Exact heading (not `\b`) so the presence check agrees with the sectionBody match below (WR-02):
+  // a decorated `## Example (Before -> After)` must not pass presence while sectionBody fails to find
+  // it. All 62 Fowler Example headings are exact.
+  if (!/^##\s+Example\s*$/m.test(leaf.text)) {
     missing.push("## Example");
   }
 
-  if (!/```(ts|typescript|js|javascript)\b/.test(leaf.text)) {
-    missing.push("ts/js fence");
+  // The ts/js fence must live INSIDE the ## Example section, not merely somewhere in the leaf, so an
+  // empty Example with a stray fence in ## Motivation cannot pass. Keep the broad Fowler alternation
+  // (ts|typescript|js|javascript) -- Fowler leaves allow JS, unlike the ts-only GoF leaves.
+  const exampleBody = sectionBody(leaf.text, "Example");
+
+  if (exampleBody === null || !/```(ts|typescript|js|javascript)\b/.test(exampleBody)) {
+    missing.push("ts/js fence in ## Example");
   }
 
   // Provenance markers: required on the two special leaves, forbidden elsewhere.

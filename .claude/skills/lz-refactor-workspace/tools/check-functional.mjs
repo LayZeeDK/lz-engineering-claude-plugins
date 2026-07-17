@@ -44,6 +44,7 @@ import { fileURLToPath } from "node:url";
 import { githubSlug } from "./lib/github-slug.mjs";
 import { collectH1Lines } from "./lib/heading-scan.mjs";
 import { SCAFFOLD_RES } from "./lib/scaffold-phrases.mjs";
+import { sectionBody } from "./lib/section-body.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 // tools -> lz-refactor-workspace -> skills -> .claude -> repo root
@@ -137,22 +138,12 @@ const isDir = (p) => {
 const slugFor = (name) => name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
 
 // Escape a pattern name for use inside a dynamically built RegExp (the served/OO names are plain
-// today, but this keeps the sub-heading + back-link matches robust).
+// today, but this keeps the sub-heading + back-link matches robust). Still used at the served
+// sub-heading + Correspondence back-link matches below.
 const escapeRe = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
-// Body text of a `## <heading>` section: everything after the heading line up to the next `## `
-// (level-2) heading or EOF. `### ` (level-3) sub-headings stay INSIDE the body (## does not match
-// ###), so `## When each fits` retains its per-pattern residual sub-headings for C5.
-const sectionBody = (text, heading) => {
-  const re = new RegExp(`^##\\s+${escapeRe(heading)}\\s*$`, "m");
-  const parts = text.split(re);
-
-  if (parts.length < 2) {
-    return null;
-  }
-
-  return parts[1].split(/^##\s+/m)[0];
-};
+// sectionBody (## <heading> body up to the next ## or EOF; `### ` sub-headings stay inside) is
+// shared via lib/section-body.mjs, so `## When each fits` retains its per-pattern residuals (C5).
 
 const walkMd = (dir) => {
   const out = [];

@@ -29,6 +29,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { collectH1Lines } from "./lib/heading-scan.mjs";
 import { SCAFFOLD_RES } from "./lib/scaffold-phrases.mjs";
+import { sectionBody } from "./lib/section-body.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 // tools -> lz-refactor-workspace -> skills -> .claude -> repo root
@@ -109,18 +110,8 @@ const isDir = (p) => {
 // kebab-case slug of a canonical name (deterministic cross-link target).
 const slugFor = (name) => name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
 
-// Body text of a `## <heading>` section: everything after the heading line up to the next `## `
-// heading (or EOF). Used for the Consequences present+populated + Singleton-cites-DI checks.
-const sectionBody = (text, heading) => {
-  const re = new RegExp(`^##\\s+${heading}\\s*$`, "m");
-  const parts = text.split(re);
-
-  if (parts.length < 2) {
-    return null;
-  }
-
-  return parts[1].split(/^##\s+/m)[0];
-};
+// sectionBody (## <heading> body up to the next ## or EOF) is shared via lib/section-body.mjs.
+// Used for the Consequences present+populated + Singleton-cites-DI + Example-fence checks.
 
 const walkMd = (dir) => {
   const out = [];

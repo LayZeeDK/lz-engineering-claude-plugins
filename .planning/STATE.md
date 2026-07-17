@@ -3,7 +3,7 @@ gsd_state_version: 1.0
 milestone: lz-tdd@0.0.2
 milestone_name: lz-refactor Skill (Fowler + Kerievsky)
 status: completed
-stopped_at: "2026-07-17: SHIPPED the skill-level loop-audit forcing-function (SKILL.md step 5 AUDIT+DECIDE). Held-out A/B evals: recall full loop-to-pipeline 5/5 (union-to-flatMap 2/5->5/5) vs 0/3 control; precision 0/5 over-conversions; tsc-clean; both edits 2-subagent reviewed (1 unbiased). First non-null + SAFE lever on the output-warrant axis. Commits 01208c8 (feat) + 663f3a1 (eval evidence). Pending: user /reload-plugins. Milestone lz-tdd@0.0.2 close (/gsd-audit-milestone + /gsd-complete-milestone) DEFERRED to a later session per operator."
+stopped_at: "2026-07-17: MILESTONE lz-tdd@0.0.2 CLOSED via /gsd-complete-milestone. Pre-close audit-open resolved 10 -> 0 open items; ROADMAP/REQUIREMENTS/audit archived to .planning/milestones/; REQUIREMENTS.md removed (fresh for next milestone); phases 6-14 archived to milestones/lz-tdd@0.0.2-phases/; git tag lz-tdd@0.0.2 cut. Pending: user /reload-plugins (loop-audit forcing-function 01208c8 + internal-ID strip 7ddf41b); /gsd-cleanup 01-05 (archive prior-milestone phase dirs). Next: /gsd-new-milestone."
 last_updated: "2026-07-17T00:00:00.000Z"
 last_activity: 2026-07-17
 progress:
@@ -18,11 +18,11 @@ progress:
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-07-04)
+See: .planning/PROJECT.md (updated 2026-07-17 after the lz-tdd@0.0.2 milestone)
 
-**Core value:** `lz-tpp` helps Claude choose the next code transformation by TPP priority during red-green-refactor TDD, and explains the premise on demand. lz-tdd@0.0.2 adds `lz-refactor` to drive the refactor step.
-**Current focus:** Milestone complete
-**Milestone:** lz-tdd@0.0.2 (lz-refactor Skill) -- executing (all phases done; audit pending)
+**Core value:** `lz-tpp` helps Claude choose the next code transformation by TPP priority during red-green-refactor TDD, and explains the premise on demand. lz-tdd@0.0.2 added `lz-refactor` to drive the refactor step.
+**Current focus:** Planning next milestone (lz-tdd@0.0.2 shipped + tagged 2026-07-17)
+**Milestone:** lz-tdd@0.0.2 (lz-refactor Skill) -- SHIPPED 2026-07-17 (audit passed; archived)
 
 ## Current Position
 

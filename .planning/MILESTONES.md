@@ -1,5 +1,27 @@
 # Milestones
 
+## lz-tdd@0.0.2 lz-refactor Skill (Fowler + Kerievsky) (Shipped: 2026-07-17)
+
+**Delivered:** A single `/lz-tdd:lz-refactor` dual-mode coach + reference that operationalizes Martin Fowler's *Refactoring* (2nd ed) and Joshua Kerievsky's *Refactoring to Patterns* -- picking the right named refactoring during the red-green-refactor "refactor" step and explaining it on demand -- completing the TDD loop alongside `lz-tpp` (lz-tpp drives the green step; lz-refactor drives the refactor step).
+
+**Phases completed:** 11 phase directories (6, 7, 8, 8.1, 8.2, 9, 10, 11, 12, 13, 14), 55 plans.
+**Timeline:** 2026-07-04 -> 2026-07-17 (~13 days); 457 commits since lz-tdd@0.0.1 (65 `feat(`); 178 Markdown files under the shipped `lz-refactor` skill.
+**Version note:** GSD milestone id `lz-tdd@0.0.2` -- plugin-scoped (plugin `lz-tdd` at semver `0.0.2`). Git tag and GitHub Release: `lz-tdd@0.0.2`.
+**Requirements:** 36/36 satisfied. **Audit:** passed (2026-07-17). **Nyquist:** 11/11 compliant. **Known deferred items at close:** 0 (10 pre-close open artifacts -- 9 non-shipped eval-workspace quick tasks + Phase 09's already-closed verification thread -- were resolved before archiving, not deferred).
+
+**Key accomplishments:**
+
+- Fowler catalog: all 62 2nd-ed refactorings as per-refactoring leaves + 24 bad-smell leaves + Ch.2 principles, original prose + tsc --strict-clean TypeScript, clean-room-oracle-verified against the git-ignored `.oracle/refactoring-2e/` (DST-04: the main context never reads book prose).
+- Kerievsky catalog: all 27 pattern-directed refactorings with the To/Towards/Away directions settled against the book's authoritative Refactoring Directions table, each composed from named Fowler primitives, with Ch.4 smells folded into the unified taxonomy.
+- GoF + extra catalog: 23 GoF design patterns + 5 Tier-1 extra patterns on a locked 5-section contract (Intent / Applicability / Consequences / Example / Related patterns), author-cited modern-status caveats folded into Consequences, and the 3 Direction:Away de-patterning links resolved.
+- Functional catalog: 19 idiom leaves + an N:1 pattern->idiom map, with 55 mutual OO<->FP `Functional alternative:` / `Correspondence:` cross-links spanning all three OO catalogs.
+- Dual-mode coach: an inline 6-step decision procedure (smell -> named refactoring; mechanical->Fowler, structural->Kerievsky; de-patterning routed to the functional catalog; behavior-preservation with a Feathers no-tests fallback; the lz-tpp red-green-refactor seam), backed by three no-oracle principle refs (Beck *TDD by Example*, Beck *Tidy First?*, Feathers *Legacy Code*).
+- Distribution + hygiene: truthful two-skill 0.0.2 (plugin.json bump, README + CHANGELOG, marketplace listing); `claude plugin validate .` plain + `--strict` clean; plugin-validator + skill-reviewer PASS on both skills; no verbatim book prose/code; ASCII-only; work-email absent (allowlist-inversion clean over the full tree).
+- Evals: native-harness trigger recall/specificity (EVL-01) + smell->refactoring behavior accuracy vs baseline (EVL-02), both PASS; plus post-eval comparisons against base Opus 4.8 (Phase 13: book-authenticity + correctness parity, unbiased-reviewed) and the third-party mattpocock code-review skill (Phase 14).
+- Post-phase refinement (informational, not a milestone requirement): a skill-level loop-audit forcing-function (SKILL.md AUDIT+DECIDE step) -- the first non-null + safe lever on the output-warrant axis after five null probes.
+
+---
+
 ## lz-tdd@0.0.1 First Release (Shipped: 2026-07-04)
 
 **Delivered:** The first public release of the `lz-engineering-claude-plugins` marketplace -- the `lz-tdd` plugin and its dual-mode `lz-tpp` skill (`/lz-tdd:lz-tpp`), a TDD coach + reference for Robert C. Martin's Transformation Priority Premise.

@@ -4,9 +4,12 @@
 
 A public Claude Code plugin marketplace repository that hosts engineering-focused
 plugins for Claude Code. The first plugin is `lz-tdd`, a test-driven-development
-plugin; its first skill is `lz-tpp` (invoked as `/lz-tdd:lz-tpp`), an agent skill
-that operationalizes Robert C. Martin's Transformation Priority Premise (TPP). It
-is for software engineers who use Claude Code and practice TDD.
+plugin. It ships two dual-mode agent skills that cover the red-green-refactor loop:
+`lz-tpp` (`/lz-tdd:lz-tpp`) operationalizes Robert C. Martin's Transformation Priority
+Premise for the green step, and `lz-refactor` (`/lz-tdd:lz-refactor`, added in
+lz-tdd@0.0.2) operationalizes Martin Fowler's *Refactoring* (2nd ed) and Joshua
+Kerievsky's *Refactoring to Patterns* for the refactor step. It is for software
+engineers who use Claude Code and practice TDD.
 
 ## Core Value
 
@@ -16,15 +19,21 @@ transformation that passes the failing test -- and explains the premise on deman
 If everything else fails, this transformation-priority guidance must be correct and
 usable.
 
-## Current Milestone: lz-tdd@0.0.2 lz-refactor Skill (Fowler + Kerievsky)
+## Current State: lz-tdd@0.0.2 SHIPPED (2026-07-17)
 
-**Goal:** Add a single `/lz-tdd:lz-refactor` agent skill -- a dual-mode refactoring
+**Shipped:** A single `/lz-tdd:lz-refactor` agent skill -- a dual-mode refactoring
 coach + reference that operationalizes Martin Fowler's *Refactoring* (2nd ed) and
 Joshua Kerievsky's *Refactoring to Patterns* -- completing the red-green-refactor
 seam alongside `lz-tpp` (lz-tpp drives the green step; lz-refactor drives the
-refactor step).
+refactor step). All 36 milestone requirements satisfied; milestone audit passed;
+Nyquist 11/11 compliant. Full detail archived at
+`.planning/milestones/lz-tdd@0.0.2-{ROADMAP,REQUIREMENTS,MILESTONE-AUDIT}.md`.
 
-**Target features:**
+**Next milestone:** define via `/gsd-new-milestone` (fresh requirements). Deferred
+candidates below (Future Requirements in the archived REQUIREMENTS) remain the
+starting backlog.
+
+**Delivered:**
 
 - Single `lz-refactor` skill built on progressive disclosure: a lean router
   `SKILL.md` plus lazy-loaded `references/` docs, modeled on the `angular-developer`
@@ -97,11 +106,22 @@ lz-refactor skill scaffold (Phase 6: lz-refactor Skill Scaffold & Progressive Di
 - [x] SKEL-03: 774-char seam-aware `description` (should-be-used + Do-not-use near-miss + lz-tpp green/refactor seam), within the char cap; empirical trigger tuning deferred to Phase 11 (EVL-01)
 - [x] SKEL-04: heavy catalog material bundled, not inlined -- two splittable catalog subdirs behind thin index stubs; every `references/` stub carries its per-entry content contract; catalog stubs carry the D-09 Phase 7/8 oracle-access checkpoint note. Verified: Wave-0 checker + `claude plugin validate .` both exit 0
 
+lz-refactor catalogs, coach, distribution & evals (Phases 7-14, shipped lz-tdd@0.0.2 2026-07-17) -- all 36 requirements satisfied (full per-requirement traceability archived at `.planning/milestones/lz-tdd@0.0.2-REQUIREMENTS.md`):
+
+- [x] Fowler catalog (FWL-01..04) -- 62 refactorings + 24 smells + Ch.2 principles, clean-room-oracle-verified, tsc --strict-clean
+- [x] Kerievsky catalog (KRV-01..04) -- 27 pattern-directed refactorings, To/Towards/Away directions, Fowler-primitive composition, Ch.4 smells folded
+- [x] GoF + extra catalog (GOF-01..04, XTR-01) -- 23 GoF + 5 Tier-1 extra patterns on the 5-section contract, modern-status caveats, Away links
+- [x] Functional catalog (FUN-01..04) -- 19 idiom leaves + N:1 pattern->idiom map + 55 mutual OO<->FP cross-links
+- [x] Coach behavior (CCH-01..06) -- inline decision procedure; smell->named-refactoring routing, de-patterning, behavior-preservation, lz-tpp seam, functional-alternative surfacing
+- [x] Principle-backing (PRIN-01..03) -- no-oracle Beck *TDD by Example* / *Tidy First?* / Feathers refs
+- [x] Distribution & hygiene (DST-01..04) -- 0.0.2 bump, README + CHANGELOG, validate + `--strict`, plugin-validator + skill-reviewer PASS, no verbatim book prose, ASCII-only, work-email absent
+- [x] Skill-effectiveness evals (EVL-01, EVL-02) -- trigger recall/specificity + smell->refactoring behavior vs baseline, both PASS (native harness)
+
 ### Active
 
 <!-- Current scope. Hypotheses until shipped and validated. -->
 
-Milestone lz-tdd@0.0.2 (lz-refactor Skill) is the active scope -- the `/lz-tdd:lz-refactor` dual-mode coach + reference grounded in Fowler's *Refactoring* (2nd ed) and Kerievsky's *Refactoring to Patterns*. Requirements are enumerated in `.planning/REQUIREMENTS.md` (categories: skill structure/progressive disclosure, Fowler catalog, Kerievsky catalog, coach behavior, principle-backing cross-refs, distribution/hygiene, evals). Deferred candidates still tracked: additional TDD skills under `lz-tdd`, additional plugins, npm packaging/distribution, and multi-language example sets beyond TypeScript.
+No active milestone. lz-tdd@0.0.2 is shipped and archived; the next milestone is defined via `/gsd-new-milestone` (which creates a fresh `.planning/REQUIREMENTS.md`). Deferred candidates still tracked as the starting backlog: additional TDD skills under `lz-tdd`, additional plugins, npm packaging/distribution, multi-language example sets beyond TypeScript, and the Future Requirements from the archived 0.0.2 requirements (FUT-01 full Tidy First? tidyings catalog; FUT-02 multi-language examples; FUT-03 automated refactoring execution / codemods; FUT-04 split the Kerievsky layer into its own skill). One carried-forward tech-debt touch: add a reverse `lz-tpp -> lz-refactor` pointer on the next lz-tpp edit (the seam is currently one-directional).
 
 ### Out of Scope
 
@@ -115,7 +135,8 @@ Milestone lz-tdd@0.0.2 (lz-refactor Skill) is the active scope -- the `/lz-tdd:l
 
 ## Context
 
-- **Current state (lz-tdd@0.0.1 shipped 2026-07-04):** first public release complete -- marketplace + `lz-tdd` plugin + dual-mode `lz-tpp` skill, ~909 LOC under `plugins/` (Markdown / JSON / TS), MIT-licensed, `claude plugin validate .` clean. All 24 milestone requirements satisfied; evals confirm 100%/100% trigger recall/specificity and 29/30 coaching accuracy. Next: define the post-0.0.1 milestone via `/gsd-new-milestone`.
+- **Current state (lz-tdd@0.0.2 shipped 2026-07-17):** the `lz-tdd` plugin now ships two dual-mode skills -- `lz-tpp` (green step) and `lz-refactor` (refactor step). lz-refactor bundles five reference catalogs (Fowler 62 refactorings + 24 smells + Ch.2 principles; Kerievsky 27; GoF 23 + 5 extra; Functional 19 idioms) with a unified smell taxonomy, a coach decision procedure, and no-oracle principle backing -- 178 Markdown files, `tsc --strict`-clean TS samples, `claude plugin validate . --strict` clean. All 36 milestone requirements satisfied; audit passed; Nyquist 11/11. Books present under git-ignored `.oracle/` (Fowler 2nd ed, Kerievsky, GoF) were sourced ONLY via the clean-room oracle/oracle-reviewer agents (DST-04). Next: define the post-0.0.2 milestone via `/gsd-new-milestone`.
+- **Prior state (lz-tdd@0.0.1 shipped 2026-07-04):** first public release -- marketplace + `lz-tdd` plugin + dual-mode `lz-tpp` skill, ~909 LOC under `plugins/`, MIT-licensed. All 24 requirements satisfied; evals 100%/100% trigger recall/specificity, 29/30 coaching.
 - Authoritative sources (from the brief):
   - The Transformation Priority Premise -- https://blog.cleancoder.com/uncle-bob/2013/05/27/TheTransformationPriorityPremise.html
   - Fib. The T-P Premise. -- https://blog.cleancoder.com/uncle-bob/2013/05/27/FibTPP.html
@@ -152,6 +173,10 @@ Milestone lz-tdd@0.0.2 (lz-refactor Skill) is the active scope -- the `/lz-tdd:l
 | Public GitHub, MIT license | Open-source distribution via `/plugin marketplace add` | Good -- MIT LICENSE + public repo; marketplace-add install loop verified |
 | Build via `skill-creator` + `plugin-dev` | Follow first-party authoring workflows and guidelines | Good -- passed plugin-validator + skill-reviewer + `validate --strict` (exit 0) |
 | First milestone is version 0.0.1 (pre-1.0) | Signals early/experimental status; `plugin.json` version 0.0.1 | Good -- shipped as 0.0.1; GSD milestone id reconciled to v0.0.1 then plugin-scoped to lz-tdd@0.0.1 at complete-milestone |
+| Second skill `lz-refactor` under the same `lz-tdd` plugin (one skill, two reference layers -- not a separate `lz-refactor-to-patterns` skill) | Completes the red-green-refactor loop alongside lz-tpp; keeps TDD skills grouped; avoids premature skill split | Good -- shipped lz-tdd@0.0.2; both skills discoverable and namespaced; split deferred to FUT-04 |
+| Clean-room oracle model for copyrighted books in `.oracle/` (oracle/oracle-reviewer agents only; main context never reads book prose; own-words only crosses back) | DST-04 / copyright: ship original prose + code + names + facts, never verbatim source | Good -- Fowler/Kerievsky/GoF catalogs authored + verified this way; no-verbatim hygiene gate GREEN; skill-reviewer PASS |
+| Plugin-scoped milestone id (`<plugin>@<semver>`) from the start of 0.0.2 | 0.0.1's late relabel churn (v1.0 -> v0.0.1 -> lz-tdd@0.0.1); the marketplace hosts multiple plugins | Good -- lz-tdd@0.0.2 used the scoped id throughout; no rename sweep at close |
+| Skill-level loop-audit forcing-function (SKILL.md AUDIT+DECIDE step), shipped post-Phase-14 | Five prior passive-content probes were null on the output-warrant axis; an active enumeration step reproduced skill-alone recall while staying precise | Pending -- first non-null + safe lever; held-out A/B recall 5/5 vs 0/3 control, 0/5 over-conversions; needs `/reload-plugins` to go live in-session |
 
 ## Evolution
 
@@ -171,5 +196,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-07-04 after completing Phase 6 (lz-refactor skill scaffold) of the lz-tdd@0.0.2 milestone*
-*Progress note 2026-07-08: Phases 7 (Fowler catalog), 8 (Kerievsky catalog), 8.1 (GoF + extra patterns), and 8.2 (Functional catalog -- FUN-01..04 complete) are all shipped and verified; the shipped `lz-refactor` skill now carries all five catalogs + the unified smell taxonomy. The per-phase `### Validated` backfill for Phases 7-8.2 is deferred to `/gsd-audit-milestone` (pre-existing drift, not introduced by any single phase); `.planning/REQUIREMENTS.md` remains the authoritative traceability.*
+*Last updated: 2026-07-17 after shipping the lz-tdd@0.0.2 milestone (lz-refactor Skill). Full PROJECT.md evolution review completed at milestone close: "What This Is" updated to two skills, Core Value verified, all 36 shipped requirements moved to Validated, Active reset to next-milestone planning, Out of Scope audited, Context refreshed, Key Decisions updated with 0.0.2 outcomes.*

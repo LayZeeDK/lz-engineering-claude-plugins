@@ -46,7 +46,7 @@
 
 import fs from "node:fs";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 // ---- refactoring-NAME matcher: case-insensitive, whitespace-tolerant, but WORD-BOUNDED ----
 // A canonical name is a proper-noun phrase. Word boundaries (?<![\w-]) / (?![\w-]) stop a name
@@ -613,4 +613,12 @@ function main() {
   console.log(`graded eval-${evalId}: ${result.summary.passed}/${result.summary.total} scored, ${result.judge_required.length} need LLM-judge -> ${outPath}${note}`);
 }
 
-main();
+// Run main() only as a script; guarded so this module can be imported (by the tabulators) to
+// reuse the canonical name lists + matcher without executing the grader (mirrors run-e2e.mjs).
+const isMainModule = process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href;
+
+if (isMainModule) {
+  main();
+}
+
+export { nameRe, FOWLER, KERIEVSKY, KERIEVSKY_AWAY, FUNCTIONAL };

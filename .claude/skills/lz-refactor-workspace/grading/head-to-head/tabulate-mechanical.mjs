@@ -20,11 +20,11 @@
 // (DST-04). summary.template.json (a sibling of this file) fixes the full seven-dimension rollup
 // shape those graded fills land in.
 //
-// nameRe + the FOWLER/KERIEVSKY name arrays are COPIED VERBATIM from ../../grade-run.mjs, and
-// comb/passAtK/passHatK are COPIED VERBATIM from ../../e2e-nx/run-e2e.mjs -- neither module is
-// importable (grade-run.mjs runs main() on import with no exports; run-e2e.mjs does not export the
-// stats helpers). Copying keeps the head-to-head numbers identical to the shipped grader/runner
-// (PATTERNS Pattern F; "Don't Hand-Roll"). Do NOT reinvent the matcher or the stats.
+// nameRe + the FOWLER/KERIEVSKY name arrays are IMPORTED from ../../grade-run.mjs (the lift-
+// vocabulary source of truth). comb/passAtK/passHatK are still COPIED VERBATIM from
+// ../../e2e-nx/run-e2e.mjs, which does not export the stats helpers -- copying keeps the numbers
+// identical to the shipped runner (PATTERNS Pattern F; "Don't Hand-Roll") and the offline
+// --selfcheck below guards them against drift. Do NOT reinvent the matcher or the stats.
 //
 // Usage:
 //   node tabulate-mechanical.mjs --selfcheck                 # offline fixture check (zero spend)
@@ -37,6 +37,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { nameRe, FOWLER, KERIEVSKY } from '../../grade-run.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const WORKSPACE = path.resolve(HERE, '../..'); // grading/head-to-head -> grading -> lz-refactor-workspace
@@ -62,75 +63,9 @@ function fail(msg) {
   process.exit(1);
 }
 
-// ---- refactoring-NAME matcher: COPIED VERBATIM from grade-run.mjs (word-bounded, ws-tolerant) ----
-// A canonical name is a proper-noun phrase. Word boundaries (?<![\w-]) / (?![\w-]) stop a name from
-// sub-matching a longer word, e.g. "Extract Function" must NOT match "Extract Functionality".
-function nameRe(canonical) {
-  const esc = canonical
-    .trim()
-    .replace(/[.*+?^${}()|[\]\\]/g, '\\$&') // escape regex metacharacters
-    .replace(/\s+/g, '\\s+'); // tolerate any run of whitespace (incl. newlines) between words
-
-  return new RegExp(`(?<![\\w-])${esc}(?![\\w-])`, 'i');
-}
-
-// ---- Fowler + Kerievsky name arrays: COPIED VERBATIM from grade-run.mjs (the lift vocabulary) ----
-const FOWLER = [
-  // Ch.6 a first set
-  'Extract Function', 'Inline Function', 'Extract Variable', 'Inline Variable',
-  'Change Function Declaration', 'Encapsulate Variable', 'Rename Variable',
-  'Introduce Parameter Object', 'Combine Functions into Class',
-  'Combine Functions into Transform', 'Split Phase',
-  // Ch.7 encapsulation
-  'Encapsulate Record', 'Encapsulate Collection', 'Replace Primitive with Object',
-  'Replace Temp with Query', 'Extract Class', 'Inline Class', 'Hide Delegate',
-  'Remove Middle Man', 'Substitute Algorithm',
-  // Ch.8 moving features
-  'Move Function', 'Move Field', 'Move Statements into Function', 'Move Statements to Callers',
-  'Replace Inline Code with Function Call', 'Slide Statements', 'Split Loop',
-  'Replace Loop with Pipeline', 'Remove Dead Code',
-  // Ch.9 organizing data
-  'Split Variable', 'Rename Field', 'Replace Derived Variable with Query',
-  'Change Reference to Value', 'Change Value to Reference',
-  // Ch.10 simplifying conditional logic
-  'Decompose Conditional', 'Consolidate Conditional Expression',
-  'Replace Nested Conditional with Guard Clauses', 'Replace Conditional with Polymorphism',
-  'Introduce Special Case', 'Introduce Assertion',
-  // Ch.11 refactoring APIs
-  'Separate Query from Modifier', 'Parameterize Function', 'Remove Flag Argument',
-  'Preserve Whole Object', 'Replace Parameter with Query', 'Replace Query with Parameter',
-  'Remove Setting Method', 'Replace Constructor with Factory Function',
-  'Replace Function with Command', 'Replace Command with Function', 'Return Modified Value',
-  // Ch.12 dealing with inheritance
-  'Pull Up Method', 'Pull Up Field', 'Pull Up Constructor Body', 'Push Down Method',
-  'Push Down Field', 'Replace Type Code with Subclasses', 'Remove Subclass',
-  'Extract Superclass', 'Collapse Hierarchy', 'Replace Subclass with Delegate',
-  'Replace Superclass with Delegate',
-];
-
-const KERIEVSKY = [
-  // Ch.6 Creation
-  'Replace Constructors with Creation Methods', 'Move Creation Knowledge to Factory',
-  'Encapsulate Classes with Factory', 'Introduce Polymorphic Creation with Factory Method',
-  'Encapsulate Composite with Builder', 'Inline Singleton',
-  // Ch.7 Simplification
-  'Compose Method', 'Replace Conditional Logic with Strategy', 'Move Embellishment to Decorator',
-  'Replace State-Altering Conditionals with State', 'Replace Implicit Tree with Composite',
-  'Replace Conditional Dispatcher with Command',
-  // Ch.8 Generalization
-  'Form Template Method', 'Extract Composite', 'Replace One/Many Distinctions with Composite',
-  'Replace Hard-Coded Notifications with Observer', 'Unify Interfaces with Adapter',
-  'Extract Adapter', 'Replace Implicit Language with Interpreter',
-  // Ch.9 Protection
-  'Replace Type Code with Class', 'Limit Instantiation with Singleton', 'Introduce Null Object',
-  // Ch.10 Accumulation
-  'Move Accumulation to Collecting Parameter', 'Move Accumulation to Visitor',
-  // Ch.11 Utilities
-  'Chain Constructors', 'Unify Interfaces', 'Extract Parameter',
-];
-
 // The lift vocabulary = the distinct union of the two catalogs (KERIEVSKY_AWAY is a subset of
-// KERIEVSKY, so no separate merge is needed for a distinct-name count).
+// KERIEVSKY, so no separate merge is needed for a distinct-name count). FOWLER/KERIEVSKY/nameRe
+// are imported from grade-run.mjs above.
 const LIFT_NAMES = [...new Set([...FOWLER, ...KERIEVSKY])];
 
 // Distinct named refactorings surfaced in a response. Longest-match shadowing (same rule as
@@ -385,7 +320,7 @@ function tabulate({ resultsRoots, arms, cells, out }) {
       'GRADED dimensions (book authenticity, output quality, over/under-engineering, ' +
       'idiom/pattern) are oracle/judge-owned in 14-05 (DST-04) and are NOT computed here.',
     passk_source: 'run-e2e.mjs comb/passAtK/passHatK -- formulas copied verbatim (PATTERNS Pattern F)',
-    name_source: 'grade-run.mjs FOWLER+KERIEVSKY name arrays -- copied verbatim',
+    name_source: 'grade-run.mjs FOWLER+KERIEVSKY name arrays -- imported',
     spawn_tool_names: [...SPAWN_TOOL_NAMES],
     lift_predicate: 'distinct named Fowler/Kerievsky refactorings in answer.md (mechanical heuristic; graded lift is oracle-owned in 14-05)',
     arms,

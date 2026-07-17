@@ -51,7 +51,9 @@ const FILES = [
       { label: "coupling", re: /coupling/i },
       { label: "cohesion", re: /cohesion/i },
       { label: "options", re: /options/i },
-      { label: ">=1 fowler-catalog cross-link", re: /\]\(\.\.?\/?fowler-catalog\/[a-z0-9-]+\.md/ },
+      // Accept the dirname-relative forms check-crossrefs resolves (bare or ./), not ../,
+      // which from references/ would resolve outside the tree and fail the crossref gate.
+      { label: ">=1 fowler-catalog cross-link", re: /\]\((?:\.\/)?fowler-catalog\/[a-z0-9-]+\.md/ },
     ],
   },
   {

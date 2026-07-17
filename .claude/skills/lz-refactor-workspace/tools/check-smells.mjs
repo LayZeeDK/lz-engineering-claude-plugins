@@ -19,12 +19,12 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { collectH1Lines } from "./lib/heading-scan.mjs";
+import { githubSlug } from "./lib/github-slug.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 // tools -> lz-refactor-workspace -> skills -> .claude -> repo root
 const repoRoot = path.resolve(here, "..", "..", "..", "..");
 const REFERENCES = path.join(repoRoot, "plugins", "lz-tdd", "skills", "lz-refactor", "references");
-const CATALOG = path.join(REFERENCES, "fowler-catalog");
 const SMELLS_DIR = path.join(REFERENCES, "smells");
 const SMELLS_INDEX = path.join(REFERENCES, "smells.md");
 
@@ -101,10 +101,7 @@ const slugsFor = (text) => {
       continue;
     }
 
-    const base = m[1]
-      .toLowerCase()
-      .replace(/[^\w\s-]/g, "")
-      .replace(/\s+/g, "-");
+    const base = githubSlug(m[1]);
 
     let slug = base;
 

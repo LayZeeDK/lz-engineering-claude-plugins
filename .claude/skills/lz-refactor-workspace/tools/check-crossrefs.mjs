@@ -104,10 +104,15 @@ const collectLeafFiles = (dir) => {
 // resolution-checked. The inverse-of mutuality guard below stays CATALOG (Fowler)-scoped, so the
 // one-directional Kerievsky<->gof and functional Functional-alternative/Correspondence links are
 // correctly excluded from mutuality.
-const sourceFiles = [...collectLeafFiles(CATALOG), ...collectLeafFiles(KERIEVSKY),
-                     ...collectLeafFiles(GOF), ...collectLeafFiles(EXTRA),
-                     ...collectLeafFiles(FUNCTIONAL),
-                     ...collectLeafFiles(SMELLS_DIR)];
+const coreGroups = {
+  "fowler-catalog": collectLeafFiles(CATALOG),
+  "kerievsky-catalog": collectLeafFiles(KERIEVSKY),
+  "gof-catalog": collectLeafFiles(GOF),
+  "extra-patterns-catalog": collectLeafFiles(EXTRA),
+  "functional-catalog": collectLeafFiles(FUNCTIONAL),
+  smells: collectLeafFiles(SMELLS_DIR),
+};
+const sourceFiles = Object.values(coreGroups).flat();
 
 if (fs.existsSync(SMELLS_INDEX)) {
   sourceFiles.push(SMELLS_INDEX);
@@ -129,6 +134,19 @@ for (const extra of [
     sourceFiles.push(extra);
   }
 }
+
+// Scan floor: every core catalog must contribute source files. If a catalog dir is
+// renamed or moved, its leaves silently drop from sourceFiles and a partial/empty link
+// set resolves vacuously to GREEN. Fail loud when any core catalog contributed zero.
+const emptyGroups = Object.entries(coreGroups)
+  .filter(([, files]) => files.length === 0)
+  .map(([name]) => name);
+
+report(
+  emptyGroups.length === 0,
+  "scan floor -- every core catalog contributes source files",
+  emptyGroups.length === 0 ? "" : `empty: ${emptyGroups.join(", ")}`
+);
 
 console.log("Cross-reference consistency check (phase-gate; full at 07-10)");
 console.log(`  references dir: ${path.relative(repoRoot, REFERENCES)}`);

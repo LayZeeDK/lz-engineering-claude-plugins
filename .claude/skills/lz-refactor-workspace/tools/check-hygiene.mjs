@@ -133,6 +133,24 @@ console.log(`  scope: both skill trees + root README/CHANGELOG/LICENSE + both ma
 console.log(`  files: ${wideTargets.length}`);
 console.log("");
 
+// Scan floor: the ASCII + work-email axes are only meaningful if the identity-bearing
+// surface is actually present. A missing/renamed anchor (SKILL.md or either manifest)
+// would silently drop from wideTargets, and an empty scan reads as "clean" -- a false
+// GREEN on the load-bearing work-email control. Fail loud if any anchor is absent.
+const missingAnchors = Object.entries({
+  "SKILL.md": SKILL_MD,
+  "plugin.json": PLUGIN_MANIFEST,
+  "marketplace.json": MARKETPLACE_MANIFEST,
+})
+  .filter(([, p]) => !fs.existsSync(p))
+  .map(([k]) => k);
+
+report(
+  missingAnchors.length === 0,
+  "scan floor -- identity-bearing anchors present (SKILL.md + both manifests)",
+  missingAnchors.length === 0 ? "" : `missing: ${missingAnchors.join(", ")}`
+);
+
 // (a) ASCII-only.
 const nonAscii = [];
 

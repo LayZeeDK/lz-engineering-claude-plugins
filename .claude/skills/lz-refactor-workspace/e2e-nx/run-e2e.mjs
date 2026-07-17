@@ -573,12 +573,15 @@ function runOne(claude, promptEntry, arm, mode, cwd, runIdx, force) {
     // I3: stage everything (incl. untracked new files from Extract Class / extract-to-module)
     // into the index so `diff --cached` captures them; new files are invisible to a plain
     // `git diff <base>`. Unstage after (the next run's `reset --hard` + `clean -fd` still wipes).
-    git(cwd, ['add', '-A']);
-    const diff = git(cwd, ['diff', '--cached', APPLY_BASE]);
+    // mustSucceed on the capture: a git failure here (e.g. an index-lock race from a
+    // surviving grandchild) must throw, not silently write an empty diff.patch that the
+    // apply grade would then score as "no change" -- a false-negative apply verdict.
+    git(cwd, ['add', '-A'], { mustSucceed: true });
+    const diff = git(cwd, ['diff', '--cached', APPLY_BASE], { mustSucceed: true });
     fs.writeFileSync(path.join(outDir, 'diff.patch'), diff.stdout || '');
-    const names = git(cwd, ['diff', '--cached', '--name-only', APPLY_BASE]);
+    const names = git(cwd, ['diff', '--cached', '--name-only', APPLY_BASE], { mustSucceed: true });
     changedFiles = (names.stdout || '').split('\n').map((s) => s.trim()).filter(Boolean);
-    git(cwd, ['reset']);
+    git(cwd, ['reset'], { mustSucceed: true });
   }
 
   const meta = {

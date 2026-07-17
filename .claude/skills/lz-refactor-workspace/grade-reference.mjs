@@ -414,6 +414,13 @@ function runAggregate() {
     const counts = armsSeen.map((arm) => (perArmQ[arm]?.[t.id] || []).length);
     const expected = Math.max(0, ...counts);
 
+    // A question with zero runs in EVERY arm would otherwise pass the per-cell balance check (all
+    // counts equal 0) and be silently dropped from the discriminating summary. Refuse instead.
+    if (expected === 0) {
+      shortfalls.push(`${t.id}: 0 runs in all arms`);
+      continue;
+    }
+
     armsSeen.forEach((arm, i) => {
       if (counts[i] < expected) {
         shortfalls.push(`${arm}/${t.id}: ${counts[i]}/${expected} runs`);

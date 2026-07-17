@@ -222,7 +222,9 @@ const readmeRowsBySlug = () => {
     return map;
   }
 
-  const linkRe = /\]\(([a-z0-9][a-z0-9-]*)\.md\)/g;
+  // Accept a leading `./` and/or a trailing `#anchor` (mirrors the smell-link regexes in
+  // check-smells.mjs), so README rows written with those forms are not silently missed.
+  const linkRe = /\]\((?:\.\/)?([a-z0-9][a-z0-9-]*)\.md(?:#[^)\s]+)?\)/g;
 
   for (const line of fs.readFileSync(README, "utf8").split(/\r?\n/)) {
     let m;

@@ -50,17 +50,23 @@ for (const key of Object.keys(cells).sort()) {
   const [cell, arm] = key.split('|');
   const rs = cells[key];
   const n = rs.length;
-  const drove = rs.filter((r) => r.edits > 0).length;
-  const union = [...new Set(rs.flatMap((r) => r.names))];
-  const liftMean = (rs.reduce((s, r) => s + r.names.length, 0) / n).toFixed(1);
-  const cLift = rs.filter((r) => r.names.length > 0).length;
+  // drove/lift/union/Pass@k measure refactoring quality, so they must exclude runs that errored out
+  // (exit != 0) -- a crashed run has no meaningful diff. cost/turns/tools stay over ALL runs (spend
+  // and tool usage are real regardless of exit).
+  const clean = rs.filter((r) => r.exit === 0);
+  const nClean = clean.length;
+  const drove = clean.filter((r) => r.edits > 0).length;
+  const union = [...new Set(clean.flatMap((r) => r.names))];
+  const liftMean = nClean ? (clean.reduce((s, r) => s + r.names.length, 0) / nClean).toFixed(1) : '0.0';
+  const cLift = clean.filter((r) => r.names.length > 0).length;
+  const passAt1 = passAtK(nClean, cLift, 1);
   const costMean = (rs.reduce((s, r) => s + r.cost, 0) / n).toFixed(2);
   const turnsMean = Math.round(rs.reduce((s, r) => s + r.turns, 0) / n);
   const toolAgg = {};
   for (const r of rs) for (const [t, c] of Object.entries(r.tools)) toolAgg[t] = (toolAgg[t] || 0) + c;
   const toolStr = Object.entries(toolAgg).sort((a, b) => b[1] - a[1]).map(([t, c]) => `${t}:${c}`).join(' ');
-  console.log(`${cell.padEnd(15)} ${arm.padEnd(12)}  ${n}  ${drove}/${n}    ${liftMean}/${union.length}`.padEnd(52) + `  ${passAtK(n, cLift, 1).toFixed(2)}            ${costMean}   ${turnsMean}    ${toolStr}`);
-  out[key] = { n, drove, liftMean: +liftMean, union, costMean: +costMean, turnsMean, passAt1_lift: passAtK(n, cLift, 1), passHat3_lift: passHatK(n, cLift, 3), toolAgg };
+  console.log(`${cell.padEnd(15)} ${arm.padEnd(12)}  ${n}  ${drove}/${nClean}    ${liftMean}/${union.length}`.padEnd(52) + `  ${(passAt1 == null ? 0 : passAt1).toFixed(2)}            ${costMean}   ${turnsMean}    ${toolStr}`);
+  out[key] = { n, nClean, drove, liftMean: +liftMean, union, costMean: +costMean, turnsMean, passAt1_lift: passAt1, passHat3_lift: passHatK(nClean, cLift, 3), toolAgg };
 }
 fs.writeFileSync(path.join(HERE, 'mechanical.json'), JSON.stringify(out, null, 2));
 console.log('\nwrote mechanical.json');

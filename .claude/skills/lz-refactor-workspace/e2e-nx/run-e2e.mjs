@@ -398,7 +398,9 @@ function buildSyntheticBase(promptEntry, suiteCtx, { dryRun = false } = {}) {
   const prefix = rel ? `${rel}/` : '';
   const rootRelPath = prefix + target.file;
 
-  const branchName = `review-${promptEntry.target}`;
+  // Process-unique (same token the worktree path uses below) so concurrent same-target runs never
+  // collide on the branch name. Still starts with `review-` for the selfcheck's `review-*` teardown glob.
+  const branchName = `review-${promptEntry.target}-${process.pid}-${Date.now()}`;
 
   if (protectedBranches.includes(branchName)) {
     throw new Error(`--synthetic-base refuses to build on a protected branch name '${branchName}'`);

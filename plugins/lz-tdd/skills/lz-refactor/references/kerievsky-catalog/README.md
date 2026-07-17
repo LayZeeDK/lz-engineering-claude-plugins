@@ -8,7 +8,7 @@ on the Fowler catalog (`../fowler-catalog/`), authored first.
 
 Direction: `To` = the refactoring completes the named pattern; `To/Towards` = it completes the pattern
 and also supports a keepable partial adoption (stop at the pattern-ready intermediate, or carry on to
-the full pattern); `Away` = it de-patterns (retreats from the named pattern); `n/a` = a utility that
+the full pattern); `Away` = it de-patterns; `n/a` = a utility that
 targets no GoF pattern, so direction does not apply.
 
 ## Ch.6: Creation

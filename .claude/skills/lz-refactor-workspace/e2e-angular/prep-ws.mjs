@@ -12,7 +12,7 @@ for (const [cell, suite] of Object.entries(CELLS)) {
   manifest[cell] = [];
   for (const run of fs.existsSync(base) ? fs.readdirSync(base) : []) {
     const meta = JSON.parse(fs.readFileSync(path.join(base, run, 'meta.json'), 'utf8'));
-    if ((meta.changed_files || []).length === 0) continue; // skip advise-only (no diff to grade)
+    if (meta.exit_code !== 0 || (meta.changed_files || []).length === 0) continue; // skip failed + advise-only (no clean diff to grade)
     const vd = path.join(OUT, cell, run);
     fs.mkdirSync(vd, { recursive: true });
     for (const f of ['answer.md', 'diff.patch']) fs.copyFileSync(path.join(base, run, f), path.join(vd, f));

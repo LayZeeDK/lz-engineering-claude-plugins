@@ -102,7 +102,6 @@ const EXPECTED = 62;
 // Provenance: exactly one web-only leaf; no web-example leaf (owner reversed the Split Phase
 // [web-example] label on 2026-07-05 -- it is a normal in-book Ch.6 refactoring).
 const WEB_ONLY = new Set(["Return Modified Value"]);
-const WEB_EXAMPLE = new Set();
 
 let failures = 0;
 
@@ -291,11 +290,7 @@ for (const name of NAMES) {
     missing.push("unexpected [web-only] marker");
   }
 
-  if (WEB_EXAMPLE.has(name) && !hasWebExample) {
-    missing.push("[web-example] marker");
-  }
-
-  if (!WEB_EXAMPLE.has(name) && hasWebExample) {
+  if (hasWebExample) {
     missing.push("unexpected [web-example] marker");
   }
 

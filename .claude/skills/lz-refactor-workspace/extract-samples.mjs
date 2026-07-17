@@ -65,7 +65,8 @@ const extractFences = (text) => {
   let body = [];
 
   for (const line of lines) {
-    const m = line.match(/^```(.*)$/);
+    // CommonMark allows a fence marker to be indented up to 3 spaces (open and close alike).
+    const m = line.match(/^\s{0,3}```(.*)$/);
 
     if (m) {
       if (open === null) {

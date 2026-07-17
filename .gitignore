@@ -18,6 +18,9 @@ Thumbs.db
 .idea/
 *.swp
 
+# Session/handoff scratch (GSD resume notes) -- never distributed.
+.continue-here.md
+
 # Skill-creator eval workspaces (.claude/skills/<skill-name>-workspace/).
 # Keep the eval RECORD tracked -- eval sets, eval_metadata.json, benchmark.json/.md,
 # grading.json, EVAL-RESULTS.md, and the vendored tools/ harness. Ignore only caches

@@ -6,9 +6,9 @@ created: 2026-07-14
 description: Measure the nx whole-package sweep auto-trigger on HEAD to close the Phase-12 WARNING
 must_haves:
   truths:
-    - The nx whole-package sweep prompt (p8) auto-triggers lz-refactor on HEAD (20e2790+) in with_skill APPLY mode, measured directly (not inferred), matching the pre-revert 3/3 and the post-revert kata gr4 3/3.
+    - The nx whole-package sweep prompt (p8) auto-triggers lz-refactor on HEAD (64be50b+) in with_skill APPLY mode, measured directly (not inferred), matching the pre-revert 3/3 and the post-revert kata gr4 3/3.
     - Grading is auto-trigger ONLY (meta.json used_refactor / skills_invoked fires); drive/quality is NOT re-litigated (settled: null skill delta, base catalog-grade).
-    - If p8 does NOT fire, that is a genuine regression from the 9832c74 revert and is investigated instead of flipped.
+    - If p8 does NOT fire, that is a genuine regression from the 138acf4 revert and is investigated instead of flipped.
   artifacts:
     - .planning/phases/12-*/12-VALIDATION.md WARNING flipped from "inferred" to "measured/CONFIRMED" (or regression noted) with the run rate + date.
     - .planning/phases/12-*/12-VERIFICATION.md audit_notes evidential-nuance finding updated to reflect the direct HEAD measurement.
@@ -26,7 +26,7 @@ must_haves:
 Narrow close-out of ONE non-blocking WARNING carried by 12-VALIDATION.md and
 12-VERIFICATION.md (audit_notes): the nx whole-package sweep auto-trigger was measured
 PRE-revert (p8 3/3, fleet 8/8) against the broadened 12-02 description that was later
-reverted (9832c74); post-revert only the kata sweep (gr4 3/3) was directly re-confirmed on
+reverted (138acf4); post-revert only the kata sweep (gr4 3/3) was directly re-confirmed on
 HEAD. This converts the nx measurement from strongly-inferred to directly-measured on HEAD.
 
 NOT in scope: re-opening output-value gating or the reference-catalog lever (both tested and

@@ -4,8 +4,8 @@ plan: 01
 subsystem: lz-refactor-workspace / eval instruments
 status: complete
 tags: [eval, reference-catalog, deterministic-grader, fairness-rule]
-build-commit: f08ca62
-fix-commit: 714767e
+build-commit: 104f248
+fix-commit: ffd1f9e
 metrics:
   runs: 60
   arms: [invoke_skill, no_skill]
@@ -20,8 +20,8 @@ Tested the one untested value lever for lz-refactor: does the curated, oracle-ve
 RECALL edge over base Opus 4.8 on on-demand explain/look-up questions (recommend mode, no repo)?
 
 ## Pipeline (all gates honored)
-research -> plan (2-iteration validate: 1 blocker + 3 warnings fixed) -> BUILD instrument (`f08ca62`) ->
-unbiased REVIEW (neutral + adversarial: NEEDS-CHANGES) -> fixes applied (`714767e`, GATE: PASS) -> spend
+research -> plan (2-iteration validate: 1 blocker + 3 warnings fixed) -> BUILD instrument (`104f248`) ->
+unbiased REVIEW (neutral + adversarial: NEEDS-CHANGES) -> fixes applied (`ffd1f9e`, GATE: PASS) -> spend
 checkpoint (user approved clean-core) -> RUN (60 metered runs, 2 arms, k=3, all exit 0) -> GRADE.
 
 ## Result: reference lever essentially NULL, ONE genuine niche edge
@@ -50,7 +50,7 @@ recall are null/parity. Reference lever closed; no further tuning warranted.
 - Instrument: `.claude/skills/lz-refactor-workspace/e2e-reference/` (suite + prompts + targets) +
   `grade-reference.mjs` (deterministic, negation-aware, selfcheck-tested)
 - Review: `260714-nxp-REVIEW.md` (GATE: PASS post-fix); Plan/Research: `260714-nxp-{PLAN,RESEARCH}.md`
-- Commits: `f08ca62` (build), `714767e` (review fixes). Raw per-run results are local-only byproducts
+- Commits: `104f248` (build), `ffd1f9e` (review fixes). Raw per-run results are local-only byproducts
   (convention: results/ never committed; findings live in the docs).
 
 ## Known limitation (not re-run)

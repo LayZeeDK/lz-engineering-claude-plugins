@@ -67,8 +67,8 @@ completed: 2026-07-15
 
 ## Task Commits
 
-1. **Task 1: Grade name/layer correctness vs targets.json** - `38c65c4` (feat)
-2. **Task 2: Independent behavior oracle + Pass@k** - `1a031cc` (feat)
+1. **Task 1: Grade name/layer correctness vs targets.json** - `69a0fa3` (feat)
+2. **Task 2: Independent behavior oracle + Pass@k** - `17e0a72` (feat)
 
 _(STATE.md/ROADMAP.md deliberately NOT updated -- the orchestrator owns those after the worktree merges.)_
 
@@ -90,14 +90,14 @@ _(STATE.md/ROADMAP.md deliberately NOT updated -- the orchestrator owns those af
 - **Issue:** `npx nx test eslint-plugin` fails at the nx:build-native Rust prerequisite on this arm64 Windows box (exit 130), before jest runs -- as flagged in the plan's critical environment facts and 13-01 behavior-baseline.json.
 - **Fix:** Ran the recorded raw-jest runner `npx jest --config packages/eslint-plugin/jest.config.cts --ci` and scored the differential vs the 15-fail baseline. This is the prior-art workaround already baked into behavior-baseline.json.runner, not a new decision.
 - **Verification:** Pristine baseline reproduced 15 failed / 169 passed / 184 total; every applied run reproduced the same counts (0 new failures).
-- **Committed in:** `1a031cc`
+- **Committed in:** `17e0a72`
 
 **2. [Rule 1 - Bug] Transient 0/0/0 jest reading in the nx loop for p1 no_skill run-1**
 - **Found during:** Task 2 (nx behavior oracle loop)
 - **Issue:** The batched loop reported 0/0/0 for one run (jest produced no parseable Tests: line that pass).
 - **Fix:** Re-ran that single run directly; it produced the correct 15 failed / 169 passed / 184 total (behavior-preserving). Recorded the correct value.
 - **Verification:** Direct re-run showed the same 15-fail/169-pass baseline with the FAIL confined to the pre-existing dependency-checks spyOn crash.
-- **Committed in:** `1a031cc`
+- **Committed in:** `17e0a72`
 
 ---
 
@@ -123,7 +123,7 @@ None - no external service configuration required.
 - FOUND: grading/correctness/name-layer.json (33 records, verify passed)
 - FOUND: grading/correctness/behavior.json (33 records + 11 Pass@k cells, verify passed)
 - FOUND: 13-04-SUMMARY.md
-- FOUND commit 38c65c4 (Task 1); FOUND commit 1a031cc (Task 2)
+- FOUND commit 69a0fa3 (Task 1); FOUND commit 17e0a72 (Task 2)
 - Hygiene: all three artifacts ASCII-only, no email tokens, no book paths/prose; both borrowed repos reset to base and clean.
 
 ---

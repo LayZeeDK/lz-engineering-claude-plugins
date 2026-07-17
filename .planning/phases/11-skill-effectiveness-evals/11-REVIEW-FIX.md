@@ -53,7 +53,7 @@ $ git diff --stat HEAD -- grade-run.mjs run-recall-chunks.mjs
 ### CR-01: name->layer lookup misclassifies a Fowler refactoring as `functional` (false PASS on the eval-7 layer check)
 
 **Files modified:** `.claude/skills/lz-refactor-workspace/grade-run.mjs`
-**Commit:** 46921aa (`fix(11): CR-01 resolve layers by longest-match so a shorter name cannot sub-phrase-match a longer one`)
+**Commit:** 2f734f6 (`fix(11): CR-01 resolve layers by longest-match so a shorter name cannot sub-phrase-match a longer one`)
 **Applied fix:** `layersInResponse()` (grade-run.mjs:172-191) now uses the review's Option A
 shadowing rule -- a matched canonical name is credited ONLY if no longer matched name
 contains it (`other.length > name.length && nameRe(name).test(other)`), so the functional
@@ -68,7 +68,7 @@ resolve-identity gate passes, so CR-01 is confirmed closed and nothing regressed
 ### WR-01: recall canary constant drifts from the trigger-eval positive it stands in for
 
 **Files modified:** `.claude/skills/lz-refactor-workspace/run-recall-chunks.mjs`
-**Commit:** bdac462 (`fix(11): WR-01 derive recall canary from the eval set so it is the real positive #6`)
+**Commit:** 22dc88e (`fix(11): WR-01 derive recall canary from the eval set so it is the real positive #6`)
 **Applied fix:** The hand-typed canary twin is gone. `run-recall-chunks.mjs:29-34` defines a
 single `CANARY_PREFIX = "what does Extract Function actually do"` and derives
 `CANARY = all.find((q) => q.should_trigger && q.query.startsWith(CANARY_PREFIX))` directly
@@ -82,7 +82,7 @@ confirms the derive-and-throw pattern and the single-source `CANARY_PREFIX`.
 ### WR-02: chunk-set write outside try/catch and CHUNK_DIR never created -> uncaught ENOENT
 
 **Files modified:** `.claude/skills/lz-refactor-workspace/run-recall-chunks.mjs`
-**Commit:** d1d1e96 (`fix(11): WR-02 mkdir chunk dir up front and move chunk-set write inside try/catch`)
+**Commit:** 6a1c6b4 (`fix(11): WR-02 mkdir chunk dir up front and move chunk-set write inside try/catch`)
 **Applied fix:** `fs.mkdirSync(CHUNK_DIR, { recursive: true })` runs up front at
 run-recall-chunks.mjs:21 (right after `CHUNK_DIR` is defined at line 15), and the
 `recall-chunk-*.json` write is now inside the per-chunk `try` block (line 103), so a fresh
@@ -94,7 +94,7 @@ confirms the up-front mkdir and the write relocated inside `try`.
 ### WR-03: `assess()` and the report loop dereference `r.results` unguarded
 
 **Files modified:** `.claude/skills/lz-refactor-workspace/run-recall-chunks.mjs`
-**Commit:** de9d598 (`fix(11): WR-03 guard assess and report loop against result files missing a results array`)
+**Commit:** 124c27d (`fix(11): WR-03 guard assess and report loop against result files missing a results array`)
 **Applied fix:** Inside `assess()` the parse `try/catch` is followed by
 `if (!r || !Array.isArray(r.results)) return { valid: false, reason: "no results array" };`
 (run-recall-chunks.mjs:65-67), and the canary report loop applies the same guard before its

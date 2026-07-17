@@ -45,9 +45,9 @@ Deterministic mechanical-dimension tabulator (tokens/cost, tool histogram + sub-
 
 ## What was built
 
-### Task 1: `tabulate-mechanical.mjs` + fixtures + `--selfcheck` (commit afe77ba)
+### Task 1: `tabulate-mechanical.mjs` + fixtures + `--selfcheck` (commit 12222cd)
 - Walks the two phase-14 recommend results trees (`--results`/`--cell`/`--arm`/`--out` overridable), reads every per-run `meta.json` + sibling `answer.md`, and emits per `(cell, arm)`:
-  - **token/cost totals** -- `total_cost_usd` + per-model `model_usage` roll-up (headline, aggregates sub-agents) and `input_tokens`/`output_tokens` (main-context-only), consuming the EXACT D-07 field names 14-01's `extractResult()` emits (verified against the committed `run-e2e.mjs`, commits d64226c/6ea94e7).
+  - **token/cost totals** -- `total_cost_usd` + per-model `model_usage` roll-up (headline, aggregates sub-agents) and `input_tokens`/`output_tokens` (main-context-only), consuming the EXACT D-07 field names 14-01's `extractResult()` emits (verified against the committed `run-e2e.mjs`, commits b02a71e/47ad17e).
   - **tool_calls histogram + sub-agent spawn count** -- spawn count = sum of `tool_calls` entries whose name is a spawn tool, matched case-insensitively against `{task, agent}` (spelling-agnostic; ~2 expected for `code_review`, 0 for lz-refactor).
   - **lift** -- distinct named Fowler/Kerievsky refactorings surfaced in `answer.md` via the reused word-bounded `nameRe`, with longest-match shadow-suppression (so `Factory Function` never phantom-counts inside `Replace Constructor with Factory Function`).
   - **Pass@k / Pass^k** on the `lift>0` predicate (k=1,3), using `comb`/`passAtK`/`passHatK` copied verbatim from `run-e2e.mjs`.
@@ -55,7 +55,7 @@ Deterministic mechanical-dimension tabulator (tokens/cost, tool histogram + sub-
 - **Fail-closed** (T-14-07): a garbled/unparseable `meta.json`, or one missing `prompt_id`/`arm`, aborts with exit 1 -- never a silent skip.
 - `--selfcheck` drives the pure `tabulateGroup` core against the two committed fixtures and asserts the expected token totals, opus model-row cost, spawn count (2), lift count (2), and Pass@k values -- **exits 0 with an OK line**, zero spend.
 
-### Task 2: `summary.template.json` (commit 4754eec)
+### Task 2: `summary.template.json` (commit 2da90bf)
 - Machine-readable head-to-head rollup skeleton: arms `lz-refactor` (= `invoke_skill`) and `code_review`; one block per the seven D-04 dimensions (`lift`, `token_usage`, `tool_usage`, `output_quality`, `book_authenticity`, `over_under_engineering`, `idiom_pattern`); each block has 6 per-`(cell, arm)` rows (3 cells x 2 arms) with null `{n, c, passAt1, passAt3, passHat3}` placeholders.
 - A top-level `dimension_kind` map tags each dimension MECHANICAL (lift, token_usage, tool_usage) or GRADED (the other four), a `passk_source` note points at the `run-e2e.mjs` helpers, and the `idiom_pattern` block carries the ~139-vs-12 vocabulary-breadth headline field (lz-refactor 139 named refactorings/patterns/idioms + 28 smell leaves vs code-review's 12 Fowler smells).
 - The mandatory D-02 whole-file-diff off-grain caveat and the D-03 Spec-axis-skip asymmetry are recorded in a top-level `caveats` array for 14-05 to carry into `14-RESULTS.md`.
@@ -84,5 +84,5 @@ The seven dimension blocks in `summary.template.json` are intentional null-place
 
 ## Self-Check: PASSED
 - All 4 created files exist on disk (verified).
-- Both per-task commits exist in git history: afe77ba (Task 1), 4754eec (Task 2).
+- Both per-task commits exist in git history: 12222cd (Task 1), 2da90bf (Task 2).
 - `tabulate-mechanical.mjs --selfcheck` exits 0.

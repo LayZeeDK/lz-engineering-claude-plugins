@@ -39,7 +39,7 @@ the skill's catalog beats a strong baseline.
 
 ## Apply, k=3 (gr4 projsweep) -- L1 net-cost warrant re-measure (2026-07-14)
 
-Re-measure of the L1 rewrite of SKILL.md step 4 (the countable net-cost warrant, committed `98cf482`)
+Re-measure of the L1 rewrite of SKILL.md step 4 (the countable net-cost warrant, committed `877aef3`)
 on the over-engineering testbed. Runner reads L1 via `--plugin-dir` (the repo tree on disk).
 
 | arm | fired | hierarchies built in `gilded-rose.ts` | countable DECLINE verdict | Conjured behaviour-change trap |
@@ -70,7 +70,7 @@ them) + break-even net-cost (DECLINE defensible) + wrong path (step-3 Fowler, no
 kata grown-type-set -- foreclosed as above. Reusing p2/validateEntry was also disqualified (already run;
 base declines on taste; same family as the worked example).
 
-**Decision: ACCEPT L1** (committed `98cf482`). Output-warrant validation is exhausted -- realizable skill
+**Decision: ACCEPT L1** (committed `877aef3`). Output-warrant validation is exhausted -- realizable skill
 value is auto-trigger (proven) + the reference catalog (untested). Do not re-open the positive-control
 quest or a same-model reviewer-agent.
 

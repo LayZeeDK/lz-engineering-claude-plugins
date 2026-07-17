@@ -15,7 +15,7 @@ cross-cutting archetype.
 
 | Edit surface | Role | Data flow | Closest analog | Match quality |
 |--------------|------|-----------|----------------|---------------|
-| `plugins/lz-tdd/skills/lz-refactor/SKILL.md` (description frontmatter, lines 3-17) | config / skill-metadata | request-response (trigger routing) | its own committed form (241c1fb), lines 3-17 | self (exact) |
+| `plugins/lz-tdd/skills/lz-refactor/SKILL.md` (description frontmatter, lines 3-17) | config / skill-metadata | request-response (trigger routing) | its own committed form (8acd2b8), lines 3-17 | self (exact) |
 | `plugins/lz-tdd/skills/lz-refactor/SKILL.md` ("Coach by default; drive when asked", lines 75-82) | instruction prose | event-driven (drive loop) | its own committed paragraph, lines 75-82 + decision steps 1/4/5 (lines 45-70) | self (exact) |
 | `.claude/skills/lz-refactor-workspace/evals/trigger-eval.json` (+3 positives, +3 negatives) | test / eval fixture | batch / transform | existing positive/negative entries in the same array | self (exact) |
 | `.claude/skills/lz-refactor-workspace/evals/d07-chunks/negatives.json` (+3 negatives, dual-write) | test / eval fixture | batch / transform | existing negatives + the byte-identical negatives in trigger-eval.json | self (exact) |
@@ -26,7 +26,7 @@ cross-cutting archetype.
 
 ### `plugins/lz-tdd/skills/lz-refactor/SKILL.md` - description frontmatter (config, request-response)
 
-**Analog:** its own committed form (241c1fb), lines 3-17. EXTEND, do not rewrite (D-01/D-02).
+**Analog:** its own committed form (8acd2b8), lines 3-17. EXTEND, do not rewrite (D-01/D-02).
 
 **Current description block** (lines 3-17) - the surface to broaden with the sweep intent category:
 ```yaml

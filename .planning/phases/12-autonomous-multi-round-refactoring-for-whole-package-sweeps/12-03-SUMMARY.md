@@ -19,7 +19,7 @@ measurement-dependent criteria (SC1, SC4) are met by real e2e evidence, not asse
 - **Reload:** the edited skill is committed and live; the e2e runners read it from disk via `--plugin-dir`
   (so the runs used the edited skill without needing an interactive reload).
 - **Gap 1 (TRIGGER) -- measured CLOSED:** the natural whole-package sweep auto-triggers lz-refactor in
-  BOTH suites -- 18/18 in the 2026-07-11 e2e (nx 12/12 + kata 6/6; commit ee95cd4) and gr4 3/3 auto-fired
+  BOTH suites -- 18/18 in the 2026-07-11 e2e (nx 12/12 + kata 6/6; commit ee95cd4 [pruned]) and gr4 3/3 auto-fired
   this session. Coach-recommend triggering held with no regression (isolated trigger 100%/100%). [SC1, SC4]
 - **Gap 2 (DRIVE) -- measured:** the skill drives multi-round sweeps to a SAFE fixpoint with
   behavior-preservation guards -- package-scope directive evals (quick 260712-i5y: nx p8 + kata gr4) and the
@@ -28,8 +28,8 @@ measurement-dependent criteria (SC1, SC4) are met by real e2e evidence, not asse
   "behavior gap" did NOT reproduce. [SC4]
 - **Research-informed changes (SC3):** the trigger-optimization + the sweep-drive cluster were
   research-grounded (RESEARCH.md). CORRECTION (per 12-VERIFICATION adversarial finding): the auto-trigger
-  is carried by the intent-based description at commit 241c1fb, which REMAINS in HEAD; the 12-02 "broadened
-  description" sweep-bulk was REVERTED post-phase (commit 9832c74, "revert 12-02 sweep bulk") and is NOT in
+  is carried by the intent-based description at commit 8acd2b8, which REMAINS in HEAD; the 12-02 "broadened
+  description" sweep-bulk was REVERTED post-phase (commit 138acf4, "revert 12-02 sweep bulk") and is NOT in
   HEAD -- the leaner sweep-DRIVE cluster remains. SC1 is unaffected (18/18 re-confirmed post-revert via kata
   gr4 3/3, 2026-07-14; nx post-revert re-confirmation is strongly inferred, not directly re-measured on
   HEAD).
@@ -47,5 +47,5 @@ can't." That revision belongs in the milestone audit, not here.
 - `.claude/skills/lz-refactor-workspace/E2E-FINDINGS.md` (Resolution) + `e2e-gilded-rose/GR-RESULTS.md`
 - `.planning/quick/260712-i5y-*`, `260712-n5o-*`, `260714-nxp-*` SUMMARYs + REVIEW/RESULTS
 - memory: `lz-refactor-output-warrant-axis-exhausted`
-- Commits: 241c1fb (trigger-opt + SKILL.md), ee95cd4 + c7942cb (trigger/drive e2e), 9832c74 + 98cf482
-  (L1 warrant), f08ca62 + 714767e + 2776e49 (reference eval)
+- Commits: 8acd2b8 (trigger-opt + SKILL.md), ee95cd4 [pruned] + e7fcc8c (trigger/drive e2e), 138acf4 + 877aef3
+  (L1 warrant), 104f248 + ffd1f9e + 46f2037 (reference eval)

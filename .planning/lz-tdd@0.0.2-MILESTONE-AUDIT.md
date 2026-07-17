@@ -158,7 +158,7 @@ No partial or missing coverage.
 ## Informational (not milestone-scoped)
 
 - A post-phase candidate improvement -- the SKILL.md loop-audit forcing-function -- was
-  developed and shipped 2026-07-17 (commits e584e24 / e744ed6 / d89c5ab) after Phase 14.
+  developed and shipped 2026-07-17 (commits 01208c8 / 663f3a1 / 9729f2d) after Phase 14.
   It is the first non-null + safe lever on the output-warrant axis. It is a post-phase
   refinement, not a milestone requirement, and does not affect this audit's verdict.
   **Pending human action:** run `/reload-plugins` to make the committed loop-audit live in

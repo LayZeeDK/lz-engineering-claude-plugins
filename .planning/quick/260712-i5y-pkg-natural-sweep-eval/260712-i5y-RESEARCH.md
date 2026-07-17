@@ -2,11 +2,11 @@
 
 ## Baseline choice (the "most relevant baseline")
 
-Chose `no_skill` (base Opus 4.8 @ high, no plugin) over `e535070` (pre-12-02 skill). Rationale: the
+Chose `no_skill` (base Opus 4.8 @ high, no plugin) over `9ce3343` (pre-12-02 skill). Rationale: the
 user's question is a CAPABILITY question ("can I write this prompt and have it identify+triage+refactor
-to completion"), whose control is base-Opus-without-the-skill. The e535070-vs-live (12-02 attribution)
+to completion"), whose control is base-Opus-without-the-skill. The 9ce3343-vs-live (12-02 attribution)
 comparison was already shown null at single-file scope; `no_skill` isolates the skill's TOTAL
-contribution at package scale, which is the unanswered question. (e535070 remains available if 12-02
+contribution at package scale, which is the unanswered question. (9ce3343 remains available if 12-02
 attribution at package scale is wanted later.)
 
 ## Register: directive-unscripted (a third register)

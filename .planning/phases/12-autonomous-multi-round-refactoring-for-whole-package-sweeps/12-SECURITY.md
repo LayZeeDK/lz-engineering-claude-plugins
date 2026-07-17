@@ -30,12 +30,12 @@ throwaway repo checkouts.
 IMPORTANT AUDIT CONTEXT -- the shipped skill was altered AFTER the phase commits.
 The current HEAD state of `SKILL.md` reflects a deliberate post-phase revert:
 
-- `ba2af4e` (12-01) -- committed the eval + e2e instruments (pre-edit baseline tree).
-- `09e5c89` (12-02) -- committed the broadened description + sweep-drive cluster.
-- `9832c74` -- "revert 12-02 sweep bulk; bind the over-engineering veto + add
+- `beed2a1` (12-01) -- committed the eval + e2e instruments (pre-edit baseline tree).
+- `98eedd5` (12-02) -- committed the broadened description + sweep-drive cluster.
+- `138acf4` -- "revert 12-02 sweep bulk; bind the over-engineering veto + add
   blast-radius guard". This REVERTED the broadened description and TRIMMED the
   sweep-drive cluster, while EXPLICITLY ADDING the blast-radius guard.
-- `98cf482` -- generalized the step-4 net-cost warrant.
+- `877aef3` -- generalized the step-4 net-cost warrant.
 
 Because implementation is the source of truth, all `SKILL.md` mitigations below are
 verified against the CURRENT HEAD prose, not the plan-time 12-02 form.
@@ -100,7 +100,7 @@ Phase-12 surfaces -- the 8 instrument files + `SKILL.md`):
   non-approved tokens. The invariant "only the approved gmail may appear" holds
   vacuously (nothing to flag). The forbidden value was never written as a search
   needle -- detection is by inversion.
-- Commit messages `ba2af4e`, `09e5c89`, `9832c74` are ASCII, carry no PII, and carry
+- Commit messages `beed2a1`, `98eedd5`, `138acf4` are ASCII, carry no PII, and carry
   no AI-attribution trailer (conventional-commit subjects only).
 
 Verdict: CLOSED for both plans. No hygiene violation on any committed surface.
@@ -115,8 +115,8 @@ tail; re-measure specificity on the new surface; D-17 unbiased review for seam l
 
 Verified present at HEAD:
 
-- The 12-02 broadened description was REVERTED post-phase (`9832c74`); the current
-  `SKILL.md` description is the leaner intent form from `241c1fb`, so the broad-surface
+- The 12-02 broadened description was REVERTED post-phase (`138acf4`); the current
+  `SKILL.md` description is the leaner intent form from `8acd2b8`, so the broad-surface
   the threat guarded against is no longer shipped (residual risk is LOWER than at plan
   time).
 - The core seam control -- the exclude-and-reroute tail -- is INTACT at HEAD
@@ -156,7 +156,7 @@ Verified present in the shipped `## Whole-package / directory sweeps` section
 - Boundary 6 (blast radius escaping scope / exported-public-API change): "Pause and
   ask (do not silently proceed) on the step-5 blast-radius guard"; step 5 (lines
   82-85) states the exported/public-API + cross-package pause -- PRESENT (explicitly
-  ADDED/strengthened by revert commit `9832c74`).
+  ADDED/strengthened by revert commit `138acf4`).
 - D-06 terminal review gate + bounded ceiling: "Once a sweep has touched many files or
   run several rounds, checkpoint scope with the developer rather than churning
   unbounded. Stop at the fixpoint ... not at zero smells at any cost." -- PRESENT.
@@ -164,7 +164,7 @@ Verified present in the shipped `## Whole-package / directory sweeps` section
   developer to review -- do not commit unless they ask" (lines 98-99) -- PRESENT.
 
 FIDELITY NOTE (documented, NOT a blocker): the plan-declared verbose form named all 7
-boundaries + an explicit forward-only D-08 clause. Revert commit `9832c74` (the
+boundaries + an explicit forward-only D-08 clause. Revert commit `138acf4` (the
 deliberate "over-engineering veto") TRIMMED three items from the shipped cluster:
 
 - Boundary 5 (genuinely ambiguous behavior -> pin/ask) -- not stated verbatim, but an
@@ -202,10 +202,10 @@ Verified present:
   pre-edit baseline against the commit before the SKILL.md commit, then reload, then
   DELETE `trigger-results-d07-{recall,spec}-chunk-*.json` +
   `evals/d07-chunks/{recall,spec}-chunk-*.json` before the after-run.
-- The pre-edit-baseline invariant is structurally satisfied by design: `ba2af4e`
-  commits ONLY instruments and `09e5c89` commits ONLY `SKILL.md`, so the commit before
+- The pre-edit-baseline invariant is structurally satisfied by design: `beed2a1`
+  commits ONLY instruments and `98eedd5` commits ONLY `SKILL.md`, so the commit before
   the SKILL.md commit is exactly {OLD SKILL.md + NEW instruments} (git-confirmed:
-  `09e5c89` touched only `SKILL.md`; `ba2af4e` touched no `plugins/` path).
+  `98eedd5` touched only `SKILL.md`; `beed2a1` touched no `plugins/` path).
 - `12-03-SUMMARY.md` reconciles that the reload + measurement were subsequently
   performed (e2e read the edited skill from disk via `--plugin-dir`, avoiding the
   stale-skill trap), reporting the gaps measured CLOSED with no regression.

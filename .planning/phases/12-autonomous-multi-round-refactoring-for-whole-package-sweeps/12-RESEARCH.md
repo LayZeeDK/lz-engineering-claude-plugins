@@ -9,7 +9,7 @@
 
 ### Locked Decisions
 
-- **D-01:** Build ON committed quick-task 241c1fb; do NOT re-open it. SPLIT the two gaps: Gap 1 (sweep trigger) is a `description` + eval-set change; Gap 2 (stop-and-ask) is a NARROW behavior change to the command/drive arm only. Do NOT re-author catalogs / smells.md / principles, do NOT weaken the lz-tpp seam, do NOT expand into codemods (FUT-03 out).
+- **D-01:** Build ON committed quick-task 8acd2b8; do NOT re-open it. SPLIT the two gaps: Gap 1 (sweep trigger) is a `description` + eval-set change; Gap 2 (stop-and-ask) is a NARROW behavior change to the command/drive arm only. Do NOT re-author catalogs / smells.md / principles, do NOT weaken the lz-tpp seam, do NOT expand into codemods (FUT-03 out).
 - **D-02:** Broaden the `description` to fire on whole-package / codebase / multi-file SWEEP apply prompts. The missing intent CATEGORY is "whole-package scan-and-fix of existing green code". Address the CATEGORY, not the literal e2e phrasings. Keep third-person voice and bounded-pushy posture.
 - **D-03:** PAIR every new sweep positive with a matching sweep-shaped HARD negative so 100% specificity and the lz-tpp seam survive. Do NOT broaden with generic whole-codebase imperative vocabulary that neighbors the green step or feature work. Prior 100% specificity was scored on the OLD description -- INVALID until re-measured on the new surface. The guardrail lives in the eval set, not the prose.
 - **D-04:** `description` char budget: load-bearing ~1000-1500 window (current 1245 fine; `claude plugin validate` accepts >1024). Keep all exclusions before the 1536 listing truncation. ASCII-only.
@@ -285,7 +285,7 @@ Transfer to the sweep-drive cluster (conceptual, not final wording -- discretion
 
 ### The existing "Coach by default; drive when asked" paragraph (what to extend, not rewrite)
 ```markdown
-# Source: plugins/lz-tdd/skills/lz-refactor/SKILL.md lines 75-82 (committed 241c1fb)
+# Source: plugins/lz-tdd/skills/lz-refactor/SKILL.md lines 75-82 (committed 8acd2b8)
 Coach by default; drive when asked. When the request is a QUESTION or asks for advice
 (...), present the named refactoring and the smallest next step ... When the request is an
 explicit COMMAND to do it (...), perform the refactoring yourself in small behavior-preserving
@@ -323,7 +323,7 @@ node run-e2e.mjs --report   # Pass@1/@3/^3 per (mode,arm,prompt) + pooled
 
 | Old Approach | Current Approach | When Changed | Impact |
 |--------------|------------------|--------------|--------|
-| "Coach, don't drive... never edit unless asked" (blanket no-edit) | Question->advise / command->drive bifurcation | Quick task 241c1fb (2026-07-11) | The command arm now drives; Phase 12 extends only its termination for sweeps |
+| "Coach, don't drive... never edit unless asked" (blanket no-edit) | Question->advise / command->drive bifurcation | Quick task 8acd2b8 (2026-07-11) | The command arm now drives; Phase 12 extends only its termination for sweeps |
 | Skill author self-judges when the loop is "done" | Define "done" explicitly so the model does not stop early; deterministic (tests) criteria; encode the loop in SKILL.md | Loop engineering blog (2026-06-30) | Directly informs the Gap-2 sentence-cluster wording |
 | Long-running work one-shotted or declared-done-early | Initializer + incremental coding agent, explicit feature checklist, clean state each step | Effective harnesses post (2025-11-26) | The two failure modes = this phase's two postures; antidote transfers as instruction prose |
 
@@ -446,7 +446,7 @@ The sweep-drive instruction is itself the security-relevant artifact: its guards
 - `.planning/research/skill-trigger-optimization.md` -- eval-set design (recall + specificity, ~20 queries, 3 runs, held-out split, no-keyword-overfit), near-miss hard negatives carry specificity, exclude-and-reroute in the description (citypaul convention), description is the top lever, match user intent not jargon, bounded-pushy.
 
 ### Verified on disk (HIGH -- read this session)
-- `plugins/lz-tdd/skills/lz-refactor/SKILL.md` (committed 241c1fb) -- current description + coach/apply paragraph + decision procedure.
+- `plugins/lz-tdd/skills/lz-refactor/SKILL.md` (committed 8acd2b8) -- current description + coach/apply paragraph + decision procedure.
 - `lz-refactor-workspace/{run-recall-chunks.mjs, run-spec-chunks.mjs, check-evals.mjs, evals/trigger-eval.json, evals/d07-chunks/negatives.json}` -- harness mechanics (canary gating, chunk sizes, dual-write, locked run config, stale-cache).
 - `lz-refactor-workspace/{e2e-nx, e2e-gilded-rose}/{run-e2e.mjs, suite.json, targets.json}` -- arm/mode/report mechanics, Pass@k, apply-branch protection, seed targets (T3/T4, updateQuality).
 - `lz-refactor-workspace/E2E-FINDINGS.md` -- the cross-suite findings + the 2026-07-11 resolution (18/18, command-drive 6/6, used_refactor undercount caveat).

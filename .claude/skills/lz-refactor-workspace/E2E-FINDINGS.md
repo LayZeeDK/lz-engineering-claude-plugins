@@ -85,7 +85,7 @@ edits** -- advice only -- i.e. the skill's no-edit instruction can override an e
 ## Resolution -- trigger-opt + coach/apply rewrite (2026-07-11)
 
 Both highest-leverage implications above were addressed and verified end-to-end (new `description` +
-question-vs-command coach/apply rewrite, SKILL.md commit 241c1fb; verification commits ee95cd4, c7942cb).
+question-vs-command coach/apply rewrite, SKILL.md commit 8acd2b8; verification commits ee95cd4 [pruned], e7fcc8c).
 
 **Implication 1 (coach-mode auto-triggering) -- CLOSED.** Re-running the coach `recommend` prompts with
 the new description, same busy `--plugin-dir` sessions, fresh run indices:

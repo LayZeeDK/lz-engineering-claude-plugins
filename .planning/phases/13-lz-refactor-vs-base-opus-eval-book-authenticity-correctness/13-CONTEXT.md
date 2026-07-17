@@ -64,7 +64,7 @@ not duplicated here.
 - **D-02 [AMENDED 2026-07-15 via research + OQ-1]:** Sweep cells (nx `p8` target `pkgsweep`; kata
   `gr4` target `projsweep`). CORRECTION: the SPEC/ROADMAP premise "no sweep diffs for either arm" is
   FALSIFIED for nx `p8` `with_skill` -- those diffs ARE persisted (committed, k=3, fresh 2026-07-14 on
-  HEAD `cfcbfa5`, against the unchanged shipped skill). User decision (OQ-1): REUSE the committed nx
+  HEAD `4ef2dc6`, against the unchanged shipped skill). User decision (OQ-1): REUSE the committed nx
   `p8` `with_skill` diffs (skill unchanged since capture -> valid A/B baseline; ~40 min saved) and
   backfill nx `p8` `no_skill` only (k=3). kata `gr4` is genuinely absent for BOTH arms -> re-run
   `with_skill` + `no_skill` (k=3 each). Both prompts (`p8-eslint-plugin-package-directive.md`,

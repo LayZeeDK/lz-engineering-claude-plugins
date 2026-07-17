@@ -68,7 +68,7 @@ completed: 2026-07-15
 
 Each task was committed atomically:
 
-1. **Task 1: Author cr-* prompts + suite.json entries** - `f5f7f1d` (feat)
+1. **Task 1: Author cr-* prompts + suite.json entries** - `c0cf03d` (feat)
 2. **Task 2: Subagent review of the cr-* prompts (incl. unbiased)** - no code change (review-only; both PASS, no prompt edits required)
 
 **Plan metadata:** this commit (docs: complete plan)
@@ -120,7 +120,7 @@ None - no external service configuration required. No metered `claude -p` run oc
 - FOUND: `.claude/skills/lz-refactor-workspace/e2e-nx/prompts/cr-runtime-lint-utils.md`
 - FOUND: `.claude/skills/lz-refactor-workspace/e2e-gilded-rose/prompts/cr-gilded-rose.md`
 - FOUND: suite.json entries `cr-emb`/`cr-rlu` (e2e-nx) and `cr-gr` (e2e-gilded-rose)
-- FOUND commit: `f5f7f1d`
+- FOUND commit: `c0cf03d`
 
 ---
 *Phase: 14-compare-lz-refactor-to-mattpocock-skills-code-review-skill-k*

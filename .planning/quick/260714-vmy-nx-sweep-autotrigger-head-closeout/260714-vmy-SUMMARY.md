@@ -13,7 +13,7 @@ result: WARNING CLOSED -- nx sweep auto-trigger measured 3/3 on HEAD (no regress
 
 **The Phase-12 non-blocking WARNING is CLOSED.** The nx whole-package sweep auto-trigger,
 previously only strongly INFERRED on HEAD post-revert, is now DIRECTLY MEASURED: **3/3
-auto-triggered** on HEAD in `with_skill` APPLY mode. No regression from the 9832c74 revert.
+auto-triggered** on HEAD in `with_skill` APPLY mode. No regression from the 138acf4 revert.
 
 ## What was done
 

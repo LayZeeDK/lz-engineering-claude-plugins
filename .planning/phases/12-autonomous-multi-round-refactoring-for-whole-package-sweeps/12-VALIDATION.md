@@ -59,9 +59,9 @@ eval/e2e run whose durable rate is captured in a tracked results file.
 | 2 | D-12 dual-write byte-consistency (trigger-eval.json negatives == d07-chunks/negatives.json) | 12-01 | SC1 specificity integrity | build-time lint (NEW this audit) | `node check-evals.mjs` | green |
 | 3 | nx + kata multi-round sweep-command e2e scenarios (p7cmd/gr3cmd) + directive prompts (p8/gr4, p9-p12) | 12-01 | SC2/SC4 (instrument) | e2e (gated metered) | `node e2e-nx/run-e2e.mjs` / `--suite gilded-rose` | green (measured via loop) |
 | 4 | SKILL.md "Whole-package / directory sweeps" drive cluster (loop-to-fixpoint + guards) | 12-02 | SC2 | D-17 review + plugin validate + structural | `claude plugin validate .` | green |
-| 5 | SKILL.md trigger description (241c1fb intent-based; 12-02 sweep-bulk reverted 9832c74) | 12-02 | SC1 | D-17 review + plugin validate + metered recall/e2e | `claude plugin validate .` ; e2e recall | green (nx p8 3/3 on HEAD, quick 260714-vmy) |
+| 5 | SKILL.md trigger description (8acd2b8 intent-based; 12-02 sweep-bulk reverted 138acf4) | 12-02 | SC1 | D-17 review + plugin validate + metered recall/e2e | `claude plugin validate .` ; e2e recall | green (nx p8 3/3 on HEAD, quick 260714-vmy) |
 | 6 | Research-informed changes (12-RESEARCH + n5o research; D-17 reviews on each SKILL.md commit) | 12-RESEARCH | SC3 | doc + subagent review | (manual review record) | green |
-| 7 | D-16 pre-edit baseline tree (OLD SKILL.md + NEW instruments) | 12-01 | D-16 protocol | git tree | `git show --stat ba2af4e` | green |
+| 7 | D-16 pre-edit baseline tree (OLD SKILL.md + NEW instruments) | 12-01 | D-16 protocol | git tree | `git show --stat beed2a1` | green |
 
 *Status: pending / green / red / flaky (ASCII words, no symbols).*
 
@@ -69,14 +69,14 @@ eval/e2e run whose durable rate is captured in a tracked results file.
 - `node check-evals.mjs` -> `OK - 30 queries (16 trigger / 14 near-miss; 5 lz-tpp-seam), ASCII-clean` (exit 0). Now also asserts the D-12 dual-write byte-consistency (proven fail-closed: injecting a one-token drift into `d07-chunks/negatives.json` yields exit 1 with a dual-write mismatch message; restored byte-clean).
 - `claude plugin validate .` -> `Validation passed` (exit 0).
 - Dual-write cross-check (independent script): trigger-eval.json 14 negatives == d07-chunks/negatives.json 14 negatives, byte-identical, same order.
-- Git ancestry: 241c1fb (trigger description), 9832c74 (revert of 12-02 sweep bulk), 09e5c89 (12-02 sweep bulk) all ancestors of HEAD (20e2790). Shipped SKILL.md description does NOT contain the reverted "sweep a whole package" broadening clause; the sweep-DRIVE cluster (lines 101-116) IS present with all guards (fixpoint, tests-green-each-round, blast-radius pause, revert-on-red, checkpoint). 158 lines (< 500), ASCII-clean.
+- Git ancestry: 8acd2b8 (trigger description), 138acf4 (revert of 12-02 sweep bulk), 98eedd5 (12-02 sweep bulk) all ancestors of HEAD (64be50b). Shipped SKILL.md description does NOT contain the reverted "sweep a whole package" broadening clause; the sweep-DRIVE cluster (lines 101-116) IS present with all guards (fixpoint, tests-green-each-round, blast-radius pause, revert-on-red, checkpoint). 158 lines (< 500), ASCII-clean.
 
 ---
 
 ## Wave 0 Requirements
 
 - [x] Sweep-shaped trigger positives added to `evals/trigger-eval.json` (3: billing package, src/services directory, auth library); sweep-shaped negatives added to BOTH `evals/trigger-eval.json` and `evals/d07-chunks/negatives.json` (3 dual-written: api feature-add, reporting perf, parser red-test); `check-evals.mjs` green. **Now also guarded by the D-12 dual-write assertion (deliverable #2).**
-- [x] Baseline capture (current shipped skill) archived BEFORE any SKILL.md edit: the D-16 pre-edit tree = OLD SKILL.md + NEW instruments was committed as ba2af4e (instruments-first), with SKILL.md untouched; the workspace `baseline/` archive dir is present.
+- [x] Baseline capture (current shipped skill) archived BEFORE any SKILL.md edit: the D-16 pre-edit tree = OLD SKILL.md + NEW instruments was committed as beed2a1 (instruments-first), with SKILL.md untouched; the workspace `baseline/` archive dir is present.
 
 ---
 
@@ -125,13 +125,13 @@ kata Conjured 6/6).
 **RESOLVED (1 prior WARNING, closed 2026-07-14):**
 - **nx whole-package sweep auto-trigger on HEAD post-revert is now DIRECTLY MEASURED (was inferred).**
   Originally the nx sweep trigger (p8 3/3, fleet 8/8) was measured PRE-revert against the broadened
-  12-02 description (09e5c89), later reverted (9832c74); post-revert only the KATA sweep (gr4 3/3)
+  12-02 description (98eedd5), later reverted (138acf4); post-revert only the KATA sweep (gr4 3/3)
   had been directly re-confirmed on HEAD, leaving the nx sweep strongly inferred. Closed by a gated,
   user-approved metered re-run on HEAD (quick 260714-vmy): `run-e2e.mjs --mode apply --prompt p8
   --arm with_skill --runs 3` against nx branch `lz-refactor-e2e-smoke` (= origin/23.0.x), reading the
   live skill via `--plugin-dir` (= HEAD). Result: **3/3 auto-triggered** (`used_refactor=true`,
   `skills_invoked=["lz-tdd:lz-refactor"]` each run; deterministic from meta.json), matching the
-  pre-revert p8 3/3 and the post-revert kata gr4 3/3. No regression from the 9832c74 revert. This
+  pre-revert p8 3/3 and the post-revert kata gr4 3/3. No regression from the 138acf4 revert. This
   converts the last inferred measurement to measured; no coverage gap remains.
 
 **No BLOCKER.** All four ROADMAP Success Criteria are met and measured; 12-VERIFICATION is

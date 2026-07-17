@@ -60,13 +60,13 @@ EVL-02 was interrupted at 28/54 coach runs by "You've hit your org's monthly spe
 Code review found CR-01 (BLOCKER): layersInResponse sub-phrase-matched the functional leaf "Factory Function" inside the Fowler name "Replace Constructor with Factory Function", which could falsely credit the functional layer. It was one-directional, gated by the candidate-set check, and flipped no verdict (re-grading all 54 runs after the fix produced byte-identical gradings). Name-matching is also substring/negation-blind and presence-not-primacy.
 
 **Context:** For future robustness against cleverly-worded wrong answers, layer checks must enforce the "NOT <other layer>" exclusion the rubric advertises. CR-01 is now fixed (longest-match resolution + a resolve-identity selfcheck assertion).
-**Source:** 11-REVIEW.md (CR-01), grade-run.mjs fix commit 46921aa
+**Source:** 11-REVIEW.md (CR-01), grade-run.mjs fix commit 2f734f6
 
 ### Extract verbatim judge strings from the grader, do not transcribe them
 merge-judge --merge rejects a verdict whose text does not byte-match the grader's judge_required string. The scenario args were built by grading a dummy input per eval-id and reading judge_required from the emitted grading.preliminary.json, guaranteeing the merge never rejects on a text mismatch.
 
 **Context:** Also caught the inverse class of bug in WR-01, where a hand-typed canary drifted from the eval-set positive it stood for; the fix derives the canary from the eval set itself.
-**Source:** 11-03 execution, 11-REVIEW.md (WR-01), run-recall-chunks.mjs fix commit bdac462
+**Source:** 11-03 execution, 11-REVIEW.md (WR-01), run-recall-chunks.mjs fix commit 22dc88e
 
 ---
 
@@ -98,4 +98,4 @@ The exact positive query ("what does Extract Function do") that failed 0/3 in th
 CR-01 was a genuine grader correctness bug (a false-pass path) yet re-grading all 54 runs with the fixed grader produced byte-identical gradings and the same aggregate.
 
 **Impact:** The bug was latent -- no coach response in this run ever hit the sub-phrase-match case -- so the reported EVL-02 numbers were unaffected, but the latent false-pass path is now closed for future/adversarial answers.
-**Source:** 11-REVIEW.md, re-grade after fix commit 46921aa
+**Source:** 11-REVIEW.md, re-grade after fix commit 2f734f6

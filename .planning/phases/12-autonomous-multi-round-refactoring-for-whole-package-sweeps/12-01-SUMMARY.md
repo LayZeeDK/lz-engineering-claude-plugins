@@ -76,9 +76,9 @@ completed: 2026-07-11
 
 Per the plan's D-16 design, Tasks 1-2 built the instruments and Task 3 committed them together as one dedicated pre-edit commit:
 
-1. **Task 1: 3 sweep positives + 3 dual-written sweep negatives** - built in `ba2af4e`
-2. **Task 2: one multi-round sweep-command scenario per e2e suite (nx + kata)** - built in `ba2af4e`
-3. **Task 3: commit the 12-01 instruments as their own pre-SKILL.md commit** - `ba2af4e` (test)
+1. **Task 1: 3 sweep positives + 3 dual-written sweep negatives** - built in `beed2a1`
+2. **Task 2: one multi-round sweep-command scenario per e2e suite (nx + kata)** - built in `beed2a1`
+3. **Task 3: commit the 12-01 instruments as their own pre-SKILL.md commit** - `beed2a1` (test)
 
 ## Files Created/Modified
 
@@ -131,7 +131,7 @@ None - no external service configuration required. (The metered eval RUN and the
 ## Self-Check: PASSED
 
 - All 8 instrument files FOUND on disk.
-- Commit `ba2af4e` FOUND in git log.
+- Commit `beed2a1` FOUND in git log.
 - SKILL.md UNTOUCHED (D-16 pre-edit baseline confirmed).
 
 ---

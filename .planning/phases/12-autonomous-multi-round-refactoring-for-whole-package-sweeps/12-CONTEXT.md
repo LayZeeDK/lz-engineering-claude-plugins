@@ -35,7 +35,7 @@ Gilded Rose TypeScript kata AND nrwl/nx `@nx/eslint-plugin`.
 
 **Builds ON, does not re-litigate, the committed quick-task work.** The 2026-07-10/11
 trigger-opt quick task already closed the SINGLE-TARGET versions of both gaps, committed live
-in `SKILL.md` (241c1fb): single-target coach auto-trigger 1/18 -> 18/18 (specificity held
+in `SKILL.md` (8acd2b8): single-target coach auto-trigger 1/18 -> 18/18 (specificity held
 100%), and the QUESTION->advise / COMMAND->drive bifurcation (single-apply command drives
 6/6). Phase 12 is the SWEEP + MULTI-ROUND delta on top of that.
 
@@ -49,7 +49,7 @@ in `SKILL.md` (241c1fb): single-target coach auto-trigger 1/18 -> 18/18 (specifi
 ## Implementation Decisions
 
 ### Scope and framing
-- **D-01:** Phase 12 builds ON the committed quick-task changes (241c1fb: intent-based pushy
+- **D-01:** Phase 12 builds ON the committed quick-task changes (8acd2b8: intent-based pushy
   `description` + question->advise / command->drive bifurcation) and does NOT re-open them.
   Per the adversarial panel, SPLIT the two gaps and treat them differently: Gap 1 (trigger on
   sweep prompts) is a `description` + eval-set change; Gap 2 (stop-and-ask) is a NARROW behavior
@@ -267,7 +267,7 @@ in `SKILL.md` (241c1fb): single-target coach auto-trigger 1/18 -> 18/18 (specifi
 ## Existing Code Insights
 
 ### Reusable Assets
-- The committed `SKILL.md` (241c1fb) already carries the intent-based pushy `description` and
+- The committed `SKILL.md` (8acd2b8) already carries the intent-based pushy `description` and
   the QUESTION->advise / COMMAND->drive paragraph -- Phase 12 EXTENDS these (one description
   broadening + one sweep-drive sentence-cluster), it does not rewrite them.
 - The native trigger-eval harness + both e2e suites already exist and are proven -- NO new

@@ -228,7 +228,7 @@ Not a rename phase, but it DOES mutate borrowed-repo git state and generate untr
 
 ### Pitfall 1: nx p8 with_skill already exists -- do not blindly "re-run both arms from scratch"
 **What goes wrong:** D-02/REQ-2 say no sweep diffs exist for either arm; a literal reading re-runs p8 `with_skill` (3 metered runs, ~40 min) that already exist committed on disk.
-**Why it happens:** The SPEC/CONTEXT/ROADMAP "verified 2026-07-15" note missed the p8 `with_skill` re-run done during quick-260714-vmy (commit `cfcbfa5`, "p8 3/3 on HEAD"), which persisted + committed k=3 diffs dated 2026-07-14 23:xx.
+**Why it happens:** The SPEC/CONTEXT/ROADMAP "verified 2026-07-15" note missed the p8 `with_skill` re-run done during quick-260714-vmy (commit `4ef2dc6`, "p8 3/3 on HEAD"), which persisted + committed k=3 diffs dated 2026-07-14 23:xx.
 **How to avoid:** Treat the true missing set as p8 `no_skill` (3) + gr4 both arms (6) = 9 runs. Surface the reuse-vs-re-run choice at the D-09 gate (OQ-1). kata gr4 IS genuinely absent for both arms -- re-run both there.
 **Warning signs:** `results/apply/with_skill/p8/run-{1,2,3}/diff.patch` present and `git ls-files` shows them tracked (confirmed).
 
@@ -369,7 +369,7 @@ Verdict: <empirical finding -- parity, or delta with magnitude + direction; NOT 
 
 | Old belief (SPEC/CONTEXT/ROADMAP) | Disk reality 2026-07-15 | Impact |
 |-----------------------------------|-------------------------|--------|
-| "no sweep applied diffs persisted for EITHER arm" | nx `p8` `with_skill` k=3 persisted + committed, fresh 2026-07-14 (commit `cfcbfa5`); kata `gr4` genuinely absent | True missing set = 9 runs (p8 no_skill 3 + gr4 both 6), not 12. See OQ-1. |
+| "no sweep applied diffs persisted for EITHER arm" | nx `p8` `with_skill` k=3 persisted + committed, fresh 2026-07-14 (commit `4ef2dc6`); kata `gr4` genuinely absent | True missing set = 9 runs (p8 no_skill 3 + gr4 both 6), not 12. See OQ-1. |
 | (implicit) behavior gate = tests green | nx has 15 pre-existing failures; kata has no recorded snapshot | Behavior oracle must be differential (nx) / pristine-seeded `--ci` (kata). |
 | (implicit) sweep correctness lives in targets.json | no `pkgsweep`/`projsweep` entry | Grade sweep name/layer against constituent per-target judgments. |
 

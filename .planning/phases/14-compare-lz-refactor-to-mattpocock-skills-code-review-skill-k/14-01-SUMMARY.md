@@ -45,10 +45,10 @@ Extended the recommend harness `run-e2e.mjs` in place with a `code_review` compe
 
 ## What Was Built
 
-**Task 1 -- D-07 token/cost/tool meta (`run-e2e.mjs`, commit d64226c)**
+**Task 1 -- D-07 token/cost/tool meta (`run-e2e.mjs`, commit b02a71e)**
 `extractResult()` now reads `usage` (input/output/cache tokens), `total_cost_usd`, `modelUsage`, and `num_turns` from the stream-json `result` event, and builds a `tool_use`-by-name histogram from the block loop it already walks. It returns 8 new fields; `runOne`'s `meta` object writes them alongside every pre-existing field. Tokens are read from the CLI's own reported usage -- never recomputed from transcript text (RESEARCH "Don't Hand-Roll"). `total_cost_usd`/`model_usage` are the headline cross-arm cost (they roll up sub-agents); `input/output_tokens` are main-context-only.
 
-**Task 2 -- code_review arm + `--synthetic-base` (`run-e2e.mjs`, commit 6ea94e7)**
+**Task 2 -- code_review arm + `--synthetic-base` (`run-e2e.mjs`, commit 47ad17e)**
 - Module consts `MATTPOCOCK_DIR` (os.homedir()-derived, `MATTPOCOCK_DIR` env override) + `CODE_REVIEW_COMMAND`.
 - `parseArgs`: `code_review` added to the `--arm` allowlist (NOT to `both`/`all`); new `--synthetic-base` flag; `code_review` without `--synthetic-base` throws.
 - `composePrompt`: `code_review` branch returns `/mattpocock-skills:code-review <root_sha>` with no preamble/body (`root_sha` threaded via `promptEntry`, set during setup).
@@ -56,7 +56,7 @@ Extended the recommend harness `run-e2e.mjs` in place with a `code_review` compe
 - `buildSyntheticBase()`: from the suite `applyBase` (origin/23.0.x / main), builds `empty-root ROOT -> commit-tree TIP` adding only the target blob (via a throwaway `GIT_INDEX_FILE`), branches `review-<target>`, and `worktree add`s it; kata's `TypeScript/` prefix is resolved from the git root and the arm cwd is `<worktree>/TypeScript`. Finally-style teardown (`worktree remove --force` + `prune` + `branch -D`). Dry-run builds only the loose ROOT (no branch/worktree) so the borrowed repo stays clean.
 - `main()`: a `--synthetic-base` run branch builds the worktree per target, runs the selected arms x runs in it, and tears down in a `finally`. A module-main guard + `export { extractResult, buildSyntheticBase, git, MATTPOCOCK_DIR, CODE_REVIEW_COMMAND }` let the self-check import internals without running the CLI. `--dry-run` also emits a machine-parseable `argv:` line.
 
-**Task 3 -- offline Wave-0 self-check (`selfcheck-code-review.mjs`, commit b427840)**
+**Task 3 -- offline Wave-0 self-check (`selfcheck-code-review.mjs`, commit 629c25c)**
 Fail-closed, ASCII-only, no framework. Three cruxes, zero spend:
 1. Composition -- spawns `--dry-run --arm code_review --synthetic-base --prompt p1`, asserts the `-p` value is `/mattpocock-skills:code-review <40-hex>`, `--plugin-dir` is the mattpocock cache, and Bash is NOT blocked; asserts `--arm invoke_skill` still blocks Bash and uses `plugins/lz-tdd`.
 2. Synthetic branch -- builds+tears down for BOTH nx (`T1`) and kata (`G1`, `main`): three-dot `git diff ROOT...TIP --stat` non-empty, `git ls-tree -r --name-only TIP` equals exactly the ROOT-relative target path, kata `armCwd == <worktree>/TypeScript` (Pitfall 4), then teardown leaves `git status --porcelain` empty with no `review-*` branch/worktree.
@@ -87,6 +87,6 @@ None. `model_usage`/`tool_calls` default to `{}` only when a transcript carries 
 
 - FOUND: `.claude/skills/lz-refactor-workspace/e2e-nx/run-e2e.mjs`
 - FOUND: `.claude/skills/lz-refactor-workspace/e2e-nx/selfcheck-code-review.mjs`
-- FOUND commit d64226c (feat 14-01: D-07 meta capture)
-- FOUND commit 6ea94e7 (feat 14-01: code_review arm + --synthetic-base)
-- FOUND commit b427840 (test 14-01: offline Wave-0 self-check)
+- FOUND commit b02a71e (feat 14-01: D-07 meta capture)
+- FOUND commit 47ad17e (feat 14-01: code_review arm + --synthetic-base)
+- FOUND commit 629c25c (test 14-01: offline Wave-0 self-check)

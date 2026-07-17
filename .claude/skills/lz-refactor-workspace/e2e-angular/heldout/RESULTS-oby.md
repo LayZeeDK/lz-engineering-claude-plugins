@@ -18,8 +18,8 @@ Min et al.). Same held-out target and grading criterion as lq9, so it isolates e
   a Set (Pair 5), and oneOf/anyOf loops of the form `options = new Set([...options, ...types])` -- Pair 4's
   before-code verbatim.
 - **Arm:** `invoke_skill` (forced `/lz-tdd:lz-refactor`), apply/drive mode, COMMAND-framed prompt.
-- **Conditions:** EDITED (working-tree leaf with the 5 pairs = HEAD/ad56c21) vs PREEDIT (leaf reverted to
-  d8e848e = 1 pair). `--plugin-dir` reads the working tree, so toggling the one file isolates the effect.
+- **Conditions:** EDITED (working-tree leaf with the 5 pairs = HEAD/3138bbe) vs PREEDIT (leaf reverted to
+  e6d94f3 = 1 pair). `--plugin-dir` reads the working tree, so toggling the one file isolates the effect.
   Same suite/prompt/model (claude-opus-4-8 @ high) for both.
 - **k=3 per condition = 6 apply runs, all exit 0.**
 
@@ -51,7 +51,7 @@ blind LLM judges -- the signal was unanimous, so an LLM panel would be over-inve
 
 ## Decision
 
-The examples SHIP on teaching merit regardless (commit ad56c21) -- that decision was pre-set and is
+The examples SHIP on teaching merit regardless (commit 3138bbe) -- that decision was pre-set and is
 independent of this eval. The eval confirms the recognition lever is CLOSED: **stop editing skill content
 to chase accumulation-loop recognition.** The output-warrant axis is now null across a FIFTH independent
 probe (L1 net-cost + reference-lookup + Phase-13 applied-output + lq9 held-out instruction + this held-out
@@ -59,7 +59,7 @@ examples edit).
 
 ## Reproduce
 
-`bash scratchpad/run-oby-heldout.sh` -- toggles the leaf between HEAD (5 pairs) and d8e848e (1 pair),
+`bash scratchpad/run-oby-heldout.sh` -- toggles the leaf between HEAD (5 pairs) and e6d94f3 (1 pair),
 runs `run-e2e.mjs --suite <heldout> --mode apply --arm invoke_skill --cwd <angular-cli> --runs 3` per
 condition. angular-cli restored pristine (22.0.x @ 5584a589a); throwaway branch deleted. Raw diffs under
 `results-oby-edited/` and `results-oby-preedit/`.

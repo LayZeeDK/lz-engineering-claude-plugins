@@ -47,7 +47,7 @@ This is a NON-BLOCKING validation phase. Plans 11-01/02/03 built the eval rig + 
 
 ### SC3 Detail -- Non-blocking, bounded tuning
 
-- `git log -- plugins/lz-tdd/skills/lz-refactor` shows the most recent commit (`00258e3`) is older than every phase-11 commit (`f82358e`..`1a121da`). No write-back into plugins/ occurred.
+- `git log -- plugins/lz-tdd/skills/lz-refactor` shows the most recent commit (`00258e3`) is older than every phase-11 commit (`f82358e`..`8c0c105`). No write-back into plugins/ occurred.
 - EVAL-RESULTS.md "D-08 tuning: NOT applied" corroborated -- both soft bars are met, so zero tuning is the correct disciplined outcome (matches Phase-5 precedent).
 - All phase-11 commits live under `.claude/skills/lz-refactor-workspace/` and `.planning/`; earlier phases untouched.
 

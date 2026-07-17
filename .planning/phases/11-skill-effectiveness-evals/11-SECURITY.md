@@ -56,7 +56,7 @@ Verified mitigations present:
      SUMMARY files state nothing was run and EVAL-RESULTS.md numbers stayed blank
      (D-10 halt honored).
    - Approval is recorded at commit `9d56b1b` (2026-07-10 02:55, "D-10 approved
-     for autonomous run"); the run results were committed later at `1a121da`
+     for autonomous run"); the run results were committed later at `8c0c105`
      (2026-07-10 08:28, "record EVL-01 + EVL-02 skill-effectiveness eval
      results"). The order proves the run followed the gate.
 4. Probe injection surface is closed.

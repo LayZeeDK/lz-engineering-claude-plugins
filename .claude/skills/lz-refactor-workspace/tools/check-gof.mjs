@@ -252,7 +252,9 @@ for (const name of NAMES) {
     missing.push("## Consequences");
   }
 
-  if (!/^##\s+Example\b/m.test(leaf.text)) {
+  // Exact heading (not `\b`) so the presence check agrees with the sectionBody match below (WR-02):
+  // a decorated `## Example (...)` must not pass presence while sectionBody fails to find it.
+  if (!/^##\s+Example\s*$/m.test(leaf.text)) {
     missing.push("## Example");
   }
 

@@ -54,7 +54,7 @@ mandatory.
 Placeholder only. The full numbered RED procedure -- classify against the lz-tpp / lz-refactor
 seams -> detect the house testing idiom -> pick the next test -> route the testing stance ->
 structure the test -> assert observable behavior -> confirm it fails for the right reason -> hand
-off to lz-tpp -- is authored in Phase 18 (SEAM-01, LAW-01/02, RTR-02/03). Do not infer it from
+off to lz-tpp -- is authored in Phase 18 (SEAM-01, LAW-01/02, RTR-02). Do not infer it from
 this scaffold.
 
 ## Reference material

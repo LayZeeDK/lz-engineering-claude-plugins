@@ -97,9 +97,16 @@ validation deps live only in a dev-only eval workspace.
   5. Every TypeScript sample in these references is tsc --strict clean and contains no verbatim book prose (oracle-reviewer + no-verbatim scan pass).
 
 **Plans**: 3 plans
+**Wave 1**
 
 - [ ] 16-01-PLAN.md -- Instrument-first lz-red-workspace (repointed tsc extractor + check-red-references RED baseline + hygiene extension) with the package-legitimacy checkpoint
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 16-02-PLAN.md -- Fill the SEL / STR / NAME slices own-words with tsc-strict Vitest examples (oracle-reviewer-gated owned surfaces + no-verbatim scan)
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 16-03-PLAN.md -- Finalize gate: full battery GREEN + skill-reviewer PASS + claude plugin validate . exit 0
 
 ### Phase 17: Assertion Design, Stance Router & TS/Vitest Mechanics

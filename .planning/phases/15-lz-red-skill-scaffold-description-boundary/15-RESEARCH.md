@@ -282,17 +282,17 @@ Full distribution hygiene (`validate --strict`, plugin-validator + skill-reviewe
 
 **Note:** the description char-count correction (1245 vs 774) is [VERIFIED: measured], NOT assumed -- the planner should treat 1245 as ground truth for the current shipped sibling.
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Committed structural checker vs inline assertions for Wave 0**
    - What we know: a validate gate is mandatory (D-11 discretion note); the eval harness is Phase 20.
    - What's unclear: whether the planner wants a re-runnable `.mjs` checker or inline plan-step assertions.
-   - Recommendation: inline assertions (the lazy, correct choice for a scaffold). Reserve a committed checker for the Phase 20 workspace.
+   - RESOLVED: inline assertions (the lazy, correct choice for a scaffold). Reserve a committed checker for the Phase 20 workspace. Adopted by 15-01-PLAN.md (inline `claude plugin validate .` / `test -f` / `git grep -F` / `wc -l` in the `<verification>` steps; no committed checker).
 
 2. **Placeholder coach section wording**
    - What we know: it is a labeled placeholder naming Phase 18 + req IDs (D-04).
    - What's unclear: exact blockquote text (executor discretion).
-   - Recommendation: use the section-6 template above; keep it to 2-4 lines so it does not read as real content.
+   - RESOLVED: use the section-6 template above; keep it to 2-4 lines so it does not read as real content. Adopted by 15-01-PLAN.md Task 3 (labeled Phase-18 coach placeholder).
 
 ## Sources
 

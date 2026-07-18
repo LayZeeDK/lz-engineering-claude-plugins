@@ -108,39 +108,39 @@ Which phases cover which requirements. Populated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| SKL-01 | TBD | Pending |
-| SKL-02 | TBD | Pending |
-| SKL-03 | TBD | Pending |
-| SEL-01 | TBD | Pending |
-| SEL-02 | TBD | Pending |
-| STR-01 | TBD | Pending |
-| STR-02 | TBD | Pending |
-| ASRT-01 | TBD | Pending |
-| ASRT-02 | TBD | Pending |
-| ASRT-03 | TBD | Pending |
-| NAME-01 | TBD | Pending |
-| LAW-01 | TBD | Pending |
-| LAW-02 | TBD | Pending |
-| RTR-01 | TBD | Pending |
-| RTR-02 | TBD | Pending |
-| RTR-03 | TBD | Pending |
-| VIT-01 | TBD | Pending |
-| VIT-02 | TBD | Pending |
-| SEAM-01 | TBD | Pending |
-| SEAM-02 | TBD | Pending |
-| ANTI-01 | TBD | Pending |
-| ANTI-02 | TBD | Pending |
-| DST-01 | TBD | Pending |
-| DST-02 | TBD | Pending |
-| DST-03 | TBD | Pending |
-| EVL-01 | TBD | Pending |
-| EVL-02 | TBD | Pending |
+| SKL-01 | Phase 15 | Pending |
+| SKL-02 | Phase 15 | Pending |
+| SKL-03 | Phase 15 | Pending |
+| SEL-01 | Phase 16 | Pending |
+| SEL-02 | Phase 16 | Pending |
+| STR-01 | Phase 16 | Pending |
+| STR-02 | Phase 16 | Pending |
+| ASRT-01 | Phase 17 | Pending |
+| ASRT-02 | Phase 17 | Pending |
+| ASRT-03 | Phase 17 | Pending |
+| NAME-01 | Phase 16 | Pending |
+| LAW-01 | Phase 18 | Pending |
+| LAW-02 | Phase 18 | Pending |
+| RTR-01 | Phase 17 | Pending |
+| RTR-02 | Phase 18 | Pending |
+| RTR-03 | Phase 17 | Pending |
+| VIT-01 | Phase 17 | Pending |
+| VIT-02 | Phase 17 | Pending |
+| SEAM-01 | Phase 18 | Pending |
+| SEAM-02 | Phase 18 | Pending |
+| ANTI-01 | Phase 17 | Pending |
+| ANTI-02 | Phase 17 | Pending |
+| DST-01 | Phase 19 | Pending |
+| DST-02 | Phase 19 | Pending |
+| DST-03 | Phase 19 | Pending |
+| EVL-01 | Phase 20 | Pending |
+| EVL-02 | Phase 20 | Pending |
 
 **Coverage:**
 - lz-tdd@0.0.3 requirements: 27 total
-- Mapped to phases: 0 (roadmap pending)
-- Unmapped: 27 (roadmap pending)
+- Mapped to phases: 27
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-07-18*
-*Last updated: 2026-07-18 after initial definition*
+*Last updated: 2026-07-18 after roadmap creation (all 27 requirements mapped to Phases 15-20)*

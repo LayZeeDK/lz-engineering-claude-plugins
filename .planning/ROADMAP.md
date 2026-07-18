@@ -175,7 +175,7 @@ validation deps live only in a dev-only eval workspace.
 | 12. Autonomous multi-round refactoring for whole-package sweeps | lz-tdd@0.0.2 | 3/3 | Complete | 2026-07-14 |
 | 13. lz-refactor vs base Opus eval: book authenticity & correctness | lz-tdd@0.0.2 | 5/5 | Complete | 2026-07-15 |
 | 14. Compare lz-refactor to mattpocock-skills code-review skill | lz-tdd@0.0.2 | 5/5 | Complete | 2026-07-15 |
-| 15. lz-red Skill Scaffold & Description Boundary | lz-tdd@0.0.3 | 1/1 | Complete   | 2026-07-18 |
+| 15. lz-red Skill Scaffold & Description Boundary | lz-tdd@0.0.3 | 1/1 | Complete    | 2026-07-18 |
 | 16. Source Distillation & Core RED References | lz-tdd@0.0.3 | 0/TBD | Not started | - |
 | 17. Assertion Design, Stance Router & TS/Vitest Mechanics | lz-tdd@0.0.3 | 0/TBD | Not started | - |
 | 18. Coach Procedure & lz-tpp Seam Wiring | lz-tdd@0.0.3 | 0/TBD | Not started | - |

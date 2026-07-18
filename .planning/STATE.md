@@ -3,17 +3,18 @@ gsd_state_version: 1.0
 milestone: lz-tdd@0.0.3
 milestone_name: lz-red Skill
 current_phase: 15
-status: planning
+current_phase_name: lz-red-skill-scaffold-description-boundary
+status: verifying
 stopped_at: Phase 15 context gathered
-last_updated: "2026-07-18T00:36:40.615Z"
-last_activity: 2026-07-17
-last_activity_desc: Milestone lz-tdd@0.0.3 started
+last_updated: "2026-07-18T01:42:57.333Z"
+last_activity: 2026-07-18
+last_activity_desc: Phase 15 execution started
 progress:
   total_phases: 6
-  completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
-  percent: 0
+  completed_phases: 1
+  total_plans: 1
+  completed_plans: 1
+  percent: 17
 ---
 
 # Project State
@@ -23,15 +24,15 @@ progress:
 See: .planning/PROJECT.md (updated 2026-07-18 -- started milestone lz-tdd@0.0.3)
 
 **Core value:** `lz-tpp` helps Claude choose the next code transformation by TPP priority during red-green-refactor TDD, and explains the premise on demand. lz-tdd@0.0.2 added `lz-refactor` (refactor step); lz-tdd@0.0.3 adds `lz-red` (red step) to complete the loop.
-**Current focus:** lz-tdd@0.0.3 (`lz-red` skill, RED phase) -- roadmap complete (6 phases, 15-20); ready to plan Phase 15
+**Current focus:** Phase 15 — lz-red-skill-scaffold-description-boundary
 **Milestone:** lz-tdd@0.0.3 (lz-red Skill, RED phase) -- planning (started 2026-07-18)
 
 ## Current Position
 
-Phase: 15 (not started)
-Plan: —
-Status: Roadmap complete (6 phases, 15-20); ready to plan Phase 15
-Last activity: 2026-07-17 — Milestone lz-tdd@0.0.3 started
+Phase: 15 (lz-red-skill-scaffold-description-boundary) — EXECUTING
+Plan: 1 of 1
+Status: Phase complete — ready for verification
+Last activity: 2026-07-18 — Phase 15 execution started
 
 ## Performance Metrics
 
@@ -74,6 +75,7 @@ Last activity: 2026-07-17 — Milestone lz-tdd@0.0.3 started
 | Phase 11 P02 | ~8min | 2 tasks | 2 files |
 | Phase 11 P03 | ~15min | 2 tasks tasks | 1 file files |
 | Phase 12 P01 | 20min | 3 tasks | 8 files |
+| Phase 15 P01 | 8min | 3 tasks | 11 files |
 
 ## Accumulated Context
 
@@ -120,6 +122,9 @@ Recent decisions affecting current work:
 - [Phase 14]: Phase 14 (14-01, Wave 0): extended run-e2e.mjs IN PLACE (D-06 "add the arm, do not rewrite") with (a) a `code_review` competitor arm -- its OWN tool profile (allow Bash + the Agent spawn tool, block Edit/Write/MultiEdit/NotebookEdit; the Bash asymmetry vs the lz-refactor arms is the D-04 tool-usage FINDING, not equalized) + `--plugin-dir` at the mattpocock 1.2.0 cache (os.homedir()-derived, MATTPOCOCK_DIR override), composing `/mattpocock-skills:code-review <ROOT_SHA>`; NOT in the both/all fan-outs; requires `--synthetic-base`. (b) `buildSyntheticBase` (D-02): empty-root ROOT -> target-only-tree TIP throwaway `review-<target>` branch built from applyBase (origin/23.0.x / main, NOT HEAD -- Pitfall 3), scoped to exactly the target path (Pitfall 2), kata `TypeScript/` root-relative prefix + armCwd = <worktree>/TypeScript (Pitfall 4), finally-style worktree/branch teardown (Pitfall 6); dry-run builds only the loose ROOT (repo stays clean). (c) D-07 token/cost/tool meta from the stream-json result event (usage/total_cost_usd/modelUsage/num_turns + tool_use-by-name histogram), added to meta.json keeping every existing field. New selfcheck-code-review.mjs gates all three cruxes offline zero-spend (composition; synthetic build/teardown+scope for BOTH nx T1 + kata G1; transcript parse) -- exits 0, borrowed repos left pristine. Module-main guard + exports so the selfcheck can import buildSyntheticBase/extractResult/git. No metered run (D-12 gate lives in 14-04). Commits b02a71e, 47ad17e, 629c25c.
 - [Phase 14]: Phase 14 (14-02): authored the three report-framed cr-* lz-refactor queries (D-08) -- one framing sentence each ("Review `<path>`. The tests are green. Surface the code smells you see and the named refactorings you would recommend for each. Do not edit anything."), byte-identical across all 3 targets except the path, read-only, naming no expected smell/refactoring/pattern (non-leading). Point at the EXACT single files code_review reviews as whole-file diffs: nx T1 `enforce-module-boundaries.ts` (cr-emb), nx T3/T4 `runtime-lint-utils.ts` (cr-rlu, both smells graded), kata G1 `app/gilded-rose.ts` (cr-gr). Bodies stay framing-only; the invoke_skill arm prepends `/lz-tdd:lz-refactor` at composePrompt time. Wired matching `suite.json.prompts` entries in both suites. Task 2 subagent review: >= 2 reviewers, >= 1 unbiased from-scratch, BOTH PASS, ZERO leading-language / read-only defects -> NO prompt edits (mitigates T-14-06). Two non-blocking notes forwarded to 14-05: (1) code_review whole-file scope parity already guaranteed by D-02's synthetic whole-file-diff base (14-01); (2) 14-RESULTS.md should state both arms were asked for named fixes so vocabulary-breadth reads as the intended D-04 finding. No metered run (D-12 gate lives in 14-04). Commit c0cf03d.
 - [Phase 14]: Phase 14 (14-03): built the zero-spend mechanical grading scaffolding. tabulate-mechanical.mjs walks the two phase-14 recommend trees, reads each meta.json + sibling answer.md, and emits per (cell, arm): token/cost (total_cost_usd + per-model model_usage headline that rolls up sub-agents; input/output_tokens main-context-only), merged tool_calls histogram + spelling-agnostic sub-agent spawn count (name set {task,agent}, ~2 code_review / 0 lz-refactor), distinct-named-refactoring lift via the reused word-bounded nameRe over FOWLER+KERIEVSKY (longest-match shadow-suppressed), and Pass@k/Pass^k on lift>0 (comb/passAtK/passHatK). nameRe + name arrays copied verbatim from grade-run.mjs, stats copied verbatim from run-e2e.mjs (neither importable: grade-run runs main() on import, run-e2e does not export the stats). Consumes the EXACT D-07 fields 14-01's extractResult emits; fail-closed (exit 1) on a garbled/keyless meta. --selfcheck asserts token totals, opus model-row cost, spawn count 2, lift 2, Pass@k against fixtures/{meta.sample.json,answer.sample.md} and exits 0 (one of the two 14-04 D-12 zero-spend gates). summary.template.json fixes the 7 D-04 dimensions (lift/token_usage/tool_usage MECHANICAL; output_quality/book_authenticity/over_under_engineering/idiom_pattern GRADED) x 2 arms (lz-refactor=invoke_skill, code_review) rollup with null passk placeholders + the ~139-vs-12 vocab-breadth headline on idiom_pattern + the D-02 whole-file-diff and D-03 Spec-skip caveats; GRADED blocks fill in 14-05 (DST-04). mechanical.json is a 14-05 output, NOT committed here. No metered run. Commits 12222cd, 2da90bf.
+- [Phase 15]: Phase 15 (15-01): lz-red skill scaffold shipped -- dual-mode-by-omission SKILL.md router (name+description only) + 10 progressive-disclosure reference stubs + one testing-stance navigation subdir (index + 3 leaves); claude plugin validate . exit 0, no manifest edit (skills auto-discovered).
+- [Phase 15]: Phase 15: SKILL.md kept lean at 80 lines (near lz-tpp 81; coach procedure is a labeled Phase-18 placeholder, not padded); v1 three-way-guarded description shipped verbatim (folded 1091 chars, positive RED trigger first + reciprocal lz-tpp/lz-refactor exclusions in the tail); empirical trigger tuning deferred to Phase 20 (D-08).
+- [Phase 15]: Phase 15: scope fences held -- plugin.json stays 0.0.2 (D-09), marketplace.json + lz-tpp untouched, no eval workspace or .oracle content (D-03); the 10 reference stubs carry thin content contracts only (each with a Populated-in-Phase marker), filled in Phases 16-18.
 
 ### Pending Todos
 
@@ -164,7 +169,7 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-18T00:36:40.607Z
+Last session: 2026-07-18T01:40:29.165Z
 Stopped at: Phase 15 context gathered
 Superseded-2026-07-17: Resumed via HANDOFF.json -> completed the paused quick task 260716-oby (Loops/pipeline few-shot TS examples). Re-ran the mandatory review that died on the prior session limit: 2 subagents (1 unbiased, 1 primed) both PASS with 0 Critical/0 Important; applied reviewer B's cue-completeness fix; gates GREEN. Replaced the WIP pause commit with a clean docs() commit (3138bbe) -- SHIPPED on teaching merit. HANDOFF.json consumed + deleted. Ran the user-approved held-out recognition eval: **idiom_pattern 0/3=0/3, NULL lift, zero regression** (5th passive-content probe null). angular-cli restored pristine, throwaway branch deleted. 260716-oby RESOLVED. THEN, following a design discussion + web research, ran a user-approved forcing-function diagnostic (enum loop-audit directive in the prompt, k=5, same target): **idiom 0/3 control -> 5/5, all tsc --strict CLEAN + behavior-preserving + discriminating.** CORRECTION: the loop-to-pipeline miss is a DISCRETION/SALIENCE gap, NOT a judgment ceiling -- passive skill content (prose/cues/examples) is null, but an ACTIVE enumeration forcing-function flips it (prompt-level, n=1). Falsified the earlier "judgment ceiling, close it" call. See heldout-enum/RESULTS-enum.md. NEXT candidate (unrun): a SKILL-level forcing-function probe (embed a loop-audit step; test skill-alone reproduction + precision/overcorrection). Not a blocker to closing lz-tdd@0.0.2 on the current shipped skill. Inherited close still pending: /gsd-audit-milestone lz-tdd@0.0.2 then /gsd-complete-milestone lz-tdd@0.0.2 (+ user /reload-plugins to make 3138bbe live).
 Resume file: .planning/phases/15-lz-red-skill-scaffold-description-boundary/15-CONTEXT.md

@@ -9,9 +9,9 @@ Requirements for milestone lz-tdd@0.0.3. Each maps to a roadmap phase. Grounded 
 
 ### Skill scaffold and boundary (SKL)
 
-- [ ] **SKL-01**: `/lz-tdd:lz-red` is invocable; skill lives at `plugins/lz-tdd/skills/lz-red/SKILL.md` with dual-mode-by-omission frontmatter (name + description only; `name` equals the directory).
-- [ ] **SKL-02**: Lean `SKILL.md` router (< 500 lines; target near lz-tpp's size) using progressive disclosure -- heavy content in lazy-loaded `references/` (flat docs plus one `testing-stance/` subdir), mirroring lz-tpp / lz-refactor and the angular-developer skill.
-- [ ] **SKL-03**: The `lz-red` `description` auto-triggers on RED-phase intent (choose / write the next failing test) and carries reciprocal near-miss guards against lz-tpp (make the failing test pass) and lz-refactor (restructure working code), within the description char cap.
+- [x] **SKL-01**: `/lz-tdd:lz-red` is invocable; skill lives at `plugins/lz-tdd/skills/lz-red/SKILL.md` with dual-mode-by-omission frontmatter (name + description only; `name` equals the directory).
+- [x] **SKL-02**: Lean `SKILL.md` router (< 500 lines; target near lz-tpp's size) using progressive disclosure -- heavy content in lazy-loaded `references/` (flat docs plus one `testing-stance/` subdir), mirroring lz-tpp / lz-refactor and the angular-developer skill.
+- [x] **SKL-03**: The `lz-red` `description` auto-triggers on RED-phase intent (choose / write the next failing test) and carries reciprocal near-miss guards against lz-tpp (make the failing test pass) and lz-refactor (restructure working code), within the description char cap.
 
 ### Test selection and ordering (SEL)
 
@@ -108,9 +108,9 @@ Which phases cover which requirements. Populated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| SKL-01 | Phase 15 | Pending |
-| SKL-02 | Phase 15 | Pending |
-| SKL-03 | Phase 15 | Pending |
+| SKL-01 | Phase 15 | Complete |
+| SKL-02 | Phase 15 | Complete |
+| SKL-03 | Phase 15 | Complete |
 | SEL-01 | Phase 16 | Pending |
 | SEL-02 | Phase 16 | Pending |
 | STR-01 | Phase 16 | Pending |
@@ -137,6 +137,7 @@ Which phases cover which requirements. Populated during roadmap creation.
 | EVL-02 | Phase 20 | Pending |
 
 **Coverage:**
+
 - lz-tdd@0.0.3 requirements: 27 total
 - Mapped to phases: 27
 - Unmapped: 0

@@ -25,6 +25,12 @@ const REFERENCES = path.join(SKILL_DIR, "references");
 const TPP_SKILL_DIR = path.join(repoRoot, "plugins", "lz-tdd", "skills", "lz-tpp");
 const TPP_SKILL_MD = path.join(TPP_SKILL_DIR, "SKILL.md");
 const TPP_REFERENCES = path.join(TPP_SKILL_DIR, "references");
+// lz-red skill tree -- in scope for ALL THREE axes: ASCII + work-email (wideTargets) AND
+// no-verbatim (verbatimTargets). Unlike lz-tpp (cited FibTPP, no-verbatim-EXCLUDED by D-04),
+// lz-red is clean-room own-words (DST-04), so it DOES take the no-verbatim gate.
+const LZ_RED_SKILL_DIR = path.join(repoRoot, "plugins", "lz-tdd", "skills", "lz-red");
+const LZ_RED_SKILL_MD = path.join(LZ_RED_SKILL_DIR, "SKILL.md");
+const LZ_RED_REFERENCES = path.join(LZ_RED_SKILL_DIR, "references");
 // Repo-root shippable prose + both manifests -- the exact files this phase writes.
 const ROOT_README = path.join(repoRoot, "README.md");
 const ROOT_CHANGELOG = path.join(repoRoot, "CHANGELOG.md");
@@ -105,6 +111,12 @@ if (fs.existsSync(TPP_SKILL_MD)) {
 
 wideTargets.push(...walkMd(TPP_REFERENCES));
 
+if (fs.existsSync(LZ_RED_SKILL_MD)) {
+  wideTargets.push(LZ_RED_SKILL_MD);
+}
+
+wideTargets.push(...walkMd(LZ_RED_REFERENCES));
+
 for (const f of [ROOT_README, ROOT_CHANGELOG, LICENSE, PLUGIN_MANIFEST, MARKETPLACE_MANIFEST]) {
   if (fs.existsSync(f)) {
     wideTargets.push(f);
@@ -122,6 +134,14 @@ if (fs.existsSync(SKILL_MD)) {
 
 verbatimTargets.push(...walkMd(REFERENCES));
 
+// lz-red is clean-room own-words (DST-04), NOT cited-verbatim like lz-tpp -- so it DOES take
+// the no-verbatim gate. lz-tpp stays excluded (its transformations.md is cited FibTPP).
+if (fs.existsSync(LZ_RED_SKILL_MD)) {
+  verbatimTargets.push(LZ_RED_SKILL_MD);
+}
+
+verbatimTargets.push(...walkMd(LZ_RED_REFERENCES));
+
 for (const f of [ROOT_README, ROOT_CHANGELOG]) {
   if (fs.existsSync(f)) {
     verbatimTargets.push(f);
@@ -129,7 +149,7 @@ for (const f of [ROOT_README, ROOT_CHANGELOG]) {
 }
 
 console.log("Hygiene check (ASCII + work-email allowlist + no-verbatim heuristic)");
-console.log(`  scope: both skill trees + root README/CHANGELOG/LICENSE + both manifests`);
+console.log(`  scope: the skill trees + root README/CHANGELOG/LICENSE + both manifests`);
 console.log(`  files: ${wideTargets.length}`);
 console.log("");
 

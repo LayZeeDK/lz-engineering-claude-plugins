@@ -76,7 +76,8 @@ validation deps live only in a dev-only eval workspace.
   2. `SKILL.md` is a lean router (< 500 lines, near lz-tpp's size) using progressive disclosure -- reference stubs each carry a per-doc content contract; heavy content is deferred to lazy `references/` (flat docs plus one `testing-stance/` subdir).
   3. The `description` auto-triggers on "choose / write the next failing test" intent and carries reciprocal near-miss guards against lz-tpp (make the failing test pass) and lz-refactor (restructure working code), within the description char cap.
   4. `claude plugin validate .` exits 0.
-**Plans**: TBD
+**Plans**: 1 plan
+- [ ] 15-01-PLAN.md -- Scaffold lz-red: SKILL.md dual-mode router + v1 three-way-guarded description + 10 reference stubs (progressive disclosure)
 
 ### Phase 16: Source Distillation & Core RED References
 **Goal**: RED-phase source facts are distilled clean-room into own words, and the core test-shaping references (selection, structure, naming) are authored with tsc-strict-clean examples.
@@ -155,7 +156,7 @@ validation deps live only in a dev-only eval workspace.
 | 12. Autonomous multi-round refactoring for whole-package sweeps | lz-tdd@0.0.2 | 3/3 | Complete | 2026-07-14 |
 | 13. lz-refactor vs base Opus eval: book authenticity & correctness | lz-tdd@0.0.2 | 5/5 | Complete | 2026-07-15 |
 | 14. Compare lz-refactor to mattpocock-skills code-review skill | lz-tdd@0.0.2 | 5/5 | Complete | 2026-07-15 |
-| 15. lz-red Skill Scaffold & Description Boundary | lz-tdd@0.0.3 | 0/TBD | Not started | - |
+| 15. lz-red Skill Scaffold & Description Boundary | lz-tdd@0.0.3 | 0/1 | Not started | - |
 | 16. Source Distillation & Core RED References | lz-tdd@0.0.3 | 0/TBD | Not started | - |
 | 17. Assertion Design, Stance Router & TS/Vitest Mechanics | lz-tdd@0.0.3 | 0/TBD | Not started | - |
 | 18. Coach Procedure & lz-tpp Seam Wiring | lz-tdd@0.0.3 | 0/TBD | Not started | - |

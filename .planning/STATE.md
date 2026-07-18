@@ -5,8 +5,8 @@ milestone_name: lz-red Skill
 current_phase: 16
 current_phase_name: Source Distillation & Core RED References
 status: verifying
-stopped_at: Phase 15 context gathered
-last_updated: "2026-07-18T02:19:01.557Z"
+stopped_at: Phase 16 context gathered
+last_updated: "2026-07-18T22:21:17.486Z"
 last_activity: 2026-07-18
 progress:
   total_phases: 6
@@ -169,10 +169,10 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-18T01:40:29.165Z
-Stopped at: Phase 15 context gathered
+Last session: 2026-07-18T22:21:17.476Z
+Stopped at: Phase 16 context gathered
 Superseded-2026-07-17: Resumed via HANDOFF.json -> completed the paused quick task 260716-oby (Loops/pipeline few-shot TS examples). Re-ran the mandatory review that died on the prior session limit: 2 subagents (1 unbiased, 1 primed) both PASS with 0 Critical/0 Important; applied reviewer B's cue-completeness fix; gates GREEN. Replaced the WIP pause commit with a clean docs() commit (3138bbe) -- SHIPPED on teaching merit. HANDOFF.json consumed + deleted. Ran the user-approved held-out recognition eval: **idiom_pattern 0/3=0/3, NULL lift, zero regression** (5th passive-content probe null). angular-cli restored pristine, throwaway branch deleted. 260716-oby RESOLVED. THEN, following a design discussion + web research, ran a user-approved forcing-function diagnostic (enum loop-audit directive in the prompt, k=5, same target): **idiom 0/3 control -> 5/5, all tsc --strict CLEAN + behavior-preserving + discriminating.** CORRECTION: the loop-to-pipeline miss is a DISCRETION/SALIENCE gap, NOT a judgment ceiling -- passive skill content (prose/cues/examples) is null, but an ACTIVE enumeration forcing-function flips it (prompt-level, n=1). Falsified the earlier "judgment ceiling, close it" call. See heldout-enum/RESULTS-enum.md. NEXT candidate (unrun): a SKILL-level forcing-function probe (embed a loop-audit step; test skill-alone reproduction + precision/overcorrection). Not a blocker to closing lz-tdd@0.0.2 on the current shipped skill. Inherited close still pending: /gsd-audit-milestone lz-tdd@0.0.2 then /gsd-complete-milestone lz-tdd@0.0.2 (+ user /reload-plugins to make 3138bbe live).
-Resume file: .planning/phases/15-lz-red-skill-scaffold-description-boundary/15-CONTEXT.md
+Resume file: .planning/phases/16-source-distillation-core-red-references/16-CONTEXT.md
 Open next (DEFERRED per operator, not this session): /gsd-audit-milestone lz-tdd@0.0.2 then /gsd-complete-milestone lz-tdd@0.0.2. Pending human action: /reload-plugins to make 01208c8 live.
 Superseded Open next (2026-07-16): /gsd-audit-milestone lz-tdd@0.0.2 (user-scoped; not yet run), then /gsd-complete-milestone lz-tdd@0.0.2. All milestone phases (6-12) are complete + reconciled on disk; Phase 12's last loose end (nx sweep auto-trigger re-confirmation on HEAD) is now CLOSED (quick 260714-vmy: p8 3/3, no regression). Milestone-audit note carried from 12-VERIFICATION audit_notes: the gaps closed while base Opus 4.8@high is ALSO catalog-grade (null skill output-delta); the skill's robust value is auto-trigger (proven) + a narrow reference edge. CLEANUP: nx throwaway branch lz-refactor-e2e-smoke left with run-3 edits (pristine 23.0.x intact) -- operator restores per quick/260714-vmy SUMMARY.
 

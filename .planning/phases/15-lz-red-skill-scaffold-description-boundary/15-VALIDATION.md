@@ -1,10 +1,11 @@
 ---
 phase: 15
 slug: lz-red-skill-scaffold-description-boundary
-status: draft
-nyquist_compliant: false
-wave_0_complete: false
+status: complete
+nyquist_compliant: true
+wave_0_complete: true
 created: 2026-07-18
+audited: 2026-07-18
 ---
 
 # Phase 15 - Validation Strategy
@@ -46,24 +47,44 @@ contract each task's `<acceptance_criteria>` must satisfy; the planner binds tas
 
 | Requirement | Wave | Behavior | Test Type | Automated Command | File Exists | Status |
 |-------------|------|----------|-----------|-------------------|-------------|--------|
-| SKL-01 | 1 | Skill dir + `SKILL.md` exist; frontmatter has `name` (== `lz-red`) + `description`, and OMITS `version` / `disable-model-invocation` / `user-invocable` / `allowed-tools` | structural | `test -f plugins/lz-tdd/skills/lz-red/SKILL.md` + parse YAML head, assert keys | ❌ W0 | ⬜ pending |
-| SKL-01 | 1 | Skill validates / is registerable | validate | `claude plugin validate .` exits 0 | ❌ W0 | ⬜ pending |
-| SKL-02 | 1 | Router under cap; all 10 reference stubs exist; every stub linked from `SKILL.md`; each stub carries its content-contract markers | structural | `wc -l SKILL.md` (< 500); `test -f` each of 10 stubs; `git grep -F` each stub path in `SKILL.md`; `git grep -l "Populated in Phase"` across stubs | ❌ W0 | ⬜ pending |
-| SKL-03 | 1 | Description present, <= 1536 chars (folded); both exclusion clauses present (lz-tpp + lz-refactor); positive trigger precedes exclusions | structural | parse folded description; assert length <= 1536; `git grep -F "lz-tpp"` and `"lz-refactor"` in the description | ❌ W0 | ⬜ pending |
+| SKL-01 | 1 | Skill dir + `SKILL.md` exist; frontmatter has `name` (== `lz-red`) + `description`, and OMITS `version` / `disable-model-invocation` / `user-invocable` / `allowed-tools` | structural | `test -f plugins/lz-tdd/skills/lz-red/SKILL.md` + parse YAML head, assert keys | ✅ | ✅ green |
+| SKL-01 | 1 | Skill validates / is registerable | validate | `claude plugin validate .` exits 0 | ✅ | ✅ green |
+| SKL-02 | 1 | Router under cap; all 10 reference stubs exist; every stub linked from `SKILL.md`; each stub carries its content-contract markers | structural | `wc -l SKILL.md` (< 500); `test -f` each of 10 stubs; `git grep -F` each stub path in `SKILL.md`; `git grep -l "Populated in Phase"` across stubs | ✅ | ✅ green |
+| SKL-03 | 1 | Description present, <= 1536 chars (folded); both exclusion clauses present (lz-tpp + lz-refactor); positive trigger precedes exclusions | structural | parse folded description; assert length <= 1536; `git grep -F "lz-tpp"` and `"lz-refactor"` in the description | ✅ | ✅ green |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky · W0 = created at Wave 0*
+
+### Audit re-run (2026-07-18) -- structural gate re-verified green on disk
+
+Each check below was re-run independently against the committed on-disk state during this audit (not read from the SUMMARY):
+
+| # | Check | Result |
+|---|-------|--------|
+| 1 | `claude plugin validate .` | exit 0 (`Validation passed`) |
+| 2 | `wc -l < .../lz-red/SKILL.md` | 80 (< 500) |
+| 3 | `test -f` all 11 files (SKILL.md + 10 stubs) | 11/11 present |
+| 4 | `git grep -l "Populated in Phase"` over the stubs | 10/10 carry the marker |
+| 5 | each of the 10 stub paths linked in SKILL.md AND resolves on disk | 10/10 linked + 10/10 resolve (case-correct `testing-stance/README.md`) |
+| 6 | `git grep -F "use lz-tpp"` / `"use lz-refactor"` in SKILL.md | both hit (reciprocal exclusions present) |
+| 7 | folded `description` length | 1091 chars (<= 1536) |
+| 8 | frontmatter top-level keys | exactly `[name, description]`; `name: lz-red` == directory |
+| 9 | positive trigger precedes exclusions | positive at offset 0 < first "Do NOT use it" at offset 777 |
+| 10 | ASCII-only across the 11 files (`rg '[^\x00-\x7F]'`) | no matches (clean) |
+| 11 | email allowlist-inversion (email-shaped tokens in the 11 files) | none present (expected) |
+
+Verdict: SKL-01, SKL-02, SKL-03 are each **COVERED** by the structural gate. No runtime surface exists to unit-test (Markdown-only scaffold; no-new-deps scope fence forbids a test framework here). Full Nyquist coverage for this phase.
 
 ---
 
 ## Wave 0 Requirements
 
-- [ ] A mechanical structural check covering the four rows above. **Lazy path (recommended,
+- [x] A mechanical structural check covering the four rows above. **Lazy path (recommended,
   per RESEARCH.md):** inline `wc -l` / `test -f` / `git grep -F` assertions in the plan's
   verification steps -- no committed script. A scaffold does not need a re-runnable harness;
   the vendored eval harness is Phase 20. Add a dedicated `.mjs` checker only if the planner
-  explicitly wants it re-runnable.
-- [ ] `claude plugin validate .` availability confirmed (the `claude` CLI is the runtime we
-  are in -- present by definition).
+  explicitly wants it re-runnable. **Re-run green at audit (2026-07-18).**
+- [x] `claude plugin validate .` availability confirmed (the `claude` CLI is the runtime we
+  are in -- present by definition). **Re-run at audit: exit 0.**
 
 *Deferred to Phase 20 (EVL-01, NOT Wave 0): empirical trigger recall/specificity and the
 cross-skill (three-way boundary) trigger eval. The vendored skill-creator eval harness + eval
@@ -82,11 +103,11 @@ sets are Phase 20 (D-03/D-08). Do not build them here.*
 
 ## Validation Sign-Off
 
-- [ ] All tasks have `<acceptance_criteria>` mapped to a structural check or the validate gate
-- [ ] Sampling continuity: `claude plugin validate .` runs after each task commit
-- [ ] Wave 0 covers all four SKL-01/02/03 structural rows
-- [ ] No watch-mode flags
-- [ ] Feedback latency < 10s
-- [ ] `nyquist_compliant: true` set in frontmatter (by the planner / validate-phase once Wave 0 checks are bound)
+- [x] All tasks have `<acceptance_criteria>` mapped to a structural check or the validate gate
+- [x] Sampling continuity: `claude plugin validate .` runs after each task commit
+- [x] Wave 0 covers all four SKL-01/02/03 structural rows
+- [x] No watch-mode flags
+- [x] Feedback latency < 10s
+- [x] `nyquist_compliant: true` set in frontmatter (confirmed by validate-phase audit 2026-07-18; all Wave 0 structural checks re-run green)
 
-**Approval:** pending
+**Approval:** approved (audit 2026-07-18) -- SKL-01/02/03 COVERED by the structural gate; the empirical trigger eval (EVL-01) is deferred to Phase 20 by design and recorded as manual-only, not a Nyquist gap for Phase 15.

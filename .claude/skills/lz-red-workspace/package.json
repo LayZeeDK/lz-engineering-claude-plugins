@@ -1,0 +1,14 @@
+{
+  "name": "lz-red-workspace",
+  "private": true,
+  "type": "module",
+  "description": "NON-shipped compile + completeness gate for the lz-red RED references (SEL/STR/NAME). Not part of the shipped plugin; the shipped skill stays dependency-free Markdown.",
+  "scripts": {
+    "typecheck": "node extract-samples.mjs",
+    "check": "node tools/check-red-references.mjs"
+  },
+  "devDependencies": {
+    "typescript": "6.0.3",
+    "vitest": "4.1.10"
+  }
+}

@@ -1,10 +1,13 @@
 ---
 gsd_state_version: 1.0
 milestone: lz-tdd@0.0.3
-milestone_name: lz-red Skill (RED phase)
+milestone_name: lz-red Skill
+current_phase: 15
 status: planning
-last_updated: "2026-07-17T23:31:55.315Z"
+stopped_at: Phase 15 context gathered
+last_updated: "2026-07-18T00:36:40.615Z"
 last_activity: 2026-07-17
+last_activity_desc: Milestone lz-tdd@0.0.3 started
 progress:
   total_phases: 6
   completed_phases: 0
@@ -161,10 +164,10 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-17 (resumed via HANDOFF.json, ran the skill-level forcing-function probe, SHIPPED)
-Stopped at: SHIPPED the skill-level loop-audit forcing-function. Resumed the queued probe (HANDOFF.json): embedded an always-active AUDIT+DECIDE loop audit in SKILL.md step 5 (mandatory 2-subagent review, 1 unbiased, PASS). Held-out Option A (recall, getTypesOfSchema, natural prompt) + Option B (precision, stylesheet-updates.ts, 8 non-convertible loops), invoke_skill apply k=5 each on angular-cli. v1 audit: recall full 2/5, precision 0/5. User chose "tighten recall first" -> added a relocated-helper + sub-collection-union->flatMap clause (scalar-merge->spread/leave; 2-subagent re-review, 1 unbiased, closed a scalar-merge over-conversion hazard, PASS). v2: **recall full loop-to-pipeline 5/5 (union->flatMap 2/5->5/5), precision 0/5 over-conversions (decoy correctly left), all tsc --strict clean.** User chose "Ship it" -> committed 01208c8 (feat SKILL.md) + 663f3a1 (eval evidence, 64 files; outputs/ transcripts gitignored). HANDOFF.json deleted (consumed); .continue-here.md refreshed; angular-cli restored pristine (22.0.x @ 5584a589a, throwaway branch deleted). FIRST non-null + SAFE lever on the output-warrant axis after five nulls: an ACTIVE forcing-function step both reproduces skill-alone AND stays precise. Operator EXPLICITLY asked NOT to audit or complete the milestone this session.
+Last session: 2026-07-18T00:36:40.607Z
+Stopped at: Phase 15 context gathered
 Superseded-2026-07-17: Resumed via HANDOFF.json -> completed the paused quick task 260716-oby (Loops/pipeline few-shot TS examples). Re-ran the mandatory review that died on the prior session limit: 2 subagents (1 unbiased, 1 primed) both PASS with 0 Critical/0 Important; applied reviewer B's cue-completeness fix; gates GREEN. Replaced the WIP pause commit with a clean docs() commit (3138bbe) -- SHIPPED on teaching merit. HANDOFF.json consumed + deleted. Ran the user-approved held-out recognition eval: **idiom_pattern 0/3=0/3, NULL lift, zero regression** (5th passive-content probe null). angular-cli restored pristine, throwaway branch deleted. 260716-oby RESOLVED. THEN, following a design discussion + web research, ran a user-approved forcing-function diagnostic (enum loop-audit directive in the prompt, k=5, same target): **idiom 0/3 control -> 5/5, all tsc --strict CLEAN + behavior-preserving + discriminating.** CORRECTION: the loop-to-pipeline miss is a DISCRETION/SALIENCE gap, NOT a judgment ceiling -- passive skill content (prose/cues/examples) is null, but an ACTIVE enumeration forcing-function flips it (prompt-level, n=1). Falsified the earlier "judgment ceiling, close it" call. See heldout-enum/RESULTS-enum.md. NEXT candidate (unrun): a SKILL-level forcing-function probe (embed a loop-audit step; test skill-alone reproduction + precision/overcorrection). Not a blocker to closing lz-tdd@0.0.2 on the current shipped skill. Inherited close still pending: /gsd-audit-milestone lz-tdd@0.0.2 then /gsd-complete-milestone lz-tdd@0.0.2 (+ user /reload-plugins to make 3138bbe live).
-Resume file: .planning/.continue-here.md (probe shipped; milestone close pending + deferred)
+Resume file: .planning/phases/15-lz-red-skill-scaffold-description-boundary/15-CONTEXT.md
 Open next (DEFERRED per operator, not this session): /gsd-audit-milestone lz-tdd@0.0.2 then /gsd-complete-milestone lz-tdd@0.0.2. Pending human action: /reload-plugins to make 01208c8 live.
 Superseded Open next (2026-07-16): /gsd-audit-milestone lz-tdd@0.0.2 (user-scoped; not yet run), then /gsd-complete-milestone lz-tdd@0.0.2. All milestone phases (6-12) are complete + reconciled on disk; Phase 12's last loose end (nx sweep auto-trigger re-confirmation on HEAD) is now CLOSED (quick 260714-vmy: p8 3/3, no regression). Milestone-audit note carried from 12-VERIFICATION audit_notes: the gaps closed while base Opus 4.8@high is ALSO catalog-grade (null skill output-delta); the skill's robust value is auto-trigger (proven) + a narrow reference edge. CLEANUP: nx throwaway branch lz-refactor-e2e-smoke left with run-3 edits (pristine 23.0.x intact) -- operator restores per quick/260714-vmy SUMMARY.
 

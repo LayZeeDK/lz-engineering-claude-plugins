@@ -1,0 +1,38 @@
+{
+  "version": "1.0",
+  "timestamp": "2026-07-19T20:26:07.157Z",
+  "phase": "17",
+  "phase_name": "Assertion Design, Stance Router & TS/Vitest Mechanics (COMPLETE)",
+  "phase_dir": ".planning/phases/17-assertion-design-stance-router-ts-vitest-mechanics",
+  "plan": null,
+  "task": null,
+  "total_tasks": null,
+  "status": "paused",
+  "handoff_intent": "Phase 17 is fully closed. This handoff queues follow-up item #2 (Phase-16 Beck owned-source upgrades) for a NEW session to run via /gsd:quick --full --auto.",
+  "completed_tasks": [
+    {"id": 1, "name": "Phase 17 executed (6 plans, 3 waves): instrument + assertions + stance router + Vitest mechanics + anti-patterns", "status": "done"},
+    {"id": 2, "name": "Provenance fix: message matrix re-sourced 99 Bottles -> Metz 'The Magic Tricks of Testing' talk; re-gated PASS", "status": "done", "commit": "4eab7a9"},
+    {"id": 3, "name": "Owned-source upgrades: functional-core -> Bernhardt Boundaries; Test Desiderata -> Beck; anti-patterns listen-to-tests/keep-doubles-honest -> Metz Design of Tests; all oracle-reviewer PASS", "status": "done", "commit": "4eab7a9"},
+    {"id": 4, "name": "Docs reconciled + FUT-METZ-REFACTOR deferred milestone noted", "status": "done", "commit": "11a70b2"},
+    {"id": 5, "name": "Closeout: verify 14/14 PASS (c036d10), secure 0-open + validate nyquist-compliant (2298771), extract-learnings + 12 pooled (3f27321), STATE complete (fcedec3)", "status": "done"}
+  ],
+  "remaining_tasks": [
+    {"id": 1, "name": "Read .oracle/written-content/index.md (nav-only) and map each currently-no-oracle Beck surface to a FULL-TEXT essay", "status": "not_started"},
+    {"id": 2, "name": "Upgrade 'Running test list' + 'Take one small step' (three-laws-and-test-selection.md) no-oracle -> owned against Canon TDD (canon-tdd.md)", "status": "not_started"},
+    {"id": 3, "name": "Upgrade 'Triangulate to the next test' (three-laws-and-test-selection.md) no-oracle -> owned against First One, Then Many (tri-first-one-then-many.md)", "status": "not_started"},
+    {"id": 4, "name": "Assert-first + Evident test data (test-structure-and-assertions.md STR slice): ONLY upgrade if a full-text essay covers them; they live mainly in TDD-by-Example which is summary-only (not gateable) -> otherwise leave no-oracle and say so", "status": "not_started"},
+    {"id": 5, "name": "Flip the tier for each upgraded row in principle-backing.md + update its Sources paragraph (remove the 'pending follow-up' caveat for upgraded rows)", "status": "not_started"},
+    {"id": 6, "name": "Orchestrator drives oracle-reviewer gate on each upgraded surface against its Beck essay (converge-to-clean); keep the deterministic battery GREEN", "status": "not_started"},
+    {"id": 7, "name": "Add a Phase-16 provenance/upgrade note (this re-opens closed-phase content) + commit", "status": "not_started"}
+  ],
+  "blockers": [],
+  "async_jobs": [],
+  "human_actions_pending": [],
+  "decisions": [
+    {"decision": "Only upgrade surfaces that have a FULL-TEXT owned source in .oracle/written-content/ (Access: free). Book entries (Access: book) are 1-2 sentence summaries and are NOT oracle-gateable -- leave those surfaces no-oracle.", "rationale": "A tier upgrade to 'owned; oracle-verified' is only honest if the surface can actually be gated against real source text.", "phase": "16"},
+    {"decision": "Re-gate every upgraded surface via the orchestrator-run oracle-reviewer; the executor authors/adjusts BLIND (never reads .oracle/).", "rationale": "gsd-executor has no Agent/Task tool; clean-room DST-04.", "phase": "16"}
+  ],
+  "uncommitted_files": [],
+  "next_action": "In a NEW session: /gsd:quick --full --auto \"Follow-up #2: Phase-16 Beck owned-source upgrades -- upgrade the no-oracle Beck-backed selection/structure surfaces (test list, one-step, triangulation; assert-first + evident-data only if a full-text essay covers them) to owned + oracle-verified against the now-provisioned Beck essays in .oracle/written-content/ (Canon TDD, First One Then Many). Re-gate each via oracle-reviewer, keep the battery GREEN, update principle-backing tiers, add a Phase-16 upgrade note.\"",
+  "context_notes": "Phase 17 is done and committed (tree clean; only the ephemeral workflow._auto_chain_active flag was toggled and cleared). This follow-up RE-OPENS closed Phase-16 shipped content (three-laws-and-test-selection.md, test-structure-and-assertions.md STR slice) -- it is a legitimate owned-source upgrade enabled by the maintainer provisioning Beck's essays. The pattern to follow is exactly the Phase-17 clean-room re-gate loop: edit attribution/tier -> re-gate against the correct .oracle source -> converge-to-clean. principle-backing.md already carries a note that Beck's selection/structure rows 'remain no-oracle for now, pending a follow-up upgrade against his now-provisioned essays (Canon TDD, First One Then Many)'. Watch the instrument: check-red-references asserts content tokens (e.g. ADV-0) -- do not remove load-bearing tokens; run `node .claude/skills/lz-red-workspace/tools/check-red-references.mjs` + `npm --prefix .claude/skills/lz-red-workspace run typecheck` + `node .claude/skills/lz-refactor-workspace/tools/check-hygiene.mjs` after edits (all must stay exit 0). Use rg not grep; ASCII-only; commit identity = public gmail. Also-open follow-ups (NOT this task): #1 broader internal-ID/DST-04 3-skill polish; #3 FUT-METZ-REFACTOR lz-refactor Metz layer; and Phase 18 (coach procedure + lz-tpp seam)."
+}

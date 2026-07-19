@@ -5,16 +5,16 @@ milestone_name: lz-red Skill
 current_phase: 17
 current_phase_name: Assertion Design, Stance Router & TS/Vitest Mechanics
 status: verifying
-stopped_at: Phase 17 COMPLETE -- verified 14/14, secured (0 open), validated (nyquist compliant), learnings extracted + pooled; message-matrix provenance corrected to Metz Magic Tricks + owned-source upgrades (Bernhardt/Beck)
-last_updated: "2026-07-19T20:19:28.130Z"
+stopped_at: Phase 17.1 context gathered
+last_updated: "2026-07-19T22:22:11.506Z"
 last_activity: 2026-07-19
 last_activity_desc: Phase 17 execution started
 progress:
-  total_phases: 6
+  total_phases: 7
   completed_phases: 3
   total_plans: 10
   completed_plans: 10
-  percent: 50
+  percent: 43
 ---
 
 # Project State
@@ -96,6 +96,7 @@ Last activity: 2026-07-19 — Phase 17 execution started
 - Phase 8 status reconciled 2026-07-07: ROADMAP showed stale "5/6 In Progress" but Phase 8 was CLOSED (6/6, verified/secured/validated, commits a58aa22/8b98aa0); KRV-01..04 flipped to Complete.
 - Phase 13 added 2026-07-14: lz-refactor vs base Opus eval: book authenticity & correctness -- book authenticity = grade the DRIVE/APPLY run OUTPUT (applied diffs / edited code the model produced, NOT coach/reference prose) against what the .oracle/ books prescribe, with_skill/invoke_skill vs no_skill. Corpus = single-target applies (nx p1-p4, kata gr1) AND per-package sweeps (nx p8 + @nx/* fleet p9-p13, kata gr3/gr4). Backfill reality (disk-verified 2026-07-15): single-target with_skill diffs ARE tracked -> backfill no_skill arm only; per-package SWEEP diffs are NOT persisted for either arm (quick-tasks kept only summary docs; repos restored pristine, outputs gitignored) -> re-run BOTH arms (biggest metered cell). Correctness = right named refactoring/layer + behavior-preserving diffs vs base. Grade via oracle (ground truth from book) / oracle-reviewer against .oracle/ (DST-04). Extends milestone lz-tdd@0.0.2 (which was otherwise complete + audit-pending).
 - Phase 12 added 2026-07-11: Autonomous multi-round refactoring for whole-package sweeps -- close the trigger + behavior gaps (confirmed 2026-07-11 e2e: natural sweep prompt does not auto-invoke lz-refactor; even force-invoked, coach stops-and-asks instead of driving rounds to completion) via research-informed trigger-opt + skill instruction/description changes, eval-verified in BOTH the Gilded Rose kata and nrwl/nx @nx/eslint-plugin.
+- Phase 17.1 inserted after Phase 17: Perform Phase 16 Beck follow up (URGENT)
 
 ### Decisions
 
@@ -184,10 +185,10 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-19T20:19:28.120Z
-Stopped at: Phase 17 COMPLETE -- verified 14/14, secured (0 open), validated (nyquist compliant), learnings extracted + pooled; message-matrix provenance corrected to Metz Magic Tricks + owned-source upgrades (Bernhardt/Beck)
+Last session: 2026-07-19T22:22:11.498Z
+Stopped at: Phase 17.1 context gathered
 Superseded-2026-07-17: Resumed via HANDOFF.json -> completed the paused quick task 260716-oby (Loops/pipeline few-shot TS examples). Re-ran the mandatory review that died on the prior session limit: 2 subagents (1 unbiased, 1 primed) both PASS with 0 Critical/0 Important; applied reviewer B's cue-completeness fix; gates GREEN. Replaced the WIP pause commit with a clean docs() commit (3138bbe) -- SHIPPED on teaching merit. HANDOFF.json consumed + deleted. Ran the user-approved held-out recognition eval: **idiom_pattern 0/3=0/3, NULL lift, zero regression** (5th passive-content probe null). angular-cli restored pristine, throwaway branch deleted. 260716-oby RESOLVED. THEN, following a design discussion + web research, ran a user-approved forcing-function diagnostic (enum loop-audit directive in the prompt, k=5, same target): **idiom 0/3 control -> 5/5, all tsc --strict CLEAN + behavior-preserving + discriminating.** CORRECTION: the loop-to-pipeline miss is a DISCRETION/SALIENCE gap, NOT a judgment ceiling -- passive skill content (prose/cues/examples) is null, but an ACTIVE enumeration forcing-function flips it (prompt-level, n=1). Falsified the earlier "judgment ceiling, close it" call. See heldout-enum/RESULTS-enum.md. NEXT candidate (unrun): a SKILL-level forcing-function probe (embed a loop-audit step; test skill-alone reproduction + precision/overcorrection). Not a blocker to closing lz-tdd@0.0.2 on the current shipped skill. Inherited close still pending: /gsd-audit-milestone lz-tdd@0.0.2 then /gsd-complete-milestone lz-tdd@0.0.2 (+ user /reload-plugins to make 3138bbe live).
-Resume file: .planning/phases/17-assertion-design-stance-router-ts-vitest-mechanics/17-VERIFICATION.md
+Resume file: .planning/phases/17.1-perform-phase-16-beck-follow-up/17.1-CONTEXT.md
 Open next (DEFERRED per operator, not this session): /gsd-audit-milestone lz-tdd@0.0.2 then /gsd-complete-milestone lz-tdd@0.0.2. Pending human action: /reload-plugins to make 01208c8 live.
 Superseded Open next (2026-07-16): /gsd-audit-milestone lz-tdd@0.0.2 (user-scoped; not yet run), then /gsd-complete-milestone lz-tdd@0.0.2. All milestone phases (6-12) are complete + reconciled on disk; Phase 12's last loose end (nx sweep auto-trigger re-confirmation on HEAD) is now CLOSED (quick 260714-vmy: p8 3/3, no regression). Milestone-audit note carried from 12-VERIFICATION audit_notes: the gaps closed while base Opus 4.8@high is ALSO catalog-grade (null skill output-delta); the skill's robust value is auto-trigger (proven) + a narrow reference edge. CLEANUP: nx throwaway branch lz-refactor-e2e-smoke left with run-3 edits (pristine 23.0.x intact) -- operator restores per quick/260714-vmy SUMMARY.
 

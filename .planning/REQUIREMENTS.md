@@ -42,7 +42,7 @@ Requirements for milestone lz-tdd@0.0.3. Each maps to a roadmap phase. Grounded 
 
 - [x] **RTR-01**: A `testing-stance/` reference subdir with three leaves -- Bernhardt (functional core-imperative shell), Metz (message matrix), Feathers (seams + characterization tests) -- with Feathers cross-linked to lz-refactor's `refactoring-without-tests.md`, not copied.
 - [ ] **RTR-02**: A coach routing step -- detect and match the house test idiom always; route by structural control / seam availability to the right stance; state the route chosen and why; honor an optional override phrase (no CLI flag).
-- [ ] **RTR-03**: The "listen to the tests" meta-rule -- test-writing pain (heavy mocking, private access) is design feedback routing toward a functional core (Bernhardt) or a seam (Feathers), not more doubles; GOOS referenced as a counterpoint only.
+- [x] **RTR-03**: The "listen to the tests" meta-rule -- test-writing pain (heavy mocking, private access) is design feedback routing toward a functional core (Bernhardt) or a seam (Feathers), not more doubles; GOOS referenced as a counterpoint only.
 
 ### TypeScript and Vitest mechanics (VIT)
 
@@ -56,8 +56,8 @@ Requirements for milestone lz-tdd@0.0.3. Each maps to a roadmap phase. Grounded 
 
 ### Anti-pattern reference and Test Desiderata (ANTI)
 
-- [ ] **ANTI-01**: An anti-pattern reference leaf naming RED anti-patterns and the observable-behavior fix -- including Ian Cooper's over-mock / test-per-class warning, testing private methods, multiple unrelated assertions, a test that passes immediately, snapshot-as-thinking, and slow / order-dependent tests.
-- [ ] **ANTI-02**: A Test Desiderata tradeoff lens (Beck's good-test properties as tradeoffs to optimize, not dogma), matching lz-tpp's "heuristic not law" voice.
+- [x] **ANTI-01**: An anti-pattern reference leaf naming RED anti-patterns and the observable-behavior fix -- including Ian Cooper's over-mock / test-per-class warning, testing private methods, multiple unrelated assertions, a test that passes immediately, snapshot-as-thinking, and slow / order-dependent tests.
+- [x] **ANTI-02**: A Test Desiderata tradeoff lens (Beck's good-test properties as tradeoffs to optimize, not dogma), matching lz-tpp's "heuristic not law" voice.
 
 ### Distribution and hygiene (DST)
 
@@ -123,13 +123,13 @@ Which phases cover which requirements. Populated during roadmap creation.
 | LAW-02 | Phase 18 | Pending |
 | RTR-01 | Phase 17 | Complete |
 | RTR-02 | Phase 18 | Pending |
-| RTR-03 | Phase 17 | Pending |
+| RTR-03 | Phase 17 | Complete |
 | VIT-01 | Phase 17 | Complete |
 | VIT-02 | Phase 17 | Pending |
 | SEAM-01 | Phase 18 | Pending |
 | SEAM-02 | Phase 18 | Pending |
-| ANTI-01 | Phase 17 | Pending |
-| ANTI-02 | Phase 17 | Pending |
+| ANTI-01 | Phase 17 | Complete |
+| ANTI-02 | Phase 17 | Complete |
 | DST-01 | Phase 19 | Pending |
 | DST-02 | Phase 19 | Pending |
 | DST-03 | Phase 19 | Pending |

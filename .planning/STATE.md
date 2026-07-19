@@ -5,15 +5,15 @@ milestone_name: lz-red Skill
 current_phase: 16
 current_phase_name: Source Distillation & Core RED References
 status: executing
-stopped_at: Phase 16 context gathered
-last_updated: "2026-07-18T23:28:58.721Z"
-last_activity: 2026-07-18
-last_activity_desc: Phase 16 planning complete
+stopped_at: Phase 16 plan 16-01 complete (instrument-first RED baseline); 16-02 next
+last_updated: "2026-07-18T23:58:30.000Z"
+last_activity: 2026-07-19
+last_activity_desc: Phase 16 plan 16-01 complete (lz-red-workspace RED baseline)
 progress:
   total_phases: 6
   completed_phases: 1
-  total_plans: 1
-  completed_plans: 1
+  total_plans: 4
+  completed_plans: 2
   percent: 17
 ---
 
@@ -24,15 +24,15 @@ progress:
 See: .planning/PROJECT.md (updated 2026-07-18 -- started milestone lz-tdd@0.0.3)
 
 **Core value:** `lz-tpp` helps Claude choose the next code transformation by TPP priority during red-green-refactor TDD, and explains the premise on demand. lz-tdd@0.0.2 added `lz-refactor` (refactor step); lz-tdd@0.0.3 adds `lz-red` (red step) to complete the loop.
-**Current focus:** Phase 15 — lz-red-skill-scaffold-description-boundary
+**Current focus:** Phase 16 -- Source Distillation & Core RED References
 **Milestone:** lz-tdd@0.0.3 (lz-red Skill, RED phase) -- planning (started 2026-07-18)
 
 ## Current Position
 
-Phase: 16 — Source Distillation & Core RED References
-Plan: Not started
-Status: Ready to execute
-Last activity: 2026-07-18 — Phase 16 planning complete
+Phase: 16 (Source Distillation & Core RED References) -- EXECUTING
+Plan: 2 of 3 (16-01 complete; 16-02 next)
+Status: Executing Phase 16
+Last activity: 2026-07-19 -- Phase 16 plan 16-01 complete (instrument-first RED baseline)
 
 ## Performance Metrics
 
@@ -77,6 +77,7 @@ Last activity: 2026-07-18 — Phase 16 planning complete
 | Phase 11 P03 | ~15min | 2 tasks tasks | 1 file files |
 | Phase 12 P01 | 20min | 3 tasks | 8 files |
 | Phase 15 P01 | 8min | 3 tasks | 11 files |
+| Phase 16 P01 | ~6min | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -126,6 +127,7 @@ Recent decisions affecting current work:
 - [Phase 15]: Phase 15 (15-01): lz-red skill scaffold shipped -- dual-mode-by-omission SKILL.md router (name+description only) + 10 progressive-disclosure reference stubs + one testing-stance navigation subdir (index + 3 leaves); claude plugin validate . exit 0, no manifest edit (skills auto-discovered).
 - [Phase 15]: Phase 15: SKILL.md kept lean at 80 lines (near lz-tpp 81; coach procedure is a labeled Phase-18 placeholder, not padded); v1 three-way-guarded description shipped verbatim (folded 1091 chars, positive RED trigger first + reciprocal lz-tpp/lz-refactor exclusions in the tail); empirical trigger tuning deferred to Phase 20 (D-08).
 - [Phase 15]: Phase 15: scope fences held -- plugin.json stays 0.0.2 (D-09), marketplace.json + lz-tpp untouched, no eval workspace or .oracle content (D-03); the 10 reference stubs carry thin content contracts only (each with a Populated-in-Phase marker), filled in Phases 16-18.
+- [Phase 16]: Phase 16 (16-01, Wave 0/1 instrument): stood up the dev-only lz-red-workspace instrument-first (D-11) -- copied the lz-refactor-workspace extractor recipe repointed at the flat lz-red references walk (extract-samples RED-SAMPLES vacuous GREEN on 0 fences today, D-10); authored check-red-references.mjs as the RED->GREEN content signal, asserted RED against the three Phase-15 stubs (exit 1 by design: 6 content checks FAIL -- 3x missing tsc-strict fence + 3x scaffold marker present; 3/3 refs present; Phase-17 ASRT + Phase-18 LAW/SEAM deferral guards PASS, D-04); extended check-hygiene.mjs additively to scan the lz-red tree on ASCII + work-email + no-verbatim (GREEN 198/191 files; allowlist/EMAIL_RE/QUOTE_THRESHOLD/scan-floor byte-unchanged, D-12). Dev deps typescript@6.0.3 + vitest@4.1.10 exact-pinned; blocking-human legitimacy checkpoint APPROVED (authorizes the 16-02 npm install); NO build dep in the shipped plugins/lz-tdd tree; claude plugin validate . exit 0. SEL-01/SEL-02/STR-01/STR-02/NAME-01 remain OPEN (close in 16-02 when the RED baseline turns GREEN). Commits 5b816d9, 5a67567.
 
 ### Pending Todos
 
@@ -170,10 +172,10 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-18T22:21:17.476Z
-Stopped at: Phase 16 context gathered
+Last session: 2026-07-18T23:58:30.000Z
+Stopped at: Phase 16 plan 16-01 complete (instrument-first RED baseline); 16-02 (fill SEL/STR/NAME) next
 Superseded-2026-07-17: Resumed via HANDOFF.json -> completed the paused quick task 260716-oby (Loops/pipeline few-shot TS examples). Re-ran the mandatory review that died on the prior session limit: 2 subagents (1 unbiased, 1 primed) both PASS with 0 Critical/0 Important; applied reviewer B's cue-completeness fix; gates GREEN. Replaced the WIP pause commit with a clean docs() commit (3138bbe) -- SHIPPED on teaching merit. HANDOFF.json consumed + deleted. Ran the user-approved held-out recognition eval: **idiom_pattern 0/3=0/3, NULL lift, zero regression** (5th passive-content probe null). angular-cli restored pristine, throwaway branch deleted. 260716-oby RESOLVED. THEN, following a design discussion + web research, ran a user-approved forcing-function diagnostic (enum loop-audit directive in the prompt, k=5, same target): **idiom 0/3 control -> 5/5, all tsc --strict CLEAN + behavior-preserving + discriminating.** CORRECTION: the loop-to-pipeline miss is a DISCRETION/SALIENCE gap, NOT a judgment ceiling -- passive skill content (prose/cues/examples) is null, but an ACTIVE enumeration forcing-function flips it (prompt-level, n=1). Falsified the earlier "judgment ceiling, close it" call. See heldout-enum/RESULTS-enum.md. NEXT candidate (unrun): a SKILL-level forcing-function probe (embed a loop-audit step; test skill-alone reproduction + precision/overcorrection). Not a blocker to closing lz-tdd@0.0.2 on the current shipped skill. Inherited close still pending: /gsd-audit-milestone lz-tdd@0.0.2 then /gsd-complete-milestone lz-tdd@0.0.2 (+ user /reload-plugins to make 3138bbe live).
-Resume file: .planning/phases/16-source-distillation-core-red-references/16-CONTEXT.md
+Resume file: .planning/phases/16-source-distillation-core-red-references/16-02-PLAN.md
 Open next (DEFERRED per operator, not this session): /gsd-audit-milestone lz-tdd@0.0.2 then /gsd-complete-milestone lz-tdd@0.0.2. Pending human action: /reload-plugins to make 01208c8 live.
 Superseded Open next (2026-07-16): /gsd-audit-milestone lz-tdd@0.0.2 (user-scoped; not yet run), then /gsd-complete-milestone lz-tdd@0.0.2. All milestone phases (6-12) are complete + reconciled on disk; Phase 12's last loose end (nx sweep auto-trigger re-confirmation on HEAD) is now CLOSED (quick 260714-vmy: p8 3/3, no regression). Milestone-audit note carried from 12-VERIFICATION audit_notes: the gaps closed while base Opus 4.8@high is ALSO catalog-grade (null skill output-delta); the skill's robust value is auto-trigger (proven) + a narrow reference edge. CLEANUP: nx throwaway branch lz-refactor-e2e-smoke left with run-3 edits (pristine 23.0.x intact) -- operator restores per quick/260714-vmy SUMMARY.
 

@@ -301,6 +301,10 @@ implementing.**
   step (LAW-01/02), classify-first + forward/reverse lz-tpp seam (SEAM-01/02), and the coach
   routing step that wires the stance index into SKILL.md + honors the override phrase (RTR-02)
   -> Phase 18.
+- VIT-02's "throughout SKILL.md" worked-example clause -> Phase 18. Phase 17 satisfies VIT-02 via
+  examples in the REFERENCES only (D-10); the SKILL.md-body example lands with the Phase-18 coach
+  procedure that owns the SKILL.md body. Tracked here so a milestone audit does not mark VIT-02 fully
+  complete after Phase 17 while the SKILL.md clause is still pending.
 - Type-level RED leaf (`expectTypeOf`/`assertType` + `vitest --typecheck` + `*.test-d.ts`) -> ADV-01
   (Future Requirements, post-0.0.3).
 - Property-based RED leaf (`fast-check`, express-the-invariant + shrink) -> ADV-02 (Future

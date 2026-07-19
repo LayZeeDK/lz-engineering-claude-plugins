@@ -8,11 +8,12 @@ an assertion pin observable behavior rather than implementation detail. This is 
 
 > Mixed-provenance reference. Two owned threads are oracle-verified against the clean-room source:
 > the one-concept-per-test rationale and the F.I.R.S.T. properties (both Robert C. Martin, Clean
-> Code Ch. 9). The Bill Wake (arrange-act-assert), Dan North (given-when-then), Kent Beck
-> (assert-first, evident data), and Vladimir Khorikov (the four pillars and the
-> output/state/communication assertion styles) material is high-confidence core only, authored blind
-> with no owned copy to check against (no-oracle tag). Technique NAMES are kept as plain facts; every
-> definition below is written in original words, with no verbatim source prose or code (DST-04).
+> Code Ch. 9). The Kent Beck material (assert-first, evident data) is owned and oracle-verified
+> against the clean-room source (Canon TDD). The Bill Wake (arrange-act-assert), Dan North
+> (given-when-then), and Vladimir Khorikov (the four pillars and the output/state/communication
+> assertion styles) material is high-confidence core only, authored blind with no owned copy to check
+> against (no-oracle tag). Technique NAMES are kept as plain facts; every definition below is written
+> in original words, with no verbatim source prose or code (DST-04).
 >
 > Phase 16 filled the test-STRUCTURE slice (STR-01, STR-02); Phase 17 fills the assertion-design
 > slice (ASRT-01, ASRT-02). The F.I.R.S.T.-as-baseline PROCEDURE step (LAW-02) is deferred to
@@ -170,8 +171,8 @@ is that step's insertion point; the procedure lands with the coach spine in that
   (no-oracle).
 - Dan North -- given-when-then as the behavioral vocabulary for the same three parts. Unowned;
   high-confidence core only (no-oracle).
-- Kent Beck, Test-Driven Development by Example -- assert-first and evident test data. Unowned;
-  high-confidence core only (no-oracle).
+- Kent Beck, Canon TDD -- assert-first and evident test data. Owned; oracle-verified against the
+  clean-room source.
 - Vladimir Khorikov, Unit Testing: Principles, Practices, and Patterns -- the four pillars of a good
   unit test and the output/state/communication assertion styles. Unowned; high-confidence core only
   (no-oracle).

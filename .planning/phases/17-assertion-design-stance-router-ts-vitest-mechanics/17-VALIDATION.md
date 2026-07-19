@@ -1,10 +1,11 @@
 ---
 phase: 17
 slug: assertion-design-stance-router-ts-vitest-mechanics
-status: draft
-nyquist_compliant: false
-wave_0_complete: false
+status: validated
+nyquist_compliant: true
+wave_0_complete: true
 created: 2026-07-19
+validated: 2026-07-19
 ---
 
 # Phase 17 -- Validation Strategy
@@ -43,7 +44,7 @@ created: 2026-07-19
 |--------|----------|-----------|------------------|--------|
 | ASRT-01 | Four pillars (resistance-to-refactoring load-bearing) + F.I.R.S.T. in assertions slice | content-gate + tsc + oracle | `check-red-references` tokens on `test-structure-and-assertions.md` + `run typecheck` + oracle-reviewer PASS (F.I.R.S.T.) + no-verbatim | EXTEND |
 | ASRT-02 | Output/state/communication selection tied to the router | content-gate | `check-red-references` selection tokens in assertions slice + each leaf's assert-rule token | EXTEND |
-| ASRT-03 | Metz matrix assert-vs-mock rule (expect-to-send only for outgoing command) | content-gate + tsc + oracle | `check-red-references` cell tokens on `message-matrix.md` + fence + oracle-reviewer PASS (owned 99 Bottles) + no-verbatim | EXTEND |
+| ASRT-03 | Metz matrix assert-vs-mock rule (expect-to-send only for outgoing command) | content-gate + tsc + oracle | `check-red-references` cell tokens on `message-matrix.md` + fence + oracle-reviewer PASS (owned Metz, The Magic Tricks of Testing talk) + no-verbatim | EXTEND |
 | RTR-01 | testing-stance README route table + 3 leaves; Feathers cross-link not copy | content-gate | `check-red-references` entries for README + 3 leaves + `refactoring-without-tests.md` cross-link-presence guard | EXTEND |
 | RTR-03 | Listen-to-the-tests routes to core/seam; GOOS counterpoint only | content-gate | `check-red-references` listen-to-the-tests + GOOS-counterpoint tokens on `anti-patterns.md` | EXTEND |
 | VIT-01 | it.todo / test.each / vi.* restraint / watch mapped to RED + ADV forward-pointer | content-gate + tsc | `check-red-references` mechanic tokens + ADV pointer token on `vitest-typescript-mechanics.md` + fence | EXTEND |
@@ -60,12 +61,14 @@ owned surfaces additionally clear oracle-reviewer converge-to-clean.
 
 ## Wave 0 Requirements
 
-- [ ] EXTEND `.claude/skills/lz-red-workspace/tools/check-red-references.mjs`: add the six Phase-17 file
+- [x] EXTEND `.claude/skills/lz-red-workspace/tools/check-red-references.mjs`: add the six Phase-17 file
       entries; flip the `test-structure-and-assertions.md` deferral guard to ASRT content tokens; add a
       per-file `requireFence` flag; add the `seams-and-legacy.md` cross-link-presence guard; add Phase-18
       deferral guards for any co-edited insertion points. This IS the instrument-first Wave-0 RED baseline.
-- [ ] No framework install -- the workspace already pins `typescript` + `vitest`.
-- [ ] No change to `extract-samples.mjs` or `check-hygiene.mjs` (they auto-cover new Phase-17 files).
+      DONE: instrument extended to 10 file entries; RED baseline flipped GREEN as content landed
+      (`RED-REFS GREEN -- 10/10`, exit 0).
+- [x] No framework install -- the workspace already pins `typescript` + `vitest`.
+- [x] No change to `extract-samples.mjs` or `check-hygiene.mjs` (they auto-cover new Phase-17 files).
 
 *If none: "Existing infrastructure covers all phase requirements." (Not the case here -- the instrument extension is the RED baseline.)*
 
@@ -82,11 +85,16 @@ owned surfaces additionally clear oracle-reviewer converge-to-clean.
 
 ## Validation Sign-Off
 
-- [ ] All requirements have an automated signal or a Wave 0 dependency
-- [ ] Sampling continuity: no 3 consecutive tasks without an automated content-gate/tsc signal
-- [ ] Wave 0 covers the instrument extension (the RED baseline)
-- [ ] No watch-mode flags in any automated command
-- [ ] Feedback latency < 15s
-- [ ] `nyquist_compliant: true` set in frontmatter (flipped at validate-phase)
+- [x] All requirements have an automated signal or a Wave 0 dependency
+- [x] Sampling continuity: no 3 consecutive tasks without an automated content-gate/tsc signal
+- [x] Wave 0 covers the instrument extension (the RED baseline)
+- [x] No watch-mode flags in any automated command (the `watch loop` token is reference CONTENT, not a runner flag)
+- [x] Feedback latency < 15s (~10s measured)
+- [x] `nyquist_compliant: true` set in frontmatter (flipped at validate-phase)
 
-**Approval:** pending
+**Approval:** signed off 2026-07-19 -- all 9 requirements GREEN via the documented signals
+(`check-red-references` exit 0, 10/10 files PASS; `run typecheck` exit 0, 7 modules tsc --strict clean;
+`check-hygiene` exit 0, 198 files ASCII + email + no-verbatim clean). Both manual-only items resolved this
+pass (oracle-reviewer PASS on owned surfaces + skill-reviewer PASS for ASRT-02 aptness). VIT-02 "throughout
+SKILL.md" clause is a scoped Phase-18 deferral (D-10), not a gap -- all Phase-18 deferral guards intact. No
+coverage gaps.

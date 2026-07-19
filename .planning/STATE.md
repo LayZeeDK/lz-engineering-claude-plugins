@@ -6,14 +6,14 @@ current_phase: 17
 current_phase_name: Assertion Design, Stance Router & TS/Vitest Mechanics
 status: executing
 stopped_at: Phase 17 context gathered
-last_updated: "2026-07-19T04:30:28.226Z"
+last_updated: "2026-07-19T04:46:27.448Z"
 last_activity: 2026-07-19
 last_activity_desc: Phase 17 execution started
 progress:
   total_phases: 6
   completed_phases: 2
   total_plans: 10
-  completed_plans: 5
+  completed_plans: 6
   percent: 33
 ---
 
@@ -30,7 +30,7 @@ See: .planning/PROJECT.md (updated 2026-07-18 -- started milestone lz-tdd@0.0.3)
 ## Current Position
 
 Phase: 17 (Assertion Design, Stance Router & TS/Vitest Mechanics) — EXECUTING
-Plan: 2 of 6
+Plan: 3 of 6
 Status: Ready to execute
 Last activity: 2026-07-19 — Phase 17 execution started
 
@@ -80,6 +80,7 @@ Last activity: 2026-07-19 — Phase 17 execution started
 | Phase 15 P01 | 8min | 3 tasks | 11 files |
 | Phase 16 P01 | ~6min | 2 tasks | 6 files |
 | Phase 17 P01 | ~10min | 2 tasks | 1 files |
+| Phase 17 P02 | ~15min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -131,6 +132,7 @@ Recent decisions affecting current work:
 - [Phase 15]: Phase 15: scope fences held -- plugin.json stays 0.0.2 (D-09), marketplace.json + lz-tpp untouched, no eval workspace or .oracle content (D-03); the 10 reference stubs carry thin content contracts only (each with a Populated-in-Phase marker), filled in Phases 16-18.
 - [Phase 16]: Phase 16 (16-01, Wave 0/1 instrument): stood up the dev-only lz-red-workspace instrument-first (D-11) -- copied the lz-refactor-workspace extractor recipe repointed at the flat lz-red references walk (extract-samples RED-SAMPLES vacuous GREEN on 0 fences today, D-10); authored check-red-references.mjs as the RED->GREEN content signal, asserted RED against the three Phase-15 stubs (exit 1 by design: 6 content checks FAIL -- 3x missing tsc-strict fence + 3x scaffold marker present; 3/3 refs present; Phase-17 ASRT + Phase-18 LAW/SEAM deferral guards PASS, D-04); extended check-hygiene.mjs additively to scan the lz-red tree on ASCII + work-email + no-verbatim (GREEN 198/191 files; allowlist/EMAIL_RE/QUOTE_THRESHOLD/scan-floor byte-unchanged, D-12). Dev deps typescript@6.0.3 + vitest@4.1.10 exact-pinned; blocking-human legitimacy checkpoint APPROVED (authorizes the 16-02 npm install); NO build dep in the shipped plugins/lz-tdd tree; claude plugin validate . exit 0. SEL-01/SEL-02/STR-01/STR-02/NAME-01 remain OPEN (close in 16-02 when the RED baseline turns GREEN). Commits 5b816d9, 5a67567.
 - [Phase 17]: Phase 17 (17-01, Wave 0/1 instrument): extended check-red-references.mjs in place (D-13, no sibling) from 3 to 10 FILES entries -- flipped the assertions slice (kept 5 STR tokens, added 5 ASRT tokens + 3 stance-leaf filename tokens, swapped the Phase-17 deferral for a Phase-18 F.I.R.S.T.-baseline deferral), added the six Phase-17 slices + the co-edited principle-backing entry, made the ts-fence assertion per-file via a requireFence flag, added the seams cross-link guard (refactoring-without-tests.md) + vitest cross-ref guards (anti-patterns.md, message-matrix.md) + Phase-18 co-edit deferral guards (D-15). RED baseline asserted across all three gates: content gate exit 1 by design (29 FAILs on unfilled stubs; three-laws + naming stay all-PASS, STR tokens intact), tsc extractor exit 0 (GREEN-on-empty over the 3 Phase-16 fences), check-hygiene exit 0. No shipped plugins/lz-tdd file touched; no dependency added. ASRT-01/02/03, RTR-01/03, VIT-01/02, ANTI-01/02 remain OPEN (close GREEN when Waves 2-3 turn the gate GREEN). Commit 10f8314.
+- [Phase 17]: Phase 17 (17-02, Wave 2): filled the assertions slice of test-structure-and-assertions.md -- the four pillars (Khorikov, no-oracle) with resistance-to-refactoring named the load-bearing pillar (assert observable behavior, not implementation), F.I.R.S.T. as the test-quality baseline (Clean Code Ch.9, owned; authored own-words BLIND, oracle-reviewer gate deferred to 17-06), and the output/state/communication selection rule linking the three stance leaves (functional-core.md / message-matrix.md / seams-and-legacy.md, the ASRT-02 spine). Populated principle-backing.md as a Recommendation|Source|Access-tier map across all RED docs with the canonical owned/no-oracle tier strings + a Phase-18 marker for the Three-Laws/seam rows. STR slice + Phase-18 F.I.R.S.T.-baseline marker intact; typecheck (4 fences) + hygiene GREEN; ASRT-01/02 closed. Commits 132dae0, a66b94f.
 
 ### Pending Todos
 
@@ -175,7 +177,7 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-19T04:28:59.087Z
+Last session: 2026-07-19T04:41:53.669Z
 Stopped at: Phase 17 context gathered
 Superseded-2026-07-17: Resumed via HANDOFF.json -> completed the paused quick task 260716-oby (Loops/pipeline few-shot TS examples). Re-ran the mandatory review that died on the prior session limit: 2 subagents (1 unbiased, 1 primed) both PASS with 0 Critical/0 Important; applied reviewer B's cue-completeness fix; gates GREEN. Replaced the WIP pause commit with a clean docs() commit (3138bbe) -- SHIPPED on teaching merit. HANDOFF.json consumed + deleted. Ran the user-approved held-out recognition eval: **idiom_pattern 0/3=0/3, NULL lift, zero regression** (5th passive-content probe null). angular-cli restored pristine, throwaway branch deleted. 260716-oby RESOLVED. THEN, following a design discussion + web research, ran a user-approved forcing-function diagnostic (enum loop-audit directive in the prompt, k=5, same target): **idiom 0/3 control -> 5/5, all tsc --strict CLEAN + behavior-preserving + discriminating.** CORRECTION: the loop-to-pipeline miss is a DISCRETION/SALIENCE gap, NOT a judgment ceiling -- passive skill content (prose/cues/examples) is null, but an ACTIVE enumeration forcing-function flips it (prompt-level, n=1). Falsified the earlier "judgment ceiling, close it" call. See heldout-enum/RESULTS-enum.md. NEXT candidate (unrun): a SKILL-level forcing-function probe (embed a loop-audit step; test skill-alone reproduction + precision/overcorrection). Not a blocker to closing lz-tdd@0.0.2 on the current shipped skill. Inherited close still pending: /gsd-audit-milestone lz-tdd@0.0.2 then /gsd-complete-milestone lz-tdd@0.0.2 (+ user /reload-plugins to make 3138bbe live).
 Resume file: .planning/phases/17-assertion-design-stance-router-ts-vitest-mechanics/17-CONTEXT.md

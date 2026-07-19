@@ -25,8 +25,8 @@ Requirements for milestone lz-tdd@0.0.3. Each maps to a roadmap phase. Grounded 
 
 ### Assertion design (ASRT)
 
-- [ ] **ASRT-01**: Guidance to assert observable behavior, not implementation (Khorikov's four pillars, with resistance-to-refactoring as the load-bearing property).
-- [ ] **ASRT-02**: Output- / state- / communication-based assertion-style selection, tied to the stance router (output <-> Bernhardt functional core; state / communication <-> Metz boundary; characterization <-> Feathers legacy).
+- [x] **ASRT-01**: Guidance to assert observable behavior, not implementation (Khorikov's four pillars, with resistance-to-refactoring as the load-bearing property).
+- [x] **ASRT-02**: Output- / state- / communication-based assertion-style selection, tied to the stance router (output <-> Bernhardt functional core; state / communication <-> Metz boundary; characterization <-> Feathers legacy).
 - [ ] **ASRT-03**: The Metz query / command message matrix as the design-agnostic rule for what to assert and what to mock (assert return of incoming queries; assert public side effect of incoming commands; ignore self and outgoing queries; expect-to-send only for outgoing commands).
 
 ### Test naming (NAME)
@@ -115,8 +115,8 @@ Which phases cover which requirements. Populated during roadmap creation.
 | SEL-02 | Phase 16 | Complete |
 | STR-01 | Phase 16 | Complete |
 | STR-02 | Phase 16 | Complete |
-| ASRT-01 | Phase 17 | Pending |
-| ASRT-02 | Phase 17 | Pending |
+| ASRT-01 | Phase 17 | Complete |
+| ASRT-02 | Phase 17 | Complete |
 | ASRT-03 | Phase 17 | Pending |
 | NAME-01 | Phase 16 | Complete |
 | LAW-01 | Phase 18 | Pending |

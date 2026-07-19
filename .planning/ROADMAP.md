@@ -144,12 +144,12 @@ validation deps live only in a dev-only eval workspace.
 **Goal:** The lz-red skill's Kent-Beck-backed RED selection/structure surfaces that a free full-text essay actually backs are honestly re-tiered from no-oracle to `Owned; oracle-verified` across all four provenance surfaces (per-doc intro blockquote + `## Sources` block; `principle-backing.md` map row + Sources paragraph); recommendation CONTENT is unchanged, book-only-backed rows stay no-oracle, and the deterministic battery stays GREEN.
 **Requirements**: SEL-01, SEL-02, STR-02, DST-03, DST-04 (provenance-tier upgrade to already-Complete Phase-16 requirements; no new coverage -- their status stays Complete)
 **Depends on:** Phase 17
-**Plans:** 1 plan
+**Plans:** 1/1 plans complete
 **Wave 1** (single blind executor; orchestrator oracle-reviewer gate runs post-execution)
 
 Plans:
 
-- [ ] 17.1-01-PLAN.md -- Blind owned-source tier upgrade of the Beck RED selection/structure surfaces (four consistency surfaces + Phase-16 note; battery GREEN), then orchestrator-driven oracle-reviewer gate per upgraded surface
+- [x] 17.1-01-PLAN.md -- Blind owned-source tier upgrade of the Beck RED selection/structure surfaces (four consistency surfaces + Phase-16 note; battery GREEN), then orchestrator-driven oracle-reviewer gate per upgraded surface
 
 ### Phase 18: Coach Procedure & lz-tpp Seam Wiring
 

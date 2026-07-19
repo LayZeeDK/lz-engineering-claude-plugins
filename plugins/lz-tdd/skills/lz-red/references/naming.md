@@ -27,8 +27,7 @@ is documentation of the behavior, not of the method under test.
 
 - Convention: a structured convention names a test in three segments -- the unit of work under test,
   the scenario or state it runs under, and the result expected of it -- joined into one identifier.
-  Described in original words, a withdrawal test might read as withdraw, when the balance is too low,
-  is rejected.
+  For example, a withdrawal test might read as: withdraw, when the balance is too low, is rejected.
 - When-to-use: when the codebase already uses this three-part scheme; match it rather than
   introducing a competing style.
 - Distilled rationale: the three segments make every name record what is exercised, under what

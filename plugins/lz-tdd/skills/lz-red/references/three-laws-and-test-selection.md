@@ -33,10 +33,11 @@ refactor step (lz-refactor). This is the coach's entry point: what to test next,
   yet covered. Between steps every earlier test is green and the code still compiles.
 - When-to-use: whenever you reach for the next test. Resist folding two behaviors into one test, and
   resist writing more of the test than it takes to make it fail.
-- Distilled rationale (Robert C. Martin, owned; oracle-verified): the discipline is to add no more
-  of a test than is enough to fail -- stopping at the first failure, a missing symbol or a wrong
-  result alike. Holding each increment to one small step keeps the distance between red and green
-  tiny, so a red bar always names the single change that caused it and the diagnosis is immediate.
+- Distilled rationale (Robert C. Martin, owned; oracle-verified): the discipline is to grow the test
+  only to the first failure, then stop -- a not-yet-defined symbol counts as that failure just as
+  much as a wrong result does. Holding each increment to one small step keeps the distance between
+  red and green tiny, so a red bar always names the single change that caused it and the diagnosis
+  is immediate.
 
 ## Start from the degenerate or starter case
 

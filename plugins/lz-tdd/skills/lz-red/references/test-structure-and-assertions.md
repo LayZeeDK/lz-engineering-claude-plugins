@@ -51,8 +51,8 @@ an assertion pin observable behavior rather than implementation detail. This is 
 
 ## One concept per test
 
-- Rule: let each test pin a single concept, so it has one reason to fail. When a test grows a second,
-  unrelated check, split it into two.
+- Rule: let each test pin a single concept, so a failure points back to exactly one broken behavior.
+  When a test grows a second, unrelated check, split it into two.
 - When-to-use: when a test accumulates assertions about different behaviors, or its name needs an
   "and" to describe everything it verifies.
 - Distilled rationale (Robert C. Martin, owned; oracle-verified): a test that owns exactly one

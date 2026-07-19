@@ -60,7 +60,7 @@ validation deps live only in a dev-only eval workspace.
 
 - [x] **Phase 15: lz-red Skill Scaffold & Description Boundary** - Invocable dual-mode skill skeleton with the three-way-guarded triggering description (completed 2026-07-18)
 - [x] **Phase 16: Source Distillation & Core RED References** - Clean-room own-words facts + test selection, structure, and naming references (completed 2026-07-19)
-- [ ] **Phase 17: Assertion Design, Stance Router & TS/Vitest Mechanics** - The differentiator: assert-behavior, the adaptive testing-stance router, Vitest mechanics, anti-patterns
+- [x] **Phase 17: Assertion Design, Stance Router & TS/Vitest Mechanics** - The differentiator: assert-behavior, the adaptive testing-stance router, Vitest mechanics, anti-patterns (completed 2026-07-19)
 - [ ] **Phase 18: Coach Procedure & lz-tpp Seam Wiring** - Inline RED decision procedure on the Three Laws spine + the lz-red <-> lz-tpp seam
 - [ ] **Phase 19: Distribution & Hygiene** - Three-skill 0.0.3 ship: version bump, docs, validators, copyright/ASCII/email hygiene
 - [ ] **Phase 20: Skill-Effectiveness Evals** - Trigger eval (incl. the cross-skill boundary) + RED-behavior eval vs baseline
@@ -122,7 +122,7 @@ validation deps live only in a dev-only eval workspace.
   4. Vitest 4.x mechanics are mapped to RED concepts (`it.todo` = test list, `test.each` = triangulation, `vi.*` doubles with restraint, watch mode = feedback loop); TS + Vitest examples appear throughout the references and are tsc --strict clean.
   5. An anti-pattern leaf names RED anti-patterns and the observable-behavior fix (incl. Ian Cooper's over-mock / test-per-class warning, testing private methods, multiple unrelated assertions, pass-immediately, snapshot-as-thinking, slow / order-dependent tests), and a Test Desiderata tradeoff lens matches the "heuristic not law" voice.
 
-**Plans**: 5/6 plans executed
+**Plans**: 6/6 plans complete
 
 **Wave 1** (instrument-first RED baseline)
 
@@ -137,7 +137,7 @@ validation deps live only in a dev-only eval workspace.
 
 **Wave 3** (finalize gate) *(blocked on Wave 2)*
 
-- [ ] 17-06-PLAN.md -- Finalize gate: full battery GREEN + orchestrator oracle-reviewer (3 owned surfaces) + skill-reviewer + claude plugin validate . exit 0
+- [x] 17-06-PLAN.md -- Finalize gate: full battery GREEN + orchestrator oracle-reviewer (3 owned surfaces) + skill-reviewer + claude plugin validate . exit 0
 
 ### Phase 18: Coach Procedure & lz-tpp Seam Wiring
 
@@ -203,7 +203,7 @@ validation deps live only in a dev-only eval workspace.
 | 14. Compare lz-refactor to mattpocock-skills code-review skill | lz-tdd@0.0.2 | 5/5 | Complete | 2026-07-15 |
 | 15. lz-red Skill Scaffold & Description Boundary | lz-tdd@0.0.3 | 1/1 | Complete    | 2026-07-18 |
 | 16. Source Distillation & Core RED References | lz-tdd@0.0.3 | 3/3 | Complete    | 2026-07-19 |
-| 17. Assertion Design, Stance Router & TS/Vitest Mechanics | lz-tdd@0.0.3 | 5/6 | In Progress|  |
+| 17. Assertion Design, Stance Router & TS/Vitest Mechanics | lz-tdd@0.0.3 | 6/6 | Complete   | 2026-07-19 |
 | 18. Coach Procedure & lz-tpp Seam Wiring | lz-tdd@0.0.3 | 0/TBD | Not started | - |
 | 19. Distribution & Hygiene | lz-tdd@0.0.3 | 0/TBD | Not started | - |
 | 20. Skill-Effectiveness Evals | lz-tdd@0.0.3 | 0/TBD | Not started | - |

@@ -27,7 +27,7 @@ Requirements for milestone lz-tdd@0.0.3. Each maps to a roadmap phase. Grounded 
 
 - [x] **ASRT-01**: Guidance to assert observable behavior, not implementation (Khorikov's four pillars, with resistance-to-refactoring as the load-bearing property).
 - [x] **ASRT-02**: Output- / state- / communication-based assertion-style selection, tied to the stance router (output <-> Bernhardt functional core; state / communication <-> Metz boundary; characterization <-> Feathers legacy).
-- [ ] **ASRT-03**: The Metz query / command message matrix as the design-agnostic rule for what to assert and what to mock (assert return of incoming queries; assert public side effect of incoming commands; ignore self and outgoing queries; expect-to-send only for outgoing commands).
+- [x] **ASRT-03**: The Metz query / command message matrix as the design-agnostic rule for what to assert and what to mock (assert return of incoming queries; assert public side effect of incoming commands; ignore self and outgoing queries; expect-to-send only for outgoing commands).
 
 ### Test naming (NAME)
 
@@ -40,13 +40,13 @@ Requirements for milestone lz-tdd@0.0.3. Each maps to a roadmap phase. Grounded 
 
 ### Adaptive testing-stance router (RTR) -- the differentiator
 
-- [ ] **RTR-01**: A `testing-stance/` reference subdir with three leaves -- Bernhardt (functional core-imperative shell), Metz (message matrix), Feathers (seams + characterization tests) -- with Feathers cross-linked to lz-refactor's `refactoring-without-tests.md`, not copied.
+- [x] **RTR-01**: A `testing-stance/` reference subdir with three leaves -- Bernhardt (functional core-imperative shell), Metz (message matrix), Feathers (seams + characterization tests) -- with Feathers cross-linked to lz-refactor's `refactoring-without-tests.md`, not copied.
 - [ ] **RTR-02**: A coach routing step -- detect and match the house test idiom always; route by structural control / seam availability to the right stance; state the route chosen and why; honor an optional override phrase (no CLI flag).
 - [ ] **RTR-03**: The "listen to the tests" meta-rule -- test-writing pain (heavy mocking, private access) is design feedback routing toward a functional core (Bernhardt) or a seam (Feathers), not more doubles; GOOS referenced as a counterpoint only.
 
 ### TypeScript and Vitest mechanics (VIT)
 
-- [ ] **VIT-01**: Vitest mechanics mapped to RED concepts -- `it.todo` (test list), `test.each` (triangulation), `vi.*` doubles with restraint, watch mode as the feedback loop -- pinned to Vitest 4.x and tsc --strict-clean.
+- [x] **VIT-01**: Vitest mechanics mapped to RED concepts -- `it.todo` (test list), `test.each` (triangulation), `vi.*` doubles with restraint, watch mode as the feedback loop -- pinned to Vitest 4.x and tsc --strict-clean.
 - [ ] **VIT-02**: TypeScript + Vitest examples throughout `SKILL.md` and the references, paired with the language-agnostic principles, all tsc --strict-clean.
 
 ### lz-tpp seam (SEAM)
@@ -117,14 +117,14 @@ Which phases cover which requirements. Populated during roadmap creation.
 | STR-02 | Phase 16 | Complete |
 | ASRT-01 | Phase 17 | Complete |
 | ASRT-02 | Phase 17 | Complete |
-| ASRT-03 | Phase 17 | Pending |
+| ASRT-03 | Phase 17 | Complete |
 | NAME-01 | Phase 16 | Complete |
 | LAW-01 | Phase 18 | Pending |
 | LAW-02 | Phase 18 | Pending |
-| RTR-01 | Phase 17 | Pending |
+| RTR-01 | Phase 17 | Complete |
 | RTR-02 | Phase 18 | Pending |
 | RTR-03 | Phase 17 | Pending |
-| VIT-01 | Phase 17 | Pending |
+| VIT-01 | Phase 17 | Complete |
 | VIT-02 | Phase 17 | Pending |
 | SEAM-01 | Phase 18 | Pending |
 | SEAM-02 | Phase 18 | Pending |

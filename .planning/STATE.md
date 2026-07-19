@@ -5,15 +5,15 @@ milestone_name: lz-red Skill
 current_phase: 17
 current_phase_name: Assertion Design, Stance Router & TS/Vitest Mechanics
 status: executing
-stopped_at: Completed 17-03-PLAN.md (testing-stance nav + 2 no-oracle leaves)
-last_updated: "2026-07-19T05:02:11.508Z"
+stopped_at: Completed 17-04-PLAN.md (message-matrix + Vitest 4.x mechanics; RTR-01/ASRT-03/VIT-01 closed)
+last_updated: "2026-07-19T05:21:31.247Z"
 last_activity: 2026-07-19
 last_activity_desc: Phase 17 execution started
 progress:
   total_phases: 6
   completed_phases: 2
   total_plans: 10
-  completed_plans: 7
+  completed_plans: 8
   percent: 33
 ---
 
@@ -30,7 +30,7 @@ See: .planning/PROJECT.md (updated 2026-07-18 -- started milestone lz-tdd@0.0.3)
 ## Current Position
 
 Phase: 17 (Assertion Design, Stance Router & TS/Vitest Mechanics) — EXECUTING
-Plan: 4 of 6
+Plan: 5 of 6
 Status: Ready to execute
 Last activity: 2026-07-19 — Phase 17 execution started
 
@@ -82,6 +82,7 @@ Last activity: 2026-07-19 — Phase 17 execution started
 | Phase 17 P01 | ~10min | 2 tasks | 1 files |
 | Phase 17 P02 | ~15min | 2 tasks | 2 files |
 | Phase 17 P03 | ~8min | 3 tasks | 3 files |
+| Phase 17 P04 | 13min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -135,6 +136,7 @@ Recent decisions affecting current work:
 - [Phase 17]: Phase 17 (17-01, Wave 0/1 instrument): extended check-red-references.mjs in place (D-13, no sibling) from 3 to 10 FILES entries -- flipped the assertions slice (kept 5 STR tokens, added 5 ASRT tokens + 3 stance-leaf filename tokens, swapped the Phase-17 deferral for a Phase-18 F.I.R.S.T.-baseline deferral), added the six Phase-17 slices + the co-edited principle-backing entry, made the ts-fence assertion per-file via a requireFence flag, added the seams cross-link guard (refactoring-without-tests.md) + vitest cross-ref guards (anti-patterns.md, message-matrix.md) + Phase-18 co-edit deferral guards (D-15). RED baseline asserted across all three gates: content gate exit 1 by design (29 FAILs on unfilled stubs; three-laws + naming stay all-PASS, STR tokens intact), tsc extractor exit 0 (GREEN-on-empty over the 3 Phase-16 fences), check-hygiene exit 0. No shipped plugins/lz-tdd file touched; no dependency added. ASRT-01/02/03, RTR-01/03, VIT-01/02, ANTI-01/02 remain OPEN (close GREEN when Waves 2-3 turn the gate GREEN). Commit 10f8314.
 - [Phase 17]: Phase 17 (17-02, Wave 2): filled the assertions slice of test-structure-and-assertions.md -- the four pillars (Khorikov, no-oracle) with resistance-to-refactoring named the load-bearing pillar (assert observable behavior, not implementation), F.I.R.S.T. as the test-quality baseline (Clean Code Ch.9, owned; authored own-words BLIND, oracle-reviewer gate deferred to 17-06), and the output/state/communication selection rule linking the three stance leaves (functional-core.md / message-matrix.md / seams-and-legacy.md, the ASRT-02 spine). Populated principle-backing.md as a Recommendation|Source|Access-tier map across all RED docs with the canonical owned/no-oracle tier strings + a Phase-18 marker for the Three-Laws/seam rows. STR slice + Phase-18 F.I.R.S.T.-baseline marker intact; typecheck (4 fences) + hygiene GREEN; ASRT-01/02 closed. Commits 132dae0, a66b94f.
 - [Phase 17]: Phase 17 (17-03, Wave 2): authored the testing-stance navigation index + 2 no-oracle stance leaves -- nav-only README route table (3 detection-signal -> leaf rows, recognize-by + links only, mirrors smells.md), Bernhardt functional-core (Signal / output-based Assert / no-doubles Mock, scoped to value-in-value-out per Pitfall 3, one tsc-strict fence), Feathers seams-and-legacy (seam / characterization pins CURRENT behavior / sequencing, cross-linked to lz-refactor refactoring-without-tests.md NOT copied). Both leaves authored BLIND no-oracle (no .oracle/ read; no-verbatim scan the only DST-04 backstop). RTR-01 left Pending -- needs all 3 leaves and the owned Metz message-matrix.md leaf is Plan 17-04; marking it now would be a false-positive. ASRT-02 (already Complete) reinforced by the 2 per-leaf assert rules. SKILL.md untouched. typecheck (5 fences) + hygiene GREEN; check-red-references GREEN for all 3 files, overall still RED by design on sibling stubs. Commits 60ddee7, e7f79d7, abf407b.
+- [Phase ?]: Phase 17 (17-04, Wave 2): authored OWNED Metz message-matrix.md (query/command 6-cell origin x type matrix; outgoing command = the ONE warranted double / expect-to-send; incoming query -> assert return, incoming command -> assert public side effect, outgoing query + self-messages -> do not test; over-mocking firewall) own-words BLIND (no .oracle/ read; orchestrator oracle-reviewer gate in 17-06) + no-oracle vitest-typescript-mechanics.md (Vitest 4.x -> RED: it.todo / test.each / vi.* restraint / watch / fail-for-the-right-reason MECHANIC; cross-linked anti-patterns.md + message-matrix.md; brief ADV-01/ADV-02 forward-pointers, NO fast-check dep; Phase-18 LAW-02 marker intact). Both fences tsc --strict clean (7 modules). RTR-01 CLOSED (3 stance leaves + README authored); ASRT-03 + VIT-01 closed; VIT-02 left Pending (SKILL.md clause is Phase 18 per D-10 -- avoid false-positive); ASRT-02 reinforced. typecheck + hygiene GREEN; both file rows PASS, overall RED by design on anti-patterns.md (17-05). Commits 36c9d1d, 3c924ee.
 
 ### Pending Todos
 
@@ -179,8 +181,8 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-19T05:02:11.498Z
-Stopped at: Completed 17-03-PLAN.md (testing-stance nav + 2 no-oracle leaves)
+Last session: 2026-07-19T05:19:30.846Z
+Stopped at: Completed 17-04-PLAN.md (message-matrix + Vitest 4.x mechanics; RTR-01/ASRT-03/VIT-01 closed)
 Superseded-2026-07-17: Resumed via HANDOFF.json -> completed the paused quick task 260716-oby (Loops/pipeline few-shot TS examples). Re-ran the mandatory review that died on the prior session limit: 2 subagents (1 unbiased, 1 primed) both PASS with 0 Critical/0 Important; applied reviewer B's cue-completeness fix; gates GREEN. Replaced the WIP pause commit with a clean docs() commit (3138bbe) -- SHIPPED on teaching merit. HANDOFF.json consumed + deleted. Ran the user-approved held-out recognition eval: **idiom_pattern 0/3=0/3, NULL lift, zero regression** (5th passive-content probe null). angular-cli restored pristine, throwaway branch deleted. 260716-oby RESOLVED. THEN, following a design discussion + web research, ran a user-approved forcing-function diagnostic (enum loop-audit directive in the prompt, k=5, same target): **idiom 0/3 control -> 5/5, all tsc --strict CLEAN + behavior-preserving + discriminating.** CORRECTION: the loop-to-pipeline miss is a DISCRETION/SALIENCE gap, NOT a judgment ceiling -- passive skill content (prose/cues/examples) is null, but an ACTIVE enumeration forcing-function flips it (prompt-level, n=1). Falsified the earlier "judgment ceiling, close it" call. See heldout-enum/RESULTS-enum.md. NEXT candidate (unrun): a SKILL-level forcing-function probe (embed a loop-audit step; test skill-alone reproduction + precision/overcorrection). Not a blocker to closing lz-tdd@0.0.2 on the current shipped skill. Inherited close still pending: /gsd-audit-milestone lz-tdd@0.0.2 then /gsd-complete-milestone lz-tdd@0.0.2 (+ user /reload-plugins to make 3138bbe live).
 Resume file: None
 Open next (DEFERRED per operator, not this session): /gsd-audit-milestone lz-tdd@0.0.2 then /gsd-complete-milestone lz-tdd@0.0.2. Pending human action: /reload-plugins to make 01208c8 live.

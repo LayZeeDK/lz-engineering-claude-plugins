@@ -42,13 +42,15 @@ Each backing row carries:
 | [The four pillars](test-structure-and-assertions.md) | Vladimir Khorikov, Unit Testing: Principles, Practices, and Patterns | Unowned; high-confidence core only (no-oracle). |
 | [F.I.R.S.T. properties](test-structure-and-assertions.md) | Robert C. Martin, Clean Code Ch. 9 | Owned; oracle-verified against the clean-room source. |
 | [Output/state/communication selection](test-structure-and-assertions.md) | Vladimir Khorikov, Unit Testing: Principles, Practices, and Patterns | Unowned; high-confidence core only (no-oracle). |
-| [Functional core, output-based assert](testing-stance/functional-core.md) | Gary Bernhardt | Unowned; high-confidence core only (no-oracle). |
-| [Query/command message matrix](testing-stance/message-matrix.md) | Sandi Metz and Katrina Owen, 99 Bottles of OOP, JavaScript Edition | Owned; oracle-verified against the clean-room source. |
+| [Functional core, output-based assert](testing-stance/functional-core.md) | Gary Bernhardt, Boundaries (talk) | Owned; oracle-verified against the clean-room source. |
+| [Query/command message matrix](testing-stance/message-matrix.md) | Sandi Metz, The Magic Tricks of Testing (talk) | Owned; oracle-verified against the clean-room source. |
 | [Seams and characterization](testing-stance/seams-and-legacy.md) | Michael Feathers, Working Effectively with Legacy Code | Unowned; high-confidence core only (no-oracle). |
 | [Avoid over-mocking and test-per-class](anti-patterns.md) | Ian Cooper | Owned; oracle-verified against the clean-room source. |
+| [Keep test doubles honest (double drift)](anti-patterns.md) | Sandi Metz, The Design of Tests (talk) | Owned; oracle-verified against the clean-room source. |
+| [Listen to the tests (test pain is design feedback)](anti-patterns.md) | Sandi Metz, The Design of Tests (talk) | Owned; oracle-verified against the clean-room source. |
 | [Implementation-detail brittleness](anti-patterns.md) | Vladimir Khorikov, Unit Testing: Principles, Practices, and Patterns | Unowned; high-confidence core only (no-oracle). |
 | [Mockist counterpoint, stated fairly](anti-patterns.md) | Steve Freeman and Nat Pryce, Growing Object-Oriented Software, Guided by Tests | Unowned; high-confidence core only (no-oracle). |
-| [Test Desiderata tradeoff lens](anti-patterns.md) | Kent Beck, Test Desiderata | Unowned; high-confidence core only (no-oracle). |
+| [Test Desiderata tradeoff lens](anti-patterns.md) | Kent Beck, Test Desiderata (essay + video series); Sandi Metz, The Design of Tests, corroborates the over-testing cost | Owned; oracle-verified against the clean-room source. |
 | [Vitest mechanics mapped to RED concepts](vitest-typescript-mechanics.md) | Vitest 4.x documentation | Unowned; high-confidence core only (no-oracle). |
 
 ## Three-Laws spine and lz-tpp seam backing (Phase 18)
@@ -59,9 +61,13 @@ section is their insertion point; their rows land with the coach spine in that p
 
 ## Sources
 
-- The RED-coach sources mapped above, each tagged with its access tier. Owned books are
-  oracle-verifiable against the clean-room set: Robert C. Martin (Clean Code Ch. 9), Sandi Metz and
-  Katrina Owen (99 Bottles of OOP, JavaScript Edition), and Ian Cooper. Unowned no-oracle sources are
-  used at high-confidence core only: Kent Beck, Bill Wake, Dan North, Roy Osherove, Vladimir
-  Khorikov, Gary Bernhardt, Michael Feathers, Steve Freeman and Nat Pryce (GOOS), and the Vitest 4.x
-  documentation.
+- The RED-coach sources mapped above, each tagged with its access tier. Owned sources are
+  oracle-verifiable against the clean-room set: Robert C. Martin (Clean Code Ch. 9); Sandi Metz (The
+  Magic Tricks of Testing and The Design of Tests talks -- the message matrix and test-as-design-
+  feedback; and, with Katrina Owen, 99 Bottles of OOP, JavaScript Edition, for test naming); Gary
+  Bernhardt (Boundaries -- functional core / imperative shell); Kent Beck (Test Desiderata essay and
+  video series); and Ian Cooper. Beck's other rows (running test list, triangulation, assert-first,
+  evident test data) remain no-oracle for now, pending a follow-up upgrade against his
+  now-provisioned essays (Canon TDD, First One Then Many). Unowned no-oracle sources are used at
+  high-confidence core only: Bill Wake, Dan North, Roy Osherove, Vladimir Khorikov, Michael Feathers,
+  Steve Freeman and Nat Pryce (GOOS), and the Vitest 4.x documentation.

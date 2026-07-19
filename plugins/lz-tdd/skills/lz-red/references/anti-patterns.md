@@ -7,13 +7,14 @@ names six RED anti-patterns, each with a cue to recognize it and an observable-b
 correction; states the mockist counterpoint fairly; and offers the Test Desiderata lens for
 weighing what a test buys and costs.
 
-> Mixed-provenance reference. The over-mocking and test-per-class anti-pattern that leans on Ian
-> Cooper's TDD talks is owned and oracle-verified against the clean-room source. The
-> implementation-detail brittleness thread (Vladimir Khorikov), the mockist counterpoint (GOOS --
-> Steve Freeman and Nat Pryce), and the Test Desiderata lens (Kent Beck) are high-confidence core
-> only, authored blind with no owned copy to check against (no-oracle tag). Technique names are
-> kept as plain facts; every description below is written in original words, with no verbatim
-> source prose or code (DST-04).
+> Mixed-provenance reference. The over-mocking and test-per-class anti-pattern (Ian Cooper's TDD
+> talks), the listen-to-the-tests / keep-the-double-honest points (Sandi Metz, The Design of Tests
+> talk), and the Test Desiderata lens (Kent Beck's Test Desiderata essay and video series) are owned
+> and oracle-verified against the clean-room source. The implementation-detail brittleness thread
+> (Vladimir Khorikov) and the mockist counterpoint (GOOS -- Steve Freeman and Nat Pryce) are
+> high-confidence core, authored blind with no owned source to check against (no-oracle tag).
+> Technique names are kept as plain facts; every description below is written in original words, with
+> no verbatim source prose or code (DST-04).
 
 ## The six anti-patterns
 
@@ -34,7 +35,10 @@ change (Khorikov).
   double for the one boundary that warrants it -- an outgoing command at the edge of the module.
   Add a new test when a new behavior appears, not when a new class appears. A test coupled to the
   call graph has low resistance to refactoring: rename or inline a collaborator and it fails even
-  though the behavior held (Khorikov).
+  though the behavior held (Khorikov). Where you do stand up that one warranted double, keep it
+  honest: a double can drift out of sync with the real collaborator's interface, so the suite stays
+  green while the code is broken -- guard against that with a shared role or contract test that both
+  the real collaborator and its double must satisfy (Metz).
 
 ### 2. Testing private methods
 
@@ -99,7 +103,9 @@ Writing the test is the first place the design pushes back. When a test needs he
 double for every collaborator, reflection to reach a private, or an assertion that never reads
 cleanly, treat that friction as feedback about the code under test -- not as a problem to mock your
 way through. Adding another double to silence the friction is the move this rule warns against: it
-preserves the design that caused the pain and buys a more brittle test. The friction usually points
+preserves the design that caused the pain and buys a more brittle test. Reading test friction this
+way -- a hard-to-write test is a message about the design of the code under test, not a prompt for
+another double -- is Sandi Metz's framing in The Design of Tests (owned). The friction usually points
 one of two ways:
 
 - Toward a functional core: when the awkwardness is logic tangled up with I/O, separate the
@@ -124,35 +130,44 @@ fits the code in front of you; do not impose either school wholesale.
 Kent Beck's Test Desiderata name the properties that make a test worth having -- among them
 isolated, composable, deterministic, fast, writable, readable, behavioral, structure-insensitive,
 automated, specific, predictive, and inspiring. Read them as a heuristic for weighing what a test
-buys and costs, not as a checklist to satisfy in full. The value of the list is the tension inside
-it: several properties pull against each other, so you optimize the mix for the code in front of
-you rather than maximizing every one.
+buys and costs, not as a checklist to satisfy in full: not every test needs every property, and you
+give one up only when you gain something worth more.
 
-Some tensions worth naming:
+Two of these are a paired aim rather than a tradeoff. A good test is sensitive to a change in
+behavior yet insensitive to a change in structure -- you want both at once (structure-insensitive is
+Khorikov's resistance to refactoring restated). That pairing is the target the other properties
+serve, not opposite ends of one dial.
 
-- Behavioral vs structure-insensitive: a test should be sensitive to a change in behavior yet
-  insensitive to a change in structure -- and the second property is Khorikov's resistance to
-  refactoring restated. Push sensitivity too far and the test couples to the implementation; push
-  insensitivity too far and a real regression slips through.
-- Writable vs readable: the test that is quickest to write is not always the one that is easiest to
-  read later, and over the life of a suite the readers outnumber the writer.
-- Fast vs predictive: the fastest tests exercise the least, so they predict the least about the
-  whole system; the most predictive tests tend to be slower and broader.
+The real tradeoffs show up when you choose what KIND of test to write, because each kind optimizes a
+different bundle of the properties for a different job:
 
-No assignment of these maxes all at once. Naming the tradeoff -- which properties you are buying and
-which you are spending -- is the lens; the heuristic is to choose deliberately per context, in the
-same coach-not-law voice as the rest of this skill.
+- A fast, isolated, specific unit test buys quick, precise feedback but predicts less about the whole
+  assembled system -- speed is bought partly at the cost of how much it predicts.
+- A broader test that exercises more of the system predicts more about real behavior, but tends to be
+  slower and less isolated.
+- A production check trades breadth of assertion for staying fast and deterministic enough to run
+  continuously.
+
+No single test maxes all twelve at once. Naming which properties a given test is buying and which it
+is spending -- and choosing the bundle deliberately for the job in front of you -- is the lens, in
+the same coach-not-law voice as the rest of this skill.
 
 ## Sources
 
 - Ian Cooper -- the over-mocking and test-per-class anti-pattern: test behavior through the public
   API and add a test per behavior rather than per class. Owned; oracle-verified against the
   clean-room source.
+- Sandi Metz, The Design of Tests (talk) -- test-writing pain as design feedback (a hard-to-write
+  test is a message about the code's design), and keeping the one warranted double honest against
+  interface drift via a shared role or contract test. Owned; oracle-verified against the clean-room
+  source.
 - Vladimir Khorikov -- implementation-detail assertions as the low-resistance-to-refactoring
   failure mode threaded through the over-mocking, private-method, and snapshot anti-patterns.
   Unowned; high-confidence core only (no-oracle).
 - GOOS (Steve Freeman and Nat Pryce), Growing Object-Oriented Software, Guided by Tests -- the
   mockist counterpoint that drives object roles out through interaction testing at boundaries.
   Unowned; high-confidence core only (no-oracle).
-- Kent Beck -- the Test Desiderata, presented here as a tradeoff lens rather than a checklist.
-  Unowned; high-confidence core only (no-oracle).
+- Kent Beck, Test Desiderata (essay + 12-part video series) -- the good-test properties, presented
+  here as a tradeoff lens rather than a checklist. Owned; oracle-verified against the clean-room
+  source. Sandi Metz's The Design of Tests (owned) corroborates the over-testing cost: too many
+  tests of the wrong thing become a liability.

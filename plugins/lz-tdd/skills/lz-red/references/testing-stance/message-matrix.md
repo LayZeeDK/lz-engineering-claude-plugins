@@ -9,11 +9,13 @@ single place a double is warranted, follow from those two axes. Reached from the
 index when the code is message-oriented -- an object talking to collaborators with a clear
 query/command split.
 
-> Owned reference: the query/command message matrix leans on Sandi Metz and Katrina Owen's 99
-> Bottles of OOP (2nd Edition, JavaScript Edition) and is oracle-verified against the clean-room
-> source. The message-type NAMES (query, command, incoming, outgoing, sent-to-self) are kept as
-> plain facts; every definition and rule below is written in original words, with no verbatim source
-> prose or code (DST-04).
+> Owned reference: the query/command message matrix comes from Sandi Metz's talk The Magic Tricks
+> of Testing (RailsConf 2013), transcribed into the clean-room set and oracle-verified against it.
+> Metz frames it as an origin-by-kind grid -- three origins (incoming, sent-to-self, outgoing) by
+> two kinds (query, command); the command/query message vocabulary itself she credits to Fowler.
+> The message-type NAMES (query, command, incoming, outgoing, sent-to-self) are kept as plain facts;
+> every definition and rule below is written in original words, with no verbatim source prose or
+> code (DST-04).
 
 ## Query and command: two kinds of message
 
@@ -81,9 +83,9 @@ The two axes give six cells; only one of them warrants a double:
 - When-to-use: whenever you feel the pull to mock a collaborator, check which cell you are in first.
   If it is not an outgoing command, the double is the wrong move and there is a value to assert
   instead.
-- Distilled rationale (Sandi Metz and Katrina Owen, owned; oracle-verified): routing every message
-  through this one table is the design-agnostic firewall against over-mocking and the test-per-class
-  habit. A double appears in exactly one place, so a suite cannot drift into mirroring the object's
+- Distilled rationale (Sandi Metz, The Magic Tricks of Testing, owned; oracle-verified): routing every
+  message through this one table is the design-agnostic firewall against over-mocking and the
+  test-per-class habit. A double appears in exactly one place, so a suite cannot drift into mirroring the object's
   internals with a mock per collaborator -- the failure mode that makes tests brittle and refactoring
   expensive.
 
@@ -139,7 +141,9 @@ describe('Gate', () => {
 
 ## Sources
 
-- Sandi Metz and Katrina Owen, 99 Bottles of OOP (2nd Edition, JavaScript Edition) -- the
-  query/command message matrix that decides what a test asserts, and the single cell (the outgoing
-  command) where a double is warranted, from the kind of message rather than the object's class.
-  Owned; oracle-verified against the clean-room source.
+- Sandi Metz, The Magic Tricks of Testing (RailsConf 2013 talk) -- the query/command message matrix
+  that decides what a test asserts, and the single cell (the outgoing command) where a double is
+  warranted, from the kind of message rather than the object's class. Owned (transcribed in the
+  clean-room set); oracle-verified against the source.
+- Sandi Metz, discussion of POODR with the Toronto Ruby Brigade -- corroborates the same query/command
+  test taxonomy (Metz credits Fowler for the command/query message vocabulary). Owned; corroborating.

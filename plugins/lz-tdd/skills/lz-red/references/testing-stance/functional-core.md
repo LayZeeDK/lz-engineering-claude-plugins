@@ -6,9 +6,10 @@ tests are value-based over the core (given inputs, assert the returned value) wi
 doubles, and the shell is covered by a few integration tests. Reached from the testing-stance
 index when the detection signal is value-in / value-out code with no mocking.
 
-> No-oracle reference: high-confidence core only (no owned Bernhardt source to verify against).
-> Original prose, no verbatim source prose or code (DST-04). Scoped to code that IS value-in /
-> value-out -- no-seam legacy routes to seams-and-legacy.md, not here.
+> Owned reference: the functional-core / imperative-shell stance comes from Gary Bernhardt's talk
+> Boundaries, transcribed into the clean-room set and oracle-verified against it. Original prose, no
+> verbatim source prose or code (DST-04). Scoped to code that IS value-in / value-out -- no-seam
+> legacy routes to seams-and-legacy.md, not here.
 
 ## Functional core vs imperative shell
 
@@ -78,4 +79,5 @@ function nextBalance(balance: number, withdrawal: number): number {
 
 - Gary Bernhardt, Boundaries (functional core, imperative shell) -- push the decision logic into a
   pure core tested output-based with no doubles, and cover the thin imperative shell with a few
-  integration tests at the boundary. Unowned; high-confidence core only (no-oracle).
+  integration tests at the boundary. Owned (transcribed talk); oracle-verified against the clean-room
+  source.

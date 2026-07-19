@@ -6,7 +6,7 @@ current_phase: 17
 current_phase_name: Assertion Design, Stance Router & TS/Vitest Mechanics
 status: executing
 stopped_at: Phase 17 context gathered
-last_updated: "2026-07-19T04:28:59.360Z"
+last_updated: "2026-07-19T04:30:28.226Z"
 last_activity: 2026-07-19
 last_activity_desc: Phase 17 execution started
 progress:
@@ -79,6 +79,7 @@ Last activity: 2026-07-19 — Phase 17 execution started
 | Phase 12 P01 | 20min | 3 tasks | 8 files |
 | Phase 15 P01 | 8min | 3 tasks | 11 files |
 | Phase 16 P01 | ~6min | 2 tasks | 6 files |
+| Phase 17 P01 | ~10min | 2 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -129,6 +130,7 @@ Recent decisions affecting current work:
 - [Phase 15]: Phase 15: SKILL.md kept lean at 80 lines (near lz-tpp 81; coach procedure is a labeled Phase-18 placeholder, not padded); v1 three-way-guarded description shipped verbatim (folded 1091 chars, positive RED trigger first + reciprocal lz-tpp/lz-refactor exclusions in the tail); empirical trigger tuning deferred to Phase 20 (D-08).
 - [Phase 15]: Phase 15: scope fences held -- plugin.json stays 0.0.2 (D-09), marketplace.json + lz-tpp untouched, no eval workspace or .oracle content (D-03); the 10 reference stubs carry thin content contracts only (each with a Populated-in-Phase marker), filled in Phases 16-18.
 - [Phase 16]: Phase 16 (16-01, Wave 0/1 instrument): stood up the dev-only lz-red-workspace instrument-first (D-11) -- copied the lz-refactor-workspace extractor recipe repointed at the flat lz-red references walk (extract-samples RED-SAMPLES vacuous GREEN on 0 fences today, D-10); authored check-red-references.mjs as the RED->GREEN content signal, asserted RED against the three Phase-15 stubs (exit 1 by design: 6 content checks FAIL -- 3x missing tsc-strict fence + 3x scaffold marker present; 3/3 refs present; Phase-17 ASRT + Phase-18 LAW/SEAM deferral guards PASS, D-04); extended check-hygiene.mjs additively to scan the lz-red tree on ASCII + work-email + no-verbatim (GREEN 198/191 files; allowlist/EMAIL_RE/QUOTE_THRESHOLD/scan-floor byte-unchanged, D-12). Dev deps typescript@6.0.3 + vitest@4.1.10 exact-pinned; blocking-human legitimacy checkpoint APPROVED (authorizes the 16-02 npm install); NO build dep in the shipped plugins/lz-tdd tree; claude plugin validate . exit 0. SEL-01/SEL-02/STR-01/STR-02/NAME-01 remain OPEN (close in 16-02 when the RED baseline turns GREEN). Commits 5b816d9, 5a67567.
+- [Phase 17]: Phase 17 (17-01, Wave 0/1 instrument): extended check-red-references.mjs in place (D-13, no sibling) from 3 to 10 FILES entries -- flipped the assertions slice (kept 5 STR tokens, added 5 ASRT tokens + 3 stance-leaf filename tokens, swapped the Phase-17 deferral for a Phase-18 F.I.R.S.T.-baseline deferral), added the six Phase-17 slices + the co-edited principle-backing entry, made the ts-fence assertion per-file via a requireFence flag, added the seams cross-link guard (refactoring-without-tests.md) + vitest cross-ref guards (anti-patterns.md, message-matrix.md) + Phase-18 co-edit deferral guards (D-15). RED baseline asserted across all three gates: content gate exit 1 by design (29 FAILs on unfilled stubs; three-laws + naming stay all-PASS, STR tokens intact), tsc extractor exit 0 (GREEN-on-empty over the 3 Phase-16 fences), check-hygiene exit 0. No shipped plugins/lz-tdd file touched; no dependency added. ASRT-01/02/03, RTR-01/03, VIT-01/02, ANTI-01/02 remain OPEN (close GREEN when Waves 2-3 turn the gate GREEN). Commit 10f8314.
 
 ### Pending Todos
 

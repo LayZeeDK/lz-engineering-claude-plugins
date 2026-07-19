@@ -6,15 +6,17 @@ evident test data, one concept per test, the F.I.R.S.T. properties, and the four
 an assertion pin observable behavior rather than implementation detail. This is the coach's
 "now write it well" surface downstream of test selection.
 
-> Mixed-provenance reference. The one-concept-per-test rationale that leans on Robert C. Martin's
-> Clean Code is owned and oracle-verified against the clean-room source. The Bill Wake
-> (arrange-act-assert), Dan North (given-when-then), and Kent Beck (assert-first, evident data)
-> material is high-confidence core only, authored blind with no owned copy to check against
-> (no-oracle tag). Technique NAMES are kept as plain facts; every definition below is written in
-> original words, with no verbatim source prose or code (DST-04).
+> Mixed-provenance reference. Two owned threads are oracle-verified against the clean-room source:
+> the one-concept-per-test rationale and the F.I.R.S.T. properties (both Robert C. Martin, Clean
+> Code Ch. 9). The Bill Wake (arrange-act-assert), Dan North (given-when-then), Kent Beck
+> (assert-first, evident data), and Vladimir Khorikov (the four pillars and the
+> output/state/communication assertion styles) material is high-confidence core only, authored blind
+> with no owned copy to check against (no-oracle tag). Technique NAMES are kept as plain facts; every
+> definition below is written in original words, with no verbatim source prose or code (DST-04).
 >
-> Phase 16 fills the test-STRUCTURE slice (STR-01, STR-02). Assertion design in depth (ASRT-01,
-> ASRT-02) is deferred to Phase 17 and left as a marker below.
+> Phase 16 filled the test-STRUCTURE slice (STR-01, STR-02); Phase 17 fills the assertion-design
+> slice (ASRT-01, ASRT-02). The F.I.R.S.T.-as-baseline PROCEDURE step (LAW-02) is deferred to
+> Phase 18 and left as a marker below.
 
 ## One skeleton, two vocabularies
 
@@ -83,11 +85,84 @@ function applyCredit(balance: number, credit: number): number {
 }
 ```
 
-## Assertions and the four pillars (Phase 17)
+## Assert observable behavior: the four pillars
 
-Assertion design in depth -- the F.I.R.S.T. properties and the four pillars of a good unit test, as
-the lens for asserting observable behavior over implementation detail -- is deferred to Phase 17
-(ASRT-01, ASRT-02). This section is their insertion point; their prose lands in that phase.
+- Property: a good unit test maximizes four properties -- protection against regressions (it catches
+  a real break), resistance to refactoring (it stays green through a behavior-preserving change),
+  fast feedback (it runs quickly), and maintainability (it is cheap to read and to run). Resistance
+  to refactoring is the LOAD-BEARING pillar for this coach: it is precisely "assert observable
+  behavior, not implementation."
+- When-to-use: every time you decide what an assertion checks. Pin the observable result a caller can
+  see -- a returned value or a public state change -- never a private field, an internal call count,
+  or a step the code happens to take on the way there.
+- Distilled rationale: protection and resistance together are a test's accuracy -- few missed defects
+  AND few false alarms. A test bound to implementation goes red on a refactor that changed nothing a
+  caller can observe, and those false alarms are what erode trust until people stop reading the red
+  bar. Asserting observable behavior is the single move that buys resistance to refactoring, so it is
+  the property you never trade away.
+
+## F.I.R.S.T.: the baseline the pillars sit on
+
+- Property: beneath the four pillars sits a baseline of five properties every unit test should hold,
+  named by the acronym F.I.R.S.T. -- Fast (runs in the blink of an eye, so the suite is run often),
+  Independent (each test builds its own world and shares no state, so any test can run alone and in
+  any order), Repeatable (returns the same verdict on every machine and every run, leaning on no
+  clock, network, or leftover data), Self-validating (ends in a plain pass or fail with nothing for a
+  human to eyeball), and Timely (written just before the code it drives, which is what the red step
+  is).
+- When-to-use: as the standing bar for every test you write; a test that surrenders one of these
+  properties is a debt the suite repays later in flakiness or slowness.
+- Distilled rationale (Robert C. Martin, owned; oracle-verified): these five properties are what keep
+  a suite worth running -- fast and self-validating so feedback is instant and unambiguous,
+  independent and repeatable so a red bar names a real defect rather than a neighbor or the weather,
+  and timely so the test shapes the code instead of being bolted on afterwards.
+
+## Select the assertion style: output, state, communication
+
+- Rule: match the assertion style to what the unit actually does. Prefer output-based -- feed input
+  and assert the returned value; it carries the highest resistance to refactoring and is the reward
+  of a functional core. Reach for state-based when the behavior is a state change -- exercise the
+  unit, then assert the observable state it left behind. Use communication-based ONLY for a genuine
+  outgoing command -- assert that the message was sent, through the one warranted double. Fall back to
+  characterization when the unit is untested legacy -- pin whatever it does now, output or state,
+  before you touch it.
+- When-to-use: at the moment you choose what to assert, once the next test is picked. Let the shape of
+  the code choose the style; do not reach for a double when a value is sitting there to assert.
+- Distilled rationale: each style maps to a testing stance, and that mapping is this rule's spine.
+  Output-based is the [functional core](testing-stance/functional-core.md); state- and
+  communication-based are the two sides of the Metz boundary in the
+  [message matrix](testing-stance/message-matrix.md); characterization is the legacy route through
+  [seams and legacy code](testing-stance/seams-and-legacy.md). Open the matching leaf for the
+  assert-vs-mock rule that style carries -- this slice only chooses between them.
+
+An output-based assertion pins the returned value, the observable result a caller sees:
+
+```ts
+import { describe, it, expect } from 'vitest';
+
+// Output-based: assert the returned value, not any internal step.
+describe('netOf', () => {
+  it('should return the total minus the discount', () => {
+    // Arrange
+    const total = 80;
+    const discount = 20;
+    // Act
+    const result = netOf(total, discount);
+    // Assert
+    expect(result).toBe(60);
+  });
+});
+
+function netOf(total: number, discount: number): number {
+  return total - discount;
+}
+```
+
+## F.I.R.S.T. as a red-step baseline (Phase 18)
+
+Turning F.I.R.S.T. into a PROCEDURE step -- the coach checking a fresh red test against the five
+properties as part of the red-green-refactor loop (LAW-02) -- is deferred to Phase 18. This section
+is that step's insertion point; the procedure lands with the coach spine in that phase.
 
 ## Sources
 
@@ -97,5 +172,9 @@ the lens for asserting observable behavior over implementation detail -- is defe
   high-confidence core only (no-oracle).
 - Kent Beck, Test-Driven Development by Example -- assert-first and evident test data. Unowned;
   high-confidence core only (no-oracle).
-- Robert C. Martin, Clean Code (Ch. 9, Unit Tests) -- one concept per test, one reason to fail.
-  Owned; oracle-verified against the clean-room source.
+- Vladimir Khorikov, Unit Testing: Principles, Practices, and Patterns -- the four pillars of a good
+  unit test and the output/state/communication assertion styles. Unowned; high-confidence core only
+  (no-oracle).
+- Robert C. Martin, Clean Code (Ch. 9, Unit Tests) -- one concept per test and one reason to fail,
+  and the F.I.R.S.T. properties as the test-quality baseline. Owned; oracle-verified against the
+  clean-room source.

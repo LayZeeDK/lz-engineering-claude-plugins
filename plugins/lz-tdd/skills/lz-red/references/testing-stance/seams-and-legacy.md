@@ -27,7 +27,7 @@ techniques already live in the lz-refactor skill.
   produces today, and asserts exactly that -- turning the code's present behavior into a fixed point.
 - When-to-use: before you change untested legacy whose full behavior you do not yet trust, so any
   change you later make shows up as a broken assertion.
-- Assert rule (ASRT-02): pin the CURRENT behavior, correct or not, never the desired behavior. If
+- Assert rule: pin the CURRENT behavior, correct or not, never the desired behavior. If
   the observed value looks wrong, still lock it in and note the suspected bug separately; the point
   is to make change detectable, not to fix it here.
 

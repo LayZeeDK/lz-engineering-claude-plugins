@@ -32,7 +32,7 @@ index when the detection signal is value-in / value-out code with no mocking.
 
 ## Assert rule: assert the returned value (output-based)
 
-- Assert rule (ASRT-02): feed the core its inputs and assert on the value it returns -- output-based,
+- Assert rule: feed the core its inputs and assert on the value it returns -- output-based,
   not interaction-based. The test names only the inputs and the expected result.
 - When-to-use: every red-step test over the functional core.
 - Distilled rationale: an output-based test over a pure function is the highest-resistance-to-

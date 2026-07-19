@@ -122,11 +122,11 @@ validation deps live only in a dev-only eval workspace.
   4. Vitest 4.x mechanics are mapped to RED concepts (`it.todo` = test list, `test.each` = triangulation, `vi.*` doubles with restraint, watch mode = feedback loop); TS + Vitest examples appear throughout the references and are tsc --strict clean.
   5. An anti-pattern leaf names RED anti-patterns and the observable-behavior fix (incl. Ian Cooper's over-mock / test-per-class warning, testing private methods, multiple unrelated assertions, pass-immediately, snapshot-as-thinking, slow / order-dependent tests), and a Test Desiderata tradeoff lens matches the "heuristic not law" voice.
 
-**Plans**: 6 plans
+**Plans**: 1/6 plans executed
 
 **Wave 1** (instrument-first RED baseline)
 
-- [ ] 17-01-PLAN.md -- Extend check-red-references.mjs to the Phase-17 RED baseline (six new file entries + flipped assertions slice + per-file requireFence + seams cross-link guard + co-edit Phase-18 deferral guards)
+- [x] 17-01-PLAN.md -- Extend check-red-references.mjs to the Phase-17 RED baseline (six new file entries + flipped assertions slice + per-file requireFence + seams cross-link guard + co-edit Phase-18 deferral guards)
 
 **Wave 2** (content -- parallel, disjoint files) *(blocked on Wave 1)*
 
@@ -203,7 +203,7 @@ validation deps live only in a dev-only eval workspace.
 | 14. Compare lz-refactor to mattpocock-skills code-review skill | lz-tdd@0.0.2 | 5/5 | Complete | 2026-07-15 |
 | 15. lz-red Skill Scaffold & Description Boundary | lz-tdd@0.0.3 | 1/1 | Complete    | 2026-07-18 |
 | 16. Source Distillation & Core RED References | lz-tdd@0.0.3 | 3/3 | Complete    | 2026-07-19 |
-| 17. Assertion Design, Stance Router & TS/Vitest Mechanics | lz-tdd@0.0.3 | 0/6 | Not started | - |
+| 17. Assertion Design, Stance Router & TS/Vitest Mechanics | lz-tdd@0.0.3 | 1/6 | In Progress|  |
 | 18. Coach Procedure & lz-tpp Seam Wiring | lz-tdd@0.0.3 | 0/TBD | Not started | - |
 | 19. Distribution & Hygiene | lz-tdd@0.0.3 | 0/TBD | Not started | - |
 | 20. Skill-Effectiveness Evals | lz-tdd@0.0.3 | 0/TBD | Not started | - |

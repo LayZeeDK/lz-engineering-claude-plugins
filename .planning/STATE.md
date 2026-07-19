@@ -6,14 +6,14 @@ current_phase: 17
 current_phase_name: Assertion Design, Stance Router & TS/Vitest Mechanics
 status: executing
 stopped_at: Phase 17 context gathered
-last_updated: "2026-07-19T04:15:53.307Z"
+last_updated: "2026-07-19T04:28:59.360Z"
 last_activity: 2026-07-19
 last_activity_desc: Phase 17 execution started
 progress:
   total_phases: 6
   completed_phases: 2
   total_plans: 10
-  completed_plans: 4
+  completed_plans: 5
   percent: 33
 ---
 
@@ -30,8 +30,8 @@ See: .planning/PROJECT.md (updated 2026-07-18 -- started milestone lz-tdd@0.0.3)
 ## Current Position
 
 Phase: 17 (Assertion Design, Stance Router & TS/Vitest Mechanics) — EXECUTING
-Plan: 1 of 6
-Status: Executing Phase 17
+Plan: 2 of 6
+Status: Ready to execute
 Last activity: 2026-07-19 — Phase 17 execution started
 
 ## Performance Metrics
@@ -173,7 +173,7 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-19T02:29:57.746Z
+Last session: 2026-07-19T04:28:59.087Z
 Stopped at: Phase 17 context gathered
 Superseded-2026-07-17: Resumed via HANDOFF.json -> completed the paused quick task 260716-oby (Loops/pipeline few-shot TS examples). Re-ran the mandatory review that died on the prior session limit: 2 subagents (1 unbiased, 1 primed) both PASS with 0 Critical/0 Important; applied reviewer B's cue-completeness fix; gates GREEN. Replaced the WIP pause commit with a clean docs() commit (3138bbe) -- SHIPPED on teaching merit. HANDOFF.json consumed + deleted. Ran the user-approved held-out recognition eval: **idiom_pattern 0/3=0/3, NULL lift, zero regression** (5th passive-content probe null). angular-cli restored pristine, throwaway branch deleted. 260716-oby RESOLVED. THEN, following a design discussion + web research, ran a user-approved forcing-function diagnostic (enum loop-audit directive in the prompt, k=5, same target): **idiom 0/3 control -> 5/5, all tsc --strict CLEAN + behavior-preserving + discriminating.** CORRECTION: the loop-to-pipeline miss is a DISCRETION/SALIENCE gap, NOT a judgment ceiling -- passive skill content (prose/cues/examples) is null, but an ACTIVE enumeration forcing-function flips it (prompt-level, n=1). Falsified the earlier "judgment ceiling, close it" call. See heldout-enum/RESULTS-enum.md. NEXT candidate (unrun): a SKILL-level forcing-function probe (embed a loop-audit step; test skill-alone reproduction + precision/overcorrection). Not a blocker to closing lz-tdd@0.0.2 on the current shipped skill. Inherited close still pending: /gsd-audit-milestone lz-tdd@0.0.2 then /gsd-complete-milestone lz-tdd@0.0.2 (+ user /reload-plugins to make 3138bbe live).
 Resume file: .planning/phases/17-assertion-design-stance-router-ts-vitest-mechanics/17-CONTEXT.md

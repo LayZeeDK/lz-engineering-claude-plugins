@@ -122,7 +122,22 @@ validation deps live only in a dev-only eval workspace.
   4. Vitest 4.x mechanics are mapped to RED concepts (`it.todo` = test list, `test.each` = triangulation, `vi.*` doubles with restraint, watch mode = feedback loop); TS + Vitest examples appear throughout the references and are tsc --strict clean.
   5. An anti-pattern leaf names RED anti-patterns and the observable-behavior fix (incl. Ian Cooper's over-mock / test-per-class warning, testing private methods, multiple unrelated assertions, pass-immediately, snapshot-as-thinking, slow / order-dependent tests), and a Test Desiderata tradeoff lens matches the "heuristic not law" voice.
 
-**Plans**: TBD
+**Plans**: 6 plans
+
+**Wave 1** (instrument-first RED baseline)
+
+- [ ] 17-01-PLAN.md -- Extend check-red-references.mjs to the Phase-17 RED baseline (six new file entries + flipped assertions slice + per-file requireFence + seams cross-link guard + co-edit Phase-18 deferral guards)
+
+**Wave 2** (content -- parallel, disjoint files) *(blocked on Wave 1)*
+
+- [ ] 17-02-PLAN.md -- Assertion design slice (four pillars, resistance-to-refactoring load-bearing, F.I.R.S.T., output/state/communication selection) + principle-backing map [owned: F.I.R.S.T.]
+- [ ] 17-03-PLAN.md -- Testing-stance router: nav index + functional-core (Bernhardt) + seams-and-legacy (Feathers, cross-linked to lz-refactor) [no-oracle]
+- [ ] 17-04-PLAN.md -- Message matrix (Metz query/command, owned) + Vitest 4.x mechanics + brief ADV-01/02 forward-pointers [owned: Metz]
+- [ ] 17-05-PLAN.md -- Anti-patterns (Cooper owned) + listen-to-the-tests (GOOS counterpoint) + Test Desiderata [owned: Cooper]
+
+**Wave 3** (finalize gate) *(blocked on Wave 2)*
+
+- [ ] 17-06-PLAN.md -- Finalize gate: full battery GREEN + orchestrator oracle-reviewer (3 owned surfaces) + skill-reviewer + claude plugin validate . exit 0
 
 ### Phase 18: Coach Procedure & lz-tpp Seam Wiring
 
@@ -188,7 +203,7 @@ validation deps live only in a dev-only eval workspace.
 | 14. Compare lz-refactor to mattpocock-skills code-review skill | lz-tdd@0.0.2 | 5/5 | Complete | 2026-07-15 |
 | 15. lz-red Skill Scaffold & Description Boundary | lz-tdd@0.0.3 | 1/1 | Complete    | 2026-07-18 |
 | 16. Source Distillation & Core RED References | lz-tdd@0.0.3 | 3/3 | Complete    | 2026-07-19 |
-| 17. Assertion Design, Stance Router & TS/Vitest Mechanics | lz-tdd@0.0.3 | 0/TBD | Not started | - |
+| 17. Assertion Design, Stance Router & TS/Vitest Mechanics | lz-tdd@0.0.3 | 0/6 | Not started | - |
 | 18. Coach Procedure & lz-tpp Seam Wiring | lz-tdd@0.0.3 | 0/TBD | Not started | - |
 | 19. Distribution & Hygiene | lz-tdd@0.0.3 | 0/TBD | Not started | - |
 | 20. Skill-Effectiveness Evals | lz-tdd@0.0.3 | 0/TBD | Not started | - |

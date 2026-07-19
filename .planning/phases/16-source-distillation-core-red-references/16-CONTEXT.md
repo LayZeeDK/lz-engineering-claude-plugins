@@ -17,6 +17,21 @@ and in 17-CONTEXT. No Phase-16 shipped content changes. The `.oracle/` library h
 expanded and reorganized (Metz/Bernhardt/Beck talks + Beck written content; transcripts now under
 `.oracle/videos/`, written content under `.oracle/written-content/`).
 
+## Owned-source upgrade (2026-07-20, added during Phase 17.1)
+
+Phase 17.1 re-opened the closed Phase-16 test-selection and test-structure surfaces
+(three-laws-and-test-selection.md, the test-structure-and-assertions.md STR slice, and the
+principle-backing.md map) for a no-oracle -> owned tier upgrade, now that Kent Beck's essays are
+provisioned in git-ignored .oracle/written-content/. The running test list, the one-step move, and
+the starter / degenerate case were upgraded against Canon TDD, and triangulation against First One,
+Then Many (both Access: free, so gateable). Assert-first and evident test data were flipped
+provisionally against Canon TDD but are expected to revert to no-oracle: their primary source is
+Test-Driven Development by Example, a copyrighted book held summary-only, so an owned tag holds only
+if a free essay actually gates them under the orchestrator-driven oracle-reviewer gate.
+Recommendation CONTENT was unchanged -- only attribution/tier text was edited. The touched
+requirements (SEL-01, SEL-02, STR-02, DST-03, DST-04) stay Complete for Phase 16; this is a
+provenance-tier upgrade, not reopened coverage.
+
 <domain>
 ## Phase Boundary
 

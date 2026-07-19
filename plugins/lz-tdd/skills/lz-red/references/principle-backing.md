@@ -26,15 +26,15 @@ Each backing row carries:
 
 | Recommendation | Source | Access tier |
 | --- | --- | --- |
-| [Running test list](three-laws-and-test-selection.md) | Kent Beck, Test-Driven Development by Example | Unowned; high-confidence core only (no-oracle). |
-| [Take one small step](three-laws-and-test-selection.md) | Kent Beck, Test-Driven Development by Example | Unowned; high-confidence core only (no-oracle). |
+| [Running test list](three-laws-and-test-selection.md) | Kent Beck, Canon TDD | Owned; oracle-verified against the clean-room source. |
+| [Take one small step](three-laws-and-test-selection.md) | Kent Beck, Canon TDD | Owned; oracle-verified against the clean-room source. |
 | [Grow the test only enough to fail](three-laws-and-test-selection.md) | Robert C. Martin, Clean Code Ch. 9 | Owned; oracle-verified against the clean-room source. |
-| [Start from the degenerate case](three-laws-and-test-selection.md) | Kent Beck, Test-Driven Development by Example | Unowned; high-confidence core only (no-oracle). |
-| [Triangulate to the next test](three-laws-and-test-selection.md) | Kent Beck, Test-Driven Development by Example | Unowned; high-confidence core only (no-oracle). |
+| [Start from the degenerate case](three-laws-and-test-selection.md) | Kent Beck, Canon TDD | Owned; oracle-verified against the clean-room source. |
+| [Triangulate to the next test](three-laws-and-test-selection.md) | Kent Beck, First One, Then Many | Owned; oracle-verified against the clean-room source. |
 | [Arrange-act-assert](test-structure-and-assertions.md) | Bill Wake | Unowned; high-confidence core only (no-oracle). |
 | [Given-when-then](test-structure-and-assertions.md) | Dan North | Unowned; high-confidence core only (no-oracle). |
-| [Assert-first](test-structure-and-assertions.md) | Kent Beck, Test-Driven Development by Example | Unowned; high-confidence core only (no-oracle). |
-| [Evident test data](test-structure-and-assertions.md) | Kent Beck, Test-Driven Development by Example | Unowned; high-confidence core only (no-oracle). |
+| [Assert-first](test-structure-and-assertions.md) | Kent Beck, Canon TDD | Owned; oracle-verified against the clean-room source. |
+| [Evident test data](test-structure-and-assertions.md) | Kent Beck, Canon TDD | Owned; oracle-verified against the clean-room source. |
 | [One concept per test](test-structure-and-assertions.md) | Robert C. Martin, Clean Code Ch. 9 | Owned; oracle-verified against the clean-room source. |
 | [Behavior-oriented naming](naming.md) | Dan North | Unowned; high-confidence core only (no-oracle). |
 | [Osherove three-part naming](naming.md) | Roy Osherove | Unowned; high-confidence core only (no-oracle). |
@@ -65,9 +65,8 @@ section is their insertion point; their rows land with the coach spine in that p
   oracle-verifiable against the clean-room set: Robert C. Martin (Clean Code Ch. 9); Sandi Metz (The
   Magic Tricks of Testing and The Design of Tests talks -- the message matrix and test-as-design-
   feedback; and, with Katrina Owen, 99 Bottles of OOP, JavaScript Edition, for test naming); Gary
-  Bernhardt (Boundaries -- functional core / imperative shell); Kent Beck (Test Desiderata essay and
-  video series); and Ian Cooper. Beck's other rows (running test list, triangulation, assert-first,
-  evident test data) remain no-oracle for now, pending a follow-up upgrade against his
-  now-provisioned essays (Canon TDD, First One Then Many). Unowned no-oracle sources are used at
+  Bernhardt (Boundaries -- functional core / imperative shell); Kent Beck (Canon TDD -- running test list, one small step, the starter
+  case, assert-first, and evident test data; First One, Then Many -- triangulation; Test Desiderata
+  essay and video series); and Ian Cooper. Unowned no-oracle sources are used at
   high-confidence core only: Bill Wake, Dan North, Roy Osherove, Vladimir Khorikov, Michael Feathers,
   Steve Freeman and Nat Pryce (GOOS), and the Vitest 4.x documentation.

@@ -6,6 +6,17 @@
 point -- provisioning owned sources into `.oracle/` -- was escalated per operator
 instruction and RESOLVED before this file was written).
 
+## Provenance correction (2026-07-19, cross-phase, added during Phase 17)
+
+Phase 17's execute-time oracle-reviewer found the query/command **message matrix** is Sandi Metz's
+_The Magic Tricks of Testing_ talk, NOT _99 Bottles of OOP_ -- the two Metz works were conflated when
+sources were provisioned here. The Phase-16 use of _99 Bottles_ for **test naming** ("name the
+behavior, not the method") was separately oracle-gated and stands as a legitimately-owned source;
+only the matrix attribution (a Phase-17 surface) was wrong, and it is corrected in the shipped tree
+and in 17-CONTEXT. No Phase-16 shipped content changes. The `.oracle/` library has since been
+expanded and reorganized (Metz/Bernhardt/Beck talks + Beck written content; transcripts now under
+`.oracle/videos/`, written content under `.oracle/written-content/`).
+
 <domain>
 ## Phase Boundary
 

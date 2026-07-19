@@ -9,6 +9,20 @@ so nothing was escalated -- the phase is heavily pre-determined by the ROADMAP S
 the Phase-15 content-contract stubs (which already tag each source's access tier), and the
 direct 0.0.2 / Phase-16 clean-room precedent.
 
+## Provenance correction (2026-07-19, post-execution)
+
+An execute-time oracle-reviewer pass found the query/command **message matrix is Sandi Metz's _The
+Magic Tricks of Testing_ (RailsConf 2013 talk), NOT _99 Bottles of OOP_** -- the milestone research
+conflated Metz's two works. All "99 Bottles -> message-matrix" references below (D-01, D-05, D-14,
+canonical refs, specifics) are superseded: the owned matrix source is the Magic Tricks talk,
+transcribed into `.oracle/videos/`; _99 Bottles_ remains a legitimately-owned source for **test
+naming only** (that Phase-16 claim was separately gated and stands). The maintainer then provisioned
+a broader Metz/Bernhardt/Beck talk + written-content library, so two more surfaces were upgraded from
+no-oracle to owned and oracle-verified this pass: **functional-core.md** (Gary Bernhardt, _Boundaries_)
+and the **Test Desiderata** lens (Kent Beck, _Test Desiderata_ essay + video series). All owned
+surfaces re-gated PASS. Deferred: an lz-refactor "Metz layer" (REQUIREMENTS FUT-METZ-REFACTOR) and a
+Phase-16 Beck upgrade of the selection/structure surfaces.
+
 <domain>
 ## Phase Boundary
 

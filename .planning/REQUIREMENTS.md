@@ -84,6 +84,16 @@ Deferred to a later lz-tdd release. Tracked, not in this roadmap.
 - **FUT-OUTSIDE-IN**: Outside-in / acceptance / double-loop TDD RED (a failing acceptance test driving inner unit tests). Deferred; unit RED must land and prove out first.
 - **FUT-02**: Multi-language example sets beyond TypeScript.
 - **FUT-04**: Split the Kerievsky layer of lz-refactor into its own skill (carried from 0.0.2).
+- **FUT-METZ-REFACTOR**: An lz-refactor "Metz layer" -- enrich the shipped refactor catalogs and smell
+  taxonomy with the Sandi Metz talk sources now provisioned in git-ignored `.oracle/` (21 talks
+  surveyed via the oracle agent 2026-07-19): the code-smell taxonomy in five families (Get a Whiff of
+  This), small-object extraction + the squint test (All the Little Things), null object (Nothing is
+  Something), the factory taxonomy (If You Build It / Devs for Ukraine), duck typing + dependency
+  direction (Less), message/role design (Polly Want a Message; the POODR discussion), and SOLID (SOLID
+  OO Design). Deferred to a post-0.0.3 lz-refactor milestone (that skill is already shipped). The
+  cross-skill "rules are heuristics, not law" coach voice has an owned source too (Rules). NOTE: none
+  of the 21 surveyed Metz talks is a source for the GREEN / Transformation Priority Premise step
+  (lz-tpp) -- all were checked and none carries TPP content.
 
 ## Out of Scope
 

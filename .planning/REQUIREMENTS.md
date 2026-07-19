@@ -15,13 +15,13 @@ Requirements for milestone lz-tdd@0.0.3. Each maps to a roadmap phase. Grounded 
 
 ### Test selection and ordering (SEL)
 
-- [ ] **SEL-01**: Coach guidance to keep a test list and take one small step (one-step test), starting from the degenerate / starter case (empty, zero, null).
-- [ ] **SEL-02**: Triangulation guidance for the RED facet (add another concrete example to select the next test), explicitly bounded against lz-tpp's fake-it / generalize (the GREEN facet).
+- [x] **SEL-01**: Coach guidance to keep a test list and take one small step (one-step test), starting from the degenerate / starter case (empty, zero, null).
+- [x] **SEL-02**: Triangulation guidance for the RED facet (add another concrete example to select the next test), explicitly bounded against lz-tpp's fake-it / generalize (the GREEN facet).
 
 ### Test structure (STR)
 
-- [ ] **STR-01**: Guidance on Arrange-Act-Assert and Given-When-Then structure -- offer both vocabularies for the same skeleton and match the house idiom.
-- [ ] **STR-02**: Assert-first, evident / intention-revealing test data, and one-concept-per-test guidance.
+- [x] **STR-01**: Guidance on Arrange-Act-Assert and Given-When-Then structure -- offer both vocabularies for the same skeleton and match the house idiom.
+- [x] **STR-02**: Assert-first, evident / intention-revealing test data, and one-concept-per-test guidance.
 
 ### Assertion design (ASRT)
 
@@ -31,7 +31,7 @@ Requirements for milestone lz-tdd@0.0.3. Each maps to a roadmap phase. Grounded 
 
 ### Test naming (NAME)
 
-- [ ] **NAME-01**: Behavior / BDD "should ..." naming as primary, with Osherove's three-part `UnitOfWork_StateUnderTest_ExpectedBehavior` convention as a documented alternative.
+- [x] **NAME-01**: Behavior / BDD "should ..." naming as primary, with Osherove's three-part `UnitOfWork_StateUnderTest_ExpectedBehavior` convention as a documented alternative.
 
 ### Three Laws spine and fail-for-the-right-reason (LAW)
 
@@ -111,14 +111,14 @@ Which phases cover which requirements. Populated during roadmap creation.
 | SKL-01 | Phase 15 | Complete |
 | SKL-02 | Phase 15 | Complete |
 | SKL-03 | Phase 15 | Complete |
-| SEL-01 | Phase 16 | Pending |
-| SEL-02 | Phase 16 | Pending |
-| STR-01 | Phase 16 | Pending |
-| STR-02 | Phase 16 | Pending |
+| SEL-01 | Phase 16 | Complete |
+| SEL-02 | Phase 16 | Complete |
+| STR-01 | Phase 16 | Complete |
+| STR-02 | Phase 16 | Complete |
 | ASRT-01 | Phase 17 | Pending |
 | ASRT-02 | Phase 17 | Pending |
 | ASRT-03 | Phase 17 | Pending |
-| NAME-01 | Phase 16 | Pending |
+| NAME-01 | Phase 16 | Complete |
 | LAW-01 | Phase 18 | Pending |
 | LAW-02 | Phase 18 | Pending |
 | RTR-01 | Phase 17 | Pending |

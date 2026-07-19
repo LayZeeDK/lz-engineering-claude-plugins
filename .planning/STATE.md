@@ -2,19 +2,19 @@
 gsd_state_version: 1.0
 milestone: lz-tdd@0.0.3
 milestone_name: lz-red Skill
-current_phase: 16
-current_phase_name: Source Distillation & Core RED References
+current_phase: 17
+current_phase_name: Assertion Design, Stance Router & TS/Vitest Mechanics
 status: executing
-stopped_at: Phase 16 plan 16-01 complete (instrument-first RED baseline); 16-02 next
-last_updated: "2026-07-18T23:58:30.000Z"
+stopped_at: Phase 16 plan 16-01 complete (instrument-first RED baseline); 16-02 (fill SEL/STR/NAME) next
+last_updated: "2026-07-19T01:11:36.544Z"
 last_activity: 2026-07-19
-last_activity_desc: Phase 16 plan 16-01 complete (lz-red-workspace RED baseline)
+last_activity_desc: Phase 16 complete, transitioned to Phase 17
 progress:
   total_phases: 6
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 4
-  completed_plans: 2
-  percent: 17
+  completed_plans: 4
+  percent: 33
 ---
 
 # Project State
@@ -29,16 +29,16 @@ See: .planning/PROJECT.md (updated 2026-07-18 -- started milestone lz-tdd@0.0.3)
 
 ## Current Position
 
-Phase: 16 (Source Distillation & Core RED References) -- EXECUTING
-Plan: 2 of 3 (16-01 complete; 16-02 next)
+Phase: 17 — Assertion Design, Stance Router & TS/Vitest Mechanics
+Plan: Not started
 Status: Executing Phase 16
-Last activity: 2026-07-19 -- Phase 16 plan 16-01 complete (instrument-first RED baseline)
+Last activity: 2026-07-19 — Phase 16 complete, transitioned to Phase 17
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 31 (lz-tdd@0.0.1)
+- Total plans completed: 34 (lz-tdd@0.0.1)
 - Average duration: - min
 - Total execution time: 0.0 hours
 
@@ -56,6 +56,7 @@ Last activity: 2026-07-19 -- Phase 16 plan 16-01 complete (instrument-first RED 
 | 11 | 4 | - | - |
 | 14 | 5 | - | - |
 | 15 | 1 | - | - |
+| 16 | 3 | - | - |
 
 **Recent Trend:**
 

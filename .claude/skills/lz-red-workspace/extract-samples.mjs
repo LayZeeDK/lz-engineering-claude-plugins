@@ -19,6 +19,11 @@ const repoRoot = path.resolve(here, "..", "..", "..");
 // lz-red references are FLAT files directly under one dir (no catalog subdirs). walkMd recurses,
 // so this single root covers the flat refs plus the testing-stance/ subdir stubs.
 const REFERENCES = path.join(repoRoot, "plugins", "lz-tdd", "skills", "lz-red", "references");
+// The SKILL.md coach procedure carries the VIT-02 worked example. SKILL.md sits at the skill root
+// (parent of references/), so walkMd(REFERENCES) never reaches it; prepend it to the walk. Its
+// basename is "SKILL" (not "readme"), so it passes the README-skip guard; a ts fence extracts as
+// SKILL-1.ts. Today SKILL.md carries no ts fence, so the extractor stays GREEN-on-empty.
+const SKILL_MD = path.join(repoRoot, "plugins", "lz-tdd", "skills", "lz-red", "SKILL.md");
 const SAMPLES = path.join(here, "samples");
 
 const isDir = (p) => {
@@ -98,7 +103,7 @@ let extracted = 0;
 let skipped = 0;
 const written = [];
 
-for (const file of walkMd(REFERENCES)) {
+for (const file of [SKILL_MD, ...walkMd(REFERENCES)]) {
   const leaf = path.basename(file, ".md");
 
   if (leaf.toLowerCase() === "readme") {

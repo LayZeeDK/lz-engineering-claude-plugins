@@ -1,26 +1,30 @@
 #!/usr/bin/env node
-// Phase-17 content-completeness gate for the lz-red RED references (extended from the Phase-16
-// SEL/STR/NAME core gate; D-13 instrument-first, extend-in-place, no sibling checker). A mirror of
-// check-backing.mjs (per-file topic-token presence + SUMMARY + process.exit(0|1), accumulate-then-exit,
-// run from anywhere), with three additions over the bare template: a PER-FILE `requireFence` flag
-// (>= 1 tsc-strict ts fence, borrowed from check-catalog's fence idiom, asserted only where true), a
-// must-REMAIN later-phase deferral guard on each co-edited stub, and filename-presence cross-link /
-// cross-reference tokens (folded into `topics`, the check-backing fowler-catalog idiom).
+// Phase-18 content-completeness gate for the lz-red SKILL.md coach procedure + the RED references
+// (extended in place from the Phase-16 SEL/STR/NAME core gate and the Phase-17 ASRT/RTR/VIT/ANTI
+// slices; D-13 instrument-first, extend-in-place, no sibling checker). A mirror of check-backing.mjs
+// (per-file topic-token presence + SUMMARY + process.exit(0|1), accumulate-then-exit, run from
+// anywhere), with these additions over the bare template: a PER-FILE `requireFence` flag (>= 1
+// tsc-strict ts fence, borrowed from check-catalog's fence idiom); a `requireNonIgnoreFence` flag (a
+// BARE ts fence only, so a coverage-skipping ts-ignore fence cannot satisfy VIT-02); a per-entry
+// `dir` base override (SKILL.md sits at the skill root, not under references/); an `absent`
+// no-stale-marker guard (the D-14 inverse of `deferral`); filename-presence cross-link tokens folded
+// into `topics`; and a post-loop SEAM-02 block reading the shipped lz-tpp/SKILL.md.
 //
-// Ten FILES entries: three carried-over Phase-16 core refs (three-laws + naming unchanged; the
-// test-structure-and-assertions assertions slice FLIPPED -- STR tokens kept, five ASRT tokens + three
-// stance-leaf filename tokens added, the Phase-17 deferral replaced by a Phase-18 F.I.R.S.T.-baseline
-// deferral), the six new Phase-17 slices (testing-stance README + functional-core + message-matrix +
-// seams-and-legacy, vitest-typescript-mechanics, anti-patterns), and the co-edited principle-backing.
+// Eleven FILES entries: the SKILL.md router (dir-override entry -- coach-procedure tokens + a
+// non-ignore ts fence + a no-stale-marker guard) plus the ten lz-red references. The four co-edited
+// Phase-18 slices (three-laws-and-test-selection, test-structure-and-assertions,
+// vitest-typescript-mechanics, principle-backing) had their must-REMAIN Phase-18 deferral guards
+// FLIPPED to positive content topics + an `absent: /Phase 18/i` no-stale-marker guard; every
+// Phase-16/17 topic is kept as the regression floor.
 //
-// RED against the current Phase-15 stubs BY DESIGN -- this is the instrument-first Wave-0 Nyquist
-// baseline, NOT a failure. The tsc extractor is GREEN-on-empty (0 fences compile vacuously), so it
-// cannot be the content-completeness signal; THIS checker is. Each unfilled stub carries a
-// `## Sources (placeholder)` heading (trips /\bplaceholder\b/i via the shared SCAFFOLD set) and, where
-// requireFence is true, zero ts fences, so the gate is RED now and flips GREEN only when Waves 2-3
-// author real content, add a tsc-strict Vitest fence, add the cross-links, keep the Phase-18 markers,
-// and rewrite `## Sources (placeholder)` to a real `## Sources` section. The deferral guards assert
-// each co-edited stub keeps its later-phase (Phase 18) marker so a wave fills only its own slice.
+// RED against the current placeholder / un-filled Phase-18 slices BY DESIGN -- this is the
+// instrument-first Wave-0 Nyquist baseline, NOT a failure. The tsc extractor is GREEN-on-empty (it
+// compiles whatever fences exist), so it cannot be the content-completeness signal; THIS checker is.
+// The SKILL.md placeholder trips /\bplaceholder\b/i, carries no bare ts fence, and still carries the
+// deferral marker; the four co-edited slices still carry their `/Phase 18/i` marker; and lz-tpp has
+// no reverse pointers yet -- so the gate is RED now and flips GREEN only when later waves author the
+// coach procedure + a tsc-strict Vitest fence, fill the four slices, remove every deferral marker,
+// and add both lz-tpp reverse pointers. The Phase-17.1 D-05 honesty gate stays intact.
 //   node .claude/skills/lz-red-workspace/tools/check-red-references.mjs
 import fs from "node:fs";
 import path from "node:path";
@@ -239,7 +243,7 @@ const report = (ok, label, detail) => {
   console.log(`  [${ok ? "PASS" : "FAIL"}] ${label}${detail ? " -- " + detail : ""}`);
 };
 
-console.log("lz-red Phase-17 reference completeness check (RED-on-stubs by design)");
+console.log("lz-red Phase-18 coach-procedure + reference completeness check (RED-on-stubs by design)");
 console.log(`  references dir: ${path.relative(repoRoot, REFERENCES)}`);
 console.log("");
 
@@ -330,9 +334,9 @@ if (fs.existsSync(lzTppSkillPath)) {
 console.log("");
 
 if (failures === 0) {
-  console.log(`SUMMARY: RED-REFS GREEN -- ${filesPresent}/${FILES.length} lz-red references authored (SEL/STR/NAME + ASRT/RTR/VIT/ANTI) with topics + required ts fences + cross-links, no scaffold leak, Phase-18 deferral markers intact, D-05 honesty gate holds`);
+  console.log(`SUMMARY: RED-REFS GREEN -- ${filesPresent}/${FILES.length} lz-red surfaces authored (SKILL.md coach procedure + SEL/STR/NAME/ASRT/RTR/VIT/ANTI references) with topics + required ts fences + cross-links, no scaffold leak, no stale Phase-18 markers, SEAM-02 lz-tpp reverse pointers present, D-05 honesty gate holds`);
   process.exit(0);
 }
 
-console.log(`SUMMARY: RED-REFS RED -- ${filesPresent}/${FILES.length} references present, ${failures} check(s) FAILED (instrument-first Phase-17 RED baseline by design pre-content)`);
+console.log(`SUMMARY: RED-REFS RED -- ${filesPresent}/${FILES.length} surfaces present, ${failures} check(s) FAILED (instrument-first Phase-18 RED baseline by design pre-content)`);
 process.exit(1);

@@ -194,12 +194,12 @@ Plans:
   2. `claude plugin validate . --strict` exits 0 and the plugin-validator + skill-reviewer agents both PASS on lz-red.
   3. The shipped tree is ASCII-only with no verbatim book prose or talk transcripts (own-words, DST-04 clean-room via git-ignored `.oracle/`), every TypeScript sample is tsc --strict clean, and the maintainer work-email is absent (allowlist-inversion scan passes; author / committer = public gmail).
 
-**Plans**: 3 plans
+**Plans**: 2/3 plans executed
 
 **Wave 1** (content edits + GA-7 hygiene forward-fix -- parallel, disjoint files)
 
-- [ ] 19-01-PLAN.md -- Three-skill 0.0.3 content: bump plugin.json to 0.0.3 + three-skill description/keywords, marketplace listing names all three skills, README lz-red RED-step section + three-skill loop lead, CHANGELOG [lz-tdd@0.0.3] entry (DST-01, DST-03)
-- [ ] 19-02-PLAN.md -- GA-7 work-domain anti-pattern forward-fix: rewrite the archived 06-SECURITY.md encoded needle to a non-encoding allowlist-inversion form + sweep tracked planning docs; no main history rewrite (DST-03)
+- [x] 19-01-PLAN.md -- Three-skill 0.0.3 content: bump plugin.json to 0.0.3 + three-skill description/keywords, marketplace listing names all three skills, README lz-red RED-step section + three-skill loop lead, CHANGELOG [lz-tdd@0.0.3] entry (DST-01, DST-03)
+- [x] 19-02-PLAN.md -- GA-7 work-domain anti-pattern forward-fix: rewrite the archived 06-SECURITY.md encoded needle to a non-encoding allowlist-inversion form + sweep tracked planning docs; no main history rewrite (DST-03)
 
 **Wave 2** (finalize gate -- blocked on Wave 1)
 
@@ -244,7 +244,7 @@ Plans:
 | 16. Source Distillation & Core RED References | lz-tdd@0.0.3 | 3/3 | Complete    | 2026-07-19 |
 | 17. Assertion Design, Stance Router & TS/Vitest Mechanics | lz-tdd@0.0.3 | 6/6 | Complete   | 2026-07-19 |
 | 18. Coach Procedure & lz-tpp Seam Wiring | lz-tdd@0.0.3 | 6/6 | Complete    | 2026-07-20 |
-| 19. Distribution & Hygiene | lz-tdd@0.0.3 | 0/3 | Not started | - |
+| 19. Distribution & Hygiene | lz-tdd@0.0.3 | 2/3 | In Progress|  |
 | 20. Skill-Effectiveness Evals | lz-tdd@0.0.3 | 0/TBD | Not started | - |
 
 ---

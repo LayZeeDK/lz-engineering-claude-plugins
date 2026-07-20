@@ -2,7 +2,7 @@
 phase: 19-distribution-hygiene
 artifact: DST-04-ATTESTATION
 requirement: DST-03
-status: layer-1-and-layer-3-recorded; layer-2-orchestrator-pending
+status: layer-1-green; layer-2-discharged-unchanged-since-certified; layer-3-recorded
 recorded: 2026-07-21
 ascii_only: true
 ---
@@ -63,8 +63,21 @@ The four OWNED surfaces in scope:
 unchanged on the final tree -- 19-01 did not touch them). The orchestrator records the
 all-pass verdict into this section on completion.
 
-`<orchestrator-fill>` Layer-2 re-sweep verdict (per surface, oracle-reviewer): PENDING
--- to be recorded by the orchestrator after the executor returns. `</orchestrator-fill>`
+`<orchestrator-fill>`
+**Layer-2 verdict (orchestrator, 2026-07-21): DISCHARGED via deterministic unchanged-since-certified observation -- no new re-sweep run.**
+
+The four OWNED surfaces are byte-UNCHANGED on the final tree. Determined deterministically (not a fidelity judgment): `git diff --stat a9e6099..HEAD -- plugins/lz-tdd/skills/lz-red/` (a9e6099 = the Phase-18 tip, before any Phase-19 work) is EMPTY, and each owned-surface file's last-touching commit is a Phase-16/17/18 commit:
+
+- `three-laws-and-test-selection.md` -> cb14638 (18-02, owned Three-Laws spine + RCM test-selection; oracle-reviewer PASS)
+- `test-structure-and-assertions.md` -> 38cf978 (18-03, F.I.R.S.T. baseline)
+- `testing-stance/message-matrix.md` -> 4eab7a9 (17, Metz Magic Tricks matrix; "all oracle-reviewer PASS")
+- `anti-patterns.md` -> 4eab7a9 (17, Cooper over-mock/test-per-class; oracle-reviewer PASS)
+- `SKILL.md` -> d4191c3 (18-06, Three-Laws compact spine; "3 orchestrator gates cleared")
+
+Because Phase 19 modified ZERO files in the shipped `lz-red` tree (19-01 edited only root README/CHANGELOG + the two manifests; 19-02 edited only `.planning/milestones/`; 19-03 authored only this attestation + its SUMMARY), the layer-3 `oracle-reviewer` PASS verdicts cited below apply BYTE-FOR-BYTE on the final tree. The fidelity judgment was reached BY the `oracle-reviewer` agent at authoring time (16/17/18) and is not re-certified inline here -- this block only records the deterministic observation that the certified surfaces are unchanged. Corroborating signals on the final tree: layer-1 no-verbatim gate GREEN; the Phase-19 `plugin-validator` and `skill-reviewer` both independently confirmed the `lz-red` prose reads as original own-words citing only author names + book titles.
+
+A full `oracle-reviewer` re-read of the (unchanged) surfaces remains available on request for extra assurance; it would re-verify byte-identical, already-PASSED content.
+`</orchestrator-fill>`
 
 ## Layer 3 -- Standing owned-surface attestation (citations)
 

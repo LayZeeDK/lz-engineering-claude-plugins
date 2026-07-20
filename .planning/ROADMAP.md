@@ -163,7 +163,7 @@ Plans:
   3. A fail-for-the-right-reason step (watch the red bar, confirm the test fails on the asserted behavior not a compile / setup error or false green, F.I.R.S.T. baseline) precedes the forward lz-red -> lz-tpp handoff; the coach questions rather than drives (no auto-editing / running the suite unprompted).
   4. A reverse `lz-tpp -> lz-red` pointer (plus the deferred `lz-tpp -> lz-refactor` pointer, in the same edit) is added to the shipped lz-tpp `SKILL.md`, subagent-reviewed (incl. >= 1 unbiased from-scratch reviewer) before acceptance.
 
-**Plans**: 4/6 plans executed
+**Plans**: 5/6 plans executed
 
 **Wave 1** (instrument-first RED baseline)
 
@@ -177,7 +177,7 @@ Plans:
 
 **Wave 3** (SKILL.md coach procedure) *(blocked on Wave 2)*
 
-- [ ] 18-05-PLAN.md -- Replace the SKILL.md placeholder with the inline 6-step coach procedure on the Three Laws spine + the one tsc-strict VIT-02 worked example [LAW-01, LAW-02, RTR-02, SEAM-01, VIT-02]
+- [x] 18-05-PLAN.md -- Replace the SKILL.md placeholder with the inline 6-step coach procedure on the Three Laws spine + the one tsc-strict VIT-02 worked example [LAW-01, LAW-02, RTR-02, SEAM-01, VIT-02]
 
 **Wave 4** (finalize gate) *(blocked on Wave 3)*
 
@@ -234,7 +234,7 @@ Plans:
 | 15. lz-red Skill Scaffold & Description Boundary | lz-tdd@0.0.3 | 1/1 | Complete    | 2026-07-18 |
 | 16. Source Distillation & Core RED References | lz-tdd@0.0.3 | 3/3 | Complete    | 2026-07-19 |
 | 17. Assertion Design, Stance Router & TS/Vitest Mechanics | lz-tdd@0.0.3 | 6/6 | Complete   | 2026-07-19 |
-| 18. Coach Procedure & lz-tpp Seam Wiring | lz-tdd@0.0.3 | 4/6 | In Progress|  |
+| 18. Coach Procedure & lz-tpp Seam Wiring | lz-tdd@0.0.3 | 5/6 | In Progress|  |
 | 19. Distribution & Hygiene | lz-tdd@0.0.3 | 0/TBD | Not started | - |
 | 20. Skill-Effectiveness Evals | lz-tdd@0.0.3 | 0/TBD | Not started | - |
 

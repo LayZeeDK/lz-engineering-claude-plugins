@@ -87,6 +87,35 @@ reference leaf that carries the detail; do not restate a leaf's content here.
 6. Hand off forward to lz-tpp. Once the test is red for the right reason, making it pass is Law 3 --
    the green step, and that is lz-tpp's job, not this skill's.
 
+The RED path end to end (Vitest + TypeScript). Classify (step 1): this is new behavior, so the next
+failing test is lz-red's. Pick the starter case (step 2) and shape it arrange-act-assert (step 4),
+asserting the observable result (step 5). The production symbol already compiles with a wrong body, so
+the bar is red for the right reason -- an AssertionError on the value, not a compile error -- and
+turning it green is lz-tpp's job (step 6):
+
+```ts
+import { describe, it, expect } from 'vitest';
+
+// RED: the starter case for a new behavior. The stub compiles, so the bar is red
+// for the right reason -- an AssertionError on the value, not a missing symbol.
+describe('applyDiscount', () => {
+  it('should take ten percent off a total', () => {
+    // Arrange
+    const total = 100;
+    // Act
+    const net = applyDiscount(total, 10);
+    // Assert
+    expect(net).toBe(90);
+  });
+});
+
+// Production stub: correct type signature, wrong body -- returns the total untouched.
+// Not yet implemented; lz-tpp picks the transformation that turns this green.
+function applyDiscount(total: number, percent: number): number {
+  return total;
+}
+```
+
 Coach by default; hand off, do not drive. When the request is a QUESTION or asks for advice (what
 should I test next, is this a good test, how would you shape this), present the next failing test and
 the smallest move and let the developer write it -- do not edit their tests or run the suite unasked.

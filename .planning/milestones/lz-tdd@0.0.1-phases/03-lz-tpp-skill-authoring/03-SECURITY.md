@@ -30,7 +30,7 @@ created: 2026-07-02
 
 | Threat ID | Category | Component | Disposition | Mitigation | Status |
 |-----------|----------|-----------|-------------|------------|--------|
-| T-03-01-01 | Information Disclosure | SKILL.md committed content | mitigate | Work-email allowlist gate (never spells the literal). Verified: email scan empty; consensus.dk empty | closed |
+| T-03-01-01 | Information Disclosure | SKILL.md committed content | mitigate | Work-email allowlist gate (never spells the literal). Verified by allowlist-inversion: only the approved public gmail present (remainder empty) | closed |
 | T-03-01-02 | EoP / Tampering | Coach body instructions | mitigate | Coach-don't-drive; "unless explicitly asked" qualifier. Verified: SKILL.md "Never edit ... or run the tests unless explicitly asked -- coach, don't drive" | closed |
 | T-03-01-03 | Spoofing (mis-trigger) | Frontmatter description | mitigate | Scoped third-person description + should-NOT-trigger clause; 750 chars (<=1024); no claude/anthropic; no XML tags. Verified | closed |
 | T-03-01-04 | Tampering (fidelity drift) | Reference-mode routing | mitigate | Reference mode explains FROM the locked transformations.md; body does not restate the 14-item list (only a 7-token subset as inline examples). Verified | closed |

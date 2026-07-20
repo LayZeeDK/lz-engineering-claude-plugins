@@ -53,13 +53,13 @@ The ASCII gate runs only over `plugins/`, `.claude-plugin/`, `README.md`, `LICEN
 ### The work-email self-reference trap recurred twice in one phase
 Any document that states the "work email must appear nowhere" rule -- and any agent report asserting the email is absent -- tends to spell the literal while doing so. It happened first in the discuss-phase artifacts (04-CONTEXT.md, 04-DISCUSSION-LOG.md) and again in the code-review agent's 04-REVIEW.md. Both tripped the DIST-02 full-tree guard.
 
-**Context:** Reference the work email only in a non-matching / escaped `@consensus\.dk` form in every committed file, including agent-generated reports. The escaped-dot needle does not match the plain-dot guard regex, so a doc containing the guard command does not self-trip.
+**Context:** Never write the work email or its work domain in any committed file, not even as an escaped search needle (the needle is itself a leak); detect by allowlist-inversion instead -- assert the only email-shaped token present is the approved public gmail and flag everything else.
 **Source:** 04-RESEARCH.md (Pitfalls 1, 3), 04-VERIFICATION.md, 04-SUMMARY.md
 
 ### Run the DIST-02 guard as a post-commit gate, not only at authoring time
 Committing 04-REVIEW.md (an agent-generated report) without re-running the full-tree work-email guard let the literal reach HEAD; only the phase verifier caught it, forcing a redact + commit-amend.
 
-**Context:** The guard (`git grep -qE '@consensus\.dk'`, rc=1 = clean) must run after every commit that touches meta-docs or agent reports -- authoring-time "confirmed absent" is stale the moment any later doc quotes the rule.
+**Context:** The work-email allowlist-inversion guard (assert only the approved public gmail is present, remainder empty) must run after every commit that touches meta-docs or agent reports -- authoring-time "confirmed absent" is stale the moment any later doc quotes the rule.
 **Source:** 04-VERIFICATION.md (gap_found -> passed re-verification)
 
 ### "Confirmed absent" is a point-in-time claim, not a durable one
@@ -75,13 +75,13 @@ The discuss-phase note "work email confirmed absent at discuss time" was already
 ### MSYS_NO_PATHCONV=1 for slash-leading git grep/rg patterns on Git Bash
 On Windows Git Bash, a `git grep`/`rg` pattern that starts with `/` (e.g. `/plugin marketplace add ...`) is mangled by MSYS path conversion before the tool sees it, producing a false negative. Verified: `marketplace add` matched but `/plugin marketplace add` did not until `MSYS_NO_PATHCONV=1` was set.
 
-**When to use:** Any acceptance-criteria / verification `git grep -F`/`rg -F` for a string beginning with `/` on Git Bash. Patterns not starting with `/` (`@consensus\.dk`, `larsbrinknielsen@gmail\.com`, `[^\x00-\x7F]`) are unaffected.
+**When to use:** Any acceptance-criteria / verification `git grep -F`/`rg -F` for a string beginning with `/` on Git Bash. Patterns not starting with `/` (`larsbrinknielsen@gmail\.com`, `[^\x00-\x7F]`) are unaffected.
 **Source:** execution (Task 1 verify debugging), 04-VALIDATION.md (Windows note)
 
-### Escaped-dot secret needle so guard docs do not self-trip
-Write the work-email guard needle as `@consensus\.dk`; the escaped backslash means a committed doc quoting the guard command is not itself a match for the plain-dot regex.
+### Detect PII by allowlist-inversion, never by encoding the forbidden value
+Never write the work email or its work domain in a committed file, not even as an escaped search needle -- the needle is itself a leak. Detect absence by allowlist-inversion instead: assert the only email-shaped token present is the approved public gmail (larsbrinknielsen@gmail.com) and flag everything else.
 
-**When to use:** Whenever a committed artifact must document a secret/PII detection command without becoming a match for that command.
+**When to use:** Whenever a committed artifact must document a secret/PII detection method without spelling the forbidden value.
 **Source:** 04-RESEARCH.md (Pitfall 3)
 
 ### Redact-and-amend an unpushed commit to purge a secret before it goes public

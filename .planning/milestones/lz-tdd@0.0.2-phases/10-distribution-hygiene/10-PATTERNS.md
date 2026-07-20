@@ -316,9 +316,9 @@ const APPROVED_EMAILS = new Set(["larsbrinknielsen@gmail.com"]);
 const EMAIL_RE = /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g;
 ```
 Enumerate every email-shaped token, subtract the approved public gmail, assert the
-remainder is empty. D-11: NEVER write the work-email literal into any committed file
-(not the checker, not a plan, not a report). Reference it only in the escaped
-`@consensus\.dk` form when a doc must quote the guard, so the doc does not self-trip.
+remainder is empty. D-11: NEVER write the work-email literal or its work domain into any committed file
+(not the checker, not a plan, not a report), not even as a search needle -- the needle is
+itself a leak; assert only the approved public gmail is present (allowlist-inversion).
 This axis just needs its target set widened (D-10); the shape is unchanged.
 
 ### "Authoritative sources: link, never inline" (prose)

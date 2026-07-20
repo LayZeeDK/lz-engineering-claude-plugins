@@ -97,7 +97,7 @@ None material. Two operational notes:
 - The GoF Behavioral Intent batch and the Fowler Ch.6 mechanics batch each took the full 3 rounds to converge (6 and 4 rewords respectively) -- expected, since these are the two surfaces where the canonical-Intent and accidental-mechanics collisions were originally observed.
 
 ## Issues Encountered
-- The full-tree work-email `git grep -lE 'consensus\.dk'` guard is RED on four `main`-side prior-phase docs (02-SECURITY, 03-REVIEW, 03-SECURITY, 05-SECURITY). This is the pre-existing, maintainer-ACCEPTED finding already logged in `deferred-items.md` (bare company domain quoted as an audit needle, no routable address, no identity leak; risk accepted 2026-07-09). It is out of scope for 10-03 and NOT a regression -- all 25 files this plan touched are clean, and the shippable surface (187 files) remains ASCII + email GREEN.
+- The full-tree work-email allowlist-inversion guard was RED on four `main`-side prior-phase docs (02-SECURITY, 03-REVIEW, 03-SECURITY, 05-SECURITY). This is the pre-existing, maintainer-ACCEPTED finding already logged in `deferred-items.md` (bare company domain quoted as an audit needle, no routable address, no identity leak; risk accepted 2026-07-09). It is out of scope for 10-03 and NOT a regression -- all 25 files this plan touched are clean, and the shippable surface (187 files) remains ASCII + email GREEN.
 
 ## Known Stubs
 None. This plan reworded existing reference prose and added one planning artifact; no code, no placeholders.

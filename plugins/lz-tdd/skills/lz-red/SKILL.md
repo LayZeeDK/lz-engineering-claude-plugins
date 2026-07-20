@@ -26,8 +26,8 @@ and its sibling skill lz-refactor.
 ## Two modes
 
 - Coach mode: a codebase is in view and the question is which failing test to write next or how
-  to shape it. Pick and structure the next failing (red) test. (The full coach decision procedure
-  is deferred to Phase 18 -- see the placeholder below.)
+  to shape it. Pick and structure the next failing (red) test via the coach decision procedure
+  below.
 - Reference mode: the request is "explain this RED concept" (test selection, triangulation, test
   structure, naming, the testing stance, an anti-pattern), or an explicit `/lz-tdd:lz-red`
   invocation with nothing to coach. Answer from the reference files listed below; do not restate
@@ -49,13 +49,51 @@ under test, not as a cue to mock more. Explain WHY a given test is the next one 
 allow a reasoned deviation. Do not frame any single test-selection or structuring rule as
 mandatory.
 
-## Coach decision procedure (deferred to Phase 18)
+## Coach decision procedure
 
-Placeholder only. The full numbered RED procedure -- classify against the lz-tpp / lz-refactor
-seams -> detect the house testing idiom -> pick the next test -> route the testing stance ->
-structure the test -> assert observable behavior -> confirm it fails for the right reason -> hand
-off to lz-tpp -- is authored in Phase 18 (SEAM-01, LAW-01/02, RTR-02). Do not infer it from
-this scaffold.
+Run these steps in order on a coach-mode request. Each step is a move plus a pointer to the
+reference leaf that carries the detail; do not restate a leaf's content here.
+
+1. Classify the request against the lz-tpp and lz-refactor seams. A failing test that must be made
+   to pass is the green step: hand off to lz-tpp and stop. Already-passing code to clean up is the
+   refactor step: hand off to lz-refactor. Otherwise choosing and writing the next failing test is
+   this skill's work. See "RED vs the green step (lz-tpp) and the refactor step (lz-refactor)" above;
+   do not restate it.
+2. Hold the Three Laws spine. Law 1 gates entry: write no production code until a failing test asks
+   for it. Law 2 sizes the test: grow it only to the first failure, and a reference to a
+   not-yet-defined symbol counts as that failure. (Law 3 is step 6.) The owned spine and the
+   test-selection moves -- running test list, one small step, the degenerate starter case, and
+   triangulation -- live in
+   [references/three-laws-and-test-selection.md](references/three-laws-and-test-selection.md); read it
+   to decide which test comes next.
+3. Detect the house test idiom, then route the stance. Match the shape of the existing tests first,
+   then route by structural control and seam availability through the route table in
+   [references/testing-stance/README.md](references/testing-stance/README.md), and open the routed leaf
+   to act. State the route you took and why. If the developer states a stance preference in plain
+   language -- for example "test this as a functional core", "use the message-matrix stance", or
+   "characterize it" -- honor that override over the auto-route and still state the route chosen. The
+   override is natural language; there is no flag.
+4. Structure the test and assert observable behavior. Shape it arrange-act-assert (or
+   given-when-then) and assert what the code does, not how it does it, per
+   [references/test-structure-and-assertions.md](references/test-structure-and-assertions.md); do not
+   restate it.
+5. Confirm it fails for the right reason. The fresh test must fail on its assertion -- an
+   AssertionError on the behavior it pins -- not on a compile, import, or setup error, and it must not
+   pass immediately (a false green); F.I.R.S.T. is the quality baseline. Explain which failure is the
+   right one and why; do not run the suite unprompted. The red-bar mechanics are in
+   [references/vitest-typescript-mechanics.md](references/vitest-typescript-mechanics.md) and the
+   F.I.R.S.T. baseline in
+   [references/test-structure-and-assertions.md](references/test-structure-and-assertions.md).
+6. Hand off forward to lz-tpp. Once the test is red for the right reason, making it pass is Law 3 --
+   the green step, and that is lz-tpp's job, not this skill's.
+
+Coach by default; hand off, do not drive. When the request is a QUESTION or asks for advice (what
+should I test next, is this a good test, how would you shape this), present the next failing test and
+the smallest move and let the developer write it -- do not edit their tests or run the suite unasked.
+When the request is an explicit COMMAND to write the test (write the failing test for me, add the red
+test), write the failing test and then stop; making it pass is the green step (lz-tpp), so do not
+drive it to green. Refusing to write the test when you were plainly asked to is the failure to avoid,
+not caution.
 
 ## Reference material
 

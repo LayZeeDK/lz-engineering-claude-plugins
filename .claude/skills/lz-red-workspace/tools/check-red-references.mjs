@@ -32,6 +32,9 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 // tools -> lz-red-workspace -> skills -> .claude -> repo root
 const repoRoot = path.resolve(here, "..", "..", "..", "..");
 const REFERENCES = path.join(repoRoot, "plugins", "lz-tdd", "skills", "lz-red", "references");
+// The lz-red skill ROOT (parent of references/). The SKILL.md FILES entry resolves against it via a
+// per-entry `dir` override, since the checker otherwise reads only references/ (Pitfall 2).
+const SKILL_ROOT = path.join(repoRoot, "plugins", "lz-tdd", "skills", "lz-red");
 
 // One entry per lz-red RED reference (subdir names include the `testing-stance/` segment, joined
 // under REFERENCES). topics = content-present line patterns (present once the slice is authored),
@@ -42,6 +45,10 @@ const REFERENCES = path.join(repoRoot, "plugins", "lz-tdd", "skills", "lz-red", 
 // of deferral (D-14 no-stale-marker guard): FAILS if the pattern is still PRESENT, so once a slice
 // is filled its `/Phase 18/i` deferral artifact must be gone. The needle is `/Phase 18/i` ONLY --
 // LAW-0 / SEAM-0 legitimately remain as requirement refs (LAW-01 / SEAM-01) in filled content.
+// requireNonIgnoreFence = assert >= 1 BARE ts fence (exactly ```ts / ```typescript) the tsc extractor
+// actually compiles; unlike requireFence's looser TS_FENCE_RE a ```ts ignore fence does NOT satisfy
+// it (VIT-02 real coverage). dir = optional per-entry base dir (defaults to REFERENCES); the SKILL.md
+// entry sets it to the skill root so the checker reaches the router at the tree root.
 const FILES = [
   {
     name: "three-laws-and-test-selection.md",
@@ -190,12 +197,37 @@ const FILES = [
     ],
     absent: { label: "no stale deferral marker", re: /Phase 18/i },
   },
+  {
+    // NET-NEW (D-13, Pitfall 2): the SKILL.md coach procedure sits at the skill ROOT, so it resolves
+    // via the `dir` override (the checker reads references/ only by default). requireNonIgnoreFence
+    // demands a BARE ts fence the tsc extractor compiles (VIT-02), not a skipped `ts ignore` fence.
+    name: "SKILL.md",
+    dir: SKILL_ROOT,
+    requireNonIgnoreFence: true,
+    topics: [
+      { label: "classify-first", re: /classify/i },
+      { label: "Three Laws spine", re: /three laws|law 1|law 2|law 3/i },
+      { label: "stance routing step", re: /route|routing/i },
+      { label: "house test idiom", re: /house .*idiom|test idiom|idiom/i },
+      { label: "natural-language override", re: /override|plain language|stance preference/i },
+      { label: "fail for the right reason", re: /right reason|AssertionError/ },
+      { label: "forward lz-tpp handoff", re: /lz-tpp/i },
+    ],
+    absent: { label: "no stale deferral marker", re: /Phase 18/i },
+  },
 ];
 
 // File-level assertion (per-file via requireFence): at least one tsc-strict TypeScript fence
 // (check-catalog fence idiom). A reliable RED-until-authored content signal for the example-bearing
 // slices that the GREEN-on-empty tsc extractor cannot itself provide (VIT-02: >= 1 Vitest example).
 const TS_FENCE_RE = /```(ts|typescript)\b/;
+
+// A NON-ignore ts fence-open: the info string is EXACTLY `ts` or `typescript` (CommonMark allows up
+// to three leading spaces), end-of-line right after the language token. Unlike TS_FENCE_RE -- whose
+// `\b` sits before a space, so it also matches a coverage-skipping ```ts ignore fence that
+// extract-samples.mjs silently skips -- this requires a BARE fence the tsc extractor actually
+// compiles, so VIT-02 gets real tsc --strict coverage (Pitfall 3).
+const NON_IGNORE_TS_FENCE_RE = /^\s{0,3}```(ts|typescript)\s*$/m;
 
 let failures = 0;
 
@@ -214,7 +246,7 @@ console.log("");
 let filesPresent = 0;
 
 for (const spec of FILES) {
-  const filePath = path.join(REFERENCES, spec.name);
+  const filePath = path.join(spec.dir ?? REFERENCES, spec.name);
 
   if (!fs.existsSync(filePath)) {
     report(false, `${spec.name} exists`, "not found");
@@ -233,6 +265,15 @@ for (const spec of FILES) {
   if (spec.requireFence) {
     const hasFence = TS_FENCE_RE.test(text);
     report(hasFence, `${spec.name}: >= 1 ts fence`, hasFence ? "" : "no tsc-strict TypeScript fence yet");
+  }
+
+  if (spec.requireNonIgnoreFence) {
+    const hasNonIgnoreFence = NON_IGNORE_TS_FENCE_RE.test(text);
+    report(
+      hasNonIgnoreFence,
+      `${spec.name}: >= 1 non-ignore ts fence`,
+      hasNonIgnoreFence ? "" : "no bare tsc-strict TypeScript fence yet (a `ts ignore` fence does not count)"
+    );
   }
 
   const scaffold = SCAFFOLD_RES.find((re) => re.test(text));
@@ -265,6 +306,24 @@ if (fs.existsSync(principleBackingPath)) {
     bookOwnedViolations.length === 0,
     "principle-backing.md: D-05 honesty gate (no Owned row cites the book)",
     bookOwnedViolations.length === 0 ? "" : `violating rows: ${bookOwnedViolations.join(", ")}`
+  );
+}
+
+// SEAM-02 (D-09): the reverse pointers in the SHIPPED lz-tpp skill. The red-green-refactor seam is
+// fully wired only when lz-tpp/SKILL.md points BACK at BOTH siblings -- lz-red (the red step) AND
+// lz-refactor (the refactor step), added in one edit. Reads a path OUTSIDE the lz-red references
+// tree, so it is a standalone post-loop block (mirrors the D-05 honesty-gate idiom). RED now: the
+// shipped lz-tpp skill carries no cross-skill pointer section yet.
+const lzTppSkillPath = path.join(repoRoot, "plugins", "lz-tdd", "skills", "lz-tpp", "SKILL.md");
+
+if (fs.existsSync(lzTppSkillPath)) {
+  const lzTppText = fs.readFileSync(lzTppSkillPath, "utf8");
+  const bothPointers = /lz-red/.test(lzTppText) && /lz-refactor/.test(lzTppText);
+
+  report(
+    bothPointers,
+    "lz-tpp/SKILL.md: SEAM-02 reverse pointers (lz-red AND lz-refactor)",
+    bothPointers ? "" : "lz-tpp skill missing one or both reverse pointers"
   );
 }
 

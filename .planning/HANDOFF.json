@@ -1,38 +1,43 @@
 {
   "version": "1.0",
-  "timestamp": "2026-07-19T20:26:07.157Z",
-  "phase": "17",
-  "phase_name": "Assertion Design, Stance Router & TS/Vitest Mechanics (COMPLETE)",
-  "phase_dir": ".planning/phases/17-assertion-design-stance-router-ts-vitest-mechanics",
-  "plan": null,
-  "task": null,
-  "total_tasks": null,
+  "timestamp": "2026-07-20T23:22:57.977Z",
+  "phase": "19",
+  "phase_name": "Distribution & Hygiene",
+  "phase_dir": ".planning/phases/19-distribution-hygiene",
+  "plan": 3,
+  "task": "close-out",
+  "total_tasks": 3,
   "status": "paused",
-  "handoff_intent": "Phase 17 is fully closed. This handoff queues follow-up item #2 (Phase-16 Beck owned-source upgrades) for a NEW session to run via /gsd:quick --full --auto.",
+  "milestone": "lz-tdd@0.0.3",
+  "phase_state": "VERIFIED COMPLETE (gsd-verifier passed 17/17); ROADMAP + REQUIREMENTS flipped to Complete; DST-01/02/03 all Complete. Remaining = mandatory post-phase close-out audits only. Do NOT re-execute the plans.",
   "completed_tasks": [
-    {"id": 1, "name": "Phase 17 executed (6 plans, 3 waves): instrument + assertions + stance router + Vitest mechanics + anti-patterns", "status": "done"},
-    {"id": 2, "name": "Provenance fix: message matrix re-sourced 99 Bottles -> Metz 'The Magic Tricks of Testing' talk; re-gated PASS", "status": "done", "commit": "4eab7a9"},
-    {"id": 3, "name": "Owned-source upgrades: functional-core -> Bernhardt Boundaries; Test Desiderata -> Beck; anti-patterns listen-to-tests/keep-doubles-honest -> Metz Design of Tests; all oracle-reviewer PASS", "status": "done", "commit": "4eab7a9"},
-    {"id": 4, "name": "Docs reconciled + FUT-METZ-REFACTOR deferred milestone noted", "status": "done", "commit": "11a70b2"},
-    {"id": 5, "name": "Closeout: verify 14/14 PASS (c036d10), secure 0-open + validate nyquist-compliant (2298771), extract-learnings + 12 pooled (3f27321), STATE complete (fcedec3)", "status": "done"}
+    {"id": 1, "name": "discuss-phase 19 (CONTEXT + GA-7 forward-fix decision D-12)", "status": "done", "commit": "4e87c1e"},
+    {"id": 2, "name": "plan-phase 19 (RESEARCH/VALIDATION/PATTERNS + 3 plans; plan-checker 0 blockers, 1 warning fixed)", "status": "done", "commit": "48592ae"},
+    {"id": 3, "name": "19-01 three-skill 0.0.3 content (plugin.json 0.0.3 + README + CHANGELOG + marketplace)", "status": "done", "commit": "804c42c"},
+    {"id": 4, "name": "19-02 GA-7 work-domain forward-fix (swept ALL tracked planning docs; tree-wide allowlist-inversion independently verified clean)", "status": "done", "commit": "8cc452e"},
+    {"id": 5, "name": "19-03 finalize battery GREEN + DST-04 attestation", "status": "done", "commit": "4e36971"},
+    {"id": 6, "name": "orchestrator gates: plugin-validator PASS + skill-reviewer PASS (recorded 19-GATE-RESULTS.md); DST-04 layer-2 discharged", "status": "done", "commit": "d4751e0"},
+    {"id": 7, "name": "gsd-verifier passed 17/17 + phase.complete", "status": "done", "commit": "38d48a0"}
   ],
   "remaining_tasks": [
-    {"id": 1, "name": "Read .oracle/written-content/index.md (nav-only) and map each currently-no-oracle Beck surface to a FULL-TEXT essay", "status": "not_started"},
-    {"id": 2, "name": "Upgrade 'Running test list' + 'Take one small step' (three-laws-and-test-selection.md) no-oracle -> owned against Canon TDD (canon-tdd.md)", "status": "not_started"},
-    {"id": 3, "name": "Upgrade 'Triangulate to the next test' (three-laws-and-test-selection.md) no-oracle -> owned against First One, Then Many (tri-first-one-then-many.md)", "status": "not_started"},
-    {"id": 4, "name": "Assert-first + Evident test data (test-structure-and-assertions.md STR slice): ONLY upgrade if a full-text essay covers them; they live mainly in TDD-by-Example which is summary-only (not gateable) -> otherwise leave no-oracle and say so", "status": "not_started"},
-    {"id": 5, "name": "Flip the tier for each upgraded row in principle-backing.md + update its Sources paragraph (remove the 'pending follow-up' caveat for upgraded rows)", "status": "not_started"},
-    {"id": 6, "name": "Orchestrator drives oracle-reviewer gate on each upgraded surface against its Beck essay (converge-to-clean); keep the deterministic battery GREEN", "status": "not_started"},
-    {"id": 7, "name": "Add a Phase-16 provenance/upgrade note (this re-opens closed-phase content) + commit", "status": "not_started"}
+    {"id": 8, "name": "/gsd-secure-phase 19 (gsd-security-auditor -> 19-SECURITY.md)", "status": "not_started", "note": "gate on workflow.security_enforcement; threat model in 19-03-PLAN.md is hygiene/PII + docs-supply-chain, ASVS L1, threats_open expected 0 (all mitigations GREEN). Spawn the dedicated gsd-security-auditor -- do NOT self-certify inline even on the clean short-circuit path."},
+    {"id": 9, "name": "/gsd-validate-phase 19 (gsd-nyquist-auditor -> fill 19-VALIDATION.md + any generated tests)", "status": "not_started", "note": "gate on workflow.nyquist_validation; 19-VALIDATION.md is a DRAFT scaffold (status: draft, TBD rows) the auditor fills. Deterministic-gate-centric phase (no runtime test framework). Spawn the dedicated gsd-nyquist-auditor."},
+    {"id": 10, "name": "/gsd-extract-learnings 19 (inline, no agent)", "status": "not_started", "note": "run LAST; then bridge global-learnings per CLAUDE.md ONLY if features.global_learnings=true (build temp top-level .planning/LEARNINGS.md, learnings.copy, rm -- never git add it)."}
   ],
   "blockers": [],
   "async_jobs": [],
-  "human_actions_pending": [],
-  "decisions": [
-    {"decision": "Only upgrade surfaces that have a FULL-TEXT owned source in .oracle/written-content/ (Access: free). Book entries (Access: book) are 1-2 sentence summaries and are NOT oracle-gateable -- leave those surfaces no-oracle.", "rationale": "A tier upgrade to 'owned; oracle-verified' is only honest if the surface can actually be gated against real source text.", "phase": "16"},
-    {"decision": "Re-gate every upgraded surface via the orchestrator-run oracle-reviewer; the executor authors/adjusts BLIND (never reads .oracle/).", "rationale": "gsd-executor has no Agent/Task tool; clean-room DST-04.", "phase": "16"}
+  "human_actions_pending": [
+    {"action": "Decide whether to run a full oracle-reviewer DST-04 re-sweep of the owned surfaces", "context": "DST-04 layer-2 was DISCHARGED via a deterministic unchanged-since-certified argument (owned surfaces byte-unchanged since their 16/17/18 oracle-reviewer PASSes; git-verified). A full re-read remains available on request but would re-verify byte-identical content. gsd-verifier accepted the discharge as non-blocking.", "blocking": false},
+    {"action": "Earlier org monthly spend-limit was hit this session and reset once", "context": "User is pacing spend; this pause was requested to run the ~2 audit-agent close-out in a fresh session.", "blocking": false}
   ],
-  "uncommitted_files": [],
-  "next_action": "In a NEW session: /gsd:quick --full --auto \"Follow-up #2: Phase-16 Beck owned-source upgrades -- upgrade the no-oracle Beck-backed selection/structure surfaces (test list, one-step, triangulation; assert-first + evident-data only if a full-text essay covers them) to owned + oracle-verified against the now-provisioned Beck essays in .oracle/written-content/ (Canon TDD, First One Then Many). Re-gate each via oracle-reviewer, keep the battery GREEN, update principle-backing tiers, add a Phase-16 upgrade note.\"",
-  "context_notes": "Phase 17 is done and committed (tree clean; only the ephemeral workflow._auto_chain_active flag was toggled and cleared). This follow-up RE-OPENS closed Phase-16 shipped content (three-laws-and-test-selection.md, test-structure-and-assertions.md STR slice) -- it is a legitimate owned-source upgrade enabled by the maintainer provisioning Beck's essays. The pattern to follow is exactly the Phase-17 clean-room re-gate loop: edit attribution/tier -> re-gate against the correct .oracle source -> converge-to-clean. principle-backing.md already carries a note that Beck's selection/structure rows 'remain no-oracle for now, pending a follow-up upgrade against his now-provisioned essays (Canon TDD, First One Then Many)'. Watch the instrument: check-red-references asserts content tokens (e.g. ADV-0) -- do not remove load-bearing tokens; run `node .claude/skills/lz-red-workspace/tools/check-red-references.mjs` + `npm --prefix .claude/skills/lz-red-workspace run typecheck` + `node .claude/skills/lz-refactor-workspace/tools/check-hygiene.mjs` after edits (all must stay exit 0). Use rg not grep; ASCII-only; commit identity = public gmail. Also-open follow-ups (NOT this task): #1 broader internal-ID/DST-04 3-skill polish; #3 FUT-METZ-REFACTOR lz-refactor Metz layer; and Phase 18 (coach procedure + lz-tpp seam)."
+  "decisions": [
+    {"decision": "GA-7 work-domain needle: FORWARD-FIX the tip (no main history rewrite)", "rationale": "bare domain in archived planning meta-docs; operator-chosen over git filter-repo; executor swept ALL tracked planning docs (0.0.1 phases 02-05, 0.0.2 phases 06/10, deferred-items.md), superseding the 2026-07-09 accepted-risk deferral", "phase": "19"},
+    {"decision": "DST-04 layer-2 re-sweep DISCHARGED via deterministic unchanged-since-certified observation, not an oracle-reviewer re-run", "rationale": "Phase 19 modified ZERO files in the shipped lz-red tree (git diff a9e6099..HEAD empty); layer-3 PASSes apply byte-for-byte; layer-1 gate GREEN; recorded in 19-GATE-RESULTS.md + 19-DST-04-ATTESTATION.md", "phase": "19"},
+    {"decision": "Sequential executor mode (no worktree isolation) for all waves", "rationale": "feature branch 122 commits ahead of origin/main + spend-limit recovery + tiny disjoint-file plans; parallel-worktree merge-back disproportionate risk; workflow-sanctioned sequential path", "phase": "19"},
+    {"decision": "Cosmetic phase-ID/requirement-ID leak in lz-red reference blockquotes: RECORDED, NOT actioned", "rationale": "D-09 record-not-block; touching SKILL.md/references triggers the D-10 unbiased-review + /reload-plugins cascade for zero functional gain; consistent with 0.0.1/0.0.2 precedent; candidate optional post-ship cleanup", "phase": "19"},
+    {"decision": "Description length (~1091 chars) / three-way boundary / body length (~147 lines): DEFER to Phase 20", "rationale": "D-09; intentional lean design; empirical triggering tuning is Phase 20 (EVL-01/02); do NOT shorten description or inflate body", "phase": "19"}
+  ],
+  "uncommitted_files": [".planning/config.json (ephemeral workflow._auto_chain_active chain flag -- do NOT stage/commit; it re-syncs on the next GSD command)"],
+  "next_action": "Run /gsd-secure-phase 19 (spawn gsd-security-auditor), then /gsd-validate-phase 19 (spawn gsd-nyquist-auditor), then /gsd-extract-learnings 19; each gate reached BY its dedicated agent, not self-certified. Then Phase 20 (Skill-Effectiveness Evals) via /gsd-discuss-phase 20 when ready.",
+  "context_notes": "Phase 19 (0.0.3 Distribution & Hygiene) ran as a full discuss->plan->execute chain and is VERIFIED COMPLETE. All deterministic gates (validate --strict, both workspace check+typecheck batteries, tree-wide email allowlist-inversion over 1154 files) independently re-confirmed GREEN. Both first-party agents PASS. The three-skill 0.0.3 tree is shippable. The lz-tdd@0.0.3 git tag + GitHub Release are a MILESTONE-CLOSE action (after Phase 20 evals), NOT now. Use gsd-core:gsd-<name> namespaced skill names (bare gsd-* are blocked for model invocation in this repo). git identity must be the public gmail before any commit. ASCII-only; allowlist-inversion for email hygiene (never write the forbidden value as a needle)."
 }

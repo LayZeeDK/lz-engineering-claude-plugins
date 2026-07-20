@@ -5,15 +5,15 @@ milestone_name: lz-red Skill
 current_phase: 18
 current_phase_name: coach-procedure-lz-tpp-seam-wiring
 status: executing
-stopped_at: Phase 18 Plan 02 complete (owned Three-Laws spine + classify-first + LAW/SEAM backing rows)
-last_updated: "2026-07-20T18:37:45Z"
+stopped_at: Phase 18 Plan 03 complete (LAW-02 procedure markers filled -- F.I.R.S.T. red-step baseline + fail-for-the-right-reason)
+last_updated: "2026-07-20T19:05:00Z"
 last_activity: 2026-07-20
-last_activity_desc: Phase 18 Plan 02 executed (owned Three-Laws spine + LAW/SEAM backing rows)
+last_activity_desc: Phase 18 Plan 03 executed (LAW-02 F.I.R.S.T.-baseline + fail-for-the-right-reason procedure sections)
 progress:
   total_phases: 7
   completed_phases: 4
   total_plans: 17
-  completed_plans: 13
+  completed_plans: 14
   percent: 57
 ---
 
@@ -30,9 +30,9 @@ See: .planning/PROJECT.md (updated 2026-07-18 -- started milestone lz-tdd@0.0.3)
 ## Current Position
 
 Phase: 18 (coach-procedure-lz-tpp-seam-wiring) — EXECUTING
-Plan: 2 of 6 (18-02 complete: owned Three-Laws spine + classify-first + LAW/SEAM backing rows filled)
-Status: Executing Phase 18 (Wave 1 instrument + Wave 2 owned Three-Laws leaf done; remaining slices + SKILL.md + lz-tpp seam next)
-Last activity: 2026-07-20 — Phase 18 Plan 02 executed
+Plan: 3 of 6 (18-03 complete: LAW-02 procedure markers filled -- F.I.R.S.T. red-step baseline + fail-for-the-right-reason)
+Status: Executing Phase 18 (Wave 1 instrument + Wave 2 owned Three-Laws leaf + the two LAW-02 procedure slices done; SKILL.md coach procedure + lz-tpp SEAM-02 seam next)
+Last activity: 2026-07-20 — Phase 18 Plan 03 executed
 
 ## Performance Metrics
 

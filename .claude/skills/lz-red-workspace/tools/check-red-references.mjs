@@ -38,7 +38,10 @@ const REFERENCES = path.join(repoRoot, "plugins", "lz-tdd", "skills", "lz-red", 
 // including filename-presence tokens for the required cross-links / cross-references. requireFence =
 // assert >= 1 tsc-strict ts fence for that file (VIT-02 "examples throughout"; false for nav-only /
 // prose-only files the tsc extractor skips or that carry no example). deferral = a must-REMAIN
-// later-phase marker for a CO-EDITED stub, so a wave fills only its own slice.
+// later-phase marker for a CO-EDITED stub, so a wave fills only its own slice. absent = the inverse
+// of deferral (D-14 no-stale-marker guard): FAILS if the pattern is still PRESENT, so once a slice
+// is filled its `/Phase 18/i` deferral artifact must be gone. The needle is `/Phase 18/i` ONLY --
+// LAW-0 / SEAM-0 legitimately remain as requirement refs (LAW-01 / SEAM-01) in filled content.
 const FILES = [
   {
     name: "three-laws-and-test-selection.md",
@@ -49,8 +52,11 @@ const FILES = [
       { label: "degenerate / starter case", re: /degenerate|starter|empty|zero|null/i },
       { label: "triangulation (test-selection facet)", re: /triangulat/i },
       { label: "lz-tpp GREEN firewall reference", re: /lz-tpp/i },
+      // Phase-18 spine slice (filled this phase; LAW-01, SEAM-01).
+      { label: "Three Laws spine present", re: /three laws|law 1|law 2|law 3/i },
+      { label: "classify-first framing", re: /classify/i },
     ],
-    deferral: { label: "Phase 18 spine/seam marker remains", re: /Phase 18|LAW-0|SEAM-0/ },
+    absent: { label: "no stale deferral marker", re: /Phase 18/i },
   },
   {
     name: "test-structure-and-assertions.md",
@@ -72,8 +78,10 @@ const FILES = [
       { label: "links functional-core.md", re: /functional-core\.md/ },
       { label: "links message-matrix.md", re: /message-matrix\.md/ },
       { label: "links seams-and-legacy.md", re: /seams-and-legacy\.md/ },
+      // Phase-18 slice (filled this phase; LAW-02 leans on the owned F.I.R.S.T. row).
+      { label: "F.I.R.S.T. red-step baseline", re: /red-step baseline/i },
     ],
-    deferral: { label: "Phase 18 F.I.R.S.T.-baseline/LAW marker remains", re: /Phase 18|LAW-0/ },
+    absent: { label: "no stale deferral marker", re: /Phase 18/i },
   },
   {
     name: "naming.md",
@@ -146,8 +154,10 @@ const FILES = [
       // Cross-reference filename-presence tokens for the leaf's outbound links.
       { label: "cross-ref anti-patterns.md", re: /anti-patterns\.md/ },
       { label: "cross-ref message-matrix.md", re: /message-matrix\.md/ },
+      // Phase-18 slice (filled this phase; ties the red-bar mechanic to the LAW-02 procedure step).
+      { label: "fail-for-the-right-reason procedure step", re: /procedure step|law-02|law 2/i },
     ],
-    deferral: { label: "Phase 18 LAW-02 spine marker remains", re: /Phase 18|LAW-0/ },
+    absent: { label: "no stale deferral marker", re: /Phase 18/i },
   },
   {
     name: "anti-patterns.md",
@@ -174,8 +184,11 @@ const FILES = [
       { label: "no-oracle tier", re: /no-oracle/i },
       { label: ">= 1 recommendation link", re: /\]\([^)]+\.md/ },
       { label: "named Phase-17 source (Khorikov)", re: /Khorikov/i },
+      // Phase-18 slice (filled this phase; LAW / SEAM backing rows + access tiers).
+      { label: "Three Laws backing row", re: /three laws/i },
+      { label: "lz-tpp seam backing row", re: /seam|handoff/i },
     ],
-    deferral: { label: "Phase 18 Three-Laws/seam backing marker remains", re: /Phase 18|LAW-0|SEAM-0/ },
+    absent: { label: "no stale deferral marker", re: /Phase 18/i },
   },
 ];
 
@@ -228,6 +241,13 @@ for (const spec of FILES) {
   if (spec.deferral) {
     const kept = lines.some((line) => spec.deferral.re.test(line));
     report(kept, `${spec.name}: ${spec.deferral.label}`, kept ? "" : "later-phase deferral marker missing");
+  }
+
+  // Inverse of deferral (D-14): a filled slice must NOT keep its `/Phase 18/i` deferral artifact.
+  // PASS only when NO line matches; RED now because the un-filled slices still carry the marker.
+  if (spec.absent) {
+    const present = lines.some((line) => spec.absent.re.test(line));
+    report(!present, `${spec.name}: ${spec.absent.label}`, present ? `stale marker still present (matches ${spec.absent.re})` : "");
   }
 }
 

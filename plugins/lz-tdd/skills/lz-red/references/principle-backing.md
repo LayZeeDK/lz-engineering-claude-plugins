@@ -10,8 +10,8 @@ no selection, structure, naming, or stance guidance of its own -- it points back
 > recommendation is backed as it lands. It supports DST-03 (source-to-recommendation traceability).
 > Source and technique NAMES and the acronym facts are plain facts; no verbatim source prose or code
 > (DST-04). Phases 16-17 back the selection, structure, naming, assertion, stance, anti-pattern, and
-> mechanics recommendations; the Three-Laws spine and lz-tpp seam rows are deferred to Phase 18 and
-> left as a marker below.
+> mechanics recommendations; the Three-Laws spine (LAW-01, LAW-02) and the lz-tpp seam rows (SEAM-01,
+> SEAM-02) are backed in the section below.
 
 ## Per-entry content contract
 
@@ -53,11 +53,19 @@ Each backing row carries:
 | [Test Desiderata tradeoff lens](anti-patterns.md) | Kent Beck, Test Desiderata (essay + video series); Sandi Metz, The Design of Tests, corroborates the over-testing cost | Owned; oracle-verified against the clean-room source. |
 | [Vitest mechanics mapped to RED concepts](vitest-typescript-mechanics.md) | Vitest 4.x documentation | Unowned; high-confidence core only (no-oracle). |
 
-## Three-Laws spine and lz-tpp seam backing (Phase 18)
+## Three-Laws spine and lz-tpp seam backing
 
-The backing rows for the Three Laws of TDD spine (LAW-01, LAW-02) and the classify-first / lz-tpp
-seam (SEAM-01, SEAM-02) are deferred to Phase 18, when those recommendations are authored. This
-section is their insertion point; their rows land with the coach spine in that phase.
+The Three Laws of TDD spine (LAW-01, LAW-02) and the classify-first / lz-tpp seam (SEAM-01, SEAM-02)
+are backed here. Laws 1 and 2 are Robert C. Martin's, owned and oracle-verified against the clean-room
+source; the classify-first framing and both directions of the lz-tpp handoff are lz-red orchestration,
+high-confidence core only.
+
+| Recommendation | Source | Access tier |
+| --- | --- | --- |
+| [Three Laws of TDD spine](three-laws-and-test-selection.md) | Robert C. Martin, Clean Code Ch. 9 | Owned; oracle-verified against the clean-room source. |
+| [Fail for the right reason](vitest-typescript-mechanics.md) | Robert C. Martin, Clean Code Ch. 9 | Owned; oracle-verified against the clean-room source. |
+| [Classify-first and the forward lz-tpp handoff](three-laws-and-test-selection.md) | lz-red orchestration | Unowned; high-confidence core only (no-oracle). |
+| [Reverse lz-tpp -> lz-red pointer](../../lz-tpp/SKILL.md) | lz-red orchestration | Unowned; high-confidence core only (no-oracle). |
 
 ## Sources
 

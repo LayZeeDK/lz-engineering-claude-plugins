@@ -61,9 +61,9 @@ Requirements for milestone lz-tdd@0.0.3. Each maps to a roadmap phase. Grounded 
 
 ### Distribution and hygiene (DST)
 
-- [ ] **DST-01**: `plugin.json` bumped to 0.0.3; README + CHANGELOG document lz-red as the RED step completing the three-skill red-green-refactor loop; the marketplace listing names all three skills.
-- [ ] **DST-02**: The repo passes `claude plugin validate . --strict`; the plugin-validator and skill-reviewer agents both PASS on lz-red.
-- [ ] **DST-03**: Hygiene -- ASCII-only shipped tree; no verbatim book prose or talk transcripts (own-words, DST-04 clean-room via git-ignored `.oracle/`); maintainer work-email absent (allowlist-inversion); all TypeScript samples tsc --strict-clean.
+- [x] **DST-01**: `plugin.json` bumped to 0.0.3; README + CHANGELOG document lz-red as the RED step completing the three-skill red-green-refactor loop; the marketplace listing names all three skills.
+- [x] **DST-02**: The repo passes `claude plugin validate . --strict`; the plugin-validator and skill-reviewer agents both PASS on lz-red.
+- [x] **DST-03**: Hygiene -- ASCII-only shipped tree; no verbatim book prose or talk transcripts (own-words, DST-04 clean-room via git-ignored `.oracle/`); maintainer work-email absent (allowlist-inversion); all TypeScript samples tsc --strict-clean.
 
 ### Skill-effectiveness evals (EVL)
 
@@ -140,9 +140,9 @@ Which phases cover which requirements. Populated during roadmap creation.
 | SEAM-02 | Phase 18 | Complete |
 | ANTI-01 | Phase 17 | Complete |
 | ANTI-02 | Phase 17 | Complete |
-| DST-01 | Phase 19 | Pending |
-| DST-02 | Phase 19 | Pending |
-| DST-03 | Phase 19 | Pending |
+| DST-01 | Phase 19 | Complete |
+| DST-02 | Phase 19 | Complete |
+| DST-03 | Phase 19 | Complete |
 | EVL-01 | Phase 20 | Pending |
 | EVL-02 | Phase 20 | Pending |
 

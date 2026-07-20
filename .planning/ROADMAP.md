@@ -62,7 +62,7 @@ validation deps live only in a dev-only eval workspace.
 - [x] **Phase 16: Source Distillation & Core RED References** - Clean-room own-words facts + test selection, structure, and naming references (completed 2026-07-19)
 - [x] **Phase 17: Assertion Design, Stance Router & TS/Vitest Mechanics** - The differentiator: assert-behavior, the adaptive testing-stance router, Vitest mechanics, anti-patterns (completed 2026-07-19)
 - [x] **Phase 18: Coach Procedure & lz-tpp Seam Wiring** - Inline RED decision procedure on the Three Laws spine + the lz-red <-> lz-tpp seam (completed 2026-07-20)
-- [ ] **Phase 19: Distribution & Hygiene** - Three-skill 0.0.3 ship: version bump, docs, validators, copyright/ASCII/email hygiene
+- [x] **Phase 19: Distribution & Hygiene** - Three-skill 0.0.3 ship: version bump, docs, validators, copyright/ASCII/email hygiene (completed 2026-07-20)
 - [ ] **Phase 20: Skill-Effectiveness Evals** - Trigger eval (incl. the cross-skill boundary) + RED-behavior eval vs baseline
 
 ## Phase Details
@@ -203,7 +203,7 @@ Plans:
 
 **Wave 2** (finalize gate -- blocked on Wave 1)
 
-- [ ] 19-03-PLAN.md -- Finalize: deterministic battery + validate --strict GREEN + full-tree email allowlist-inversion + DST-04 attestation; orchestrator gates (plugin-validator + skill-reviewer on lz-red + targeted DST-04 clean-room re-sweep) run post-execution (DST-02, DST-03)
+- [x] 19-03-PLAN.md -- Finalize: deterministic battery + validate --strict GREEN + full-tree email allowlist-inversion + DST-04 attestation; orchestrator gates (plugin-validator + skill-reviewer on lz-red + targeted DST-04 clean-room re-sweep) run post-execution (DST-02, DST-03)
 
 ### Phase 20: Skill-Effectiveness Evals
 
@@ -244,7 +244,7 @@ Plans:
 | 16. Source Distillation & Core RED References | lz-tdd@0.0.3 | 3/3 | Complete    | 2026-07-19 |
 | 17. Assertion Design, Stance Router & TS/Vitest Mechanics | lz-tdd@0.0.3 | 6/6 | Complete   | 2026-07-19 |
 | 18. Coach Procedure & lz-tpp Seam Wiring | lz-tdd@0.0.3 | 6/6 | Complete    | 2026-07-20 |
-| 19. Distribution & Hygiene | lz-tdd@0.0.3 | 2/3 | In Progress|  |
+| 19. Distribution & Hygiene | lz-tdd@0.0.3 | 3/3 | Complete    | 2026-07-20 |
 | 20. Skill-Effectiveness Evals | lz-tdd@0.0.3 | 0/TBD | Not started | - |
 
 ---

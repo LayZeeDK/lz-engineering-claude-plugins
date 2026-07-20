@@ -2,19 +2,19 @@
 gsd_state_version: 1.0
 milestone: lz-tdd@0.0.3
 milestone_name: lz-red Skill
-current_phase: 19
-current_phase_name: Distribution & Hygiene
+current_phase: 20
+current_phase_name: Skill-Effectiveness Evals
 status: executing
 stopped_at: Phase 19 context gathered
-last_updated: "2026-07-20T21:54:46.741Z"
+last_updated: "2026-07-20T23:17:18.042Z"
 last_activity: 2026-07-20
-last_activity_desc: Phase 19 execution started
+last_activity_desc: Phase 19 complete, transitioned to Phase 20
 progress:
   total_phases: 7
-  completed_phases: 5
+  completed_phases: 6
   total_plans: 20
-  completed_plans: 17
-  percent: 71
+  completed_plans: 20
+  percent: 86
 ---
 
 # Project State
@@ -29,16 +29,16 @@ See: .planning/PROJECT.md (updated 2026-07-18 -- started milestone lz-tdd@0.0.3)
 
 ## Current Position
 
-Phase: 19 (Distribution & Hygiene) — EXECUTING
-Plan: 1 of 3
+Phase: 20 — Skill-Effectiveness Evals
+Plan: Not started
 Status: Executing Phase 19
-Last activity: 2026-07-20 — Phase 19 execution started
+Last activity: 2026-07-20 — Phase 19 complete, transitioned to Phase 20
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 41 (lz-tdd@0.0.1)
+- Total plans completed: 44 (lz-tdd@0.0.1)
 - Average duration: - min
 - Total execution time: 0.0 hours
 
@@ -59,6 +59,7 @@ Last activity: 2026-07-20 — Phase 19 execution started
 | 16 | 3 | - | - |
 | 17.1 | 1 | - | - |
 | 18 | 6 | - | - |
+| 19 | 3 | - | - |
 
 **Recent Trend:**
 

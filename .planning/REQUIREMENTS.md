@@ -35,13 +35,13 @@ Requirements for milestone lz-tdd@0.0.3. Each maps to a roadmap phase. Grounded 
 
 ### Three Laws spine and fail-for-the-right-reason (LAW)
 
-- [ ] **LAW-01**: The Three Laws of TDD framed as the RED spine -- Law 1 gates entry (no production code before a failing test), Law 2 sizes the test (only enough to fail; not-compiling counts), Law 3 is the lz-tpp handoff.
-- [ ] **LAW-02**: Fail-for-the-right-reason guidance -- watch the red bar; confirm the test fails on the asserted behavior, not a compile / setup error or a false green; F.I.R.S.T. as the test-quality baseline.
+- [x] **LAW-01**: The Three Laws of TDD framed as the RED spine -- Law 1 gates entry (no production code before a failing test), Law 2 sizes the test (only enough to fail; not-compiling counts), Law 3 is the lz-tpp handoff.
+- [x] **LAW-02**: Fail-for-the-right-reason guidance -- watch the red bar; confirm the test fails on the asserted behavior, not a compile / setup error or a false green; F.I.R.S.T. as the test-quality baseline.
 
 ### Adaptive testing-stance router (RTR) -- the differentiator
 
 - [x] **RTR-01**: A `testing-stance/` reference subdir with three leaves -- Bernhardt (functional core-imperative shell), Metz (message matrix), Feathers (seams + characterization tests) -- with Feathers cross-linked to lz-refactor's `refactoring-without-tests.md`, not copied.
-- [ ] **RTR-02**: A coach routing step -- detect and match the house test idiom always; route by structural control / seam availability to the right stance; state the route chosen and why; honor an optional override phrase (no CLI flag).
+- [x] **RTR-02**: A coach routing step -- detect and match the house test idiom always; route by structural control / seam availability to the right stance; state the route chosen and why; honor an optional override phrase (no CLI flag).
 - [x] **RTR-03**: The "listen to the tests" meta-rule -- test-writing pain (heavy mocking, private access) is design feedback routing toward a functional core (Bernhardt) or a seam (Feathers), not more doubles; GOOS referenced as a counterpoint only.
 
 ### TypeScript and Vitest mechanics (VIT)
@@ -51,8 +51,8 @@ Requirements for milestone lz-tdd@0.0.3. Each maps to a roadmap phase. Grounded 
 
 ### lz-tpp seam (SEAM)
 
-- [ ] **SEAM-01**: Classify-first (RED vs GREEN vs REFACTOR) plus the forward `lz-red -> lz-tpp` handoff (Law 1/2 -> Law 3) in the coach decision procedure.
-- [ ] **SEAM-02**: A reverse `lz-tpp -> lz-red` pointer added to the shipped lz-tpp skill (closes the carried reverse-pointer tech-debt); the lz-tpp edit is subagent-reviewed before acceptance.
+- [x] **SEAM-01**: Classify-first (RED vs GREEN vs REFACTOR) plus the forward `lz-red -> lz-tpp` handoff (Law 1/2 -> Law 3) in the coach decision procedure.
+- [x] **SEAM-02**: A reverse `lz-tpp -> lz-red` pointer added to the shipped lz-tpp skill (closes the carried reverse-pointer tech-debt); the lz-tpp edit is subagent-reviewed before acceptance.
 
 ### Anti-pattern reference and Test Desiderata (ANTI)
 
@@ -129,15 +129,15 @@ Which phases cover which requirements. Populated during roadmap creation.
 | ASRT-02 | Phase 17 | Complete |
 | ASRT-03 | Phase 17 | Complete |
 | NAME-01 | Phase 16 | Complete |
-| LAW-01 | Phase 18 | Pending |
-| LAW-02 | Phase 18 | Pending |
+| LAW-01 | Phase 18 | Complete |
+| LAW-02 | Phase 18 | Complete |
 | RTR-01 | Phase 17 | Complete |
-| RTR-02 | Phase 18 | Pending |
+| RTR-02 | Phase 18 | Complete |
 | RTR-03 | Phase 17 | Complete |
 | VIT-01 | Phase 17 | Complete |
 | VIT-02 | Phase 17 | Pending |
-| SEAM-01 | Phase 18 | Pending |
-| SEAM-02 | Phase 18 | Pending |
+| SEAM-01 | Phase 18 | Complete |
+| SEAM-02 | Phase 18 | Complete |
 | ANTI-01 | Phase 17 | Complete |
 | ANTI-02 | Phase 17 | Complete |
 | DST-01 | Phase 19 | Pending |

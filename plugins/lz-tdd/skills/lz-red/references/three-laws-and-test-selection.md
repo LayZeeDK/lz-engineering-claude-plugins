@@ -16,8 +16,9 @@ refactor step (lz-refactor). This is the coach's entry point: what to test next,
 > NAMES are kept as plain facts; every definition below is written in original words, with no verbatim
 > source prose or code (DST-04).
 >
-> Phase 16 fills the test-SELECTION slice (SEL-01, SEL-02). The Three Laws of TDD spine and the
-> classify-first seam (LAW-01, LAW-02, SEAM-01) are deferred to Phase 18 and left as a marker below.
+> The Three Laws of TDD spine and the classify-first seam (LAW-01, LAW-02, SEAM-01) are present in
+> the section below. Laws 1 and 2 are owned and oracle-verified against the clean-room source; the
+> Law-3-as-lz-tpp-handoff reframe is lz-red orchestration (no-oracle).
 
 ## Keep a running test list
 
@@ -88,16 +89,39 @@ function sumOf(values: number[]): number {
   priority is lz-tpp's job, not this coach's. Triangulation in this reference selects the next test;
   it never generalizes production code. lz-red picks the test; lz-tpp makes it pass.
 
-## The Three Laws spine and classify-first (Phase 18)
+## The Three Laws spine and classify-first
 
-The Three Laws of TDD spine, the fail-for-the-right-reason framing, and the classify-first seam that
-sorts each request into red, green, or refactor before any code is written are deferred to Phase 18
-(LAW-01, LAW-02, SEAM-01). This section is their insertion point; their prose lands in that phase.
+The red step rests on three laws that fix the order of work in a TDD cycle. They are the spine the
+selection moves above hang from: the running test list, the small step, the starter case, and
+triangulation all operate inside the discipline these laws impose.
+
+- Law 1 -- gate entry (Robert C. Martin, owned; oracle-verified): write no production code until a
+  failing unit test asks for it. The failing test comes first and the code that satisfies it comes
+  second, so a red bar is the entry ticket to writing any behavior.
+- Law 2 -- size the test (Robert C. Martin, owned; oracle-verified): write only as much of a test as
+  it takes to fail, then stop and watch it fail. A reference to a symbol that does not yet exist is a
+  failure just as much as a wrong assertion is -- code that does not compile counts as the red bar.
+  This is the same thread as "Take one small step" above: grow the test to the first failure and no
+  further (see that row for the not-yet-defined-symbol rationale in full).
+- Law 3 -- the lz-tpp handoff (lz-red orchestration, no-oracle): write only as much production code as
+  it takes to pass the one failing test. That is the green step, and it is lz-tpp's job, not this
+  skill's. lz-red confirms the red bar fails for the right reason and hands the failing test forward;
+  lz-tpp then chooses the minimal transformation that turns it green. Framing Law 3 as this forward
+  handoff is the lz-red orchestration reframe, not a restatement of the law's source.
+
+Classify first: before writing or selecting any test, sort the request into red, green, or refactor.
+A failing test that must now be made to pass is the green step -- hand it off to lz-tpp and stop.
+Already-passing code to clean up without changing behavior is the refactor step -- hand it off to
+lz-refactor. Otherwise the work is choosing and writing the next failing test, which is lz-red: apply
+the selection moves above under the Three Laws. This is the same red-vs-green-vs-refactor split the
+SKILL.md router states; it is repeated here as the entry gate to the selection moves, not to re-argue
+the seam.
 
 ## Sources
 
-- Robert C. Martin, Clean Code (Ch. 9, Unit Tests) -- the one-small-step / only-enough-to-fail
-  rationale for shaping the next test. Owned; oracle-verified against the clean-room source.
+- Robert C. Martin, Clean Code (Ch. 9, Unit Tests) -- the Three Laws spine (Laws 1 and 2) and the
+  one-small-step / only-enough-to-fail rationale for shaping the next test. Owned; oracle-verified
+  against the clean-room source.
 - Kent Beck, Canon TDD -- the running test list and the one-step move as test-selection moves.
   Owned; oracle-verified against the clean-room source.
 - Kent Beck, Test-Driven Development by Example -- the starter / degenerate case and triangulation as

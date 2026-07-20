@@ -139,7 +139,11 @@ Created `.planning/phases/19-distribution-hygiene/19-DST-04-ATTESTATION.md` reco
 
 ASCII-only; carries no email-shaped token (so it adds nothing to the allowlist-inversion remainder); quotes no `.oracle/` source prose (sources named as author + title facts only). Task 2 `<verify>` PASS (contains 16-03 / 17-06 / 18-06 / oracle-reviewer, ASCII-only).
 
-## Orchestrator Gates Pending (DEFERRED -- not skipped, not self-certified)
+## Orchestrator Gates -- COMPLETED post-executor (see 19-GATE-RESULTS.md)
+
+**Resolution (orchestrator, 2026-07-21):** all three gates below were RUN by the orchestrator after this executor returned -- plugin-validator PASS, skill-reviewer PASS on lz-red (both dedicated agents; verdicts routed, not self-certified), and the DST-04 layer-2 re-sweep DISCHARGED (the owned surfaces are byte-unchanged in Phase 19, so their 16/17/18 oracle-reviewer PASSes apply byte-for-byte). Verdicts + evidence: `19-GATE-RESULTS.md`; DST-04 discharge detail: `19-DST-04-ATTESTATION.md`. DST-02 + DST-03 satisfied pending gsd-verifier + phase.complete. The original executor-time deferral snapshot follows.
+
+### Orchestrator Gates (executor-time snapshot: DEFERRED -- not skipped, not self-certified)
 
 Per the plan's `<orchestrator_gates>` section and the `gsd-executor-cannot-spawn-subagents` constraint (executor tools are Read/Write/Edit/Bash/Grep/Glob/Skill only -- no Agent/Task), these three review gates are the orchestrator's to run AFTER this executor returns. The executor delivered the GREEN machine battery + the attestation they run against; it did NOT and CANNOT self-certify them. Each must be reached BY its dedicated agent.
 

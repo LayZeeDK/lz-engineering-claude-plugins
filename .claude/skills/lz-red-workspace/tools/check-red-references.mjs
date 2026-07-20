@@ -26,6 +26,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { SCAFFOLD_RES } from "./lib/scaffold-phrases.mjs";
+import { findBookCitedAsOwned } from "./lib/provenance-honesty.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 // tools -> lz-red-workspace -> skills -> .claude -> repo root
@@ -230,10 +231,27 @@ for (const spec of FILES) {
   }
 }
 
+// Phase-17.1 D-05 honesty gate: no principle-backing.md row may be tagged "Owned;
+// oracle-verified ..." while its Source cell still cites Kent Beck, Test-Driven Development by
+// Example (Access: book, summary-only, never gateable -- 17.1-CONTEXT.md D-05). Generic over the
+// whole table so a future tier-cell flip that forgets to also fix the Source cell trips this, not
+// just the six Beck rows re-tiered in Phase 17.1. See lib/provenance-honesty.mjs.
+const principleBackingPath = path.join(REFERENCES, "principle-backing.md");
+
+if (fs.existsSync(principleBackingPath)) {
+  const bookOwnedViolations = findBookCitedAsOwned(fs.readFileSync(principleBackingPath, "utf8"));
+
+  report(
+    bookOwnedViolations.length === 0,
+    "principle-backing.md: D-05 honesty gate (no Owned row cites the book)",
+    bookOwnedViolations.length === 0 ? "" : `violating rows: ${bookOwnedViolations.join(", ")}`
+  );
+}
+
 console.log("");
 
 if (failures === 0) {
-  console.log(`SUMMARY: RED-REFS GREEN -- ${filesPresent}/${FILES.length} lz-red references authored (SEL/STR/NAME + ASRT/RTR/VIT/ANTI) with topics + required ts fences + cross-links, no scaffold leak, Phase-18 deferral markers intact`);
+  console.log(`SUMMARY: RED-REFS GREEN -- ${filesPresent}/${FILES.length} lz-red references authored (SEL/STR/NAME + ASRT/RTR/VIT/ANTI) with topics + required ts fences + cross-links, no scaffold leak, Phase-18 deferral markers intact, D-05 honesty gate holds`);
   process.exit(0);
 }
 

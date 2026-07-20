@@ -8,10 +8,13 @@ refactor step (lz-refactor). This is the coach's entry point: what to test next,
 
 > Mixed-provenance reference. The selection rationale that leans on Robert C. Martin's Clean Code
 > (the one-small-step / only-enough-to-fail thread) is owned and oracle-verified against the
-> clean-room source. The Kent Beck material is likewise owned and oracle-verified against the
-> clean-room source: the running test list, the one-step move, and the starter case against Canon
-> TDD, and triangulation against First One, Then Many. Technique NAMES are kept as plain facts;
-> every definition below is written in original words, with no verbatim source prose or code (DST-04).
+> clean-room source. Two Kent Beck moves are likewise owned and oracle-verified against the
+> clean-room source: the running test list and the one-step move, both against Canon TDD. The other
+> Kent Beck selection material (the starter / degenerate case and triangulation) is high-confidence
+> core only, authored blind with no full-text owned copy to check against (no-oracle tag): it rests
+> on Test-Driven Development by Example, a book held summary-only in the clean-room set. Technique
+> NAMES are kept as plain facts; every definition below is written in original words, with no verbatim
+> source prose or code (DST-04).
 >
 > Phase 16 fills the test-SELECTION slice (SEL-01, SEL-02). The Three Laws of TDD spine and the
 > classify-first seam (LAW-01, LAW-02, SEAM-01) are deferred to Phase 18 and left as a marker below.
@@ -95,7 +98,7 @@ sorts each request into red, green, or refactor before any code is written are d
 
 - Robert C. Martin, Clean Code (Ch. 9, Unit Tests) -- the one-small-step / only-enough-to-fail
   rationale for shaping the next test. Owned; oracle-verified against the clean-room source.
-- Kent Beck, Canon TDD -- the running test list, the one-step move, and the starter / degenerate
-  case as test-selection moves. Owned; oracle-verified against the clean-room source.
-- Kent Beck, First One, Then Many -- triangulation as a test-selection move. Owned; oracle-verified
-  against the clean-room source.
+- Kent Beck, Canon TDD -- the running test list and the one-step move as test-selection moves.
+  Owned; oracle-verified against the clean-room source.
+- Kent Beck, Test-Driven Development by Example -- the starter / degenerate case and triangulation as
+  test-selection moves. Unowned; high-confidence core only (no-oracle).

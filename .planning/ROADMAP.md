@@ -163,7 +163,25 @@ Plans:
   3. A fail-for-the-right-reason step (watch the red bar, confirm the test fails on the asserted behavior not a compile / setup error or false green, F.I.R.S.T. baseline) precedes the forward lz-red -> lz-tpp handoff; the coach questions rather than drives (no auto-editing / running the suite unprompted).
   4. A reverse `lz-tpp -> lz-red` pointer (plus the deferred `lz-tpp -> lz-refactor` pointer, in the same edit) is added to the shipped lz-tpp `SKILL.md`, subagent-reviewed (incl. >= 1 unbiased from-scratch reviewer) before acceptance.
 
-**Plans**: TBD
+**Plans**: 6 plans
+
+**Wave 1** (instrument-first RED baseline)
+
+- [ ] 18-01-PLAN.md -- Extend check-red-references.mjs + extract-samples.mjs to the Phase-18 RED baseline (flip the 4 deferral guards to positive topics + a NET-NEW `absent` guard, add SKILL.md coach-procedure coverage + a non-ignore ts-fence guard, add the SEAM-02 lz-tpp block, cover the SKILL.md fence), asserted RED
+
+**Wave 2** (content -- parallel, disjoint files) *(blocked on Wave 1)*
+
+- [ ] 18-02-PLAN.md -- Fill the owned Three Laws spine + classify-first in three-laws-and-test-selection.md (blind, oracle-gated) + the LAW/SEAM backing rows in principle-backing.md [LAW-01, SEAM-01]
+- [ ] 18-03-PLAN.md -- Fill the two no-oracle LAW-02 procedure markers: F.I.R.S.T.-as-a-red-step-baseline (test-structure-and-assertions.md) + fail-for-the-right-reason (vitest-typescript-mechanics.md) [LAW-02]
+- [ ] 18-04-PLAN.md -- Add the reverse `lz-tpp -> lz-red` + deferred `lz-tpp -> lz-refactor` pointers to the shipped lz-tpp/SKILL.md in one edit (blind; orchestrator unbiased-review-gated) [SEAM-02]
+
+**Wave 3** (SKILL.md coach procedure) *(blocked on Wave 2)*
+
+- [ ] 18-05-PLAN.md -- Replace the SKILL.md placeholder with the inline 6-step coach procedure on the Three Laws spine + the one tsc-strict VIT-02 worked example [LAW-01, LAW-02, RTR-02, SEAM-01, VIT-02]
+
+**Wave 4** (finalize gate) *(blocked on Wave 3)*
+
+- [ ] 18-06-PLAN.md -- Finalize: full deterministic battery GREEN + the three orchestrator gates (oracle-reviewer on the owned Three-Laws surface; >= 1 unbiased review of the lz-tpp edit; >= 1 unbiased review of the lz-red SKILL.md coach procedure) + claude plugin validate . exit 0
 
 ### Phase 19: Distribution & Hygiene
 
@@ -216,7 +234,7 @@ Plans:
 | 15. lz-red Skill Scaffold & Description Boundary | lz-tdd@0.0.3 | 1/1 | Complete    | 2026-07-18 |
 | 16. Source Distillation & Core RED References | lz-tdd@0.0.3 | 3/3 | Complete    | 2026-07-19 |
 | 17. Assertion Design, Stance Router & TS/Vitest Mechanics | lz-tdd@0.0.3 | 6/6 | Complete   | 2026-07-19 |
-| 18. Coach Procedure & lz-tpp Seam Wiring | lz-tdd@0.0.3 | 0/TBD | Not started | - |
+| 18. Coach Procedure & lz-tpp Seam Wiring | lz-tdd@0.0.3 | 0/6 | Planned | - |
 | 19. Distribution & Hygiene | lz-tdd@0.0.3 | 0/TBD | Not started | - |
 | 20. Skill-Effectiveness Evals | lz-tdd@0.0.3 | 0/TBD | Not started | - |
 

@@ -142,7 +142,7 @@ validation deps live only in a dev-only eval workspace.
 ### Phase 17.1: Perform Phase 16 Beck follow up (INSERTED)
 
 **Goal:** The lz-red skill's Kent-Beck-backed RED selection/structure surfaces that a free full-text essay actually backs are honestly re-tiered from no-oracle to `Owned; oracle-verified` across all four provenance surfaces (per-doc intro blockquote + `## Sources` block; `principle-backing.md` map row + Sources paragraph); recommendation CONTENT is unchanged, book-only-backed rows stay no-oracle, and the deterministic battery stays GREEN.
-**Requirements**: SEL-01, SEL-02, STR-02, DST-03, DST-04 (provenance-tier upgrade to already-Complete Phase-16 requirements; no new coverage -- their status stays Complete)
+**Requirements**: SEL-01, SEL-02, STR-02 (already Complete in Phase 16 -- this phase is a provenance-tier upgrade to their source backing, NOT new coverage; their status stays Complete). It also upholds, but does NOT complete, the Phase-19 ship-hygiene and clean-room constraints (own-words / no-verbatim, ASCII-only, email-allowlist), which stay Pending and remain owned by Phase 19.
 **Depends on:** Phase 17
 **Plans:** 1/1 plans complete
 **Wave 1** (single blind executor; orchestrator oracle-reviewer gate runs post-execution)

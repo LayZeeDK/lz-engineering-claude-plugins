@@ -3,17 +3,17 @@ gsd_state_version: 1.0
 milestone: lz-tdd@0.0.3
 milestone_name: lz-red Skill
 current_phase: 18
-current_phase_name: Coach Procedure & lz-tpp Seam Wiring
+current_phase_name: coach-procedure-lz-tpp-seam-wiring
 status: executing
-stopped_at: Phase 18 context gathered
-last_updated: "2026-07-20T09:54:34.673Z"
+stopped_at: Phase 18 Plan 01 complete (instrument-first RED baseline)
+last_updated: "2026-07-20T10:15:17Z"
 last_activity: 2026-07-20
-last_activity_desc: Phase 18 planning complete
+last_activity_desc: Phase 18 Plan 01 executed (RED-baseline instrument extension)
 progress:
   total_phases: 7
   completed_phases: 4
-  total_plans: 11
-  completed_plans: 11
+  total_plans: 17
+  completed_plans: 12
   percent: 57
 ---
 
@@ -24,15 +24,15 @@ progress:
 See: .planning/PROJECT.md (updated 2026-07-18 -- started milestone lz-tdd@0.0.3)
 
 **Core value:** `lz-tpp` helps Claude choose the next code transformation by TPP priority during red-green-refactor TDD, and explains the premise on demand. lz-tdd@0.0.2 added `lz-refactor` (refactor step); lz-tdd@0.0.3 adds `lz-red` (red step) to complete the loop.
-**Current focus:** Phase 17.1 — perform-phase-16-beck-follow-up
+**Current focus:** Phase 18 — coach-procedure-lz-tpp-seam-wiring
 **Milestone:** lz-tdd@0.0.3 (lz-red Skill, RED phase) -- planning (started 2026-07-18)
 
 ## Current Position
 
-Phase: 18 — Coach Procedure & lz-tpp Seam Wiring
-Plan: Not started
-Status: Ready to execute
-Last activity: 2026-07-20 — Phase 18 planning complete
+Phase: 18 (coach-procedure-lz-tpp-seam-wiring) — EXECUTING
+Plan: 1 of 6 (18-01 complete: instrument-first RED baseline asserted)
+Status: Executing Phase 18 (Wave 1 instrument done; content waves next)
+Last activity: 2026-07-20 — Phase 18 execution started
 
 ## Performance Metrics
 
@@ -144,6 +144,7 @@ Recent decisions affecting current work:
 - [Phase ?]: Phase 17 (17-04, Wave 2): authored OWNED Metz message-matrix.md (query/command 6-cell origin x type matrix; outgoing command = the ONE warranted double / expect-to-send; incoming query -> assert return, incoming command -> assert public side effect, outgoing query + self-messages -> do not test; over-mocking firewall) own-words BLIND (no .oracle/ read; orchestrator oracle-reviewer gate in 17-06) + no-oracle vitest-typescript-mechanics.md (Vitest 4.x -> RED: it.todo / test.each / vi.* restraint / watch / fail-for-the-right-reason MECHANIC; cross-linked anti-patterns.md + message-matrix.md; brief ADV-01/ADV-02 forward-pointers, NO fast-check dep; Phase-18 LAW-02 marker intact). Both fences tsc --strict clean (7 modules). RTR-01 CLOSED (3 stance leaves + README authored); ASRT-03 + VIT-01 closed; VIT-02 left Pending (SKILL.md clause is Phase 18 per D-10 -- avoid false-positive); ASRT-02 reinforced. typecheck + hygiene GREEN; both file rows PASS, overall RED by design on anti-patterns.md (17-05). Commits 36c9d1d, 3c924ee.
 - [Phase 17]: Phase 17 (17-06, finalize gate): full deterministic battery GREEN on the merged tree -- content gate 10/10 references (82 checks PASS), extract-samples 7 modules tsc --strict clean, check-hygiene 198/191 files clean, and claude plugin validate . exit 0. All four Phase-18 co-edit deferral markers intact (D-15, co-edit boundary held). oracle-reviewer (3 owned surfaces: F.I.R.S.T./Metz matrix/Cooper) + skill-reviewer (>= 1 unbiased) DEFERRED to the orchestrator (executor has no Agent/Task tool), NOT skipped/self-certified; requirement closure (ASRT/RTR/VIT/ANTI) awaits those gates + gsd-verifier.
 - [Phase ?]: Phase 17.1 (17.1-01): blind provisional owned-source tier upgrade of the Beck RED selection/structure surfaces. Locked-eligible: running test list, one small step, and the starter case -> Canon TDD; triangulation -> First One, Then Many. Provisional (D-03/D-04): assert-first + evident test data -> Canon TDD, expected to revert to no-oracle at the orchestrator oracle-reviewer gate (primary source is a summary-only book). No owned Source cell cites the book; recommendation CONTENT unchanged; four provenance surfaces reconciled; full battery GREEN. Pending: orchestrator-driven oracle-reviewer gate + finalize revert/reconcile of provisional rows. SEL-01/SEL-02/STR-02/DST-03/DST-04 stay Complete (tier upgrade only).
+- [Phase 18]: Phase 18 (18-01, Wave 1 instrument): extended check-red-references.mjs + extract-samples.mjs in place (D-13) to the Phase-18 coach-procedure/SEAM-02 surface. NET-NEW absent no-stale-marker guard (D-14 inverse of deferral; needle /Phase 18/i, since LAW-0/SEAM-0 legitimately remain as LAW-01/SEAM-01 refs in filled content) + four flipped deferral guards (three-laws, test-structure, vitest, principle-backing), every Phase-16/17 topic kept as the regression floor. SKILL.md coverage via a per-entry dir base override (7 coach topics + requireNonIgnoreFence closing the TS_FENCE_RE ts-ignore gap + absent guard); a post-loop SEAM-02 block reading the shipped lz-tpp/SKILL.md for BOTH reverse pointers; the extractor walk prepends the lz-red SKILL.md fence. Phase-18 RED baseline asserted (content gate exit 1, 9 FAILs by design; tsc extractor 7 modules, hygiene 198/191, D-05 selftest 3/3, claude plugin validate all GREEN). No shipped plugins/lz-tdd file touched; provenance-honesty.mjs + selftest byte-intact. LAW-01/LAW-02/RTR-02/SEAM-01/SEAM-02/VIT-02 remain OPEN (close when later waves turn the gate GREEN). Commits dee8f2b, 23ba7aa, 8c3c039.
 
 ### Pending Todos
 
@@ -188,8 +189,8 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-20T08:53:09.562Z
-Stopped at: Phase 18 context gathered
+Last session: 2026-07-20T10:15:17Z
+Stopped at: Phase 18 Plan 01 complete -- instrument-first RED baseline asserted (check-red-references.mjs RED by design at 9 FAILs; tsc extractor, check-hygiene, provenance-honesty selftest, and claude plugin validate all GREEN). No shipped plugins/lz-tdd file touched. Next: Phase 18 content waves (owned Three-Laws surface, SKILL.md coach procedure + the VIT-02 tsc-safe example, the four reference slices, the lz-tpp seam edit), each turning a flipped guard GREEN; the three orchestrator gates (oracle-reviewer on the owned surface, plus >=1 unbiased review of the lz-tpp edit and of the lz-red SKILL.md procedure) run AFTER the executor returns.
 Superseded-2026-07-17: Resumed via HANDOFF.json -> completed the paused quick task 260716-oby (Loops/pipeline few-shot TS examples). Re-ran the mandatory review that died on the prior session limit: 2 subagents (1 unbiased, 1 primed) both PASS with 0 Critical/0 Important; applied reviewer B's cue-completeness fix; gates GREEN. Replaced the WIP pause commit with a clean docs() commit (3138bbe) -- SHIPPED on teaching merit. HANDOFF.json consumed + deleted. Ran the user-approved held-out recognition eval: **idiom_pattern 0/3=0/3, NULL lift, zero regression** (5th passive-content probe null). angular-cli restored pristine, throwaway branch deleted. 260716-oby RESOLVED. THEN, following a design discussion + web research, ran a user-approved forcing-function diagnostic (enum loop-audit directive in the prompt, k=5, same target): **idiom 0/3 control -> 5/5, all tsc --strict CLEAN + behavior-preserving + discriminating.** CORRECTION: the loop-to-pipeline miss is a DISCRETION/SALIENCE gap, NOT a judgment ceiling -- passive skill content (prose/cues/examples) is null, but an ACTIVE enumeration forcing-function flips it (prompt-level, n=1). Falsified the earlier "judgment ceiling, close it" call. See heldout-enum/RESULTS-enum.md. NEXT candidate (unrun): a SKILL-level forcing-function probe (embed a loop-audit step; test skill-alone reproduction + precision/overcorrection). Not a blocker to closing lz-tdd@0.0.2 on the current shipped skill. Inherited close still pending: /gsd-audit-milestone lz-tdd@0.0.2 then /gsd-complete-milestone lz-tdd@0.0.2 (+ user /reload-plugins to make 3138bbe live).
 Resume file: .planning/phases/18-coach-procedure-lz-tpp-seam-wiring/18-CONTEXT.md
 Open next (DEFERRED per operator, not this session): /gsd-audit-milestone lz-tdd@0.0.2 then /gsd-complete-milestone lz-tdd@0.0.2. Pending human action: /reload-plugins to make 01208c8 live.

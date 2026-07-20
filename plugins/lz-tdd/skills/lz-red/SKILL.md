@@ -89,8 +89,8 @@ reference leaf that carries the detail; do not restate a leaf's content here.
 
 The RED path end to end (Vitest + TypeScript). Classify (step 1): this is new behavior, so the next
 failing test is lz-red's. Pick the starter case (step 2) and shape it arrange-act-assert (step 4),
-asserting the observable result (step 5). The production symbol already compiles with a wrong body, so
-the bar is red for the right reason -- an AssertionError on the value, not a compile error -- and
+asserting the observable result (step 4). The production symbol already compiles with a wrong body, so
+the bar is red for the right reason (step 5) -- an AssertionError on the value, not a compile error -- and
 turning it green is lz-tpp's job (step 6):
 
 ```ts

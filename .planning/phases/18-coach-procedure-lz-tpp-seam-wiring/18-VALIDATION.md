@@ -1,10 +1,11 @@
 ---
 phase: 18
 slug: coach-procedure-lz-tpp-seam-wiring
-status: draft
-nyquist_compliant: false
-wave_0_complete: false
+status: verified
+nyquist_compliant: true
+wave_0_complete: true
 created: 2026-07-20
+validated: 2026-07-20
 ---
 
 # Phase 18 - Validation Strategy
@@ -39,9 +40,31 @@ created: 2026-07-20
 
 ## Per-Task Verification Map
 
-| Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
-|---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
-| (populated by /gsd-validate-phase after execution) | - | - | LAW-01/02, RTR-02, SEAM-01/02 | - | N/A (doc-only) | content-guard | `check-red-references.mjs` | W0 | pending |
+| Task ID | Plan | Wave | Requirement | Test Type | Automated Command | Status |
+|---------|------|------|-------------|-----------|-------------------|--------|
+| 18-01 | 01 | 1 | instrument (D-13/14/11/09/05/12) | content-guard + tsc extractor | `check-red-references.mjs` (RED asserted, then re-run GREEN) | green |
+| 18-02 | 02 | 2 | LAW-01, SEAM-01, SEAM-02 backing | content-guard | `check-red-references.mjs` (three-laws + principle-backing rows) | green |
+| 18-03 | 03 | 2 | LAW-02 | content-guard | `check-red-references.mjs` (test-structure + vitest-mechanics rows) | green |
+| 18-04 | 04 | 2 | SEAM-02 | content-guard + orchestrator review | `check-red-references.mjs` SEAM-02 block + gate 2 (PASS) | green |
+| 18-05 | 05 | 3 | LAW-01/02, RTR-02, SEAM-01, VIT-02 | content-guard + tsc extractor + orchestrator review | SKILL.md entry + typecheck (SKILL-1.ts) + gate 3 (PASS) | green |
+| 18-06 | 06 | 4 | all six (finalize) | full battery + 3 orchestrator gates | full 5-gate battery + gates 1/2/3 (all PASS) | green |
+
+*Independently re-run GREEN by gsd-nyquist-auditor: 97/97 content checks, 8 tsc modules (incl. SKILL-1.ts, 0 skipped), hygiene 198/191 files, provenance-honesty 3/3, `claude plugin validate .` exit 0.*
+
+## Validation Audit 2026-07-20
+
+| Metric | Count |
+|--------|-------|
+| Requirements audited | 6 (LAW-01, LAW-02, RTR-02, SEAM-01, SEAM-02, VIT-02) |
+| Gaps found | 0 |
+| Resolved | 0 (no gaps) |
+| Escalated | 0 |
+
+Verdict: NO GAPS. Every requirement maps to a deterministic guard (re-run GREEN) plus, for the
+fidelity/quality axes, a cleared orchestrator gate (Manual-Only, below). No runtime unit tests
+generated -- inappropriate for a Markdown-only skill phase; the deterministic battery is the
+substrate. `nyquist_compliant: true`, `wave_0_complete: true`. Run by gsd-nyquist-auditor (sonnet),
+orchestrator-driven.
 
 *Status: pending / green / red / flaky. The gsd-nyquist-auditor generates the per-task rows from the
 executed PLAN.md task list; the deterministic checks below are the sampling substrate.*
@@ -78,10 +101,10 @@ goes falsely GREEN.
 
 ## Wave 0 Requirements
 
-- [ ] Extend `.claude/skills/lz-red-workspace/tools/check-red-references.mjs` to the Phase-18 RED
+- [x] Extend `.claude/skills/lz-red-workspace/tools/check-red-references.mjs` to the Phase-18 RED
   baseline (flip the 4 deferral guards, add SKILL.md coach-procedure content tokens + ts-fence guard +
   the lz-tpp reverse-pointer guard) and assert it RED against the current placeholder SKILL.md / stubs
-  before content lands. Extend the tsc extractor to cover the SKILL.md fence.
+  before content lands. Extend the tsc extractor to cover the SKILL.md fence. **DONE in 18-01.**
 
 *Existing dev-only workspace covers the tooling; no new build dep enters `plugins/lz-tdd`.*
 
@@ -102,11 +125,13 @@ returns its blind edits (per CONTEXT D-05/D-10/D-12):
 
 ## Validation Sign-Off
 
-- [ ] All tasks have automated verify or Wave 0 dependencies
-- [ ] Sampling continuity: no 3 consecutive tasks without automated verify
-- [ ] Wave 0 covers all MISSING references (instrument extension RED baseline)
-- [ ] No watch-mode flags
-- [ ] Feedback latency < 30s
-- [ ] `nyquist_compliant: true` set in frontmatter (by /gsd-validate-phase)
+- [x] All tasks have automated verify or Wave 0 dependencies
+- [x] Sampling continuity: no 3 consecutive tasks without automated verify
+- [x] Wave 0 covers all MISSING references (instrument extension RED baseline)
+- [x] No watch-mode flags
+- [x] Feedback latency < 30s
+- [x] `nyquist_compliant: true` set in frontmatter (by /gsd-validate-phase)
+
+**Approval:** verified 2026-07-20
 
 **Approval:** pending

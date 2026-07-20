@@ -10,7 +10,7 @@
     {
       "name": "lz-tdd",
       "source": "./plugins/lz-tdd",
-      "description": "Test-driven development guidance for Claude Code: the lz-tpp skill for Transformation Priority Premise coaching at the green step and the lz-refactor skill for Fowler and Kerievsky refactoring coaching at the refactor step.",
+      "description": "Test-driven development guidance for Claude Code: the lz-red skill for choosing and writing the next failing unit test at the red step, the lz-tpp skill for Transformation Priority Premise coaching at the green step, and the lz-refactor skill for Fowler and Kerievsky refactoring coaching at the refactor step.",
       "category": "development"
     }
   ]

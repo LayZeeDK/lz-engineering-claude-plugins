@@ -106,6 +106,14 @@ None. `git commit` ran with hooks (no --no-verify); committer identity was the p
 - 18-05 (lz-red SKILL.md coach procedure) is next and will turn the overall check-red-references gate GREEN.
 - The lz-tpp edit is queued for the D-10 unbiased review at 18-06 and the human `/reload-plugins` at Phase-19 ship.
 
+## Self-Check: PASSED
+
+- FOUND: plugins/lz-tdd/skills/lz-tpp/SKILL.md reverse-pointer section (commit 51f76c2, +10 lines)
+- FOUND: .planning/phases/18-coach-procedure-lz-tpp-seam-wiring/18-04-SUMMARY.md
+- FOUND commit 51f76c2 (Task 1 SKILL.md edit)
+- FOUND commit 715ccd7 (docs: SUMMARY + STATE + ROADMAP)
+- check-red-references SEAM-02 block PASS; overall exit 1 (RED by design pre-18-05); check-hygiene exit 0; claude plugin validate . exit 0; config.json byte-unchanged
+
 ---
 *Phase: 18-coach-procedure-lz-tpp-seam-wiring*
 *Completed: 2026-07-20*

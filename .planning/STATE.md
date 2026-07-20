@@ -5,16 +5,16 @@ milestone_name: lz-red Skill
 current_phase: 18
 current_phase_name: coach-procedure-lz-tpp-seam-wiring
 status: executing
-stopped_at: Phase 18 Plan 03 complete (LAW-02 procedure markers filled -- F.I.R.S.T. red-step baseline + fail-for-the-right-reason)
-last_updated: "2026-07-20T19:05:00Z"
+stopped_at: Phase 18 Plan 04 complete (SEAM-02 -- lz-tpp/SKILL.md reverse pointers to lz-red and lz-refactor wired in one additive edit)
+last_updated: "2026-07-20T18:51:22Z"
 last_activity: 2026-07-20
-last_activity_desc: Phase 18 Plan 03 executed (LAW-02 F.I.R.S.T.-baseline + fail-for-the-right-reason procedure sections)
+last_activity_desc: Phase 18 Plan 04 executed (SEAM-02 lz-tpp reverse-pointer section; red-green-refactor seam fully wired)
 progress:
   total_phases: 7
   completed_phases: 4
   total_plans: 17
-  completed_plans: 14
-  percent: 57
+  completed_plans: 15
+  percent: 60
 ---
 
 # Project State
@@ -30,9 +30,9 @@ See: .planning/PROJECT.md (updated 2026-07-18 -- started milestone lz-tdd@0.0.3)
 ## Current Position
 
 Phase: 18 (coach-procedure-lz-tpp-seam-wiring) — EXECUTING
-Plan: 3 of 6 (18-03 complete: LAW-02 procedure markers filled -- F.I.R.S.T. red-step baseline + fail-for-the-right-reason)
-Status: Executing Phase 18 (Wave 1 instrument + Wave 2 owned Three-Laws leaf + the two LAW-02 procedure slices done; SKILL.md coach procedure + lz-tpp SEAM-02 seam next)
-Last activity: 2026-07-20 — Phase 18 Plan 03 executed
+Plan: 4 of 6 (18-04 complete: SEAM-02 -- lz-tpp/SKILL.md reverse pointers to lz-red + lz-refactor, red-green-refactor seam fully wired)
+Status: Executing Phase 18 (Wave 1 instrument + Wave 2 owned Three-Laws leaf + LAW-02 slices + SEAM-02 lz-tpp reverse pointers done; lz-red SKILL.md coach procedure (18-05) next, then finalize gate 18-06)
+Last activity: 2026-07-20 — Phase 18 Plan 04 executed
 
 ## Performance Metrics
 
@@ -88,6 +88,7 @@ Last activity: 2026-07-20 — Phase 18 Plan 03 executed
 | Phase 17 P06 | 5min | 1 tasks | 0 files |
 | Phase 17.1 P01 | ~11min | 3 tasks | 4 files |
 | Phase 18 P02 | ~12min | 2 tasks | 2 files |
+| Phase 18 P04 | ~3min | 1 task | 1 file |
 
 ## Accumulated Context
 
@@ -147,6 +148,7 @@ Recent decisions affecting current work:
 - [Phase ?]: Phase 17.1 (17.1-01): blind provisional owned-source tier upgrade of the Beck RED selection/structure surfaces. Locked-eligible: running test list, one small step, and the starter case -> Canon TDD; triangulation -> First One, Then Many. Provisional (D-03/D-04): assert-first + evident test data -> Canon TDD, expected to revert to no-oracle at the orchestrator oracle-reviewer gate (primary source is a summary-only book). No owned Source cell cites the book; recommendation CONTENT unchanged; four provenance surfaces reconciled; full battery GREEN. Pending: orchestrator-driven oracle-reviewer gate + finalize revert/reconcile of provisional rows. SEL-01/SEL-02/STR-02/DST-03/DST-04 stay Complete (tier upgrade only).
 - [Phase 18]: Phase 18 (18-02, Wave 2 owned Three-Laws leaf): filled the ONE owned surface Phase 18 introduces -- the Three Laws of TDD spine + classify-first framing in three-laws-and-test-selection.md, authored BLIND clean-room (D-12; no .oracle/ read). Law 1 gates entry, Law 2 sizes the test (a not-yet-defined / non-compiling symbol counts as the failure), both tagged `(Robert C. Martin, owned; oracle-verified)` matching the existing Take-one-small-step row; Law 3 = the lz-tpp handoff tagged lz-red orchestration (no-oracle reframe, D-03). Added the classify-first red/green/refactor framing consistent with the SKILL.md "RED vs the green step" section (no SEL restatement). Added LAW-01 (Three Laws spine) + LAW-02 (fail for the right reason) owned rows and SEAM-01 (classify-first/forward handoff) + SEAM-02 (reverse lz-tpp->lz-red pointer) no-oracle rows to principle-backing.md in the exact three-column pipe shape with the canonical tier strings. Removed every /Phase 18/i deferral marker from both files; SEL slice + Phase-16/17 rows byte-stable (D-14). check-red-references.mjs: both files' topics + absent guards PASS + D-05 honesty gate PASS (overall still RED by design -- SKILL.md / test-structure / vitest / lz-tpp guards close in later waves); typecheck 7 modules + hygiene 198/191 GREEN. Owned surface QUEUED for the orchestrator oracle-reviewer gate at 18-06 (tier gate-decided per D-05; NOT run here). LAW-01/LAW-02/SEAM-01/SEAM-02 backing landed; requirement closure awaits the 18-06 gate + gsd-verifier. Commits cb14638, e5091c6.
 - [Phase 18]: Phase 18 (18-01, Wave 1 instrument): extended check-red-references.mjs + extract-samples.mjs in place (D-13) to the Phase-18 coach-procedure/SEAM-02 surface. NET-NEW absent no-stale-marker guard (D-14 inverse of deferral; needle /Phase 18/i, since LAW-0/SEAM-0 legitimately remain as LAW-01/SEAM-01 refs in filled content) + four flipped deferral guards (three-laws, test-structure, vitest, principle-backing), every Phase-16/17 topic kept as the regression floor. SKILL.md coverage via a per-entry dir base override (7 coach topics + requireNonIgnoreFence closing the TS_FENCE_RE ts-ignore gap + absent guard); a post-loop SEAM-02 block reading the shipped lz-tpp/SKILL.md for BOTH reverse pointers; the extractor walk prepends the lz-red SKILL.md fence. Phase-18 RED baseline asserted (content gate exit 1, 9 FAILs by design; tsc extractor 7 modules, hygiene 198/191, D-05 selftest 3/3, claude plugin validate all GREEN). No shipped plugins/lz-tdd file touched; provenance-honesty.mjs + selftest byte-intact. LAW-01/LAW-02/RTR-02/SEAM-01/SEAM-02/VIT-02 remain OPEN (close when later waves turn the gate GREEN). Commits dee8f2b, 23ba7aa, 8c3c039.
+- [Phase 18]: Phase 18 (18-04, Wave 2 SEAM-02): closed the carried reverse-pointer tech-debt in the SHIPPED lz-tpp/SKILL.md -- added ONE additive "The green step vs the red step (lz-red) and the refactor step (lz-refactor)" section (heading + one short paragraph, +10 lines) after "## Transformations vs refactorings" (D-09, both pointers in ONE edit). Authored BLIND own-words from the green vantage, pointer-only: names lz-red (choosing/writing the next failing test) and lz-refactor (restructuring passing code) and tells the coach to classify first, WITHOUT restating either sibling's procedure; lz-red + lz-refactor NOT edited; every pre-existing lz-tpp section byte-stable. check-red-references SEAM-02 block flipped FAIL->PASS (both /lz-red/ and /lz-refactor/ present); overall gate still RED by design (closes when 18-05 authors the lz-red coach procedure). check-hygiene GREEN (198/191; lz-tpp is in the ASCII + work-email wideTargets but EXCLUDED from no-verbatim per D-12); claude plugin validate . exit 0. The D-10 >= 1-unbiased orchestrator review is QUEUED for 18-06 (executor has no Agent/Task tool); /reload-plugins is a Phase-19 human ship action. SEAM-02 backing landed; requirement closure awaits the 18-06 gate + gsd-verifier. Commit 51f76c2.
 
 ### Pending Todos
 

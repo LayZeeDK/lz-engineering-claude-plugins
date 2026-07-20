@@ -33,6 +33,16 @@ A transformation changes behavior to make a red test pass and IS ranked by the p
 A refactoring changes structure only, preserves behavior, and is NOT priority-ranked (it
 belongs to the refactor step). Classify every candidate change before ranking it.
 
+## The green step vs the red step (lz-red) and the refactor step (lz-refactor)
+
+lz-tpp coaches the green / transformation step: turning a failing (red) test green by changing
+behavior. Its two siblings own the neighboring steps. Deciding and writing the next failing (red)
+test is the red step, lz-red. Restructuring code whose tests already pass, without altering
+behavior, is the refactor step, lz-refactor. Classify the request before coaching a transformation:
+with no failing test in hand yet, hand off to lz-red; with the tests already green and the code
+needing cleanup, hand off to lz-refactor; otherwise, picking the minimal change that turns the red
+bar green is this skill.
+
 ## Amended red-green-refactor
 
 - When passing a test, prefer higher-priority (lower-numbered) transformations.

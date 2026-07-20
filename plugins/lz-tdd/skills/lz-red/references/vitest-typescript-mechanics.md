@@ -103,12 +103,25 @@ pointers:
   to a minimal counterexample. Deferred to ADV-02 (post-0.0.3); no fast-check dependency is added in
   this milestone.
 
-## Fail-for-the-right-reason as a procedure (Phase 18)
+## Fail-for-the-right-reason as a procedure
 
-Reading the red bar above is a Vitest MECHANIC. Turning it into the LAW-02 procedure step -- the
-coach's Three-Laws spine that requires a fresh test to fail for the right reason before any
-production code is written -- is deferred to Phase 18. This section is that step's insertion point;
-the procedure lands with the coach spine in that phase.
+The Read-the-red-bar mechanic above is where this step gets its evidence; here that mechanic becomes
+a fixed procedure step on the coach's Three-Laws spine (LAW-02). The rule: after a fresh test is
+written and before a single line of production code is added, confirm the test is red for the reason
+you intended. A valid red is an AssertionError -- expected X, received Y -- so the harness ran,
+reached the assertion, and found the behavior missing. A ReferenceError, a TypeError, or an import
+or setup failure is a broken harness -- the test never reached its assertion, so its red says nothing
+about the behavior. A test that passes the instant it is written is a false green -- it asserts what
+the code already does, drives no new behavior, and must be sharpened until it fails.
+
+Only when the red is the assertion you wrote does the failing test become a precise target for the
+green step, which is lz-tpp's job. This procedure step is the gate between choosing the test and
+handing it off: a well-formed red on the asserted behavior passes forward; a harness error or a
+false green sends you back to fix the test first.
+
+The coach questions rather than drives here. It reads the failure with the developer and explains
+which red is the right one and why -- an AssertionError versus a broken harness versus a false green
+-- but it does not run the suite unprompted or edit the test to force the color.
 
 ## Sources
 

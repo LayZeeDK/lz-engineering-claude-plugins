@@ -17,8 +17,9 @@ an assertion pin observable behavior rather than implementation detail. This is 
 > every definition below is written in original words, with no verbatim source prose or code (DST-04).
 >
 > Phase 16 filled the test-STRUCTURE slice (STR-01, STR-02); Phase 17 fills the assertion-design
-> slice (ASRT-01, ASRT-02). The F.I.R.S.T.-as-baseline PROCEDURE step (LAW-02) is deferred to
-> Phase 18 and left as a marker below.
+> slice (ASRT-01, ASRT-02). The F.I.R.S.T.-as-baseline PROCEDURE step (LAW-02) is filled below: the
+> coach reads a fresh red test against the F.I.R.S.T. properties as the baseline the
+> fail-for-the-right-reason step sits on.
 
 ## One skeleton, two vocabularies
 
@@ -160,11 +161,24 @@ function netOf(total: number, discount: number): number {
 }
 ```
 
-## F.I.R.S.T. as a red-step baseline (Phase 18)
+## F.I.R.S.T. as a red-step baseline
 
-Turning F.I.R.S.T. into a PROCEDURE step -- the coach checking a fresh red test against the five
-properties as part of the red-green-refactor loop (LAW-02) -- is deferred to Phase 18. This section
-is that step's insertion point; the procedure lands with the coach spine in that phase.
+The F.I.R.S.T. block above defines the five properties; this step puts them to work. They are the
+coach's standing test-quality baseline, not a one-time checklist. Once the next failing test is
+picked and given its arrange-act-assert shape, the coach reads it back against those five properties
+-- Fast, Independent, Repeatable, Self-validating, Timely -- before the red bar is trusted. A fresh
+test that already leans on a clock, a shared fixture, or a human eyeball is a weak red however sharp
+its assertion, so this red-step baseline is checked first.
+
+That baseline is the ground the LAW-02 fail-for-the-right-reason step stands on. A red bar means what
+you intend only when the test under it is independent and repeatable: such a test fails on the
+behavior you asserted, whereas a flaky or order-dependent one can go red for a reason unrelated to
+the missing production code. Confirm the test is well-formed against the F.I.R.S.T. baseline here,
+then read WHY it is red in the fail-for-the-right-reason step.
+
+The coach questions rather than drives at this baseline. It names which property a fresh test is
+bending and why that weakens the red, and it leaves the fix to the developer -- it does not rewrite
+the test or run the suite unprompted.
 
 ## Sources
 

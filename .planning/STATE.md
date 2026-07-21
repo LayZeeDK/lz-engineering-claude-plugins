@@ -5,9 +5,8 @@ milestone_name: lz-red Skill
 current_phase: 20
 status: verifying
 stopped_at: Completed 20-03-PLAN.md (Phase 20 build boundary; awaiting user approval for the gated eval run)
-last_updated: "2026-07-21T09:25:35.654Z"
+last_updated: "2026-07-21T09:30:56.259Z"
 last_activity: 2026-07-21
-last_activity_desc: Phase 20 complete
 progress:
   total_phases: 7
   completed_phases: 7
@@ -32,7 +31,7 @@ See: .planning/PROJECT.md (updated 2026-07-18 -- started milestone lz-tdd@0.0.3)
 Phase: 20
 Plan: Not started
 Status: Phase complete -- ready for verification
-Last activity: 2026-07-21 -- Phase 20 complete
+Last activity: 2026-07-21
 
 ## Performance Metrics
 

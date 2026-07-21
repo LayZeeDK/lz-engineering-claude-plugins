@@ -43,6 +43,13 @@ Thumbs.db
 .claude/skills/lz-refactor-workspace/**/results*/
 .claude/skills/lz-refactor-workspace/**/run-*/
 .claude/skills/lz-refactor-workspace/**/trigger-results-*.json
+# Per-run eval captures for lz-red (Phase 20, Pitfall 8): the generic *-workspace rules above
+# drop only caches; the bulky per-run capture dirs + probe-stdout chunks are per-skill. Mirror
+# the lz-refactor block above (additive; NOT a *-workspace generalization, which would newly
+# ignore already-tracked lz-tpp trigger-results-*.json).
+.claude/skills/lz-red-workspace/**/results*/
+.claude/skills/lz-red-workspace/**/run-*/
+.claude/skills/lz-red-workspace/**/trigger-results-*.json
 # Reference-eval (quick 260714-nxp): raw per-run outputs + the generated aggregate are local
 # byproducts. The verdict is tracked in e2e-reference/REFERENCE-RESULTS.md; runs are re-runnable.
 .claude/skills/lz-refactor-workspace/e2e-reference/results/

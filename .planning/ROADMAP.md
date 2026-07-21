@@ -216,11 +216,11 @@ Plans:
   2. A RED-behavior eval shows the coach recommends the correct next-test / assertion move (right selection, structure, and assertion target; fails for the right reason; hands off to lz-tpp; coaches rather than drives) versus an unaided baseline.
   3. The vendored eval harness lives in a dev-only `lz-red-workspace` (per-run byproducts git-ignored, no build deps in `plugins/lz-tdd`); the `description` is tuned only if specificity drops, and the tuned skill is re-validated.
 
-**Plans**: 3 plans
+**Plans**: 1/3 plans executed
 
 **Wave 1** (parallel -- disjoint files; instrument-first RED baseline then data GREEN)
 
-- [ ] 20-01-PLAN.md -- EVL-01: copy the vendored native-fixed harness + generic scripts + light-edited runners, adapt check-evals to the three-way boundary (both seams + reciprocal dual-write + email-allowlist), author trigger-eval / reciprocal-red / negatives, add the lz-red gitignore lines
+- [x] 20-01-PLAN.md -- EVL-01: copy the vendored native-fixed harness + generic scripts + light-edited runners, adapt check-evals to the three-way boundary (both seams + reciprocal dual-write + email-allowlist), author trigger-eval / reciprocal-red / negatives, add the lz-red gitignore lines
 - [ ] 20-02-PLAN.md -- EVL-02: rewrite grade-run.mjs into the D-05-RUBRIC per-dimension hybrid grader (phrase-set matchers + borrowed negation-aware occursAffirmed + 2-dimension judge + alignment selfcheck), author the leaf-grounded RED-situation scenarios
 
 **Wave 2** (finalize -- blocked on Wave 1)
@@ -254,7 +254,7 @@ Plans:
 | 17. Assertion Design, Stance Router & TS/Vitest Mechanics | lz-tdd@0.0.3 | 6/6 | Complete   | 2026-07-19 |
 | 18. Coach Procedure & lz-tpp Seam Wiring | lz-tdd@0.0.3 | 6/6 | Complete    | 2026-07-20 |
 | 19. Distribution & Hygiene | lz-tdd@0.0.3 | 3/3 | Complete    | 2026-07-20 |
-| 20. Skill-Effectiveness Evals | lz-tdd@0.0.3 | 0/3 | Not started | - |
+| 20. Skill-Effectiveness Evals | lz-tdd@0.0.3 | 1/3 | In Progress|  |
 
 ---
 *Roadmap created: 2026-07-02 | lz-tdd@0.0.1 shipped: 2026-07-04 | lz-tdd@0.0.2 shipped: 2026-07-17 | lz-tdd@0.0.3 roadmap added: 2026-07-18 (Phases 15-20). Per-milestone phase detail lives in `.planning/milestones/`.*

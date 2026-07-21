@@ -3,17 +3,17 @@ gsd_state_version: 1.0
 milestone: lz-tdd@0.0.3
 milestone_name: lz-red Skill
 current_phase: 20
-current_phase_name: Skill-Effectiveness Evals
-status: ready
+current_phase_name: skill-effectiveness-evals
+status: executing
 stopped_at: Phase 20 context gathered
-last_updated: "2026-07-21T00:05:38.750Z"
+last_updated: "2026-07-21T07:54:49.114Z"
 last_activity: 2026-07-21
-last_activity_desc: Phase 19 close-out audits complete (secure + validate + extract-learnings)
+last_activity_desc: Phase 20 execution started
 progress:
   total_phases: 7
   completed_phases: 6
-  total_plans: 20
-  completed_plans: 20
+  total_plans: 23
+  completed_plans: 21
   percent: 86
 ---
 
@@ -24,15 +24,15 @@ progress:
 See: .planning/PROJECT.md (updated 2026-07-18 -- started milestone lz-tdd@0.0.3)
 
 **Core value:** `lz-tpp` helps Claude choose the next code transformation by TPP priority during red-green-refactor TDD, and explains the premise on demand. lz-tdd@0.0.2 added `lz-refactor` (refactor step); lz-tdd@0.0.3 adds `lz-red` (red step) to complete the loop.
-**Current focus:** Phase 20 - Skill-Effectiveness Evals (Phase 19 closed 2026-07-21)
+**Current focus:** Phase 20 -- skill-effectiveness-evals
 **Milestone:** lz-tdd@0.0.3 (lz-red Skill, RED phase) -- planning (started 2026-07-18)
 
 ## Current Position
 
-Phase: 20 — Skill-Effectiveness Evals
-Plan: Not started
-Status: Phase 19 CLOSED (verified 17/17, secured 8/8 threats_open 0, nyquist-compliant, 23 learnings pooled); Phase 20 not started
-Last activity: 2026-07-21 - Phase 19 close-out audits complete (secure + validate + extract-learnings)
+Phase: 20 (skill-effectiveness-evals) -- EXECUTING
+Plan: 2 of 3
+Status: Ready to execute
+Last activity: 2026-07-21 -- Phase 20 execution started
 
 ## Performance Metrics
 
@@ -92,6 +92,7 @@ Last activity: 2026-07-21 - Phase 19 close-out audits complete (secure + validat
 | Phase 18 P02 | ~12min | 2 tasks | 2 files |
 | Phase 18 P04 | ~3min | 1 task | 1 file |
 | Phase 18 P05 | ~2min | 2 tasks | 1 file |
+| Phase 20 P01 | 11min | 3 tasks | 14 files |
 
 ## Accumulated Context
 
@@ -153,6 +154,7 @@ Recent decisions affecting current work:
 - [Phase 18]: Phase 18 (18-01, Wave 1 instrument): extended check-red-references.mjs + extract-samples.mjs in place (D-13) to the Phase-18 coach-procedure/SEAM-02 surface. NET-NEW absent no-stale-marker guard (D-14 inverse of deferral; needle /Phase 18/i, since LAW-0/SEAM-0 legitimately remain as LAW-01/SEAM-01 refs in filled content) + four flipped deferral guards (three-laws, test-structure, vitest, principle-backing), every Phase-16/17 topic kept as the regression floor. SKILL.md coverage via a per-entry dir base override (7 coach topics + requireNonIgnoreFence closing the TS_FENCE_RE ts-ignore gap + absent guard); a post-loop SEAM-02 block reading the shipped lz-tpp/SKILL.md for BOTH reverse pointers; the extractor walk prepends the lz-red SKILL.md fence. Phase-18 RED baseline asserted (content gate exit 1, 9 FAILs by design; tsc extractor 7 modules, hygiene 198/191, D-05 selftest 3/3, claude plugin validate all GREEN). No shipped plugins/lz-tdd file touched; provenance-honesty.mjs + selftest byte-intact. LAW-01/LAW-02/RTR-02/SEAM-01/SEAM-02/VIT-02 remain OPEN (close when later waves turn the gate GREEN). Commits dee8f2b, 23ba7aa, 8c3c039.
 - [Phase 18]: Phase 18 (18-05, Wave 3 lz-red coach procedure): replaced the Phase-18 placeholder in lz-red/SKILL.md with the real INLINE 6-step coach decision procedure (D-01/D-02) on the Three Laws spine -- (1) classify RED/GREEN/REFACTOR against the lz-tpp + lz-refactor seams (D-03/SEAM-01, reuses the existing RED-vs-green-step section); (2) Law 1 gates entry / Law 2 sizes the test / Law 3 is step 6 (D-04/LAW-01, links three-laws-and-test-selection.md); (3) detect the house test idiom -> route the stance via testing-stance/README.md, state the route, honor a natural-language override with no CLI flag (D-06/D-07/RTR-02); (4) structure + assert observable behavior (links test-structure-and-assertions.md); (5) fail-for-the-right-reason -- AssertionError, F.I.R.S.T. baseline, coach questions not runs the suite (D-08/LAW-02, links vitest-typescript-mechanics.md); (6) forward lz-tpp handoff (Law 3/SEAM-01). Plus the closing coach-by-default QUESTION-vs-COMMAND paragraph (D-14) and ONE VIT-02 tsc-strict Vitest worked example (D-11) -- an applyDiscount compiling stub that returns the untouched total, so the assertion fails at runtime with an AssertionError (not a missing symbol, not a ts-ignore fence); extracts as SKILL-1.ts. Every step links file-level to the leaves without restating them; all three Phase-18 deferral markers removed; SKILL.md 81 -> 147 lines (under ~200 target). Overall check-red-references FLIPPED GREEN (11/11 surfaces, exit 0); typecheck 8 modules tsc --strict clean (SKILL-1.ts compiled); check-hygiene 198/191 GREEN; claude plugin validate . exit 0; D-05 honesty gate holds. LAW-01/LAW-02/RTR-02/SEAM-01/VIT-02 backing landed; requirement closure awaits the 18-06 orchestrator skill-review + gsd-verifier. Commits 25c4c5c, 7f0e914.
 - [Phase 18]: Phase 18 (18-04, Wave 2 SEAM-02): closed the carried reverse-pointer tech-debt in the SHIPPED lz-tpp/SKILL.md -- added ONE additive "The green step vs the red step (lz-red) and the refactor step (lz-refactor)" section (heading + one short paragraph, +10 lines) after "## Transformations vs refactorings" (D-09, both pointers in ONE edit). Authored BLIND own-words from the green vantage, pointer-only: names lz-red (choosing/writing the next failing test) and lz-refactor (restructuring passing code) and tells the coach to classify first, WITHOUT restating either sibling's procedure; lz-red + lz-refactor NOT edited; every pre-existing lz-tpp section byte-stable. check-red-references SEAM-02 block flipped FAIL->PASS (both /lz-red/ and /lz-refactor/ present); overall gate still RED by design (closes when 18-05 authors the lz-red coach procedure). check-hygiene GREEN (198/191; lz-tpp is in the ASCII + work-email wideTargets but EXCLUDED from no-verbatim per D-12); claude plugin validate . exit 0. The D-10 >= 1-unbiased orchestrator review is QUEUED for 18-06 (executor has no Agent/Task tool); /reload-plugins is a Phase-19 human ship action. SEAM-02 backing landed; requirement closure awaits the 18-06 gate + gsd-verifier. Commit 51f76c2.
+- [Phase 20]: Phase 20 (20-01): vendored the native-fixed skill-creator-eval rig verbatim into lz-red-workspace (6 files byte-identical, merge-judge --selfcheck GREEN); light-edited both canary-gated runners to lz-red with the CANARY re-derived from a real positive (how should i structure this unit test); adapted check-evals.mjs to the three-way boundary (>=2 lz-tpp green-step AND >=2 lz-refactor refactor-step negatives + reciprocal-red.json all-false byte-consistent + email allowlist-inversion); authored trigger-eval.json (12+12), reciprocal-red.json, d07-chunks/negatives.json -> check-evals GREEN; added 3 lz-red gitignore lines (Pitfall 8). Build-only, no metered run (D-11). EVL-01 stays OPEN -- recall/specificity closes post gated run (20-03), per the 11-02 precedent.
 
 ### Pending Todos
 
@@ -197,7 +199,7 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-21T00:05:38.740Z
+Last session: 2026-07-21T07:53:42.227Z
 Stopped at: Phase 20 context gathered
 This session (2026-07-21, resume-work): resumed the paused Phase 19 close-out from HANDOFF.json and ran the three mandatory post-phase audits, each reached BY its dedicated agent (never self-certified inline): (1) /gsd-secure-phase 19 -> gsd-security-auditor SECURED, 8/8 threats closed, threats_open 0, 19-SECURITY.md (commit 8833bdf); (2) /gsd-validate-phase 19 -> gsd-nyquist-auditor GAPS-FILLED (no code-test gaps -- docs/hygiene phase), full gate battery independently re-run GREEN, 19-VALIDATION.md nyquist_compliant true (commit c75767d); (3) /gsd-extract-learnings 19 -> 19-LEARNINGS.md (7 decisions / 5 lessons / 7 patterns / 4 surprises), 23 items pooled to ~/.gsd/knowledge via the global-learnings bridge (commit 1407a68). HANDOFF.json + the Phase-19 .continue-here.md consumed. config.json (_auto_chain_active flag) deliberately left unstaged. gsd-verifier had already passed 17/17.
 Superseded-2026-07-17: Resumed via HANDOFF.json -> completed the paused quick task 260716-oby (Loops/pipeline few-shot TS examples). Re-ran the mandatory review that died on the prior session limit: 2 subagents (1 unbiased, 1 primed) both PASS with 0 Critical/0 Important; applied reviewer B's cue-completeness fix; gates GREEN. Replaced the WIP pause commit with a clean docs() commit (3138bbe) -- SHIPPED on teaching merit. HANDOFF.json consumed + deleted. Ran the user-approved held-out recognition eval: **idiom_pattern 0/3=0/3, NULL lift, zero regression** (5th passive-content probe null). angular-cli restored pristine, throwaway branch deleted. 260716-oby RESOLVED. THEN, following a design discussion + web research, ran a user-approved forcing-function diagnostic (enum loop-audit directive in the prompt, k=5, same target): **idiom 0/3 control -> 5/5, all tsc --strict CLEAN + behavior-preserving + discriminating.** CORRECTION: the loop-to-pipeline miss is a DISCRETION/SALIENCE gap, NOT a judgment ceiling -- passive skill content (prose/cues/examples) is null, but an ACTIVE enumeration forcing-function flips it (prompt-level, n=1). Falsified the earlier "judgment ceiling, close it" call. See heldout-enum/RESULTS-enum.md. NEXT candidate (unrun): a SKILL-level forcing-function probe (embed a loop-audit step; test skill-alone reproduction + precision/overcorrection). Not a blocker to closing lz-tdd@0.0.2 on the current shipped skill. Inherited close still pending: /gsd-audit-milestone lz-tdd@0.0.2 then /gsd-complete-milestone lz-tdd@0.0.2 (+ user /reload-plugins to make 3138bbe live).

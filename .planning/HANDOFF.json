@@ -1,0 +1,45 @@
+{
+  "version": "1.0",
+  "timestamp": "2026-07-21T09:38:02.221Z",
+  "phase": "20",
+  "phase_name": "skill-effectiveness-evals",
+  "phase_dir": ".planning/phases/20-skill-effectiveness-evals",
+  "plan": 3,
+  "task": null,
+  "total_tasks": 3,
+  "status": "paused",
+  "summary": "Phase 20 is COMPLETE for its build-then-halt scope. All 3 plans executed; all GSD post-execution gates passed (verify 20/20, secure threats_open:0, validate nyquist_compliant:true); 22 learnings extracted and pooled to the global store. The ONLY open item is a user decision: whether to run the metered claude -p eval measurements (EVL-01/EVL-02), which are gated per D-11 / eval-run-approval-gate. Nothing metered has run.",
+  "completed_tasks": [
+    {"id": "20-01", "name": "EVL-01 trigger-eval harness build (vendored rig + check-evals three-way boundary + trigger/reciprocal/negatives data)", "status": "done", "commit": "d3b620b"},
+    {"id": "20-02", "name": "EVL-02 RED-behavior grader build (grade-run.mjs D-05-RUBRIC + 10 scenarios)", "status": "done", "commit": "07986d2"},
+    {"id": "20-03", "name": "Finalize: EVAL-RESULTS.md scaffold + full battery GREEN + gated command set + HALT", "status": "done", "commit": "c18d6c8"},
+    {"id": "verify", "name": "gsd-verifier: 20/20 must-haves PASSED (build-then-halt scope)", "status": "done", "commit": "bac7884"},
+    {"id": "secure", "name": "gsd-security-auditor: 5/5 threats mitigated, threats_open 0", "status": "done", "commit": "c5615d7"},
+    {"id": "validate", "name": "gsd-nyquist-auditor: nyquist_compliant true, no spurious tests", "status": "done", "commit": "6cb91d7"},
+    {"id": "phase-complete", "name": "phase.complete + reverted EVL-01/EVL-02 to Pending + fixed STATE.md em-dash", "status": "done", "commit": "d29c9ee"},
+    {"id": "learnings", "name": "extract-learnings (22) + global-store bridge (created 22)", "status": "done", "commit": "2ffd67e"}
+  ],
+  "remaining_tasks": [
+    {"id": "gated-decision", "name": "USER DECISION: run the metered eval measurements now, or defer. Options presented: (a) Defer all (recommended - a usage limit was hit once this session; phase build is complete); (b) Run EVL-01 trigger only (~144 probes, no fan-out); (c) Run all incl. EVL-02 behavior (60 coach subagents + LLM judge + unbiased reviewer, large spend). User chose to CLARIFY the options first; no decision recorded yet.", "status": "not_started"},
+    {"id": "gated-run-evl01-forward", "name": "IF approved: EVL-01 forward recall/specificity via canary-gated runners (node run-recall-chunks.mjs / run-spec-chunks.mjs)", "status": "not_started"},
+    {"id": "gated-run-evl01-reciprocal", "name": "IF approved: EVL-01 reciprocal via direct run_eval TWICE (--skill-path lz-tpp, then lz-refactor) over reciprocal-red.json", "status": "not_started"},
+    {"id": "gated-run-evl02-behavior", "name": "IF approved: EVL-02 orchestrator fan-out (10 scenarios x with_skill/no_skill x >=3 runs) -> grade-run -> LLM judge -> merge-judge --merge/--verify -> aggregate_benchmark -> generate_review; then fill EVAL-RESULTS.md Pass@k/Pass^k + >=1 unbiased reviewer", "status": "not_started"},
+    {"id": "conditional-d09-tuning", "name": "IF a D-08 soft bar is missed on a demonstrated defect: at-most-one bounded D-09 tuning (description widen on a held-out set OR bounded coach-wording tweak); own >=1 unbiased review; /reload-plugins is a human ship action", "status": "not_started"},
+    {"id": "milestone-close", "name": "Phase 20 is the LAST phase of milestone lz-tdd@0.0.3. After the eval decision resolves, milestone close (/gsd-complete-milestone) is the next milestone-level action", "status": "not_started"}
+  ],
+  "blockers": [
+    {"description": "The metered eval RUNS require explicit user approval before executing (D-11 HARD GATE / eval-run-approval-gate). Not a technical blocker - a mandatory human decision gate.", "type": "human_action", "workaround": "The exact ready-to-run commands are documented in .claude/skills/lz-red-workspace/EVAL-RESULTS.md under 'How to run (GATED)'. Defer is a valid choice; the phase build stands complete either way."}
+  ],
+  "async_jobs": [],
+  "human_actions_pending": [
+    {"action": "Decide whether to run the metered claude -p eval measurements (EVL-01 forward + reciprocal, EVL-02 behavior) or defer them.", "context": "Phase 20 built + deterministically verified the eval infrastructure build-then-halt; the empirical numbers close EVL-01/EVL-02. A usage limit was hit once this session, so a fresh session may be safer for the heavy EVL-02 run.", "blocking": true}
+  ],
+  "decisions": [
+    {"decision": "Ran the 3 executors sequentially on the main tree, no worktree isolation.", "rationale": "Branch is 150 commits ahead of origin/main with worktree.baseRef unset, so worktree agents fork from origin/main - which lacks the build-target dir (lz-red-workspace) and the lz-red skill. GSD's shouldDegrade said false (false negative). Verified via git ls-tree origin/main.", "phase": "20"},
+    {"decision": "Kept EVL-01/EVL-02 at Pending in REQUIREMENTS.md despite phase.complete flipping them to Complete.", "rationale": "They are empirical requirements not yet demonstrated (the run is gated). gsd-verifier independently confirmed Pending is the correct, non-deceptive state. VIT-02 is already Pending as precedent.", "phase": "20"},
+    {"decision": "Honored D-11 build-then-halt: nothing metered ran.", "rationale": "eval-run-approval-gate: never spend claude -p tokens without explicit user approval.", "phase": "20"}
+  ],
+  "uncommitted_files": [],
+  "next_action": "Resume the gated-eval decision conversation. The user asked to CLARIFY the run/defer options before answering - answer their clarifying questions (cost/time per option, what Pending blocks, what the runs reveal, session headroom, mechanics), then re-present the decision. Do NOT run any metered eval (no claude -p / run_eval / subagent fan-out) until the user explicitly approves.",
+  "context_notes": "Phase 20 was executed via /gsd-core:gsd-execute-phase 20. Everything build-side is done, committed, and hygiene-clean (ASCII + email-allowlist). The whole phase was designed build-then-halt (D-11). The final orchestrator obligation (per 20-03 output) is to present EVAL-RESULTS.md's 'How to run (GATED)' set and await approval - which I did, then the user paused after choosing to clarify the options first. If the user later approves, the EVL-02 fan-out is ORCHESTRATOR-driven (the gsd-executor cannot spawn subagents): spawn UNNAMED fire-and-forget subagents per scenario x config x run in isolated scratch cwds, WAIT for ALL completion notifications before grading (timing is only available at completion), then grade -> judge -> merge -> verify -> aggregate, then Pass@k/Pass^k + >=1 unbiased-from-scratch reviewer. Watch the naive-email-regex false-positive on lz-tdd@X.Y.Z version/archive tokens when running hygiene scans. A reusable ASCII+allowlist hygiene scan is at the session scratchpad (hygiene-scan-p20.mjs) and the learnings-bridge transform at learnings-bridge-p20.mjs - both throwaway."
+}

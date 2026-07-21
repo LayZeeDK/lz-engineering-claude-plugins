@@ -50,6 +50,13 @@ Thumbs.db
 .claude/skills/lz-red-workspace/**/results*/
 .claude/skills/lz-red-workspace/**/run-*/
 .claude/skills/lz-red-workspace/**/trigger-results-*.json
+# EVL-01 reciprocal probe stdout + throwaway stderr (workspace root), and the runner-generated
+# per-chunk eval-set inputs (recall-chunk-*.json / spec-chunk-*.json). Raw, re-runnable byproducts;
+# the tracked evidence is EVAL-RESULTS.md. Root-anchored so evals/reciprocal-red.json stays tracked.
+.claude/skills/lz-red-workspace/reciprocal-*.json
+.claude/skills/lz-red-workspace/reciprocal-*.err
+.claude/skills/lz-red-workspace/evals/d07-chunks/recall-chunk-*.json
+.claude/skills/lz-red-workspace/evals/d07-chunks/spec-chunk-*.json
 # Reference-eval (quick 260714-nxp): raw per-run outputs + the generated aggregate are local
 # byproducts. The verdict is tracked in e2e-reference/REFERENCE-RESULTS.md; runs are re-runnable.
 .claude/skills/lz-refactor-workspace/e2e-reference/results/

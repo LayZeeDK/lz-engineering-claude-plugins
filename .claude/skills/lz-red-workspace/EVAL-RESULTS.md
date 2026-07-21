@@ -21,10 +21,15 @@ Skill under test: `plugins/lz-tdd/skills/lz-red`. Milestone lz-tdd@0.0.3.
 - **Throttle-robust measurement:** prefer the canary-gated chunk runners; a chunk is trusted ONLY
   when its appended positive canary fired (`trigger_rate >= 0.5`), proving a non-throttled window.
 
-**Status: NOT RUN.** Every number below is intentionally blank. The measurement spends `claude -p`
-tokens and is user-gated (D-11 HARD GATE) -- the results are filled ONLY after an explicit
-user-approved run. See "How to run (GATED)" at the end of this file. D-09 tuning: not yet evaluated
-(applied at most once, only if a soft bar below is missed on a demonstrated defect).
+**Status: EVL-01 RUN 2026-07-21 (user-approved; forward + reciprocal only).** EVL-02 behavior and its
+Pass@k tables remain intentionally blank -- the user approved EVL-01 and paused before the heavy EVL-02
+fan-out. EVL-01 headline: forward recall 11/12 = 92% (query-level; run-level Pass@1 0.96), forward
+specificity 12/12 = 100%, reciprocal lz-tpp 12/12 quiet, reciprocal lz-refactor 12/12 quiet. Every one
+of the 7 forward chunks was canary-validated (the appended positive fired 3/3 in each), so no result
+rests on a throttled window. One recall miss sits below the 100% D-08 bar: T9 (house-idiom /
+testing-stance) fired 1/3. That is a demonstrated, NON-blocking defect and the sole D-09 tuning
+candidate; D-09 tuning was NOT applied (user paused after EVL-01). Raw evidence (git-ignored):
+`trigger-results-d07-{recall,spec}-chunk-*.json` + `reciprocal-lz-{tpp,refactor}.json`.
 
 ## EVL-01 forward -- Trigger accuracy (lz-red, native harness, canary-validated)
 
@@ -35,44 +40,44 @@ draw from BOTH sibling seams -- 3 lz-tpp green-step + 3 lz-refactor refactor-ste
 
 | Metric | Result | D-08 bar (0.0.1 / 0.0.2 = 100%) |
 |--------|--------|---------------------------------|
-| Should-trigger RECALL (rate >= 0.5) |  | 100% (12/12) |
-| Near-miss SPECIFICITY (rate < 0.5)  |  | 100% (12/12) |
+| Should-trigger RECALL (rate >= 0.5) | 92% (11/12) -- MISS by 1 (T9) | 100% (12/12) |
+| Near-miss SPECIFICITY (rate < 0.5)  | 100% (12/12) | 100% (12/12) |
 
-*(Result column intentionally blank; filled only after the user-approved run -- D-11.)*
+*(Run 2026-07-21, all chunks canary-validated. RECALL misses the 100% bar on T9 only; see the D-09 candidate below.)*
 
 ### Per-query recall (should_trigger:true; canary = "how should i structure this unit test")
 
 | # | Query (abbreviated) | In-scope facet | trigger_rate | fired? |
 |---|---------------------|----------------|--------------|--------|
-| T1 | starting a new `slugify(title)` from scratch, tests-first | Selection: starter case |  |  |
-| T2 | tdd on `discount`, 10%-off green, whats the next test | Selection: triangulation |  |  |
-| T3 | how should i structure this unit test (CANARY) | Structure: AAA/GWT |  |  |
-| T4 | what should i actually assert here? returns a number | Assertion: output-based |  |  |
-| T5 | `OrderService` notifies a mailer -- assert and mock? | Assertion: communication |  |  |
-| T6 | is `test('works')` a good name for this? | Naming |  |  |
-| T7 | keep a test list for this markdown parser feature | Selection: test list |  |  |
-| T8 | brand-new test went green on the first run -- problem? | Fail-for-the-right-reason |  |  |
-| T9 | how do i match this codebase's testing stance | Stance: house idiom |  |  |
-| T10 | legacy `PriceCalculator`, global clock, first test | Stance: seams-and-legacy |  |  |
-| T11 | is this a good test asserting a private field? | Assertion: observable behavior |  |  |
-| T12 | what should i test here? (bare, small pure fn) | Low-signal catch-all |  |  |
+| T1 | starting a new `slugify(title)` from scratch, tests-first | Selection: starter case | 1.00 (3/3) | yes |
+| T2 | tdd on `discount`, 10%-off green, whats the next test | Selection: triangulation | 1.00 (3/3) | yes |
+| T3 | how should i structure this unit test (CANARY) | Structure: AAA/GWT | 1.00 (12/12) | yes |
+| T4 | what should i actually assert here? returns a number | Assertion: output-based | 1.00 (3/3) | yes |
+| T5 | `OrderService` notifies a mailer -- assert and mock? | Assertion: communication | 1.00 (3/3) | yes |
+| T6 | is `test('works')` a good name for this? | Naming | 1.00 (3/3) | yes |
+| T7 | keep a test list for this markdown parser feature | Selection: test list | 1.00 (3/3) | yes |
+| T8 | brand-new test went green on the first run -- problem? | Fail-for-the-right-reason | 1.00 (3/3) | yes |
+| T9 | how do i match this codebase's testing stance | Stance: house idiom | 0.33 (1/3) | NO -- miss |
+| T10 | legacy `PriceCalculator`, global clock, first test | Stance: seams-and-legacy | 1.00 (3/3) | yes |
+| T11 | is this a good test asserting a private field? | Assertion: observable behavior | 1.00 (3/3) | yes |
+| T12 | what should i test here? (bare, small pure fn) | Low-signal catch-all | 1.00 (3/3) | yes |
 
 ### Per-query specificity (should_trigger:false; both siblings' seams + generic)
 
 | # | Query (abbreviated) | Seam / kind | trigger_rate | quiet? |
 |---|---------------------|-------------|--------------|--------|
-| N1 | smallest edit to get this red test passing? | lz-tpp green-step |  |  |
-| N2 | minimal transformation to green it | lz-tpp green-step |  |  |
-| N3 | which change makes this failing test pass | lz-tpp green-step |  |  |
-| N4 | 60-line fn, tests pass -- which named refactoring | lz-refactor refactor-step |  |  |
-| N5 | green bar, copy-pasted block -- how to de-duplicate | lz-refactor refactor-step |  |  |
-| N6 | tests green, messy module -- what would you refactor | lz-refactor refactor-step |  |  |
-| N7 | write a debounce helper in typescript | generic write-a-function |  |  |
-| N8 | add pagination to GET /users in this express app | generic feature work |  |  |
-| N9 | explain the SOLID principles with examples | design-principle adjacent |  |  |
-| N10 | CSV parse throws on empty rows -- find the bug | debugging |  |  |
-| N11 | time and space complexity of this merge sort | analysis |  |  |
-| N12 | run my whole test suite and tell me which fail | test execution |  |  |
+| N1 | smallest edit to get this red test passing? | lz-tpp green-step | 0.00 (0/3) | yes |
+| N2 | minimal transformation to green it | lz-tpp green-step | 0.00 (0/3) | yes |
+| N3 | which change makes this failing test pass | lz-tpp green-step | 0.00 (0/3) | yes |
+| N4 | 60-line fn, tests pass -- which named refactoring | lz-refactor refactor-step | 0.00 (0/3) | yes |
+| N5 | green bar, copy-pasted block -- how to de-duplicate | lz-refactor refactor-step | 0.00 (0/3) | yes |
+| N6 | tests green, messy module -- what would you refactor | lz-refactor refactor-step | 0.00 (0/3) | yes |
+| N7 | write a debounce helper in typescript | generic write-a-function | 0.00 (0/3) | yes |
+| N8 | add pagination to GET /users in this express app | generic feature work | 0.00 (0/3) | yes |
+| N9 | explain the SOLID principles with examples | design-principle adjacent | 0.00 (0/3) | yes |
+| N10 | CSV parse throws on empty rows -- find the bug | debugging | 0.00 (0/3) | yes |
+| N11 | time and space complexity of this merge sort | analysis | 0.00 (0/3) | yes |
+| N12 | run my whole test suite and tell me which fail | test execution | 0.00 (0/3) | yes |
 
 ### EVL-01 rate-limit artifact (harness lesson to reconfirm at run time)
 
@@ -98,15 +103,15 @@ D-09 tuning candidate on THAT sibling's description (never a blocker; never reop
 
 | Metric | Result | bar |
 |--------|--------|-----|
-| RED positives that lz-tpp stays QUIET on (rate < 0.5) |  | 100% (12/12) |
+| RED positives that lz-tpp stays QUIET on (rate < 0.5) | 12/12 (100%) | 100% (12/12) |
 
 ### lz-refactor specificity over the RED positives (`--skill-path .../lz-refactor`)
 
 | Metric | Result | bar |
 |--------|--------|-----|
-| RED positives that lz-refactor stays QUIET on (rate < 0.5) |  | 100% (12/12) |
+| RED positives that lz-refactor stays QUIET on (rate < 0.5) | 12/12 (100%) | 100% (12/12) |
 
-*(Result columns intentionally blank; filled only after the user-approved run -- D-11.)*
+*(Run 2026-07-21: both siblings stayed quiet on all 12 RED positives -- trigger_rate 0.00 each. The genuinely-new cross-skill coverage is clean; no sibling D-09 candidate.)*
 
 **Canary caveat for the reciprocal probe:** the canary-gated chunk runners
 (`run-recall-chunks.mjs` / `run-spec-chunks.mjs`) are NOT used for the reciprocal spot-check. Their
@@ -139,7 +144,9 @@ leaf-grounded RED-situation scenarios, ids 0-9; every scenario's ground truth is
 | 8 | `isPalindrome` "write the red test, do not make it pass" (COMMAND) -> write then stop, hand green to lz-tpp | Handoff + Coach-don't-drive |  |  |
 | 9 | `parseAmount` green + messy + uncovered case (classify-first boundary) -> new RED test, not refactor/green | Selection: classify-first |  |  |
 
-*(Result columns intentionally blank; filled only after the user-approved run -- D-11.)*
+*(EVL-02 DEFERRED -- not run. The user approved EVL-01 (trigger) only and paused before this behavior
+benchmark. Result columns stay blank until a further explicit approval; the ready-to-run sequence is
+in "How to run (GATED)" below.)*
 
 ### Per-dimension detail (EVL-02)
 
@@ -182,20 +189,22 @@ flagged saturated (see above).
 
 | Unit | n | c | Pass@1 | Pass@3 | Pass@5 | Pass^1 | Pass^3 | Pass^5 | saturated? |
 |------|---|---|--------|--------|--------|--------|--------|--------|------------|
-| overall (12 positives) |  |  |  |  |  |  |  |  |  |
+| T9 house-idiom (the miss) | 3 | 1 | 0.33 | 1.00 | - | 0.33 | 0.00 | - | no |
+| other 11 positives (incl canary) | 42 | 42 | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 | yes |
+| overall (12 positives) | 45 | 43 | 0.96 | 1.00 | 1.00 | 0.96 | 0.87 | 0.79 | no |
 
 ### EVL-01 forward -- specificity (per query + overall)
 
 | Unit | n | c | Pass@1 | Pass@3 | Pass@5 | Pass^1 | Pass^3 | Pass^5 | saturated? |
 |------|---|---|--------|--------|--------|--------|--------|--------|------------|
-| overall (12 negatives) |  |  |  |  |  |  |  |  |  |
+| overall (12 negatives) | 36 | 36 | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 | yes |
 
 ### EVL-01 reciprocal -- sibling specificity (per sibling + overall)
 
 | Unit | n | c | Pass@1 | Pass@3 | Pass@5 | Pass^1 | Pass^3 | Pass^5 | saturated? |
 |------|---|---|--------|--------|--------|--------|--------|--------|------------|
-| lz-tpp (12 RED positives quiet) |  |  |  |  |  |  |  |  |  |
-| lz-refactor (12 RED positives quiet) |  |  |  |  |  |  |  |  |  |
+| lz-tpp (12 RED positives quiet) | 36 | 36 | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 | yes |
+| lz-refactor (12 RED positives quiet) | 36 | 36 | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 | yes |
 
 ### EVL-02 -- behavior (per scenario x config + overall)
 
@@ -204,18 +213,23 @@ flagged saturated (see above).
 | overall | with_skill |  |  |  |  |  |  |  |  |  |
 | overall | baseline |  |  |  |  |  |  |  |  |  |
 
-*(All Pass@k / Pass^k cells intentionally blank; computed from the run at
-`iteration-1/passk-metrics.json` and filled only after the user-approved run -- D-11. Per-query and
-per-scenario rows are appended at fill time; the overall rows anchor the table shape here.)*
+*(EVL-01 Pass@k / Pass^k filled from the 2026-07-21 run at RUN level: n = total runs, c = correct
+runs. The canary positive was probed once per chunk (12 runs) so it carries proportional weight in the
+recall pool -- overall recall n=45, not 36. EVL-02 rows stay blank; that benchmark was DEFERRED, not
+run. When run, EVL-02 Pass@k is computed at `iteration-1/passk-metrics.json`.)*
 
 ## Verdict (filled after the gated run)
 
-- **Trigger (EVL-01 forward):** PENDING -- (recall / specificity vs the 100% D-08 bar; the lz-tpp and
-  lz-refactor seams must both hold).
-- **Trigger (EVL-01 reciprocal):** PENDING -- (both siblings must stay quiet on the RED positives).
-- **Behavior (EVL-02):** PENDING -- (with_skill Pass@1 high AND clearly beating the unaided baseline,
-  read against the saturation caveat).
-- **D-09 tuning:** PENDING -- applied at most once and only on a demonstrated defect (see below).
+- **Trigger (EVL-01 forward):** SPECIFICITY PASS (12/12 = 100%; both sibling near-miss seams held).
+  RECALL 92% (11/12) -- one facet below the 100% bar: T9 (house-idiom / testing-stance) fired 1/3.
+  A soft, NON-blocking miss on a demonstrated defect.
+- **Trigger (EVL-01 reciprocal):** PASS -- both siblings stayed fully quiet on the 12 RED positives
+  (lz-tpp 12/12, lz-refactor 12/12; trigger_rate 0.00 each). The new cross-skill coverage is clean.
+- **Behavior (EVL-02):** DEFERRED -- not run (the user approved EVL-01 only, then paused).
+- **D-09 tuning:** CANDIDATE, NOT APPLIED -- the T9 recall miss is the one soft-bar miss on a
+  demonstrated defect and thus a bounded D-09 description-widen candidate (must beat the current
+  description on a HELD-OUT trigger set, stay under the 1536-char cap, own >= 1 unbiased review,
+  /reload-plugins as a human ship action). Deferred to a user decision; not executed in this pass.
 
 ## Unbiased reviewer verdict (RESERVED -- >= 1 from-scratch reviewer, D-07)
 
@@ -351,12 +365,11 @@ defect):**
   bars, NO tuning pass is applied and these evals stand as a validation record (the Phase-5 /
   Phase-11 outcome).
 
-## HALT
+## STATUS -- EVL-01 done, EVL-02 deferred
 
-Build complete. NO eval was run: no `run_eval`, no `run_loop`, no `claude -p`, no subagent spawn, no
-benchmark -- only the zero-spend deterministic battery (check-evals, grade-run --selfcheck,
-merge-judge --selfcheck, check-red-references, extract-samples) and the ASCII / email-allowlist scans.
-AWAIT explicit user approval before executing any command in "How to run (GATED)" above. After
-approval, the EVL-01 forward + reciprocal runs and the EVL-02 behavior benchmark (with the LLM judge
-and the >= 1 unbiased reviewer) are ORCHESTRATOR-run post-approval steps, followed by the conditional
-at-most-one D-09 tuning pass.
+EVL-01 forward + reciprocal RAN 2026-07-21 under explicit user approval (forward recall 92%,
+specificity 100%; both siblings 100% quiet; every chunk canary-validated). The user then PAUSED.
+STILL NOT RUN -- await a further explicit approval before executing the matching "How to run (GATED)"
+commands: the EVL-02 behavior benchmark (the ORCHESTRATOR fan-out + LLM judge + >= 1 unbiased reviewer)
+and the conditional at-most-one D-09 tuning pass (the T9 recall miss is the sole candidate). No
+`claude -p` beyond the approved EVL-01 probes has run.

@@ -423,12 +423,14 @@ Not applicable. This is an ADDITIVE greenfield-asset phase (new eval files + cop
 | A6 | The lz-red `description` is 1091 chars, leaving ~445 chars of headroom under the 1536 listing-truncation cap for a D-09 widening. `[VERIFIED: node char count]` | D-09 tuning | Low - a widened description must stay < 1536 (memory `skill-description-char-cap`); this bounds the tuning pass. |
 | A7 | claude-opus-4-8 baseline will saturate most leaf-sourced RED scenarios (Phase-11 saturated 41/45 assertions). `[CITED: 11-LEARNINGS.md]` | EVL-02 saturation | Medium - if lz-red scenarios saturate similarly, skill LIFT is measured mainly by the classify-first boundary + over-mock + false-green cases; document as an eval-design limitation, do NOT tune away. |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **One plan or two?** (Discretion.) EVL-01 (trigger data + verbatim harness copy + reciprocal set) and EVL-02 (grader rewrite + scenario data) are cleanly separable. Recommendation: two waves in one phase (or two plans) - the `grade-run.mjs` rewrite is the only heavy task and benefits from an isolated selfcheck-green gate. Phase 11 used 4 plans.
-2. **Scenario count + how hard.** 10 shown; D-06 requires the classify-first boundary. Recommendation: 8-10, weighted toward the discriminating cases (8 classify-first, 3 over-mock, 6 false-green) given the saturation risk (A7). More scenarios = more gated `claude -p` cost.
-3. **Reciprocal set: verbatim or curated subset?** (D-03/discretion.) Recommendation: reuse the trigger-eval.json positives VERBATIM (check-evals asserts byte-consistency) so the reciprocal set is provably the exact RED prompts; a curated subset saves run cost but weakens the "the siblings stay quiet on THE RED prompts" claim.
-4. **Chunked runners vs direct probe.** Recommendation: build both canary-gated runners (light edit) and use them by default under any active session; the direct `run_eval` pass is fine only in a demonstrably healthy window.
+All four are substantively settled by the finalized PLAN.md set (20-01/20-02/20-03); recorded here for audit-trail cleanliness.
+
+1. **One plan or two?** (Discretion.) EVL-01 (trigger data + verbatim harness copy + reciprocal set) and EVL-02 (grader rewrite + scenario data) are cleanly separable. Recommendation: two waves in one phase (or two plans) - the `grade-run.mjs` rewrite is the only heavy task and benefits from an isolated selfcheck-green gate. Phase 11 used 4 plans. -> RESOLVED: 3 plans -- 20-01 (EVL-01 build) + 20-02 (EVL-02 grader) parallel in wave 1, 20-03 (finalize battery + gated commands + HALT) in wave 2.
+2. **Scenario count + how hard.** 10 shown; D-06 requires the classify-first boundary. Recommendation: 8-10, weighted toward the discriminating cases (8 classify-first, 3 over-mock, 6 false-green) given the saturation risk (A7). More scenarios = more gated `claude -p` cost. -> RESOLVED: 20-02 authors >=8 leaf-grounded scenarios incl. the classify-first boundary case.
+3. **Reciprocal set: verbatim or curated subset?** (D-03/discretion.) Recommendation: reuse the trigger-eval.json positives VERBATIM (check-evals asserts byte-consistency) so the reciprocal set is provably the exact RED prompts; a curated subset saves run cost but weakens the "the siblings stay quiet on THE RED prompts" claim. -> RESOLVED: verbatim reuse in 20-01 Task 3 (check-evals asserts the reciprocal dual-write invariant, all should_trigger:false).
+4. **Chunked runners vs direct probe.** Recommendation: build both canary-gated runners (light edit) and use them by default under any active session; the direct `run_eval` pass is fine only in a demonstrably healthy window. -> RESOLVED: 20-01 builds the light-edited canary-gated runners; 20-03 documents the direct `run_eval` commands as the gated fallback (all user-gated per D-11).
 
 ## Sources
 

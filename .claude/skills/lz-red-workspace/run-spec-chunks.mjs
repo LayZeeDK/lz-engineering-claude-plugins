@@ -21,11 +21,10 @@ const SKILL = path.resolve(WS, "..", "..", "..", "plugins", "lz-tdd", "skills", 
 const CHUNK_DIR = WS + "/evals/d07-chunks";
 const CHUNK_SIZE = 4; // negatives per chunk (+1 canary each)
 
-// Canary = a should-trigger lz-red positive, derived FROM the eval set (WR-01) so it is
-// byte-for-byte a real trigger-eval.json positive -- never a hand-typed twin that can silently
-// drift if the canonical query is edited. Same prefix the recall runner keys off.
-// PLACEHOLDER: re-derived from the authored lz-red trigger set in 20-01 Task 3.
-const CANARY_PREFIX = "PLACEHOLDER re-derived in 20-01 Task 3";
+// Canary = the "how should i structure this unit test" positive, derived FROM the eval set
+// (WR-01) so it is byte-for-byte a real trigger-eval.json positive -- never a hand-typed twin that
+// can silently drift if the canonical query is edited. Same prefix the recall runner keys off.
+const CANARY_PREFIX = "how should i structure this unit test";
 const CANARY = JSON.parse(fs.readFileSync(WS + "/evals/trigger-eval.json", "utf8")).find(
   (q) => q.should_trigger && q.query.startsWith(CANARY_PREFIX),
 );

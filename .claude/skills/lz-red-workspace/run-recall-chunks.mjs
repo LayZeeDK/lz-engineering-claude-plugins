@@ -26,12 +26,13 @@ const CHUNK_SIZE = 3;
 fs.mkdirSync(CHUNK_DIR, { recursive: true });
 
 const all = JSON.parse(fs.readFileSync(WS + "/evals/trigger-eval.json", "utf8"));
-// Canary = a should-trigger lz-red positive used ONLY as the window-health validator here.
-// PLACEHOLDER: re-derived from the authored lz-red trigger set in 20-01 Task 3 (WR-01) so it is
-// byte-for-byte a real trigger-eval.json positive, never a hand-typed twin that can silently drift.
-// The exclude-filter below and the result-side canary lookups all key off the same CANARY_PREFIX.
+// Canary = the "how should i structure this unit test" positive: a canonical, high-confidence
+// lz-red RED trigger (structuring a unit test) used ONLY as the window-health validator here.
+// Derived FROM the eval set (WR-01) so it is byte-for-byte the trigger-eval.json positive it stands
+// in for -- a genuine eval-set positive, never a hand-typed twin that can silently drift. The
+// exclude-filter below and the result-side canary lookups all key off the same CANARY_PREFIX.
 // Not run yet (D-11 build-then-halt); the canary only throws at RUN time, not during the build.
-const CANARY_PREFIX = "PLACEHOLDER re-derived in 20-01 Task 3";
+const CANARY_PREFIX = "how should i structure this unit test";
 const CANARY = all.find((q) => q.should_trigger && q.query.startsWith(CANARY_PREFIX));
 
 if (!CANARY) {

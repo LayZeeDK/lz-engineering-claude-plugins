@@ -63,7 +63,7 @@ validation deps live only in a dev-only eval workspace.
 - [x] **Phase 17: Assertion Design, Stance Router & TS/Vitest Mechanics** - The differentiator: assert-behavior, the adaptive testing-stance router, Vitest mechanics, anti-patterns (completed 2026-07-19)
 - [x] **Phase 18: Coach Procedure & lz-tpp Seam Wiring** - Inline RED decision procedure on the Three Laws spine + the lz-red <-> lz-tpp seam (completed 2026-07-20)
 - [x] **Phase 19: Distribution & Hygiene** - Three-skill 0.0.3 ship: version bump, docs, validators, copyright/ASCII/email hygiene (completed 2026-07-20)
-- [ ] **Phase 20: Skill-Effectiveness Evals** - Trigger eval (incl. the cross-skill boundary) + RED-behavior eval vs baseline
+- [x] **Phase 20: Skill-Effectiveness Evals** - Trigger eval (incl. the cross-skill boundary) + RED-behavior eval vs baseline (completed 2026-07-21)
 
 ## Phase Details
 
@@ -216,7 +216,7 @@ Plans:
   2. A RED-behavior eval shows the coach recommends the correct next-test / assertion move (right selection, structure, and assertion target; fails for the right reason; hands off to lz-tpp; coaches rather than drives) versus an unaided baseline.
   3. The vendored eval harness lives in a dev-only `lz-red-workspace` (per-run byproducts git-ignored, no build deps in `plugins/lz-tdd`); the `description` is tuned only if specificity drops, and the tuned skill is re-validated.
 
-**Plans**: 2/3 plans executed
+**Plans**: 3/3 plans complete
 
 **Wave 1** (parallel -- disjoint files; instrument-first RED baseline then data GREEN)
 
@@ -225,7 +225,7 @@ Plans:
 
 **Wave 2** (finalize -- blocked on Wave 1)
 
-- [ ] 20-03-PLAN.md -- Scaffold EVAL-RESULTS.md, prove the full deterministic battery GREEN on the merged tree, present the ready-to-run gated commands (EVL-01 forward + reciprocal + EVL-02) and HALT before any metered run (D-11)
+- [x] 20-03-PLAN.md -- Scaffold EVAL-RESULTS.md, prove the full deterministic battery GREEN on the merged tree, present the ready-to-run gated commands (EVL-01 forward + reciprocal + EVL-02) and HALT before any metered run (D-11)
 
 ## Progress
 
@@ -254,7 +254,7 @@ Plans:
 | 17. Assertion Design, Stance Router & TS/Vitest Mechanics | lz-tdd@0.0.3 | 6/6 | Complete   | 2026-07-19 |
 | 18. Coach Procedure & lz-tpp Seam Wiring | lz-tdd@0.0.3 | 6/6 | Complete    | 2026-07-20 |
 | 19. Distribution & Hygiene | lz-tdd@0.0.3 | 3/3 | Complete    | 2026-07-20 |
-| 20. Skill-Effectiveness Evals | lz-tdd@0.0.3 | 2/3 | In Progress|  |
+| 20. Skill-Effectiveness Evals | lz-tdd@0.0.3 | 3/3 | Complete   | 2026-07-21 |
 
 ---
 *Roadmap created: 2026-07-02 | lz-tdd@0.0.1 shipped: 2026-07-04 | lz-tdd@0.0.2 shipped: 2026-07-17 | lz-tdd@0.0.3 roadmap added: 2026-07-18 (Phases 15-20). Per-milestone phase detail lives in `.planning/milestones/`.*

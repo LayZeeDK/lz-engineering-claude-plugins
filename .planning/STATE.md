@@ -4,8 +4,8 @@ milestone: lz-tdd@0.0.3
 milestone_name: lz-red Skill
 current_phase: 20
 status: verifying
-stopped_at: "EVL-01 RAN 2026-07-21 (user-approved, EVL-01 ONLY): forward recall 92% (11/12; T9 house-idiom miss 1/3), specificity 100%, reciprocal lz-tpp+lz-refactor 100% quiet -- recorded in .claude/skills/lz-red-workspace/EVAL-RESULTS.md. PAUSED per user. Deferred (each needs fresh approval): EVL-02 behavior benchmark, optional D-09 T9 description tuning, then milestone close."
-last_updated: "2026-07-21T12:30:00.000Z"
+stopped_at: "EVL-01 RAN 2026-07-21 (user-approved): forward recall 92% (11/12; T9 house-idiom miss 1/3), specificity 100%, reciprocal lz-tpp+lz-refactor 100% quiet. D-09 tuning APPLIED (user-approved): house-idiom description widen, held-out A/B recall 5/6->6/6 + specificity 6/6 held + unbiased-review PASS; shipped to lz-red SKILL.md (1233 chars, under cap). All recorded in .claude/skills/lz-red-workspace/EVAL-RESULTS.md. PENDING HUMAN ACTION: /reload-plugins to make the new description live. Deferred (needs fresh approval): EVL-02 behavior benchmark, then milestone close."
+last_updated: "2026-07-21T13:30:00.000Z"
 last_activity: 2026-07-21
 progress:
   total_phases: 7

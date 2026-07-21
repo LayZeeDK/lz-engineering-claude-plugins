@@ -8,7 +8,7 @@ description: >-
   it for the behavior it pins, asserting observable behavior rather than implementation detail,
   and confirming it fails for the right reason. Use it whenever a developer asks what test to
   write next, how to write or structure a unit test, whether a test is a good test, or how to
-  match the codebase's existing testing stance -- even when they only ask "what should I test
+  match the codebase's existing testing stance -- how the codebase already writes its tests and how to stay consistent with that existing test style or convention when adding the next test -- even when they only ask "what should I test
   here?" or "is this a good test?". Do NOT use it to make an existing failing test pass or to
   pick the minimal code change that turns the bar green -- that is the green/transformation step;
   use lz-tpp instead. Do NOT use it to restructure, clean up, or de-duplicate code whose tests

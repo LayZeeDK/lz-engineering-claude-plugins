@@ -27,9 +27,12 @@ fan-out. EVL-01 headline: forward recall 11/12 = 92% (query-level; run-level Pas
 specificity 12/12 = 100%, reciprocal lz-tpp 12/12 quiet, reciprocal lz-refactor 12/12 quiet. Every one
 of the 7 forward chunks was canary-validated (the appended positive fired 3/3 in each), so no result
 rests on a throttled window. One recall miss sits below the 100% D-08 bar: T9 (house-idiom /
-testing-stance) fired 1/3. That is a demonstrated, NON-blocking defect and the sole D-09 tuning
-candidate; D-09 tuning was NOT applied (user paused after EVL-01). Raw evidence (git-ignored):
-`trigger-results-d07-{recall,spec}-chunk-*.json` + `reciprocal-lz-{tpp,refactor}.json`.
+testing-stance) fired 1/3. That was the sole D-09 tuning candidate. D-09 tuning APPLIED 2026-07-21
+(further user approval): the house-idiom description clause was widened and validated on an INDEPENDENT
+held-out set (recall 5/6 -> 6/6, specificity 6/6 held, unbiased review PASS); these EVL-01 forward
+numbers are the PRE-widen measurement, and `/reload-plugins` is the pending human ship action. Raw
+evidence (git-ignored): `trigger-results-d07-{recall,spec}-chunk-*.json`,
+`reciprocal-lz-{tpp,refactor}.json`, `heldout-d09-{current,new}.json`.
 
 ## EVL-01 forward -- Trigger accuracy (lz-red, native harness, canary-validated)
 
@@ -43,7 +46,7 @@ draw from BOTH sibling seams -- 3 lz-tpp green-step + 3 lz-refactor refactor-ste
 | Should-trigger RECALL (rate >= 0.5) | 92% (11/12) -- MISS by 1 (T9) | 100% (12/12) |
 | Near-miss SPECIFICITY (rate < 0.5)  | 100% (12/12) | 100% (12/12) |
 
-*(Run 2026-07-21, all chunks canary-validated. RECALL misses the 100% bar on T9 only; see the D-09 candidate below.)*
+*(Run 2026-07-21, all chunks canary-validated, on the PRE-D-09 description. RECALL missed the 100% bar on T9 (house-idiom) only; the D-09 widen below targets that facet and was applied + held-out-validated.)*
 
 ### Per-query recall (should_trigger:true; canary = "how should i structure this unit test")
 
@@ -226,10 +229,10 @@ run. When run, EVL-02 Pass@k is computed at `iteration-1/passk-metrics.json`.)*
 - **Trigger (EVL-01 reciprocal):** PASS -- both siblings stayed fully quiet on the 12 RED positives
   (lz-tpp 12/12, lz-refactor 12/12; trigger_rate 0.00 each). The new cross-skill coverage is clean.
 - **Behavior (EVL-02):** DEFERRED -- not run (the user approved EVL-01 only, then paused).
-- **D-09 tuning:** CANDIDATE, NOT APPLIED -- the T9 recall miss is the one soft-bar miss on a
-  demonstrated defect and thus a bounded D-09 description-widen candidate (must beat the current
-  description on a HELD-OUT trigger set, stay under the 1536-char cap, own >= 1 unbiased review,
-  /reload-plugins as a human ship action). Deferred to a user decision; not executed in this pass.
+- **D-09 tuning:** APPLIED 2026-07-21 (user-approved) -- widened the house-idiom clause of the
+  description; it beat the current description on an INDEPENDENT held-out set (recall 5/6 -> 6/6;
+  specificity 6/6 held, 0 over-widen leaks), stays under the 1536-char cap (1233), unbiased review
+  PASS. Shipped in SKILL.md; `/reload-plugins` is the pending human ship action. Details below.
 
 ## Unbiased reviewer verdict (RESERVED -- >= 1 from-scratch reviewer, D-07)
 
@@ -365,11 +368,45 @@ defect):**
   bars, NO tuning pass is applied and these evals stand as a validation record (the Phase-5 /
   Phase-11 outcome).
 
-## STATUS -- EVL-01 done, EVL-02 deferred
+### D-09 tuning APPLIED (2026-07-21, user-approved)
+
+The T9 recall miss (house-idiom / testing-stance) was the sole soft-bar miss, so one bounded D-09
+description widen was attempted and ACCEPTED. Change: strengthen the pre-existing house-idiom clause by
+naming the surface forms that under-triggered, anchored to "when adding the next test" so it cannot leak
+onto adjacent non-RED requests.
+
+- Before: "... or how to match the codebase's existing testing stance -- even when they only ask ..."
+- After:  "... or how to match the codebase's existing testing stance -- how the codebase already writes
+  its tests and how to stay consistent with that existing test style or convention when adding the next
+  test -- even when they only ask ..."
+
+Held-out A/B (`evals/heldout-d09.json`: 6 fresh house-idiom positives + 6 style/consistency over-widen
+negatives + 1 canary; claude-opus-4-8, 3 runs, num-workers 1; canary fired 3/3 in BOTH arms =
+non-throttled windows). The held-out positives are independent of `trigger-eval.json` (no overfitting to
+the measured set):
+
+| Arm | house-idiom recall (query-level) | run-level | specificity (negatives quiet) |
+|-----|----------------------------------|-----------|-------------------------------|
+| current description | 5/6 | 14/18 | 6/6 (18/18) |
+| widened description  | 6/6 | 15/18 | 6/6 (18/18) |
+
+The widen eliminated the one hard held-out miss ("new to this repo -- how do i match how they test
+here?", 0/3 -> 2/3) with ZERO specificity cost -- all 6 over-widen traps (lint config, runner config,
+refactor-for-consistency, file-naming, the green-step seam) stayed 0/3 quiet in BOTH arms. Length 1233
+chars (cap 1536). Unbiased from-scratch review (number-blind, plugin-dev skill-reviewer): PASS on all
+six axes (accuracy, scope discipline / no leak, sibling seams intact, cap, ASCII, hygiene).
+
+Bounds honored: description-frontmatter-only edit (the ONLY write-back into `plugins/`); no reference
+files or LOCKED content touched; no scope expansion; a single at-most-one pass with no re-eval loop --
+the original `trigger-eval.json` was NOT re-run, so the EVL-01 forward table above remains the pre-widen
+measurement. `/reload-plugins` is the pending HUMAN ship action; committed != live.
+
+## STATUS -- EVL-01 done, D-09 applied, EVL-02 deferred
 
 EVL-01 forward + reciprocal RAN 2026-07-21 under explicit user approval (forward recall 92%,
-specificity 100%; both siblings 100% quiet; every chunk canary-validated). The user then PAUSED.
-STILL NOT RUN -- await a further explicit approval before executing the matching "How to run (GATED)"
-commands: the EVL-02 behavior benchmark (the ORCHESTRATOR fan-out + LLM judge + >= 1 unbiased reviewer)
-and the conditional at-most-one D-09 tuning pass (the T9 recall miss is the sole candidate). No
-`claude -p` beyond the approved EVL-01 probes has run.
+specificity 100%; both siblings 100% quiet; every chunk canary-validated). The conditional D-09 tuning
+then RAN under a further explicit approval: a held-out A/B validated a house-idiom description widen
+(recall 5/6 -> 6/6, specificity 6/6 held, unbiased review PASS) and it was APPLIED to SKILL.md. STILL
+NOT RUN (await a further explicit approval): the EVL-02 behavior benchmark (ORCHESTRATOR fan-out + LLM
+judge + >= 1 unbiased reviewer). PENDING HUMAN ACTION: `/reload-plugins` to make the D-09 description
+live in-session (committed != live).

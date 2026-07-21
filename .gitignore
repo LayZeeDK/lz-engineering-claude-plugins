@@ -57,6 +57,10 @@ Thumbs.db
 .claude/skills/lz-red-workspace/reciprocal-*.err
 .claude/skills/lz-red-workspace/evals/d07-chunks/recall-chunk-*.json
 .claude/skills/lz-red-workspace/evals/d07-chunks/spec-chunk-*.json
+# D-09 held-out A/B probe stdout/stderr (workspace root). The tracked evidence is the input set
+# evals/heldout-d09.json + the EVAL-RESULTS.md D-09 write-up; the raw per-run outputs are re-runnable.
+.claude/skills/lz-red-workspace/heldout-d09-*.json
+.claude/skills/lz-red-workspace/heldout-d09-*.err
 # Reference-eval (quick 260714-nxp): raw per-run outputs + the generated aggregate are local
 # byproducts. The verdict is tracked in e2e-reference/REFERENCE-RESULTS.md; runs are re-runnable.
 .claude/skills/lz-refactor-workspace/e2e-reference/results/

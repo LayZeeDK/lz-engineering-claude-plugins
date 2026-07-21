@@ -67,8 +67,8 @@ Requirements for milestone lz-tdd@0.0.3. Each maps to a roadmap phase. Grounded 
 
 ### Skill-effectiveness evals (EVL)
 
-- [ ] **EVL-01**: A trigger eval -- lz-red fires on RED-phase prompts and stays quiet on near-misses -- INCLUDING a cross-skill trigger eval proving the three-way boundary (lz-red vs lz-tpp vs lz-refactor) holds.
-- [ ] **EVL-02**: A RED-behavior eval -- the coach recommends the correct next-test / assertion move (right selection, structure, and assertion target) versus an unaided baseline, as in the 0.0.1 / 0.0.2 evals.
+- [ ] **EVL-01**: A trigger eval -- lz-red fires on RED-phase prompts and stays quiet on near-misses -- INCLUDING a cross-skill trigger eval proving the three-way boundary (lz-red vs lz-tpp vs lz-refactor) holds. (Phase 20 BUILT + deterministically verified the trigger harness/data; the empirical recall/specificity + reciprocal run is user-gated per D-11 -- Pending until run.)
+- [ ] **EVL-02**: A RED-behavior eval -- the coach recommends the correct next-test / assertion move (right selection, structure, and assertion target) versus an unaided baseline, as in the 0.0.1 / 0.0.2 evals. (Phase 20 BUILT + deterministically verified the grader + scenarios; the empirical with-skill-vs-baseline benchmark is user-gated per D-11 -- Pending until run.)
 
 ## Future Requirements
 
@@ -143,8 +143,8 @@ Which phases cover which requirements. Populated during roadmap creation.
 | DST-01 | Phase 19 | Complete |
 | DST-02 | Phase 19 | Complete |
 | DST-03 | Phase 19 | Complete |
-| EVL-01 | Phase 20 | Pending |
-| EVL-02 | Phase 20 | Pending |
+| EVL-01 | Phase 20 | Pending (build complete; empirical run gated) |
+| EVL-02 | Phase 20 | Pending (build complete; empirical run gated) |
 
 **Coverage:**
 
@@ -154,4 +154,4 @@ Which phases cover which requirements. Populated during roadmap creation.
 
 ---
 *Requirements defined: 2026-07-18*
-*Last updated: 2026-07-18 after roadmap creation (all 27 requirements mapped to Phases 15-20)*
+*Last updated: 2026-07-21 after Phase 20 completion. 25/27 requirements Complete. EVL-01 + EVL-02 remain Pending: Phase 20 built + deterministically verified the eval harness/grader (build-then-halt per D-11); their empirical closure is a user-gated run. VIT-02 also Pending (carried).*

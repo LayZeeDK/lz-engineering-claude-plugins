@@ -3,18 +3,18 @@ gsd_state_version: 1.0
 milestone: lz-tdd@0.0.3
 milestone_name: lz-red Skill
 current_phase: 20
-current_phase_name: skill-effectiveness-evals
 status: verifying
 stopped_at: Completed 20-03-PLAN.md (Phase 20 build boundary; awaiting user approval for the gated eval run)
-last_updated: "2026-07-21T08:48:31.528Z"
+last_updated: "2026-07-21T09:25:35.654Z"
 last_activity: 2026-07-21
-last_activity_desc: Phase 20 execution started
+last_activity_desc: Phase 20 complete
 progress:
   total_phases: 7
   completed_phases: 7
   total_plans: 23
   completed_plans: 23
   percent: 100
+current_phase_name: skill-effectiveness-evals
 ---
 
 # Project State
@@ -29,16 +29,16 @@ See: .planning/PROJECT.md (updated 2026-07-18 -- started milestone lz-tdd@0.0.3)
 
 ## Current Position
 
-Phase: 20 (skill-effectiveness-evals) -- EXECUTING
-Plan: 3 of 3
+Phase: 20
+Plan: Not started
 Status: Phase complete -- ready for verification
-Last activity: 2026-07-21 -- Phase 20 execution started
+Last activity: 2026-07-21 -- Phase 20 complete
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 44 (lz-tdd@0.0.1)
+- Total plans completed: 47 (lz-tdd@0.0.1)
 - Average duration: - min
 - Total execution time: 0.0 hours
 
@@ -60,6 +60,7 @@ Last activity: 2026-07-21 -- Phase 20 execution started
 | 17.1 | 1 | - | - |
 | 18 | 6 | - | - |
 | 19 | 3 | - | - |
+| 20 | 3 | - | - |
 
 **Recent Trend:**
 

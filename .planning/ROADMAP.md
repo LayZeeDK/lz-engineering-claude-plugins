@@ -254,7 +254,7 @@ Plans:
 | 17. Assertion Design, Stance Router & TS/Vitest Mechanics | lz-tdd@0.0.3 | 6/6 | Complete   | 2026-07-19 |
 | 18. Coach Procedure & lz-tpp Seam Wiring | lz-tdd@0.0.3 | 6/6 | Complete    | 2026-07-20 |
 | 19. Distribution & Hygiene | lz-tdd@0.0.3 | 3/3 | Complete    | 2026-07-20 |
-| 20. Skill-Effectiveness Evals | lz-tdd@0.0.3 | 3/3 | Complete   | 2026-07-21 |
+| 20. Skill-Effectiveness Evals | lz-tdd@0.0.3 | 3/3 | Complete    | 2026-07-21 |
 
 ---
 *Roadmap created: 2026-07-02 | lz-tdd@0.0.1 shipped: 2026-07-04 | lz-tdd@0.0.2 shipped: 2026-07-17 | lz-tdd@0.0.3 roadmap added: 2026-07-18 (Phases 15-20). Per-milestone phase detail lives in `.planning/milestones/`.*

@@ -1,0 +1,123 @@
+{
+  "skill_name": "lz-red",
+  "evals": [
+    {
+      "id": 0,
+      "prompt": "starting a brand-new `sumOf(values: number[]): number` from scratch, test-first, nothing\nwritten yet. doing TDD. what is the very first test I should write, and how do I shape it?",
+      "expected_output": "Starts from the degenerate / starter case (sumOf([]) -> 0) and shapes it arrange-act-assert; does not edit code or run tests.",
+      "files": [],
+      "expectations": [
+        "Picks the degenerate / starter case (empty list -> zero) for the new behavior",
+        "Shapes the test arrange-act-assert (or given-when-then)",
+        "The empty / degenerate case is genuinely the right first test for this new behavior",
+        "Does not edit any test or source file and does not run the suite (coach, don't drive)"
+      ]
+    },
+    {
+      "id": 1,
+      "prompt": "doing TDD on `isEven`. I have one test green -- `expect(isEven(0)).toBe(true)` -- but my\nimplementation is literally `return true`. what is the next test to write to drive out the\nreal behavior?",
+      "expected_output": "Adds another concrete example (e.g. isEven(1) -> false) to triangulate and rule out the constant-return shortcut; does not edit code or run tests.",
+      "files": [],
+      "expectations": [
+        "Uses triangulation (another concrete example) to select the next test",
+        "The proposed next test is one the too-specific implementation cannot satisfy (a genuine triangulation, not a redundant example)",
+        "Does not edit any test or source file and does not run the suite (coach, don't drive)"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "I'm test-driving a pure function `netOf(total: number, discount: number): number` -- no I/O,\nno collaborators, it just returns total minus discount. what should I assert, and do I need\nany test doubles?",
+      "expected_output": "Asserts the returned value (output-based) and uses no doubles for the pure core; does not edit code or run tests.",
+      "files": [],
+      "expectations": [
+        "Names an output-based assertion (assert the returned value)",
+        "States no doubles are needed for the pure core",
+        "Asserting the returned value of this pure function is observable behavior, not an implementation detail",
+        "An output-based test over the core is the right next test for a value-in / value-out function",
+        "Does not edit any test or source file and does not run the suite (coach, don't drive)"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "here is a `Gate` with an incoming query `isOpen()` and a command `openGate()` that flips\nstate and sends an outgoing command to an injected notifier:\n\n```ts\nclass Gate {\n  private open = false;\n  constructor(private readonly notify: (event: string) => void) {}\n  isOpen(): boolean { return this.open; }\n  openGate(): void { this.open = true; this.notify('opened'); }\n}\n```\n\nI was about to mock the notifier AND stub isOpen. for the notification behavior, what should\nI actually assert, and what should I mock?",
+      "expected_output": "Asserts the outgoing command was sent (expect-to-send) through the one warranted double for the notifier, and does not mock the query (asserts its return); does not edit code or run tests.",
+      "files": [],
+      "expectations": [
+        "Names the expect-to-send (outgoing command) assertion on the one warranted double for the notifier",
+        "Says the query needs no double (assert its return); only the outgoing command warrants one",
+        "Reserves the double for the single outgoing command and refuses to mock the query, rather than mocking every collaborator (over-mocking)",
+        "Does not edit any test or source file and does not run the suite (coach, don't drive)"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "test-driving a `ShoppingCart` whose incoming command `addItem(item)` changes its contents,\nobservable through the public query `items()`. no outgoing collaborators. what should I\nassert for the add behavior?",
+      "expected_output": "Asserts the observable public side effect (the state change read back through cart.items()) with no double; does not edit code or run tests.",
+      "files": [],
+      "expectations": [
+        "Names a state-based assertion on the public side effect",
+        "Asserts through the public surface with no double",
+        "The asserted state change is observed through the public surface (observable behavior), not a private field (implementation detail)",
+        "Does not edit any test or source file and does not run the suite (coach, don't drive)"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "this `PriceCalculator` has no tests and reads `Date.now()` directly deep inside\n`computeDue()`. I want to add a late-fee behavior. how do I get a first test around it before\nI add the new behavior?",
+      "expected_output": "Finds a seam for the clock and pins current behavior with a characterization test first, then writes the new red test; does not edit code or run tests.",
+      "files": [],
+      "expectations": [
+        "Names a characterization test to pin current behavior first",
+        "Names finding a seam to make the behavior reachable",
+        "The right next move is a seam plus a characterization test before the new red test, not jumping straight to the new behavior",
+        "Does not edit any test or source file and does not run the suite (coach, don't drive)"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "I wrote this as my next red test but it went green on the very first run:\n\n```ts\nit('should return a number', () => {\n  expect(typeof applyDiscount(100, 10)).toBe('number');\n});\n\nfunction applyDiscount(total: number, percent: number): number {\n  return total;\n}\n```\n\nis this a valid red test?",
+      "expected_output": "Diagnoses it as a false green (it passes immediately and drives no behavior) and sharpens it to assert the actual discounted value so it fails on its assertion (an AssertionError); does not edit code or run tests.",
+      "files": [],
+      "expectations": [
+        "Identifies it as a false green (passes immediately, drives no new behavior)",
+        "Says the sharpened test must fail on its assertion (an AssertionError on the value)",
+        "Correct diagnosis: a false green to be sharpened so it fails on its assertion (an AssertionError on the discounted value)",
+        "Does not edit any test or source file and does not run the suite (coach, don't drive)"
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "here is a new pure function I have not tested yet:\n\n```ts\nfunction slugify(title: string): string {\n  return title.trim().toLowerCase().split(' ').join('-');\n}\n```\n\nwhat should I test first here? just after advice -- I will write the test myself.",
+      "expected_output": "Presents the next failing test and the smallest move (e.g. an output-based starter case) as advice and leaves the writing to the developer; does not edit code or run tests.",
+      "files": [],
+      "expectations": [
+        "Presents the next failing test and the smallest move",
+        "On a question (advice sought), presents the next failing test and leaves the writing to the developer, rather than driving it",
+        "Does not edit any test or source file and does not run the suite (coach, don't drive on a question)"
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "write the failing (red) test for a new `isPalindrome(s: string): boolean` -- I want the red\ntest itself. do not make it pass.",
+      "expected_output": "Writes a failing test that fails on its assertion, then stops; frames making it pass as the green step (lz-tpp) and does not drive to green; does not run the suite unasked.",
+      "files": [],
+      "expectations": [
+        "Frames making it pass as the green step (hands off to lz-tpp) and does not drive to green",
+        "On an explicit command, writes a test that fails on its assertion, then stops without driving it to green",
+        "Does not run the suite unasked (coach, don't drive)"
+      ]
+    },
+    {
+      "id": 9,
+      "prompt": "my `parseAmount(s)` has all its tests green and the code is honestly a bit messy, but I just\nrealized it does not handle negative amounts at all -- there is no test and no code for that\ncase. what should I do next?",
+      "expected_output": "Classifies this as RED: writes a new failing test for the uncovered negative-amount behavior first (hand green to lz-tpp), and parks the tidy-up as a separate lz-refactor concern after green; does not edit code or run tests.",
+      "files": [],
+      "expectations": [
+        "Classifies the request as RED: a new failing test for the uncovered behavior comes first",
+        "Parks the tidy-up as a separate lz-refactor concern (after green) and green as lz-tpp",
+        "The correct next move is a new failing test for the uncovered behavior (RED), not refactoring the messy-but-green code or a green-step transformation",
+        "Does not edit any test or source file and does not run the suite (coach, don't drive)"
+      ]
+    }
+  ]
+}

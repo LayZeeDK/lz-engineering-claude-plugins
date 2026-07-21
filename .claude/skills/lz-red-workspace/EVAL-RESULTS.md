@@ -229,3 +229,134 @@ subagents. Slot reserved; filled post-run.
 | Reviewer | Brief | Scope | Verdict | Findings |
 |----------|-------|-------|---------|----------|
 | (reserved) | from-scratch, unprimed | grader source + sampled transcripts + reported numbers |  |  |
+
+## How to run (GATED -- user approval required)
+
+D-11 HARD GATE: every command below spends `claude -p` tokens (on the Claude plan, not a separate
+metered pool) and is user-gated per the standing eval-run approval rule. This plan RAN NONE of them;
+it presents them ready-to-run and HALTS. Run only after explicit user approval. Paths are relative to
+`.claude/skills/lz-red-workspace/` unless noted; `<repo>` = the repository root.
+
+### EVL-01 forward (lz-red trigger recall + specificity)
+
+PREFERRED (any active / rate-limited session) -- the canary-gated chunk runners, from the workspace
+root. Idempotent and resumable; a chunk counts ONLY when its appended positive canary fired (healthy,
+non-throttled window):
+
+```
+node run-recall-chunks.mjs     # recall over the 12 should-trigger positives (resume-safe)
+node run-spec-chunks.mjs       # specificity over the 12 near-miss negatives (resume-safe)
+node run-recall-chunks.mjs --report   # print combined recall, run nothing
+node run-spec-chunks.mjs --report     # print combined specificity, run nothing
+```
+
+DIRECT PROBE (only in a demonstrably healthy window) -- from `tools/skill-creator-eval/`:
+
+```
+PONYTAIL_DEFAULT_MODE=off python -m scripts.run_eval \
+  --eval-set ../../evals/trigger-eval.json \
+  --skill-path <repo>/plugins/lz-tdd/skills/lz-red \
+  --model claude-opus-4-8 --runs-per-query 3 --num-workers 1
+```
+
+(`--strict-mcp-config` + `--setting-sources project` are baked into `run_eval.py`.) Asymmetry: recall
+is throttle-SENSITIVE (a throttled probe reads as a false non-trigger and sinks recall -- the Phase-5
+/ Phase-11 artifact), specificity is throttle-ROBUST (a throttled negative still reads "quiet" =
+pass). A single large serial pass under load UNDER-reads recall; trust a chunk's data only when its
+canary fired.
+
+### EVL-01 reciprocal RED spot-check (D-03.2 -- run the DIRECT probe TWICE)
+
+From `tools/skill-creator-eval/`, feed the RED positives (re-tagged `should_trigger:false`) to EACH
+sibling skill-path and assert ~100% specificity (both siblings stay quiet on RED intent):
+
+```
+# lz-tpp must stay quiet on RED prompts
+PONYTAIL_DEFAULT_MODE=off python -m scripts.run_eval \
+  --eval-set ../../evals/reciprocal-red.json \
+  --skill-path <repo>/plugins/lz-tdd/skills/lz-tpp \
+  --model claude-opus-4-8 --runs-per-query 3 --num-workers 1
+
+# lz-refactor must stay quiet on RED prompts
+PONYTAIL_DEFAULT_MODE=off python -m scripts.run_eval \
+  --eval-set ../../evals/reciprocal-red.json \
+  --skill-path <repo>/plugins/lz-tdd/skills/lz-refactor \
+  --model claude-opus-4-8 --runs-per-query 3 --num-workers 1
+```
+
+The canary-gated runners are NOT used for the reciprocal probe. Their appended canary is a lz-red
+should-trigger positive; on a sibling skill-path it would (correctly) not fire, so it cannot certify a
+window there. The reciprocal probe is a specificity measurement, which is throttle-robust, so the
+direct probe is sound (a throttled window can only make a sibling look quieter, never louder). If a
+sibling FIRES on a RED positive, that is a bounded, non-blocking D-09 tuning candidate on THAT
+sibling's description -- never a blocker, never a Phases-15-19 reopening.
+
+### EVL-02 behavior (ORCHESTRATOR-driven, post-approval -- the executor cannot spawn subagents)
+
+The gsd-executor has only Read/Write/Edit/Bash/Grep/Glob/Skill and cannot spawn subagents; the entire
+EVL-02 fan-out, the LLM judge, and the unbiased reviewer are ORCHESTRATOR steps that run only after
+user approval (memory `gsd-executor-cannot-spawn-subagents`). Sequence:
+
+1. **Fan-out:** spawn UNNAMED / fire-and-forget subagents per scenario (ids 0-9) x config
+   (`with_skill` vs `no_skill`) x run (>= 3), each in an ISOLATED scratch cwd (ground-truths "did the
+   coach drive?"). Each writes `outputs/transcript.md` + `metrics.json` under
+   `iteration-1/eval-<id>/<config>/run-<n>/` (memory `eval02-subagent-orchestration-mechanic`).
+2. **Wait for ALL completion notifications BEFORE grading.** `total_tokens` / `duration_ms` arrive
+   only at completion and cannot be recovered later; persist timing as each notification arrives
+   (D-07; memory `skill-creator eval` workflow rule). Do not poll / grade early.
+3. **Deterministic grade:** `node grade-run.mjs` over each run dir -> `grading.json`, or
+   `grading.preliminary.json` while judge items remain (fail-closed).
+4. **LLM judge:** the installed skill-creator grader agent resolves EXACTLY the two judgment
+   dimensions ("is THIS the right next test", "is the asserted target observable behavior, not
+   implementation") -> `judge-verdicts.json`. Judge-string provenance: read the `judge_required`
+   strings from each emitted `grading.preliminary.json`; NEVER transcribe judge strings by hand
+   (`merge-judge --merge` rejects a verdict whose text does not byte-match the grader's string).
+5. **Merge + gate:** `node merge-judge.mjs --merge --preliminary <grading.preliminary.json>
+   --verdicts <judge-verdicts.json> --out <grading.json>`, then the pre-aggregate gate
+   `node merge-judge.mjs --verify iteration-1` (exit non-zero = do NOT aggregate; a scored-only run
+   is a silent false pass otherwise -- Pitfall 4).
+6. **Aggregate + report:** `python -m scripts.aggregate_benchmark iteration-1 --skill-name lz-red`
+   (installed skill-creator) -> `iteration-1/benchmark.json` + `benchmark.md` +
+   `iteration-1/passk-metrics.json`; then `eval-viewer/generate_review.py` for the review view.
+7. **Fill + review:** compute Pass@k / Pass^k per eval + overall, fill every blank cell above, then
+   run >= 1 unbiased-from-scratch reviewer over the grader source + a sample of transcripts + the
+   reported numbers (memory `unbiased-review-beats-primed`) and record the verdict in the reserved
+   slot. All ORCHESTRATOR-driven, never the gsd-executor.
+
+## D-08 soft pass bars (non-blocking) and the at-most-one D-09 tuning pass (conditional)
+
+**D-08 soft bars (SOFT, tunable, NON-blocking -- missing a bar NEVER reopens Phases 15-19):**
+
+- Trigger (EVL-01 forward): 100% recall AND 100% specificity (the 0.0.1 / 0.0.2 bar), with BOTH
+  sibling near-miss seams (lz-tpp green-step and lz-refactor refactor-step) staying quiet.
+- Trigger (EVL-01 reciprocal): both siblings quiet on the RED positives (~100% specificity).
+- Behavior (EVL-02): with_skill correct-move Pass@1 high AND clearly beating the unaided baseline,
+  read against the saturation caveat (a strong baseline may saturate the leaf-sourced scenarios; the
+  discriminating signal rests on the classify-first / over-mock / false-green cases).
+
+**D-09 tuning pass (AT MOST ONE, tightly bounded, and only if a bar is missed on a DEMONSTRATED
+defect):**
+
+- Description: apply a widened / tuned `description` to `plugins/lz-tdd/skills/lz-red/SKILL.md`
+  frontmatter ONLY if it beats the current one on a HELD-OUT trigger set (show before/after + scores);
+  it must stay under the 1536-char listing cap.
+- Behavior: a bounded wording tweak to the SKILL.md coach decision procedure ONLY on a real routing /
+  RED-move defect. NO new reference files; NO re-authoring the LOCKED reference content (all
+  references + testing-stance leaves stay frozen); NO scope expansion.
+- A D-09 edit is the ONLY write-back into `plugins/`. Any SKILL.md edit gets its OWN >= 1
+  unbiased-from-scratch subagent review before acceptance (memory
+  `agent-skill-instruction-changes-need-review`), and `/reload-plugins` is a HUMAN ship action
+  afterward (memory `reload-plugins-after-oracle-agent-changes`). No self-feeding re-eval loops; once
+  the eval + optional tuning pass is committed, the phase is complete. If the skill already meets the
+  bars, NO tuning pass is applied and these evals stand as a validation record (the Phase-5 /
+  Phase-11 outcome).
+
+## HALT
+
+Build complete. NO eval was run: no `run_eval`, no `run_loop`, no `claude -p`, no subagent spawn, no
+benchmark -- only the zero-spend deterministic battery (check-evals, grade-run --selfcheck,
+merge-judge --selfcheck, check-red-references, extract-samples) and the ASCII / email-allowlist scans.
+AWAIT explicit user approval before executing any command in "How to run (GATED)" above. After
+approval, the EVL-01 forward + reciprocal runs and the EVL-02 behavior benchmark (with the LLM judge
+and the >= 1 unbiased reviewer) are ORCHESTRATOR-run post-approval steps, followed by the conditional
+at-most-one D-09 tuning pass.

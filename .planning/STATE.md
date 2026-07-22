@@ -4,9 +4,9 @@ milestone: lz-tdd@0.0.3
 milestone_name: lz-red Skill
 current_phase: 20
 status: verifying
-stopped_at: "EVL-01 RAN 2026-07-21 (user-approved): forward recall 92% (11/12; T9 house-idiom miss 1/3), specificity 100%, reciprocal lz-tpp+lz-refactor 100% quiet. D-09 tuning APPLIED (user-approved): house-idiom description widen, held-out A/B recall 5/6->6/6 + specificity 6/6 held + unbiased-review PASS; shipped to lz-red SKILL.md (1233 chars, under cap). All recorded in .claude/skills/lz-red-workspace/EVAL-RESULTS.md. PENDING HUMAN ACTION: /reload-plugins to make the new description live. Deferred (needs fresh approval): EVL-02 behavior benchmark, then milestone close."
-last_updated: "2026-07-21T13:30:00.000Z"
-last_activity: 2026-07-21
+stopped_at: "EVL-02 behavior benchmark RAN 2026-07-22 (user-approved, commit aa9c170) and audited by a from-scratch unbiased reviewer (PASS-WITH-CAVEATS, findings adopted). 60 coach runs (opus, 3x, ponytail off) + 10 independent LLM judges + merge/verify (exit 0) + aggregate. HONEST result (substance-only: judge+nodrive dims): with_skill Pass@1 0.97 (29/30) vs baseline 0.87 (26/30) -- real edge modest + concentrated on eval-8 (COMMAND handoff/coach-don't-drive) and eval-9 (classify-first boundary); other 8 scenarios substance-ties on strong base Opus. Full-run 0.87 vs 0.50 is vocabulary-inflated (phrase-set grader rewards house vocab; reviewer caught it) -- kept as labeled context only. All 3 EVL-02 requirements demonstrated. EVL-01 (2026-07-21) + D-09 widen already done + /reload-plugins live. USER CHOSE TO HOLD before milestone close (no tag/release). NEXT (when ready): /gsd-complete-milestone (lz-tdd@0.0.3; likely needs manual archival per the @-scoped-version limitation, as in 0.0.2)."
+last_updated: "2026-07-22T00:00:00.000Z"
+last_activity: 2026-07-22
 progress:
   total_phases: 7
   completed_phases: 7

@@ -1,0 +1,11 @@
+{
+  "name": "red-gilded-rose",
+  "repo": "D:/projects/github/emilybache/GildedRose-Refactoring-Kata/TypeScript",
+  "applyBase": "main",
+  "protectedBranches": ["main", "master"],
+  "skillCommand": "/lz-tdd:lz-red",
+  "trackSkills": ["lz-red", "lz-tpp"],
+  "prompts": [
+    { "id": "r1", "file": "r1-next-test.md", "target": "GRC", "code": true }
+  ]
+}

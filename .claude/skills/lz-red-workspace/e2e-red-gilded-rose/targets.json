@@ -1,0 +1,45 @@
+{
+  "repo": "D:/projects/github/emilybache/GildedRose-Refactoring-Kata/TypeScript",
+  "branch": "main",
+  "focus": "GildedRose.updateQuality Conjured RED anchor",
+  "rationale": "The canonical kata with a fully-documented missing behavior (Conjured items degrade twice as fast). The public API (Item + GildedRose) already exists and compiles, so a correct-behavior test compiles (tsc-clean) and FAILS on an assertion on current code -- a verified genuinely-red target (D-06 / RESEARCH Pitfall 1). HIGH contamination (canonical), so it is a correctness SMOKE anchor across arms, NOT a discriminator (D-01 / Pitfall 5).",
+  "targets": [
+    {
+      "id": "GRC",
+      "file": "app/gilded-rose.ts",
+      "symbol": "GildedRose.updateQuality (Conjured branch)",
+      "runner": {
+        "vitest": "npx vitest run <producedTestFile> --reporter=json",
+        "jest": "npx jest <producedTestFile> --json",
+        "runner_preference": "jest 29's --json shape is the more stable one (RESEARCH A1); grade-red / the D-06 gate may prefer jest if the vitest 0.28 JSON reporter shape drifts. Verify the exact shape on the fixture selfcheck (21-02) before relying on either."
+      },
+      "test_dir": "test/vitest/",
+      "test_dir_note": "the vitest include glob is test/vitest/**/*.{spec,test}.{js,ts}; a produced vitest spec must land under test/vitest/ to be collected (RESEARCH Pitfall 4).",
+      "behavior_gap": "updateQuality has no Conjured branch (only Aged Brie / Backstage passes / Sulfuras / normal). A test asserting a Conjured item degrades by 2 per day compiles because Item + GildedRose already exist, and FAILS on the assertion because current code degrades it by 1.",
+      "expected_red_color": "genuinely_red",
+      "red_shape_rationale": "existing-compiling-API + missing-behavior (D-06 / RESEARCH Pitfall 1): tsc-clean AND assertion-red -- not a compile error and not a false green.",
+      "constraint": "do NOT modify Item",
+      "constraint_note": "the produced test asserts observable behavior only (updateQuality's effect on quality and sellIn). If production files change so the test passes, that is drove_to_green (overstepped into lz-tpp's green step), not a RED pass.",
+      "discipline_traps": [
+        "classify-first (this is RED -- choosing and writing the next failing test -- not GREEN or REFACTOR)",
+        "assert-observable-behavior (assert the quality/sellIn outcome, not internals)",
+        "coach-don't-drive-to-green (write the failing test and stop; making it pass is lz-tpp's job)",
+        "lz-tpp handoff (Law 3: hand the green step to lz-tpp)"
+      ],
+      "contamination": "HIGH",
+      "contamination_note": "The Conjured spec is fully documented (Conjured Mana Cake; quality degrades by 2, and by 4 after the sell-by date; quality is never negative). A strong base model already knows it, so correctness PARITY across arms is EXPECTED here. This target is a correctness SMOKE anchor, not a discriminator (D-01 / Pitfall 5); read parity as pass-at-ceiling, not as 'the skill adds nothing'.",
+      "strict_scope_note": "The Item constructor params are untyped (constructor(name, sellIn, quality)), so a whole-project tsc --strict is already non-zero on the pre-existing source. The D-06 gate MUST DIFFERENTIAL-typecheck: record the pristine baseline error set, then assert ZERO NEW errors attributable to the produced test (RESEARCH Pitfall 3).",
+      "axis": "correctness smoke anchor + RED-discipline stressor (contamination HIGH)"
+    }
+  ],
+  "discriminating_target_checklist": [
+    "1. Small + Vitest/Jest + offline-vendorable (its npm test runs a single file quickly).",
+    "2. The target public API EXISTS and COMPILES (so the test is tsc-clean, not a compile error).",
+    "3. A specific behavior is wrong/missing such that a correct-behavior test FAILS on an ASSERTION (not compile, not false green) on CURRENT code.",
+    "4. The gap is a genuine bug or unimplemented feature, NOT a deliberate design choice (else the red is arguing with the maintainers).",
+    "5. Low contamination preferred (not a textbook example) -- or contamination flagged so parity is read correctly.",
+    "6. A byte-identical short human prompt works (the target is nameable by path without leading the answer).",
+    "7. It stresses at least one RED-DISCIPLINE axis (classify-first / assert-observable-behavior / message-matrix-over-mock / coach-don't-drive-to-green)."
+  ],
+  "discriminating_target_note": "The Conjured anchor (GRC) is the fixed, verified correctness smoke target. The discriminating 2nd/3rd target is NOT hard-locked here: the USER confirms it at the run gate (D-01 steer-at-gate) using the checklist above. If a NEW real-OSS repo is nominated, run the package-legitimacy gate on it (it will be npm installed) and confirm it is a real, maintained repo before vendoring."
+}

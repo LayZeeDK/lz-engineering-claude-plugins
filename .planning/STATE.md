@@ -2,19 +2,19 @@
 gsd_state_version: 1.0
 milestone: lz-tdd@0.0.3
 milestone_name: lz-red Skill
-current_phase: 20
+current_phase: 21
+current_phase_name: applied-red-eval-real-oss-repos
 status: executing
 stopped_at: Phase 21 context gathered
-last_updated: "2026-07-22T22:42:28.390Z"
+last_updated: "2026-07-22T22:51:10.721Z"
 last_activity: 2026-07-22
-last_activity_desc: Phase 21 planning complete
+last_activity_desc: Phase 21 execution started
 progress:
   total_phases: 8
   completed_phases: 7
-  total_plans: 23
+  total_plans: 27
   completed_plans: 23
-  percent: 88
-current_phase_name: applied-red-eval-real-oss-repos
+  percent: 85
 ---
 
 # Project State
@@ -24,15 +24,15 @@ current_phase_name: applied-red-eval-real-oss-repos
 See: .planning/PROJECT.md (updated 2026-07-18 -- started milestone lz-tdd@0.0.3)
 
 **Core value:** `lz-tpp` helps Claude choose the next code transformation by TPP priority during red-green-refactor TDD, and explains the premise on demand. lz-tdd@0.0.2 added `lz-refactor` (refactor step); lz-tdd@0.0.3 adds `lz-red` (red step) to complete the loop.
-**Current focus:** Phase 20 -- skill-effectiveness-evals
+**Current focus:** Phase 21 — applied-red-eval-real-oss-repos
 **Milestone:** lz-tdd@0.0.3 (lz-red Skill, RED phase) -- planning (started 2026-07-18)
 
 ## Current Position
 
-Phase: 20
-Plan: Not started
-Status: Ready to execute
-Last activity: 2026-07-22 — Phase 21 planning complete
+Phase: 21 (applied-red-eval-real-oss-repos) — EXECUTING
+Plan: 1 of 4
+Status: Executing Phase 21
+Last activity: 2026-07-22 — Phase 21 execution started
 
 ## Performance Metrics
 

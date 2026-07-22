@@ -2,18 +2,18 @@
 gsd_state_version: 1.0
 milestone: lz-tdd@0.0.3
 milestone_name: lz-red Skill
-current_phase: 20
-status: verifying
-stopped_at: "EVL-02 behavior benchmark RAN 2026-07-22 (user-approved, commit aa9c170) and audited by a from-scratch unbiased reviewer (PASS-WITH-CAVEATS, findings adopted). 60 coach runs (opus, 3x, ponytail off) + 10 independent LLM judges + merge/verify (exit 0) + aggregate. HONEST result (substance-only: judge+nodrive dims): with_skill Pass@1 0.97 (29/30) vs baseline 0.87 (26/30) -- real edge modest + concentrated on eval-8 (COMMAND handoff/coach-don't-drive) and eval-9 (classify-first boundary); other 8 scenarios substance-ties on strong base Opus. Full-run 0.87 vs 0.50 is vocabulary-inflated (phrase-set grader rewards house vocab; reviewer caught it) -- kept as labeled context only. All 3 EVL-02 requirements demonstrated. EVL-01 (2026-07-21) + D-09 widen already done + /reload-plugins live. USER CHOSE TO HOLD before milestone close (no tag/release). NEXT (when ready): /gsd-complete-milestone (lz-tdd@0.0.3; likely needs manual archival per the @-scoped-version limitation, as in 0.0.2)."
+current_phase: 21
+status: planning
+stopped_at: "Phase 20 EVL-02 done (2026-07-22, commit aa9c170; substance-only Pass@1 with_skill 0.97 vs baseline 0.87; unbiased reviewer PASS-WITH-CAVEATS, vocabulary-inflation caught + adopted). User judged that coaching-prose EVL-02 a first-pass record and requested a STRONGER applied eval BEFORE milestone close -> INSERTED Phase 21 (Applied RED Eval in Real OSS Repos, multi-dimensional, 3-arm) 2026-07-22, mirroring lz-refactor Phase 13/14. Design locked in ROADMAP: short human-style APPLY prompts in real OSS TS repos; arms no_skill / with_skill (auto-trigger) / invoke_skill (force-invoke /lz-tdd:lz-red); mattpocock-skills:tdd competitor DEFERRED to a later contingent round (standalone-confirmed 2026-07-22, but broader-scope caveat); grade on wall-clock, tool use, tokens, output quality, correctness, book/source authenticity (oracle-reviewer), follows idioms, house style, TDD RED practices; reuse the lz-refactor apply harness. NEXT: /gsd-discuss-phase 21 (scope real OSS targets + arms + dimension weights) then /gsd-plan-phase 21; the metered run stays user-gated (D-11). Milestone close deferred until Phase 21 completes."
 last_updated: "2026-07-22T00:00:00.000Z"
 last_activity: 2026-07-22
 progress:
-  total_phases: 7
+  total_phases: 8
   completed_phases: 7
   total_plans: 23
   completed_plans: 23
-  percent: 100
-current_phase_name: skill-effectiveness-evals
+  percent: 88
+current_phase_name: applied-red-eval-real-oss-repos
 ---
 
 # Project State

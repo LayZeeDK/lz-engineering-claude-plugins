@@ -4,7 +4,7 @@
 
 - [SHIPPED] **lz-tdd@0.0.1 First Release** -- Phases 1-5 (shipped 2026-07-04)
 - [SHIPPED] **lz-tdd@0.0.2 lz-refactor Skill (Fowler + Kerievsky)** -- Phases 6-14 (shipped 2026-07-17)
-- [IN PROGRESS] **lz-tdd@0.0.3 lz-red Skill (RED phase)** -- Phases 15-20 (planning)
+- [IN PROGRESS] **lz-tdd@0.0.3 lz-red Skill (RED phase)** -- Phases 15-21 (Phase 21 applied eval in progress)
 
 ## Phases
 
@@ -50,7 +50,7 @@ Full phase detail archived at `.planning/milestones/lz-tdd@0.0.2-ROADMAP.md`
 
 </details>
 
-### [IN PROGRESS] lz-tdd@0.0.3 lz-red Skill (RED phase) (Phases 15-20)
+### [IN PROGRESS] lz-tdd@0.0.3 lz-red Skill (RED phase) (Phases 15-21)
 
 **Milestone Goal:** Add a third dual-mode agent skill, `/lz-tdd:lz-red`, that coaches the
 RED step of red-green-refactor -- choosing and writing the next failing unit test well,
@@ -64,6 +64,7 @@ validation deps live only in a dev-only eval workspace.
 - [x] **Phase 18: Coach Procedure & lz-tpp Seam Wiring** - Inline RED decision procedure on the Three Laws spine + the lz-red <-> lz-tpp seam (completed 2026-07-20)
 - [x] **Phase 19: Distribution & Hygiene** - Three-skill 0.0.3 ship: version bump, docs, validators, copyright/ASCII/email hygiene (completed 2026-07-20)
 - [x] **Phase 20: Skill-Effectiveness Evals** - Trigger eval (incl. the cross-skill boundary) + RED-behavior eval vs baseline (completed 2026-07-21)
+- [ ] **Phase 21: Applied RED Eval in Real OSS Repos (multi-dimensional, 3-arm)** - APPLY the next failing test in real OSS TypeScript repos with short human prompts; no_skill / with_skill / invoke_skill arms (+ optional mattpocock tdd competitor); grade on many lift dimensions -- mirrors the lz-refactor Phase 13/14 apply evals (INSERTED 2026-07-22)
 
 ## Phase Details
 
@@ -227,9 +228,48 @@ Plans:
 
 - [x] 20-03-PLAN.md -- Scaffold EVAL-RESULTS.md, prove the full deterministic battery GREEN on the merged tree, present the ready-to-run gated commands (EVL-01 forward + reciprocal + EVL-02) and HALT before any metered run (D-11)
 
+Post-execution: EVL-01 + D-09 widen RAN 2026-07-21; EVL-02 coaching-prose behavior benchmark RAN
+2026-07-22 (substance-only Pass@1 with_skill 0.97 vs baseline 0.87; full-run vocabulary-inflated per the
+unbiased review). Recorded in `.claude/skills/lz-red-workspace/EVAL-RESULTS.md`. This coaching-prose EVL-02
+is a first-pass validation record; the user requested a stronger applied eval (Phase 21) before close.
+
+### Phase 21: Applied RED Eval in Real OSS Repos (multi-dimensional, 3-arm) (INSERTED)
+
+**Goal**: `lz-red` is validated on REAL applied work -- driving the next failing (red) test in real OSS
+TypeScript repos with short, basic, human-style prompts -- across three arms and graded on many lift
+dimensions, mirroring the lz-refactor Phase 13/14 apply evals (not coaching prose over synthetic
+snippets).
+**Depends on**: Phase 20 (reuses the eval workspace) and the lz-refactor apply harness at
+`.claude/skills/lz-refactor-workspace/` (`run-e2e.mjs`, `tabulate-mechanical.mjs`, oracle-reviewer).
+**Requirements**: EVL-03 (new; formalized in REQUIREMENTS.md at plan time).
+**Success Criteria** (what must be TRUE):
+
+  1. Short human-style APPLY prompts ("what should I test next here?", "add the next test") drive the
+     next failing test in >= 1 real OSS TypeScript repo (Vitest/Jest); byte-identical across arms except
+     the target path; real applied output (test file / diff) is captured and graded, not coaching prose.
+  2. FIRST rounds run three OWN-skill arms: `no_skill` (baseline), `with_skill` (skill present + natural
+     prompt -- tests whether the description AUTO-TRIGGERS and then helps), and `invoke_skill` (prompt
+     force-starts with `/lz-tdd:lz-red ...` -- isolates content value); `with_skill` vs `invoke_skill`
+     surfaces any trigger gap. The `mattpocock-skills:tdd` competitor arm is a LATER, CONTINGENT round
+     -- run only after our own lift is measured, and only because the standalone check passed (confirmed
+     2026-07-22: no hard sibling dep). Note the scope mismatch in the writeup: mattpocock tdd is a full
+     red->green loop with an interactive seam-confirmation step, vs lz-red's RED-step-only coach.
+  3. Produced tests are graded + compared on many lift dimensions: wall-clock time, tool usage, token
+     usage (mechanical from stream-json meta); correctness (tsc --strict clean AND genuinely red for the
+     right reason on current code); output quality; book/source authenticity vs the owned `.oracle/` RED
+     sources via oracle-reviewer (DST-04); follows idioms; follows house style; follows TDD RED practices
+     (right next test, fail-for-right-reason, assert observable behavior, classify-first, handoff).
+  4. Harness reuses the lz-refactor apply pattern (synthetic base, stream-json meta, per-arm tool
+     profiles); per-run byproducts git-ignored; no build deps in `plugins/lz-tdd`; the metered run is
+     user-gated (D-11 / [[eval-run-approval-gate]]).
+  5. Results recorded with Pass@k / Pass^k + >= 1 unbiased from-scratch reviewer; where any vocabulary
+     proxy is used, the substance-only comparison is the headline (lesson carried from Phase 20 EVL-02).
+
+**Plans**: not yet planned (next: discuss + plan-phase 21).
+
 ## Progress
 
-**Execution Order:** Phases execute in numeric order: 15 -> 16 -> 17 -> 18 -> 19 -> 20.
+**Execution Order:** Phases execute in numeric order: 15 -> 16 -> 17 -> 18 -> 19 -> 20 -> 21.
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 | ----- | --------- | -------------- | ------ | --------- |
@@ -255,6 +295,7 @@ Plans:
 | 18. Coach Procedure & lz-tpp Seam Wiring | lz-tdd@0.0.3 | 6/6 | Complete    | 2026-07-20 |
 | 19. Distribution & Hygiene | lz-tdd@0.0.3 | 3/3 | Complete    | 2026-07-20 |
 | 20. Skill-Effectiveness Evals | lz-tdd@0.0.3 | 3/3 | Complete    | 2026-07-21 |
+| 21. Applied RED Eval in Real OSS Repos (multi-dimensional, 3-arm) | lz-tdd@0.0.3 | 0/0 | Planning | - |
 
 ---
-*Roadmap created: 2026-07-02 | lz-tdd@0.0.1 shipped: 2026-07-04 | lz-tdd@0.0.2 shipped: 2026-07-17 | lz-tdd@0.0.3 roadmap added: 2026-07-18 (Phases 15-20). Per-milestone phase detail lives in `.planning/milestones/`.*
+*Roadmap created: 2026-07-02 | lz-tdd@0.0.1 shipped: 2026-07-04 | lz-tdd@0.0.2 shipped: 2026-07-17 | lz-tdd@0.0.3 roadmap added: 2026-07-18 (Phases 15-20); Phase 21 (applied eval) inserted 2026-07-22. Per-milestone phase detail lives in `.planning/milestones/`.*

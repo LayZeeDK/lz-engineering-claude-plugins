@@ -5,8 +5,8 @@ milestone_name: lz-red Skill
 current_phase: 21
 current_phase_name: applied-red-eval-real-oss-repos
 status: executing
-stopped_at: Phase 21 context gathered
-last_updated: "2026-07-22T22:51:10.721Z"
+stopped_at: Completed 21-01-PLAN.md
+last_updated: "2026-07-22T23:10:12.730Z"
 last_activity: 2026-07-22
 last_activity_desc: Phase 21 execution started
 progress:
@@ -30,8 +30,8 @@ See: .planning/PROJECT.md (updated 2026-07-18 -- started milestone lz-tdd@0.0.3)
 ## Current Position
 
 Phase: 21 (applied-red-eval-real-oss-repos) — EXECUTING
-Plan: 1 of 4
-Status: Executing Phase 21
+Plan: 2 of 4
+Status: Ready to execute
 Last activity: 2026-07-22 — Phase 21 execution started
 
 ## Performance Metrics
@@ -96,6 +96,7 @@ Last activity: 2026-07-22 — Phase 21 execution started
 | Phase 20 P01 | 11min | 3 tasks | 14 files |
 | Phase 20 P02 | 20min | 2 tasks | 2 files |
 | Phase 20 P03 | ~15min | 2 tasks | 1 files |
+| Phase 21 P01 | 7min | 3 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -160,6 +161,9 @@ Recent decisions affecting current work:
 - [Phase 20]: Phase 20 (20-01): vendored the native-fixed skill-creator-eval rig verbatim into lz-red-workspace (6 files byte-identical, merge-judge --selfcheck GREEN); light-edited both canary-gated runners to lz-red with the CANARY re-derived from a real positive (how should i structure this unit test); adapted check-evals.mjs to the three-way boundary (>=2 lz-tpp green-step AND >=2 lz-refactor refactor-step negatives + reciprocal-red.json all-false byte-consistent + email allowlist-inversion); authored trigger-eval.json (12+12), reciprocal-red.json, d07-chunks/negatives.json -> check-evals GREEN; added 3 lz-red gitignore lines (Pitfall 8). Build-only, no metered run (D-11). EVL-01 stays OPEN -- recall/specificity closes post gated run (20-03), per the 11-02 precedent.
 - [Phase ?]: Phase 20 (20-02): rewrote grade-run.mjs into the D-05-RUBRIC per-dimension RED hybrid grader -- kept the skill-agnostic skeleton byte-verbatim (verified vs the lz-refactor analog by diff), replaced the refactoring name+layer model with RED phrase-set matchers routed through the borrowed negation-aware occursAffirmed (renamed nameRe->phraseRe), and locked the LLM judge to exactly two dimensions (right-next-test, behavior-not-implementation; selfcheck enforces <=2 per scenario). Authored evals/evals.json with 10 leaf-grounded RED scenarios (ids 0-9, all four assertion stances + the required classify-first boundary, coach-behavior split QUESTION+COMMAND), count-aligned 1:1 with RUBRICS so grade-run --selfcheck flips GREEN. Build-only, no metered run (D-11); EVL-02 stays OPEN -- behavior measurement closes after the gated run (20-03), mirroring 20-01.
 - [Phase 20]: Phase 20 (20-03): finalized the eval build/run boundary -- scaffolded EVAL-RESULTS.md (three-measurement structure: EVL-01 forward recall/specificity, EVL-01 reciprocal RED spot-check vs lz-tpp + lz-refactor, EVL-02 with_skill-vs-baseline; Pass@k AND Pass^k tables k=1,3,5,total per eval and overall; run-config + saturation caveats; reserved >=1 unbiased-reviewer slot; ALL numbers blank), proved the full deterministic battery GREEN on the merged tree (check-evals + grade-run --selfcheck + merge-judge --selfcheck + check-red-references + extract-samples all exit 0), and presented the exact ready-to-run gated commands (EVL-01 forward canary-runners OR direct run_eval; EVL-01 reciprocal direct run_eval TWICE vs each sibling with the canary-not-used caveat; EVL-02 orchestrator fan-out then LLM judge then merge/verify/aggregate then >=1 unbiased reviewer) then HALTED. Nothing metered ran (D-11 HARD GATE). EVL-01/EVL-02 stay OPEN until the user-approved run + orchestrator gates.
+- [Phase 21]: Phase 21 (21-01): parameterized run-e2e.mjs tracked-skill set off SUITE.trackSkills (default lz-refactor+lz-tpp preserves the nx/gilded-rose suites byte-identically; RED suites track lz-red+lz-tpp). extractResult now emits a generic used_skills hit map while retaining usedRefactor/refactorHits/usedTpp/tpp_hits back-compat scalars (0 when a name is untracked); selfcheck-code-review 3/3 cruxes GREEN, no lz-refactor regression.
+- [Phase 21]: Phase 21 (21-01): authored the e2e-red-gilded-rose Conjured RED apply suite -- genuinely_red (existing-compiling-API + missing behavior), contamination HIGH (a correctness smoke anchor, NOT a discriminator), differential-tsc strict_scope_note (Item ctor untyped), non-leading byte-identical prompt naming app/gilded-rose.ts. The discriminating 2nd/3rd target is left steer-at-gate via a 7-point checklist in targets.json (D-01), not hard-locked.
+- [Phase 21]: Phase 21 (21-01): EVL-03 formalized in REQUIREMENTS.md as Pending (build complete; empirical run gated) with EVL-03.1..EVL-03.7 BUILD/RUN sub-criteria mapping the 5 Phase-21 ROADMAP success criteria; coverage 27 -> 28. NOT marked Complete -- mirrors the EVL-01/EVL-02 build-then-halt closure (D-14); the metered run is gated to 21-04.
 
 ### Pending Todos
 
@@ -204,8 +208,8 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-22T09:44:54.305Z
-Stopped at: Phase 21 context gathered
+Last session: 2026-07-22T23:10:12.719Z
+Stopped at: Completed 21-01-PLAN.md
 Prior session: 2026-07-21T08:48:11.164Z -- Completed 20-03-PLAN.md (Phase 20 build boundary; awaiting user approval for the gated eval run)
 This session (2026-07-21, resume-work): resumed the paused Phase 19 close-out from HANDOFF.json and ran the three mandatory post-phase audits, each reached BY its dedicated agent (never self-certified inline): (1) /gsd-secure-phase 19 -> gsd-security-auditor SECURED, 8/8 threats closed, threats_open 0, 19-SECURITY.md (commit 8833bdf); (2) /gsd-validate-phase 19 -> gsd-nyquist-auditor GAPS-FILLED (no code-test gaps -- docs/hygiene phase), full gate battery independently re-run GREEN, 19-VALIDATION.md nyquist_compliant true (commit c75767d); (3) /gsd-extract-learnings 19 -> 19-LEARNINGS.md (7 decisions / 5 lessons / 7 patterns / 4 surprises), 23 items pooled to ~/.gsd/knowledge via the global-learnings bridge (commit 1407a68). HANDOFF.json + the Phase-19 .continue-here.md consumed. config.json (_auto_chain_active flag) deliberately left unstaged. gsd-verifier had already passed 17/17.
 Superseded-2026-07-17: Resumed via HANDOFF.json -> completed the paused quick task 260716-oby (Loops/pipeline few-shot TS examples). Re-ran the mandatory review that died on the prior session limit: 2 subagents (1 unbiased, 1 primed) both PASS with 0 Critical/0 Important; applied reviewer B's cue-completeness fix; gates GREEN. Replaced the WIP pause commit with a clean docs() commit (3138bbe) -- SHIPPED on teaching merit. HANDOFF.json consumed + deleted. Ran the user-approved held-out recognition eval: **idiom_pattern 0/3=0/3, NULL lift, zero regression** (5th passive-content probe null). angular-cli restored pristine, throwaway branch deleted. 260716-oby RESOLVED. THEN, following a design discussion + web research, ran a user-approved forcing-function diagnostic (enum loop-audit directive in the prompt, k=5, same target): **idiom 0/3 control -> 5/5, all tsc --strict CLEAN + behavior-preserving + discriminating.** CORRECTION: the loop-to-pipeline miss is a DISCRETION/SALIENCE gap, NOT a judgment ceiling -- passive skill content (prose/cues/examples) is null, but an ACTIVE enumeration forcing-function flips it (prompt-level, n=1). Falsified the earlier "judgment ceiling, close it" call. See heldout-enum/RESULTS-enum.md. NEXT candidate (unrun): a SKILL-level forcing-function probe (embed a loop-audit step; test skill-alone reproduction + precision/overcorrection). Not a blocker to closing lz-tdd@0.0.2 on the current shipped skill. Inherited close still pending: /gsd-audit-milestone lz-tdd@0.0.2 then /gsd-complete-milestone lz-tdd@0.0.2 (+ user /reload-plugins to make 3138bbe live).

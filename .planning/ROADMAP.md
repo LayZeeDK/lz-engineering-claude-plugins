@@ -247,6 +247,7 @@ snippets).
   1. Short human-style APPLY prompts ("what should I test next here?", "add the next test") drive the
      next failing test in >= 1 real OSS TypeScript repo (Vitest/Jest); byte-identical across arms except
      the target path; real applied output (test file / diff) is captured and graded, not coaching prose.
+
   2. FIRST rounds run three OWN-skill arms: `no_skill` (baseline), `with_skill` (skill present + natural
      prompt -- tests whether the description AUTO-TRIGGERS and then helps), and `invoke_skill` (prompt
      force-starts with `/lz-tdd:lz-red ...` -- isolates content value); `with_skill` vs `invoke_skill`
@@ -254,22 +255,25 @@ snippets).
      -- run only after our own lift is measured, and only because the standalone check passed (confirmed
      2026-07-22: no hard sibling dep). Note the scope mismatch in the writeup: mattpocock tdd is a full
      red->green loop with an interactive seam-confirmation step, vs lz-red's RED-step-only coach.
+
   3. Produced tests are graded + compared on many lift dimensions: wall-clock time, tool usage, token
      usage (mechanical from stream-json meta); correctness (tsc --strict clean AND genuinely red for the
      right reason on current code); output quality; book/source authenticity vs the owned `.oracle/` RED
      sources via oracle-reviewer (DST-04); follows idioms; follows house style; follows TDD RED practices
      (right next test, fail-for-right-reason, assert observable behavior, classify-first, handoff).
+
   4. Harness reuses the lz-refactor apply pattern (synthetic base, stream-json meta, per-arm tool
      profiles); per-run byproducts git-ignored; no build deps in `plugins/lz-tdd`; the metered run is
      user-gated (D-11 / [[eval-run-approval-gate]]).
+
   5. Results recorded with Pass@k / Pass^k + >= 1 unbiased from-scratch reviewer; where any vocabulary
      proxy is used, the substance-only comparison is the headline (lesson carried from Phase 20 EVL-02).
 
-**Plans**: 4 plans (instrument-first BUILD, then HALT before the metered run)
+**Plans**: 1/4 plans executed
 
 **Wave 1**
 
-- [ ] 21-01-PLAN.md -- Parameterize run-e2e.mjs tracked skill names off suite.json + author the Gilded Rose `Conjured` RED apply suite (non-leading, byte-identical-across-arms, D-06 target shape) + git-ignore its run tree + formalize EVL-03 in REQUIREMENTS.md
+- [x] 21-01-PLAN.md -- Parameterize run-e2e.mjs tracked skill names off suite.json + author the Gilded Rose `Conjured` RED apply suite (non-leading, byte-identical-across-arms, D-06 target shape) + git-ignore its run tree + formalize EVL-03 in REQUIREMENTS.md
 
 **Wave 2** *(blocked on Wave 1)*
 
@@ -311,7 +315,7 @@ snippets).
 | 18. Coach Procedure & lz-tpp Seam Wiring | lz-tdd@0.0.3 | 6/6 | Complete    | 2026-07-20 |
 | 19. Distribution & Hygiene | lz-tdd@0.0.3 | 3/3 | Complete    | 2026-07-20 |
 | 20. Skill-Effectiveness Evals | lz-tdd@0.0.3 | 3/3 | Complete    | 2026-07-21 |
-| 21. Applied RED Eval in Real OSS Repos (multi-dimensional, 3-arm) | lz-tdd@0.0.3 | 0/4 | Planned | - |
+| 21. Applied RED Eval in Real OSS Repos (multi-dimensional, 3-arm) | lz-tdd@0.0.3 | 1/4 | In Progress|  |
 
 ---
 *Roadmap created: 2026-07-02 | lz-tdd@0.0.1 shipped: 2026-07-04 | lz-tdd@0.0.2 shipped: 2026-07-17 | lz-tdd@0.0.3 roadmap added: 2026-07-18 (Phases 15-20); Phase 21 (applied eval) inserted 2026-07-22. Per-milestone phase detail lives in `.planning/milestones/`.*

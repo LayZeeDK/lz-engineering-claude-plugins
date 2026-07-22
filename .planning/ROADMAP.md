@@ -265,7 +265,23 @@ snippets).
   5. Results recorded with Pass@k / Pass^k + >= 1 unbiased from-scratch reviewer; where any vocabulary
      proxy is used, the substance-only comparison is the headline (lesson carried from Phase 20 EVL-02).
 
-**Plans**: not yet planned (next: discuss + plan-phase 21).
+**Plans**: 4 plans (instrument-first BUILD, then HALT before the metered run)
+
+**Wave 1**
+
+- [ ] 21-01-PLAN.md -- Parameterize run-e2e.mjs tracked skill names off suite.json + author the Gilded Rose `Conjured` RED apply suite (non-leading, byte-identical-across-arms, D-06 target shape) + git-ignore its run tree + formalize EVL-03 in REQUIREMENTS.md
+
+**Wave 2** *(blocked on Wave 1)*
+
+- [ ] 21-02-PLAN.md -- grade-red.mjs: the D-06 correctness classifier (differential tsc --strict + the target's own runner JSON -> genuinely_red / false_green / drove_to_green / compile_error / collection_error / no_tests / wrong_reason) + fixtures/ + `--selfcheck`
+
+**Wave 3** *(blocked on Wave 2)*
+
+- [ ] 21-03-PLAN.md -- tabulate-mechanical-red.mjs (mechanical dims + auto-trigger gap + Pass@k/Pass^k on the correctness gate) + selfcheck-red.mjs (composition/prompt-parity/worktree base/parse/classifier/lz-refactor regression) + EVAL-RESULTS.md scaffold
+
+**Wave 4** *(blocked on Wave 3)*
+
+- [ ] 21-04-PLAN.md -- Phase gate (full battery GREEN + repos pristine + plugins/lz-tdd untouched) + RUN-GATE.md + the blocking-human HALT before the metered 3-arm run (eval-run-approval-gate)
 
 ## Progress
 
@@ -295,7 +311,7 @@ snippets).
 | 18. Coach Procedure & lz-tpp Seam Wiring | lz-tdd@0.0.3 | 6/6 | Complete    | 2026-07-20 |
 | 19. Distribution & Hygiene | lz-tdd@0.0.3 | 3/3 | Complete    | 2026-07-20 |
 | 20. Skill-Effectiveness Evals | lz-tdd@0.0.3 | 3/3 | Complete    | 2026-07-21 |
-| 21. Applied RED Eval in Real OSS Repos (multi-dimensional, 3-arm) | lz-tdd@0.0.3 | 0/0 | Planning | - |
+| 21. Applied RED Eval in Real OSS Repos (multi-dimensional, 3-arm) | lz-tdd@0.0.3 | 0/4 | Planned | - |
 
 ---
 *Roadmap created: 2026-07-02 | lz-tdd@0.0.1 shipped: 2026-07-04 | lz-tdd@0.0.2 shipped: 2026-07-17 | lz-tdd@0.0.3 roadmap added: 2026-07-18 (Phases 15-20); Phase 21 (applied eval) inserted 2026-07-22. Per-milestone phase detail lives in `.planning/milestones/`.*

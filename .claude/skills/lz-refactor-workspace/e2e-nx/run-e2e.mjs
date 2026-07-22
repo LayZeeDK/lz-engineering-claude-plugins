@@ -64,6 +64,11 @@ const PROTECTED_BRANCHES = SUITE.protectedBranches || ['main', 'master'];
 // targets.json carries the file path per target id; the synthetic-base setup (D-02) needs it.
 const TARGETS = JSON.parse(fs.readFileSync(path.join(SUITE_DIR, 'targets.json'), 'utf8'));
 const TARGET_BY_ID = new Map((TARGETS.targets || []).map((t) => [t.id, t]));
+// The lz skill name(s) to track as "fired" from the transcript, sourced from suite.json so a suite
+// can measure its OWN skill's auto-trigger. Default preserves the lz-refactor suites' back-compat
+// (lz-refactor for the refactor-step prompts + lz-tpp for the seam hand-off); the RED suites set
+// trackSkills: ["lz-red","lz-tpp"].
+const TRACK_SKILLS = SUITE.trackSkills || ['lz-refactor', 'lz-tpp'];
 
 const MODEL = process.env.E2E_MODEL || 'claude-opus-4-8';
 // Effort is pinned explicitly (not left to the CLI default) so runs are reproducible and the value
@@ -250,13 +255,16 @@ function buildCmd(fullPrompt, arm, mode) {
 }
 
 // Pull the final assistant text and skill-usage signal out of the stream-json transcript.
-// Tracks BOTH lz skills: lz-refactor (expected for the refactor-step prompts p1-p5) and lz-tpp
-// (the correct hand-off for the seam prompt p6). A tool_use referencing either counts.
-function extractResult(raw) {
+// Tracks the suite's trackSkills (default lz-refactor + lz-tpp): lz-refactor for the refactor-step
+// prompts, lz-tpp for the seam hand-off; the RED suites track lz-red + lz-tpp. A tool_use blob
+// referencing a tracked name counts as a hit for that name. trackSkills defaults to TRACK_SKILLS so
+// the single-arg call (selfcheck-code-review.mjs) keeps working unchanged.
+function extractResult(raw, trackSkills = TRACK_SKILLS) {
   const lines = raw.split('\n').filter((l) => l.trim());
   let finalText = '';
-  let refactorHits = 0;
-  let tppHits = 0;
+  // Per-name hit map, keyed by each tracked skill name; the refactor/tpp back-compat scalars derive
+  // from it after the scan.
+  const skillHits = Object.fromEntries(trackSkills.map((n) => [n, 0]));
   const skillsInvoked = new Set();
 
   // D-07 meta capture. Read the CLI's OWN reported usage from the final `result` event -- do NOT
@@ -323,12 +331,10 @@ function extractResult(raw) {
 
       const blob = JSON.stringify(block).toLowerCase();
 
-      if (blob.includes('lz-refactor')) {
-        refactorHits++;
-      }
-
-      if (blob.includes('lz-tpp')) {
-        tppHits++;
+      for (const name of trackSkills) {
+        if (blob.includes(name.toLowerCase())) {
+          skillHits[name]++;
+        }
       }
 
       if (block.name === 'Skill') {
@@ -338,8 +344,16 @@ function extractResult(raw) {
     }
   }
 
+  // used_skills = the generic per-name hit map (any tracked skill's auto-trigger signal). The
+  // refactor/tpp scalars are retained for back-compat (skillFlag/report + the lz-refactor suites);
+  // each is 0 when its name is not in trackSkills.
+  const usedSkills = { ...skillHits };
+  const refactorHits = usedSkills['lz-refactor'] || 0;
+  const tppHits = usedSkills['lz-tpp'] || 0;
+
   return {
     finalText,
+    used_skills: usedSkills,
     usedRefactor: refactorHits > 0,
     usedTpp: tppHits > 0,
     refactorHits,
@@ -564,6 +578,7 @@ function runOne(claude, promptEntry, arm, mode, cwd, runIdx, force) {
 
   const {
     finalText,
+    used_skills,
     usedRefactor,
     usedTpp,
     refactorHits,
@@ -610,6 +625,7 @@ function runOne(claude, promptEntry, arm, mode, cwd, runIdx, force) {
     effort: EFFORT,
     changed_files: changedFiles,
     prompt_used: fullPrompt,
+    used_skills,
     used_refactor: usedRefactor,
     used_tpp: usedTpp,
     refactor_hits: refactorHits,

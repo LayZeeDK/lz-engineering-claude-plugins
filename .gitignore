@@ -51,6 +51,14 @@ Thumbs.db
 .claude/skills/lz-red-workspace/**/run-*/
 .claude/skills/lz-red-workspace/iteration-*/
 .claude/skills/lz-red-workspace/**/trigger-results-*.json
+# Phase 21 RED apply suites (e2e-red-*): per-run capture tree under each suite dir. The generic
+# lz-red-workspace results*/ + run-*/ lines above and the *-workspace outputs/ line already cover
+# these paths; these explicit e2e-red-* lines make the new suite's run tree unambiguous
+# (results/apply/<arm>/<pid>/run-N/{meta.json,answer.md,diff.patch,red-grade.json,outputs/}). No
+# work/ line: the grader drives os.tmpdir() worktrees, so nothing lands in the tracked tree.
+.claude/skills/lz-red-workspace/e2e-red-*/**/results*/
+.claude/skills/lz-red-workspace/e2e-red-*/**/run-*/
+.claude/skills/lz-red-workspace/e2e-red-*/**/outputs/
 # EVL-01 reciprocal probe stdout + throwaway stderr (workspace root), and the runner-generated
 # per-chunk eval-set inputs (recall-chunk-*.json / spec-chunk-*.json). Raw, re-runnable byproducts;
 # the tracked evidence is EVAL-RESULTS.md. Root-anchored so evals/reciprocal-red.json stays tracked.

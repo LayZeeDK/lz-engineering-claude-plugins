@@ -372,21 +372,26 @@ if (flagValue(is,'-p') !== '/lz-tdd:lz-red ' + flagValue(ws,'-p')) fail('invoke_
 | A4 | The differential tsc approach reliably isolates test-introduced type errors from pre-existing source errors | Pitfall 3 | If baseline error attribution is noisy, scope the typecheck to a temp tsconfig that `include`s only the produced test + its direct imports with `--strict` |
 | A5 | Book/source authenticity is a meaningful dimension for a produced TEST (vs a named refactoring) | D-07 / grading | Authenticity for a test is fuzzier than for a catalog refactoring; frame the oracle-reviewer axis as "does the test embody the owned RED practices (F.I.R.S.T., Test Desiderata, message-matrix, intention-revealing naming)", and expect lower discriminating power |
 
-## Open Questions
+## Open Questions (RESOLVED)
+
+> All three are resolved by the plan set via the CONTEXT.md steer-at-gate design: 21-01 builds the RED suite + the D-01 qualification checklist; 21-04 RUN-GATE.md + the Task 3 blocking-human HALT present the confirmation/judge/concurrency decisions to the user at the gate. Left below as the reasoning trail.
 
 1. **The exact discriminating real-OSS target(s) beyond the kata anchor (D-01).**
    - What we know: Gilded Rose `Conjured` is verified genuinely-red but high-contamination (a correctness smoke anchor). nx `@nx/eslint-plugin` files are heavily tested (spec files 700-1600 lines) -> poor RED targets. [VERIFIED: disk - targets.json test_net fields]
    - What's unclear: whether the user wants a second/third emilybache kata (real OSS, contamination-flagged) or a nominated real production repo with a genuine gap.
    - Recommendation: see the D-01 section - anchor on the kata, let the user confirm 1-2 discriminating targets at the gate using the qualification checklist. This is exactly D-01's "planner confirms; user steers" design.
+   - RESOLVED: 21-01 builds the e2e-red-gilded-rose suite (Conjured fixed anchor) + the 7-point D-01 qualification checklist in targets.json; 21-04 RUN-GATE.md's pre-run confirmation checklist and the Task 3 blocking-human HALT let the user confirm/nominate the discriminating 2nd/3rd target at the gate (steer-at-gate by design; package-legitimacy gate runs on any newly nominated repo).
 
 2. **How many judgment dims / how many judges.**
    - What we know: Phase-20 locked <= 2 dims per judge. The two natural dims are "is THIS the right next test?" and "does it assert observable behavior, not implementation?".
    - What's unclear: whether a second judge pair is warranted for classify-first and house-idiom-match (the discriminating dims), or whether those fold into the mechanical gate + one judge.
    - Recommendation: one blind judge with the two locked dims for the headline; add classify-first as a THIRD dim only via a second judge (keep <= 2 per judge). Decide at plan time based on how many targets stress classify-first.
+   - RESOLVED: 21-04 RUN-GATE.md locks ONE blind judge with the two <= 2 dims ("is THIS the right next test?" + "observable behavior, not implementation") as the headline; a classify-first third dim goes to a SECOND judge only if the confirmed targets stress it (decided at the gate once targets are fixed).
 
 3. **Whether to run one suite (kata) or multiple suites at the gate.**
    - What we know: D-03 wants ~2-3 targets x k=3. Each suite runs serially (safe); multiple suites in parallel risk the org cap (Pitfall 8).
    - Recommendation: one suite dir per target repo; drive them sequentially at the gate.
+   - RESOLVED: 21-04 RUN-GATE.md drives one suite dir per target repo SEQUENTIALLY at the gate (D-13 small-waves / Pitfall 8 concurrency cap); 21-01 supplies the e2e-red-gilded-rose suite dir as the first sequential target.
 
 ## Environment Availability
 

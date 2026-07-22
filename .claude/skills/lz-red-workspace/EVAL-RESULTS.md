@@ -127,29 +127,72 @@ sound for this measurement; a throttled window can only make a sibling look quie
 ## EVL-02 -- RED-behavior / next-move (with_skill vs baseline, 3 runs each)
 
 Free-drive coach subagents in isolated context; fail-closed deterministic grade (RED phrase-set
-matchers, negation-aware, + nodrive) -> independent blind LLM judge (exactly two dimensions:
+matchers, negation-aware, + nodrive) -> independent LLM judge (exactly two dimensions:
 "is THIS the right next test" + "is the asserted target observable behavior, not implementation")
 -> merge -> verify -> aggregate. A run "fully passes" only when ALL its expectations pass (every
 scored phrase-set dimension + both judge dimensions + nodrive). Set: `evals/evals.json` (10
 leaf-grounded RED-situation scenarios, ids 0-9; every scenario's ground truth is pinned to a shipped
 `lz-red` reference example).
 
-| id | Scenario (RED situation) -> expected move | Primary dimension(s) | with_skill Pass@1 | baseline Pass@1 |
-|----|-------------------------------------------|----------------------|-------------------|-----------------|
-| 0 | new `sumOf(values)`, nothing written -> degenerate/starter case + AAA | Selection + Structure |  |  |
-| 1 | `isEven` one example green, impl is `return true` -> triangulate | Selection: triangulation |  |  |
-| 2 | pure `netOf(total, discount)` -> output-based assert, no doubles | Assertion: output-based |  |  |
-| 3 | `Gate` notifies an injected notifier -> expect-to-send, do not mock the query | Assertion: communication + over-mock |  |  |
-| 4 | `ShoppingCart.addItem` -> state-based assert through the public surface | Assertion: state-based |  |  |
-| 5 | legacy `PriceCalculator` welded to a clock -> seam + characterization first | Assertion: characterization + Selection |  |  |
-| 6 | test went green immediately (false green) -> sharpen to fail on assertion | Fail-for-the-right-reason |  |  |
-| 7 | new `slugify`, "just advice" (QUESTION) -> present the test, do not write it | Coach-don't-drive |  |  |
-| 8 | `isPalindrome` "write the red test, do not make it pass" (COMMAND) -> write then stop, hand green to lz-tpp | Handoff + Coach-don't-drive |  |  |
-| 9 | `parseAmount` green + messy + uncovered case (classify-first boundary) -> new RED test, not refactor/green | Selection: classify-first |  |  |
+**Read the SUBSTANCE-ONLY numbers as the headline, not the full-run numbers.** The unbiased review
+(below) established that the deterministic phrase-set dimensions measure the skill's HOUSE VOCABULARY
+as a proxy for correctness, and that proxy systematically false-fails the baseline, which gives
+substantively-correct answers in its own words. Dropping the leaky phrase-set proxy and scoring only
+the substance dimensions (the 2 LLM-judge dimensions + nodrive) gives the honest, config-fair result:
+**with_skill 29/30 (Pass@1 0.97) vs baseline 26/30 (0.87)** -- the skill still wins, but by ~+10 pts,
+concentrated in exactly two scenarios (eval-8 COMMAND handoff/coach-don't-drive, eval-9 classify-first
+RED boundary). The full-run Pass@1 (0.87 vs 0.50) below is retained for completeness but is
+vocabulary-inflated; it overstates the effect ~3x. The judge was NOT blinded to config (with_skill
+transcripts self-identify via "lz-red"/"Law 1-3"/"message-matrix"); no bias symptom appeared (the
+judge failed a with_skill run on eval-9 and passed the baseline on eval-3's over-mock judgment), but
+the un-blindability is a design flaw to fix before relying on judge deltas.
 
-*(EVL-02 DEFERRED -- not run. The user approved EVL-01 (trigger) only and paused before this behavior
-benchmark. Result columns stay blank until a further explicit approval; the ready-to-run sequence is
-in "How to run (GATED)" below.)*
+Full-run Pass@1 = fraction of the 3 runs where EVERY expectation (all scored phrase-set dimensions +
+both judge dimensions + nodrive) passed. n = 3 per cell.
+
+| id | Scenario (RED situation) -> expected move | Primary dimension(s) | with_skill Pass@1 | baseline Pass@1 | discriminating? |
+|----|-------------------------------------------|----------------------|-------------------|-----------------|-----------------|
+| 0 | new `sumOf(values)`, nothing written -> degenerate/starter case + AAA | Selection + Structure | 1.00 (3/3) | 0.33 (1/3) | yes |
+| 1 | `isEven` one example green, impl is `return true` -> triangulate | Selection: triangulation | 1.00 (3/3) | 1.00 (3/3) | saturated |
+| 2 | pure `netOf(total, discount)` -> output-based assert, no doubles | Assertion: output-based | 1.00 (3/3) | 0.33 (1/3) | yes |
+| 3 | `Gate` notifies an injected notifier -> expect-to-send, do not mock the query | Assertion: communication + over-mock | 0.00 (0/3) * | 0.33 (1/3) * | grader artifact |
+| 4 | `ShoppingCart.addItem` -> state-based assert through the public surface | Assertion: state-based | 1.00 (3/3) | 0.33 (1/3) | yes |
+| 5 | legacy `PriceCalculator` welded to a clock -> seam + characterization first | Assertion: characterization + Selection | 1.00 (3/3) | 0.67 (2/3) | yes |
+| 6 | test went green immediately (false green) -> sharpen to fail on assertion | Fail-for-the-right-reason | 1.00 (3/3) | 0.67 (2/3) | yes |
+| 7 | new `slugify`, "just advice" (QUESTION) -> present the test, do not write it | Coach-don't-drive | 1.00 (3/3) | 1.00 (3/3) | saturated |
+| 8 | `isPalindrome` "write the red test, do not make it pass" (COMMAND) -> write then stop, hand green to lz-tpp | Handoff + Coach-don't-drive | 1.00 (3/3) | 0.00 (0/3) | yes |
+| 9 | `parseAmount` green + messy + uncovered case (classify-first boundary) -> new RED test, not refactor/green | Selection: classify-first | 0.67 (2/3) | 0.33 (1/3) | yes |
+
+*(EVL-02 RAN 2026-07-22 under explicit user approval. ORCHESTRATOR-driven: 60 coach subagents [10
+scenarios x {with_skill, no_skill} x 3 runs] in isolated scratch sandboxes; deterministic grade ->
+independent LLM judge [exactly the 2 locked judgment dimensions] -> merge -> verify [exit 0] ->
+aggregate. Run config per the lock: claude-opus-4-8, 3 runs, serial, PONYTAIL forced off via an
+explicit normal-mode directive in every subagent [the env-var lock does not reach in-session
+subagents]. `with_skill` read the shipped D-09-widened SKILL.md + references on demand; `no_skill`
+answered from base knowledge. The `with_skill Pass@1` / `baseline Pass@1` columns above are FULL-RUN
+[all dimensions] and are vocabulary-inflated -- see the substance reframe below.)*
+
+**The "discriminating?" column above is FULL-RUN discriminating, which is vocabulary-sensitive.** The
+unbiased review showed that five of the eight "yes" rows (eval-0, 2, 4, 5, 6) are actually
+SUBSTANCE-TIES: the baseline is substantively correct (LLM-judge + nodrive all pass 3/3) and only
+misses the mechanical phrase-set because it words the same correct idea differently (e.g. "assert the
+**return** value" vs the matcher's "return**ed** value"; AAA written as `// Arrange // Act // Assert`
+comments; "there's nothing to mock" instead of "no double"). eval-3 is the same class of artifact
+(both arms). Applying that artifact caveat SYMMETRICALLY (not just upward for with_skill), the honest
+substance-only outcome is:
+
+- **Substance ties (both arms 3/3 on judge+nodrive):** eval-0, 1, 2, 3, 4, 5, 6, 7 -- 8 scenarios.
+  Base `claude-opus-4-8` already gives correct RED coaching here; the skill's measured edge on these
+  is house vocabulary, not substance.
+- **Substance wins for the skill:** eval-8 (COMMAND: write the red test then STOP + hand green to
+  lz-tpp -- baseline substance 1/3, it drives to green or drops the handoff) and eval-9 (classify-first
+  RED boundary -- baseline substance 1/3, it refactors/greens instead of writing the new failing test).
+  These two are genuine, judge-verified behavior gaps the skill closes.
+
+So the defensible claim is: **the skill reliably changes behavior on the RED-discipline cases a strong
+base model gets wrong (handoff-without-driving, classify-first), and elsewhere mostly imposes its
+vocabulary.** The full-run 0.87-vs-0.50 gap is an artifact of the vocabulary proxy and is NOT the
+headline.
 
 ### Per-dimension detail (EVL-02)
 
@@ -158,12 +201,28 @@ Assertion-target / Fail-for-the-right-reason / Handoff / Coach-don't-drive) via 
 phrase-set matchers; the LLM judge resolves exactly the two judgment-heavy dimensions. The filled
 report records, per scenario x dimension x config, the pass count (n/3) and the merged verdict.
 
+Only the dimensions where at least one config scored below 3/3 are listed (the discriminating ones).
+Every dimension not listed scored 3/3 for BOTH configs, and the `nodrive` ("coach, don't drive")
+dimension passed 3/3 for all 60 runs (every isolated `work/` sandbox stayed empty -- no run edited a
+file or ran a suite).
+
 | id | dimension | check kind | with_skill (n/3) | baseline (n/3) |
 |----|-----------|-----------|-------------------|----------------|
-|    |           |           |                   |                |
+| 0 | Shapes the test arrange-act-assert (or given-when-then) | phraseSet | 3/3 | 1/3 |
+| 2 | Names an output-based assertion (assert the returned value) | phraseSet | 3/3 | 1/3 |
+| 3 | Says the query needs no double / only the outgoing command warrants one | phraseSet | 0/3 * | 1/3 * |
+| 3 | Reserves the double for the one outgoing command; refuses to mock the query (over-mock) | judge | 3/3 | 3/3 |
+| 4 | Asserts through the public surface with no double | phraseSet | 3/3 | 1/3 |
+| 5 | Names finding a seam to make the behavior reachable | phraseSet | 3/3 | 2/3 |
+| 6 | Sharpened test must fail on its assertion (AssertionError on the value) | phraseSet | 3/3 | 2/3 |
+| 8 | Frames making it pass as the green step (hands off to lz-tpp) | phraseSet | 3/3 | 1/3 |
+| 8 | On a command, writes a test that fails on its assertion, then stops (no drive to green) | judge | 3/3 | 1/3 |
+| 9 | Parks the tidy-up as a separate lz-refactor concern (after green) | phraseSet | 3/3 | 2/3 |
+| 9 | Correct next move is a NEW failing test for the uncovered behavior (RED), not refactor/green | judge | 2/3 | 1/3 |
 
-*(One row per scenario-dimension is emitted by the grader at run time; left as a single blank
-template row here. Populated from `iteration-1/eval-*/<config>/run-*/grading.json` after the run.)*
+`*` eval-3 phrase-set false-negative (see the headline note): the mechanical `noOverMock` matcher
+misses correct paraphrases; the eval-3 **judge** dimension -- the real over-mock judgment -- is 3/3 for
+`with_skill`. This dim fails on both arms and is config-independent.
 
 ### Saturation (D-07 flag) -- an eval-DESIGN limitation, documented, NOT tuned away
 
@@ -175,6 +234,15 @@ signal is expected to rest on the harder cases -- scenario 9 (classify-first bou
 (over-mock temptation), and scenario 6 (false green). Any Pass@1 = 1.0-for-both assertion is flagged
 as saturated / non-discriminating in `iteration-1/passk-metrics.json` and is a candidate for a harder
 future scenario. This is an eval-design limitation to record here, NOT a defect to tune away.
+
+**Actual outcome (2026-07-22):** the prediction held and then some. On the SUBSTANCE dimensions, 8 of
+10 scenarios were ties (base `claude-opus-4-8` coaches RED correctly); only eval-8 (COMMAND
+handoff/coach-don't-drive) and eval-9 (classify-first boundary) showed a genuine skill advantage.
+eval-3 (over-mock) turned out to be a grader phrase-set false-negative rather than a discriminator,
+and eval-6 (false green) saturated on substance. So the discriminating signal is even more
+concentrated than predicted -- two RED-DISCIPLINE cases, not the assertion-target cases -- which is
+consistent with a strong base model that knows the textbook answers but under-applies the
+red-step-vs-green-step boundary and the "write-then-stop-and-hand-off" discipline the skill enforces.
 
 ## Pass@k and Pass^k (D-07; CLAUDE.md skill-creator rule)
 
@@ -211,15 +279,27 @@ flagged saturated (see above).
 
 ### EVL-02 -- behavior (per scenario x config + overall)
 
+n = total runs for the unit, c = fully-correct runs (all expectations pass). Overall pools all 10
+scenarios x 3 runs = 30 per config.
+
+The SUBSTANCE-ONLY rows (judge + nodrive dims; the honest headline) are listed first; the FULL-RUN
+rows (all dims, vocabulary-inflated) follow for completeness.
+
 | Unit | config | n | c | Pass@1 | Pass@3 | Pass@5 | Pass^1 | Pass^3 | Pass^5 | saturated? |
 |------|--------|---|---|--------|--------|--------|--------|--------|--------|------------|
-| overall | with_skill |  |  |  |  |  |  |  |  |  |
-| overall | baseline |  |  |  |  |  |  |  |  |  |
+| overall SUBSTANCE | with_skill | 30 | 29 | 0.97 | 1.00 | 1.00 | 0.97 | 0.90 | 0.83 | no |
+| overall SUBSTANCE | baseline | 30 | 26 | 0.87 | 1.00 | 1.00 | 0.87 | 0.64 | 0.46 | no |
+| overall full-run (vocab-inflated) | with_skill | 30 | 26 | 0.87 | 1.00 | 1.00 | 0.87 | 0.64 | 0.46 | no |
+| overall full-run (vocab-inflated) | baseline | 30 | 15 | 0.50 | 0.89 | 0.98 | 0.50 | 0.11 | 0.02 | no |
 
-*(EVL-01 Pass@k / Pass^k filled from the 2026-07-21 run at RUN level: n = total runs, c = correct
-runs. The canary positive was probed once per chunk (12 runs) so it carries proportional weight in the
-recall pool -- overall recall n=45, not 36. EVL-02 rows stay blank; that benchmark was DEFERRED, not
-run. When run, EVL-02 Pass@k is computed at `iteration-1/passk-metrics.json`.)*
+Per-scenario full-run Pass@1 is in the EVL-02 headline table above (with_skill vs baseline). Scenarios
+1 and 7 are saturated (both configs 3/3). eval-3 depresses `with_skill` overall by 3 full-run misses
+that are a grader phrase-set artifact (the judge dimension is 3/3); absent that artifact, `with_skill`
+full-run would be 29/30. The raw 26/30 is reported here and NOT tuned away.
+
+*(EVL-01 Pass@k / Pass^k filled from the 2026-07-21 run at RUN level. EVL-02 Pass@k / Pass^k computed
+by `iteration-1/passk-metrics.json` from the 2026-07-22 run; `iteration-1/benchmark.{json,md}` carries
+the skill-creator aggregate [expectation-level pass_rate + token/time deltas].)*
 
 ## Verdict (filled after the gated run)
 
@@ -228,7 +308,19 @@ run. When run, EVL-02 Pass@k is computed at `iteration-1/passk-metrics.json`.)*
   A soft, NON-blocking miss on a demonstrated defect.
 - **Trigger (EVL-01 reciprocal):** PASS -- both siblings stayed fully quiet on the 12 RED positives
   (lz-tpp 12/12, lz-refactor 12/12; trigger_rate 0.00 each). The new cross-skill coverage is clean.
-- **Behavior (EVL-02):** DEFERRED -- not run (the user approved EVL-01 only, then paused).
+- **Behavior (EVL-02):** PASS (modest, honestly bounded) -- the skill beats the unaided baseline on
+  the RED-discipline cases a strong base model gets wrong, and mostly imposes vocabulary elsewhere.
+  **Headline (substance-only: judge + nodrive dims): with_skill Pass@1 0.97 (29/30) vs baseline 0.87
+  (26/30)** -- a ~+10 pt gap concentrated in eval-8 (COMMAND: write the red test then STOP + hand
+  green to lz-tpp; baseline substance 1/3) and eval-9 (classify-first RED boundary; baseline 1/3).
+  The other 8 scenarios are substance-ties (base `claude-opus-4-8` already coaches RED correctly).
+  The full-run Pass@1 (0.87 vs 0.50) is vocabulary-inflated -- the deterministic phrase-set dims
+  reward the skill's house terms and false-fail the baseline's correct-but-differently-worded answers
+  (unbiased review, adopted) -- so it is retained only as labeled context, not the headline. Cost:
+  with_skill ~99k tokens / ~125s per turn vs baseline ~79k / ~83s (clean-run medians) -- the skill
+  adds ~+25% tokens and ~+42s to read SKILL.md + the routed references. Eval-design follow-ups for a
+  future iteration: route the mechanical dims through the judge (or widen the phrase sets) and blind
+  the judge to config.
 - **D-09 tuning:** APPLIED 2026-07-21 (user-approved) -- widened the house-idiom clause of the
   description; it beat the current description on an INDEPENDENT held-out set (recall 5/6 -> 6/6;
   specificity 6/6 held, 0 over-widen leaks), stays under the 1536-char cap (1233), unbiased review
@@ -245,7 +337,7 @@ subagents. Slot reserved; filled post-run.
 
 | Reviewer | Brief | Scope | Verdict | Findings |
 |----------|-------|-------|---------|----------|
-| (reserved) | from-scratch, unprimed | grader source + sampled transcripts + reported numbers |  |  |
+| Reviewer-1 (2026-07-22) | from-scratch, unprimed (given NO prior findings, not told the eval-3 conclusion) | grade-run.mjs + merge-judge.mjs source; grading.json + transcript for eval-3 (all 6), eval-8, eval-9, eval-1, eval-7 + others; passk-metrics.json + benchmark.json; EVAL-RESULTS.md numbers | **PASS-WITH-CAVEATS** | Pipeline integrity sound (both selfchecks OK; verify gate confirms all 60 final, no preliminary/null leaks). Numbers accurately computed (independently recomputed 26/30 and 15/30 full-run + every Pass@k -> exact match). **Core caveat (adopted):** the deterministic phrase-set dims measure the skill's house vocabulary as a correctness proxy and systematically false-fail the substantively-correct baseline (verified instances: eval-2 baseline "return value" vs "returned value"; eval-0 baseline AAA-as-comments; eval-4 baseline "nothing to mock"; eval-8 baseline "make the current test pass" as green framing; eval-3 both arms). Substance-only (judge+nodrive) gap is with_skill 29/30 vs baseline 26/30 = +10 pts, concentrated in eval-8 + eval-9 -- NOT the full-run +37 pts. Also: the "blind judge" claim was unsubstantiated (transcripts self-identify the arm), though no bias symptom was found; and the eval-3 artifact caveat had been applied asymmetrically (upward for with_skill only). No grader FALSE-POSITIVES found. Recommends foregrounding the substance-only comparison. ALL adopted: this report now leads with substance-only 0.97 vs 0.87, applies the artifact caveat symmetrically, corrected the blind-judge claim, and retains the full-run numbers only as labeled vocabulary-inflated context. |
 
 ## How to run (GATED -- user approval required)
 
@@ -401,12 +493,18 @@ files or LOCKED content touched; no scope expansion; a single at-most-one pass w
 the original `trigger-eval.json` was NOT re-run, so the EVL-01 forward table above remains the pre-widen
 measurement. `/reload-plugins` is the pending HUMAN ship action; committed != live.
 
-## STATUS -- EVL-01 done, D-09 applied, EVL-02 deferred
+## STATUS -- EVL-01 done, D-09 applied + live, EVL-02 done
 
 EVL-01 forward + reciprocal RAN 2026-07-21 under explicit user approval (forward recall 92%,
 specificity 100%; both siblings 100% quiet; every chunk canary-validated). The conditional D-09 tuning
 then RAN under a further explicit approval: a held-out A/B validated a house-idiom description widen
-(recall 5/6 -> 6/6, specificity 6/6 held, unbiased review PASS) and it was APPLIED to SKILL.md. STILL
-NOT RUN (await a further explicit approval): the EVL-02 behavior benchmark (ORCHESTRATOR fan-out + LLM
-judge + >= 1 unbiased reviewer). PENDING HUMAN ACTION: `/reload-plugins` to make the D-09 description
-live in-session (committed != live).
+(recall 5/6 -> 6/6, specificity 6/6 held, unbiased review PASS), it was APPLIED to SKILL.md, and
+`/reload-plugins` was run (live). EVL-02 behavior benchmark RAN 2026-07-22 under a fresh explicit
+approval (ORCHESTRATOR-driven fan-out of 60 coach subagents + 10 independent LLM judges + merge/verify/
+aggregate) AND was audited by a from-scratch unbiased reviewer (PASS-WITH-CAVEATS; numbers verified,
+grader-vocabulary-inflation caught and adopted). Honest headline (substance-only, judge+nodrive):
+with_skill Pass@1 0.97 (29/30) vs baseline 0.87 (26/30) -- the skill's real edge is on eval-8 (COMMAND
+handoff/coach-don't-drive) and eval-9 (classify-first boundary); the other 8 scenarios are
+substance-ties. The full-run 0.87-vs-0.50 is vocabulary-inflated and kept only as labeled context. All
+three EVL-02 requirements (behavior benchmark + Pass@k/Pass^k + unbiased review) are empirically
+demonstrated. Remaining: milestone close.

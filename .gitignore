@@ -49,6 +49,7 @@ Thumbs.db
 # ignore already-tracked lz-tpp trigger-results-*.json).
 .claude/skills/lz-red-workspace/**/results*/
 .claude/skills/lz-red-workspace/**/run-*/
+.claude/skills/lz-red-workspace/iteration-*/
 .claude/skills/lz-red-workspace/**/trigger-results-*.json
 # EVL-01 reciprocal probe stdout + throwaway stderr (workspace root), and the runner-generated
 # per-chunk eval-set inputs (recall-chunk-*.json / spec-chunk-*.json). Raw, re-runnable byproducts;

@@ -269,7 +269,7 @@ snippets).
   5. Results recorded with Pass@k / Pass^k + >= 1 unbiased from-scratch reviewer; where any vocabulary
      proxy is used, the substance-only comparison is the headline (lesson carried from Phase 20 EVL-02).
 
-**Plans**: 2/4 plans executed
+**Plans**: 3/4 plans executed
 
 **Wave 1**
 
@@ -281,7 +281,7 @@ snippets).
 
 **Wave 3** *(blocked on Wave 2)*
 
-- [ ] 21-03-PLAN.md -- tabulate-mechanical-red.mjs (mechanical dims + auto-trigger gap + Pass@k/Pass^k on the correctness gate) + selfcheck-red.mjs (composition/prompt-parity/worktree base/parse/classifier/lz-refactor regression) + EVAL-RESULTS.md scaffold
+- [x] 21-03-PLAN.md -- tabulate-mechanical-red.mjs (mechanical dims + auto-trigger gap + Pass@k/Pass^k on the correctness gate) + selfcheck-red.mjs (composition/prompt-parity/worktree base/parse/classifier/lz-refactor regression) + EVAL-RESULTS.md scaffold
 
 **Wave 4** *(blocked on Wave 3)*
 
@@ -315,7 +315,7 @@ snippets).
 | 18. Coach Procedure & lz-tpp Seam Wiring | lz-tdd@0.0.3 | 6/6 | Complete    | 2026-07-20 |
 | 19. Distribution & Hygiene | lz-tdd@0.0.3 | 3/3 | Complete    | 2026-07-20 |
 | 20. Skill-Effectiveness Evals | lz-tdd@0.0.3 | 3/3 | Complete    | 2026-07-21 |
-| 21. Applied RED Eval in Real OSS Repos (multi-dimensional, 3-arm) | lz-tdd@0.0.3 | 2/4 | In Progress|  |
+| 21. Applied RED Eval in Real OSS Repos (multi-dimensional, 3-arm) | lz-tdd@0.0.3 | 3/4 | In Progress|  |
 
 ---
 *Roadmap created: 2026-07-02 | lz-tdd@0.0.1 shipped: 2026-07-04 | lz-tdd@0.0.2 shipped: 2026-07-17 | lz-tdd@0.0.3 roadmap added: 2026-07-18 (Phases 15-20); Phase 21 (applied eval) inserted 2026-07-22. Per-milestone phase detail lives in `.planning/milestones/`.*

@@ -5,15 +5,15 @@ milestone_name: lz-red Skill
 current_phase: 21
 current_phase_name: applied-red-eval-real-oss-repos
 status: executing
-stopped_at: Completed 21-02-PLAN.md
-last_updated: "2026-07-23T06:25:56.797Z"
+stopped_at: Completed 21-03-PLAN.md
+last_updated: "2026-07-23T06:43:43.733Z"
 last_activity: 2026-07-22
 last_activity_desc: Phase 21 execution started
 progress:
   total_phases: 8
   completed_phases: 7
   total_plans: 27
-  completed_plans: 24
+  completed_plans: 25
   percent: 88
 ---
 
@@ -30,7 +30,7 @@ See: .planning/PROJECT.md (updated 2026-07-18 -- started milestone lz-tdd@0.0.3)
 ## Current Position
 
 Phase: 21 (applied-red-eval-real-oss-repos) — EXECUTING
-Plan: 3 of 4
+Plan: 4 of 4
 Status: Ready to execute
 Last activity: 2026-07-22 — Phase 21 execution started
 
@@ -98,6 +98,7 @@ Last activity: 2026-07-22 — Phase 21 execution started
 | Phase 20 P03 | ~15min | 2 tasks | 1 files |
 | Phase 21 P01 | 7min | 3 tasks | 6 files |
 | Phase 21 P02 | 18min | 2 tasks | 11 files |
+| Phase 21 P03 | 15min | 3 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -212,12 +213,12 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-23T06:25:40.501Z
-Stopped at: Completed 21-02-PLAN.md
+Last session: 2026-07-23T06:43:43.718Z
+Stopped at: Completed 21-03-PLAN.md
 Prior session: 2026-07-21T08:48:11.164Z -- Completed 20-03-PLAN.md (Phase 20 build boundary; awaiting user approval for the gated eval run)
 This session (2026-07-21, resume-work): resumed the paused Phase 19 close-out from HANDOFF.json and ran the three mandatory post-phase audits, each reached BY its dedicated agent (never self-certified inline): (1) /gsd-secure-phase 19 -> gsd-security-auditor SECURED, 8/8 threats closed, threats_open 0, 19-SECURITY.md (commit 8833bdf); (2) /gsd-validate-phase 19 -> gsd-nyquist-auditor GAPS-FILLED (no code-test gaps -- docs/hygiene phase), full gate battery independently re-run GREEN, 19-VALIDATION.md nyquist_compliant true (commit c75767d); (3) /gsd-extract-learnings 19 -> 19-LEARNINGS.md (7 decisions / 5 lessons / 7 patterns / 4 surprises), 23 items pooled to ~/.gsd/knowledge via the global-learnings bridge (commit 1407a68). HANDOFF.json + the Phase-19 .continue-here.md consumed. config.json (_auto_chain_active flag) deliberately left unstaged. gsd-verifier had already passed 17/17.
 Superseded-2026-07-17: Resumed via HANDOFF.json -> completed the paused quick task 260716-oby (Loops/pipeline few-shot TS examples). Re-ran the mandatory review that died on the prior session limit: 2 subagents (1 unbiased, 1 primed) both PASS with 0 Critical/0 Important; applied reviewer B's cue-completeness fix; gates GREEN. Replaced the WIP pause commit with a clean docs() commit (3138bbe) -- SHIPPED on teaching merit. HANDOFF.json consumed + deleted. Ran the user-approved held-out recognition eval: **idiom_pattern 0/3=0/3, NULL lift, zero regression** (5th passive-content probe null). angular-cli restored pristine, throwaway branch deleted. 260716-oby RESOLVED. THEN, following a design discussion + web research, ran a user-approved forcing-function diagnostic (enum loop-audit directive in the prompt, k=5, same target): **idiom 0/3 control -> 5/5, all tsc --strict CLEAN + behavior-preserving + discriminating.** CORRECTION: the loop-to-pipeline miss is a DISCRETION/SALIENCE gap, NOT a judgment ceiling -- passive skill content (prose/cues/examples) is null, but an ACTIVE enumeration forcing-function flips it (prompt-level, n=1). Falsified the earlier "judgment ceiling, close it" call. See heldout-enum/RESULTS-enum.md. NEXT candidate (unrun): a SKILL-level forcing-function probe (embed a loop-audit step; test skill-alone reproduction + precision/overcorrection). Not a blocker to closing lz-tdd@0.0.2 on the current shipped skill. Inherited close still pending: /gsd-audit-milestone lz-tdd@0.0.2 then /gsd-complete-milestone lz-tdd@0.0.2 (+ user /reload-plugins to make 3138bbe live).
-Resume file: .planning/phases/21-applied-red-eval-in-real-oss-repos-multi-dimensional-3-arm-i/21-CONTEXT.md
+Resume file: None
 Open next: Phase 20 - Skill-Effectiveness Evals (EVL-01/02) via /gsd-discuss-phase 20 (then /gsd-plan-phase 20). After Phase 20: /gsd-audit-milestone lz-tdd@0.0.3 then /gsd-complete-milestone lz-tdd@0.0.3 + git tag/GitHub Release. Pending human action: /reload-plugins to make the live 0.0.3 lz-red tree + the shipped forcing-function edit (01208c8) live in-session. STALE checkpoint to clear (user's call): .planning/.continue-here.md queues "Follow-up #2 Beck upgrades" already completed by Phase 17.1 (verified 10/11) -- safe to delete.
 Superseded Open next (2026-07-16): /gsd-audit-milestone lz-tdd@0.0.2 (user-scoped; not yet run), then /gsd-complete-milestone lz-tdd@0.0.2. All milestone phases (6-12) are complete + reconciled on disk; Phase 12's last loose end (nx sweep auto-trigger re-confirmation on HEAD) is now CLOSED (quick 260714-vmy: p8 3/3, no regression). Milestone-audit note carried from 12-VERIFICATION audit_notes: the gaps closed while base Opus 4.8@high is ALSO catalog-grade (null skill output-delta); the skill's robust value is auto-trigger (proven) + a narrow reference edge. CLEANUP: nx throwaway branch lz-refactor-e2e-smoke left with run-3 edits (pristine 23.0.x intact) -- operator restores per quick/260714-vmy SUMMARY.
 

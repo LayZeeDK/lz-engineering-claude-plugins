@@ -1,0 +1,43 @@
+{
+  "version": "1.0",
+  "timestamp": "2026-07-23T11:13:24.435Z",
+  "phase": "21",
+  "phase_name": "applied-red-eval-real-oss-repos",
+  "phase_dir": ".planning/phases/21-applied-red-eval-in-real-oss-repos-multi-dimensional-3-arm-i",
+  "plan": 4,
+  "task": 3,
+  "total_tasks": 3,
+  "status": "paused",
+  "summary": "Phase 21 (Applied RED Eval in Real OSS Repos, 3-arm) BUILD is complete + independently verified (gsd-verifier: 7/7 BUILD must-haves) and HALTED at the 21-04 Task-3 blocking-human metered-run gate. The RED apply instrument is built and GREEN offline at ZERO metered spend. Pausing so the GATED metered 3-arm apply run happens in a fresh session with spend headroom (the org monthly cap was hit once during the Phase-20 EVL-02 run). Resume by reviewing RUN-GATE.md, approving, and driving the metered run per it, then the post-run closure.",
+  "completed_tasks": [
+    {"id": "21-01", "name": "Skill-agnostic run-e2e driver + e2e-red-gilded-rose RED apply suite + EVL-03 formalized", "status": "done", "commit": "fff1ce9"},
+    {"id": "21-02", "name": "grade-red.mjs -- the D-06 RED-correctness gate (7 classes) + 6 fixture pairs; --selfcheck exit 0", "status": "done", "commit": "95ee1d5"},
+    {"id": "21-03", "name": "tabulate-mechanical-red.mjs + selfcheck-red.mjs + EVAL-RESULTS.md blank scaffold + tabulate fixtures", "status": "done", "commit": "61d5198"},
+    {"id": "21-04", "name": "Full offline battery GREEN + kata pristine + plugins/lz-tdd untouched + RUN-GATE.md; Task-3 HALT reached, not crossed", "status": "done", "commit": "995d641"},
+    {"id": "verify", "name": "gsd-verifier: 7/7 BUILD must-haves verified (re-ran gates + read sources); metered run classified human_needed, no gaps", "status": "done", "commit": "dc91053"}
+  ],
+  "remaining_tasks": [
+    {"id": "run-21", "name": "GATED metered run: 3 own-skill arms (no_skill / with_skill auto-trigger / invoke_skill) on the Conjured GRC anchor at k=3, per RUN-GATE.md. REQUIRED pre-spend CANARY first (grade-red --run against one real kata run -- runner-JSON shape drift, fixtures pin vitest@4.1.10 vs kata vitest@^0.28.5/jest@^29.4.3).", "status": "not_started"},
+    {"id": "grade-21", "name": "Per captured run: grade-red --run + tabulate-mechanical-red; then the blinded <=2-dim LLM judge (feed ONLY produced test code + target spec, no arm label -- Pitfall 7) + merge-judge --merge/--verify + oracle-reviewer (DST-04); fill EVAL-RESULTS.md.", "status": "not_started"},
+    {"id": "unbiased-21", "name": ">= 1 from-scratch UNBIASED reviewer (neutral brief) audits the numbers with a SUBSTANCE-ONLY headline before recording (D-10; caught the Phase-20 3x vocabulary inflation).", "status": "not_started"},
+    {"id": "mattpocock-21", "name": "CONTINGENT: mattpocock-skills:tdd competitor round -- ONLY after own lift is measured; note the red->green scope mismatch (D-05).", "status": "not_started"},
+    {"id": "close-21", "name": "Post-run closure: /gsd-secure-phase 21, /gsd-validate-phase 21, /gsd-extract-learnings 21 (deferred until the phase fully closes -- currently blocked by the human_needed metered-run gate).", "status": "not_started"},
+    {"id": "milestone", "name": "/gsd-complete-milestone lz-tdd@0.0.3 (manual archival per the @-scoped non-vX.Y version).", "status": "not_started"}
+  ],
+  "blockers": [
+    {"description": "The metered 3-arm apply run needs explicit fresh user approval before any claude -p spend (eval-run-approval-gate / D-11 / D-12 HARD GATE). This is the reason for the pause -- not a technical blocker.", "type": "human_action", "workaround": "The instrument is BUILT + GREEN + verified; on approval, run per RUN-GATE.md, then do the closure."}
+  ],
+  "async_jobs": [],
+  "human_actions_pending": [
+    {"action": "Approve and drive the gated metered 3-arm apply run in a fresh session with spend headroom, per RUN-GATE.md.", "context": "Large apply fan-out + judges + oracle-reviewer; the org monthly spend cap was hit once during Phase-20 EVL-02. Reply 'approved -- run <target(s)> at k=<N>'.", "blocking": true}
+  ],
+  "decisions": [
+    {"decision": "Executed all 4 waves sequentially on the main tree (no worktree isolation).", "rationale": "Every wave is a single plan and the chain is strictly serial (21-01->02->03->04); worktree isolation only benefits parallel intra-wave writes, so it would have been pure merge-back ceremony + failure surface for zero benefit. baseRef=head/use_worktrees=true remain the configured default.", "phase": "21"},
+    {"decision": "EVL-03 left Pending ('build complete; empirical run gated'); requirements mark-complete deliberately skipped.", "rationale": "Instrument-first build-then-halt, mirroring how EVL-01/EVL-02 closed in Phases 11 and 20.", "phase": "21"},
+    {"decision": "Deferred /gsd-secure-phase, /gsd-validate-phase, /gsd-extract-learnings until after the metered run.", "rationale": "CLAUDE.md skips the closure sequence while an unresolved human_needed gate is open; the run produces the artifacts those gates should cover.", "phase": "21"},
+    {"decision": "Wave 2 (21-02) was cut off by a session limit mid-run and resumed from its transcript via SendMessage (kept the pinned runner-JSON-shape context).", "rationale": "The metered run is similarly prone to spend-limit kills (D-13) -- resume killed eval subagents via SendMessage rather than re-spawning.", "phase": "21"}
+  ],
+  "uncommitted_files": [],
+  "next_action": "Read RUN-GATE.md at .claude/skills/lz-red-workspace/e2e-red-gilded-rose/RUN-GATE.md; confirm the discriminating target (D-01); run the REQUIRED pre-spend canary (grade-red --run against one real kata run); then on explicit approval drive the metered 3-arm run per RUN-GATE.md.",
+  "context_notes": "The instrument is real and fully offline-proven -- do NOT rebuild it. grade-red.mjs (680 lines) applies diff.patch to an os.tmpdir() worktree, runs a DIFFERENTIAL tsc --strict + the target's own runner, and classifies into 7 D-06 classes (only genuinely_red passes). RUN HYGIENE (D-13, LOAD-BEARING): ponytail-lite is active in-session via the SessionStart hook and does NOT auto-reach subagents -- put an explicit 'normal mode / stop ponytail' line in EVERY in-session eval subagent prompt or the drive is contaminated; use small waves (org concurrency cap / 24-in-flight); resume spend-limit-killed agents via SendMessage; drive each run in an isolated git-ignored worktree/dir (ground-truth nodrive). Report SUBSTANCE-ONLY as the headline for any vocabulary-proxy dimension."
+}

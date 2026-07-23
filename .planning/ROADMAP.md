@@ -269,7 +269,7 @@ snippets).
   5. Results recorded with Pass@k / Pass^k + >= 1 unbiased from-scratch reviewer; where any vocabulary
      proxy is used, the substance-only comparison is the headline (lesson carried from Phase 20 EVL-02).
 
-**Plans**: 1/4 plans executed
+**Plans**: 2/4 plans executed
 
 **Wave 1**
 
@@ -277,7 +277,7 @@ snippets).
 
 **Wave 2** *(blocked on Wave 1)*
 
-- [ ] 21-02-PLAN.md -- grade-red.mjs: the D-06 correctness classifier (differential tsc --strict + the target's own runner JSON -> genuinely_red / false_green / drove_to_green / compile_error / collection_error / no_tests / wrong_reason) + fixtures/ + `--selfcheck`
+- [x] 21-02-PLAN.md -- grade-red.mjs: the D-06 correctness classifier (differential tsc --strict + the target's own runner JSON -> genuinely_red / false_green / drove_to_green / compile_error / collection_error / no_tests / wrong_reason) + fixtures/ + `--selfcheck`
 
 **Wave 3** *(blocked on Wave 2)*
 
@@ -315,7 +315,7 @@ snippets).
 | 18. Coach Procedure & lz-tpp Seam Wiring | lz-tdd@0.0.3 | 6/6 | Complete    | 2026-07-20 |
 | 19. Distribution & Hygiene | lz-tdd@0.0.3 | 3/3 | Complete    | 2026-07-20 |
 | 20. Skill-Effectiveness Evals | lz-tdd@0.0.3 | 3/3 | Complete    | 2026-07-21 |
-| 21. Applied RED Eval in Real OSS Repos (multi-dimensional, 3-arm) | lz-tdd@0.0.3 | 1/4 | In Progress|  |
+| 21. Applied RED Eval in Real OSS Repos (multi-dimensional, 3-arm) | lz-tdd@0.0.3 | 2/4 | In Progress|  |
 
 ---
 *Roadmap created: 2026-07-02 | lz-tdd@0.0.1 shipped: 2026-07-04 | lz-tdd@0.0.2 shipped: 2026-07-17 | lz-tdd@0.0.3 roadmap added: 2026-07-18 (Phases 15-20); Phase 21 (applied eval) inserted 2026-07-22. Per-milestone phase detail lives in `.planning/milestones/`.*

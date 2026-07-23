@@ -5,10 +5,10 @@ milestone_name: lz-red Skill
 current_phase: 21
 current_phase_name: applied-red-eval-real-oss-repos
 status: verifying
-stopped_at: HALTED at 21-04 Task-3 blocking-human run gate (metered 3-arm apply run user-gated per RUN-GATE.md; BUILD complete + GREEN, zero spend)
+stopped_at: HALTED at 21-04 Task-3 blocking-human run gate; BUILD verified GREEN (7/7 must-haves, 21-VERIFICATION.md); metered 3-arm apply run user-gated per RUN-GATE.md, zero spend
 last_updated: "2026-07-23T07:00:22.332Z"
-last_activity: 2026-07-22
-last_activity_desc: Phase 21 execution started
+last_activity: 2026-07-23
+last_activity_desc: Phase 21 BUILD executed (4/4 plans) + verified; HALTED at metered-run approval gate
 progress:
   total_phases: 8
   completed_phases: 8
@@ -29,10 +29,10 @@ See: .planning/PROJECT.md (updated 2026-07-18 -- started milestone lz-tdd@0.0.3)
 
 ## Current Position
 
-Phase: 21 (applied-red-eval-real-oss-repos) — EXECUTING
+Phase: 21 (applied-red-eval-real-oss-repos) — BUILD complete + verified, HALTED
 Plan: 4 of 4
-Status: Phase complete — ready for verification
-Last activity: 2026-07-22 — Phase 21 execution started
+Status: BUILD verified GREEN (7/7 must-haves); HALTED at metered-run approval gate
+Last activity: 2026-07-23 — Phase 21 BUILD executed + verified; metered run awaits approval
 
 ## Performance Metrics
 

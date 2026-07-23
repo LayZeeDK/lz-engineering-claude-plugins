@@ -4,17 +4,17 @@ milestone: lz-tdd@0.0.3
 milestone_name: lz-red Skill
 current_phase: 21
 current_phase_name: applied-red-eval-real-oss-repos
-status: executing
-stopped_at: Completed 21-03-PLAN.md
-last_updated: "2026-07-23T06:43:43.733Z"
+status: verifying
+stopped_at: HALTED at 21-04 Task-3 blocking-human run gate (metered 3-arm apply run user-gated per RUN-GATE.md; BUILD complete + GREEN, zero spend)
+last_updated: "2026-07-23T07:00:22.332Z"
 last_activity: 2026-07-22
 last_activity_desc: Phase 21 execution started
 progress:
   total_phases: 8
-  completed_phases: 7
+  completed_phases: 8
   total_plans: 27
-  completed_plans: 25
-  percent: 88
+  completed_plans: 27
+  percent: 100
 ---
 
 # Project State
@@ -31,7 +31,7 @@ See: .planning/PROJECT.md (updated 2026-07-18 -- started milestone lz-tdd@0.0.3)
 
 Phase: 21 (applied-red-eval-real-oss-repos) — EXECUTING
 Plan: 4 of 4
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-07-22 — Phase 21 execution started
 
 ## Performance Metrics
@@ -99,6 +99,7 @@ Last activity: 2026-07-22 — Phase 21 execution started
 | Phase 21 P01 | 7min | 3 tasks | 6 files |
 | Phase 21 P02 | 18min | 2 tasks | 11 files |
 | Phase 21 P03 | 15min | 3 tasks | 5 files |
+| Phase 21 P04 | 12min | 2 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -169,6 +170,9 @@ Recent decisions affecting current work:
 - [Phase ?]: Phase 21 (21-02): grade-red.mjs is the mechanical D-06 RED correctness gate -- differential tsc (NEW errors only, so the kata's untyped Item source does not sink the verdict) + the TARGET's own runner (read from suite/targets, not the workspace) + a 7-class classify() passing ONLY genuinely_red; drove_to_green is split from false_green by inspecting the diff for a production-file change (Pitfall 9); fails closed on empty/missing diff, garbled meta, or unparseable runner JSON.
 - [Phase ?]: Phase 21 (21-02): the vitest 4.1.10 --reporter=json shapes were empirically PINNED against six fixtures (RESEARCH A1) -- collection_error and no_tests share an identical JSON shape (numTotalTests 0, testResults[0].status failed, empty assertionResults), disambiguated ONLY on testResults[0].message (collect = load-time throw, notest = 'No test found in suite'); wrong_reason is a runtime TypeError in failureMessages, not an AssertionError.
 - [Phase ?]: Phase 21 (21-02): EVL-03 NOT marked Complete -- mirrors 21-01 build-then-halt (D-14); 21-02 closes the EVL-03.3 BUILD sub-criterion (the D-06 gate, offline-provable) with grade-red --selfcheck exit 0 proving all 7 classes zero-spend; empirical run gated to 21-04; NO dependency added to plugins/lz-tdd.
+- [Phase ?]: Phase 21 (21-04): closed the applied-RED BUILD -- the full offline battery is GREEN (grade-red/tabulate-mechanical-red/merge-judge --selfcheck + selfcheck-red + check-red-references + extract-samples + check-evals + claude plugin validate . all exit 0, zero spend), the kata git root is pristine, and plugins/lz-tdd is untouched. Wrote RUN-GATE.md (the gated 3-arm metered-run presentation) and HALTED at the Task-3 blocking-human run gate; NO metered claude -p ran (D-12 / eval-run-approval-gate).
+- [Phase ?]: Phase 21 (21-04): EVL-03 stays Pending (build complete; empirical run gated) -- requirements mark-complete deliberately skipped (mirrors 21-01/21-02/21-03); the metered 3-arm apply run + judge/oracle-reviewer/unbiased-reviewer gates close the RUN sub-criteria in a separate, freshly-approved orchestrator-driven step per RUN-GATE.md.
+- [Phase ?]: Phase 21 (21-04): RUN-GATE.md flags a REQUIRED runner-JSON shape-drift canary before the full spend -- grade-red --selfcheck pins vitest@4.1.10 while the metered gate shells into the kata's vitest@^0.28.5 / jest@^29.4.3; run one real grade-red --run against a captured kata run (or add a jest devDependency for jest --json offline) first. Mitigated by grade-red's fail-closed contract, so not a BUILD blocker.
 
 ### Pending Todos
 
@@ -213,12 +217,12 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-23T06:43:43.718Z
-Stopped at: Completed 21-03-PLAN.md
+Last session: 2026-07-23T06:59:40.894Z
+Stopped at: HALTED at 21-04 Task-3 blocking-human run gate (metered 3-arm apply run user-gated per RUN-GATE.md; BUILD complete + GREEN, zero spend)
 Prior session: 2026-07-21T08:48:11.164Z -- Completed 20-03-PLAN.md (Phase 20 build boundary; awaiting user approval for the gated eval run)
 This session (2026-07-21, resume-work): resumed the paused Phase 19 close-out from HANDOFF.json and ran the three mandatory post-phase audits, each reached BY its dedicated agent (never self-certified inline): (1) /gsd-secure-phase 19 -> gsd-security-auditor SECURED, 8/8 threats closed, threats_open 0, 19-SECURITY.md (commit 8833bdf); (2) /gsd-validate-phase 19 -> gsd-nyquist-auditor GAPS-FILLED (no code-test gaps -- docs/hygiene phase), full gate battery independently re-run GREEN, 19-VALIDATION.md nyquist_compliant true (commit c75767d); (3) /gsd-extract-learnings 19 -> 19-LEARNINGS.md (7 decisions / 5 lessons / 7 patterns / 4 surprises), 23 items pooled to ~/.gsd/knowledge via the global-learnings bridge (commit 1407a68). HANDOFF.json + the Phase-19 .continue-here.md consumed. config.json (_auto_chain_active flag) deliberately left unstaged. gsd-verifier had already passed 17/17.
 Superseded-2026-07-17: Resumed via HANDOFF.json -> completed the paused quick task 260716-oby (Loops/pipeline few-shot TS examples). Re-ran the mandatory review that died on the prior session limit: 2 subagents (1 unbiased, 1 primed) both PASS with 0 Critical/0 Important; applied reviewer B's cue-completeness fix; gates GREEN. Replaced the WIP pause commit with a clean docs() commit (3138bbe) -- SHIPPED on teaching merit. HANDOFF.json consumed + deleted. Ran the user-approved held-out recognition eval: **idiom_pattern 0/3=0/3, NULL lift, zero regression** (5th passive-content probe null). angular-cli restored pristine, throwaway branch deleted. 260716-oby RESOLVED. THEN, following a design discussion + web research, ran a user-approved forcing-function diagnostic (enum loop-audit directive in the prompt, k=5, same target): **idiom 0/3 control -> 5/5, all tsc --strict CLEAN + behavior-preserving + discriminating.** CORRECTION: the loop-to-pipeline miss is a DISCRETION/SALIENCE gap, NOT a judgment ceiling -- passive skill content (prose/cues/examples) is null, but an ACTIVE enumeration forcing-function flips it (prompt-level, n=1). Falsified the earlier "judgment ceiling, close it" call. See heldout-enum/RESULTS-enum.md. NEXT candidate (unrun): a SKILL-level forcing-function probe (embed a loop-audit step; test skill-alone reproduction + precision/overcorrection). Not a blocker to closing lz-tdd@0.0.2 on the current shipped skill. Inherited close still pending: /gsd-audit-milestone lz-tdd@0.0.2 then /gsd-complete-milestone lz-tdd@0.0.2 (+ user /reload-plugins to make 3138bbe live).
-Resume file: None
+Resume file: .claude/skills/lz-red-workspace/e2e-red-gilded-rose/RUN-GATE.md
 Open next: Phase 20 - Skill-Effectiveness Evals (EVL-01/02) via /gsd-discuss-phase 20 (then /gsd-plan-phase 20). After Phase 20: /gsd-audit-milestone lz-tdd@0.0.3 then /gsd-complete-milestone lz-tdd@0.0.3 + git tag/GitHub Release. Pending human action: /reload-plugins to make the live 0.0.3 lz-red tree + the shipped forcing-function edit (01208c8) live in-session. STALE checkpoint to clear (user's call): .planning/.continue-here.md queues "Follow-up #2 Beck upgrades" already completed by Phase 17.1 (verified 10/11) -- safe to delete.
 Superseded Open next (2026-07-16): /gsd-audit-milestone lz-tdd@0.0.2 (user-scoped; not yet run), then /gsd-complete-milestone lz-tdd@0.0.2. All milestone phases (6-12) are complete + reconciled on disk; Phase 12's last loose end (nx sweep auto-trigger re-confirmation on HEAD) is now CLOSED (quick 260714-vmy: p8 3/3, no regression). Milestone-audit note carried from 12-VERIFICATION audit_notes: the gaps closed while base Opus 4.8@high is ALSO catalog-grade (null skill output-delta); the skill's robust value is auto-trigger (proven) + a narrow reference edge. CLEANUP: nx throwaway branch lz-refactor-e2e-smoke left with run-3 edits (pristine 23.0.x intact) -- operator restores per quick/260714-vmy SUMMARY.
 

@@ -64,7 +64,7 @@ validation deps live only in a dev-only eval workspace.
 - [x] **Phase 18: Coach Procedure & lz-tpp Seam Wiring** - Inline RED decision procedure on the Three Laws spine + the lz-red <-> lz-tpp seam (completed 2026-07-20)
 - [x] **Phase 19: Distribution & Hygiene** - Three-skill 0.0.3 ship: version bump, docs, validators, copyright/ASCII/email hygiene (completed 2026-07-20)
 - [x] **Phase 20: Skill-Effectiveness Evals** - Trigger eval (incl. the cross-skill boundary) + RED-behavior eval vs baseline (completed 2026-07-21)
-- [ ] **Phase 21: Applied RED Eval in Real OSS Repos (multi-dimensional, 3-arm)** - APPLY the next failing test in real OSS TypeScript repos with short human prompts; no_skill / with_skill / invoke_skill arms (+ optional mattpocock tdd competitor); grade on many lift dimensions -- mirrors the lz-refactor Phase 13/14 apply evals (INSERTED 2026-07-22)
+- [x] **Phase 21: Applied RED Eval in Real OSS Repos (multi-dimensional, 3-arm)** - APPLY the next failing test in real OSS TypeScript repos with short human prompts; no_skill / with_skill / invoke_skill arms (+ optional mattpocock tdd competitor); grade on many lift dimensions -- mirrors the lz-refactor Phase 13/14 apply evals (INSERTED 2026-07-22) (completed 2026-07-23)
 
 ## Phase Details
 
@@ -269,7 +269,7 @@ snippets).
   5. Results recorded with Pass@k / Pass^k + >= 1 unbiased from-scratch reviewer; where any vocabulary
      proxy is used, the substance-only comparison is the headline (lesson carried from Phase 20 EVL-02).
 
-**Plans**: 3/4 plans executed
+**Plans**: 4/4 plans complete
 
 **Wave 1**
 
@@ -285,7 +285,7 @@ snippets).
 
 **Wave 4** *(blocked on Wave 3)*
 
-- [ ] 21-04-PLAN.md -- Phase gate (full battery GREEN + repos pristine + plugins/lz-tdd untouched) + RUN-GATE.md + the blocking-human HALT before the metered 3-arm run (eval-run-approval-gate)
+- [x] 21-04-PLAN.md -- Phase gate (full battery GREEN + repos pristine + plugins/lz-tdd untouched) + RUN-GATE.md + the blocking-human HALT before the metered 3-arm run (eval-run-approval-gate)
 
 ## Progress
 
@@ -315,7 +315,7 @@ snippets).
 | 18. Coach Procedure & lz-tpp Seam Wiring | lz-tdd@0.0.3 | 6/6 | Complete    | 2026-07-20 |
 | 19. Distribution & Hygiene | lz-tdd@0.0.3 | 3/3 | Complete    | 2026-07-20 |
 | 20. Skill-Effectiveness Evals | lz-tdd@0.0.3 | 3/3 | Complete    | 2026-07-21 |
-| 21. Applied RED Eval in Real OSS Repos (multi-dimensional, 3-arm) | lz-tdd@0.0.3 | 3/4 | In Progress|  |
+| 21. Applied RED Eval in Real OSS Repos (multi-dimensional, 3-arm) | lz-tdd@0.0.3 | 4/4 | Complete   | 2026-07-23 |
 
 ---
 *Roadmap created: 2026-07-02 | lz-tdd@0.0.1 shipped: 2026-07-04 | lz-tdd@0.0.2 shipped: 2026-07-17 | lz-tdd@0.0.3 roadmap added: 2026-07-18 (Phases 15-20); Phase 21 (applied eval) inserted 2026-07-22. Per-milestone phase detail lives in `.planning/milestones/`.*

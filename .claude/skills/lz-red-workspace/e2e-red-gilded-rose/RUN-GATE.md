@@ -27,6 +27,7 @@ node .claude/skills/lz-red-workspace/grade-red.mjs --selfcheck               # a
 node .claude/skills/lz-red-workspace/tabulate-mechanical-red.mjs --selfcheck # mechanical + Pass@k/Pass^k
 node .claude/skills/lz-red-workspace/merge-judge.mjs --selfcheck             # judge merge + fail-closed verify
 node .claude/skills/lz-red-workspace/selfcheck-red.mjs                       # composition/parity/worktree/classifier/nx
+                                                                             # + crux 7, the Step 2 target-toolchain canary
 ```
 
 ---
@@ -65,41 +66,64 @@ Before any spend, confirm the target corpus with the user at the gate:
 
 ---
 
-## Step 2 -- REQUIRED canary before the full fan-out (runner-JSON shape drift)
+## Step 2 -- REQUIRED zero-spend canary before the full fan-out
 
-**This canary is a REQUIRED gate step; run it BEFORE committing to the full k=3 x 2-3-target spend.**
+**This canary is a REQUIRED gate step; run it BEFORE committing to the full k=3 x 2-3-target spend.
+It costs NOTHING, so there is no reason to skip it.**
 
-Residual risk (RESEARCH A1 / Pitfall 4): `grade-red --selfcheck` exercises the classifier against the
-workspace's pinned `vitest@4.1.10`, NOT the kata's actual `vitest@^0.28.5` / `jest@^29.4.3` that the
-metered D-06 gate shells into. vitest 0.28's JSON reporter predates the 1.x shape, so a genuine
-JSON-shape difference would surface ONLY at the metered run. This is mitigated by grade-red's
-fail-closed contract (a garbled/keyless runner JSON throws rather than passing silently), so it is not
-a BUILD blocker -- but it must be de-risked before spending on the full fan-out.
+```
+node .claude/skills/lz-red-workspace/selfcheck-red.mjs
+```
 
-Do ONE of the following before the full run:
+Crux 7 inside that battery grades a FABRICATED runDir -- a committed `meta.json` + `diff.patch`
+under `fixtures/canary-rundir/`, the same two files a real capture contributes -- end to end against
+the kata's OWN toolchain, and asserts:
 
-- **Canary (preferred):** capture ONE real kata run, then run a single real grade against it and
-  confirm the verdict is sane -- `genuinely_red` on the known-red Conjured run, with the runner + its
-  version recorded in `red-grade.json`:
+- the gate produced a VERDICT rather than throwing;
+- the verdict is `genuinely_red` with `pass: true`, and zero NEW differential tsc errors;
+- the recorded `runner` is the one the produced test's directory routes to;
+- the recorded `runner_version` is a REAL version, not the `unknown` sentinel -- which is only
+  readable from a `node_modules` the grading worktree can actually see;
+- the borrowed kata still has its `node_modules`, is git-clean, and leaked no grading worktree.
 
-  ```
-  node .claude/skills/lz-red-workspace/grade-red.mjs \
-    --run <one captured kata runDir> \
-    --suite .claude/skills/lz-red-workspace/e2e-red-gilded-rose
-  ```
+A second fixture, `fixtures/canary-nocollect/`, puts the produced spec outside every collection root
+and asserts the gate returns `no_tests` rather than throwing.
 
-  The gate DIFFERENTIAL-typechecks (record the pristine baseline error set, assert ZERO NEW errors
-  from the produced test -- the kata's `Item` constructor is untyped, so a whole-project
-  `tsc --strict` is already non-zero; RESEARCH Pitfall 3) and shells into the TARGET's own runner
-  (`npx vitest run <file> --reporter=json` or `npx jest <file> --json`), never the workspace's runner
-  (Pitfall 4). Confirm the runner + version are recorded for drift detection. jest 29's `--json` shape
-  is the more stable one; prefer jest if the vitest 0.28 reporter shape drifts.
+If crux 7 prints SKIP, the kata or its `node_modules` is not on disk. Fix that first
+(`npm ci` in the kata's `TypeScript/`) -- a SKIP here is NOT a pass, and the fan-out would grade
+against a toolchain that is not there.
 
-- **Offline alternative:** add a `jest` devDependency to the workspace so the fixtures can also
-  exercise the `jest --json` shape offline, and re-run `grade-red --selfcheck` against it. (Keeps the
-  de-risk zero-spend; still NO dependency added to `plugins/lz-tdd`.)
+**Why this replaced the old metered canary.** Step 2 used to require capturing ONE real metered run
+and grading it, framing the residual risk narrowly as "runner-JSON shape drift". Two things were
+wrong with that. First, the shape risk it existed to de-risk was closed offline on 2026-07-25: both
+of the kata's runners were measured against the real repo and BOTH emit the Jest-compatible report
+shape `classify()` reads (jest 29 `--json`: 4455 bytes, `numFailedTests` 1; vitest 0.28
+`--reporter=json`: 1016 bytes, `assertionResults[0].status` `failed`). Second, and more important, a
+shape-only check could not see the two defects that were actually present -- a grading worktree with
+no toolchain at all, and a runner selected by substring-matching a PROSE field so that it could not
+collect the produced test. A fabricated runDir catches both and costs nothing. The old
+"add a `jest` devDependency to the workspace" alternative is moot: the kata already ships jest 29,
+and the canary uses the target's toolchain rather than the workspace's.
 
-Only after the canary verdict is sane does the full fan-out below proceed.
+**Residual risk after this canary (the honest list, not just reporter shape):**
+
+- The canary drives ONE fabricated diff. It proves the gate mechanism, not that every model-produced
+  diff applies cleanly; a malformed capture still fails closed at `git apply`.
+- A produced spec written in one runner's idiom but placed in the OTHER runner's directory (for
+  example a `import { describe, it, expect } from 'vitest'` spec landing under `test/jest/`) is
+  collected by the selected runner and then fails at import, grading `collection_error`. Path-keyed
+  runner selection removes the directory half of this; the import-idiom half remains. **Read a
+  cluster of `collection_error` verdicts as a possible instrument artifact and inspect the produced
+  specs before attributing it to any arm** -- the skill under test is Vitest-flavoured throughout its
+  examples, so this failure mode is NOT arm-neutral.
+- Contamination on GRC is HIGH, so a correctness tie across arms is expected (Step 1).
+
+**Optional extra (metered, NOT required):** once the fan-out is approved and the first real runs are
+captured, grading one of them is a free sanity read on real model output --
+`node .claude/skills/lz-red-workspace/grade-red.mjs --run <runDir> --suite <this suite dir>`. It is
+no longer a gate step, because the fabricated canary already covers everything it would have.
+
+Only after the zero-spend canary passes does the full fan-out below proceed.
 
 ---
 
@@ -121,6 +145,14 @@ create a THROWAWAY branch checkout of the kata -- NEVER run apply against the pr
 # a) throwaway kata checkout (never the pristine main tree):
 git --git-dir="<kata>/.git" worktree add -b red-run-<stamp> <throwaway kata checkout> main
 
+# a2) GIVE THAT CHECKOUT A TOOLCHAIN -- see the note below; do NOT skip this.
+#     Either install into it:
+npm --prefix "<throwaway kata checkout>/TypeScript" ci
+#     or link the kata's existing one (Windows needs a junction, not a symlink):
+#     cmd /c mklink /J "<throwaway kata checkout>\TypeScript\node_modules" "<kata>\TypeScript\node_modules"
+#     If you link, REMOVE THE LINK BEFORE `git worktree remove --force` on the checkout, or the
+#     recursive delete can follow it into the kata's real node_modules.
+
 # b) drive the RED suite (arm all = no_skill + with_skill + invoke_skill), serial, k=3:
 node .claude/skills/lz-refactor-workspace/e2e-nx/run-e2e.mjs \
   --suite .claude/skills/lz-red-workspace/e2e-red-gilded-rose \
@@ -135,6 +167,14 @@ node .claude/skills/lz-red-workspace/grade-red.mjs --run <runDir> \
 # d) tabulate the mechanical dims + Pass@k/Pass^k on the correctness gate:
 node .claude/skills/lz-red-workspace/tabulate-mechanical-red.mjs
 ```
+
+**Why `a2` matters for the MEASUREMENT, not just for tidiness.** A fresh `git worktree add` checkout
+has no `node_modules` -- it is gitignored and untracked, so nothing is copied into it. Without a
+toolchain the model under test cannot RUN the test it writes. That does not merely slow it down: it
+silently removes the "watch it fail for the right reason" step from the RED loop, in all three arms
+at once, which is one of the behaviours the eval is supposed to be measuring. Verified 2026-07-25 --
+a fresh detached kata worktree has no `TypeScript/node_modules`, and neither `npx jest` nor `npx
+tsc` resolves the kata's pinned versions from inside it. Install or link BEFORE driving `b`.
 
 `c` (the pass criterion) = runs whose `red-grade.pass === true` (verdict `genuinely_red`). Pass@k over
 exit-0 runs only. The auto-trigger gap = with_skill `used_skills['lz-red'] > 0` rate vs invoke_skill

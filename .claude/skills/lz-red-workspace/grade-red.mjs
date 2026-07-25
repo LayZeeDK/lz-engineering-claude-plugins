@@ -64,6 +64,12 @@ const RUNTIME_RE =
 // assertionResults) EXCEPT this suite-level message. vitest: "No test found in suite <file>";
 // jest: "Your test suite must contain at least one test." [pinned 2026-07-22].
 const NO_TESTS_RE = /no test(?:s)? found|no test(?:s)? in suite|must contain at least one test|no test files? found/i;
+// The runner's OWN "I collected nothing" STATUS LINE, anchored to a whole line. Both of the kata's
+// runners print exactly this shape on a collection miss (measured 2026-07-25). Anchoring is the
+// point: NO_TESTS_RE above is a suite-level pattern for runner-authored JSON, and run unanchored
+// over raw process output it also matches a runner's echo of the PRODUCED SPEC'S OWN SOURCE, which
+// is model-authored. See parseRunnerReport for the measured steering case.
+const NO_COLLECT_SENTINEL = /^no tests? (?:files? )?found, exiting with code \d+\.?$/i;
 // A produced test file (the runner's spec/test glob).
 const TEST_FILE_RE = /\.(?:spec|test)\.[cm]?[jt]sx?$/i;
 
@@ -336,37 +342,59 @@ function parseRunnerJson(raw) {
 // Parse the runner's report, or -- on a RECOGNIZED no-tests signal -- synthesize the minimal report
 // that drives classify() to the no_tests verdict.
 //
-// A runner that collected nothing writes NOTHING to stdout and puts the reason on stderr (measured
-// 2026-07-25: jest "No tests found, exiting with code 1"; vitest "No test files found, exiting with
-// code 1", both with a 0-byte stdout). Feeding stdout alone to parseRunnerJson therefore turned an
-// honest "the produced test landed where this runner cannot see it" into a hard throw with no
-// red-grade.json written at all, so the run could not even be counted.
+// A runner that collected nothing writes NOTHING to stdout, puts a status line on stderr, and exits
+// non-zero (measured 2026-07-25: jest "No tests found, exiting with code 1"; vitest "No test files
+// found, exiting with code 1", both with a 0-byte stdout and exit 1). Feeding stdout alone to
+// parseRunnerJson turned an honest "the produced test landed where this runner cannot see it" into
+// a hard throw with no red-grade.json written at all, so the run could not even be counted.
 //
-// The fail-closed contract is preserved (T-21-V5): ONLY a signal the existing NO_TESTS_RE
-// recognizes becomes a verdict. Any other unparseable or garbled output still throws.
-function parseRunnerReport(runRes) {
+// EVERY condition below is runner-authored or infrastructure-level, because the model under test
+// controls the spec's text and both runners ECHO that text on their error paths. Recognising a
+// no-tests signal anywhere in the combined output let the model pick its own verdict: MEASURED
+// 2026-07-25, a two-line spec whose only comment reads "// no tests found" plus a process.exit(0)
+// killed jest before it wrote a byte of JSON, and the gate then synthesised a no_tests verdict from
+// jest's own code-frame echo of that comment -- a hard runner crash laundered into a scored
+// measurement. Pre-widening it threw, which was correct.
+//
+// The fail-closed contract (T-21-V5) is therefore: no spawn error, an empty stdout, a non-zero
+// exit, AND the runner's own anchored status line. Anything else still throws.
+export function parseRunnerReport(runRes) {
   const stdout = `${(runRes && runRes.stdout) || ''}`;
   const stderr = `${(runRes && runRes.stderr) || ''}`;
 
   try {
     return parseRunnerJson(stdout);
   } catch (err) {
-    // Strip ANSI colour so the pattern match and the recorded excerpt both see plain text.
-    const combined = `${stdout}\n${stderr}`.replace(/\x1b\[[0-9;]*m/g, '');
-
-    if (!NO_TESTS_RE.test(combined)) {
+    // Infrastructure failure, never a verdict: ENOENT for a missing runner, or ENOBUFS from a
+    // maxBuffer overflow -- which TRUNCATES stdout, so whether the run throws or scores would
+    // otherwise be decided by whatever incidental text survived the cut.
+    if (runRes && runRes.error) {
       throw err;
     }
 
-    // Carry the runner's OWN words, and specifically the line that matched, so the recorded
-    // excerpt stays honest and classify() sees a message its no-tests pattern recognizes.
-    const observed =
-      combined
-        .split('\n')
-        .map((l) => l.trim())
-        .find((l) => NO_TESTS_RE.test(l)) || 'the runner reported that no tests were found';
+    // Bytes on stdout mean the runner DID report and its output is merely unparseable. A zero exit
+    // means the process ended some other way than a collection miss -- the produced spec calling
+    // process.exit(0) at import time is the measured case.
+    if (stdout.trim() !== '' || runRes.status === 0) {
+      throw err;
+    }
 
-    return { testResults: [{ status: 'failed', message: observed.slice(0, 300), assertionResults: [] }] };
+    // Strip ANSI colour so the pattern match and the recorded excerpt both see plain text.
+    const combined = `${stdout}\n${stderr}`.replace(/\x1b\[[0-9;]*m/g, '');
+    // Anchored, per line: a code frame quoting the spec is indented and prefixed with its source
+    // line number ("  1 | // no tests found"), so it cannot pass for the runner's status line.
+    const observed = combined
+      .split('\n')
+      .map((l) => l.trim())
+      .find((l) => NO_COLLECT_SENTINEL.test(l));
+
+    if (!observed) {
+      throw err;
+    }
+
+    // Carry the runner's OWN words -- the exact line that matched -- so the recorded excerpt stays
+    // honest and classify() sees a message its no-tests pattern recognizes.
+    return { testResults: [{ status: 'failed', message: observed, assertionResults: [] }] };
   }
 }
 

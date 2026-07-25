@@ -39,7 +39,7 @@ import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { dirname, join, resolve } from 'node:path';
 import { buildSyntheticBase, extractResult, git } from '../lz-refactor-workspace/e2e-nx/run-e2e.mjs';
-import { assertSafeDiffPaths, classify, gradeRun } from './grade-red.mjs';
+import { assertSafeDiffPaths, classify, gradeRun, parseRunnerReport } from './grade-red.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const RUN_E2E = resolve(HERE, '..', 'lz-refactor-workspace', 'e2e-nx', 'run-e2e.mjs');
@@ -623,6 +623,85 @@ function checkDiffContainment() {
   );
 }
 
+// A jest error-path stderr: the reporter quotes the produced spec's own source as a CODE FRAME, so
+// every byte after the header is text the model under test chose.
+function jestCodeFrameStderr(sourceLines) {
+  return [
+    'FAIL test/jest/produced.spec.ts',
+    '  * Test suite failed to run',
+    '',
+    '    Cannot find module \'@/nope\' from \'test/jest/produced.spec.ts\'',
+    '',
+    ...sourceLines.map((l, i) => `      ${i + 1} | ${l}`),
+    '        | ^',
+    '      at Resolver._throwModNotFoundError (node_modules/jest-resolve/build/resolver.js:427:11)',
+    '',
+  ].join('\n');
+}
+
+function checkRunnerSignalIsRunnerAuthored() {
+  // CR-02. The no-tests widening tested a suite-level pattern against the FULL stdout+stderr, and
+  // both runners echo the produced spec's source on their error paths -- so the model under test
+  // could steer its own verdict. MEASURED 2026-07-25: a spec whose only comment reads
+  // "// no tests found" plus process.exit(0) kills jest before it writes a byte of JSON, exits 0,
+  // and the gate synthesised a no_tests verdict out of jest's echo of that comment.
+  const steer = {
+    stdout: '',
+    status: 0,
+    stderr: jestCodeFrameStderr(['// no tests found', 'process.exit(0);']),
+  };
+
+  expectThrows(() => parseRunnerReport(steer), 'a spec comment reading "no tests found" must not become a verdict');
+
+  // The same echo with a non-zero exit: still only a code frame, still not the runner's status line.
+  expectThrows(
+    () => parseRunnerReport({ ...steer, status: 1 }),
+    'an echoed "no tests found" comment must not become a verdict even on a non-zero exit',
+  );
+
+  // A test TITLE carrying the phrase is the realistic version of the same steer.
+  expectThrows(
+    () => parseRunnerReport({
+      stdout: '',
+      status: 1,
+      stderr: jestCodeFrameStderr(["describe('x', () => {", "  it('says no tests found when empty', () => {})", '});']),
+    }),
+    'a test title reading "no tests found" must not become a verdict',
+  );
+
+  // Infrastructure failures are not verdicts either, whatever text happens to be on the streams.
+  expectThrows(
+    () => parseRunnerReport({
+      stdout: '',
+      status: null,
+      error: Object.assign(new Error('spawn npx ENOENT'), { code: 'ENOENT' }),
+      stderr: 'No tests found, exiting with code 1',
+    }),
+    'a spawn failure must throw, not synthesise a verdict',
+  );
+  expectThrows(
+    () => parseRunnerReport({
+      stdout: '{"testResults":[{"assertionRes',
+      status: 1,
+      stderr: 'No tests found, exiting with code 1',
+    }),
+    'a TRUNCATED stdout payload must throw, not synthesise a verdict',
+  );
+
+  // ... and the genuine collection miss still becomes an honest verdict rather than a crash. Both
+  // of the kata's runners print their status line unindented, with a 0-byte stdout and exit 1.
+  for (const sentinel of ['No tests found, exiting with code 1', 'No test files found, exiting with code 1']) {
+    const report = parseRunnerReport({ stdout: '', status: 1, stderr: `${sentinel}\n` });
+    const verdict = classify({ newErrors: 0 }, report, 'diff --git a/t.spec.ts b/t.spec.ts\n+++ b/t.spec.ts\n');
+
+    if (verdict !== 'no_tests') {
+      fail(`[crux 8] the runner's own status line ${JSON.stringify(sentinel)} classified '${verdict}', expected 'no_tests'`);
+    }
+  }
+
+  console.log('  [crux 8] no-tests signal is runner-authored OK (5 model-steered/infrastructure cases throw; both real status lines classify)');
+}
+
 // ---- crux 6: lz-refactor nx-suite regression (D-11) -------------------------------------------
 
 function checkNxRegression() {
@@ -658,6 +737,7 @@ checkTranscriptParse();
 checkClassifier();
 checkTargetToolchainCanary();
 checkDiffContainment();
+checkRunnerSignalIsRunnerAuthored();
 checkNxRegression();
 
 console.log(

@@ -61,9 +61,43 @@ const RUNTIME_RE =
   /is not a function|is not defined|is not iterable|is not a constructor|cannot find|cannot read propert|referenceerror|syntaxerror/i;
 // A "suite loaded but declared no tests" message. Disambiguates no_tests from collection_error --
 // the two share an identical vitest JSON shape (numTotalTests 0, status failed, empty
-// assertionResults) EXCEPT this suite-level message. vitest: "No test found in suite <file>";
-// jest: "Your test suite must contain at least one test." [pinned 2026-07-22].
-const NO_TESTS_RE = /no test(?:s)? found|no test(?:s)? in suite|must contain at least one test|no test files? found/i;
+// assertionResults) EXCEPT this suite-level message.
+//
+// Matched LINE BY LINE against the message with its code frame stripped, never as a substring of
+// the whole thing. Both runners append a frame quoting the produced spec's own source to
+// testResults[0].message, so a substring match over the raw message lets the MODEL UNDER TEST pick
+// its own verdict -- measured 2026-07-25, `it('says no tests found when empty')` alone turned a
+// collection_error (a suite that blew up on import) into a no_tests. Both are pass:false, but the
+// breakdown an operator reads to tell an instrument artifact from a model failure was wrong, and
+// RUN-GATE now tells the operator to read collection_error clusters as a possible artifact.
+//
+// The third alternative is the PROCESS-level status line that parseRunnerReport synthesises for a
+// collection miss; the first two are the runners' own SUITE-level sentences (jest: "Your test suite
+// must contain at least one test."; vitest: "No test found in suite <file>") [pinned 2026-07-22].
+const NO_TESTS_RE =
+  /^(?:your test suite must contain at least one test\.?|no tests? found in suite\b.*|no tests? (?:files? )?found, exiting with code \d+\.?)$/i;
+// The runner's OWN "I collected nothing" STATUS LINE, anchored to a whole line. Both of the kata's
+// runners print exactly this shape on a collection miss (measured 2026-07-25). Anchoring is the
+// point: run unanchored over raw process output, a no-tests pattern also matches a runner's echo of
+// the PRODUCED SPEC'S OWN SOURCE, which is model-authored. See parseRunnerReport.
+const NO_COLLECT_SENTINEL = /^no tests? (?:files? )?found, exiting with code \d+\.?$/i;
+// Everything from the first CODE FRAME line on. jest and vitest quote the spec's source as
+// "      12 | ..." / "    > 12 | ...", i.e. two or more spaces then a line number or a caret
+// marker. That tail is model-authored text appended to a runner-authored message; classification
+// must not read it.
+export function stripCodeFrame(message) {
+  return String(message == null ? '' : message).split(/\n\s{2,}[>\d]/)[0];
+}
+
+// Did the RUNNER say the file loaded but declared no test bodies (or that it collected nothing at
+// all)? Runner-authored sentences only.
+export function runnerReportedNoTests(message) {
+  return stripCodeFrame(message)
+    .split('\n')
+    .map((l) => l.trim())
+    .some((l) => NO_TESTS_RE.test(l));
+}
+
 // A produced test file (the runner's spec/test glob).
 const TEST_FILE_RE = /\.(?:spec|test)\.[cm]?[jt]sx?$/i;
 
@@ -115,6 +149,103 @@ export function assertReadableDiff(diffText) {
   return diffText;
 }
 
+// ---- captured-diff path containment (T-63f-01 write direction) --------------------------------
+
+// A path segment the grade must never write through. '..' escapes the worktree; '.git' is git's own
+// state; 'node_modules' is the TARGET's real dependency tree, reachable from inside the grading
+// worktree through the toolchain junction gradeRun() creates.
+const FORBIDDEN_PATH_SEGMENT_RE = /(?:^|\/)(?:node_modules|\.git|\.\.)(?:\/|$)/;
+// An absolute path (POSIX root, UNC, or a Windows drive letter).
+const ABSOLUTE_PATH_RE = /^(?:\/|\\|[A-Za-z]:)/;
+// Header lines that NAME a path. `git apply --numstat` reports a rename/copy by its DESTINATION
+// only (measured 2026-07-25), so `rename from TypeScript/node_modules/...` -- which DELETES from the
+// borrowed tree -- is invisible to the numstat report and has to be caught in the raw text.
+const DIFF_PATH_HEADER_RE = /^(?:diff --git |--- |\+\+\+ |rename from |rename to |copy from |copy to )/;
+const FORBIDDEN_IN_HEADER_RE = /(?:^|[\s"/\\])(?:node_modules|\.git|\.\.)(?:[/\\"]|$)/;
+
+// Every path the patch would write, as GIT ITSELF resolves them. Hand-parsing is not good enough
+// here: git QUOTES any header path that needs escaping (`diff --git "a/pw\"ned" ...`), and
+// changedPaths()'s regexes silently skip a quoted header -- so a hand-rolled allowlist can disagree
+// with what `git apply` actually writes, which is the one divergence a containment check cannot
+// afford. `--numstat` is git's own parse and prints raw, unquoted, NUL-separated paths. It needs no
+// repository (measured 2026-07-25), so it runs in a neutral cwd, before any worktree or junction
+// exists.
+export function diffTargetPaths(diffPath) {
+  const r = spawnSync('git', ['apply', '--numstat', '-z', diffPath], {
+    cwd: os.tmpdir(),
+    encoding: 'utf8',
+    maxBuffer: 64 * 1024 * 1024,
+    windowsHide: true,
+  });
+
+  if (r.status !== 0) {
+    throw new Error(`grade-red: git could not parse ${diffPath} (fail closed): ${(r.stderr || '').trim()}`);
+  }
+
+  const out = [];
+
+  for (const field of (r.stdout || '').split('\0')) {
+    if (!field) {
+      continue;
+    }
+
+    const m = /^[^\t]*\t[^\t]*\t([\s\S]*)$/.exec(field);
+
+    if (!m) {
+      // A bare path field: the old/new pair git emits after an empty path slot for a rename.
+      out.push(field.trim());
+
+      continue;
+    }
+
+    if (m[1]) {
+      out.push(m[1].trim());
+    }
+  }
+
+  return out;
+}
+
+// Fail closed BEFORE the grading worktree and its toolchain junction exist (T-63f-01, write
+// direction). diff.patch is attacker-shaped input -- it is whatever the model under test staged --
+// and the grading worktree deliberately links the TARGET repo's real node_modules so the
+// differential typecheck has a toolchain. Applying an unconstrained patch inside that worktree
+// therefore writes THROUGH the junction into a third-party checkout this gate does not own
+// (measured 2026-07-25: both a modify hunk and a new-file hunk under TypeScript/node_modules/
+// landed in the link target). The original threat model only considered the DELETION direction.
+export function assertSafeDiffPaths(diffText, diffPath) {
+  const reject = (what, why) => {
+    throw new Error(
+      `grade-red: refusing to apply ${diffPath} -- it names '${what}' (${why}). A captured diff is ` +
+        "attacker-shaped input and the grading worktree links the TARGET's real node_modules, so an " +
+        'unconstrained apply is a write path into a repository this gate does not own ' +
+        '(fail closed, T-63f-01).',
+    );
+  };
+
+  for (const p of diffTargetPaths(diffPath)) {
+    if (ABSOLUTE_PATH_RE.test(p)) {
+      reject(p, 'an absolute path escapes the grading worktree');
+    }
+
+    if (p.includes('\\')) {
+      reject(p, 'git emits forward slashes, so a backslash is a separator or an escape');
+    }
+
+    if (FORBIDDEN_PATH_SEGMENT_RE.test(p)) {
+      reject(p, "'..', '.git' and 'node_modules' segments are never gradable");
+    }
+  }
+
+  for (const line of String(diffText == null ? '' : diffText).split('\n')) {
+    if (DIFF_PATH_HEADER_RE.test(line) && FORBIDDEN_IN_HEADER_RE.test(line)) {
+      reject(line.trim().slice(0, 200), 'a diff header names a forbidden path');
+    }
+  }
+
+  return diffText;
+}
+
 // ---- the pure classifier (shared by the real gate and --selfcheck) ---------------------------
 
 // tscResult: { newErrors: number }. runnerJson: the Jest-compatible runner report (vitest
@@ -142,10 +273,12 @@ export function classify(tscResult, runnerJson, diffPatch) {
   if (asserts.length === 0) {
     // Zero assertions ran. Either the suite could not LOAD (an import/setup throw before any test
     // body -- collection_error) or it loaded cleanly but declared no it()/test() bodies (no_tests).
-    // The two have an identical vitest JSON shape EXCEPT the suite-level message: disambiguate on it.
+    // The two have an identical vitest JSON shape EXCEPT the suite-level message, so disambiguate
+    // on the runner's OWN sentence in it -- not on the code frame the runner appends, which quotes
+    // the produced spec and is therefore chosen by the model under test.
     const msg = `${(suite && suite.message) || ''}\n${runnerJson.message || ''}`;
 
-    if (NO_TESTS_RE.test(msg)) {
+    if (runnerReportedNoTests(msg)) {
       return 'no_tests';
     }
 
@@ -196,6 +329,44 @@ function git(cwd, gitArgs, { mustSucceed = false, env = undefined } = {}) {
   return r;
 }
 
+// ---- vacuous-differential guard --------------------------------------------------------------
+
+// A tsc diagnostic scoped to a source FILE carries a `path(line,col):` prefix.
+const FILE_SCOPED_TSC_RE = /^([^(]+)\(\d+,\d+\):/;
+const TSCONFIG_FILE_RE = /tsconfig[^/\\]*\.json$/i;
+
+// Did tsc fail at the OPTION/CONFIG layer, i.e. before it typechecked any source? Such a failure
+// emits the identical line in both differential runs, so newErrors subtracts to 0 for every input
+// and the gate reports "tsc clean" precisely when it could not check anything.
+//
+// The CODE RANGE alone is not the test. TS6xxx is TypeScript's general MESSAGE range, and it holds
+// ordinary file-scoped diagnostics -- TS6133 (declared but never read), TS6192 (all imports
+// unused), TS6059, TS6053 -- which do NOT abort the compile. MEASURED 2026-07-25 against the kata's
+// own tsc 4.9.5, `--noUnusedLocals` alone emits TS6133/TS6192 lines. Matching on the range would
+// abort every grade for any target whose pre-existing source has one unused local, with the message
+// "the target typecheck failed at the option/config layer" -- which would be false, and which the
+// operator could not act on. It cannot fire on the current target (its baseline codes are TS2691,
+// TS2403, TS1383, TS2420) so the shape test costs nothing today and is the whole guard tomorrow.
+//
+// Genuine option-level diagnostics either carry no file prefix at all (`error TS6046: Argument for
+// '--lib' option must be: ...`, `error TS5023: ...`) or are anchored at the tsconfig itself
+// (`tsconfig.json(4,15): error TS5107: ...`).
+export function isConfigLevelTscError(line) {
+  const text = String(line == null ? '' : line);
+
+  if (!/error TS(?:5\d{3}|6\d{3})\b/.test(text)) {
+    return false;
+  }
+
+  const scoped = FILE_SCOPED_TSC_RE.exec(text);
+
+  if (!scoped) {
+    return true;
+  }
+
+  return TSCONFIG_FILE_RE.test(scoped[1].trim());
+}
+
 // tsc error lines (`error TS####`) from a `node <tscBin> ...args` run in cwd. Errors go to stdout
 // by default; scan both streams to be safe.
 function tscErrorLines(cwd, args, tscBin) {
@@ -239,37 +410,59 @@ function parseRunnerJson(raw) {
 // Parse the runner's report, or -- on a RECOGNIZED no-tests signal -- synthesize the minimal report
 // that drives classify() to the no_tests verdict.
 //
-// A runner that collected nothing writes NOTHING to stdout and puts the reason on stderr (measured
-// 2026-07-25: jest "No tests found, exiting with code 1"; vitest "No test files found, exiting with
-// code 1", both with a 0-byte stdout). Feeding stdout alone to parseRunnerJson therefore turned an
-// honest "the produced test landed where this runner cannot see it" into a hard throw with no
-// red-grade.json written at all, so the run could not even be counted.
+// A runner that collected nothing writes NOTHING to stdout, puts a status line on stderr, and exits
+// non-zero (measured 2026-07-25: jest "No tests found, exiting with code 1"; vitest "No test files
+// found, exiting with code 1", both with a 0-byte stdout and exit 1). Feeding stdout alone to
+// parseRunnerJson turned an honest "the produced test landed where this runner cannot see it" into
+// a hard throw with no red-grade.json written at all, so the run could not even be counted.
 //
-// The fail-closed contract is preserved (T-21-V5): ONLY a signal the existing NO_TESTS_RE
-// recognizes becomes a verdict. Any other unparseable or garbled output still throws.
-function parseRunnerReport(runRes) {
+// EVERY condition below is runner-authored or infrastructure-level, because the model under test
+// controls the spec's text and both runners ECHO that text on their error paths. Recognising a
+// no-tests signal anywhere in the combined output let the model pick its own verdict: MEASURED
+// 2026-07-25, a two-line spec whose only comment reads "// no tests found" plus a process.exit(0)
+// killed jest before it wrote a byte of JSON, and the gate then synthesised a no_tests verdict from
+// jest's own code-frame echo of that comment -- a hard runner crash laundered into a scored
+// measurement. Pre-widening it threw, which was correct.
+//
+// The fail-closed contract (T-21-V5) is therefore: no spawn error, an empty stdout, a non-zero
+// exit, AND the runner's own anchored status line. Anything else still throws.
+export function parseRunnerReport(runRes) {
   const stdout = `${(runRes && runRes.stdout) || ''}`;
   const stderr = `${(runRes && runRes.stderr) || ''}`;
 
   try {
     return parseRunnerJson(stdout);
   } catch (err) {
-    // Strip ANSI colour so the pattern match and the recorded excerpt both see plain text.
-    const combined = `${stdout}\n${stderr}`.replace(/\x1b\[[0-9;]*m/g, '');
-
-    if (!NO_TESTS_RE.test(combined)) {
+    // Infrastructure failure, never a verdict: ENOENT for a missing runner, or ENOBUFS from a
+    // maxBuffer overflow -- which TRUNCATES stdout, so whether the run throws or scores would
+    // otherwise be decided by whatever incidental text survived the cut.
+    if (runRes && runRes.error) {
       throw err;
     }
 
-    // Carry the runner's OWN words, and specifically the line that matched, so the recorded
-    // excerpt stays honest and classify() sees a message its no-tests pattern recognizes.
-    const observed =
-      combined
-        .split('\n')
-        .map((l) => l.trim())
-        .find((l) => NO_TESTS_RE.test(l)) || 'the runner reported that no tests were found';
+    // Bytes on stdout mean the runner DID report and its output is merely unparseable. A zero exit
+    // means the process ended some other way than a collection miss -- the produced spec calling
+    // process.exit(0) at import time is the measured case.
+    if (stdout.trim() !== '' || (runRes && runRes.status) === 0) {
+      throw err;
+    }
 
-    return { testResults: [{ status: 'failed', message: observed.slice(0, 300), assertionResults: [] }] };
+    // Strip ANSI colour so the pattern match and the recorded excerpt both see plain text.
+    const combined = `${stdout}\n${stderr}`.replace(/\x1b\[[0-9;]*m/g, '');
+    // Anchored, per line: a code frame quoting the spec is indented and prefixed with its source
+    // line number ("  1 | // no tests found"), so it cannot pass for the runner's status line.
+    const observed = combined
+      .split('\n')
+      .map((l) => l.trim())
+      .find((l) => NO_COLLECT_SENTINEL.test(l));
+
+    if (!observed) {
+      throw err;
+    }
+
+    // Carry the runner's OWN words -- the exact line that matched -- so the recorded excerpt stays
+    // honest and classify() sees a message its no-tests pattern recognizes.
+    return { testResults: [{ status: 'failed', message: observed, assertionResults: [] }] };
   }
 }
 
@@ -408,7 +601,14 @@ export function selectRunner(runnerSpec, testPath) {
     .sort((a, b) => b.length - a.length)
     .find((prefix) => String(testPath || '').startsWith(prefix));
 
-  return (hit && map[hit]) || (runnerSpec && runnerSpec.runner_default) || null;
+  // A MATCHED prefix wins even when its value is falsy. `(hit && map[hit]) || default` would have
+  // turned a config typo -- an empty string, a null -- into "quietly use the default" instead of
+  // the fail-closed error the caller raises for a runner with no command.
+  if (hit !== undefined) {
+    return map[hit];
+  }
+
+  return (runnerSpec && runnerSpec.runner_default) || null;
 }
 
 // The target repo's own typescript (never the workspace's -- Pitfall 4).
@@ -466,6 +666,7 @@ export function gradeRun({ runDir, suiteDir }) {
   }
 
   assertReadableDiff(diffPatch);
+  assertSafeDiffPaths(diffPatch, diffPath);
 
   let meta;
 
@@ -546,29 +747,75 @@ export function gradeRun({ runDir, suiteDir }) {
 
   let linkCreated = false;
 
+  // 'junction' is the Windows-safe directory link (a plain symlink needs elevation there); the type
+  // argument is ignored on other platforms. The target must be absolute, which it is.
+  const linkToolchain = () => {
+    fs.symlinkSync(nodeModulesSrc, nodeModulesLink, 'junction');
+    linkCreated = true;
+  };
+
+  const unlinkToolchain = () => {
+    fs.rmSync(nodeModulesLink, { recursive: true, force: true });
+    linkCreated = false;
+  };
+
   const teardown = () => {
     // ORDER IS LOAD-BEARING (T-63f-01): unlink the node_modules junction BEFORE removing the
     // worktree, so no recursive delete can follow the link into the TARGET's real node_modules.
     // Removing a directory junction unlinks the link and not its target, but the ordering is what
-    // makes that hold no matter who does the deleting. Link removal is failure-tolerant so an
-    // already-gone link cannot mask the real error or strand the worktree.
+    // makes that hold no matter who does the deleting.
     if (linkCreated) {
       try {
-        fs.rmSync(nodeModulesLink, { recursive: true, force: true });
-      } catch {
-        // best-effort; the worktree removal below still has to run
+        unlinkToolchain();
+      } catch (err) {
+        // rmSync's force:true ALREADY swallows an already-gone link, so reaching here means the
+        // removal genuinely failed -- EPERM/EBUSY from an indexer or scanner holding a handle,
+        // which is routine on Windows. That is exactly the case where force-removing the worktree
+        // with the link still live would void the ordering guarantee above, so stop instead and
+        // make a human unlink it. This can mask a pending error from the graded run; a live
+        // junction into a borrowed repo is the more urgent of the two.
+        throw new Error(
+          `grade-red: could NOT unlink ${nodeModulesLink} (${err.code || err.message}). Refusing to ` +
+            'remove the grading worktree while a live junction into the target repo sits inside it ' +
+            '-- remove the junction by hand first (fail closed, T-63f-01).',
+        );
       }
     }
 
-    git(gitRoot, ['worktree', 'remove', '--force', worktree]);
+    const removed = git(gitRoot, ['worktree', 'remove', '--force', worktree]);
+
+    if (removed.status !== 0) {
+      // Not fatal (the link is already down, so nothing points out of the worktree) but never
+      // silent: a stranded worktree accumulates across a fan-out and crux 7 asserts against it.
+      console.error(
+        `grade-red: WARNING -- could not remove the grading worktree ${worktree} ` +
+          `(exit ${removed.status}): ${(removed.stderr || '').trim()}`,
+      );
+    }
+
     git(gitRoot, ['worktree', 'prune']);
   };
 
+  // teardown() only runs via the finally below. A Ctrl-C, a SIGTERM, or a closed terminal between
+  // the first linkToolchain() and that finally would strand a LIVE junction into the target's real
+  // node_modules under os.tmpdir() -- and interrupting a 9-run fan-out is a normal operator action,
+  // not an exotic one. Unlink and re-raise; an orphaned worktree with nothing pointing out of it is
+  // harmless by comparison, and removing it here would need git plumbing inside a signal handler.
+  const onSignal = (signal) => {
+    try {
+      fs.rmSync(nodeModulesLink, { recursive: true, force: true });
+    } catch {
+      // there is nothing better to do from inside a signal handler
+    }
+
+    process.exit(signal === 'SIGINT' ? 130 : 143);
+  };
+
+  process.once('SIGINT', onSignal);
+  process.once('SIGTERM', onSignal);
+
   try {
-    // 'junction' is the Windows-safe directory link (a plain symlink needs elevation there); the
-    // type argument is ignored on other platforms. The target must be absolute, which it is.
-    fs.symlinkSync(nodeModulesSrc, nodeModulesLink, 'junction');
-    linkCreated = true;
+    linkToolchain();
 
     if (producedTests.length === 0) {
       // The diff was non-empty (assertReadableDiff passed) but no test file was produced: zero
@@ -602,11 +849,11 @@ export function gradeRun({ runDir, suiteDir }) {
     const tscArgs = ['--noEmit', '--strict'];
     const baseErrors = new Set(targetTscErrors(armCwd, worktree, tscArgs));
 
-    // Fail closed on an OPTION/CONFIG-level tsc error (TS5xxx/TS6xxx). Those abort the compile
-    // before any source is checked, and the identical line then lands in both differential runs --
-    // so newErrors subtracts to 0 for EVERY input and D-06 clause 1 silently passes anything.
-    // Never grade on a differential that cannot discriminate.
-    const configError = [...baseErrors].find((l) => /error TS(?:5\d{3}|6\d{3})\b/.test(l));
+    // Fail closed on an OPTION/CONFIG-level tsc error. Those abort the compile before any source is
+    // checked, and the identical line then lands in both differential runs -- so newErrors
+    // subtracts to 0 for EVERY input and D-06 clause 1 silently passes anything. Never grade on a
+    // differential that cannot discriminate.
+    const configError = [...baseErrors].find(isConfigLevelTscError);
 
     if (configError) {
       throw new Error(
@@ -615,11 +862,20 @@ export function gradeRun({ runDir, suiteDir }) {
       );
     }
 
+    // Defence in depth for T-63f-01: assertSafeDiffPaths() above already refuses any patch that
+    // names node_modules, but a containment check and the thing it protects should not share a
+    // single point of failure. Take the junction down for the duration of the apply, so even a
+    // patch that somehow got past the check writes into a throwaway %TEMP% directory -- the
+    // pre-junction behaviour -- rather than into the borrowed repo.
+    unlinkToolchain();
+
     const applyRes = git(worktree, ['apply', '--whitespace=nowarn', diffPath]);
 
     if (applyRes.status !== 0) {
       throw new Error(`grade-red: git apply of ${diffPath} failed in the worktree (fail closed): ${(applyRes.stderr || '').trim()}`);
     }
+
+    linkToolchain();
 
     const withErrors = targetTscErrors(armCwd, worktree, tscArgs);
     const newErrors = withErrors.filter((l) => !baseErrors.has(l));
@@ -656,6 +912,8 @@ export function gradeRun({ runDir, suiteDir }) {
 
     return grade;
   } finally {
+    process.off('SIGINT', onSignal);
+    process.off('SIGTERM', onSignal);
     teardown();
   }
 }

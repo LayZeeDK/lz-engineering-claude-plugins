@@ -24,7 +24,15 @@
 //      against the kata's OWN toolchain: a real verdict, the selected runner, a real runner_version
 //      (not the 'unknown' sentinel), and the borrowed repo intact afterwards. Every other crux and
 //      every grade-red fixture uses the WORKSPACE toolchain, so this is the only step that proves
-//      the gate works against the actual target. Kata absent -> SKIP.
+//      the gate works against the actual target. Kata absent -> SKIP. Three fixtures: a clean spec
+//      (genuinely_red), one outside every collection root (no_tests, not a crash), and a
+//      type-broken one (compile_error with NEW errors -- the negative control that proves the
+//      differential still tells two inputs apart).
+//   8. EXPLOIT REGRESSIONS -- the steering and write exploits measured against the real toolchain
+//      on 2026-07-25 stay blocked: a captured diff cannot write into the borrowed repo through the
+//      toolchain junction, the no-tests signal comes from the runner rather than from the produced
+//      spec's own text, and the vacuous-differential guard ignores ordinary source diagnostics.
+//      Pure and offline, so it never SKIPs.
 //
 // Fail-closed: any violation prints a FAIL line and exits 1; an OK line + exit 0 on success. Zero
 // claude spend, borrowed repo left pristine. NOT wired into `npm run check` (it touches the borrowed
@@ -36,7 +44,7 @@ import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { dirname, join, resolve } from 'node:path';
 import { buildSyntheticBase, extractResult, git } from '../lz-refactor-workspace/e2e-nx/run-e2e.mjs';
-import { classify, gradeRun } from './grade-red.mjs';
+import { assertSafeDiffPaths, classify, gradeRun, isConfigLevelTscError, parseRunnerReport } from './grade-red.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const RUN_E2E = resolve(HERE, '..', 'lz-refactor-workspace', 'e2e-nx', 'run-e2e.mjs');
@@ -191,6 +199,10 @@ function checkCompositionAndParity() {
   //
   // The tokens are claims ABOUT THE EXISTING SUITE, not the word "failing" -- asking for the next
   // failing test IS the task, so the ask itself must not trip this.
+  //
+  // Every token pairs a STATE word with the claim. A bare adverb would not: 'right now' on its own
+  // failed the battery for a benign rewording such as "the next failing test you'd write right
+  // now", which claims nothing about the existing suite.
   const stateClaimTokens = [
     'all green',
     'all passing',
@@ -202,7 +214,9 @@ function checkCompositionAndParity() {
     'currently fail',
     'tests pass',
     'suite is green',
-    'right now',
+    'green right now',
+    'passing right now',
+    'pass right now',
   ];
   const lowered = wsPrompt.toLowerCase();
   const claimed = stateClaimTokens.filter((t) => lowered.includes(t));
@@ -215,6 +229,26 @@ function checkCompositionAndParity() {
   }
 
   console.log(`  [crux 2] no test-state claim in the prompt OK (checked ${stateClaimTokens.length} tokens)`);
+
+  // The gate can only grade a spec a runner actually collects, so the landing directory must be
+  // PINNED rather than left to the model: a spec outside every collection root grades no_tests for
+  // a folder choice that says nothing about RED quality. targets.json declares the pin and the
+  // prompt states it; assert they agree, which is also what gives test_dir a consumer -- it was
+  // inert documentation that nothing read (`git grep test_dir` found no code).
+  const pinnedDir = (loadSuiteCtx(RED_SUITE_DIR).targetsById.get('GRC') || {}).test_dir;
+
+  if (!pinnedDir) {
+    fail('[crux 2] target GRC declares no test_dir, so the produced test has no pinned landing directory');
+  }
+
+  if (!wsPrompt.includes(pinnedDir)) {
+    fail(
+      `[crux 2] the prompt does not name the target's pinned test_dir ${JSON.stringify(pinnedDir)}, so the runner ` +
+        `and the produced test's location can disagree: ${JSON.stringify(wsPrompt)}`,
+    );
+  }
+
+  console.log(`  [crux 2] prompt pins the target's test_dir OK (${pinnedDir})`);
 }
 
 // ---- crux 3: worktree build/teardown leaves the borrowed repo pristine ------------------------
@@ -379,15 +413,18 @@ function checkClassifier() {
 function gradeFabricatedRunDir(fixtureName, assertGrade) {
   const ctx = loadSuiteCtx(RED_SUITE_DIR);
   const fixture = join(HERE, 'fixtures', fixtureName);
-  const realNodeModules = join(ctx.repo, 'node_modules');
 
   // Mirror crux 3's SKIP-if-absent discipline: the metered run is gated anyway, and a missing
-  // borrowed repo must not fail the whole battery.
+  // borrowed repo must not fail the whole battery. This has to come BEFORE any join(ctx.repo, ...)
+  // -- join(undefined, ...) throws a TypeError and takes the whole battery down instead of
+  // printing the SKIP, which made the !ctx.repo half of the guard unreachable.
   if (!ctx.repo || !fs.existsSync(ctx.repo)) {
     console.log(`  [crux 7:${fixtureName}] SKIP -- kata repo not on disk (${ctx.repo})`);
 
     return;
   }
+
+  const realNodeModules = join(ctx.repo, 'node_modules');
 
   if (!fs.existsSync(realNodeModules)) {
     console.log(`  [crux 7:${fixtureName}] SKIP -- kata has no node_modules (${realNodeModules}); run npm ci there to exercise it`);
@@ -408,10 +445,13 @@ function gradeFabricatedRunDir(fixtureName, assertGrade) {
   try {
     grade = gradeRun({ runDir, suiteDir: RED_SUITE_DIR });
   } catch (err) {
-    fail(`[crux 7:${fixtureName}] gradeRun threw instead of producing a verdict: ${err.message}`);
-  } finally {
+    // Clean up BEFORE failing: fail() calls process.exit(1), which does not unwind the stack, so a
+    // finally here would never run and every failed canary would leave a directory behind.
     fs.rmSync(runDir, { recursive: true, force: true });
+    fail(`[crux 7:${fixtureName}] gradeRun threw instead of producing a verdict: ${err.message}`);
   }
+
+  fs.rmSync(runDir, { recursive: true, force: true });
 
   assertGrade(grade);
 
@@ -431,6 +471,23 @@ function gradeFabricatedRunDir(fixtureName, assertGrade) {
 
   if (/red-wt-/.test(worktrees)) {
     fail(`[crux 7:${fixtureName}] leftover grading worktree after teardown:\n${worktrees}`);
+  }
+
+  // The grading worktree carries a LIVE junction into the borrowed repo for most of its life, so a
+  // directory left behind on disk is a stranded link, not just clutter. `git worktree list` above
+  // would not notice one that git already pruned.
+  const stranded = fs.readdirSync(os.tmpdir()).filter((e) => e.startsWith('red-wt-'));
+
+  if (stranded.length) {
+    fail(`[crux 7:${fixtureName}] stranded grading worktree director(ies) under the temp dir: ${stranded.join(', ')}`);
+  }
+
+  // gradeRun installs SIGINT/SIGTERM handlers so an interrupted fan-out cannot strand that junction.
+  // They are per-run and must not accumulate across the 9 runs of a fan-out.
+  for (const signal of ['SIGINT', 'SIGTERM']) {
+    if (process.listenerCount(signal) !== 0) {
+      fail(`[crux 7:${fixtureName}] gradeRun leaked a ${signal} handler (${process.listenerCount(signal)} still registered)`);
+    }
   }
 
   return grade;
@@ -488,6 +545,326 @@ function checkTargetToolchainCanary() {
       `  [crux 7] uncollected-spec canary OK (${missGrade.verdict}, pass=${missGrade.pass}, excerpt ${JSON.stringify(String(missGrade.failure_excerpt).slice(0, 60))} -- a verdict, not a throw)`,
     );
   }
+
+  // IM-02. The two canaries above are POSITIVE controls only: both expect new_tsc_errors === 0, so
+  // neither would notice the differential silently ceasing to discriminate -- which is F1's actual
+  // damage ("a produced test with blatant type errors grades as tsc-clean") and the whole reason
+  // this task existed. runner_version is a proxy: it proves a node_modules was VISIBLE, not that
+  // the typecheck can tell two inputs apart. This third fixture is the negative control: the same
+  // fabricated-runDir shape, the same vitest-collected dir, one deliberate type error.
+  const compileGrade = gradeFabricatedRunDir('canary-compile', (g) => {
+    if (g.verdict !== 'compile_error' || g.pass !== false) {
+      fail(`[crux 7] the type-broken spec graded '${g.verdict}' (pass=${g.pass}), expected compile_error / pass=false -- why: ${g.why}`);
+    }
+
+    if (!(g.new_tsc_errors > 0)) {
+      fail(
+        `[crux 7] the type-broken spec reported ${g.new_tsc_errors} NEW tsc errors. The differential is NOT ` +
+          'discriminating, so D-06 clause 1 would pass any produced test',
+      );
+    }
+  });
+
+  if (compileGrade) {
+    console.log(
+      `  [crux 7] differential-discriminates canary OK (type-broken spec -> ${compileGrade.verdict}, ` +
+        `${compileGrade.new_tsc_errors} NEW tsc errors against a clean baseline)`,
+    );
+  }
+}
+
+// ---- crux 8: the measured 2026-07-25 steering exploits stay blocked ---------------------------
+
+// Pure and offline: no kata, no runner, no worktree, so this crux never SKIPs. Each assertion
+// pins ONE exploit that was reproduced against the real toolchain during the code review. Delete
+// the corresponding guard in grade-red.mjs and exactly one of these fails.
+
+function expectThrows(fn, label) {
+  let threw = false;
+
+  try {
+    fn();
+  } catch {
+    threw = true;
+  }
+
+  if (!threw) {
+    fail(`[crux 8] ${label}: expected the fail-closed path to throw, but it did not`);
+  }
+}
+
+// assertSafeDiffPaths() reads the patch through `git apply --numstat`, so the exploit patches have
+// to exist on disk. They are written to a throwaway temp dir and removed in the finally.
+function withPatchFile(body, fn) {
+  const p = join(os.tmpdir(), `red-crux8-${process.pid}-${Date.now()}-${Math.random().toString(36).slice(2)}.patch`);
+  fs.writeFileSync(p, body);
+
+  try {
+    return fn(p);
+  } finally {
+    fs.rmSync(p, { force: true });
+  }
+}
+
+function newFilePatch(targetPath, line) {
+  return [
+    `diff --git a/${targetPath} b/${targetPath}`,
+    'new file mode 100644',
+    'index 0000000..1111111',
+    '--- /dev/null',
+    `+++ b/${targetPath}`,
+    '@@ -0,0 +1 @@',
+    `+${line}`,
+    '',
+  ].join('\n');
+}
+
+function checkDiffContainment() {
+  // T-63f-01, WRITE direction. The grading worktree links the kata's REAL node_modules so the
+  // differential typecheck has a toolchain, and diff.patch is whatever the model under test staged.
+  // MEASURED 2026-07-25: with nothing constraining the paths, both a modify hunk and a new-file
+  // hunk under node_modules/ applied straight THROUGH the junction into the borrowed checkout.
+  const exploits = {
+    'new file under node_modules': newFilePatch('TypeScript/node_modules/.bin/EVIL.txt', 'pwned'),
+    'modify under node_modules': [
+      'diff --git a/TypeScript/node_modules/typescript/KEEP.txt b/TypeScript/node_modules/typescript/KEEP.txt',
+      'index 1111111..2222222 100644',
+      '--- a/TypeScript/node_modules/typescript/KEEP.txt',
+      '+++ b/TypeScript/node_modules/typescript/KEEP.txt',
+      '@@ -1 +1 @@',
+      '-keep',
+      '+PWNED',
+      '',
+    ].join('\n'),
+    // `git apply --numstat` reports a rename by its DESTINATION only, so this one is invisible to
+    // a numstat-only check and has to be caught in the raw header text.
+    'rename OUT of node_modules': [
+      'diff --git a/TypeScript/node_modules/typescript/KEEP.txt b/TypeScript/app/stolen.txt',
+      'similarity index 100%',
+      'rename from TypeScript/node_modules/typescript/KEEP.txt',
+      'rename to TypeScript/app/stolen.txt',
+      '',
+    ].join('\n'),
+    'traversal out of the worktree': newFilePatch('../escape.txt', 'escaped'),
+    'write into git state': newFilePatch('TypeScript/.git/hooks/pre-commit', '#!/bin/sh'),
+  };
+
+  for (const [label, body] of Object.entries(exploits)) {
+    withPatchFile(body, (p) => {
+      expectThrows(() => assertSafeDiffPaths(body, p), label);
+    });
+  }
+
+  // ... and the shipped fixtures, which are real captures, must still pass. A containment check
+  // that rejects legitimate input is just a broken gate.
+  for (const fixtureName of ['canary-rundir', 'canary-nocollect', 'canary-compile']) {
+    const p = join(HERE, 'fixtures', fixtureName, 'diff.patch');
+    const body = fs.readFileSync(p, 'utf8');
+
+    try {
+      assertSafeDiffPaths(body, p);
+    } catch (err) {
+      fail(`[crux 8] the shipped ${fixtureName} diff was rejected by the containment check: ${err.message}`);
+    }
+  }
+
+  // A production-file edit MUST still be allowed -- rejecting it would silently kill the
+  // drove_to_green class, which exists precisely to catch a model that edits production code.
+  const prodPatch = newFilePatch('TypeScript/app/gilded-rose.ts', '// production edit');
+
+  withPatchFile(prodPatch, (p) => {
+    try {
+      assertSafeDiffPaths(prodPatch, p);
+    } catch (err) {
+      fail(`[crux 8] a production-file diff was rejected, which would kill the drove_to_green class: ${err.message}`);
+    }
+  });
+
+  console.log(
+    `  [crux 8] captured-diff containment OK (${Object.keys(exploits).length} write paths into the borrowed repo rejected; ` +
+      'real captures and production edits still accepted)',
+  );
+}
+
+// A jest error-path stderr: the reporter quotes the produced spec's own source as a CODE FRAME, so
+// every byte after the header is text the model under test chose.
+function jestCodeFrameStderr(sourceLines) {
+  return [
+    'FAIL test/jest/produced.spec.ts',
+    '  * Test suite failed to run',
+    '',
+    '    Cannot find module \'@/nope\' from \'test/jest/produced.spec.ts\'',
+    '',
+    ...sourceLines.map((l, i) => `      ${i + 1} | ${l}`),
+    '        | ^',
+    '      at Resolver._throwModNotFoundError (node_modules/jest-resolve/build/resolver.js:427:11)',
+    '',
+  ].join('\n');
+}
+
+function checkRunnerSignalIsRunnerAuthored() {
+  // CR-02. The no-tests widening tested a suite-level pattern against the FULL stdout+stderr, and
+  // both runners echo the produced spec's source on their error paths -- so the model under test
+  // could steer its own verdict. MEASURED 2026-07-25: a spec whose only comment reads
+  // "// no tests found" plus process.exit(0) kills jest before it writes a byte of JSON, exits 0,
+  // and the gate synthesised a no_tests verdict out of jest's echo of that comment.
+  const steer = {
+    stdout: '',
+    status: 0,
+    stderr: jestCodeFrameStderr(['// no tests found', 'process.exit(0);']),
+  };
+
+  expectThrows(() => parseRunnerReport(steer), 'a spec comment reading "no tests found" must not become a verdict');
+
+  // The same echo with a non-zero exit: still only a code frame, still not the runner's status line.
+  expectThrows(
+    () => parseRunnerReport({ ...steer, status: 1 }),
+    'an echoed "no tests found" comment must not become a verdict even on a non-zero exit',
+  );
+
+  // A test TITLE carrying the phrase is the realistic version of the same steer.
+  expectThrows(
+    () => parseRunnerReport({
+      stdout: '',
+      status: 1,
+      stderr: jestCodeFrameStderr(["describe('x', () => {", "  it('says no tests found when empty', () => {})", '});']),
+    }),
+    'a test title reading "no tests found" must not become a verdict',
+  );
+
+  // Infrastructure failures are not verdicts either, whatever text happens to be on the streams.
+  expectThrows(
+    () => parseRunnerReport({
+      stdout: '',
+      status: null,
+      error: Object.assign(new Error('spawn npx ENOENT'), { code: 'ENOENT' }),
+      stderr: 'No tests found, exiting with code 1',
+    }),
+    'a spawn failure must throw, not synthesise a verdict',
+  );
+  expectThrows(
+    () => parseRunnerReport({
+      stdout: '{"testResults":[{"assertionRes',
+      status: 1,
+      stderr: 'No tests found, exiting with code 1',
+    }),
+    'a TRUNCATED stdout payload must throw, not synthesise a verdict',
+  );
+
+  // ... and the genuine collection miss still becomes an honest verdict rather than a crash. Both
+  // of the kata's runners print their status line unindented, with a 0-byte stdout and exit 1.
+  for (const sentinel of ['No tests found, exiting with code 1', 'No test files found, exiting with code 1']) {
+    const report = parseRunnerReport({ stdout: '', status: 1, stderr: `${sentinel}\n` });
+    const verdict = classify({ newErrors: 0 }, report, 'diff --git a/t.spec.ts b/t.spec.ts\n+++ b/t.spec.ts\n');
+
+    if (verdict !== 'no_tests') {
+      fail(`[crux 8] the runner's own status line ${JSON.stringify(sentinel)} classified '${verdict}', expected 'no_tests'`);
+    }
+  }
+
+  console.log('  [crux 8] no-tests signal is runner-authored OK (5 model-steered/infrastructure cases throw; both real status lines classify)');
+}
+
+function checkConfigLevelTscGuard() {
+  // IM-01/IM-02. The vacuous-differential guard is the fail-closed backstop for D-06 clause 1 and
+  // it shipped with no check at all, so a typo in it would be silent. Every line below was MEASURED
+  // against the kata's own tsc 4.9.5 on 2026-07-25.
+  //
+  // Must NOT fire: ordinary file-scoped diagnostics that happen to sit in the TS6xxx MESSAGE range.
+  // They do not abort the compile, so treating them as a config abort would kill every grade for
+  // any target that sets --noUnusedLocals and has one unused local in its pre-existing source.
+  const sourceDiagnostics = [
+    "probe.ts(1,1): error TS6192: All imports in import declaration are unused.",
+    "probe.ts(4,9): error TS6133: 'unusedLocal' is declared but its value is never read.",
+    "probe.ts(5,10): error TS6133: 'a' is declared but its value is never read.",
+    "app/gilded-rose.ts(12,3): error TS2420: Class incorrectly implements interface.",
+  ];
+
+  for (const line of sourceDiagnostics) {
+    if (isConfigLevelTscError(line)) {
+      fail(`[crux 8] the vacuous-differential guard fires on an ordinary source diagnostic: ${line}`);
+    }
+  }
+
+  // MUST fire: an option-level diagnostic (no file prefix) or one anchored at the tsconfig. Both
+  // abort before any source is checked, so the differential would report every produced test as
+  // tsc-clean. These are the two shapes this audit actually produced.
+  const configAborts = [
+    "error TS6046: Argument for '--lib' option must be: 'es5', 'es6', ... 'es2022', 'esnext'.",
+    "error TS5023: Unknown compiler option '--nope'.",
+    "tsconfig.json(4,15): error TS5107: Option 'target=ES5' is deprecated and will stop functioning in TypeScript 7.0.",
+    "tsconfig.json(8,5): error TS5101: Option 'baseUrl' is deprecated.",
+  ];
+
+  for (const line of configAborts) {
+    if (!isConfigLevelTscError(line)) {
+      fail(`[crux 8] the vacuous-differential guard MISSES a config-layer abort, so the gate would grade on a differential that cannot discriminate: ${line}`);
+    }
+  }
+
+  console.log(
+    `  [crux 8] vacuous-differential guard OK (${sourceDiagnostics.length} ordinary diagnostics ignored, ` +
+      `${configAborts.length} config-layer aborts caught)`,
+  );
+}
+
+function checkNoTestsDisambiguationIsRunnerAuthored() {
+  // CR-03. Same root cause one layer down: classify() splits no_tests from collection_error on
+  // testResults[0].message, and jest embeds the failing file's CODE FRAME in that field. MEASURED
+  // 2026-07-25 with an identical import-time throw in all three cases, only the spec's text
+  // differing: a source comment saying "no tests found" and a test title reading
+  // "says no tests found when empty" BOTH flipped collection_error to no_tests.
+  const testOnlyDiff = 'diff --git a/test/vitest/x.spec.ts b/test/vitest/x.spec.ts\n+++ b/test/vitest/x.spec.ts\n';
+  const importThrow = (sourceLines) => ({
+    testResults: [
+      {
+        status: 'failed',
+        message: [
+          '* Test suite failed to run',
+          '',
+          "    Cannot find module '@/nope' from 'test/jest/produced.spec.ts'",
+          '',
+          ...sourceLines.map((l, i) => `      ${i + 1} | ${l}`),
+          '        | ^',
+        ].join('\n'),
+        assertionResults: [],
+      },
+    ],
+  });
+
+  const steers = {
+    'source comment echoed in the code frame': ['// no tests found', "import { thing } from '@/nope';"],
+    'test title echoed in the code frame': ["describe('x', () => {", "  it('says no tests found when empty', () => {})", '});'],
+    'suite sentence echoed in the code frame': ['// Your test suite must contain at least one test.'],
+  };
+
+  for (const [label, sourceLines] of Object.entries(steers)) {
+    const verdict = classify({ newErrors: 0 }, importThrow(sourceLines), testOnlyDiff);
+
+    if (verdict !== 'collection_error') {
+      fail(`[crux 8] a ${label} classified '${verdict}', expected 'collection_error' -- the produced spec is steering its own verdict`);
+    }
+  }
+
+  // ... and each runner's OWN suite-level sentence still reaches no_tests.
+  const genuine = {
+    jest: 'Your test suite must contain at least one test.',
+    vitest: 'No test found in suite D:/repo/test/vitest/x.spec.ts',
+    'synthesised collection miss': 'No tests found, exiting with code 1',
+  };
+
+  for (const [runner, message] of Object.entries(genuine)) {
+    const verdict = classify({ newErrors: 0 }, { testResults: [{ status: 'failed', message, assertionResults: [] }] }, testOnlyDiff);
+
+    if (verdict !== 'no_tests') {
+      fail(`[crux 8] the genuine ${runner} no-tests message classified '${verdict}', expected 'no_tests'`);
+    }
+  }
+
+  console.log(
+    `  [crux 8] no_tests disambiguation is runner-authored OK (${Object.keys(steers).length} code-frame steers stay collection_error; ` +
+      `${Object.keys(genuine).length} genuine runner messages still classify)`,
+  );
 }
 
 // ---- crux 6: lz-refactor nx-suite regression (D-11) -------------------------------------------
@@ -524,10 +901,15 @@ checkWorktreeBase();
 checkTranscriptParse();
 checkClassifier();
 checkTargetToolchainCanary();
+checkDiffContainment();
+checkRunnerSignalIsRunnerAuthored();
+checkNoTestsDisambiguationIsRunnerAuthored();
+checkConfigLevelTscGuard();
 checkNxRegression();
 
 console.log(
   'selfcheck-red: OK -- composition, prompt-parity, worktree base, transcript parse, classifier, the ' +
-    'target-toolchain canary, and the lz-refactor nx regression all pass; zero claude spend, borrowed repo left pristine.',
+    'target-toolchain canary, captured-diff containment, and the lz-refactor nx regression all pass; ' +
+    'zero claude spend, borrowed repo left pristine.',
 );
 process.exit(0);

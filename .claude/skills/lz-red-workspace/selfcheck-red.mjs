@@ -39,7 +39,7 @@ import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { dirname, join, resolve } from 'node:path';
 import { buildSyntheticBase, extractResult, git } from '../lz-refactor-workspace/e2e-nx/run-e2e.mjs';
-import { assertSafeDiffPaths, classify, gradeRun, parseRunnerReport } from './grade-red.mjs';
+import { assertSafeDiffPaths, classify, gradeRun, isConfigLevelTscError, parseRunnerReport } from './grade-red.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const RUN_E2E = resolve(HERE, '..', 'lz-refactor-workspace', 'e2e-nx', 'run-e2e.mjs');
@@ -702,6 +702,49 @@ function checkRunnerSignalIsRunnerAuthored() {
   console.log('  [crux 8] no-tests signal is runner-authored OK (5 model-steered/infrastructure cases throw; both real status lines classify)');
 }
 
+function checkConfigLevelTscGuard() {
+  // IM-01/IM-02. The vacuous-differential guard is the fail-closed backstop for D-06 clause 1 and
+  // it shipped with no check at all, so a typo in it would be silent. Every line below was MEASURED
+  // against the kata's own tsc 4.9.5 on 2026-07-25.
+  //
+  // Must NOT fire: ordinary file-scoped diagnostics that happen to sit in the TS6xxx MESSAGE range.
+  // They do not abort the compile, so treating them as a config abort would kill every grade for
+  // any target that sets --noUnusedLocals and has one unused local in its pre-existing source.
+  const sourceDiagnostics = [
+    "probe.ts(1,1): error TS6192: All imports in import declaration are unused.",
+    "probe.ts(4,9): error TS6133: 'unusedLocal' is declared but its value is never read.",
+    "probe.ts(5,10): error TS6133: 'a' is declared but its value is never read.",
+    "app/gilded-rose.ts(12,3): error TS2420: Class incorrectly implements interface.",
+  ];
+
+  for (const line of sourceDiagnostics) {
+    if (isConfigLevelTscError(line)) {
+      fail(`[crux 8] the vacuous-differential guard fires on an ordinary source diagnostic: ${line}`);
+    }
+  }
+
+  // MUST fire: an option-level diagnostic (no file prefix) or one anchored at the tsconfig. Both
+  // abort before any source is checked, so the differential would report every produced test as
+  // tsc-clean. These are the two shapes this audit actually produced.
+  const configAborts = [
+    "error TS6046: Argument for '--lib' option must be: 'es5', 'es6', ... 'es2022', 'esnext'.",
+    "error TS5023: Unknown compiler option '--nope'.",
+    "tsconfig.json(4,15): error TS5107: Option 'target=ES5' is deprecated and will stop functioning in TypeScript 7.0.",
+    "tsconfig.json(8,5): error TS5101: Option 'baseUrl' is deprecated.",
+  ];
+
+  for (const line of configAborts) {
+    if (!isConfigLevelTscError(line)) {
+      fail(`[crux 8] the vacuous-differential guard MISSES a config-layer abort, so the gate would grade on a differential that cannot discriminate: ${line}`);
+    }
+  }
+
+  console.log(
+    `  [crux 8] vacuous-differential guard OK (${sourceDiagnostics.length} ordinary diagnostics ignored, ` +
+      `${configAborts.length} config-layer aborts caught)`,
+  );
+}
+
 function checkNoTestsDisambiguationIsRunnerAuthored() {
   // CR-03. Same root cause one layer down: classify() splits no_tests from collection_error on
   // testResults[0].message, and jest embeds the failing file's CODE FRAME in that field. MEASURED
@@ -798,6 +841,7 @@ checkTargetToolchainCanary();
 checkDiffContainment();
 checkRunnerSignalIsRunnerAuthored();
 checkNoTestsDisambiguationIsRunnerAuthored();
+checkConfigLevelTscGuard();
 checkNxRegression();
 
 console.log(

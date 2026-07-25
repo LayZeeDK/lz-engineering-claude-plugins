@@ -328,6 +328,44 @@ function git(cwd, gitArgs, { mustSucceed = false, env = undefined } = {}) {
   return r;
 }
 
+// ---- vacuous-differential guard --------------------------------------------------------------
+
+// A tsc diagnostic scoped to a source FILE carries a `path(line,col):` prefix.
+const FILE_SCOPED_TSC_RE = /^([^(]+)\(\d+,\d+\):/;
+const TSCONFIG_FILE_RE = /tsconfig[^/\\]*\.json$/i;
+
+// Did tsc fail at the OPTION/CONFIG layer, i.e. before it typechecked any source? Such a failure
+// emits the identical line in both differential runs, so newErrors subtracts to 0 for every input
+// and the gate reports "tsc clean" precisely when it could not check anything.
+//
+// The CODE RANGE alone is not the test. TS6xxx is TypeScript's general MESSAGE range, and it holds
+// ordinary file-scoped diagnostics -- TS6133 (declared but never read), TS6192 (all imports
+// unused), TS6059, TS6053 -- which do NOT abort the compile. MEASURED 2026-07-25 against the kata's
+// own tsc 4.9.5, `--noUnusedLocals` alone emits TS6133/TS6192 lines. Matching on the range would
+// abort every grade for any target whose pre-existing source has one unused local, with the message
+// "the target typecheck failed at the option/config layer" -- which would be false, and which the
+// operator could not act on. It cannot fire on the current target (its baseline codes are TS2691,
+// TS2403, TS1383, TS2420) so the shape test costs nothing today and is the whole guard tomorrow.
+//
+// Genuine option-level diagnostics either carry no file prefix at all (`error TS6046: Argument for
+// '--lib' option must be: ...`, `error TS5023: ...`) or are anchored at the tsconfig itself
+// (`tsconfig.json(4,15): error TS5107: ...`).
+export function isConfigLevelTscError(line) {
+  const text = String(line == null ? '' : line);
+
+  if (!/error TS(?:5\d{3}|6\d{3})\b/.test(text)) {
+    return false;
+  }
+
+  const scoped = FILE_SCOPED_TSC_RE.exec(text);
+
+  if (!scoped) {
+    return true;
+  }
+
+  return TSCONFIG_FILE_RE.test(scoped[1].trim());
+}
+
 // tsc error lines (`error TS####`) from a `node <tscBin> ...args` run in cwd. Errors go to stdout
 // by default; scan both streams to be safe.
 function tscErrorLines(cwd, args, tscBin) {
@@ -803,11 +841,11 @@ export function gradeRun({ runDir, suiteDir }) {
     const tscArgs = ['--noEmit', '--strict'];
     const baseErrors = new Set(targetTscErrors(armCwd, worktree, tscArgs));
 
-    // Fail closed on an OPTION/CONFIG-level tsc error (TS5xxx/TS6xxx). Those abort the compile
-    // before any source is checked, and the identical line then lands in both differential runs --
-    // so newErrors subtracts to 0 for EVERY input and D-06 clause 1 silently passes anything.
-    // Never grade on a differential that cannot discriminate.
-    const configError = [...baseErrors].find((l) => /error TS(?:5\d{3}|6\d{3})\b/.test(l));
+    // Fail closed on an OPTION/CONFIG-level tsc error. Those abort the compile before any source is
+    // checked, and the identical line then lands in both differential runs -- so newErrors
+    // subtracts to 0 for EVERY input and D-06 clause 1 silently passes anything. Never grade on a
+    // differential that cannot discriminate.
+    const configError = [...baseErrors].find(isConfigLevelTscError);
 
     if (configError) {
       throw new Error(

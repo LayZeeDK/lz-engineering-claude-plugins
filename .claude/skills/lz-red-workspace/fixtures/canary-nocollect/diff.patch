@@ -1,0 +1,15 @@
+diff --git a/TypeScript/test/mocha/canary-nocollect.spec.ts b/TypeScript/test/mocha/canary-nocollect.spec.ts
+new file mode 100644
+index 0000000..9b865c1
+--- /dev/null
++++ b/TypeScript/test/mocha/canary-nocollect.spec.ts
+@@ -0,0 +1,9 @@
++import { Item, GildedRose } from '@/gilded-rose';
++
++describe('Conjured items', () => {
++  it('degrades in quality twice as fast after the sell-by date', () => {
++    const app = new GildedRose([new Item('Conjured Mana Cake', 0, 10)]);
++
++    expect(app.updateQuality()[0].quality).toBe(6);
++  });
++});

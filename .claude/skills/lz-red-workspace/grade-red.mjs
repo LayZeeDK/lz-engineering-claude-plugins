@@ -236,6 +236,43 @@ function parseRunnerJson(raw) {
   }
 }
 
+// Parse the runner's report, or -- on a RECOGNIZED no-tests signal -- synthesize the minimal report
+// that drives classify() to the no_tests verdict.
+//
+// A runner that collected nothing writes NOTHING to stdout and puts the reason on stderr (measured
+// 2026-07-25: jest "No tests found, exiting with code 1"; vitest "No test files found, exiting with
+// code 1", both with a 0-byte stdout). Feeding stdout alone to parseRunnerJson therefore turned an
+// honest "the produced test landed where this runner cannot see it" into a hard throw with no
+// red-grade.json written at all, so the run could not even be counted.
+//
+// The fail-closed contract is preserved (T-21-V5): ONLY a signal the existing NO_TESTS_RE
+// recognizes becomes a verdict. Any other unparseable or garbled output still throws.
+function parseRunnerReport(runRes) {
+  const stdout = `${(runRes && runRes.stdout) || ''}`;
+  const stderr = `${(runRes && runRes.stderr) || ''}`;
+
+  try {
+    return parseRunnerJson(stdout);
+  } catch (err) {
+    // Strip ANSI colour so the pattern match and the recorded excerpt both see plain text.
+    const combined = `${stdout}\n${stderr}`.replace(/\x1b\[[0-9;]*m/g, '');
+
+    if (!NO_TESTS_RE.test(combined)) {
+      throw err;
+    }
+
+    // Carry the runner's OWN words, and specifically the line that matched, so the recorded
+    // excerpt stays honest and classify() sees a message its no-tests pattern recognizes.
+    const observed =
+      combined
+        .split('\n')
+        .map((l) => l.trim())
+        .find((l) => NO_TESTS_RE.test(l)) || 'the runner reported that no tests were found';
+
+    return { testResults: [{ status: 'failed', message: observed.slice(0, 300), assertionResults: [] }] };
+  }
+}
+
 // ---- fixture grader (offline --selfcheck path; workspace toolchain) ---------------------------
 
 // Grade one SELFCHECK-ONLY fixture dir (module.ts? + module.spec.ts) through the SAME classify() as
@@ -598,7 +635,7 @@ export function gradeRun({ runDir, suiteDir }) {
       maxBuffer: 128 * 1024 * 1024,
       windowsHide: true,
     });
-    const runnerJson = parseRunnerJson(`${runRes.stdout || ''}`);
+    const runnerJson = parseRunnerReport(runRes);
 
     const verdict = classify(tscResult, runnerJson, diffPatch);
     const grade = {

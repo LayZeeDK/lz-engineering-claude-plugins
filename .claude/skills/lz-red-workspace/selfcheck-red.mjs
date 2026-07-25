@@ -432,6 +432,28 @@ function checkTargetToolchainCanary() {
       `  [crux 7] target-toolchain canary OK (fabricated runDir -> ${grade.verdict}, runner ${grade.runner}@${grade.runner_version}; kata intact, no leftover worktree)`,
     );
   }
+
+  // The canary above is engineered to be genuinely_red, so it never reaches the stderr
+  // disambiguation branch. This second fixture puts the produced spec OUTSIDE every collection
+  // root, so the runner emits nothing usable on stdout and a recognized no-tests signal on stderr.
+  // Without that branch the grade THROWS and no red-grade.json is written at all, which the
+  // downstream tabulator then fails closed on -- so a run that merely landed in the wrong folder
+  // takes the whole grade down instead of being counted honestly.
+  const missGrade = gradeFabricatedRunDir('canary-nocollect', (g) => {
+    if (g.verdict !== 'no_tests' || g.pass !== false) {
+      fail(`[crux 7] uncollected spec graded '${g.verdict}' (pass=${g.pass}), expected no_tests / pass=false`);
+    }
+
+    if (!/no test/i.test(String(g.failure_excerpt || ''))) {
+      fail(`[crux 7] no_tests excerpt does not carry the runner's own message: ${JSON.stringify(g.failure_excerpt)}`);
+    }
+  });
+
+  if (missGrade) {
+    console.log(
+      `  [crux 7] uncollected-spec canary OK (${missGrade.verdict}, pass=${missGrade.pass}, excerpt ${JSON.stringify(String(missGrade.failure_excerpt).slice(0, 60))} -- a verdict, not a throw)`,
+    );
+  }
 }
 
 // ---- crux 6: lz-refactor nx-suite regression (D-11) -------------------------------------------

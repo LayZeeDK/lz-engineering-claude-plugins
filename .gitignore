@@ -59,6 +59,12 @@ Thumbs.db
 .claude/skills/lz-red-workspace/e2e-red-*/**/results*/
 .claude/skills/lz-red-workspace/e2e-red-*/**/run-*/
 .claude/skills/lz-red-workspace/e2e-red-*/**/outputs/
+# mechanical-red.json is tabulate-mechanical-red.mjs's rollup OF that ignored run tree, so it is a
+# derived byproduct with the same lifetime -- regenerate it by re-running the tabulator. Ignoring it
+# next to results*/ keeps a stale rollup from being swept into a commit alongside unrelated work.
+# (The tracked verdict lives in EVAL-RESULTS.md; the lz-refactor analog tracks its mechanical.json
+# as frozen milestone evidence, which is a different, deliberate choice.)
+.claude/skills/lz-red-workspace/e2e-red-*/mechanical-red.json
 # EVL-01 reciprocal probe stdout + throwaway stderr (workspace root), and the runner-generated
 # per-chunk eval-set inputs (recall-chunk-*.json / spec-chunk-*.json). Raw, re-runnable byproducts;
 # the tracked evidence is EVAL-RESULTS.md. Root-anchored so evals/reciprocal-red.json stays tracked.

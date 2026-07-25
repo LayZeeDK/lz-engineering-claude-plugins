@@ -63,13 +63,40 @@ const RUNTIME_RE =
 // the two share an identical vitest JSON shape (numTotalTests 0, status failed, empty
 // assertionResults) EXCEPT this suite-level message. vitest: "No test found in suite <file>";
 // jest: "Your test suite must contain at least one test." [pinned 2026-07-22].
-const NO_TESTS_RE = /no test(?:s)? found|no test(?:s)? in suite|must contain at least one test|no test files? found/i;
+// Matched LINE BY LINE against the message with its code frame stripped, never as a substring of
+// the whole thing. Both runners append a frame quoting the produced spec's own source to
+// testResults[0].message, so a substring match over the raw message lets the MODEL UNDER TEST pick
+// its own verdict -- measured 2026-07-25, `it('says no tests found when empty')` alone turned a
+// collection_error (a suite that blew up on import) into a no_tests. Both are pass:false, but the
+// breakdown an operator reads to tell an instrument artifact from a model failure was wrong, and
+// RUN-GATE now tells the operator to read collection_error clusters as a possible artifact.
+//
+// The third alternative is the PROCESS-level status line that parseRunnerReport synthesises for a
+// collection miss; the first two are the runners' own SUITE-level sentences (jest: "Your test suite
+// must contain at least one test."; vitest: "No test found in suite <file>") [pinned 2026-07-22].
+const NO_TESTS_RE =
+  /^(?:your test suite must contain at least one test\.?|no tests? found in suite\b.*|no tests? (?:files? )?found, exiting with code \d+\.?)$/i;
 // The runner's OWN "I collected nothing" STATUS LINE, anchored to a whole line. Both of the kata's
 // runners print exactly this shape on a collection miss (measured 2026-07-25). Anchoring is the
-// point: NO_TESTS_RE above is a suite-level pattern for runner-authored JSON, and run unanchored
-// over raw process output it also matches a runner's echo of the PRODUCED SPEC'S OWN SOURCE, which
-// is model-authored. See parseRunnerReport for the measured steering case.
+// point: run unanchored over raw process output, a no-tests pattern also matches a runner's echo of
+// the PRODUCED SPEC'S OWN SOURCE, which is model-authored. See parseRunnerReport.
 const NO_COLLECT_SENTINEL = /^no tests? (?:files? )?found, exiting with code \d+\.?$/i;
+// Everything from the first CODE FRAME line on. jest and vitest quote the spec's source as
+// "      12 | ..." / "    > 12 | ...", i.e. two or more spaces then a line number or a caret
+// marker. That tail is model-authored text appended to a runner-authored message; classification
+// must not read it.
+export function stripCodeFrame(message) {
+  return String(message == null ? '' : message).split(/\n\s{2,}[>\d]/)[0];
+}
+
+// Did the RUNNER say the file loaded but declared no test bodies (or that it collected nothing at
+// all)? Runner-authored sentences only.
+export function runnerReportedNoTests(message) {
+  return stripCodeFrame(message)
+    .split('\n')
+    .map((l) => l.trim())
+    .some((l) => NO_TESTS_RE.test(l));
+}
 // A produced test file (the runner's spec/test glob).
 const TEST_FILE_RE = /\.(?:spec|test)\.[cm]?[jt]sx?$/i;
 
@@ -245,10 +272,12 @@ export function classify(tscResult, runnerJson, diffPatch) {
   if (asserts.length === 0) {
     // Zero assertions ran. Either the suite could not LOAD (an import/setup throw before any test
     // body -- collection_error) or it loaded cleanly but declared no it()/test() bodies (no_tests).
-    // The two have an identical vitest JSON shape EXCEPT the suite-level message: disambiguate on it.
+    // The two have an identical vitest JSON shape EXCEPT the suite-level message, so disambiguate
+    // on the runner's OWN sentence in it -- not on the code frame the runner appends, which quotes
+    // the produced spec and is therefore chosen by the model under test.
     const msg = `${(suite && suite.message) || ''}\n${runnerJson.message || ''}`;
 
-    if (NO_TESTS_RE.test(msg)) {
+    if (runnerReportedNoTests(msg)) {
       return 'no_tests';
     }
 

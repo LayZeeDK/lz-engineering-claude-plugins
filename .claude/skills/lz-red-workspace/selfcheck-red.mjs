@@ -702,6 +702,65 @@ function checkRunnerSignalIsRunnerAuthored() {
   console.log('  [crux 8] no-tests signal is runner-authored OK (5 model-steered/infrastructure cases throw; both real status lines classify)');
 }
 
+function checkNoTestsDisambiguationIsRunnerAuthored() {
+  // CR-03. Same root cause one layer down: classify() splits no_tests from collection_error on
+  // testResults[0].message, and jest embeds the failing file's CODE FRAME in that field. MEASURED
+  // 2026-07-25 with an identical import-time throw in all three cases, only the spec's text
+  // differing: a source comment saying "no tests found" and a test title reading
+  // "says no tests found when empty" BOTH flipped collection_error to no_tests.
+  const testOnlyDiff = 'diff --git a/test/vitest/x.spec.ts b/test/vitest/x.spec.ts\n+++ b/test/vitest/x.spec.ts\n';
+  const importThrow = (sourceLines) => ({
+    testResults: [
+      {
+        status: 'failed',
+        message: [
+          '* Test suite failed to run',
+          '',
+          "    Cannot find module '@/nope' from 'test/jest/produced.spec.ts'",
+          '',
+          ...sourceLines.map((l, i) => `      ${i + 1} | ${l}`),
+          '        | ^',
+        ].join('\n'),
+        assertionResults: [],
+      },
+    ],
+  });
+
+  const steers = {
+    'source comment echoed in the code frame': ['// no tests found', "import { thing } from '@/nope';"],
+    'test title echoed in the code frame': ["describe('x', () => {", "  it('says no tests found when empty', () => {})", '});'],
+    'suite sentence echoed in the code frame': ['// Your test suite must contain at least one test.'],
+  };
+
+  for (const [label, sourceLines] of Object.entries(steers)) {
+    const verdict = classify({ newErrors: 0 }, importThrow(sourceLines), testOnlyDiff);
+
+    if (verdict !== 'collection_error') {
+      fail(`[crux 8] a ${label} classified '${verdict}', expected 'collection_error' -- the produced spec is steering its own verdict`);
+    }
+  }
+
+  // ... and each runner's OWN suite-level sentence still reaches no_tests.
+  const genuine = {
+    jest: 'Your test suite must contain at least one test.',
+    vitest: 'No test found in suite D:/repo/test/vitest/x.spec.ts',
+    'synthesised collection miss': 'No tests found, exiting with code 1',
+  };
+
+  for (const [runner, message] of Object.entries(genuine)) {
+    const verdict = classify({ newErrors: 0 }, { testResults: [{ status: 'failed', message, assertionResults: [] }] }, testOnlyDiff);
+
+    if (verdict !== 'no_tests') {
+      fail(`[crux 8] the genuine ${runner} no-tests message classified '${verdict}', expected 'no_tests'`);
+    }
+  }
+
+  console.log(
+    `  [crux 8] no_tests disambiguation is runner-authored OK (${Object.keys(steers).length} code-frame steers stay collection_error; ` +
+      `${Object.keys(genuine).length} genuine runner messages still classify)`,
+  );
+}
+
 // ---- crux 6: lz-refactor nx-suite regression (D-11) -------------------------------------------
 
 function checkNxRegression() {
@@ -738,6 +797,7 @@ checkClassifier();
 checkTargetToolchainCanary();
 checkDiffContainment();
 checkRunnerSignalIsRunnerAuthored();
+checkNoTestsDisambiguationIsRunnerAuthored();
 checkNxRegression();
 
 console.log(

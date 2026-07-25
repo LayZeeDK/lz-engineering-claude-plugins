@@ -89,7 +89,11 @@ const APPLY_TIMEOUT_MS = Number(process.env.E2E_APPLY_TIMEOUT_MS || 20 * 60 * 10
 // constraint (advise vs apply), not the answer. Each prompt body carries its own context (e.g.
 // "tests are green"), so the skill must classify intent and diagnose the smell itself. The
 // recommend preamble forbids edits (belt: the runner also disallows the edit tools).
-const PREAMBLE = {
+//
+// These are the LZ-REFACTOR defaults and must stay byte-identical: "run the affected tests to
+// confirm nothing broke" is exactly right for a refactoring, whose whole contract is behavior
+// preservation. selfcheck-red crux 6 pins the apply string byte-for-byte.
+const DEFAULT_PREAMBLE = {
   recommend:
     'You are pair-programming with me. Read what I point you at and tell me how you would ' +
     'approach it. Do NOT edit any file and do NOT run any command. Here is my question:\n\n',
@@ -98,6 +102,13 @@ const PREAMBLE = {
     'steps. After editing, typecheck the touched file(s) and run the affected tests to confirm ' +
     'nothing broke. Leave your edits in the working tree; do not commit. Here is my question:\n\n',
 };
+
+// A suite MAY override a mode's preamble via suite.json "preambles": { apply|recommend: "..." }.
+// The RED suites need this: "confirm nothing broke" pushes AGAINST the behavior a RED eval
+// measures -- the newly written test MUST fail -- so it is a plausible drove_to_green inducer.
+// The override is per SUITE, never per arm, so prompt parity across the three arms is unaffected.
+// A suite that declares none (every lz-refactor suite) gets the defaults unchanged.
+const PREAMBLE = { ...DEFAULT_PREAMBLE, ...(SUITE.preambles || {}) };
 
 function parseArgs(argv) {
   const args = { mode: 'recommend', arm: 'with_skill', prompts: [], runs: [], dryRun: false, report: false, cwd: null, force: false, syntheticBase: false };

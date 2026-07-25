@@ -5,6 +5,9 @@
   "protectedBranches": ["main", "master"],
   "skillCommand": "/lz-tdd:lz-red",
   "trackSkills": ["lz-red", "lz-tpp"],
+  "preambles": {
+    "apply": "You are pair-programming with me. Read what I point you at and make the change in small steps. After editing, typecheck the touched file(s) and run the affected tests, then tell me what you see. Leave your edits in the working tree; do not commit. Here is my question:\n\n"
+  },
   "prompts": [
     { "id": "r1", "file": "r1-next-test.md", "target": "GRC", "code": true }
   ]

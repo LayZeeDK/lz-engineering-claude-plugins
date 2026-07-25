@@ -436,6 +436,23 @@ function gradeFabricatedRunDir(fixtureName, assertGrade) {
     fail(`[crux 7:${fixtureName}] leftover grading worktree after teardown:\n${worktrees}`);
   }
 
+  // The grading worktree carries a LIVE junction into the borrowed repo for most of its life, so a
+  // directory left behind on disk is a stranded link, not just clutter. `git worktree list` above
+  // would not notice one that git already pruned.
+  const stranded = fs.readdirSync(os.tmpdir()).filter((e) => e.startsWith('red-wt-'));
+
+  if (stranded.length) {
+    fail(`[crux 7:${fixtureName}] stranded grading worktree director(ies) under the temp dir: ${stranded.join(', ')}`);
+  }
+
+  // gradeRun installs SIGINT/SIGTERM handlers so an interrupted fan-out cannot strand that junction.
+  // They are per-run and must not accumulate across the 9 runs of a fan-out.
+  for (const signal of ['SIGINT', 'SIGTERM']) {
+    if (process.listenerCount(signal) !== 0) {
+      fail(`[crux 7:${fixtureName}] gradeRun leaked a ${signal} handler (${process.listenerCount(signal)} still registered)`);
+    }
+  }
+
   return grade;
 }
 

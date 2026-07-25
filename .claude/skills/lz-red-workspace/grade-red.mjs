@@ -660,19 +660,56 @@ export function gradeRun({ runDir, suiteDir }) {
     // ORDER IS LOAD-BEARING (T-63f-01): unlink the node_modules junction BEFORE removing the
     // worktree, so no recursive delete can follow the link into the TARGET's real node_modules.
     // Removing a directory junction unlinks the link and not its target, but the ordering is what
-    // makes that hold no matter who does the deleting. Link removal is failure-tolerant so an
-    // already-gone link cannot mask the real error or strand the worktree.
+    // makes that hold no matter who does the deleting.
     if (linkCreated) {
       try {
-        fs.rmSync(nodeModulesLink, { recursive: true, force: true });
-      } catch {
-        // best-effort; the worktree removal below still has to run
+        unlinkToolchain();
+      } catch (err) {
+        // rmSync's force:true ALREADY swallows an already-gone link, so reaching here means the
+        // removal genuinely failed -- EPERM/EBUSY from an indexer or scanner holding a handle,
+        // which is routine on Windows. That is exactly the case where force-removing the worktree
+        // with the link still live would void the ordering guarantee above, so stop instead and
+        // make a human unlink it. This can mask a pending error from the graded run; a live
+        // junction into a borrowed repo is the more urgent of the two.
+        throw new Error(
+          `grade-red: could NOT unlink ${nodeModulesLink} (${err.code || err.message}). Refusing to ` +
+            'remove the grading worktree while a live junction into the target repo sits inside it ' +
+            '-- remove the junction by hand first (fail closed, T-63f-01).',
+        );
       }
     }
 
-    git(gitRoot, ['worktree', 'remove', '--force', worktree]);
+    const removed = git(gitRoot, ['worktree', 'remove', '--force', worktree]);
+
+    if (removed.status !== 0) {
+      // Not fatal (the link is already down, so nothing points out of the worktree) but never
+      // silent: a stranded worktree accumulates across a fan-out and crux 7 asserts against it.
+      console.error(
+        `grade-red: WARNING -- could not remove the grading worktree ${worktree} ` +
+          `(exit ${removed.status}): ${(removed.stderr || '').trim()}`,
+      );
+    }
+
     git(gitRoot, ['worktree', 'prune']);
   };
+
+  // teardown() only runs via the finally below. A Ctrl-C, a SIGTERM, or a closed terminal between
+  // the first linkToolchain() and that finally would strand a LIVE junction into the target's real
+  // node_modules under os.tmpdir() -- and interrupting a 9-run fan-out is a normal operator action,
+  // not an exotic one. Unlink and re-raise; an orphaned worktree with nothing pointing out of it is
+  // harmless by comparison, and removing it here would need git plumbing inside a signal handler.
+  const onSignal = (signal) => {
+    try {
+      fs.rmSync(nodeModulesLink, { recursive: true, force: true });
+    } catch {
+      // there is nothing better to do from inside a signal handler
+    }
+
+    process.exit(signal === 'SIGINT' ? 130 : 143);
+  };
+
+  process.once('SIGINT', onSignal);
+  process.once('SIGTERM', onSignal);
 
   try {
     linkToolchain();
@@ -772,6 +809,8 @@ export function gradeRun({ runDir, suiteDir }) {
 
     return grade;
   } finally {
+    process.off('SIGINT', onSignal);
+    process.off('SIGTERM', onSignal);
     teardown();
   }
 }

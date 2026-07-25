@@ -27,8 +27,10 @@ node .claude/skills/lz-red-workspace/grade-red.mjs --selfcheck               # a
 node .claude/skills/lz-red-workspace/tabulate-mechanical-red.mjs --selfcheck # mechanical + Pass@k/Pass^k
 node .claude/skills/lz-red-workspace/merge-judge.mjs --selfcheck             # judge merge + fail-closed verify
 node .claude/skills/lz-red-workspace/selfcheck-red.mjs                       # composition/parity/worktree/classifier/nx
+                                                                             # + crux 4, the trigger detector (fixtures)
                                                                              # + crux 7, the Step 2 target-toolchain canary
                                                                              # + cruxes 8/9, the write-path containment
+node .claude/skills/lz-red-workspace/check-evals.mjs                         # eval-set shape + ASCII/email hygiene
 ```
 
 `selfcheck-red.mjs` takes about 70 s: cruxes 7 and 9 each build a real grading worktree and copy a
@@ -67,7 +69,40 @@ Before any spend, confirm the target corpus with the user at the gate:
    fails; surface it to the user. The anchor kata is already vendored + verified, so no install is
    needed for a GRC-only round.
 4. **Decide run scope for spend (D-03):** ~2-3 targets x k=3; the exact target count and k are tuned
-   here for spend. Report Pass@k AND Pass^k (k = 1, 3, 5, total) per target + overall.
+   here for spend. Report Pass@k AND Pass^k (k = 1, 3, 5, total) per target + overall. Scope it
+   against the measured calibration point below rather than a guess.
+
+### Calibration -- what the k=1 pilot actually cost (2026-07-25, user-approved)
+
+One `invoke_skill` apply run against GRC, `claude-opus-4-8` at effort `high`, throwaway kata
+checkout with its own `npm ci` toolchain:
+
+| Dimension | Measured |
+|-----------|----------|
+| Cost | **$0.54** (`total_cost_usd`, the CLI's own roll-up) |
+| Wall clock | **85 s** (`elapsed_ms` 85,095; `duration_api_ms` 74,831) |
+| Turns | **8** |
+| Tokens | 11 input / 4,670 output / 154,919 cache-read / 34,983 cache-creation |
+| Tools | Read x4, Glob x1, Write x1, PowerShell x1 |
+| D-06 verdict | `genuinely_red`, `pass: true` |
+| Runner | the target's OWN `vitest@0.28.5` (not the workspace's pinned 4.1.10) |
+| Toolchain copy (per grade) | ~3.4 s |
+| Kata afterwards | pristine -- clean tree, one worktree entry, `node_modules` intact |
+| Exit | 0 |
+
+Straight-line scaling for the fan-out (cost is dominated by the model turn, not by grading):
+
+| Scope | Runs | Est. spend | Est. wall clock (serial) |
+|-------|------|-----------|--------------------------|
+| 1 target x 3 arms x k=3 | 9 | ~$4.90 | ~13 min + ~30 s grading |
+| 2 targets x 3 arms x k=3 | 18 | ~$9.80 | ~26 min + ~1 min grading |
+| 3 targets x 3 arms x k=3 | 27 | ~$14.70 | ~38 min + ~1.5 min grading |
+| 1 target x 3 arms x k=5 | 15 | ~$8.20 | ~21 min |
+
+Treat these as a FLOOR. The pilot was a single forced run that went straight to a correct answer in
+8 turns; a `no_skill` run that thrashes, or a target with a slower suite, costs more. The two
+defects the pilot exposed (a trigger detector blind to slash-command invocation, and an anti-RED
+apply preamble) are fixed, so the next round measures what it claims to.
 
 ---
 
@@ -97,6 +132,12 @@ outside every collection root and asserts the gate returns `no_tests` rather tha
 to grade `compile_error` with `new_tsc_errors > 0`. Without it nothing in the whole battery would
 notice the differential typecheck silently ceasing to discriminate, which is the exact defect that
 made a produced test with blatant type errors grade as tsc-clean.
+
+Crux 4 no longer SKIPs either. It used to need a real transcript, which is gitignored, so the
+trigger detector was never exercised offline -- and that is how the pilot's blind spot survived the
+whole battery. It now runs off two committed, hand-authored fixtures under `fixtures/transcripts/`
+(a slash-command shape with no `Skill` tool_use, and a genuine model-choice `Skill` call) and
+asserts the detector agrees on availability while differing on model-fired.
 
 Crux 8 is pure and offline and never SKIPs: it pins the steering and write exploits measured on
 2026-07-25 as blocked -- a captured diff cannot name a path into the borrowed repo, the no-tests
@@ -204,8 +245,9 @@ Only after the zero-spend canary passes does the full fan-out below proceed.
 
 The first round runs the THREE own-skill arms (D-04): `no_skill` (no plugin), `with_skill`
 (`--plugin-dir plugins/lz-tdd` + natural prompt -- genuine description auto-trigger), and
-`invoke_skill` (natural prompt force-prefixed with `/lz-tdd:lz-red ` -- the always-fires content
-control). `--arm all` composes exactly these three.
+`invoke_skill` (natural prompt force-prefixed with `/lz-tdd:lz-red ` -- the forced CONTENT control:
+the skill's content is guaranteed present, so this arm isolates content lift from trigger lift).
+`--arm all` composes exactly these three.
 
 Isolation (baked into the suite / reused driver): `--strict-mcp-config` + `--setting-sources project`
 (drop MCP servers and the user's global plugins); model `claude-opus-4-8` at effort `high`; arms x
@@ -263,8 +305,39 @@ a fresh detached kata worktree has no `TypeScript/node_modules`, and neither `np
 tsc` resolves the kata's pinned versions from inside it. Install or link BEFORE driving `b`.
 
 `c` (the pass criterion) = runs whose `red-grade.pass === true` (verdict `genuinely_red`). Pass@k over
-exit-0 runs only. The auto-trigger gap = with_skill `used_skills['lz-red'] > 0` rate vs invoke_skill
-(the forced control, expected ~1.0) vs no_skill (0 by construction) -- the D-04 trigger-gap signal.
+exit-0 runs only.
+
+### Reading the D-04 trigger columns
+
+`tabulate-mechanical-red.mjs` prints THREE trigger rates, not one. Do not collapse them -- the k=1
+pilot did, and reported a 0.00 "auto-trigger" for a run in which the skill demonstrably loaded.
+
+| Column | Source | with_skill | invoke_skill | no_skill |
+|--------|--------|------------|--------------|----------|
+| `fired` (`autoTriggerRate`) | a `Skill` tool_use, i.e. the model CHOSE to invoke | the D-04 headline -- the number to report | **0.00 by design** | 0.00 |
+| `avail` (`availableRate`) | the CLI's `system/init` event advertises the skill | 1.00 | 1.00 -- the working positive control | 0.00 |
+| `force` (`forcedRate`) | the harness prefixed the slash command (by construction) | 0.00 | 1.00 | 0.00 |
+
+A slash command in the `-p` prompt is expanded by the CLI at prompt-processing time. It produces no
+`Skill` tool_use and no other trace in the stream, so a forced run is transcript-indistinguishable
+from a run that never fired. `invoke_skill` therefore reads `fired` 0.00, and that is CORRECT, not a
+bug: forcing is not a model choice, and reporting it as one would invent an auto-trigger the run
+never made. What makes `invoke_skill` a working control is the `avail` 1.00 + `force` 1.00 pair --
+it proves `--plugin-dir` loaded the plugin AND the detector is live, which is what licenses reading
+a `with_skill` `fired` of 0.00 as a real trigger gap rather than a broken instrument.
+
+If `invoke_skill` ever shows `avail` 0.00, STOP: the plugin did not load and the whole round is
+measuring nothing. If a captured `meta.json` predates the 2026-07-25 detector fix, the tabulator
+fails closed and asks for a re-capture rather than defaulting the three rates to 0.
+
+### Apply preamble
+
+The RED suite declares its own apply preamble in `suite.json` (`preambles.apply`). The shared
+lz-refactor default ends "...run the affected tests to confirm nothing broke", which argues against
+the behavior this suite measures -- the produced test MUST fail. The override still asks for a
+typecheck and still forbids committing, is byte-identical across the three arms, and is asserted by
+crux 2; crux 6 pins the lz-refactor default byte-for-byte so the shared string is never edited in
+place. If you add a suite, decide deliberately which preamble it inherits.
 
 ---
 

@@ -7,8 +7,10 @@
 // per (target, arm):
 //   - wall-clock mean (elapsed_ms), cost mean (total_cost_usd) + a per-model model_usage rollup,
 //   - tool histogram + num_turns mean, changed-files/edits count (drove),
-//   - the with_skill AUTO-TRIGGER rate = fraction of runs whose used_skills['lz-red'] > 0 -- the D-04
-//     trigger-gap dimension (invoke_skill is the always-fires control; no_skill has no plugin),
+//   - the D-04 trigger-gap dimension, as THREE separate rates rather than one conflated number
+//     (see the autoTriggerRate comment in aggregate() for why the k=1 pilot forced the split):
+//     autoTriggerRate (the model CHOSE to fire the skill), availableRate (the plugin loaded), and
+//     forcedRate (the harness prefixed the slash command -- true by construction),
 //   - Pass@k + Pass^k (k = 1, 3, 5, total) on the D-06 correctness gate (c = runs whose
 //     red-grade.pass === true), NOT a vocabulary/lift proxy.
 //
@@ -82,7 +84,14 @@ function toRun(meta, grade) {
     turns: meta.num_turns || 0,
     tools: meta.tool_calls || {},
     edits: Array.isArray(meta.changed_files) ? meta.changed_files.length : 0,
-    usedRed: (meta.used_skills && meta.used_skills['lz-red']) || 0,
+    // The three trigger facts, kept apart (run-e2e.mjs extractResult + runOne). firedRed is the
+    // ONLY genuine auto-trigger signal; availRed proves --plugin-dir loaded the plugin; forced is
+    // true by construction on the invoke_skill arm. meta.used_skills (the legacy tool_use-blob
+    // substring probe) is deliberately NOT read here -- it is what produced the pilot's misleading
+    // numbers, and it false-positives on a mere mention.
+    firedRed: (meta.skills_model_fired && meta.skills_model_fired['lz-red']) || 0,
+    availRed: !!(meta.skills_available && meta.skills_available['lz-red']),
+    forced: meta.skill_forced === true,
     modelUsage: meta.model_usage || {},
     pass: grade.pass === true,
   };
@@ -117,10 +126,25 @@ function aggregate(runs) {
     const editsMean = n ? rs.reduce((s, r) => s + r.edits, 0) / n : 0;
     const drove = clean.filter((r) => r.edits > 0).length;
 
-    // auto-trigger rate = fraction of runs whose lz-red fired (used_skills['lz-red'] > 0). For
-    // with_skill this is the genuine description auto-trigger; invoke_skill (forced) ~= 1.0; no_skill
-    // (no plugin) = 0. The with_skill-vs-invoke_skill gap is the D-04 trigger-gap signal.
-    const autoTriggerRate = n ? rs.filter((r) => r.usedRed > 0).length / n : 0;
+    // THREE rates, never collapsed into one. The 2026-07-25 k=1 pilot proved why: a slash command
+    // in the -p prompt is expanded by the CLI at prompt-processing time and produces NO Skill
+    // tool_use, so the forced invoke_skill control reported a 0.00 "auto-trigger" rate while the
+    // skill demonstrably loaded -- and a with_skill 0.00 could not be told apart from a broken
+    // detector.
+    //
+    //   autoTriggerRate -- the model CHOSE to fire the skill (a Skill tool_use). This is the D-04
+    //     trigger-gap headline and it is meaningful for with_skill ONLY. invoke_skill is EXPECTED
+    //     to read ~0.00 here and that is not a defect: forcing is not a model choice, and dressing
+    //     it up as one would report an auto-trigger the run never made. no_skill has no plugin.
+    //   availableRate  -- the CLI's own system/init advertised the skill, i.e. --plugin-dir worked.
+    //     THIS is what makes invoke_skill a working positive control: 1.00 there (and 1.00 on
+    //     with_skill, 0.00 on no_skill) proves the plumbing AND the detector are live, so a
+    //     with_skill autoTriggerRate of 0.00 is a real finding rather than an instrument failure.
+    //   forcedRate     -- the harness prefixed the slash command; true BY CONSTRUCTION, expected
+    //     1.00 on invoke_skill and 0.00 elsewhere. A canary on arm plumbing, not a measurement.
+    const autoTriggerRate = n ? rs.filter((r) => r.firedRed > 0).length / n : 0;
+    const availableRate = n ? rs.filter((r) => r.availRed).length / n : 0;
+    const forcedRate = n ? rs.filter((r) => r.forced).length / n : 0;
 
     const toolAgg = {};
 
@@ -152,6 +176,8 @@ function aggregate(runs) {
       editsMean,
       drove,
       autoTriggerRate,
+      availableRate,
+      forcedRate,
       toolAgg,
       modelUsage,
       passAt: {
@@ -238,6 +264,23 @@ function walkRuns(applyRoot) {
           throw new Error(`tabulate-red: keyless meta ${metaPath} (missing arm/target/changed_files -- fail closed)`);
         }
 
+        // A meta captured BEFORE the trigger-detector fix carries no separated trigger facts. It
+        // cannot be tabulated honestly: defaulting the three rates to 0 is exactly the misleading
+        // reading the fix removed. Fail loudly and make the operator re-capture instead.
+        if (
+          !meta.skills_model_fired ||
+          typeof meta.skills_model_fired !== 'object' ||
+          !meta.skills_available ||
+          typeof meta.skills_available !== 'object' ||
+          typeof meta.skill_forced !== 'boolean'
+        ) {
+          throw new Error(
+            `tabulate-red: meta ${metaPath} predates the trigger-detector fix (no skills_model_fired / ` +
+              'skills_available / skill_forced) -- its trigger rates are unmeasurable. Re-capture the run with ' +
+              'the current run-e2e.mjs (fail closed).',
+          );
+        }
+
         const gradePath = path.join(dir, 'red-grade.json');
 
         if (!fs.existsSync(gradePath)) {
@@ -266,7 +309,7 @@ const pct = (v) => (v === null || v === undefined ? '  -  ' : v.toFixed(2));
 
 function printTable(agg) {
   console.log(
-    'cell        arm           n  clean pass  autoTrig  P@1  P@3  P@5  P^1  P^3   wall(s) $mean turns  tools',
+    'cell        arm           n  clean pass  fired avail force  P@1  P@3  P@5  P^1  P^3   wall(s) $mean turns  tools',
   );
 
   for (const key of Object.keys(agg)) {
@@ -279,11 +322,19 @@ function printTable(agg) {
     console.log(
       `${cell.padEnd(11)} ${arm.padEnd(12)} ${String(a.n).padStart(2)}  ` +
         `${String(a.nClean).padStart(2)}   ${String(a.c).padStart(2)}   ` +
-        `${a.autoTriggerRate.toFixed(2)}     ` +
+        `${a.autoTriggerRate.toFixed(2)}  ${a.availableRate.toFixed(2)} ${a.forcedRate.toFixed(2)}  ` +
         `${pct(a.passAt[1])} ${pct(a.passAt[3])} ${pct(a.passAt[5])} ${pct(a.passHat[1])} ${pct(a.passHat[3])}  ` +
         `${(a.wallMeanMs / 1000).toFixed(0).padStart(5)} ${a.costMean.toFixed(2)}  ${a.turnsMean.toFixed(0).padStart(3)}   ${toolStr}`,
     );
   }
+
+  console.log(
+    '\nfired = model CHOSE to invoke the skill (the D-04 auto-trigger headline; meaningful for with_skill).\n' +
+      'avail = the CLI advertised the skill, i.e. --plugin-dir worked. force = the harness prefixed the slash\n' +
+      'command (true by construction). A forced arm reads fired ~0.00 BY DESIGN -- an expanded slash command\n' +
+      'produces no Skill tool_use; its control value is avail 1.00 + force 1.00, which is what proves the\n' +
+      'detector and the plumbing are live.',
+  );
 }
 
 // ---- offline selfcheck (zero spend; asserts rollup/auto-trigger/Pass@k on the fixtures) --------
@@ -376,8 +427,13 @@ function runSelfcheck() {
   approx(ws.modelUsage['claude-opus-4-8'].output, 1000, 'with_skill model_usage output rollup');
   approx(ws.modelUsage['claude-opus-4-8'].costUSD, 1.05, 'with_skill model_usage cost rollup');
 
-  // the D-04 auto-trigger rate: 3 of 5 with_skill runs fired lz-red (genuine description trigger)
-  approx(ws.autoTriggerRate, 0.6, 'with_skill auto-trigger rate');
+  // The D-04 trigger dimension, as three separate rates. The fixture makes the legacy
+  // used_skills['lz-red'] counts DIVERGE from skills_model_fired on purpose (with_skill 3/5 vs
+  // 2/5; invoke_skill 3/3 vs 0/3), so a regression to reading used_skills fails these two
+  // assertions instead of passing quietly with the pilot's misleading numbers.
+  approx(ws.autoTriggerRate, 0.4, 'with_skill auto-trigger rate (model-fired: 2 of 5)');
+  approx(ws.availableRate, 1.0, 'with_skill availableRate (--plugin-dir loaded on all 5)');
+  approx(ws.forcedRate, 0.0, 'with_skill forcedRate (natural prompt, never forced)');
 
   // Pass@k / Pass^k on the correctness gate (nClean=4, c=3)
   approx(ws.passAt[1], 0.75, 'with_skill Pass@1'); // 1 - C(1,1)/C(4,1)
@@ -389,17 +445,25 @@ function runSelfcheck() {
   eq(ws.passHat[5], null, 'with_skill Pass^5 (k>n -> null)');
   approx(ws.passHat.total, 0.0, 'with_skill Pass^total (k=4)'); // C(3,4)/C(4,4) = 0
 
-  // --- invoke_skill: forced -> auto-trigger 1.0, all pass ---
+  // --- invoke_skill: the FORCED control. The CLI expands the slash command at prompt-processing
+  // time, so there is no Skill tool_use and the honest model-choice rate is 0.00. Its control value
+  // is availableRate + forcedRate at 1.00: that pair is what proves --plugin-dir and the detector
+  // are live, and therefore that a with_skill 0.00 is a finding rather than a broken instrument.
+  // Asserting 1.00 auto-trigger here (as this battery used to) would be fabricating a model choice.
   eq(is.n, 3, 'invoke_skill n');
-  approx(is.autoTriggerRate, 1.0, 'invoke_skill auto-trigger rate (forced control)');
+  approx(is.autoTriggerRate, 0.0, 'invoke_skill auto-trigger rate (forced != model-fired)');
+  approx(is.availableRate, 1.0, 'invoke_skill availableRate (the positive control: plugin loaded)');
+  approx(is.forcedRate, 1.0, 'invoke_skill forcedRate (by construction)');
   approx(is.passAt[1], 1.0, 'invoke_skill Pass@1');
   approx(is.passHat[3], 1.0, 'invoke_skill Pass^3');
   approx(is.costMean, 0.2, 'invoke_skill costMean'); // 0.60 / 3
 
-  // --- no_skill: no plugin -> auto-trigger 0.0; 2 of 3 pass ---
+  // --- no_skill: no plugin -> nothing available, nothing fired, nothing forced; 2 of 3 pass ---
   eq(ns.n, 3, 'no_skill n');
   eq(ns.c, 2, 'no_skill c');
   approx(ns.autoTriggerRate, 0.0, 'no_skill auto-trigger rate (no plugin)');
+  approx(ns.availableRate, 0.0, 'no_skill availableRate (no --plugin-dir, so nothing advertised)');
+  approx(ns.forcedRate, 0.0, 'no_skill forcedRate');
   approx(ns.passAt[1], 2 / 3, 'no_skill Pass@1'); // 1 - C(1,1)/C(3,1)
   approx(ns.passHat[1], 2 / 3, 'no_skill Pass^1'); // C(2,1)/C(3,1)
   approx(ns.passAt[3], 1.0, 'no_skill Pass@3');
@@ -420,15 +484,40 @@ function runSelfcheck() {
     }
   }, 'keyless meta guard');
 
+  // fail-closed: a meta captured BEFORE the trigger-detector fix has no measurable trigger state.
+  // Silently defaulting its three rates to 0 is precisely the misleading reading the fix removed,
+  // so the walk must reject it and demand a re-capture.
+  assertThrows(() => {
+    const stale = { ...metas[0] };
+    delete stale.skills_model_fired;
+    delete stale.skills_available;
+    delete stale.skill_forced;
+
+    if (
+      !stale.skills_model_fired ||
+      typeof stale.skills_model_fired !== 'object' ||
+      !stale.skills_available ||
+      typeof stale.skills_available !== 'object' ||
+      typeof stale.skill_forced !== 'boolean'
+    ) {
+      throw new Error('pre-fix meta rejected');
+    }
+  }, 'pre-fix meta guard');
+
   console.log(
-    '  [with_skill] n=5 clean=4 pass=3 autoTrig=0.60 Pass@1=0.75 Pass^3=0.25 tools=Read:9/Edit:3/Bash:2 cost=1.05 OK',
+    '  [with_skill] n=5 clean=4 pass=3 fired=0.40 avail=1.00 force=0.00 Pass@1=0.75 Pass^3=0.25 ' +
+      'tools=Read:9/Edit:3/Bash:2 cost=1.05 OK',
   );
-  console.log('  [invoke_skill] autoTrig=1.00 Pass@1=1.00 (forced control) OK');
-  console.log('  [no_skill] autoTrig=0.00 Pass@1=0.67 (baseline, no plugin) OK');
-  console.log('  [fail-closed] meta without a grade + keyless meta throw OK');
   console.log(
-    'tabulate-mechanical-red --selfcheck: OK -- token/cost rollup, the with_skill auto-trigger rate, ' +
-      'and Pass@k/Pass^k (k=1,3,5,total) on the D-06 correctness gate all match the fixtures; zero spend.',
+    '  [invoke_skill] fired=0.00 avail=1.00 force=1.00 Pass@1=1.00 OK ' +
+      '(forced control: an expanded slash command is NOT a model choice; avail+force are what it proves)',
+  );
+  console.log('  [no_skill] fired=0.00 avail=0.00 force=0.00 Pass@1=0.67 (baseline, no plugin) OK');
+  console.log('  [fail-closed] meta without a grade + keyless meta + pre-fix meta all throw OK');
+  console.log(
+    'tabulate-mechanical-red --selfcheck: OK -- token/cost rollup, the three separated trigger rates ' +
+      '(model-fired / available / forced), and Pass@k/Pass^k (k=1,3,5,total) on the D-06 correctness gate ' +
+      'all match the fixtures; zero spend.',
   );
   process.exit(0);
 }

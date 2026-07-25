@@ -11,15 +11,24 @@
 //      /lz-tdd:lz-red ). (recommend mode needs no --cwd; arm plumbing is mode-independent.)
 //   2. PROMPT-PARITY -- no_skill and with_skill -p are byte-identical; invoke_skill -p is exactly
 //      with_skill -p + the leading "/lz-tdd:lz-red " (the D-02 non-leading, byte-identical prompt).
+//      Also, in APPLY mode: the RED suite's own preamble override reaches composition, keeps the
+//      typecheck + never-commit constraints, makes no stay-green claim (the shared lz-refactor
+//      default does, which argues against the very behavior a RED eval measures), stays
+//      non-leading, and holds parity across all three arms.
 //   3. WORKTREE BASE -- buildSyntheticBase against the kata git root builds + tears down a worktree
 //      leaving the borrowed repo pristine (git status clean, no leftover worktree/branch; Pitfall 6).
 //      Kata unavailable -> SKIP (do not fail the whole selfcheck).
-//   4. TRANSCRIPT PARSE -- the parameterized extractResult(raw, ['lz-red','lz-tpp']) reads a RED
-//      transcript's used_skills keyed by the tracked names (gitignored -> SKIP if absent).
+//   4. TRIGGER DETECTOR -- extractResult(raw, ['lz-red','lz-tpp']) keeps the three trigger facts
+//      apart: AVAILABLE (system/init advertises the skill -- proves --plugin-dir worked),
+//      MODEL-FIRED (a Skill tool_use -- the genuine auto-trigger), and, by its absence, FORCED
+//      (an expanded slash command leaves no stream trace, so run-e2e records it by construction).
+//      Runs off two committed hand-authored fixtures, so it never SKIPs; a real on-disk capture
+//      (gitignored) is parsed as an extra when present.
 //   5. CLASSIFIER    -- grade-red's classify() classifies genuinely_red + false_green (thin re-assert;
 //      grade-red --selfcheck is the full 7-class one).
 //   6. REGRESSION    -- the DEFAULT nx suite still composes 3 arms with plugins/lz-tdd (the suite-driven
-//      trackSkills edit did not break the lz-refactor suites; D-11).
+//      trackSkills edit did not break the lz-refactor suites; D-11), AND its apply preamble is still
+//      the shared lz-refactor default byte-for-byte (the RED suite must override, never edit it).
 //   7. TARGET TOOLCHAIN -- gradeRun over a FABRICATED runDir (hand-built meta.json + diff.patch)
 //      against the kata's OWN toolchain: a real verdict, the selected runner, a real runner_version
 //      (not the 'unknown' sentinel), and the borrowed repo intact afterwards. Every other crux and
@@ -62,6 +71,16 @@ import {
 const HERE = dirname(fileURLToPath(import.meta.url));
 const RUN_E2E = resolve(HERE, '..', 'lz-refactor-workspace', 'e2e-nx', 'run-e2e.mjs');
 const RED_SUITE_DIR = join(HERE, 'e2e-red-gilded-rose');
+
+// The lz-refactor apply preamble, pinned BYTE-FOR-BYTE. run-e2e.mjs is shared with the lz-refactor
+// suites, where "run the affected tests to confirm nothing broke" is exactly right -- a refactoring
+// must preserve behavior. The RED suite overrides it per suite (suite.json "preambles") because
+// that sentence pushes against the behavior a RED eval measures. This copy is the tripwire: if the
+// shared default is ever edited in place instead of overridden, crux 6 fails.
+const DEFAULT_APPLY_PREAMBLE =
+  'You are pair-programming with me. Read what I point you at and make the improvement in small ' +
+  'steps. After editing, typecheck the touched file(s) and run the affected tests to confirm ' +
+  'nothing broke. Leave your edits in the working tree; do not commit. Here is my question:\n\n';
 
 function fail(msg) {
   console.error(`selfcheck-red: FAIL -- ${msg}`);
@@ -262,6 +281,106 @@ function checkCompositionAndParity() {
   }
 
   console.log(`  [crux 2] prompt pins the target's test_dir OK (${pinnedDir})`);
+
+  checkRedApplyPreamble();
+}
+
+// crux 2 (apply mode): the RED suite's own apply preamble. The shared default ends "...run the
+// affected tests to confirm nothing broke", which is correct for a refactoring and WRONG here: a
+// RED eval measures whether the newly written test FAILS, so that sentence argues against the
+// behavior under measurement and is a plausible drove_to_green inducer. It was byte-identical
+// across arms, so it never biased the A/B -- it biased the whole suite.
+//
+// The fix is a per-SUITE override, so this asserts (i) the override actually reaches composition,
+// (ii) it keeps the two constraints the harness depends on (typecheck, never commit), (iii) it
+// makes no green-preserving claim, (iv) it stays non-leading, and (v) apply-mode prompt parity
+// across the three arms still holds -- an override applied per arm would silently break the A/B.
+function checkRedApplyPreamble() {
+  // --cwd is required by apply mode and, in --dry-run, is only echoed; no git command runs.
+  const stdout = dryRun(['--suite', RED_SUITE_DIR, '--mode', 'apply', '--cwd', HERE, '--arm', 'all', '--prompt', 'r1']);
+  const arms = armMap(stdout);
+
+  for (const name of ['no_skill', 'with_skill', 'invoke_skill']) {
+    if (!arms[name]) {
+      fail(`[crux 2] apply mode did not compose the ${name} arm (got: ${Object.keys(arms).join(', ')})`);
+    }
+  }
+
+  const wsPrompt = flagValue(arms.with_skill, '-p') || '';
+  const nsPrompt = flagValue(arms.no_skill, '-p') || '';
+  const isPrompt = flagValue(arms.invoke_skill, '-p') || '';
+
+  // (v) parity, in apply mode too.
+  if (nsPrompt !== wsPrompt) {
+    fail(`[crux 2] apply mode: no_skill vs with_skill -p differ (must be byte-identical):\n  no_skill=${JSON.stringify(nsPrompt)}\n  with_skill=${JSON.stringify(wsPrompt)}`);
+  }
+
+  if (isPrompt !== '/lz-tdd:lz-red ' + wsPrompt) {
+    fail(`[crux 2] apply mode: invoke_skill -p is not with_skill -p + '/lz-tdd:lz-red ':\n  invoke=${JSON.stringify(isPrompt)}`);
+  }
+
+  const declared = (readJson(join(RED_SUITE_DIR, 'suite.json')).preambles || {}).apply;
+
+  if (!declared) {
+    fail('[crux 2] the RED suite declares no apply preamble override, so it inherits the lz-refactor default that tells the model the tests must stay green');
+  }
+
+  // (i) the declared override is what actually gets composed.
+  if (!wsPrompt.startsWith(declared)) {
+    fail(`[crux 2] the composed apply prompt does not start with the suite's declared preamble -- the override did not take effect:\n  composed=${JSON.stringify(wsPrompt.slice(0, 120))}`);
+  }
+
+  if (wsPrompt.startsWith(DEFAULT_APPLY_PREAMBLE)) {
+    fail('[crux 2] the RED suite is still composing the shared lz-refactor apply preamble');
+  }
+
+  // (ii) the harness depends on both of these: an untypechecked edit muddies the compile_error
+  // class, and a commit would move the capture out of the working tree the runner diffs.
+  if (!/typecheck/i.test(declared)) {
+    fail(`[crux 2] the RED apply preamble no longer asks for a typecheck: ${JSON.stringify(declared)}`);
+  }
+
+  if (!/do not commit/i.test(declared)) {
+    fail(`[crux 2] the RED apply preamble no longer forbids committing: ${JSON.stringify(declared)}`);
+  }
+
+  // (iii) no claim that the tests must stay green.
+  const greenPreservingTokens = [
+    'nothing broke',
+    'nothing is broken',
+    'nothing breaks',
+    'still pass',
+    'still green',
+    'stay green',
+    'remain green',
+    'keep the tests passing',
+    'without breaking',
+    "don't break",
+    'do not break',
+  ];
+  const loweredPreamble = declared.toLowerCase();
+  const greenClaims = greenPreservingTokens.filter((t) => loweredPreamble.includes(t));
+
+  if (greenClaims.length) {
+    fail(
+      `[crux 2] the RED apply preamble tells the model the tests must stay green (${JSON.stringify(greenClaims)}); ` +
+        'the produced test is REQUIRED to fail, so the preamble must not argue against the measured behavior',
+    );
+  }
+
+  // (iv) non-leading: it must not name the smell, the domain behavior, or the verdict. Word-boundary
+  // matched, because the short tokens ('red', 'green') would otherwise hit ordinary prose.
+  const leadingTokens = ['conjured', 'sulfuras', 'brie', 'backstage', 'quality', 'sellin', 'red', 'green', 'failing', 'passing', 'refactor', 'characterization'];
+  const led = leadingTokens.filter((t) => new RegExp(`(^|[^a-z])${t}($|[^a-z])`, 'i').test(declared));
+
+  if (led.length) {
+    fail(`[crux 2] the RED apply preamble names the expected smell/behavior/verdict (${JSON.stringify(led)}); it must stay non-leading`);
+  }
+
+  console.log(
+    `  [crux 2] RED apply preamble OK (suite override in effect, byte-identical across the 3 arms, asks for a ` +
+      `typecheck, forbids committing, makes no stay-green claim, and names no smell/behavior/verdict)`,
+  );
 }
 
 // ---- crux 3: worktree build/teardown leaves the borrowed repo pristine ------------------------
@@ -340,44 +459,121 @@ function checkWorktreeBase() {
   console.log('  [crux 3] worktree base OK (built + torn down against the kata git root; repo pristine, no leftover worktree/branch)');
 }
 
-// ---- crux 4: transcript parse (offline, zero spend) -------------------------------------------
+// ---- crux 4: the trigger detector distinguishes available / model-fired / forced ---------------
 
+// The 2026-07-25 k=1 pilot exposed the measurement-invalidating defect this crux now guards: the
+// detector counted a tracked name inside a tool_use blob, and a slash command in the -p prompt is
+// expanded by the CLI at prompt-processing time and produces NO Skill tool_use. So the forced
+// invoke_skill arm -- the POSITIVE CONTROL for the D-04 trigger gap -- recorded 0 firings even
+// though the skill demonstrably loaded, which makes a with_skill reading of 0.00 indistinguishable
+// from a broken detector.
+//
+// Real transcripts are gitignored, so the old crux SKIPped and could not see any of this. It now
+// runs off two committed, hand-authored fixtures and NEVER skips; an on-disk real capture, when one
+// happens to exist, is checked as an extra.
 function checkTranscriptParse() {
-  const arms = ['with_skill', 'no_skill', 'invoke_skill'];
-  let transcript = null;
+  const fixtureDir = join(HERE, 'fixtures', 'transcripts');
 
-  for (const arm of arms) {
-    const candidate = join(RED_SUITE_DIR, 'results', 'apply', arm, 'r1', 'run-1', 'outputs', 'transcript.stream.jsonl');
+  const readFixture = (name) => {
+    const p = join(fixtureDir, name);
 
-    if (fs.existsSync(candidate)) {
-      transcript = candidate;
+    try {
+      return fs.readFileSync(p, 'utf8');
+    } catch (err) {
+      fail(`[crux 4] cannot read committed transcript fixture ${p}: ${err.message}`);
+    }
+  };
 
-      break;
+  const tracked = ['lz-red', 'lz-tpp'];
+  const slash = extractResult(readFixture('slash-command.jsonl'), tracked);
+  const fired = extractResult(readFixture('model-fired.jsonl'), tracked);
+
+  for (const [label, r] of [['slash-command', slash], ['model-fired', fired]]) {
+    for (const key of ['used_skills', 'skills_available', 'skills_model_fired']) {
+      if (!r[key] || !('lz-red' in r[key]) || !('lz-tpp' in r[key])) {
+        fail(`[crux 4] ${label}: ${key} not keyed by the tracked names lz-red/lz-tpp: ${JSON.stringify(r[key])}`);
+      }
     }
   }
 
-  if (!transcript) {
-    console.log('  [crux 4] SKIP -- no RED transcript on disk (gitignored); run a metered apply run to exercise it');
-
-    return;
+  // (a) AVAILABLE -- read off the system/init event, the only transcript proof --plugin-dir worked.
+  // The slash-command fixture advertises lz-red but NOT lz-tpp, so this has a negative case too: a
+  // detector that answered "true" for every tracked name would pass the positive half and fail here.
+  if (slash.skills_available['lz-red'] !== true) {
+    fail('[crux 4] slash-command fixture: lz-red is advertised in system/init but skills_available says otherwise -- availability is not being read');
   }
 
-  let raw;
-
-  try {
-    raw = fs.readFileSync(transcript, 'utf8');
-  } catch (err) {
-    fail(`[crux 4] cannot read on-disk transcript ${transcript}: ${err.message}`);
+  if (slash.skills_available['lz-tpp'] !== false) {
+    fail('[crux 4] slash-command fixture: lz-tpp is NOT advertised in system/init, but skills_available claims it is');
   }
 
-  // The RED suite tracks lz-red + lz-tpp -- assert used_skills is keyed by exactly those tracked names.
-  const r = extractResult(raw, ['lz-red', 'lz-tpp']);
-
-  if (!r.used_skills || !('lz-red' in r.used_skills) || !('lz-tpp' in r.used_skills)) {
-    fail(`[crux 4] used_skills not keyed by the tracked names lz-red/lz-tpp: ${JSON.stringify(r.used_skills)}`);
+  if (fired.skills_available['lz-red'] !== true || fired.skills_available['lz-tpp'] !== true) {
+    fail(`[crux 4] model-fired fixture: both tracked skills are advertised, got ${JSON.stringify(fired.skills_available)}`);
   }
 
-  console.log(`  [crux 4] transcript parse OK (used_skills keyed by lz-red/lz-tpp = ${JSON.stringify(r.used_skills)}, tools=${Object.keys(r.tool_calls).join('+') || 'none'})`);
+  // (b) MODEL-FIRED -- a Skill tool_use, i.e. the model CHOSE to invoke. The slash-command shape has
+  // none; that is the pilot's exact blind spot, and it must read as 0 rather than be fabricated.
+  if (slash.skills_model_fired['lz-red'] !== 0 || slash.skills_model_fired['lz-tpp'] !== 0) {
+    fail(
+      `[crux 4] slash-command fixture has no Skill tool_use, so model-fired must be 0 for every tracked name ` +
+        `(a forced run must NOT be reported as a model-choice auto-trigger): ${JSON.stringify(slash.skills_model_fired)}`,
+    );
+  }
+
+  if (fired.skills_model_fired['lz-red'] !== 1) {
+    fail(`[crux 4] model-fired fixture: a genuine Skill tool_use for lz-tdd:lz-red was not counted (got ${fired.skills_model_fired['lz-red']})`);
+  }
+
+  // Only the Skill call's own descriptor may count. That call's args mention lz-tpp as a hand-off;
+  // counting the whole input blob would read the mention as the sibling skill having fired.
+  if (fired.skills_model_fired['lz-tpp'] !== 0) {
+    fail(
+      `[crux 4] model-fired fixture: lz-tpp is only MENTIONED in the lz-red Skill call's args, but it was ` +
+        `counted as fired (${fired.skills_model_fired['lz-tpp']}) -- the count must read the descriptor, not the blob`,
+    );
+  }
+
+  // THE DISCRIMINATION: identical availability, opposite model-fired. If the two collapse, the
+  // detector cannot tell "forced/expanded" from "the model chose it" and the D-04 headline is noise.
+  if (slash.skills_available['lz-red'] !== fired.skills_available['lz-red']) {
+    fail('[crux 4] the two fixtures must AGREE on availability (both loaded the plugin)');
+  }
+
+  if (slash.skills_model_fired['lz-red'] === fired.skills_model_fired['lz-red']) {
+    fail(
+      '[crux 4] the two fixtures read the SAME model-fired count, so the detector cannot distinguish an ' +
+        'expanded slash command from a genuine model-choice Skill call',
+    );
+  }
+
+  console.log(
+    '  [crux 4] trigger detector OK (slash-command fixture: available lz-red=true/lz-tpp=false, model-fired 0; ' +
+      'model-fired fixture: available both, model-fired lz-red=1/lz-tpp=0 -- descriptor-scoped, and the two ' +
+      'agree on availability while differing on model-fired)',
+  );
+
+  // Extra, when a real capture happens to be on disk (gitignored, so usually absent): the same
+  // parameterized parse over real bytes.
+  for (const arm of ['with_skill', 'no_skill', 'invoke_skill']) {
+    const candidate = join(RED_SUITE_DIR, 'results', 'apply', arm, 'r1', 'run-1', 'outputs', 'transcript.stream.jsonl');
+
+    if (!fs.existsSync(candidate)) {
+      continue;
+    }
+
+    const r = extractResult(fs.readFileSync(candidate, 'utf8'), tracked);
+
+    if (!r.used_skills || !('lz-red' in r.used_skills) || !('lz-tpp' in r.used_skills)) {
+      fail(`[crux 4] on-disk ${arm} transcript: used_skills not keyed by lz-red/lz-tpp: ${JSON.stringify(r.used_skills)}`);
+    }
+
+    console.log(
+      `  [crux 4] on-disk ${arm} capture also parses (available=${JSON.stringify(r.skills_available)}, ` +
+        `model-fired=${JSON.stringify(r.skills_model_fired)}, tools=${Object.keys(r.tool_calls).join('+') || 'none'})`,
+    );
+
+    break;
+  }
 }
 
 // ---- crux 5: classifier (thin re-assert; grade-red --selfcheck is the full one) ---------------
@@ -1214,6 +1410,29 @@ function checkNxRegression() {
   }
 
   console.log('  [crux 6] nx regression OK (default lz-refactor suite still composes 3 arms with plugins/lz-tdd)');
+
+  // The suite-level preamble override edits a file the lz-refactor suites drive, so pin their apply
+  // preamble byte-for-byte. A suite that declares no override must compose the shared default
+  // unchanged -- "confirm nothing broke" is the correct instruction for a behavior-preserving
+  // refactoring, and every captured lz-refactor result was produced under exactly these bytes.
+  const applyStdout = dryRun(['--mode', 'apply', '--cwd', HERE, '--arm', 'all', '--prompt', 'p1']);
+  const applyArms = armMap(applyStdout);
+  const nxApply = flagValue(applyArms.with_skill, '-p') || '';
+
+  if (!nxApply.startsWith(DEFAULT_APPLY_PREAMBLE)) {
+    fail(
+      '[crux 6] the nx suite no longer composes the lz-refactor apply preamble byte-for-byte -- the shared ' +
+        `default was edited instead of overridden per suite:\n  got     =${JSON.stringify(nxApply.slice(0, 260))}\n  expected=${JSON.stringify(DEFAULT_APPLY_PREAMBLE)}`,
+    );
+  }
+
+  const nxApplyNoSkill = flagValue(applyArms.no_skill, '-p') || '';
+
+  if (nxApplyNoSkill !== nxApply) {
+    fail('[crux 6] nx apply mode: no_skill vs with_skill -p differ (must be byte-identical)');
+  }
+
+  console.log('  [crux 6] lz-refactor apply preamble unchanged OK (nx composes the shared default byte-for-byte; parity intact)');
 }
 
 // ---- run all -----------------------------------------------------------------------------------

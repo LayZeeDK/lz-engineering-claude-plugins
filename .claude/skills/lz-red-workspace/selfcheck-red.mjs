@@ -413,15 +413,18 @@ function checkClassifier() {
 function gradeFabricatedRunDir(fixtureName, assertGrade) {
   const ctx = loadSuiteCtx(RED_SUITE_DIR);
   const fixture = join(HERE, 'fixtures', fixtureName);
-  const realNodeModules = join(ctx.repo, 'node_modules');
 
   // Mirror crux 3's SKIP-if-absent discipline: the metered run is gated anyway, and a missing
-  // borrowed repo must not fail the whole battery.
+  // borrowed repo must not fail the whole battery. This has to come BEFORE any join(ctx.repo, ...)
+  // -- join(undefined, ...) throws a TypeError and takes the whole battery down instead of
+  // printing the SKIP, which made the !ctx.repo half of the guard unreachable.
   if (!ctx.repo || !fs.existsSync(ctx.repo)) {
     console.log(`  [crux 7:${fixtureName}] SKIP -- kata repo not on disk (${ctx.repo})`);
 
     return;
   }
+
+  const realNodeModules = join(ctx.repo, 'node_modules');
 
   if (!fs.existsSync(realNodeModules)) {
     console.log(`  [crux 7:${fixtureName}] SKIP -- kata has no node_modules (${realNodeModules}); run npm ci there to exercise it`);
@@ -442,10 +445,13 @@ function gradeFabricatedRunDir(fixtureName, assertGrade) {
   try {
     grade = gradeRun({ runDir, suiteDir: RED_SUITE_DIR });
   } catch (err) {
-    fail(`[crux 7:${fixtureName}] gradeRun threw instead of producing a verdict: ${err.message}`);
-  } finally {
+    // Clean up BEFORE failing: fail() calls process.exit(1), which does not unwind the stack, so a
+    // finally here would never run and every failed canary would leave a directory behind.
     fs.rmSync(runDir, { recursive: true, force: true });
+    fail(`[crux 7:${fixtureName}] gradeRun threw instead of producing a verdict: ${err.message}`);
   }
+
+  fs.rmSync(runDir, { recursive: true, force: true });
 
   assertGrade(grade);
 

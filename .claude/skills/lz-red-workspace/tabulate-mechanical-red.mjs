@@ -30,11 +30,11 @@
 //   node tabulate-mechanical-red.mjs --selfcheck  # offline, zero spend; assert rollup/auto-trigger/Pass@k on fixtures
 
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
-const SUITE_DIR = path.join(HERE, 'e2e-red-gilded-rose');
 const FIXTURE_DIR = path.join(HERE, 'fixtures', 'tabulate');
 
 // ---- Pass@k / Pass^k (copied VERBATIM from run-e2e.mjs / tabulate-mechanical.mjs; neither is
@@ -308,6 +308,70 @@ function walkRuns(applyRoot) {
   return runs;
 }
 
+// ---- multi-suite discovery + the cell-key collision guard -------------------------------------
+
+// Every RED suite dir under `root`: a direct child whose name starts with `e2e-red-` and which
+// actually carries a suite.json. Sorted, so the printed table is stable across machines.
+//
+// The RED instrument is ONE suite dir per target repo (suite.json carries a single repo +
+// applyBase, and run-e2e.mjs is driven one --suite at a time), so tabulating a round means walking
+// all of them rather than the one that happened to be hardcoded here.
+export function discoverSuiteDirs(root = HERE) {
+  let entries;
+
+  try {
+    entries = fs.readdirSync(root, { withFileTypes: true });
+  } catch (err) {
+    throw new Error(`tabulate-red: cannot list ${root} to discover RED suites (fail closed): ${err.message}`);
+  }
+
+  return entries
+    .filter((e) => e.isDirectory() && e.name.startsWith('e2e-red-'))
+    .map((e) => path.join(root, e.name))
+    .filter((d) => fs.existsSync(path.join(d, 'suite.json')))
+    .sort();
+}
+
+// Walk every suite, keeping each suite's own runs AND the combined list, and FAIL CLOSED if two
+// different suites produce the same `${target}:${pid}|${arm}` cell key.
+//
+// Target ids are globally unique today (GRC / NGXA / SRVC), so the three suites aggregate into one
+// table without colliding -- but that is an INVARIANT, not a guarantee. Two repos silently merged
+// into one cell is a wrong number that looks entirely plausible: the n doubles, the Pass@k is a
+// blend of two different targets, and nothing in the output says so. That is exactly the class of
+// defect this file's fail-closed contract exists to prevent, so it is an error rather than a note.
+export function walkAllSuites(suiteDirs) {
+  const owner = new Map();
+  const perSuite = [];
+  const all = [];
+
+  for (const suiteDir of suiteDirs) {
+    const runs = walkRuns(path.join(suiteDir, 'results', 'apply'));
+
+    for (const r of runs) {
+      const key = `${r.target}:${r.pid}|${r.arm}`;
+      const prior = owner.get(key);
+
+      // Within ONE suite the same key repeats legitimately -- that is what k>1 means. Only a
+      // SECOND suite claiming it is a collision.
+      if (prior !== undefined && prior !== suiteDir) {
+        throw new Error(
+          `tabulate-red: cell '${key}' is produced by TWO different suites -- ${prior} and ${suiteDir}. ` +
+            'Aggregating them would silently blend two targets into one Pass@k. Give each target a ' +
+            'globally unique id in its own targets.json (fail closed, T-wpu-05).',
+        );
+      }
+
+      owner.set(key, suiteDir);
+    }
+
+    perSuite.push({ suiteDir, runs });
+    all.push(...runs);
+  }
+
+  return { all, perSuite };
+}
+
 // ---- printing --------------------------------------------------------------------------------
 
 const pct = (v) => (v === null || v === undefined ? '  -  ' : v.toFixed(2));
@@ -400,6 +464,82 @@ function joinFixtures(metas, grades) {
   }
 
   return runs;
+}
+
+// Write ONE fake suite dir holding ONE captured run, in the real on-disk layout
+// (results/apply/<arm>/<pid>/run-1/{meta.json,red-grade.json}) so discovery and the walk are
+// exercised against the shape they meet in production rather than against an in-memory stand-in.
+function writeFakeSuite(root, name, meta, grade) {
+  const suiteDir = path.join(root, name);
+  const runDir = path.join(suiteDir, 'results', 'apply', meta.arm, meta.prompt_id, 'run-1');
+  fs.mkdirSync(runDir, { recursive: true });
+  fs.writeFileSync(path.join(suiteDir, 'suite.json'), JSON.stringify({ name }, null, 2));
+  fs.writeFileSync(path.join(runDir, 'meta.json'), JSON.stringify(meta, null, 2));
+  fs.writeFileSync(path.join(runDir, 'red-grade.json'), JSON.stringify(grade, null, 2));
+
+  return suiteDir;
+}
+
+// The multi-suite walk, in BOTH directions, against a throwaway tree under os.tmpdir().
+//
+// This case FAILS against the pre-change single-suite code, which is the point: that version
+// hardcoded one SUITE_DIR, so a second suite's runs were simply invisible and a round spanning
+// three repos would have been tabulated as one. A positive-only assertion over the committed
+// fixtures could not have seen that, because there is only one committed suite today.
+function checkMultiSuiteWalk(baseMeta, baseGrade) {
+  if (!baseMeta || !baseGrade) {
+    fail('multi-suite case: the tabulate fixtures did not yield a meta/grade pair to build from');
+  }
+
+  const root = path.join(os.tmpdir(), `red-tab-suites-${process.pid}-${Date.now()}`);
+  fs.mkdirSync(root, { recursive: true });
+
+  try {
+    const mkPair = (target) => [
+      { ...baseMeta, target },
+      { ...baseGrade, target },
+    ];
+    const [metaA, gradeA] = mkPair('AAA');
+    const [metaB, gradeB] = mkPair('BBB');
+    writeFakeSuite(root, 'e2e-red-alpha', metaA, gradeA);
+    writeFakeSuite(root, 'e2e-red-beta', metaB, gradeB);
+    // Two NEGATIVE discovery controls: a non-`e2e-red-` dir and an `e2e-red-` dir with no
+    // suite.json must both be ignored, so discovery cannot degenerate into "every subdirectory".
+    fs.mkdirSync(path.join(root, 'fixtures'), { recursive: true });
+    fs.mkdirSync(path.join(root, 'e2e-red-not-a-suite'), { recursive: true });
+
+    const found = discoverSuiteDirs(root);
+
+    if (found.length !== 2) {
+      fail(`multi-suite discovery found ${found.length} suite(s) (${found.join(', ')}), expected exactly the 2 with a suite.json`);
+    }
+
+    const { all, perSuite } = walkAllSuites(found);
+    const agg = aggregate(all);
+    const keyA = `AAA:${metaA.prompt_id}|${metaA.arm}`;
+    const keyB = `BBB:${metaB.prompt_id}|${metaB.arm}`;
+
+    if (!agg[keyA] || !agg[keyB]) {
+      fail(`the combined aggregate is missing a suite's cell (got ${JSON.stringify(Object.keys(agg))}, expected ${keyA} + ${keyB})`);
+    }
+
+    eq(perSuite.length, 2, 'per-suite result count');
+    eq(perSuite[0].runs.length, 1, 'suite A run count');
+    eq(perSuite[1].runs.length, 1, 'suite B run count');
+
+    // The collision guard: a THIRD suite reusing suite A's target id must throw rather than
+    // silently blending two repos' runs into one cell.
+    const [metaC, gradeC] = mkPair('AAA');
+    writeFakeSuite(root, 'e2e-red-gamma', metaC, gradeC);
+    assertThrows(() => walkAllSuites(discoverSuiteDirs(root)), 'colliding cell key across two suites');
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+
+  console.log(
+    '  [multi-suite] discovery + aggregation OK (2 suite dirs found and both cells present; a non-suite dir ' +
+      'and a suite.json-less dir ignored; a third suite reusing a target id throws)',
+  );
 }
 
 function runSelfcheck() {
@@ -509,6 +649,8 @@ function runSelfcheck() {
     }
   }, 'pre-fix meta guard');
 
+  checkMultiSuiteWalk(metas[0], grades.find((g) => g.arm === metas[0].arm && g.run_idx === metas[0].run_idx));
+
   console.log(
     '  [with_skill] n=5 clean=4 pass=3 fired=0.40 avail=1.00 force=0.00 Pass@1=0.75 Pass^3=0.25 ' +
       'tools=Read:9/Edit:3/Bash:2 cost=1.05 OK',
@@ -536,21 +678,40 @@ function main(argv) {
     return;
   }
 
-  const applyRoot = path.join(SUITE_DIR, 'results', 'apply');
-  const runs = walkRuns(applyRoot);
+  const suiteDirs = discoverSuiteDirs();
 
-  if (!runs.length) {
-    console.log(`no captured runs under ${applyRoot} -- nothing to tabulate (run the gated suite first).`);
+  if (!suiteDirs.length) {
+    console.log(`no e2e-red-* suite dirs with a suite.json under ${HERE} -- nothing to tabulate.`);
 
     return;
   }
 
-  const agg = aggregate(runs);
-  printTable(agg);
+  const { all, perSuite } = walkAllSuites(suiteDirs);
 
-  const outPath = path.join(SUITE_DIR, 'mechanical-red.json');
-  fs.writeFileSync(outPath, JSON.stringify(agg, null, 2));
-  console.log(`\nwrote ${outPath} (${runs.length} runs across ${Object.keys(agg).length} cells).`);
+  if (!all.length) {
+    console.log(
+      `no captured runs under any of ${suiteDirs.length} RED suite(s) -- nothing to tabulate (run the gated suites first):\n  ` +
+        suiteDirs.map((d) => path.join(d, 'results', 'apply')).join('\n  '),
+    );
+
+    return;
+  }
+
+  // ONE combined table across every suite (target ids are globally unique and walkAllSuites has
+  // already refused a collision), but each suite keeps its OWN mechanical-red.json next to its own
+  // results -- so a per-suite artifact never carries another repo's numbers.
+  printTable(aggregate(all));
+
+  for (const { suiteDir, runs } of perSuite) {
+    if (!runs.length) {
+      continue;
+    }
+
+    const suiteAgg = aggregate(runs);
+    const outPath = path.join(suiteDir, 'mechanical-red.json');
+    fs.writeFileSync(outPath, JSON.stringify(suiteAgg, null, 2));
+    console.log(`\nwrote ${outPath} (${runs.length} runs across ${Object.keys(suiteAgg).length} cells).`);
+  }
 }
 
 main(process.argv.slice(2));

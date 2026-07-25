@@ -179,7 +179,11 @@ Metered run (GATED -- see 21-04 for the full sequence; run only after explicit u
 
 ```
 # 0. give the throwaway kata checkout a toolchain FIRST (a fresh `git worktree add` has no
-#    node_modules, so the model under test could not run the test it writes -- see RUN-GATE Step 3a):
+#    node_modules, so the model under test could not run the test it writes -- see RUN-GATE Step 3a).
+#    `npm ci` alone exits EUSAGE there: package-lock.json is gitignored, so the checkout has none.
+#    Copy the kata's untracked lockfile in first. Do NOT junction the kata's node_modules into a
+#    checkout the model under test can write to -- see RUN-GATE Step 3a2.
+cp "<kata>/TypeScript/package-lock.json" "<throwaway kata branch checkout>/TypeScript/package-lock.json"
 npm --prefix "<throwaway kata branch checkout>/TypeScript" ci
 # 1. drive the RED suite (3 arms x r1 x k), serial, one suite dir at a time:
 node ../lz-refactor-workspace/e2e-nx/run-e2e.mjs --suite <this suite dir> \

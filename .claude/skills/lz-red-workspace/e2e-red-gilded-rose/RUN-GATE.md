@@ -86,11 +86,21 @@ the kata's OWN toolchain, and asserts:
   readable from a `node_modules` the grading worktree can actually see;
 - the borrowed kata still has its `node_modules`, is git-clean, and leaked no grading worktree.
 
-A second fixture, `fixtures/canary-nocollect/`, puts the produced spec outside every collection root
-and asserts the gate returns `no_tests` rather than throwing.
+Two more fixtures cover the other directions. `fixtures/canary-nocollect/` puts the produced spec
+outside every collection root and asserts the gate returns `no_tests` rather than throwing.
+`fixtures/canary-compile/` is the NEGATIVE control: a spec with one deliberate type error, asserted
+to grade `compile_error` with `new_tsc_errors > 0`. Without it nothing in the whole battery would
+notice the differential typecheck silently ceasing to discriminate, which is the exact defect that
+made a produced test with blatant type errors grade as tsc-clean.
+
+Crux 8 is pure and offline and never SKIPs: it pins the steering and write exploits measured on
+2026-07-25 as blocked -- a captured diff cannot write into the borrowed repo through the toolchain
+junction, the no-tests signal is taken from the runner's own anchored status line rather than from
+the produced spec's text, and the config-abort guard ignores ordinary source diagnostics.
 
 If crux 7 prints SKIP, the kata or its `node_modules` is not on disk. Fix that first
-(`npm ci` in the kata's `TypeScript/`) -- a SKIP here is NOT a pass, and the fan-out would grade
+(`npm ci` in the kata's own `TypeScript/`, which HAS an untracked lockfile on disk -- unlike a
+fresh worktree checkout; see Step 3a2) -- a SKIP here is NOT a pass, and the fan-out would grade
 against a toolchain that is not there.
 
 **Why this replaced the old metered canary.** Step 2 used to require capturing ONE real metered run
@@ -107,15 +117,30 @@ and the canary uses the target's toolchain rather than the workspace's.
 
 **Residual risk after this canary (the honest list, not just reporter shape):**
 
-- The canary drives ONE fabricated diff. It proves the gate mechanism, not that every model-produced
-  diff applies cleanly; a malformed capture still fails closed at `git apply`.
-- A produced spec written in one runner's idiom but placed in the OTHER runner's directory (for
-  example a `import { describe, it, expect } from 'vitest'` spec landing under `test/jest/`) is
-  collected by the selected runner and then fails at import, grading `collection_error`. Path-keyed
-  runner selection removes the directory half of this; the import-idiom half remains. **Read a
-  cluster of `collection_error` verdicts as a possible instrument artifact and inspect the produced
-  specs before attributing it to any arm** -- the skill under test is Vitest-flavoured throughout its
-  examples, so this failure mode is NOT arm-neutral.
+- The canary drives THREE fabricated diffs, not every possible one. They prove the gate mechanism
+  -- that it sees the target toolchain, routes to a runner that collects the spec, still tells a
+  clean spec from a type-broken one, and returns a verdict rather than crashing when nothing is
+  collected. They do not prove every model-produced diff applies cleanly; a malformed capture still
+  fails closed at `git apply`.
+- A captured diff that touches `node_modules`, escapes the worktree, or writes into `.git` is
+  REJECTED outright before the grading worktree is built, so such a run gets no verdict at all
+  rather than a wrong one. **Read a rejected-capture error as an instrument or a model-behaviour
+  finding worth inspecting by hand, not as a verdict.**
+- The produced test's directory is now PINNED in the prompt (`test/vitest/`, byte-identical across
+  arms) and asserted against `targets.json`, which closes the directory lottery: a spec outside
+  every collection root would grade `no_tests` for a folder choice that says nothing about RED
+  quality. The residual is a model that ignores the pin. **Read a cluster of `no_tests` OR
+  `collection_error` verdicts as a possible instrument artifact and inspect where the specs
+  actually landed before attributing anything to an arm.** The pinned directory accepts both jest
+  and vitest idiom (vitest globals are on), so idiom alone no longer produces a `collection_error`.
+- A produced spec using an es2021-or-later method DOES manufacture a NEW differential error under
+  the current tsc args and grades `compile_error` -- measured, `String.replaceAll` yields one new
+  TS2550. That verdict is HONEST (the test genuinely does not compile under the target's own pinned
+  TypeScript 4.9.5, which is what D-06 clause 1 is for), but the class exists, so an operator
+  reading a `compile_error` cluster should check whether it is modern-syntax rather than a real type
+  error. Pinning `--lib` was considered and REJECTED: it couples a target-agnostic gate to one
+  compiler's accepted lib list, and a value the target's tsc rejects becomes an identical error in
+  both differential runs -- the vacuous differential the config-abort guard now catches.
 - Contamination on GRC is HIGH, so a correctness tie across arms is expected (Step 1).
 
 **Optional extra (metered, NOT required):** once the fan-out is approved and the first real runs are
@@ -146,12 +171,22 @@ create a THROWAWAY branch checkout of the kata -- NEVER run apply against the pr
 git --git-dir="<kata>/.git" worktree add -b red-run-<stamp> <throwaway kata checkout> main
 
 # a2) GIVE THAT CHECKOUT A TOOLCHAIN -- see the note below; do NOT skip this.
-#     Either install into it:
+#     `npm ci` ALONE CANNOT WORK HERE: TypeScript/.gitignore lists package-lock.json, so no
+#     lockfile is tracked and a fresh worktree checkout has none. Measured -- `npm ci` in such a
+#     checkout exits EUSAGE, "can only install with an existing package-lock.json". Copy the
+#     kata's untracked lockfile in first, THEN ci, which keeps the install reproducible:
+cp "<kata>/TypeScript/package-lock.json" "<throwaway kata checkout>/TypeScript/package-lock.json"
 npm --prefix "<throwaway kata checkout>/TypeScript" ci
-#     or link the kata's existing one (Windows needs a junction, not a symlink):
-#     cmd /c mklink /J "<throwaway kata checkout>\TypeScript\node_modules" "<kata>\TypeScript\node_modules"
-#     If you link, REMOVE THE LINK BEFORE `git worktree remove --force` on the checkout, or the
-#     recursive delete can follow it into the kata's real node_modules.
+#     Fallback if the kata has no lockfile on disk either:
+#     npm --prefix "<throwaway kata checkout>/TypeScript" install
+#
+#     Do NOT link the kata's node_modules into this checkout with `mklink /J`. That instruction was
+#     REMOVED on 2026-07-25. The apply checkout is where the MODEL UNDER TEST runs with write
+#     access for the whole metered round, so a junction hands it the borrowed repo's real
+#     dependency tree -- one `npm install` in its turn and a third-party checkout is modified. The
+#     earlier note warned only about a recursive delete following the link on teardown and said
+#     nothing about writes, which is the same blind spot that made the grader's own `git apply` a
+#     write path into the kata (closed separately by assertSafeDiffPaths in grade-red.mjs).
 
 # b) drive the RED suite (arm all = no_skill + with_skill + invoke_skill), serial, k=3:
 node .claude/skills/lz-refactor-workspace/e2e-nx/run-e2e.mjs \

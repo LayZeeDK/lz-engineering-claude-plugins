@@ -28,7 +28,12 @@ node .claude/skills/lz-red-workspace/tabulate-mechanical-red.mjs --selfcheck # m
 node .claude/skills/lz-red-workspace/merge-judge.mjs --selfcheck             # judge merge + fail-closed verify
 node .claude/skills/lz-red-workspace/selfcheck-red.mjs                       # composition/parity/worktree/classifier/nx
                                                                              # + crux 7, the Step 2 target-toolchain canary
+                                                                             # + cruxes 8/9, the write-path containment
 ```
+
+`selfcheck-red.mjs` takes about 70 s: cruxes 7 and 9 each build a real grading worktree and copy a
+real toolchain into it. That is the containment's cost, not a hang -- see the residual list in
+Step 2.
 
 ---
 
@@ -94,14 +99,23 @@ notice the differential typecheck silently ceasing to discriminate, which is the
 made a produced test with blatant type errors grade as tsc-clean.
 
 Crux 8 is pure and offline and never SKIPs: it pins the steering and write exploits measured on
-2026-07-25 as blocked -- a captured diff cannot write into the borrowed repo through the toolchain
-junction, the no-tests signal is taken from the runner's own anchored status line rather than from
-the produced spec's text, and the config-abort guard ignores ordinary source diagnostics.
+2026-07-25 as blocked -- a captured diff cannot name a path into the borrowed repo, the no-tests
+signal is taken from the runner's own anchored status line rather than from the produced spec's
+text, and the config-abort guard ignores ordinary source diagnostics.
+
+Crux 9 covers the direction crux 8 cannot see. Crux 8 is about what a captured diff DECLARES;
+crux 9 is about what the produced spec DOES once the runner executes it. It grades the measured
+exploit shape for real -- a spec declaring a perfectly legitimate `test/vitest/*.spec.ts` whose BODY
+deletes and overwrites through `node_modules/` -- against a THROWAWAY stand-in repo built under the
+temp dir, and asserts that tree is byte-intact afterwards. The kata is never the probe target: a
+check that can only discriminate by damaging a borrowed repo is not a check worth having.
 
 If crux 7 prints SKIP, the kata or its `node_modules` is not on disk. Fix that first
 (`npm ci` in the kata's own `TypeScript/`, which HAS an untracked lockfile on disk -- unlike a
 fresh worktree checkout; see Step 3a2) -- a SKIP here is NOT a pass, and the fan-out would grade
-against a toolchain that is not there.
+against a toolchain that is not there. If crux 9 prints SKIP, run `npm ci` in
+`.claude/skills/lz-red-workspace` (its stand-in repo borrows the workspace's own runner). Same
+rule: a SKIP is not a pass, it just means the write path went unmeasured this time.
 
 **Why this replaced the old metered canary.** Step 2 used to require capturing ONE real metered run
 and grading it, framing the residual risk narrowly as "runner-JSON shape drift". Two things were
@@ -126,6 +140,33 @@ and the canary uses the target's toolchain rather than the workspace's.
   REJECTED outright before the grading worktree is built, so such a run gets no verdict at all
   rather than a wrong one. **Read a rejected-capture error as an instrument or a model-behaviour
   finding worth inspecting by hand, not as a verdict.**
+- **Grading EXECUTES the produced spec, and the borrowed kata is not in reach of it.** This is the
+  one residual the earlier version of this list did not name at all, and it is worth stating
+  plainly because a reader would otherwise conclude the path-rejection bullet above covered
+  everything. It does not: that check scans the paths a diff DECLARES, never hunk CONTENT, so a
+  spec declaring a legitimate `test/vitest/*.spec.ts` whose body calls
+  `fs.rmSync('node_modules/typescript', { recursive: true })` is accepted -- and grading then runs
+  it. What contains it is structural rather than a scan: since 2026-07-25 the grading worktree's
+  `node_modules` is a per-grade DISPOSABLE COPY, not a junction into the kata, so those writes land
+  on a throwaway that teardown deletes. Measured against a stand-in repo: junction -> the sentinel
+  file read "PWNED" and a package was deleted; copy -> both byte-intact. `selfcheck-red` crux 9
+  re-runs that exact shape every time the battery runs.
+- **Still open, and NOT closed by the copy: a produced spec can write to an ABSOLUTE path.** The
+  runner executes arbitrary model-authored code, so nothing in-process can stop
+  `fs.writeFileSync('D:/.../GildedRose-Refactoring-Kata/...', ...)`; containing that needs a
+  sandbox, which this instrument does not have. It is far less likely than the junction case was
+  -- the junction made an ordinary RELATIVE `node_modules/` path reach the kata, which a spec might
+  hit by accident, whereas an absolute path has to be typed on purpose -- but it is not zero.
+  **Check the kata after each metered round** (`git status --porcelain` clean, exactly one
+  worktree, `TypeScript/node_modules` intact) rather than assuming it.
+- **Operator-visible cost of the containment:** the copy adds about 3.5 s per graded run on this
+  machine (measured: 2.5-2.8 s to copy the kata's 7610-file / 142.8 MB tree, ~0.7 s to remove it),
+  so roughly 30 s across a 9-run fan-out, and about 13 s to a `selfcheck-red` run. Each grade holds
+  one ~143 MB copy under the temp dir while it runs; grades are sequential, so that is the peak,
+  not the total. Every `red-grade.json` records the real figure as `toolchain_ms` and the CLI
+  prints it, so if a round feels slow the number is already in the artifacts. There is deliberately
+  no shared cache: it would save the 30 s but hand every grade a mutable tree to write through, and
+  one poisoned compiler would silently be measured against for the rest of the round.
 - The produced test's directory is now PINNED in the prompt (`test/vitest/`, byte-identical across
   arms) and asserted against `targets.json`, which closes the directory lottery: a spec outside
   every collection root would grade `no_tests` for a folder choice that says nothing about RED
@@ -141,6 +182,13 @@ and the canary uses the target's toolchain rather than the workspace's.
   error. Pinning `--lib` was considered and REJECTED: it couples a target-agnostic gate to one
   compiler's accepted lib list, and a value the target's tsc rejects becomes an identical error in
   both differential runs -- the vacuous differential the config-abort guard now catches.
+- If a NEW target is nominated at Step 1, write its `suite.json` `repo` in the SAME path form git
+  reports for that checkout (`git -C <repo> rev-parse --show-toplevel`). A form mismatch -- an 8.3
+  short Windows path against git's long one is the measured case -- used to make the grade resolve
+  its working directory back onto the target checkout itself, putting the apply, the runner spawn
+  and teardown's recursive delete inside the borrowed repo. `grade-red` now refuses that outright
+  before it creates anything, so the failure is a clear error rather than damage; the fix is to
+  paste git's own path.
 - Contamination on GRC is HIGH, so a correctness tie across arms is expected (Step 1).
 
 **Optional extra (metered, NOT required):** once the fan-out is approved and the first real runs are
@@ -185,8 +233,11 @@ npm --prefix "<throwaway kata checkout>/TypeScript" ci
 #     access for the whole metered round, so a junction hands it the borrowed repo's real
 #     dependency tree -- one `npm install` in its turn and a third-party checkout is modified. The
 #     earlier note warned only about a recursive delete following the link on teardown and said
-#     nothing about writes, which is the same blind spot that made the grader's own `git apply` a
-#     write path into the kata (closed separately by assertSafeDiffPaths in grade-red.mjs).
+#     nothing about writes, which is the same blind spot that ran through the GRADER too: its
+#     `git apply` (closed by assertSafeDiffPaths) and then its runner spawn on the produced spec
+#     (closed by making the grading worktree's node_modules a per-grade COPY -- see the residual
+#     list in Step 2). A copy would work here as well, but an install is better for the apply
+#     checkout: the model may legitimately add a dependency during its turn.
 
 # b) drive the RED suite (arm all = no_skill + with_skill + invoke_skill), serial, k=3:
 node .claude/skills/lz-refactor-workspace/e2e-nx/run-e2e.mjs \

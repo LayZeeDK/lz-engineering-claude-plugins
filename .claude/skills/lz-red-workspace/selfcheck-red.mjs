@@ -24,10 +24,15 @@
 //      against the kata's OWN toolchain: a real verdict, the selected runner, a real runner_version
 //      (not the 'unknown' sentinel), and the borrowed repo intact afterwards. Every other crux and
 //      every grade-red fixture uses the WORKSPACE toolchain, so this is the only step that proves
-//      the gate works against the actual target. Kata absent -> SKIP.
-//   8. EXPLOIT REGRESSIONS -- the steering/write exploits measured against the real toolchain on
-//      2026-07-25 stay blocked: a captured diff cannot write into the borrowed repo through the
-//      toolchain junction. Pure and offline, so it never SKIPs.
+//      the gate works against the actual target. Kata absent -> SKIP. Three fixtures: a clean spec
+//      (genuinely_red), one outside every collection root (no_tests, not a crash), and a
+//      type-broken one (compile_error with NEW errors -- the negative control that proves the
+//      differential still tells two inputs apart).
+//   8. EXPLOIT REGRESSIONS -- the steering and write exploits measured against the real toolchain
+//      on 2026-07-25 stay blocked: a captured diff cannot write into the borrowed repo through the
+//      toolchain junction, the no-tests signal comes from the runner rather than from the produced
+//      spec's own text, and the vacuous-differential guard ignores ordinary source diagnostics.
+//      Pure and offline, so it never SKIPs.
 //
 // Fail-closed: any violation prints a FAIL line and exits 1; an OK line + exit 0 on success. Zero
 // claude spend, borrowed repo left pristine. NOT wired into `npm run check` (it touches the borrowed
@@ -508,6 +513,32 @@ function checkTargetToolchainCanary() {
       `  [crux 7] uncollected-spec canary OK (${missGrade.verdict}, pass=${missGrade.pass}, excerpt ${JSON.stringify(String(missGrade.failure_excerpt).slice(0, 60))} -- a verdict, not a throw)`,
     );
   }
+
+  // IM-02. The two canaries above are POSITIVE controls only: both expect new_tsc_errors === 0, so
+  // neither would notice the differential silently ceasing to discriminate -- which is F1's actual
+  // damage ("a produced test with blatant type errors grades as tsc-clean") and the whole reason
+  // this task existed. runner_version is a proxy: it proves a node_modules was VISIBLE, not that
+  // the typecheck can tell two inputs apart. This third fixture is the negative control: the same
+  // fabricated-runDir shape, the same vitest-collected dir, one deliberate type error.
+  const compileGrade = gradeFabricatedRunDir('canary-compile', (g) => {
+    if (g.verdict !== 'compile_error' || g.pass !== false) {
+      fail(`[crux 7] the type-broken spec graded '${g.verdict}' (pass=${g.pass}), expected compile_error / pass=false -- why: ${g.why}`);
+    }
+
+    if (!(g.new_tsc_errors > 0)) {
+      fail(
+        `[crux 7] the type-broken spec reported ${g.new_tsc_errors} NEW tsc errors. The differential is NOT ` +
+          'discriminating, so D-06 clause 1 would pass any produced test',
+      );
+    }
+  });
+
+  if (compileGrade) {
+    console.log(
+      `  [crux 7] differential-discriminates canary OK (type-broken spec -> ${compileGrade.verdict}, ` +
+        `${compileGrade.new_tsc_errors} NEW tsc errors against a clean baseline)`,
+    );
+  }
 }
 
 // ---- crux 8: the measured 2026-07-25 steering exploits stay blocked ---------------------------
@@ -594,7 +625,7 @@ function checkDiffContainment() {
 
   // ... and the shipped fixtures, which are real captures, must still pass. A containment check
   // that rejects legitimate input is just a broken gate.
-  for (const fixtureName of ['canary-rundir', 'canary-nocollect']) {
+  for (const fixtureName of ['canary-rundir', 'canary-nocollect', 'canary-compile']) {
     const p = join(HERE, 'fixtures', fixtureName, 'diff.patch');
     const body = fs.readFileSync(p, 'utf8');
 

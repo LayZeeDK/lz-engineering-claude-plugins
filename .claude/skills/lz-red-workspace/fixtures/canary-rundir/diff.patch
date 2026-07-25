@@ -1,0 +1,15 @@
+diff --git a/TypeScript/test/vitest/canary-conjured.spec.ts b/TypeScript/test/vitest/canary-conjured.spec.ts
+new file mode 100644
+index 0000000..62da13b
+--- /dev/null
++++ b/TypeScript/test/vitest/canary-conjured.spec.ts
+@@ -0,0 +1,9 @@
++import { Item, GildedRose } from '@/gilded-rose';
++
++describe('Conjured items', () => {
++  it('degrades in quality twice as fast as a normal item', () => {
++    const app = new GildedRose([new Item('Conjured Mana Cake', 3, 6)]);
++
++    expect(app.updateQuality()[0].quality).toBe(4);
++  });
++});

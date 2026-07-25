@@ -10,11 +10,18 @@
       "symbol": "GildedRose.updateQuality (Conjured branch)",
       "runner": {
         "vitest": "npx vitest run <producedTestFile> --reporter=json",
-        "jest": "npx jest <producedTestFile> --json",
-        "runner_preference": "jest 29's --json shape is the more stable one (RESEARCH A1); grade-red / the D-06 gate may prefer jest if the vitest 0.28 JSON reporter shape drifts. Verify the exact shape on the fixture selfcheck (21-02) before relying on either."
+        "jest": "npx jest <producedTestFile> --json --coverage=false",
+        "runner_select": {
+          "test/jest/": "jest",
+          "test/vitest/": "vitest"
+        },
+        "runner_default": "jest",
+        "runner_select_note": "MACHINE-READABLE selector, read by grade-red.mjs selectRunner(): repo-subdir-relative path prefix -> runner name, longest prefix first, falling back to runner_default. It keys on the PRODUCED test's own path so the runner is always one whose collection config includes that path, and so the gate never scores a run on which of the kata's test dirs the model happened to choose. Do NOT reintroduce selection from runner_preference: that field is prose, and a substring test over prose matches any sentence mentioning a runner's name, so it can only ever return one answer.",
+        "coverage_note": "--coverage=false on the jest command because jest.config.ts sets collectCoverage: true. It keeps the gate from writing into the borrowed kata's coverage/ directory and keeps the --json payload small. Jest's stdout is pure JSON either way (coverage is added as a coverageMap field, not interleaved text) -- measured 2026-07-25.",
+        "runner_preference": "DOCUMENTATION ONLY -- not read by any code (see runner_select_note). Both runners were measured against this kata on 2026-07-25 and BOTH emit the Jest-compatible report shape classify() reads: jest 29 --json (4455 bytes, numFailedTests 1) and vitest 0.28 --reporter=json (1016 bytes, assertionResults[0].status 'failed', \"expected 'foo' to be 'fixme' // Object.is equality\"). The earlier concern that the vitest 0.28 reporter predates the 1.x shape did not hold."
       },
-      "test_dir": "test/vitest/",
-      "test_dir_note": "the vitest include glob is test/vitest/**/*.{spec,test}.{js,ts}; a produced vitest spec must land under test/vitest/ to be collected (RESEARCH Pitfall 4).",
+      "test_dir": "test/jest/",
+      "test_dir_note": "Both of the kata's runner dirs grade correctly and runner_select routes to whichever the produced spec lands in: test/jest/ (jest roots are <rootDir>/app and <rootDir>/test/jest) and test/vitest/ (vitest include glob is test/vitest/**/*.{spec,test}.{js,ts}). test_dir names the runner_default's collected dir, which is where a spec lands when it matches no runner_select prefix. A spec placed outside every collection root is a recognized no-tests miss and grades no_tests, not a crash (RESEARCH Pitfall 4).",
       "behavior_gap": "updateQuality has no Conjured branch (only Aged Brie / Backstage passes / Sulfuras / normal). A test asserting a Conjured item degrades by 2 per day compiles because Item + GildedRose already exist, and FAILS on the assertion because current code degrades it by 1.",
       "expected_red_color": "genuinely_red",
       "red_shape_rationale": "existing-compiling-API + missing-behavior (D-06 / RESEARCH Pitfall 1): tsc-clean AND assertion-red -- not a compile error and not a false green.",

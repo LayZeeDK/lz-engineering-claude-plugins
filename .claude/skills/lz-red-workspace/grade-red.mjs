@@ -355,6 +355,25 @@ function readRunnerVersion(armCwd, worktree, runnerName) {
   return 'unknown';
 }
 
+// Select the target's runner from the produced test's OWN path, via the target's machine-readable
+// runner_select map (repo-subdir-relative path prefix -> runner name), longest prefix first,
+// falling back to runner_default.
+//
+// It deliberately does NOT read runner_preference. That field is PROSE, and a substring test over
+// prose matches any sentence that merely mentions a runner's name -- so it could only ever return
+// one answer regardless of what it said (measured 2026-07-25: the GRC prose pinned every run to
+// jest while the configured test_dir was the vitest-only one, which the selected runner cannot
+// collect). Keying on the produced test's path also keeps the gate from scoring a run on WHICH of
+// the target's test dirs the model chose, which is not a RED-quality signal.
+export function selectRunner(runnerSpec, testPath) {
+  const map = (runnerSpec && runnerSpec.runner_select) || {};
+  const hit = Object.keys(map)
+    .sort((a, b) => b.length - a.length)
+    .find((prefix) => String(testPath || '').startsWith(prefix));
+
+  return (hit && map[hit]) || (runnerSpec && runnerSpec.runner_default) || null;
+}
+
 // The target repo's own typescript (never the workspace's -- Pitfall 4).
 function targetTscBin(armCwd, worktree) {
   for (const base of [armCwd, worktree]) {
@@ -435,15 +454,6 @@ export function gradeRun({ runDir, suiteDir }) {
   const repo = suite.repo;
   const applyBase = process.env.E2E_APPLY_BASE || suite.applyBase;
   const runnerSpec = target.runner || {};
-  // runner_preference may flag the vitest 0.28 JSON shape as unstable -> prefer jest if available.
-  const preferJest = /jest/i.test(runnerSpec.runner_preference || '') && runnerSpec.jest;
-  const runnerName = preferJest ? 'jest' : runnerSpec.vitest ? 'vitest' : runnerSpec.jest ? 'jest' : null;
-
-  if (!runnerName) {
-    throw new Error(`grade-red: target '${target.id}' has no runner.vitest/runner.jest command (fail closed)`);
-  }
-
-  const runnerCmdTemplate = runnerSpec[runnerName];
 
   // the produced test file(s) from meta.changed_files (the runner's spec/test glob).
   const producedTests = meta.changed_files.filter((f) => isTestFile(f));
@@ -454,16 +464,75 @@ export function gradeRun({ runDir, suiteDir }) {
   const rel = path.relative(path.resolve(gitRoot), path.resolve(repo)).split(path.sep).join('/');
   const armCwd = rel ? path.join(worktree, rel) : worktree;
 
+  // The runner command and runner_select are both relative to the REPO SUBDIR, while
+  // meta.changed_files is repo-ROOT-relative; strip the subdir prefix before either uses it.
+  const primaryTest = producedTests[0];
+  const testForRunner =
+    primaryTest && rel && primaryTest.startsWith(`${rel}/`) ? primaryTest.slice(rel.length + 1) : primaryTest;
+  const runnerName = selectRunner(runnerSpec, testForRunner);
+
+  if (!runnerName) {
+    throw new Error(
+      `grade-red: target '${target.id}' has no runner_select match for '${testForRunner}' and no runner_default (fail closed)`,
+    );
+  }
+
+  const runnerCmdTemplate = runnerSpec[runnerName];
+
+  if (!runnerCmdTemplate) {
+    throw new Error(
+      `grade-red: target '${target.id}' selected runner '${runnerName}' but runner.${runnerName} has no command (fail closed)`,
+    );
+  }
+
+  // The target's OWN node_modules, linked into the grading worktree below. A fresh worktree has
+  // none (node_modules is gitignored and untracked), and without it the gate degrades SILENTLY
+  // rather than loudly: targetTscBin() finds no local typescript, targetTscErrors() falls through
+  // to `npx tsc` -> the GLOBAL compiler, and a global compiler that rejects the target's tsconfig
+  // aborts at config parse before checking any source. The identical abort then appears in BOTH
+  // differential runs, so newErrors subtracts to 0 and D-06 clause 1 reports "tsc clean" for a
+  // produced test with blatant type errors. Fail closed here instead (T-63f-04).
+  const nodeModulesSrc = path.join(repo, 'node_modules');
+  const nodeModulesLink = path.join(armCwd, 'node_modules');
+
+  if (!fs.existsSync(nodeModulesSrc)) {
+    throw new Error(
+      `grade-red: ${nodeModulesSrc} does not exist, so the grading worktree would have no toolchain ` +
+        'and the differential typecheck could not discriminate (fail closed). Install the target\'s ' +
+        `dependencies there first (npm ci in ${repo}), then re-run.`,
+    );
+  }
+
   // detached worktree at the pristine applyBase (RED needs the FULL repo so the produced test can
   // import/typecheck/run -- not a one-file synthetic tree; RESEARCH anti-pattern).
   git(gitRoot, ['worktree', 'add', '--detach', worktree, applyBase], { mustSucceed: true });
 
+  let linkCreated = false;
+
   const teardown = () => {
+    // ORDER IS LOAD-BEARING (T-63f-01): unlink the node_modules junction BEFORE removing the
+    // worktree, so no recursive delete can follow the link into the TARGET's real node_modules.
+    // Removing a directory junction unlinks the link and not its target, but the ordering is what
+    // makes that hold no matter who does the deleting. Link removal is failure-tolerant so an
+    // already-gone link cannot mask the real error or strand the worktree.
+    if (linkCreated) {
+      try {
+        fs.rmSync(nodeModulesLink, { recursive: true, force: true });
+      } catch {
+        // best-effort; the worktree removal below still has to run
+      }
+    }
+
     git(gitRoot, ['worktree', 'remove', '--force', worktree]);
     git(gitRoot, ['worktree', 'prune']);
   };
 
   try {
+    // 'junction' is the Windows-safe directory link (a plain symlink needs elevation there); the
+    // type argument is ignored on other platforms. The target must be absolute, which it is.
+    fs.symlinkSync(nodeModulesSrc, nodeModulesLink, 'junction');
+    linkCreated = true;
+
     if (producedTests.length === 0) {
       // The diff was non-empty (assertReadableDiff passed) but no test file was produced: zero
       // assertions can ever be collected. Honest verdict: no_tests.
@@ -487,8 +556,27 @@ export function gradeRun({ runDir, suiteDir }) {
     }
 
     // differential tsc (Pitfall 3): baseline BEFORE applying the produced test, then WITH it.
+    //
+    // No --lib is pinned on purpose. It was measured 2026-07-25 that pinning one buys nothing here
+    // (@types/node's `/// <reference lib="es2020" />` already raises the program lib above the
+    // target's es5 setting, so every common modern array/object method typechecks) while coupling
+    // this target-agnostic gate to one compiler's accepted lib list -- a value the target's tsc
+    // rejects becomes a TS6046 in BOTH runs, i.e. exactly the vacuous differential guarded below.
     const tscArgs = ['--noEmit', '--strict'];
     const baseErrors = new Set(targetTscErrors(armCwd, worktree, tscArgs));
+
+    // Fail closed on an OPTION/CONFIG-level tsc error (TS5xxx/TS6xxx). Those abort the compile
+    // before any source is checked, and the identical line then lands in both differential runs --
+    // so newErrors subtracts to 0 for EVERY input and D-06 clause 1 silently passes anything.
+    // Never grade on a differential that cannot discriminate.
+    const configError = [...baseErrors].find((l) => /error TS(?:5\d{3}|6\d{3})\b/.test(l));
+
+    if (configError) {
+      throw new Error(
+        'grade-red: the target typecheck failed at the option/config layer, so the differential ' +
+          `cannot discriminate and would report every produced test as tsc-clean (fail closed): ${configError}`,
+      );
+    }
 
     const applyRes = git(worktree, ['apply', '--whitespace=nowarn', diffPath]);
 
@@ -500,10 +588,8 @@ export function gradeRun({ runDir, suiteDir }) {
     const newErrors = withErrors.filter((l) => !baseErrors.has(l));
     const tscResult = { newErrors: newErrors.length, errors: newErrors };
 
-    // run the TARGET's own runner on the produced test (Pitfall 4). The runner command is relative
-    // to the repo subdir; strip the subdir prefix from the ROOT-relative produced-test path.
-    const primaryTest = producedTests[0];
-    const testForRunner = rel && primaryTest.startsWith(`${rel}/`) ? primaryTest.slice(rel.length + 1) : primaryTest;
+    // run the TARGET's own runner on the produced test (Pitfall 4), using the subdir-relative path
+    // resolved above alongside the runner selection.
     const cmd = runnerCmdTemplate.replace('<producedTestFile>', testForRunner);
     const runRes = spawnSync(cmd, {
       cwd: armCwd,

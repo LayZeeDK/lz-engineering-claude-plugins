@@ -23,6 +23,11 @@
 // unparseable runner JSON, or a worktree that will not build throws / exits non-zero rather than
 // silently scoring "no change".
 //
+// It also runs MODEL-AUTHORED CODE -- the produced spec, under the target's own runner. Everything
+// that code can reach relatively is inside a throwaway worktree under os.tmpdir(), including the
+// toolchain, which is a per-grade COPY of the target's node_modules rather than a link to it
+// (T-63f-05). The borrowed repo is read once, to make that copy, and is never a write target.
+//
 // The classifier logic is SHARED between the real gate (gradeRun) and --selfcheck (gradeFixture);
 // only the runner command + cwd differ -- the target's own toolchain for real runs, the workspace's
 // pinned typescript@6.0.3 + vitest@4.1.10 for the fixtures. The runner-JSON shapes classify() reads
@@ -244,6 +249,89 @@ export function assertSafeDiffPaths(diffText, diffPath) {
   }
 
   return diffText;
+}
+
+// ---- toolchain-copy containment (T-63f-05 runtime write direction) ----------------------------
+
+// Every link under `root` whose target resolves OUTSIDE `root`, as `<link> -> <resolved>` strings.
+//
+// The grading worktree's toolchain is a disposable COPY precisely so that nothing inside the
+// worktree leads back to the borrowed repo -- but `fs.cpSync` copies a symlink AS a symlink, so a
+// source tree containing one would hand the copy a path straight back out and silently reopen the
+// hole. The kata's tree has none (measured 2026-07-25: 0 links in 7610 files), but a target using
+// npm workspaces or a `file:` dependency can, and the whole point of a structural containment is
+// that it does not depend on which target happens to be configured. Verify, do not assume.
+//
+// Windows junctions count: `lstat` reports them as symlinks, so a `readdirSync` Dirent does too.
+// An unreadable link is reported as an escape -- a link that cannot be resolved cannot be proven
+// contained, and this check exists to fail closed.
+export function escapingLinks(root) {
+  const base = path.resolve(root);
+  const escapes = [];
+  const stack = [base];
+
+  while (stack.length) {
+    const dir = stack.pop();
+
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      const p = path.join(dir, entry.name);
+
+      if (entry.isSymbolicLink()) {
+        let resolved;
+
+        try {
+          resolved = path.resolve(dir, fs.readlinkSync(p));
+        } catch (err) {
+          escapes.push(`${p} -> <unreadable: ${err.code || err.message}>`);
+
+          continue;
+        }
+
+        if (resolved !== base && !resolved.startsWith(base + path.sep)) {
+          escapes.push(`${p} -> ${resolved}`);
+        }
+
+        continue;
+      }
+
+      if (entry.isDirectory()) {
+        stack.push(p);
+      }
+    }
+  }
+
+  return escapes;
+}
+
+// Where the grade actually runs inside the throwaway worktree, for a target whose repo may be a
+// SUBDIR of its git root (`<kata>/TypeScript`). Returns `{ rel, armCwd }`, and FAILS CLOSED if
+// armCwd would land outside the worktree.
+//
+// `rel` is a path.relative() of two strings that must agree on FORM. git reports its toplevel in
+// long Windows form, so a suite.json `repo` written in 8.3 SHORT form -- `C:\Users\...~1\...`,
+// which is exactly what os.tmpdir() hands back on this machine -- produces an escaping `../..`
+// chain, and path.join(worktree, thatChain) normalises straight back to the SOURCE CHECKOUT
+// (measured 2026-07-25 while building the T-63f-05 probe). Everything downstream -- git apply, the
+// toolchain copy, the runner spawn on the model-authored spec, teardown's recursive delete -- would
+// then run inside the borrowed repo this gate is only ever supposed to READ. That is the same
+// damage the toolchain junction used to allow, reached by arithmetic rather than by a link, so it
+// gets the same answer: refuse before anything is created.
+export function resolveArmCwd(worktree, gitRoot, repo) {
+  const rel = path.relative(path.resolve(gitRoot), path.resolve(repo)).split(path.sep).join('/');
+  const armCwd = rel ? path.join(worktree, rel) : worktree;
+  const resolvedWorktree = path.resolve(worktree);
+  const resolvedArmCwd = path.resolve(armCwd);
+
+  if (resolvedArmCwd !== resolvedWorktree && !resolvedArmCwd.startsWith(resolvedWorktree + path.sep)) {
+    throw new Error(
+      `grade-red: the grading cwd ${resolvedArmCwd} resolves OUTSIDE the throwaway worktree ` +
+        `${resolvedWorktree}, so the grade would run inside the target checkout itself. suite.repo ` +
+        `(${repo}) and the git toplevel (${gitRoot}) must be written the same way -- use the long ` +
+        'path git reports (fail closed, T-63f-05).',
+    );
+  }
+
+  return { rel, armCwd };
 }
 
 // ---- the pure classifier (shared by the real gate and --selfcheck) ---------------------------
@@ -699,8 +787,7 @@ export function gradeRun({ runDir, suiteDir }) {
   const gitRoot = (git(repo, ['rev-parse', '--show-toplevel'], { mustSucceed: true }).stdout || '').trim();
   const stamp = `${process.pid}-${Date.now()}`;
   const worktree = path.join(os.tmpdir(), `red-wt-${meta.target}-${stamp}`);
-  const rel = path.relative(path.resolve(gitRoot), path.resolve(repo)).split(path.sep).join('/');
-  const armCwd = rel ? path.join(worktree, rel) : worktree;
+  const { rel, armCwd } = resolveArmCwd(worktree, gitRoot, repo);
 
   // The runner command and runner_select are both relative to the REPO SUBDIR, while
   // meta.changed_files is repo-ROOT-relative; strip the subdir prefix before either uses it.
@@ -723,7 +810,7 @@ export function gradeRun({ runDir, suiteDir }) {
     );
   }
 
-  // The target's OWN node_modules, linked into the grading worktree below. A fresh worktree has
+  // The target's OWN node_modules, COPIED into the grading worktree below. A fresh worktree has
   // none (node_modules is gitignored and untracked), and without it the gate degrades SILENTLY
   // rather than loudly: targetTscBin() finds no local typescript, targetTscErrors() falls through
   // to `npx tsc` -> the GLOBAL compiler, and a global compiler that rejects the target's tsconfig
@@ -731,7 +818,7 @@ export function gradeRun({ runDir, suiteDir }) {
   // differential runs, so newErrors subtracts to 0 and D-06 clause 1 reports "tsc clean" for a
   // produced test with blatant type errors. Fail closed here instead (T-63f-04).
   const nodeModulesSrc = path.join(repo, 'node_modules');
-  const nodeModulesLink = path.join(armCwd, 'node_modules');
+  const toolchainDir = path.join(armCwd, 'node_modules');
 
   if (!fs.existsSync(nodeModulesSrc)) {
     throw new Error(
@@ -745,39 +832,75 @@ export function gradeRun({ runDir, suiteDir }) {
   // import/typecheck/run -- not a one-file synthetic tree; RESEARCH anti-pattern).
   git(gitRoot, ['worktree', 'add', '--detach', worktree, applyBase], { mustSucceed: true });
 
-  let linkCreated = false;
+  let toolchainInstalled = false;
+  let toolchainMs = 0;
 
-  // 'junction' is the Windows-safe directory link (a plain symlink needs elevation there); the type
-  // argument is ignored on other platforms. The target must be absolute, which it is.
-  const linkToolchain = () => {
-    fs.symlinkSync(nodeModulesSrc, nodeModulesLink, 'junction');
-    linkCreated = true;
+  // A DISPOSABLE COPY of the target's node_modules, never a link to it (T-63f-05).
+  //
+  // This used to be a Windows directory junction, and the junction was a live RUNTIME WRITE PATH
+  // into a third-party checkout this gate does not own. assertSafeDiffPaths() closes the `git
+  // apply` direction, but it scans DECLARED PATHS ONLY -- never hunk CONTENT -- and the step right
+  // after the apply SPAWNS THE TARGET'S RUNNER ON THE MODEL-AUTHORED SPEC. MEASURED 2026-07-25: a
+  // patch declaring a perfectly legitimate `<subdir>/test/vitest/evil.spec.ts` whose body calls
+  // `fs.rmSync('node_modules/typescript', { recursive: true })` is ACCEPTED by every path check,
+  // and executing it deletes through the junction into the borrowed tree. Scanning hunk bodies
+  // cannot fix that: the runner executes arbitrary model-authored code, so any `fs` /
+  // `child_process` call can be obfuscated past a content scan. Containment has to be structural.
+  //
+  // So the worktree gets its OWN copy and the damage lands on a throwaway that teardown deletes.
+  // MEASURED on the kata's tree (7610 files, 142.8 MB): cpSync 2.5-2.8 s, rmSync ~0.7 s, i.e.
+  // ~3.5 s per grade, ~30 s across a 9-run fan-out. A SHARED cache under os.tmpdir() would save
+  // that but reintroduces a mutable tree every grade writes through -- one poisoned compiler and
+  // every later grade in the round is measured against it -- for ~30 s on a run that costs real
+  // money and many minutes. A per-grade copy needs no cache stamp, no freshness check and no
+  // rebuild path, and it cannot be poisoned across grades. Per-worktree `npm ci` was measured too
+  // (6.0 s warm) and is worse on both axes: twice the cost, a registry dependency inside a
+  // deterministic gate, and it executes third-party postinstall scripts -- MORE attack surface,
+  // not less.
+  const provisionToolchain = () => {
+    const started = Date.now();
+    fs.cpSync(nodeModulesSrc, toolchainDir, { recursive: true });
+    // Set BEFORE the containment assertion below, so a rejected copy is still torn down.
+    toolchainInstalled = true;
+    toolchainMs = Date.now() - started;
+
+    const escapes = escapingLinks(toolchainDir);
+
+    if (escapes.length) {
+      throw new Error(
+        `grade-red: the copied toolchain is not self-contained -- ${escapes.length} link(s) resolve ` +
+          `outside ${toolchainDir}, which is a path straight back out of the grading worktree ` +
+          `(fail closed, T-63f-05): ${escapes.slice(0, 3).join('; ')}`,
+      );
+    }
   };
 
-  const unlinkToolchain = () => {
-    fs.rmSync(nodeModulesLink, { recursive: true, force: true });
-    linkCreated = false;
+  // maxRetries covers the routine Windows case: a scanner or indexer still holding a handle
+  // somewhere in a 7000-file tree moments after the runner exited. rmSync backs off and retries
+  // rather than turning a transient handle into a failed grade.
+  const removeToolchain = () => {
+    fs.rmSync(toolchainDir, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 });
+    toolchainInstalled = false;
   };
 
   const teardown = () => {
-    // ORDER IS LOAD-BEARING (T-63f-01): unlink the node_modules junction BEFORE removing the
-    // worktree, so no recursive delete can follow the link into the TARGET's real node_modules.
-    // Removing a directory junction unlinks the link and not its target, but the ordering is what
-    // makes that hold no matter who does the deleting.
-    if (linkCreated) {
+    // ORDER IS LOAD-BEARING (T-63f-01): remove the toolchain copy BEFORE removing the worktree.
+    // With a copy rather than a junction, no recursive delete can reach the target's real
+    // node_modules whatever the order -- but keeping the order keeps `git worktree remove --force`
+    // off a 143 MB untracked tree, and keeps one place responsible for the toolchain's lifetime.
+    if (toolchainInstalled) {
       try {
-        unlinkToolchain();
+        removeToolchain();
       } catch (err) {
-        // rmSync's force:true ALREADY swallows an already-gone link, so reaching here means the
-        // removal genuinely failed -- EPERM/EBUSY from an indexer or scanner holding a handle,
-        // which is routine on Windows. That is exactly the case where force-removing the worktree
-        // with the link still live would void the ordering guarantee above, so stop instead and
-        // make a human unlink it. This can mask a pending error from the graded run; a live
-        // junction into a borrowed repo is the more urgent of the two.
+        // rmSync's force:true ALREADY swallows an already-gone directory and the retries above
+        // have already backed off, so reaching here means something is genuinely still holding
+        // files INSIDE the grading worktree. Force-removing a worktree in that state produces a
+        // half-deleted tree and a confusing error; stop instead and make a human look. This can
+        // mask a pending error from the graded run, but the grade is offline and free to re-run.
         throw new Error(
-          `grade-red: could NOT unlink ${nodeModulesLink} (${err.code || err.message}). Refusing to ` +
-            'remove the grading worktree while a live junction into the target repo sits inside it ' +
-            '-- remove the junction by hand first (fail closed, T-63f-01).',
+          `grade-red: could NOT remove the toolchain copy ${toolchainDir} (${err.code || err.message}). ` +
+            'Refusing to force-remove the grading worktree while something still holds files inside ' +
+            'it -- delete it by hand first (fail closed, T-63f-01).',
         );
       }
     }
@@ -797,13 +920,16 @@ export function gradeRun({ runDir, suiteDir }) {
   };
 
   // teardown() only runs via the finally below. A Ctrl-C, a SIGTERM, or a closed terminal between
-  // the first linkToolchain() and that finally would strand a LIVE junction into the target's real
-  // node_modules under os.tmpdir() -- and interrupting a 9-run fan-out is a normal operator action,
-  // not an exotic one. Unlink and re-raise; an orphaned worktree with nothing pointing out of it is
-  // harmless by comparison, and removing it here would need git plumbing inside a signal handler.
+  // provisionToolchain() and that finally would strand the toolchain copy under os.tmpdir(), and
+  // interrupting a 9-run fan-out is a normal operator action, not an exotic one. Since the
+  // toolchain became a COPY (T-63f-05) what gets stranded is ~143 MB of throwaway rather than a
+  // live junction into a borrowed repo, so this handler is now disk hygiene rather than a
+  // containment guarantee -- still worth doing, no longer load-bearing. Remove and re-raise; an
+  // orphaned worktree is harmless, and removing it here would need git plumbing inside a signal
+  // handler.
   const onSignal = (signal) => {
     try {
-      fs.rmSync(nodeModulesLink, { recursive: true, force: true });
+      fs.rmSync(toolchainDir, { recursive: true, force: true, maxRetries: 2, retryDelay: 50 });
     } catch {
       // there is nothing better to do from inside a signal handler
     }
@@ -815,7 +941,7 @@ export function gradeRun({ runDir, suiteDir }) {
   process.once('SIGTERM', onSignal);
 
   try {
-    linkToolchain();
+    provisionToolchain();
 
     if (producedTests.length === 0) {
       // The diff was non-empty (assertReadableDiff passed) but no test file was produced: zero
@@ -831,6 +957,7 @@ export function gradeRun({ runDir, suiteDir }) {
         new_tsc_errors: 0,
         runner: runnerName,
         runner_version: readRunnerVersion(armCwd, worktree, runnerName),
+        toolchain_ms: toolchainMs,
         produced_test_files: [],
         failure_excerpt: '',
       };
@@ -862,27 +989,31 @@ export function gradeRun({ runDir, suiteDir }) {
       );
     }
 
-    // Defence in depth for T-63f-01: assertSafeDiffPaths() above already refuses any patch that
-    // names node_modules, but a containment check and the thing it protects should not share a
-    // single point of failure. Take the junction down for the duration of the apply, so even a
-    // patch that somehow got past the check writes into a throwaway %TEMP% directory -- the
-    // pre-junction behaviour -- rather than into the borrowed repo.
-    unlinkToolchain();
-
+    // The apply used to be bracketed by unlinkToolchain()/linkToolchain() as defence in depth for
+    // T-63f-01 -- with a junction up, a patch that got past assertSafeDiffPaths() would have
+    // written through it into the borrowed repo. The bracket is gone because the toolchain is now
+    // a disposable COPY (T-63f-05): a patch writing under node_modules/ lands in a throwaway that
+    // teardown deletes, which is what the bracket bought, except it now also holds for the RUNNER
+    // spawn below -- the direction the bracket never covered. assertSafeDiffPaths() is untouched
+    // and still rejects such a patch outright; this is the second layer, not the first.
     const applyRes = git(worktree, ['apply', '--whitespace=nowarn', diffPath]);
 
     if (applyRes.status !== 0) {
       throw new Error(`grade-red: git apply of ${diffPath} failed in the worktree (fail closed): ${(applyRes.stderr || '').trim()}`);
     }
 
-    linkToolchain();
-
     const withErrors = targetTscErrors(armCwd, worktree, tscArgs);
     const newErrors = withErrors.filter((l) => !baseErrors.has(l));
     const tscResult = { newErrors: newErrors.length, errors: newErrors };
 
-    // run the TARGET's own runner on the produced test (Pitfall 4), using the subdir-relative path
+    // Run the TARGET's own runner on the produced test (Pitfall 4), using the subdir-relative path
     // resolved above alongside the runner selection.
+    //
+    // THIS LINE EXECUTES MODEL-AUTHORED CODE. Everything it can reach through a relative path is
+    // inside the throwaway worktree, including the toolchain, because that is a copy and not a
+    // link (T-63f-05). It can still write to an ABSOLUTE path, which no in-process guard can stop
+    // -- containing that needs a sandbox, and RUN-GATE.md names it in the residual list rather
+    // than pretending otherwise.
     const cmd = runnerCmdTemplate.replace('<producedTestFile>', testForRunner);
     const runRes = spawnSync(cmd, {
       cwd: armCwd,
@@ -905,6 +1036,10 @@ export function gradeRun({ runDir, suiteDir }) {
       new_tsc_errors: tscResult.newErrors,
       runner: runnerName,
       runner_version: readRunnerVersion(armCwd, worktree, runnerName),
+      // The measured cost of copying the target's node_modules into this grade's worktree
+      // (T-63f-05). Recorded rather than printed so the per-grade overhead of the containment is
+      // auditable in every artifact, not just in whoever happened to watch the console.
+      toolchain_ms: toolchainMs,
       produced_test_files: producedTests,
       failure_excerpt: firstFailureExcerpt(runnerJson),
     };
@@ -1041,6 +1176,8 @@ function main(argv) {
     const suiteDir = suiteIdx >= 0 && argv[suiteIdx + 1] ? path.resolve(argv[suiteIdx + 1]) : runDirToSuiteDir(runDir);
     const grade = gradeRun({ runDir, suiteDir });
     console.log(`${grade.target} ${grade.arm} run-${grade.run_idx}: ${grade.verdict} (pass=${grade.pass}) -- ${grade.why}`);
+    // Make the containment's cost visible rather than a mystery pause (T-63f-05).
+    console.log(`toolchain: copied the target's node_modules into the grading worktree in ${grade.toolchain_ms} ms`);
     console.log(`wrote ${path.join(runDir, 'red-grade.json')}`);
 
     return;

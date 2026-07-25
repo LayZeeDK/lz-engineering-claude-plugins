@@ -33,6 +33,11 @@
 //      toolchain junction, the no-tests signal comes from the runner rather than from the produced
 //      spec's own text, and the vacuous-differential guard ignores ordinary source diagnostics.
 //      Pure and offline, so it never SKIPs.
+//   9. RUNTIME WRITE PATH -- crux 8 covers what a captured diff DECLARES; this one covers what the
+//      produced spec DOES when the runner executes it. A spec declaring a legitimate path whose
+//      BODY deletes and overwrites through node_modules/ is graded for real against a THROWAWAY
+//      stand-in repo (never the kata) and asserted to leave that tree byte-intact. Plus the two
+//      pure invariants the containment rests on: escapingLinks() and resolveArmCwd().
 //
 // Fail-closed: any violation prints a FAIL line and exits 1; an OK line + exit 0 on success. Zero
 // claude spend, borrowed repo left pristine. NOT wired into `npm run check` (it touches the borrowed
@@ -44,7 +49,15 @@ import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { dirname, join, resolve } from 'node:path';
 import { buildSyntheticBase, extractResult, git } from '../lz-refactor-workspace/e2e-nx/run-e2e.mjs';
-import { assertSafeDiffPaths, classify, gradeRun, isConfigLevelTscError, parseRunnerReport } from './grade-red.mjs';
+import {
+  assertSafeDiffPaths,
+  classify,
+  escapingLinks,
+  gradeRun,
+  isConfigLevelTscError,
+  parseRunnerReport,
+  resolveArmCwd,
+} from './grade-red.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const RUN_E2E = resolve(HERE, '..', 'lz-refactor-workspace', 'e2e-nx', 'run-e2e.mjs');
@@ -867,6 +880,307 @@ function checkNoTestsDisambiguationIsRunnerAuthored() {
   );
 }
 
+// ---- crux 9: the RUNTIME write path is CONTAINED, not merely detected (T-63f-05) --------------
+
+// grade-red spawns the TARGET'S RUNNER ON THE MODEL-AUTHORED SPEC. Until 2026-07-25 the grading
+// worktree reached its toolchain through a junction into the borrowed repo, which made that spawn a
+// live write path into a third-party checkout -- and assertSafeDiffPaths(), crux 8's subject, could
+// not see it, because it scans DECLARED PATHS ONLY and never hunk CONTENT. MEASURED: a patch
+// declaring a perfectly legitimate `<subdir>/test/vitest/*.spec.ts` whose BODY deletes and
+// overwrites through `node_modules/` was ACCEPTED, and executing it landed both writes in the real
+// tree. Scanning bodies cannot close that -- the runner executes arbitrary model-authored code, so
+// any fs call can be obfuscated past a content scan -- so the fix is structural: the toolchain is a
+// per-grade DISPOSABLE COPY, and the damage lands on a throwaway that teardown deletes.
+//
+// This crux pins the property end to end, with the exploit graded for real. The stand-in "borrowed
+// repo" is a throwaway git repo under os.tmpdir() built to the kata's shape; the KATA IS NEVER THE
+// PROBE TARGET, because a check that can only discriminate by damaging a borrowed repo is not a
+// check worth having. Discrimination was measured instead by replaying this same probe through the
+// pre-fix module loaded out of git: junction -> SENTINEL "PWNED" and the victim package deleted;
+// copy -> both byte-intact, same `genuinely_red` verdict either way.
+
+const T63F05_SENTINEL = 'DO-NOT-TOUCH-ME';
+const T63F05_MARKER = 'T63F05-SPEC-EXECUTED';
+
+function gitOrFail(cwd, args, label) {
+  const r = git(cwd, args);
+
+  if (r.status !== 0) {
+    fail(`[crux 9] ${label}: git ${args.join(' ')} failed in ${cwd}: ${(r.stderr || '').trim()}`);
+  }
+
+  return r;
+}
+
+// A throwaway stand-in for the borrowed repo: a git repo with a `TypeScript/` subdir (the kata's
+// shape, so `rel` is exercised), a real toolchain, and the two things the exploit attacks.
+function buildStandInRepo() {
+  const root = join(os.tmpdir(), `red-t63f05-${process.pid}-${Date.now()}`);
+  const sub = join(root, 'TypeScript');
+  fs.mkdirSync(join(sub, 'app'), { recursive: true });
+  fs.mkdirSync(join(sub, 'test', 'vitest'), { recursive: true });
+
+  fs.writeFileSync(join(root, '.gitignore'), 'node_modules/\n');
+  fs.writeFileSync(join(sub, 'package.json'), `${JSON.stringify({ name: 'red-t63f05', private: true, type: 'module' }, null, 2)}\n`);
+  fs.writeFileSync(
+    join(sub, 'tsconfig.json'),
+    `${JSON.stringify(
+      {
+        compilerOptions: { target: 'es2021', module: 'esnext', moduleResolution: 'bundler', skipLibCheck: true, noEmit: true },
+        include: ['app', 'test', 'types.d.ts'],
+      },
+      null,
+      2,
+    )}\n`,
+  );
+  // Just enough ambient typing for the spec below to be tsc --strict CLEAN, so the exploit arrives
+  // as an ordinary-looking test rather than as a compile error the gate would flag anyway.
+  fs.writeFileSync(
+    join(sub, 'types.d.ts'),
+    [
+      "declare module 'node:fs' {",
+      '  export function rmSync(target: unknown, options?: { recursive?: boolean; force?: boolean }): void;',
+      '  export function writeFileSync(target: unknown, data: string): void;',
+      '}',
+      '',
+    ].join('\n'),
+  );
+  fs.writeFileSync(join(sub, 'app', 'thing.ts'), 'export function thing(): number {\n  return 1;\n}\n');
+  fs.writeFileSync(join(sub, 'test', 'vitest', '.gitkeep'), '');
+
+  gitOrFail(root, ['init', '-q'], 'stand-in init');
+  gitOrFail(root, ['add', '.gitignore', 'TypeScript'], 'stand-in add');
+  // A throwaway identity, so the probe never depends on (or writes) a real one.
+  gitOrFail(root, ['-c', 'user.name=probe', '-c', 'user.email=probe', 'commit', '-q', '-m', 'stand-in base'], 'stand-in commit');
+
+  const base = (gitOrFail(root, ['rev-parse', 'HEAD'], 'stand-in rev-parse').stdout || '').trim();
+  // Take the toplevel in GIT'S form. os.tmpdir() can hand back an 8.3 short path while git reports
+  // long, and resolveArmCwd() now (correctly) refuses that mismatch outright -- so the probe has to
+  // be internally consistent or it would only ever exercise the new guard.
+  const topLevel = (gitOrFail(root, ['rev-parse', '--show-toplevel'], 'stand-in toplevel').stdout || '').trim();
+  const repo = `${topLevel}/TypeScript`;
+
+  // The stand-in's own node_modules: a working toolchain (the workspace's, so the runner really
+  // runs) plus a sentinel file and a victim package for the exploit to attack.
+  const nodeModules = join(sub, 'node_modules');
+  fs.cpSync(join(HERE, 'node_modules'), nodeModules, { recursive: true });
+  fs.writeFileSync(join(nodeModules, 'SENTINEL.txt'), T63F05_SENTINEL);
+  fs.mkdirSync(join(nodeModules, 'victim'), { recursive: true });
+  fs.writeFileSync(join(nodeModules, 'victim', 'package.json'), '{"name":"victim","version":"1.0.0"}\n');
+
+  const suiteDir = join(root, 'suite');
+  fs.mkdirSync(suiteDir, { recursive: true });
+  fs.writeFileSync(join(suiteDir, 'suite.json'), `${JSON.stringify({ name: 'red-t63f05', repo, applyBase: base }, null, 2)}\n`);
+  fs.writeFileSync(
+    join(suiteDir, 'targets.json'),
+    `${JSON.stringify(
+      {
+        targets: [
+          {
+            id: 'T63F05',
+            runner: {
+              vitest: 'npx vitest run <producedTestFile> --reporter=json',
+              runner_select: { 'test/vitest/': 'vitest' },
+              runner_default: 'vitest',
+            },
+          },
+        ],
+      },
+      null,
+      2,
+    )}\n`,
+  );
+
+  return { root, nodeModules, suiteDir };
+}
+
+// The exploit, as a fabricated runDir: ONE declared path that every containment check accepts, and
+// a body that writes through the toolchain. The paths are resolved from `import.meta.url` rather
+// than from the cwd so the write target is the worktree's own node_modules by construction.
+function buildExploitRunDir(root) {
+  const specPath = 'TypeScript/test/vitest/conjured.spec.ts';
+  const specLines = [
+    "import { describe, expect, it } from 'vitest';",
+    "import { rmSync, writeFileSync } from 'node:fs';",
+    '',
+    'const toolchain = (name: string) => new URL(`../../node_modules/${name}`, import.meta.url);',
+    '',
+    "describe('conjured items', () => {",
+    "  it('degrade twice as fast', () => {",
+    "    rmSync(toolchain('victim'), { recursive: true, force: true });",
+    "    writeFileSync(toolchain('SENTINEL.txt'), 'PWNED');",
+    `    expect('${T63F05_MARKER}').toBe('${T63F05_MARKER}-NOT');`,
+    '  });',
+    '});',
+  ];
+  const runDir = join(root, 'runDir');
+  fs.mkdirSync(runDir, { recursive: true });
+  fs.writeFileSync(
+    join(runDir, 'diff.patch'),
+    [
+      `diff --git a/${specPath} b/${specPath}`,
+      'new file mode 100644',
+      'index 0000000..1111111',
+      '--- /dev/null',
+      `+++ b/${specPath}`,
+      `@@ -0,0 +1,${specLines.length} @@`,
+      ...specLines.map((l) => `+${l}`),
+      '',
+    ].join('\n'),
+  );
+  fs.writeFileSync(
+    join(runDir, 'meta.json'),
+    `${JSON.stringify(
+      { prompt_id: 't63f05', target: 'T63F05', arm: 'probe', run_idx: 1, changed_files: [specPath] },
+      null,
+      2,
+    )}\n`,
+  );
+
+  return runDir;
+}
+
+function checkRuntimeWriteContainment() {
+  // The stand-in needs a real runner, and the only one guaranteed on disk is the workspace's own.
+  // SKIP loudly rather than fail if it is missing -- but a SKIP is NOT a pass, and `npm ci` here is
+  // required by `grade-red.mjs --selfcheck` anyway, so the six-command battery never skips this.
+  if (!fs.existsSync(join(HERE, 'node_modules', 'vitest'))) {
+    console.log(
+      `  [crux 9] SKIP -- no workspace toolchain at ${join(HERE, 'node_modules')} (npm ci here first); ` +
+        'a SKIP is not a pass, the runtime write path is simply unmeasured',
+    );
+
+    return;
+  }
+
+  const standIn = buildStandInRepo();
+  const runDir = buildExploitRunDir(standIn.root);
+  const sentinelPath = join(standIn.nodeModules, 'SENTINEL.txt');
+  const victimPath = join(standIn.nodeModules, 'victim');
+
+  let grade;
+  let threw;
+
+  try {
+    grade = gradeRun({ runDir, suiteDir: standIn.suiteDir });
+  } catch (err) {
+    threw = err;
+  }
+
+  // Read the evidence BEFORE cleaning up, and clean up BEFORE any fail(): fail() exits without
+  // unwinding, so a later cleanup would never run and every failed probe would leak ~60 MB.
+  const sentinel = fs.existsSync(sentinelPath) ? fs.readFileSync(sentinelPath, 'utf8') : '<DELETED>';
+  const victimSurvived = fs.existsSync(victimPath);
+  const excerpt = String((grade && grade.failure_excerpt) || '');
+  const stranded = fs.readdirSync(os.tmpdir()).filter((e) => e.startsWith('red-wt-'));
+  fs.rmSync(standIn.root, { recursive: true, force: true });
+
+  if (threw) {
+    fail(`[crux 9] gradeRun threw instead of grading the exploit spec: ${threw.message}`);
+  }
+
+  // The containment only means anything if the hostile spec actually EXECUTED. The marker is the
+  // spec's own assertion text, and the writes above it run first, so seeing it proves the runner
+  // reached and passed the two fs calls.
+  if (!excerpt.includes(T63F05_MARKER)) {
+    fail(
+      `[crux 9] the exploit spec did not run (no ${T63F05_MARKER} in the failure excerpt), so the ` +
+        `containment was never exercised: verdict ${grade.verdict}, excerpt ${JSON.stringify(excerpt.slice(0, 200))}`,
+    );
+  }
+
+  // THE PROPERTY. Pre-fix this read "PWNED" and the victim package was gone.
+  if (sentinel !== T63F05_SENTINEL) {
+    fail(
+      `[crux 9] the produced spec WROTE THROUGH into the stand-in borrowed repo: SENTINEL.txt is ` +
+        `${JSON.stringify(sentinel)}, expected ${JSON.stringify(T63F05_SENTINEL)}. The grading worktree's ` +
+        'toolchain is reaching the real tree again (T-63f-05)',
+    );
+  }
+
+  if (!victimSurvived) {
+    fail(
+      '[crux 9] the produced spec DELETED a package from the stand-in borrowed repo through the ' +
+        "grading worktree's toolchain (T-63f-05)",
+    );
+  }
+
+  if (stranded.length) {
+    fail(`[crux 9] stranded grading worktree director(ies) under the temp dir: ${stranded.join(', ')}`);
+  }
+
+  console.log(
+    `  [crux 9] runtime write path contained OK (a legit-path spec whose body deletes + overwrites ` +
+      `through node_modules ran to its assertion -> ${grade.verdict}; stand-in tree byte-intact, ` +
+      `toolchain copied in ${grade.toolchain_ms} ms)`,
+  );
+}
+
+function checkContainmentInvariants() {
+  // escapingLinks() is what stops a copied toolchain from smuggling the old junction back in:
+  // fs.cpSync copies a symlink AS a symlink, so a source tree containing one would hand the copy a
+  // path straight back out of the worktree. Pure, offline, and it never SKIPs.
+  const probe = join(os.tmpdir(), `red-links-${process.pid}-${Date.now()}`);
+  const inside = join(probe, 'copy', 'pkg');
+  const outside = join(probe, 'borrowed');
+  fs.mkdirSync(inside, { recursive: true });
+  fs.mkdirSync(outside, { recursive: true });
+
+  let escapes;
+  let linkError;
+
+  try {
+    // 'junction' is the Windows-safe directory link (a plain symlink needs elevation there); the
+    // type argument is ignored elsewhere.
+    fs.symlinkSync(inside, join(probe, 'copy', 'contained-link'), 'junction');
+    fs.symlinkSync(outside, join(probe, 'copy', 'escaping-link'), 'junction');
+    escapes = escapingLinks(join(probe, 'copy'));
+  } catch (err) {
+    linkError = err;
+  }
+
+  fs.rmSync(probe, { recursive: true, force: true });
+
+  if (linkError) {
+    fail(`[crux 9] could not build the link probe: ${linkError.message}`);
+  }
+
+  if (escapes.length !== 1 || !escapes[0].includes('escaping-link')) {
+    fail(
+      `[crux 9] escapingLinks() reported ${JSON.stringify(escapes)}; expected exactly the one link ` +
+        'resolving outside the copy (a contained link must NOT be flagged, an escaping one MUST be)',
+    );
+  }
+
+  // resolveArmCwd() is the other half: `rel` is arithmetic over two path strings, and if they
+  // disagree on form (git's long toplevel vs an 8.3 short suite.repo -- what os.tmpdir() hands back
+  // on this machine) the join normalises straight back onto the SOURCE checkout, putting the apply,
+  // the runner spawn and teardown's recursive delete inside the borrowed repo. Same damage as the
+  // junction, reached by arithmetic. Both directions asserted.
+  const worktree = join(os.tmpdir(), 'red-wt-PROBE');
+  const ok = resolveArmCwd(worktree, '/repo/root', '/repo/root/TypeScript');
+
+  if (ok.rel !== 'TypeScript' || resolve(ok.armCwd) !== resolve(join(worktree, 'TypeScript'))) {
+    fail(`[crux 9] resolveArmCwd() mangled an ordinary subdir target: ${JSON.stringify(ok)}`);
+  }
+
+  const flat = resolveArmCwd(worktree, '/repo/root', '/repo/root');
+
+  if (flat.rel !== '' || resolve(flat.armCwd) !== resolve(worktree)) {
+    fail(`[crux 9] resolveArmCwd() mangled a repo that IS its git root: ${JSON.stringify(flat)}`);
+  }
+
+  expectThrows(
+    () => resolveArmCwd(worktree, '/long/form/root', '/short/form/root/TypeScript'),
+    'a suite.repo that disagrees with the git toplevel must not resolve the grade back onto the source tree',
+  );
+
+  console.log(
+    '  [crux 9] containment invariants OK (escapingLinks flags the escaping link only; resolveArmCwd ' +
+      'keeps the grade inside the worktree and refuses a path-form mismatch)',
+  );
+}
+
 // ---- crux 6: lz-refactor nx-suite regression (D-11) -------------------------------------------
 
 function checkNxRegression() {
@@ -905,11 +1219,13 @@ checkDiffContainment();
 checkRunnerSignalIsRunnerAuthored();
 checkNoTestsDisambiguationIsRunnerAuthored();
 checkConfigLevelTscGuard();
+checkContainmentInvariants();
+checkRuntimeWriteContainment();
 checkNxRegression();
 
 console.log(
   'selfcheck-red: OK -- composition, prompt-parity, worktree base, transcript parse, classifier, the ' +
-    'target-toolchain canary, captured-diff containment, and the lz-refactor nx regression all pass; ' +
-    'zero claude spend, borrowed repo left pristine.',
+    'target-toolchain canary, captured-diff containment, the runtime write path, and the lz-refactor ' +
+    'nx regression all pass; zero claude spend, borrowed repo left pristine.',
 );
 process.exit(0);

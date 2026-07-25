@@ -7,15 +7,27 @@
 // pre-existing non-strict source), runs the TARGET's own test runner with a machine-readable JSON
 // reporter, and classifies the produced test into exactly one of:
 //
-//   genuinely_red   tsc-strict clean AND >=1 ASSERTION failure on current code   (the ONLY pass)
-//   false_green     all assertions pass; the diff changed only test files
-//   drove_to_green  all assertions pass because the diff changed PRODUCTION code (overstepped GREEN)
+//   genuinely_red   tsc-strict clean AND >=1 ASSERTION failure in a test THE DIFF ADDED (the ONLY pass)
+//   false_green     the tests the diff added all pass; the diff changed only test files
+//   drove_to_green  the tests the diff added all pass because the diff changed PRODUCTION code
 //   compile_error   the produced test introduces NEW tsc --strict errors
 //   collection_error the suite failed to LOAD before any assertion ran (import/setup throw)
 //   no_tests        zero it()/test() bodies collected
-//   wrong_reason    a failure whose message is a runtime/type error masquerading as an assertion
+//   wrong_reason    an ADDED test's failure is a runtime/type error masquerading as an assertion
+//   unattributable  something in the file failed, but no failure belongs to a test the diff ADDED
 //
 // pass == (verdict === 'genuinely_red'). Everything else is reported, not passed (D-06).
+//
+// ATTRIBUTION is load-bearing (added 2026-07-25 by quick 260725-63f). Until it existed, "the file
+// has >= 1 assertion failure" WAS the pass criterion, and the k=1 with_skill pilot showed why that
+// is not the same question D-06 asks: the model APPENDED its test to the kata's existing
+// test/vitest/gilded-rose.spec.ts, which ships a broken `should foo` placeholder asserting
+// 'fixme' -- so the file was already red before the produced test ran, and the recorded
+// failure_excerpt was that placeholder's message rather than the model's. That run's verdict was
+// right by luck, but a model that appends a test which PASSES -- a false green, the exact thing
+// D-06 exists to catch -- would have graded genuinely_red / pass:true on the borrowed failure. The
+// hole is arm-independent, so it would have inflated every arm's Pass@k equally while hollowing
+// out the eval's only hard correctness gate.
 //
 // It is a POST-RUN pass over captured artifacts (mirrors Phase 13's grading/* reading captured
 // diffs); it does NOT drive claude and does NOT modify run-e2e.mjs. It fails CLOSED (T-21-02 /
@@ -45,7 +57,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 
-// The 7 D-06 classes. pass is true for genuinely_red only.
+// The 8 D-06 classes. pass is true for genuinely_red only.
 export const VERDICTS = [
   'genuinely_red',
   'false_green',
@@ -54,6 +66,7 @@ export const VERDICTS = [
   'collection_error',
   'no_tests',
   'wrong_reason',
+  'unattributable',
 ];
 
 // An ASSERTION failure message (a genuine RED). vitest 4.1.10 emits e.g.
@@ -143,6 +156,142 @@ export function isTestFile(p) {
 // drove_to_green signal (RESEARCH Pitfall 9).
 export function changedProductionFiles(diffPatch) {
   return changedPaths(diffPatch).filter((p) => p && p !== '/dev/null' && !isTestFile(p));
+}
+
+// ---- RED attribution: which assertion belongs to a test the DIFF ADDED? -----------------------
+
+// An `it(...)` / `test(...)` call site and its literal title, matched PER SOURCE LINE. Two shapes,
+// because `.each` puts a table argument between the modifier chain and the title:
+//
+//   it('t')   it.only("t")   test.skip(`t`)   it.failing('t')
+//   it.each([[1, 2]])('adds %i and %i')       test.each`a|b`('$a + $b')
+//
+// Line-scoped by construction (`.` never crosses a newline), so neither pattern can run away over a
+// whole patch, and a `.each` table spanning several lines simply does not match -- which is the safe
+// direction: an unmatched title is unattributable, never a pass.
+const TITLE_MODIFIERS = '(?:\\.(?:only|skip|todo|failing|fails|concurrent|sequential|runIf|skipIf|for|extend))*';
+// group 1 = the quote character, group 2 = the raw title text (escapes preserved).
+const TITLE_LITERAL = '([\'"`])((?:\\\\.|(?!\\1).)*)\\1';
+const DIRECT_TITLE_RE = new RegExp(`(?:^|[^\\w$.])(?:it|test)${TITLE_MODIFIERS}\\s*\\(\\s*${TITLE_LITERAL}`, 'g');
+const EACH_TITLE_RE = new RegExp(
+  `(?:^|[^\\w$.])(?:it|test)${TITLE_MODIFIERS}\\.each\\s*(?:\\(.*\\)|\`.*\`)\\s*\\(\\s*${TITLE_LITERAL}`,
+  'g',
+);
+// The placeholder forms a runner SUBSTITUTES before it reports a title: printf-style and `$var`
+// come from a `.each` table, `${...}` from a template literal. Everything else in the title is
+// reported verbatim.
+const TITLE_PLACEHOLDER_RE = /\$\{[^}]*\}|%[sdifjop#%]|\$#|\$[A-Za-z_][\w.]*/g;
+const REGEX_META_RE = /[.*+?^${}()|[\]\\]/g;
+
+// The `it()`/`test()` titles declared on ONE source line, each flagged `parameterized` when the
+// runner will report a SUBSTITUTED form of it rather than the literal text.
+export function extractTestTitles(line) {
+  const text = String(line == null ? '' : line);
+  const out = [];
+
+  for (const m of text.matchAll(EACH_TITLE_RE)) {
+    out.push({ title: m[2], parameterized: true });
+  }
+
+  // A `.each` site can never also match here: DIRECT requires `(` straight after the modifier
+  // chain, and `each` is deliberately absent from TITLE_MODIFIERS.
+  for (const m of text.matchAll(DIRECT_TITLE_RE)) {
+    out.push({ title: m[2], parameterized: m[1] === '`' });
+  }
+
+  return out;
+}
+
+// A predicate deciding whether a RUNNER-REPORTED title is this source title, or null when the
+// source title carries no evidence to match on.
+//
+// Exact equality for an ordinary literal. For a parameterized title the reported form is
+// substituted and can NEVER equal the source text (`'adds %i and %i'` is reported as
+// `'adds 1 and 2'`), so each placeholder becomes a wildcard while every literal part still has to
+// match, anchored and in order. Only `.each` and template-literal titles get that treatment: a
+// plain `it('%s')` is reported verbatim, and wildcarding it would hand the model under test a
+// matcher that claims every test in the file, including a pre-existing failing one.
+export function titleMatcher(entry) {
+  const text = String(entry && entry.title != null ? entry.title : '');
+  const parts = text.split(TITLE_PLACEHOLDER_RE);
+
+  if (!(entry && entry.parameterized) || parts.length === 1) {
+    return text.trim() === '' ? null : (reported) => reported === text;
+  }
+
+  // A title that is ALL placeholder (`'%s'`, `` `${name}` ``) matches anything, so it cannot
+  // attribute a failure to the produced test rather than to a borrowed one. Refuse it.
+  if (parts.join('').trim() === '') {
+    return null;
+  }
+
+  const pattern = new RegExp(`^${parts.map((p) => p.replace(REGEX_META_RE, '\\$&')).join('[\\s\\S]*')}$`);
+
+  return (reported) => pattern.test(reported);
+}
+
+// The test titles a produced diff ADDED. Only hunk lines inside a TEST file count, and a title the
+// diff also shows on its pre-existing side (a context or removed line) is dropped as AMBIGUOUS: a
+// duplicated or moved test cannot be told apart from the one that was already there, and guessing
+// in that direction is exactly how a borrowed failure becomes a pass.
+//
+// A header this cannot parse (git QUOTES a path needing escapes) resets the file to "not a test
+// file" rather than carrying the previous one forward -- fail closed toward unattributable.
+export function addedTestTitles(diffPatch) {
+  const added = [];
+  const preexisting = new Set();
+  let inTestFile = false;
+
+  for (const line of String(diffPatch == null ? '' : diffPatch).split('\n')) {
+    if (line.startsWith('diff --git ')) {
+      const m = /^diff --git a\/(?:.+?) b\/(.+)$/.exec(line);
+      inTestFile = m ? isTestFile(m[1].trim()) : false;
+
+      continue;
+    }
+
+    if (line.startsWith('+++ ')) {
+      const m = /^\+\+\+ b\/(.+)$/.exec(line);
+      inTestFile = m ? isTestFile(m[1].trim()) : false;
+
+      continue;
+    }
+
+    if (!inTestFile || line.startsWith('--- ') || line.startsWith('@@')) {
+      continue;
+    }
+
+    if (line.startsWith('+')) {
+      added.push(...extractTestTitles(line.slice(1)));
+
+      continue;
+    }
+
+    if (line.startsWith('-') || line.startsWith(' ')) {
+      for (const t of extractTestTitles(line.slice(1))) {
+        preexisting.add(t.title);
+      }
+    }
+  }
+
+  return added.filter((t) => !preexisting.has(t.title));
+}
+
+// The runner's assertionResults that belong to a test the diff ADDED. Matching is on the assertion's
+// own `title` (the innermost it() name) -- never `fullName`, which folds in describe() ancestors the
+// diff may not have touched.
+export function attributedAssertions(assertionResults, diffPatch) {
+  const matchers = addedTestTitles(diffPatch).map(titleMatcher).filter(Boolean);
+
+  if (!matchers.length) {
+    return [];
+  }
+
+  return (Array.isArray(assertionResults) ? assertionResults : []).filter((a) => {
+    const reported = a && a.title;
+
+    return typeof reported === 'string' && reported !== '' && matchers.some((m) => m(reported));
+  });
 }
 
 // Fail-closed guard: a missing/empty diff.patch must throw, never be scored "no change" (T-21-02).
@@ -383,17 +532,44 @@ export function classify(tscResult, runnerJson, diffPatch) {
   }
 
   const failed = asserts.filter((a) => a && a.status === 'failed');
+  const green = () => (changedProductionFiles(diffPatch).length > 0 ? 'drove_to_green' : 'false_green');
 
   if (failed.length === 0) {
-    // Every assertion passed. A false green -- UNLESS the diff also changed production (non-test)
-    // code so the test now passes, which is drove_to_green (overstepped into lz-tpp's green job;
-    // RESEARCH Pitfall 9). A benign compiling STUB that keeps the test red never reaches here.
-    return changedProductionFiles(diffPatch).length > 0 ? 'drove_to_green' : 'false_green';
+    // NOTHING in the file failed, so whatever the diff added passed too -- a sound conclusion
+    // without attribution, which is why this stays the first branch. A false green -- UNLESS the
+    // diff also changed production (non-test) code so the test now passes, which is drove_to_green
+    // (overstepped into lz-tpp's green job; RESEARCH Pitfall 9). A benign compiling STUB that keeps
+    // the test red never reaches here.
+    return green();
   }
 
-  // >= 1 assertion failed. genuinely_red ONLY if EVERY failure is an assertion error, not a
-  // runtime/type error masquerading as a failure (wrong_reason). Fail closed toward wrong_reason.
-  const rightReason = failed.every((a) => {
+  // >= 1 assertion failed SOMEWHERE in the file. D-06 asks the narrower question: did a test the
+  // PRODUCED DIFF ADDED fail? A failure borrowed from a test that was already in the file says
+  // nothing about the model's work -- see the ATTRIBUTION note at the top of this file.
+  const attributed = attributedAssertions(asserts, diffPatch);
+  const attributedFailed = attributed.filter((a) => a && a.status === 'failed');
+
+  if (attributedFailed.length === 0) {
+    if (attributed.length > 0) {
+      // The added tests RAN and every one of them passed; the failure belongs to a test that was
+      // already there. That is a false green (or drove_to_green) and never a pass -- THE defect
+      // this attribution exists to close.
+      return green();
+    }
+
+    // Nothing in the report can be tied to a test the diff added: the produced test did not run,
+    // the runner reports it under a different title, or the diff declares no extractable test
+    // title at all (e.g. it only edited an existing test's body). Not a pass, and NOT the same
+    // claim as "the added test passed" -- so it gets its own class rather than being folded into
+    // false_green, which would assert something the report does not support.
+    return 'unattributable';
+  }
+
+  // >= 1 ADDED test failed. genuinely_red ONLY if EVERY added-test failure is an assertion error,
+  // not a runtime/type error masquerading as a failure (wrong_reason). Fail closed toward
+  // wrong_reason. Pre-existing failures are excluded on purpose: a broken placeholder already in
+  // the file must not turn the model's genuine assertion failure into wrong_reason either.
+  const rightReason = attributedFailed.every((a) => {
     const m = (Array.isArray(a.failureMessages) ? a.failureMessages : []).join('\n');
 
     return ASSERTION_RE.test(m) && !RUNTIME_RE.test(m);
@@ -565,10 +741,39 @@ export function parseRunnerReport(runRes) {
 
 // ---- fixture grader (offline --selfcheck path; workspace toolchain) ---------------------------
 
+// A NEW-FILE unified diff whose `+` lines are `source` verbatim -- the diff a model produces when
+// it creates a spec from nothing, which is exactly what a standalone fixture represents.
+export function newFileDiff(specFile, source) {
+  const lines = String(source == null ? '' : source).split('\n');
+
+  // A trailing newline yields one empty element; it is not a line of the file.
+  if (lines.length && lines[lines.length - 1] === '') {
+    lines.pop();
+  }
+
+  return [
+    `diff --git a/${specFile} b/${specFile}`,
+    'new file mode 100644',
+    '--- /dev/null',
+    `+++ b/${specFile}`,
+    `@@ -0,0 +1,${lines.length} @@`,
+    ...lines.map((l) => `+${l}`),
+    '',
+  ].join('\n');
+}
+
 // Grade one SELFCHECK-ONLY fixture dir (module.ts? + module.spec.ts) through the SAME classify() as
 // the real gate, using the workspace's pinned typescript@6.0.3 + vitest@4.1.10. Standalone fixtures
 // have no pre-existing baseline, so the differential tsc reduces to "all --strict errors are NEW".
 // Leaves the fixture dir pristine (the vitest JSON report is written to os.tmpdir(), not the fixture).
+//
+// The fixture's DIFF is part of the fixture. A fixture that ships its own diff.patch is graded
+// against that patch verbatim -- the only way to express an APPEND onto a file that already
+// contains a failing test. Everything else gets a new-file diff synthesized from the spec's real
+// source, so every added title reaches attribution. This replaced a header-only synthetic diff
+// carrying NO `+` lines at all: under attribution that diff would have made every fixture
+// unattributable, and the tempting repair -- a flag that skips attribution for fixtures -- would
+// have reopened the very hole this gate closes, in the one place nobody re-reads.
 export function gradeFixture(fixtureDir) {
   const tscBin = path.join(HERE, 'node_modules', 'typescript', 'bin', 'tsc');
   const vitestBin = path.join(HERE, 'node_modules', 'vitest', 'vitest.mjs');
@@ -597,9 +802,12 @@ export function gradeFixture(fixtureDir) {
   );
   const tscResult = { newErrors: tscErrors.length, errors: tscErrors };
 
-  // A test-only synthetic diff so a green fixture classifies false_green (never drove_to_green);
+  // Test-only in every case, so a green fixture classifies false_green and never drove_to_green;
   // the selfcheck proves drove_to_green separately via a synthetic production diff.
-  const testOnlyDiff = `diff --git a/${specFile} b/${specFile}\n+++ b/${specFile}\n`;
+  const ownDiff = path.join(fixtureDir, 'diff.patch');
+  const testOnlyDiff = fs.existsSync(ownDiff)
+    ? fs.readFileSync(ownDiff, 'utf8')
+    : newFileDiff(specFile, fs.readFileSync(path.join(fixtureDir, specFile), 'utf8'));
 
   if (tscResult.newErrors > 0) {
     // compile_error short-circuits in classify(); no need to run the runner.
@@ -635,14 +843,16 @@ export function gradeFixture(fixtureDir) {
 
 // ---- real gate (the D-06 correctness gate over one captured run) ------------------------------
 
-function whyFor(verdict, tscResult) {
+function whyFor(verdict, tscResult, addedTitles) {
+  const added = Array.isArray(addedTitles) ? addedTitles : [];
+
   switch (verdict) {
     case 'genuinely_red':
-      return 'tsc --strict clean; >=1 assertion failure on current code (correct RED)';
+      return 'tsc --strict clean; >=1 assertion failure in a test the diff ADDED (correct RED)';
     case 'false_green':
-      return 'all assertions pass on current code and the diff changed only test files (not red)';
+      return 'the tests the diff added all pass on current code and the diff changed only test files (not red)';
     case 'drove_to_green':
-      return 'all assertions pass because the diff also changed production code (overstepped into GREEN)';
+      return 'the tests the diff added all pass because the diff also changed production code (overstepped into GREEN)';
     case 'compile_error':
       return `${tscResult.newErrors} NEW tsc --strict error(s) attributable to the produced test`;
     case 'collection_error':
@@ -650,19 +860,33 @@ function whyFor(verdict, tscResult) {
     case 'no_tests':
       return 'zero it()/test() bodies were collected';
     case 'wrong_reason':
-      return 'a failure whose message is a runtime/type error masquerading as an assertion failure';
+      return 'an ADDED test failed with a runtime/type error masquerading as an assertion failure';
+    case 'unattributable':
+      return added.length
+        ? `the suite has failing assertions but none belongs to a test the diff added (${added
+            .map((t) => JSON.stringify(t.title))
+            .join(', ')} matched no reported test title)`
+        : 'the suite has failing assertions but the diff declares no it()/test() title to attribute them to';
     default:
       return 'unknown';
   }
 }
 
-function firstFailureExcerpt(runnerJson) {
+// The failure a human reads to sanity-check the verdict. It reports the ATTRIBUTED failure -- the
+// one belonging to a test the diff ADDED -- rather than merely the first in the file. Reporting the
+// first is what let the k=1 pilot record the kata's pre-existing `expected 'foo' to be 'fixme'`
+// placeholder as if it were the model's own RED.
+function failureExcerpt(runnerJson, diffPatch) {
   const suite = Array.isArray(runnerJson.testResults) ? runnerJson.testResults[0] : undefined;
   const asserts = suite && Array.isArray(suite.assertionResults) ? suite.assertionResults : [];
-  const failed = asserts.find((a) => a && a.status === 'failed');
+  const attributedFailed = attributedAssertions(asserts, diffPatch).filter((a) => a && a.status === 'failed');
+  const failed = attributedFailed[0] || asserts.find((a) => a && a.status === 'failed');
   const msg = failed && Array.isArray(failed.failureMessages) ? failed.failureMessages.join('\n') : (suite && suite.message) || '';
+  // Name the test the message came from, and say plainly when it is NOT the model's -- an excerpt
+  // that silently borrows a pre-existing failure is what made this defect invisible.
+  const label = failed && failed.title ? `${attributedFailed.length ? 'added test' : 'PRE-EXISTING test'} ${JSON.stringify(failed.title)}: ` : '';
 
-  return String(msg).slice(0, 500);
+  return `${label}${String(msg)}`.slice(0, 500);
 }
 
 // The target's own runner version (drift detection). Looks in the worktree subdir then the root.
@@ -968,6 +1192,8 @@ export function gradeRun({ runDir, suiteDir }) {
         runner_version: readRunnerVersion(armCwd, worktree, runnerName),
         toolchain_ms: toolchainMs,
         produced_test_files: [],
+        added_test_titles: [],
+        attributed_failures: 0,
         failure_excerpt: '',
       };
       fs.writeFileSync(path.join(runDir, 'red-grade.json'), JSON.stringify(grade, null, 2));
@@ -1034,6 +1260,12 @@ export function gradeRun({ runDir, suiteDir }) {
     const runnerJson = parseRunnerReport(runRes);
 
     const verdict = classify(tscResult, runnerJson, diffPatch);
+    const addedTitles = addedTestTitles(diffPatch);
+    const suiteReport = Array.isArray(runnerJson.testResults) ? runnerJson.testResults[0] : undefined;
+    const attributed = attributedAssertions(
+      suiteReport && Array.isArray(suiteReport.assertionResults) ? suiteReport.assertionResults : [],
+      diffPatch,
+    );
     const grade = {
       prompt_id: meta.prompt_id,
       target: meta.target,
@@ -1041,7 +1273,7 @@ export function gradeRun({ runDir, suiteDir }) {
       run_idx: meta.run_idx,
       verdict,
       pass: verdictPass(verdict),
-      why: whyFor(verdict, tscResult),
+      why: whyFor(verdict, tscResult, addedTitles),
       new_tsc_errors: tscResult.newErrors,
       runner: runnerName,
       runner_version: readRunnerVersion(armCwd, worktree, runnerName),
@@ -1050,7 +1282,12 @@ export function gradeRun({ runDir, suiteDir }) {
       // every artifact rather than only in front of whoever watched the console.
       toolchain_ms: toolchainMs,
       produced_test_files: producedTests,
-      failure_excerpt: firstFailureExcerpt(runnerJson),
+      // The attribution evidence, recorded so an operator can check the verdict rather than take
+      // it on trust: what the gate extracted from the diff, and how many reported assertions it
+      // could tie back to those titles. An `unattributable` verdict is unreadable without them.
+      added_test_titles: addedTitles.map((t) => t.title),
+      attributed_failures: attributed.filter((a) => a && a.status === 'failed').length,
+      failure_excerpt: failureExcerpt(runnerJson, diffPatch),
     };
     fs.writeFileSync(path.join(runDir, 'red-grade.json'), JSON.stringify(grade, null, 2));
 
@@ -1062,7 +1299,7 @@ export function gradeRun({ runDir, suiteDir }) {
   }
 }
 
-// ---- offline selfcheck (zero spend; proves all 7 D-06 classes) --------------------------------
+// ---- offline selfcheck (zero spend; proves all 8 D-06 classes) --------------------------------
 
 function fail(msg) {
   console.error(`grade-red --selfcheck: FAIL -- ${msg}`);
@@ -1083,9 +1320,33 @@ function assertThrows(fn, label) {
   }
 }
 
+// The classifier as it stood BEFORE attribution, reproduced verbatim from the pre-fix source so the
+// discrimination proof below compares two REAL rules on identical inputs rather than an assertion
+// against a remembered one. It is deliberately a dead-end copy: nothing else calls it, and it must
+// never be wired back into the gate.
+function classifyPreAttribution(runnerJson) {
+  const suite = Array.isArray(runnerJson.testResults) ? runnerJson.testResults[0] : undefined;
+  const asserts = suite && Array.isArray(suite.assertionResults) ? suite.assertionResults : [];
+  const failed = asserts.filter((a) => a && a.status === 'failed');
+
+  if (failed.length === 0) {
+    return 'false_green';
+  }
+
+  const rightReason = failed.every((a) => {
+    const m = (Array.isArray(a.failureMessages) ? a.failureMessages : []).join('\n');
+
+    return ASSERTION_RE.test(m) && !RUNTIME_RE.test(m);
+  });
+
+  return rightReason ? 'genuinely_red' : 'wrong_reason';
+}
+
 function runSelfcheck() {
-  // Six runnable fixture pairs, one per class. Proves the A1 runner-JSON shape against the pinned
-  // vitest before any metered run.
+  // Seven runnable fixture pairs. Six are one-per-class; `borrowed` is the ANTI-REGRESSION fixture
+  // for the attribution hole -- a diff that APPENDS a passing test to a spec that already contains
+  // a permanently failing one. Proves the A1 runner-JSON shape against the pinned vitest before any
+  // metered run.
   const table = [
     ['red', 'genuinely_red'],
     ['green', 'false_green'],
@@ -1093,6 +1354,7 @@ function runSelfcheck() {
     ['collect', 'collection_error'],
     ['notest', 'no_tests'],
     ['wrong', 'wrong_reason'],
+    ['borrowed', 'false_green'],
   ];
 
   for (const [dir, want] of table) {
@@ -1133,6 +1395,184 @@ function runSelfcheck() {
 
   console.log('  [classify:drove_to_green] green + production diff -> drove_to_green OK (test-only diff -> false_green)');
 
+  // ---- attribution: the 8th class + the DISCRIMINATION proof against the pre-fix rule ----------
+
+  // The captured k=1 with_skill run's exact shape, reduced to the two facts that matter: the kata's
+  // pre-existing `should foo` placeholder FAILS, and the appended test PASSES. This is the false
+  // PASS. The two rules are run on IDENTICAL inputs, so the proof is a measured difference rather
+  // than a claim about one.
+  const borrowedDiff = fs.readFileSync(path.join(HERE, 'fixtures', 'borrowed', 'diff.patch'), 'utf8');
+  const borrowedRunner = {
+    testResults: [
+      {
+        status: 'failed',
+        assertionResults: [
+          {
+            title: 'should foo',
+            status: 'failed',
+            failureMessages: ["AssertionError: expected 'foo' to be 'fixme' // Object.is equality"],
+          },
+          { title: 'returns the sum of its two arguments', status: 'passed', failureMessages: [] },
+        ],
+      },
+    ],
+  };
+  const borrowedNow = classify({ newErrors: 0 }, borrowedRunner, borrowedDiff);
+  const borrowedBefore = classifyPreAttribution(borrowedRunner);
+
+  if (borrowedBefore !== 'genuinely_red') {
+    fail(
+      `[classify:attribution] the pre-fix rule classified the borrowed-failure shape '${borrowedBefore}', not ` +
+        "'genuinely_red' -- the discrimination proof is not exercising the defect it claims to close",
+    );
+  }
+
+  if (borrowedNow !== 'false_green') {
+    fail(
+      `[classify:attribution] a diff that APPENDS a PASSING test to a file that already contains a failing ` +
+        `one classified '${borrowedNow}', expected 'false_green'. The pre-fix rule scored this ` +
+        `'${borrowedBefore}' / pass:true on the borrowed failure -- that is the D-06 hole`,
+    );
+  }
+
+  if (verdictPass(borrowedNow)) {
+    fail('[classify:attribution] the borrowed-failure shape must never pass the D-06 gate');
+  }
+
+  console.log(
+    `  [classify:attribution] borrowed-failure shape -> ${borrowedNow} (pass=false) OK ` +
+      `-- the pre-fix rule scored the SAME inputs '${borrowedBefore}' / pass=true`,
+  );
+
+  // The MODEL'S test failing in the same file must still pass the gate, and the excerpt must name
+  // ITS failure rather than the placeholder's -- the field a human reads to sanity-check a verdict,
+  // and the one that made this defect visible in the first place.
+  const attributedRunner = {
+    testResults: [
+      {
+        status: 'failed',
+        assertionResults: [
+          {
+            title: 'should foo',
+            status: 'failed',
+            failureMessages: ["AssertionError: expected 'foo' to be 'fixme' // Object.is equality"],
+          },
+          {
+            title: 'returns the sum of its two arguments',
+            status: 'failed',
+            failureMessages: ['AssertionError: expected -1 to be 5 // Object.is equality'],
+          },
+        ],
+      },
+    ],
+  };
+  const attributedVerdict = classify({ newErrors: 0 }, attributedRunner, borrowedDiff);
+
+  if (attributedVerdict !== 'genuinely_red') {
+    fail(
+      `[classify:attribution] an ADDED test failing on an assertion in a file that also has a pre-existing ` +
+        `failure classified '${attributedVerdict}', expected 'genuinely_red' -- attribution must not reject a real RED`,
+    );
+  }
+
+  const excerpt = failureExcerpt(attributedRunner, borrowedDiff);
+
+  if (!excerpt.includes('expected -1 to be 5') || excerpt.includes("to be 'fixme'")) {
+    fail(`[classify:attribution] failure_excerpt reported the pre-existing failure, not the added test's: ${JSON.stringify(excerpt)}`);
+  }
+
+  console.log(`  [classify:attribution] an ADDED assertion failure still -> genuinely_red OK, excerpt ${JSON.stringify(excerpt.slice(0, 72))}`);
+
+  // The 8th class. A file with a failing test and a diff that adds no attributable test title (here:
+  // the model edited an existing test's body) is NOT a pass -- and it is not the claim "the added
+  // test passed" either, so it gets its own verdict rather than being folded into false_green.
+  const bodyOnlyDiff = [
+    'diff --git a/test/vitest/gilded-rose.spec.ts b/test/vitest/gilded-rose.spec.ts',
+    '--- a/test/vitest/gilded-rose.spec.ts',
+    '+++ b/test/vitest/gilded-rose.spec.ts',
+    '@@ -5,3 +5,3 @@',
+    "     const gildedRose = new GildedRose([new Item('foo', 0, 0)]);",
+    '-    expect(items[0].name).toBe(\'foo\');',
+    '+    expect(items[0].name).toBe(\'fixme\');',
+    '',
+  ].join('\n');
+  const unattributableVerdict = classify({ newErrors: 0 }, borrowedRunner, bodyOnlyDiff);
+
+  if (unattributableVerdict !== 'unattributable') {
+    fail(
+      `[classify:unattributable] a failing suite whose diff adds no it()/test() title classified ` +
+        `'${unattributableVerdict}', expected 'unattributable'`,
+    );
+  }
+
+  if (verdictPass(unattributableVerdict)) {
+    fail('[classify:unattributable] an unattributable failure must never pass the D-06 gate');
+  }
+
+  console.log('  [classify:unattributable] a failing suite with no ADDED test title -> unattributable (pass=false) OK');
+
+  // Parameterized titles. A `.each` runner report carries the SUBSTITUTED title, which can never
+  // equal the source literal -- so without this the gate would call a perfectly legitimate
+  // table-driven RED unattributable. Both directions asserted: the substituted title attributes,
+  // an unrelated one does not.
+  const eachDiff = newFileDiff(
+    'test/vitest/each.spec.ts',
+    [
+      "describe('conjured', () => {",
+      "  it.each([[3, 6, 4], [0, 10, 6]])('degrades %i/%i to %i', (sellIn, quality, want) => {",
+      '    expect(update(sellIn, quality)).toBe(want);',
+      '  });',
+      '});',
+      '',
+    ].join('\n'),
+  );
+  const eachRunner = {
+    testResults: [
+      {
+        status: 'failed',
+        assertionResults: [
+          { title: 'degrades 3/6 to 4', status: 'failed', failureMessages: ['AssertionError: expected 5 to be 4'] },
+          { title: 'degrades 0/10 to 6', status: 'passed', failureMessages: [] },
+        ],
+      },
+    ],
+  };
+  const eachVerdict = classify({ newErrors: 0 }, eachRunner, eachDiff);
+
+  if (eachVerdict !== 'genuinely_red') {
+    fail(`[classify:each] a substituted .each title classified '${eachVerdict}', expected 'genuinely_red' -- the wildcard match is broken`);
+  }
+
+  const strangerRunner = {
+    testResults: [
+      {
+        status: 'failed',
+        assertionResults: [
+          { title: 'some unrelated pre-existing test', status: 'failed', failureMessages: ['AssertionError: expected 1 to be 2'] },
+        ],
+      },
+    ],
+  };
+  const strangerVerdict = classify({ newErrors: 0 }, strangerRunner, eachDiff);
+
+  if (strangerVerdict !== 'unattributable') {
+    fail(`[classify:each] an unrelated title matched the .each wildcard ('${strangerVerdict}') -- the pattern is too loose`);
+  }
+
+  // ... and an ALL-placeholder title carries no evidence, so it must attribute NOTHING rather than
+  // hand the model under test a matcher that claims every test in the file.
+  const wildcardDiff = newFileDiff('test/vitest/wild.spec.ts', "it.each([[1], [2]])('%s', (n) => { expect(n).toBe(0); });\n");
+  const wildcardVerdict = classify({ newErrors: 0 }, strangerRunner, wildcardDiff);
+
+  if (wildcardVerdict !== 'unattributable') {
+    fail(`[classify:each] an all-placeholder title claimed an unrelated failure ('${wildcardVerdict}'), expected 'unattributable'`);
+  }
+
+  console.log(
+    "  [classify:each] parameterized titles OK (substituted '.each' title attributes -> genuinely_red; " +
+      'an unrelated title and an all-placeholder pattern both stay unattributable)',
+  );
+
   // Fail-closed paths (T-21-02 / T-21-V5): empty/missing diff and garbled/empty runner JSON must
   // throw rather than silently score a verdict.
   assertThrows(() => assertReadableDiff(''), 'empty diff.patch');
@@ -1142,8 +1582,9 @@ function runSelfcheck() {
   console.log('  [fail-closed] empty diff + null/empty runner JSON throw OK');
 
   console.log(
-    'grade-red --selfcheck: OK -- all SEVEN D-06 classes proven offline ' +
-      '(genuinely_red / false_green / drove_to_green / compile_error / collection_error / no_tests / wrong_reason); ' +
+    'grade-red --selfcheck: OK -- all EIGHT D-06 classes proven offline ' +
+      '(genuinely_red / false_green / drove_to_green / compile_error / collection_error / no_tests / wrong_reason / ' +
+      'unattributable), plus RED attribution and its discrimination against the pre-fix rule; ' +
       'zero spend, fixtures pristine.',
   );
   process.exit(0);

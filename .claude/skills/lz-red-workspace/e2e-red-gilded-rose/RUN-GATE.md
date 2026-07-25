@@ -23,7 +23,9 @@ phase is BUILD-complete and HALTED.
 Offline instrument proof (zero spend -- safe to re-run any time; this is NOT the metered run):
 
 ```
-node .claude/skills/lz-red-workspace/grade-red.mjs --selfcheck               # all 7 D-06 classes
+node .claude/skills/lz-red-workspace/grade-red.mjs --selfcheck               # all 8 D-06 classes
+                                                                             # + RED attribution, incl. its
+                                                                             # discrimination vs the pre-fix rule
 node .claude/skills/lz-red-workspace/tabulate-mechanical-red.mjs --selfcheck # mechanical + Pass@k/Pass^k
 node .claude/skills/lz-red-workspace/merge-judge.mjs --selfcheck             # judge merge + fail-closed verify
 node .claude/skills/lz-red-workspace/selfcheck-red.mjs                       # composition/parity/worktree/classifier/nx
@@ -101,8 +103,18 @@ Straight-line scaling for the fan-out (cost is dominated by the model turn, not 
 
 Treat these as a FLOOR. The pilot was a single forced run that went straight to a correct answer in
 8 turns; a `no_skill` run that thrashes, or a target with a slower suite, costs more. The two
-defects the pilot exposed (a trigger detector blind to slash-command invocation, and an anti-RED
-apply preamble) are fixed, so the next round measures what it claims to.
+defects it exposed (a trigger detector blind to slash-command invocation, and an anti-RED apply
+preamble) are fixed.
+
+A second, `with_skill` pilot followed (2026-07-25, also user-approved: $0.51, 78 s, 10 turns, exit
+0, `genuinely_red`). Its verdict was correct, but it exposed a third defect the forced pilot could
+not: the model APPENDED its test to the kata's existing `test/vitest/gilded-rose.spec.ts` rather
+than creating a file, so the recorded `failure_excerpt` was that spec's pre-existing `should foo`
+placeholder rather than the model's own test. The gate had only asked "does the file have a failing
+assertion", so a produced test that PASSED would have graded `genuinely_red` / `pass: true` on the
+borrowed failure -- arm-independent, and it would have inflated every arm's Pass@k equally while
+hollowing out the eval's only hard correctness gate. That is fixed too (RED attribution; see the
+residual list in Step 2), so the next round measures what it claims to.
 
 ---
 
@@ -126,12 +138,27 @@ the kata's OWN toolchain, and asserts:
   readable from a `node_modules` the grading worktree can actually see;
 - the borrowed kata still has its `node_modules`, is git-clean, and leaked no grading worktree.
 
-Two more fixtures cover the other directions. `fixtures/canary-nocollect/` puts the produced spec
+- the failing assertion is ATTRIBUTED to the test the diff ADDED (`added_test_titles` carries the
+  fixture's own `it()` title, `attributed_failures` is 1, and `failure_excerpt` names that test) --
+  the only step that proves the target's real runner reports a title the gate can tie back to the
+  diff, rather than one that would make every real run `unattributable`.
+
+Three more fixtures cover the other directions. `fixtures/canary-nocollect/` puts the produced spec
 outside every collection root and asserts the gate returns `no_tests` rather than throwing.
 `fixtures/canary-compile/` is the NEGATIVE control: a spec with one deliberate type error, asserted
 to grade `compile_error` with `new_tsc_errors > 0`. Without it nothing in the whole battery would
 notice the differential typecheck silently ceasing to discriminate, which is the exact defect that
 made a produced test with blatant type errors grade as tsc-clean.
+
+`fixtures/canary-borrowed/` is the ATTRIBUTION anti-regression, and it is the one shape the other
+three structurally cannot see: all of them write a BRAND-NEW spec file, where "the file has a
+failing assertion" and "the test the model added failed" happen to coincide. This one APPENDS a
+test that PASSES to the kata's own `test/vitest/gilded-rose.spec.ts`, which ships a permanently
+failing `should foo` placeholder asserting `'fixme'` -- the exact shape of the k=1 `with_skill`
+pilot. It is asserted to grade `false_green` / `pass: false`, with `attributed_failures` 0 and a
+`failure_excerpt` that SAYS the failure it quotes is `PRE-EXISTING`. Before attribution the gate
+answered the file-level question, recorded the placeholder's `expected 'foo' to be 'fixme'` as the
+produced test's failure, and returned `genuinely_red` / `pass: true`.
 
 Crux 4 no longer SKIPs either. It used to need a real transcript, which is gitignored, so the
 trigger detector was never exercised offline -- and that is how the pilot's blind spot survived the
@@ -172,11 +199,42 @@ and the canary uses the target's toolchain rather than the workspace's.
 
 **Residual risk after this canary (the honest list, not just reporter shape):**
 
-- The canary drives THREE fabricated diffs, not every possible one. They prove the gate mechanism
+- The canary drives FOUR fabricated diffs, not every possible one. They prove the gate mechanism
   -- that it sees the target toolchain, routes to a runner that collects the spec, still tells a
-  clean spec from a type-broken one, and returns a verdict rather than crashing when nothing is
+  clean spec from a type-broken one, attributes a failure to the test the diff added rather than to
+  one that was already in the file, and returns a verdict rather than crashing when nothing is
   collected. They do not prove every model-produced diff applies cleanly; a malformed capture still
   fails closed at `git apply`.
+- **What RED ATTRIBUTION does and does not cover** (added 2026-07-25, after the k=1 `with_skill`
+  pilot). `genuinely_red` now requires at least one failing assertion belonging to a test the
+  produced diff ADDED, matched by extracting `it()` / `test()` titles from the diff's `+` lines and
+  comparing them to the runner's reported `assertionResults[].title`. What it CLOSES: a produced
+  test that PASSES can no longer inherit a pass from a failure that was already in the file --
+  exactly the shape the pilot produced, and the shape a `false_green` verdict exists to catch. What
+  it does NOT cover, and how each failure direction lands:
+  - **Attribution is by TITLE, not by hunk position.** A diff that only edits an EXISTING test's
+    body -- tightening an assertion rather than adding a test -- declares no new title and grades
+    `unattributable`, never a pass. That is deliberate (fail closed), but it means an operator
+    reading `unattributable` must check whether the model tightened an existing test rather than
+    writing one. **Read an `unattributable` cluster as a possible instrument artifact and inspect
+    `added_test_titles` in the `red-grade.json` before attributing anything to an arm.**
+  - **A DYNAMIC title cannot be extracted.** `it(caseName, ...)` and a `.each` table spanning
+    several source lines both leave the gate with no literal to match, so the run grades
+    `unattributable` rather than passing on an unverified attribution.
+  - **Parameterized titles ARE handled.** A `.each` or template-literal title is reported by the
+    runner in SUBSTITUTED form (`'adds %i and %i'` arrives as `'adds 1 and 2'`), so each
+    placeholder becomes a wildcard while every literal part still has to match, anchored. A title
+    that is ALL placeholder (`'%s'`) is refused outright: it would match every test in the file,
+    including a pre-existing failing one.
+  - **A duplicated title is ambiguous, and is dropped.** If the diff also shows the same title on
+    its pre-existing side (a context or removed line), that title attributes nothing -- a moved or
+    duplicated test cannot be told from the one that was already there.
+  - **Attribution says nothing about test QUALITY.** It answers "did the model's own test fail?",
+    not "was it the right next test" or "does it assert observable behavior". Those stay judge /
+    oracle-reviewer dimensions in EVAL-RESULTS.md, exactly as before.
+  - **A pre-existing failure is excluded from the wrong-reason check too.** A broken placeholder
+    already in the file can no longer turn the model's genuine assertion failure into
+    `wrong_reason`; only the ADDED tests' failure messages are inspected.
 - A captured diff that touches `node_modules`, escapes the worktree, or writes into `.git` is
   REJECTED outright before the grading worktree is built, so such a run gets no verdict at all
   rather than a wrong one. **Read a rejected-capture error as an instrument or a model-behaviour
@@ -304,8 +362,11 @@ at once, which is one of the behaviours the eval is supposed to be measuring. Ve
 a fresh detached kata worktree has no `TypeScript/node_modules`, and neither `npx jest` nor `npx
 tsc` resolves the kata's pinned versions from inside it. Install or link BEFORE driving `b`.
 
-`c` (the pass criterion) = runs whose `red-grade.pass === true` (verdict `genuinely_red`). Pass@k over
-exit-0 runs only.
+`c` (the pass criterion) = runs whose `red-grade.pass === true` (verdict `genuinely_red`: the
+differential `tsc --strict` is clean AND at least one failing assertion belongs to a test the
+produced diff ADDED). Pass@k over exit-0 runs only. Each `red-grade.json` records the attribution
+evidence -- `added_test_titles`, `attributed_failures`, and a `failure_excerpt` that names the test
+the message came from -- so a verdict can be checked rather than taken on trust.
 
 ### Reading the D-04 trigger columns
 

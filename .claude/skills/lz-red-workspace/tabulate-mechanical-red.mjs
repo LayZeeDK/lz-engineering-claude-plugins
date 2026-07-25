@@ -93,6 +93,11 @@ function toRun(meta, grade) {
     availRed: !!(meta.skills_available && meta.skills_available['lz-red']),
     forced: meta.skill_forced === true,
     modelUsage: meta.model_usage || {},
+    // The D-06 gate, read as the single boolean grade-red already decided. This deliberately does
+    // NOT enumerate the verdict classes: `pass` is true for genuinely_red and false for every other
+    // class, so adding one (2026-07-25 added an 8th, `unattributable`, when the gate started
+    // requiring the failure to belong to a test the diff ADDED) needs no change here. A copy of the
+    // class list in this file would be a second place to forget to update.
     pass: grade.pass === true,
   };
 }

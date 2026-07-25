@@ -66,8 +66,15 @@ SYMMETRICALLY to both arms, never just upward).
 ## Correctness gate -- Pass@k and Pass^k (D-06; the pass criterion)
 
 `c` = runs whose `red-grade.pass === true` (verdict `genuinely_red`: tsc `--strict` differential clean
-AND an assertion failure on current code). Pass@k over exit-0 runs only (a crashed run has no
-meaningful grade). k = total means k = the clean-run count.
+AND an assertion failure, on current code, in a test the produced diff ADDED). Pass@k over exit-0
+runs only (a crashed run has no meaningful grade). k = total means k = the clean-run count.
+
+The ATTRIBUTION clause is load-bearing, not decoration. Models routinely APPEND to an existing spec
+file rather than creating one, and the kata's own `test/vitest/gilded-rose.spec.ts` ships a
+permanently failing `should foo` placeholder -- so "the file has a failing assertion" would score a
+produced test that PASSES as a correct RED. Each `red-grade.json` records `added_test_titles`,
+`attributed_failures`, and a `failure_excerpt` naming the test the message came from; a
+`genuinely_red` whose excerpt is labelled `PRE-EXISTING test` would be a gate defect, not a result.
 
 - **Pass@k (optimistic -- at least 1 of k samples passes):** `Pass@k = 1 - C(n - c, k) / C(n, k)`
 - **Pass^k (conservative -- all k samples pass):** `Pass^k = C(c, k) / C(n, k)`

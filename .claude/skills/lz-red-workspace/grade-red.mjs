@@ -932,6 +932,69 @@ export function selectRunner(runnerSpec, testPath) {
   return (runnerSpec && runnerSpec.runner_default) || null;
 }
 
+// ---- per-target runner + typecheck configuration (three data-driven mechanisms) ---------------
+//
+// All three are OPTIONAL and absent-by-default, so a target that declares none behaves exactly as
+// it did before they existed. No target NAME appears anywhere in this file: a new target is data in
+// targets.json, never a branch here.
+
+// Strip a leading `base + '/'` off a repo-relative test path.
+//
+// WHY: a runner's own path argument is not always repo-relative. `ng test --include` is PROJECT
+// relative, while meta.changed_files (and therefore runner_select) are repo-relative. Declaring
+// `runner_path_base` on the runner spec lets the SUBSTITUTED path be project-relative while
+// selectRunner keeps keying on the UNSTRIPPED one -- so runner selection still reflects where the
+// produced test actually landed, which is the honesty property that field was built for.
+//
+// Returns testPath unchanged when base is empty or is not a prefix (never a partial strip).
+export function relativeToBase(testPath, base) {
+  const p = String(testPath == null ? '' : testPath);
+  const b = String(base == null ? '' : base).replace(/\/+$/, '');
+
+  if (!b) {
+    return p;
+  }
+
+  return p.startsWith(`${b}/`) ? p.slice(b.length + 1) : p;
+}
+
+// Substitute a runner command template's placeholders.
+//
+// `<reportFile>` normalises to FORWARD SLASHES. The path comes from os.tmpdir(), which on Windows
+// carries backslashes, and the command is run through a shell -- where a backslash is an escape
+// character, not a separator. Node, npx, vitest and the Angular builder all accept forward slashes
+// on Windows, so normalising is free and not normalising silently mangles the path.
+//
+// A template with no `<reportFile>` is left byte-identical, which is what keeps the existing
+// stdout-parsing runners on exactly the path they were on.
+export function substituteRunnerCmd(template, { testPath, reportFile } = {}) {
+  let out = String(template == null ? '' : template);
+
+  if (testPath != null) {
+    out = out.replaceAll('<producedTestFile>', () => String(testPath));
+  }
+
+  if (reportFile != null && String(reportFile) !== '') {
+    out = out.replaceAll('<reportFile>', () => String(reportFile).split('\\').join('/'));
+  }
+
+  return out;
+}
+
+// The differential typecheck's args + an optional prebuild, per target.
+//
+// An EMPTY array falls back to the default on purpose. `--noEmit --strict` IS D-06 clause 1, and a
+// config typo (`"args": []`) that silently disabled it would make the gate report "tsc clean" for
+// every produced test -- the same vacuous-differential failure isConfigLevelTscError() exists to
+// catch, arriving through config rather than through the compiler.
+export function resolveTypecheck(target) {
+  const tc = (target && target.typecheck) || {};
+  const args = Array.isArray(tc.args) && tc.args.length ? tc.args.slice() : ['--noEmit', '--strict'];
+  const prebuild = typeof tc.prebuild === 'string' && tc.prebuild.trim() !== '' ? tc.prebuild : null;
+
+  return { args, prebuild };
+}
+
 // The target repo's own typescript (never the workspace's -- Pitfall 4).
 function targetTscBin(armCwd, worktree) {
   for (const base of [armCwd, worktree]) {
@@ -1027,6 +1090,8 @@ export function gradeRun({ runDir, suiteDir }) {
   const primaryTest = producedTests[0];
   const testForRunner =
     primaryTest && rel && primaryTest.startsWith(`${rel}/`) ? primaryTest.slice(rel.length + 1) : primaryTest;
+  // Selection keys on the UNSTRIPPED path (see relativeToBase): runner_path_base changes what the
+  // COMMAND receives, never which runner is chosen.
   const runnerName = selectRunner(runnerSpec, testForRunner);
 
   if (!runnerName) {
@@ -1042,6 +1107,12 @@ export function gradeRun({ runDir, suiteDir }) {
       `grade-red: target '${target.id}' selected runner '${runnerName}' but runner.${runnerName} has no command (fail closed)`,
     );
   }
+
+  // The path form the runner's own command argument wants (project-relative for an `ng test
+  // --include`, repo-relative otherwise). Recorded in red-grade.json so an operator can see what
+  // the command actually received rather than inferring it from two config fields.
+  const testForTemplate = relativeToBase(testForRunner, runnerSpec.runner_path_base);
+  const { args: tscArgs, prebuild } = resolveTypecheck(target);
 
   // The target's OWN node_modules, COPIED into the grading worktree below. A fresh worktree has
   // none (node_modules is gitignored and untracked), and without it the gate degrades SILENTLY
@@ -1067,6 +1138,7 @@ export function gradeRun({ runDir, suiteDir }) {
 
   let toolchainInstalled = false;
   let toolchainMs = 0;
+  let prebuildMs = 0;
 
   // A DISPOSABLE COPY of the target's node_modules, never a link to it (T-63f-05).
   //
@@ -1190,7 +1262,9 @@ export function gradeRun({ runDir, suiteDir }) {
         new_tsc_errors: 0,
         runner: runnerName,
         runner_version: readRunnerVersion(armCwd, worktree, runnerName),
+        runner_test_path: testForTemplate,
         toolchain_ms: toolchainMs,
+        prebuild_ms: prebuildMs,
         produced_test_files: [],
         added_test_titles: [],
         attributed_failures: 0,
@@ -1201,6 +1275,40 @@ export function gradeRun({ runDir, suiteDir }) {
       return grade;
     }
 
+    // An optional per-target PREBUILD, run once in the grading worktree before the differential
+    // baseline (mechanism 3 of resolveTypecheck).
+    //
+    // WHY IT EXISTS: a package whose own tests import its PUBLIC entry point resolve that import
+    // through a gitignored build output, which a fresh worktree does not have. Without the build
+    // the produced test manufactures its OWN module-resolution error, which is NEW against the
+    // baseline, so an otherwise perfect test grades compile_error and reads as a model failure.
+    // The prebuild is a TYPECHECK-only cost for such a target; a runner that aliases the
+    // self-reference at the source does not need it.
+    //
+    // It runs the TARGET's own build script, which is code this gate does not own -- contained the
+    // same way the runner spawn is (T-wpu-01): inside the throwaway worktree, against the
+    // disposable toolchain copy, never the pristine checkout. It FAILS CLOSED: a build that did not
+    // succeed leaves a baseline nobody can reason about.
+    if (prebuild) {
+      const startedPrebuild = Date.now();
+      const preRes = spawnSync(prebuild, {
+        cwd: armCwd,
+        shell: true,
+        encoding: 'utf8',
+        maxBuffer: 64 * 1024 * 1024,
+        windowsHide: true,
+      });
+      prebuildMs = Date.now() - startedPrebuild;
+
+      if (preRes.status !== 0) {
+        throw new Error(
+          `grade-red: the target's typecheck prebuild '${prebuild}' failed (exit ${preRes.status}) in ${armCwd}, ` +
+            'so the differential baseline would be measured against an unbuilt tree and every produced test ' +
+            `that imports the public API would grade compile_error (fail closed): ${(preRes.stderr || '').trim().slice(0, 600)}`,
+        );
+      }
+    }
+
     // differential tsc (Pitfall 3): baseline BEFORE applying the produced test, then WITH it.
     //
     // No --lib is pinned on purpose. It was measured 2026-07-25 that pinning one buys nothing here
@@ -1208,7 +1316,9 @@ export function gradeRun({ runDir, suiteDir }) {
     // target's es5 setting, so every common modern array/object method typechecks) while coupling
     // this target-agnostic gate to one compiler's accepted lib list -- a value the target's tsc
     // rejects becomes a TS6046 in BOTH runs, i.e. exactly the vacuous differential guarded below.
-    const tscArgs = ['--noEmit', '--strict'];
+    //
+    // tscArgs comes from resolveTypecheck(target): the pair above unless the target declares its
+    // own (a project flag for a monorepo library whose specs live under their own tsconfig).
     const baseErrors = new Set(targetTscErrors(armCwd, worktree, tscArgs));
 
     // Fail closed on an OPTION/CONFIG-level tsc error. Those abort the compile before any source is
@@ -1249,15 +1359,58 @@ export function gradeRun({ runDir, suiteDir }) {
     // link (T-63f-05). It can still write to an ABSOLUTE path, which no in-process guard can stop
     // -- containing that needs a sandbox, and RUN-GATE.md names it in the residual list rather
     // than pretending otherwise.
-    const cmd = runnerCmdTemplate.replace('<producedTestFile>', testForRunner);
-    const runRes = spawnSync(cmd, {
-      cwd: armCwd,
-      shell: true,
-      encoding: 'utf8',
-      maxBuffer: 128 * 1024 * 1024,
-      windowsHide: true,
-    });
-    const runnerJson = parseRunnerReport(runRes);
+    //
+    // REPORT SOURCE (mechanism 1 of the three). A template carrying `<reportFile>` gets a temp path
+    // and the report is read from that FILE rather than from stdout. Required for a runner that
+    // interleaves its own build output on stdout, where parseRunnerJson's outermost-brace
+    // extraction would slice a JSON-shaped fragment out of surrounding noise. gradeFixture already
+    // reads vitest's --outputFile this way; this is the same idea in the real gate.
+    //
+    // The fail-closed contract is UNCHANGED because the file's contents are fed to the SAME
+    // parseRunnerReport, spread over the real spawn result: `status`, `stderr` and `error` reach it
+    // untouched, so the no-collect branch (empty report + non-zero exit + the runner's own anchored
+    // status line) and the infrastructure-failure branch both still decide. A MISSING report file
+    // reads as an empty stdout -- exactly what a runner that collected nothing produces.
+    const wantsReportFile = String(runnerCmdTemplate).includes('<reportFile>');
+    const reportFile = wantsReportFile
+      ? path.join(os.tmpdir(), `red-report-${process.pid}-${Date.now()}-${Math.random().toString(36).slice(2)}.json`)
+      : null;
+    const cmd = substituteRunnerCmd(runnerCmdTemplate, { testPath: testForTemplate, reportFile });
+    let runnerJson;
+
+    try {
+      const runRes = spawnSync(cmd, {
+        cwd: armCwd,
+        shell: true,
+        encoding: 'utf8',
+        maxBuffer: 128 * 1024 * 1024,
+        windowsHide: true,
+      });
+
+      if (!reportFile) {
+        runnerJson = parseRunnerReport(runRes);
+      } else {
+        let fileText = '';
+
+        try {
+          fileText = fs.readFileSync(reportFile, 'utf8');
+        } catch {
+          // No report file: the runner collected nothing, or died before writing one. Both are
+          // already-handled shapes -- an empty stdout is what parseRunnerReport's fail-closed
+          // contract is written against.
+        }
+
+        runnerJson = parseRunnerReport({ ...runRes, stdout: fileText });
+      }
+    } finally {
+      if (reportFile) {
+        try {
+          fs.rmSync(reportFile, { force: true });
+        } catch {
+          // best-effort; the temp report lives outside the worktree and is harmless if it lingers
+        }
+      }
+    }
 
     const verdict = classify(tscResult, runnerJson, diffPatch);
     const addedTitles = addedTestTitles(diffPatch);
@@ -1277,10 +1430,17 @@ export function gradeRun({ runDir, suiteDir }) {
       new_tsc_errors: tscResult.newErrors,
       runner: runnerName,
       runner_version: readRunnerVersion(armCwd, worktree, runnerName),
+      // The path the runner COMMAND actually received, after runner_path_base stripping. Selection
+      // used the unstripped one; recording both halves of that split keeps a per-target path config
+      // checkable rather than something an operator has to re-derive from two config fields.
+      runner_test_path: testForTemplate,
       // The measured cost of copying the target's node_modules into this grade's worktree
       // (T-63f-05). The CLI prints it too, but recording it puts the containment's overhead in
       // every artifact rather than only in front of whoever watched the console.
       toolchain_ms: toolchainMs,
+      // The target's own typecheck prebuild, when it declares one (0 otherwise). Same reason as
+      // toolchain_ms: it is a real per-grade cost that must be priceable from the artifacts.
+      prebuild_ms: prebuildMs,
       produced_test_files: producedTests,
       // The attribution evidence, recorded so an operator can check the verdict rather than take
       // it on trust: what the gate extracted from the diff, and how many reported assertions it
@@ -1571,6 +1731,85 @@ function runSelfcheck() {
   console.log(
     "  [classify:each] parameterized titles OK (substituted '.each' title attributes -> genuinely_red; " +
       'an unrelated title and an all-placeholder pattern both stay unattributable)',
+  );
+
+  // ---- the three per-target config mechanisms, asserted PURELY ---------------------------------
+  //
+  // Each assertion fails if its mechanism is deleted, so none of them can rot into decoration. The
+  // end-to-end proof that each one is LOAD-BEARING lives in selfcheck-red crux 7, where a real
+  // target grades against its own toolchain; these pin the pure contracts those rest on.
+
+  const eqStr = (got, want, label) => {
+    if (got !== want) {
+      fail(`${label}: got ${JSON.stringify(got)}, expected ${JSON.stringify(want)}`);
+    }
+  };
+
+  // relativeToBase: strips an exact prefix, never a partial one, and is a no-op for an empty base.
+  eqStr(relativeToBase('projects/libs/flex/x.spec.ts', 'projects/libs/flex'), 'x.spec.ts', '[relativeToBase] exact prefix');
+  eqStr(relativeToBase('projects/libs/flex/x.spec.ts', 'projects/libs/flex/'), 'x.spec.ts', '[relativeToBase] trailing slash trimmed');
+  eqStr(relativeToBase('test/x.spec.ts', 'projects/libs/flex'), 'test/x.spec.ts', '[relativeToBase] non-prefix untouched');
+  // A base that is a STRING prefix but not a PATH prefix must not be stripped -- otherwise
+  // 'projects/libs/flexbox/x' would become 'box/x' and the runner would be handed a path that does
+  // not exist.
+  eqStr(relativeToBase('projects/libs/flexbox/x.spec.ts', 'projects/libs/flex'), 'projects/libs/flexbox/x.spec.ts', '[relativeToBase] partial segment untouched');
+  eqStr(relativeToBase('test/x.spec.ts', ''), 'test/x.spec.ts', '[relativeToBase] empty base');
+  eqStr(relativeToBase('test/x.spec.ts', undefined), 'test/x.spec.ts', '[relativeToBase] absent base');
+
+  // substituteRunnerCmd: forward slashes for a backslashed temp path; a placeholder-free template
+  // comes back byte-identical.
+  const winReport = 'C:\\Users\\x\\AppData\\Local\\Temp\\red-report-1.json';
+  const withReport = substituteRunnerCmd('npx ng test --include "<producedTestFile>" --outputFile "<reportFile>"', {
+    testPath: 'flex/x.spec.ts',
+    reportFile: winReport,
+  });
+
+  if (withReport.includes('\\')) {
+    fail(`[substituteRunnerCmd] a backslash survived into the shell command: ${JSON.stringify(withReport)}`);
+  }
+
+  eqStr(
+    withReport,
+    'npx ng test --include "flex/x.spec.ts" --outputFile "C:/Users/x/AppData/Local/Temp/red-report-1.json"',
+    '[substituteRunnerCmd] both placeholders substituted',
+  );
+
+  const plain = 'npx vitest run <producedTestFile> --reporter=json';
+  eqStr(
+    substituteRunnerCmd(plain, { testPath: 'test/x.spec.ts' }),
+    'npx vitest run test/x.spec.ts --reporter=json',
+    '[substituteRunnerCmd] no-reportFile template',
+  );
+  eqStr(substituteRunnerCmd(plain, {}), plain, '[substituteRunnerCmd] no substitution requested leaves the template alone');
+
+  // resolveTypecheck: the default for an absent config AND for an empty array (a config typo must
+  // never silently disable D-06 clause 1), the target's own args when it declares them.
+  const defTc = resolveTypecheck({});
+
+  if (defTc.args.join(' ') !== '--noEmit --strict' || defTc.prebuild !== null) {
+    fail(`[resolveTypecheck] absent config gave ${JSON.stringify(defTc)}, expected the --noEmit --strict default and no prebuild`);
+  }
+
+  const emptyTc = resolveTypecheck({ typecheck: { args: [] } });
+
+  if (emptyTc.args.join(' ') !== '--noEmit --strict') {
+    fail(`[resolveTypecheck] an EMPTY args array disabled the default (${JSON.stringify(emptyTc.args)}) -- a config typo must not turn off the strict differential`);
+  }
+
+  const ownTc = resolveTypecheck({ typecheck: { args: ['--noEmit', '--strict', '-p', 'tsconfig.spec.json'], prebuild: 'npm run build' } });
+
+  if (ownTc.args.join(' ') !== '--noEmit --strict -p tsconfig.spec.json' || ownTc.prebuild !== 'npm run build') {
+    fail(`[resolveTypecheck] the target's own config was not returned: ${JSON.stringify(ownTc)}`);
+  }
+
+  if (resolveTypecheck({ typecheck: { prebuild: '   ' } }).prebuild !== null) {
+    fail('[resolveTypecheck] a whitespace-only prebuild must resolve to null rather than spawning an empty shell command');
+  }
+
+  console.log(
+    '  [per-target config] relativeToBase / substituteRunnerCmd / resolveTypecheck OK ' +
+      '(path-base stripping is segment-exact, <reportFile> normalises to forward slashes, an empty ' +
+      'typecheck.args falls back to --noEmit --strict)',
   );
 
   // Fail-closed paths (T-21-02 / T-21-V5): empty/missing diff and garbled/empty runner JSON must

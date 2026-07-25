@@ -23,7 +23,9 @@
 //      MODEL-FIRED (a Skill tool_use -- the genuine auto-trigger), and, by its absence, FORCED
 //      (an expanded slash command leaves no stream trace, so run-e2e records it by construction).
 //      Runs off two committed hand-authored fixtures, so it never SKIPs; a real on-disk capture
-//      (gitignored) is parsed as an extra when present.
+//      (gitignored) is parsed as an extra when present. It also pins the END-OF-RUN SUMMARY count,
+//      which read two hardcoded legacy scalars and so contradicted the per-run model-fired line on
+//      any suite whose trackSkills are not the lz-refactor pair.
 //   5. CLASSIFIER    -- grade-red's classify() classifies genuinely_red + false_green, and RED
 //      ATTRIBUTION holds: a failure borrowed from a PRE-EXISTING test never passes the D-06 gate
 //      (thin re-assert; grade-red --selfcheck is the full 8-class one, with the discrimination
@@ -61,7 +63,7 @@ import os from 'node:os';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { dirname, join, resolve } from 'node:path';
-import { buildSyntheticBase, extractResult, git } from '../lz-refactor-workspace/e2e-nx/run-e2e.mjs';
+import { buildSyntheticBase, countModelFired, extractResult, git } from '../lz-refactor-workspace/e2e-nx/run-e2e.mjs';
 import {
   assertSafeDiffPaths,
   classify,
@@ -555,6 +557,43 @@ function checkTranscriptParse() {
     '  [crux 4] trigger detector OK (slash-command fixture: available lz-red=true/lz-tpp=false, model-fired 0; ' +
       'model-fired fixture: available both, model-fired lz-red=1/lz-tpp=0 -- descriptor-scoped, and the two ' +
       'agree on availability while differing on model-fired)',
+  );
+
+  // The end-of-run SUMMARY line reads the same three facts, and it used to read them off the legacy
+  // `used_refactor || used_tpp` scalars -- two hardcoded names. On the RED suite that printed
+  // "with_skill: 0/1 runs invoked an lz skill (lz-refactor or lz-tpp)" immediately under the correct
+  // per-run `model-fired: lz-red`, contradicting itself in one output. The meta below is exactly
+  // that run's shape: lz-red model-fired, both legacy scalars false.
+  const redMeta = {
+    arm: 'with_skill',
+    skills_model_fired: { 'lz-red': 1, 'lz-tpp': 0 },
+    used_refactor: false,
+    used_tpp: false,
+  };
+  const quietMeta = { arm: 'with_skill', skills_model_fired: { 'lz-red': 0, 'lz-tpp': 0 }, used_refactor: false, used_tpp: false };
+  const legacyCount = [redMeta, quietMeta].filter((m) => m.used_refactor || m.used_tpp).length;
+
+  if (countModelFired([redMeta, quietMeta], tracked) !== 1) {
+    fail(
+      `[crux 4] the run summary counted ${countModelFired([redMeta, quietMeta], tracked)} model-fired run(s) for the ` +
+        "RED suite's tracked skills, expected 1 -- it is not reading skills_model_fired",
+    );
+  }
+
+  if (legacyCount !== 0) {
+    fail('[crux 4] the legacy-scalar comparison is not exercising the defect it claims to (expected the old expression to count 0)');
+  }
+
+  // ... and the lz-refactor suites must not regress: their own tracked pair still counts correctly.
+  const refactorMeta = { arm: 'with_skill', skills_model_fired: { 'lz-refactor': 2, 'lz-tpp': 0 } };
+
+  if (countModelFired([refactorMeta, quietMeta], ['lz-refactor', 'lz-tpp']) !== 1) {
+    fail('[crux 4] the run summary miscounts the lz-refactor suites\' own tracked skills');
+  }
+
+  console.log(
+    `  [crux 4] run-summary count OK (a lz-red model-fired run counts 1 for trackSkills ${JSON.stringify(tracked)}; ` +
+      `the legacy used_refactor||used_tpp expression counted ${legacyCount} on the same meta; lz-refactor pair still counts)`,
   );
 
   // Extra, when a real capture happens to be on disk (gitignored, so usually absent): the same

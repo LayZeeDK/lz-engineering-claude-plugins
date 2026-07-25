@@ -5,7 +5,7 @@
 // boundary). It NEVER calls claude; every step is a --dry-run compose, a git-only worktree
 // build/teardown, an offline transcript parse, or a pure classifier assertion.
 //
-// Six cruxes (RESEARCH "Wave 0 Gaps"; EVL-03.1 / .2):
+// Seven cruxes (RESEARCH "Wave 0 Gaps"; EVL-03.1 / .2; crux 7 added by quick 260725-63f):
 //   1. COMPOSITION   -- the RED suite composes all 3 own-skill arms: no_skill (no --plugin-dir),
 //      with_skill (--plugin-dir plugins/lz-tdd, natural prompt), invoke_skill (-p prefixed
 //      /lz-tdd:lz-red ). (recommend mode needs no --cwd; arm plumbing is mode-independent.)
@@ -20,17 +20,23 @@
 //      grade-red --selfcheck is the full 7-class one).
 //   6. REGRESSION    -- the DEFAULT nx suite still composes 3 arms with plugins/lz-tdd (the suite-driven
 //      trackSkills edit did not break the lz-refactor suites; D-11).
+//   7. TARGET TOOLCHAIN -- gradeRun over a FABRICATED runDir (hand-built meta.json + diff.patch)
+//      against the kata's OWN toolchain: a real verdict, the selected runner, a real runner_version
+//      (not the 'unknown' sentinel), and the borrowed repo intact afterwards. Every other crux and
+//      every grade-red fixture uses the WORKSPACE toolchain, so this is the only step that proves
+//      the gate works against the actual target. Kata absent -> SKIP.
 //
 // Fail-closed: any violation prints a FAIL line and exits 1; an OK line + exit 0 on success. Zero
 // claude spend, borrowed repo left pristine. NOT wired into `npm run check` (it touches the borrowed
 // repo); run it explicitly:  node selfcheck-red.mjs
 
 import fs from 'node:fs';
+import os from 'node:os';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { dirname, join, resolve } from 'node:path';
 import { buildSyntheticBase, extractResult, git } from '../lz-refactor-workspace/e2e-nx/run-e2e.mjs';
-import { classify } from './grade-red.mjs';
+import { classify, gradeRun } from './grade-red.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const RUN_E2E = resolve(HERE, '..', 'lz-refactor-workspace', 'e2e-nx', 'run-e2e.mjs');
@@ -175,6 +181,40 @@ function checkCompositionAndParity() {
   }
 
   console.log('  [crux 2] prompt-parity OK (no_skill == with_skill byte-identical; invoke_skill == "/lz-tdd:lz-red " + with_skill)');
+
+  // The prompt must make NO claim about the current pass/fail state of the target's existing
+  // tests. It used to open "The tests for `app/gilded-rose.ts` are all green right now", which is
+  // measurably false -- both shipped placeholder specs fail on current code. A false premise
+  // invites the model to repair the placeholder instead of adding a test, and a repair-only turn
+  // grades false_green: a correctness failure manufactured by the instrument rather than by the
+  // model. Guard the regression rather than trusting the file to stay fixed.
+  //
+  // The tokens are claims ABOUT THE EXISTING SUITE, not the word "failing" -- asking for the next
+  // failing test IS the task, so the ask itself must not trip this.
+  const stateClaimTokens = [
+    'all green',
+    'all passing',
+    'are green',
+    'are passing',
+    'currently green',
+    'currently passing',
+    'currently pass',
+    'currently fail',
+    'tests pass',
+    'suite is green',
+    'right now',
+  ];
+  const lowered = wsPrompt.toLowerCase();
+  const claimed = stateClaimTokens.filter((t) => lowered.includes(t));
+
+  if (claimed.length) {
+    fail(
+      `[crux 2] the prompt makes a claim about the existing tests' pass/fail state (${JSON.stringify(claimed)}); ` +
+        'the RED prompt must not assert that the target\'s tests currently pass or fail',
+    );
+  }
+
+  console.log(`  [crux 2] no test-state claim in the prompt OK (checked ${stateClaimTokens.length} tokens)`);
 }
 
 // ---- crux 3: worktree build/teardown leaves the borrowed repo pristine ------------------------
@@ -321,6 +361,135 @@ function checkClassifier() {
   console.log('  [crux 5] classifier OK (genuinely_red + false_green re-assert; grade-red --selfcheck covers all 7 classes)');
 }
 
+// ---- crux 7: the D-06 gate against the TARGET's own toolchain (fabricated runDir) --------------
+
+// Every other crux and every grade-red --selfcheck fixture is graded with the WORKSPACE's pinned
+// typescript + vitest, so the target's own toolchain is never exercised and the gate's real failure
+// modes stay invisible. That structural gap is what let both 2026-07-25 blockers through: a fresh
+// worktree has no node_modules (so the differential typecheck silently degraded to a global
+// compiler and stopped discriminating), and the runner was picked by substring-matching a PROSE
+// field (so it was pinned to a runner that could not collect the produced test and the grade threw
+// instead of classifying).
+//
+// This crux closes the gap rather than the two symptoms: it grades a FABRICATED runDir -- a
+// hand-built meta.json + diff.patch, the same two files a real capture contributes -- end to end
+// against the kata's real toolchain, at zero spend. The fixture's spec is pinned under the
+// vitest-collected dir on purpose, so the crux cannot pass unless the gate BOTH sees the toolchain
+// AND routes to a runner whose collection config includes that path.
+function gradeFabricatedRunDir(fixtureName, assertGrade) {
+  const ctx = loadSuiteCtx(RED_SUITE_DIR);
+  const fixture = join(HERE, 'fixtures', fixtureName);
+  const realNodeModules = join(ctx.repo, 'node_modules');
+
+  // Mirror crux 3's SKIP-if-absent discipline: the metered run is gated anyway, and a missing
+  // borrowed repo must not fail the whole battery.
+  if (!ctx.repo || !fs.existsSync(ctx.repo)) {
+    console.log(`  [crux 7:${fixtureName}] SKIP -- kata repo not on disk (${ctx.repo})`);
+
+    return;
+  }
+
+  if (!fs.existsSync(realNodeModules)) {
+    console.log(`  [crux 7:${fixtureName}] SKIP -- kata has no node_modules (${realNodeModules}); run npm ci there to exercise it`);
+
+    return;
+  }
+
+  if (!fs.existsSync(fixture)) {
+    fail(`[crux 7:${fixtureName}] fixture dir missing: ${fixture}`);
+  }
+
+  // Never grade the committed fixture in place -- gradeRun writes red-grade.json into the runDir.
+  const runDir = join(os.tmpdir(), `red-canary-${fixtureName}-${process.pid}-${Date.now()}`);
+  fs.cpSync(fixture, runDir, { recursive: true });
+
+  let grade;
+
+  try {
+    grade = gradeRun({ runDir, suiteDir: RED_SUITE_DIR });
+  } catch (err) {
+    fail(`[crux 7:${fixtureName}] gradeRun threw instead of producing a verdict: ${err.message}`);
+  } finally {
+    fs.rmSync(runDir, { recursive: true, force: true });
+  }
+
+  assertGrade(grade);
+
+  // T-63f-01: the grading worktree links the target's real node_modules, so teardown ordering is a
+  // data-loss boundary, not a style point. Assert the borrowed repo survived intact.
+  if (!fs.existsSync(realNodeModules)) {
+    fail(`[crux 7:${fixtureName}] the kata's real node_modules is GONE after grading (${realNodeModules}) -- teardown followed the link`);
+  }
+
+  const porcelain = (git(ctx.repo, ['status', '--porcelain']).stdout || '').trim();
+
+  if (porcelain) {
+    fail(`[crux 7:${fixtureName}] kata not clean after grading: ${porcelain}`);
+  }
+
+  const worktrees = git(ctx.repo, ['worktree', 'list']).stdout || '';
+
+  if (/red-wt-/.test(worktrees)) {
+    fail(`[crux 7:${fixtureName}] leftover grading worktree after teardown:\n${worktrees}`);
+  }
+
+  return grade;
+}
+
+function checkTargetToolchainCanary() {
+  const grade = gradeFabricatedRunDir('canary-rundir', (g) => {
+    if (g.verdict !== 'genuinely_red' || g.pass !== true) {
+      fail(`[crux 7] fabricated runDir graded '${g.verdict}' (pass=${g.pass}), expected genuinely_red / pass=true -- why: ${g.why}`);
+    }
+
+    // The fixture's spec sits under the vitest-collected dir, so runner_select must route there.
+    // A prose-sniffed or hardcoded runner picks the other one, cannot collect the spec, and the
+    // grade throws before this line.
+    if (g.runner !== 'vitest') {
+      fail(`[crux 7] recorded runner '${g.runner}', expected 'vitest' for a spec under the vitest-collected dir`);
+    }
+
+    // The F1 pin. runner_version can only be read out of a node_modules the grading worktree can
+    // actually see, so the 'unknown' sentinel means the toolchain was invisible and the
+    // differential typecheck was not discriminating.
+    if (!/^\d+\.\d+\.\d+/.test(String(g.runner_version || ''))) {
+      fail(`[crux 7] runner_version is '${g.runner_version}', not a real version -- the grading worktree could not see the target's toolchain`);
+    }
+
+    if (g.new_tsc_errors !== 0) {
+      fail(`[crux 7] fabricated runDir reported ${g.new_tsc_errors} NEW tsc errors, expected 0`);
+    }
+  });
+
+  if (grade) {
+    console.log(
+      `  [crux 7] target-toolchain canary OK (fabricated runDir -> ${grade.verdict}, runner ${grade.runner}@${grade.runner_version}; kata intact, no leftover worktree)`,
+    );
+  }
+
+  // The canary above is engineered to be genuinely_red, so it never reaches the stderr
+  // disambiguation branch. This second fixture puts the produced spec OUTSIDE every collection
+  // root, so the runner emits nothing usable on stdout and a recognized no-tests signal on stderr.
+  // Without that branch the grade THROWS and no red-grade.json is written at all, which the
+  // downstream tabulator then fails closed on -- so a run that merely landed in the wrong folder
+  // takes the whole grade down instead of being counted honestly.
+  const missGrade = gradeFabricatedRunDir('canary-nocollect', (g) => {
+    if (g.verdict !== 'no_tests' || g.pass !== false) {
+      fail(`[crux 7] uncollected spec graded '${g.verdict}' (pass=${g.pass}), expected no_tests / pass=false`);
+    }
+
+    if (!/no test/i.test(String(g.failure_excerpt || ''))) {
+      fail(`[crux 7] no_tests excerpt does not carry the runner's own message: ${JSON.stringify(g.failure_excerpt)}`);
+    }
+  });
+
+  if (missGrade) {
+    console.log(
+      `  [crux 7] uncollected-spec canary OK (${missGrade.verdict}, pass=${missGrade.pass}, excerpt ${JSON.stringify(String(missGrade.failure_excerpt).slice(0, 60))} -- a verdict, not a throw)`,
+    );
+  }
+}
+
 // ---- crux 6: lz-refactor nx-suite regression (D-11) -------------------------------------------
 
 function checkNxRegression() {
@@ -354,10 +523,11 @@ checkCompositionAndParity();
 checkWorktreeBase();
 checkTranscriptParse();
 checkClassifier();
+checkTargetToolchainCanary();
 checkNxRegression();
 
 console.log(
-  'selfcheck-red: OK -- composition, prompt-parity, worktree base, transcript parse, classifier, and the ' +
-    'lz-refactor nx regression all pass; zero claude spend, borrowed repo left pristine.',
+  'selfcheck-red: OK -- composition, prompt-parity, worktree base, transcript parse, classifier, the ' +
+    'target-toolchain canary, and the lz-refactor nx regression all pass; zero claude spend, borrowed repo left pristine.',
 );
 process.exit(0);

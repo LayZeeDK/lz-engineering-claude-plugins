@@ -168,6 +168,8 @@ Instrument (offline, zero spend -- re-run any time to re-prove the build):
 
 ```
 node selfcheck-red.mjs                       # composition + parity + worktree + parse + classifier + nx regression
+                                             # + crux 7: the D-06 gate over a fabricated runDir against the
+                                             #   kata's OWN toolchain (the REQUIRED zero-spend Step 2 canary)
 node grade-red.mjs --selfcheck               # all 7 D-06 classes on fixtures
 node tabulate-mechanical-red.mjs --selfcheck # mechanical rollup + auto-trigger + Pass@k/Pass^k on fixtures
 node merge-judge.mjs --selfcheck             # judge-merge / fail-closed verify gate
@@ -176,6 +178,9 @@ node merge-judge.mjs --selfcheck             # judge-merge / fail-closed verify 
 Metered run (GATED -- see 21-04 for the full sequence; run only after explicit user approval):
 
 ```
+# 0. give the throwaway kata checkout a toolchain FIRST (a fresh `git worktree add` has no
+#    node_modules, so the model under test could not run the test it writes -- see RUN-GATE Step 3a):
+npm --prefix "<throwaway kata branch checkout>/TypeScript" ci
 # 1. drive the RED suite (3 arms x r1 x k), serial, one suite dir at a time:
 node ../lz-refactor-workspace/e2e-nx/run-e2e.mjs --suite <this suite dir> \
   --mode apply --arm all --prompt r1 --runs 3 --cwd <throwaway kata branch checkout>

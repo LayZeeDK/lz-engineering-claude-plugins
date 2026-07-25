@@ -254,11 +254,36 @@ function buildCmd(fullPrompt, arm, mode) {
   return cmd;
 }
 
-// Pull the final assistant text and skill-usage signal out of the stream-json transcript.
-// Tracks the suite's trackSkills (default lz-refactor + lz-tpp): lz-refactor for the refactor-step
-// prompts, lz-tpp for the seam hand-off; the RED suites track lz-red + lz-tpp. A tool_use blob
-// referencing a tracked name counts as a hit for that name. trackSkills defaults to TRACK_SKILLS so
-// the single-arg call (selfcheck-code-review.mjs) keeps working unchanged.
+// Match a tracked BARE skill name ('lz-red') against a token the CLI reports, which is normally
+// namespaced ('lz-tdd:lz-red'). Boundary-anchored on both sides so 'lz-red' does not match
+// 'lz-redux' or 'lz-red-extra'; the boundary class excludes '-' because the names contain one.
+function matchesSkillName(token, name) {
+  const esc = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+  return new RegExp(`(^|[^a-z0-9-])${esc}($|[^a-z0-9-])`, 'i').test(String(token));
+}
+
+// Pull the final assistant text and skill-usage signals out of the stream-json transcript.
+//
+// THREE DISTINCT FACTS, kept separate on purpose (the k=1 RED pilot, 2026-07-25, conflated them and
+// reported a 0.00 auto-trigger rate for a forced run in which the skill demonstrably loaded):
+//
+//   (a) AVAILABLE     -- skills_available[name]: the CLI's own `system/init` event advertises the
+//       session's `skills` + `slash_commands`. This is the only transcript proof that --plugin-dir
+//       actually loaded the plugin. It says NOTHING about whether the skill ran.
+//   (b) MODEL-FIRED   -- skills_model_fired[name]: a `Skill` tool_use block, i.e. the model CHOSE to
+//       invoke the skill. THIS is the genuine auto-trigger signal, and the only one that means
+//       anything for the with_skill arm.
+//   (c) FORCED        -- NOT derivable here. A slash command in the -p prompt is expanded by the CLI
+//       at prompt-processing time and produces no `Skill` tool_use and no other stream trace, so a
+//       forced invoke_skill run is transcript-indistinguishable from a run that never fired. runOne
+//       records it BY CONSTRUCTION instead (meta.skill_forced), off the composed prompt.
+//
+// used_skills is the LEGACY signal: a tracked name appearing anywhere in a tool_use blob. It is
+// retained verbatim for the lz-refactor suites and their captured evidence, but it is a loose
+// substring probe (a Read of a path containing the name counts), so it is NOT the auto-trigger
+// measurement -- skills_model_fired is. trackSkills defaults to TRACK_SKILLS so the single-arg call
+// (selfcheck-code-review.mjs) keeps working unchanged.
 function extractResult(raw, trackSkills = TRACK_SKILLS) {
   const lines = raw.split('\n').filter((l) => l.trim());
   let finalText = '';
@@ -266,6 +291,10 @@ function extractResult(raw, trackSkills = TRACK_SKILLS) {
   // from it after the scan.
   const skillHits = Object.fromEntries(trackSkills.map((n) => [n, 0]));
   const skillsInvoked = new Set();
+  // (a) advertised by the CLI's system/init event -- proves --plugin-dir loaded the plugin.
+  const skillsAvailable = Object.fromEntries(trackSkills.map((n) => [n, false]));
+  // (b) invoked by MODEL CHOICE -- a `Skill` tool_use block. The genuine auto-trigger signal.
+  const skillsModelFired = Object.fromEntries(trackSkills.map((n) => [n, 0]));
 
   // D-07 meta capture. Read the CLI's OWN reported usage from the final `result` event -- do NOT
   // recompute tokens from transcript text. `total_cost_usd`/`modelUsage` roll up sub-agents (the fair
@@ -286,6 +315,22 @@ function extractResult(raw, trackSkills = TRACK_SKILLS) {
       ev = JSON.parse(line);
     } catch {
       continue;
+    }
+
+    // (a) AVAILABILITY. The init event is the CLI's own report of what this session could reach;
+    // both arrays are scanned because a plugin skill is advertised under `skills` AND as a
+    // `slash_commands` entry, and either alone is enough to prove --plugin-dir took effect.
+    if (ev.type === 'system' && ev.subtype === 'init') {
+      const advertised = [
+        ...(Array.isArray(ev.skills) ? ev.skills : []),
+        ...(Array.isArray(ev.slash_commands) ? ev.slash_commands : []),
+      ];
+
+      for (const name of trackSkills) {
+        if (advertised.some((entry) => matchesSkillName(entry, name))) {
+          skillsAvailable[name] = true;
+        }
+      }
     }
 
     if (ev.type === 'result') {
@@ -337,9 +382,19 @@ function extractResult(raw, trackSkills = TRACK_SKILLS) {
         }
       }
 
+      // (b) MODEL-FIRED. Count only the Skill call's own DESCRIPTOR, never the whole input blob:
+      // args mentioning a sibling skill ("then hand off to lz-tpp") must not read as that sibling
+      // having fired.
       if (block.name === 'Skill') {
         const inp = block.input || {};
-        skillsInvoked.add(String(inp.command || inp.skill || inp.name || JSON.stringify(inp)));
+        const descriptor = String(inp.command || inp.skill || inp.name || JSON.stringify(inp));
+        skillsInvoked.add(descriptor);
+
+        for (const name of trackSkills) {
+          if (matchesSkillName(descriptor, name)) {
+            skillsModelFired[name]++;
+          }
+        }
       }
     }
   }
@@ -354,6 +409,8 @@ function extractResult(raw, trackSkills = TRACK_SKILLS) {
   return {
     finalText,
     used_skills: usedSkills,
+    skills_available: skillsAvailable,
+    skills_model_fired: skillsModelFired,
     usedRefactor: refactorHits > 0,
     usedTpp: tppHits > 0,
     refactorHits,
@@ -465,27 +522,54 @@ function buildSyntheticBase(promptEntry, suiteCtx, { dryRun = false } = {}) {
   return { root, gitRoot, rootRelPath, prefix, branchName, tip, tree, armCwd, worktree, teardown };
 }
 
-// One-line human signal of which lz skill(s) the run invoked.
+// One-line human signal of the run's trigger state. It distinguishes the three facts rather than
+// collapsing them: the old single line printed "NO lz skill invoked" for a FORCED run in which the
+// skill demonstrably loaded, which is how the k=1 RED pilot's blind spot stayed invisible.
+// Pre-fix captures (no skills_available key) fall back to the legacy wording so `--report` over
+// already-captured lz-refactor results reads exactly as it did before.
 function skillFlag(meta) {
   if (meta.arm === 'no_skill') {
     return 'baseline';
   }
 
-  const used = [];
+  if (!meta.skills_available) {
+    const legacy = [];
 
-  if (meta.used_refactor) {
-    used.push('lz-refactor');
+    if (meta.used_refactor) {
+      legacy.push('lz-refactor');
+    }
+
+    if (meta.used_tpp) {
+      legacy.push('lz-tpp');
+    }
+
+    return legacy.length ? `used: ${legacy.join('+')}` : 'NO lz skill invoked';
   }
 
-  if (meta.used_tpp) {
-    used.push('lz-tpp');
+  const fired = Object.entries(meta.skills_model_fired || {})
+    .filter(([, n]) => n > 0)
+    .map(([name]) => name);
+
+  if (fired.length) {
+    return `model-fired: ${fired.join('+')}`;
   }
 
-  return used.length ? `used: ${used.join('+')}` : 'NO lz skill invoked';
+  if (meta.skill_forced) {
+    return `forced: ${meta.forced_skill} (no model-choice Skill call)`;
+  }
+
+  const available = Object.entries(meta.skills_available)
+    .filter(([, yes]) => yes)
+    .map(([name]) => name);
+
+  return available.length ? `available: ${available.join('+')}, not model-fired` : 'skill NOT available';
 }
 
 function runOne(claude, promptEntry, arm, mode, cwd, runIdx, force) {
   const fullPrompt = composePrompt(promptEntry, mode, arm);
+  // (c) FORCED, by construction: read off the prompt actually sent, not off the arm name, so the
+  // flag stays true to the bytes even if composePrompt changes.
+  const skillForced = fullPrompt.startsWith(`${SKILL_COMMAND} `);
   const cmd = buildCmd(fullPrompt, arm, mode);
   const outDir = path.join(RESULTS_DIR, mode, arm, promptEntry.id, `run-${runIdx}`);
   const metaPath = path.join(outDir, 'meta.json');
@@ -579,6 +663,8 @@ function runOne(claude, promptEntry, arm, mode, cwd, runIdx, force) {
   const {
     finalText,
     used_skills,
+    skills_available,
+    skills_model_fired,
     usedRefactor,
     usedTpp,
     refactorHits,
@@ -626,6 +712,14 @@ function runOne(claude, promptEntry, arm, mode, cwd, runIdx, force) {
     changed_files: changedFiles,
     prompt_used: fullPrompt,
     used_skills,
+    // The three separated trigger facts (see extractResult). (a) + (b) come off the transcript;
+    // (c) is BY CONSTRUCTION -- the harness itself prefixed the slash command, and the CLI expands
+    // it at prompt-processing time leaving no stream trace, so forcing can only be read here.
+    // Never let (c) masquerade as (b): a forced cell must not report a model-choice trigger.
+    skills_available,
+    skills_model_fired,
+    skill_forced: skillForced,
+    forced_skill: skillForced ? SKILL_COMMAND : null,
     used_refactor: usedRefactor,
     used_tpp: usedTpp,
     refactor_hits: refactorHits,

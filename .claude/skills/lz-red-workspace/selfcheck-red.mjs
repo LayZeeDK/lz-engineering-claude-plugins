@@ -23,9 +23,13 @@
 //      MODEL-FIRED (a Skill tool_use -- the genuine auto-trigger), and, by its absence, FORCED
 //      (an expanded slash command leaves no stream trace, so run-e2e records it by construction).
 //      Runs off two committed hand-authored fixtures, so it never SKIPs; a real on-disk capture
-//      (gitignored) is parsed as an extra when present.
-//   5. CLASSIFIER    -- grade-red's classify() classifies genuinely_red + false_green (thin re-assert;
-//      grade-red --selfcheck is the full 7-class one).
+//      (gitignored) is parsed as an extra when present. It also pins the END-OF-RUN SUMMARY count,
+//      which read two hardcoded legacy scalars and so contradicted the per-run model-fired line on
+//      any suite whose trackSkills are not the lz-refactor pair.
+//   5. CLASSIFIER    -- grade-red's classify() classifies genuinely_red + false_green, and RED
+//      ATTRIBUTION holds: a failure borrowed from a PRE-EXISTING test never passes the D-06 gate
+//      (thin re-assert; grade-red --selfcheck is the full 8-class one, with the discrimination
+//      proof against the pre-attribution rule).
 //   6. REGRESSION    -- the DEFAULT nx suite still composes 3 arms with plugins/lz-tdd (the suite-driven
 //      trackSkills edit did not break the lz-refactor suites; D-11), AND its apply preamble is still
 //      the shared lz-refactor default byte-for-byte (the RED suite must override, never edit it).
@@ -33,10 +37,12 @@
 //      against the kata's OWN toolchain: a real verdict, the selected runner, a real runner_version
 //      (not the 'unknown' sentinel), and the borrowed repo intact afterwards. Every other crux and
 //      every grade-red fixture uses the WORKSPACE toolchain, so this is the only step that proves
-//      the gate works against the actual target. Kata absent -> SKIP. Three fixtures: a clean spec
-//      (genuinely_red), one outside every collection root (no_tests, not a crash), and a
-//      type-broken one (compile_error with NEW errors -- the negative control that proves the
-//      differential still tells two inputs apart).
+//      the gate works against the actual target. Kata absent -> SKIP. Four fixtures: a clean spec
+//      (genuinely_red), one outside every collection root (no_tests, not a crash), a type-broken
+//      one (compile_error with NEW errors -- the negative control that proves the differential
+//      still tells two inputs apart), and a PASSING test APPENDED to the kata's own spec, which
+//      already contains a permanently failing placeholder (false_green -- the attribution
+//      anti-regression; pre-fix it graded genuinely_red / pass:true on the borrowed failure).
 //   8. EXPLOIT REGRESSIONS -- the steering and write exploits measured against the real toolchain
 //      on 2026-07-25 stay blocked: a captured diff cannot NAME a path into the borrowed repo, its
 //      own git state or outside the worktree; the no-tests signal comes from the runner rather than
@@ -57,13 +63,14 @@ import os from 'node:os';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { dirname, join, resolve } from 'node:path';
-import { buildSyntheticBase, extractResult, git } from '../lz-refactor-workspace/e2e-nx/run-e2e.mjs';
+import { buildSyntheticBase, countModelFired, extractResult, git } from '../lz-refactor-workspace/e2e-nx/run-e2e.mjs';
 import {
   assertSafeDiffPaths,
   classify,
   escapingLinks,
   gradeRun,
   isConfigLevelTscError,
+  newFileDiff,
   parseRunnerReport,
   resolveArmCwd,
 } from './grade-red.mjs';
@@ -552,6 +559,43 @@ function checkTranscriptParse() {
       'agree on availability while differing on model-fired)',
   );
 
+  // The end-of-run SUMMARY line reads the same three facts, and it used to read them off the legacy
+  // `used_refactor || used_tpp` scalars -- two hardcoded names. On the RED suite that printed
+  // "with_skill: 0/1 runs invoked an lz skill (lz-refactor or lz-tpp)" immediately under the correct
+  // per-run `model-fired: lz-red`, contradicting itself in one output. The meta below is exactly
+  // that run's shape: lz-red model-fired, both legacy scalars false.
+  const redMeta = {
+    arm: 'with_skill',
+    skills_model_fired: { 'lz-red': 1, 'lz-tpp': 0 },
+    used_refactor: false,
+    used_tpp: false,
+  };
+  const quietMeta = { arm: 'with_skill', skills_model_fired: { 'lz-red': 0, 'lz-tpp': 0 }, used_refactor: false, used_tpp: false };
+  const legacyCount = [redMeta, quietMeta].filter((m) => m.used_refactor || m.used_tpp).length;
+
+  if (countModelFired([redMeta, quietMeta], tracked) !== 1) {
+    fail(
+      `[crux 4] the run summary counted ${countModelFired([redMeta, quietMeta], tracked)} model-fired run(s) for the ` +
+        "RED suite's tracked skills, expected 1 -- it is not reading skills_model_fired",
+    );
+  }
+
+  if (legacyCount !== 0) {
+    fail('[crux 4] the legacy-scalar comparison is not exercising the defect it claims to (expected the old expression to count 0)');
+  }
+
+  // ... and the lz-refactor suites must not regress: their own tracked pair still counts correctly.
+  const refactorMeta = { arm: 'with_skill', skills_model_fired: { 'lz-refactor': 2, 'lz-tpp': 0 } };
+
+  if (countModelFired([refactorMeta, quietMeta], ['lz-refactor', 'lz-tpp']) !== 1) {
+    fail('[crux 4] the run summary miscounts the lz-refactor suites\' own tracked skills');
+  }
+
+  console.log(
+    `  [crux 4] run-summary count OK (a lz-red model-fired run counts 1 for trackSkills ${JSON.stringify(tracked)}; ` +
+      `the legacy used_refactor||used_tpp expression counted ${legacyCount} on the same meta; lz-refactor pair still counts)`,
+  );
+
   // Extra, when a real capture happens to be on disk (gitignored, so usually absent): the same
   // parameterized parse over real bytes.
   for (const arm of ['with_skill', 'no_skill', 'invoke_skill']) {
@@ -579,11 +623,28 @@ function checkTranscriptParse() {
 // ---- crux 5: classifier (thin re-assert; grade-red --selfcheck is the full one) ---------------
 
 function checkClassifier() {
-  const testOnlyDiff = 'diff --git a/test/vitest/conjured.spec.ts b/test/vitest/conjured.spec.ts\n+++ b/test/vitest/conjured.spec.ts\n';
+  // A REAL new-file diff, `+` lines and all. The old stand-in here was a two-line header with no
+  // hunk at all, which stopped being a usable input once genuinely_red started requiring a failure
+  // attributable to a test the diff ADDED -- a diff carrying no test source adds no test.
+  const conjuredTitle = 'degrades twice as fast';
+  const testOnlyDiff = newFileDiff(
+    'test/vitest/conjured.spec.ts',
+    [
+      "describe('Conjured items', () => {",
+      `  it('${conjuredTitle}', () => {`,
+      '    expect(update(3, 6)).toBe(4);',
+      '  });',
+      '});',
+      '',
+    ].join('\n'),
+  );
 
   const redRunner = {
     testResults: [
-      { status: 'failed', assertionResults: [{ status: 'failed', failureMessages: ['AssertionError: expected -1 to be 5'] }] },
+      {
+        status: 'failed',
+        assertionResults: [{ title: conjuredTitle, status: 'failed', failureMessages: ['AssertionError: expected -1 to be 5'] }],
+      },
     ],
   };
   const redVerdict = classify({ newErrors: 0 }, redRunner, testOnlyDiff);
@@ -593,7 +654,7 @@ function checkClassifier() {
   }
 
   const greenRunner = {
-    testResults: [{ status: 'passed', assertionResults: [{ status: 'passed', failureMessages: [] }] }],
+    testResults: [{ status: 'passed', assertionResults: [{ title: conjuredTitle, status: 'passed', failureMessages: [] }] }],
   };
   const greenVerdict = classify({ newErrors: 0 }, greenRunner, testOnlyDiff);
 
@@ -601,7 +662,57 @@ function checkClassifier() {
     fail(`[crux 5] all-pass + test-only diff classified '${greenVerdict}', expected 'false_green'`);
   }
 
-  console.log('  [crux 5] classifier OK (genuinely_red + false_green re-assert; grade-red --selfcheck covers all 7 classes)');
+  // ATTRIBUTION, re-asserted at the crux layer because it is the D-06 gate's pass criterion and the
+  // k=1 pilot proved the file-level "something failed" question is not the one D-06 asks: the model
+  // APPENDED its test to the kata's own spec, which ships a permanently failing `should foo`
+  // placeholder. Here the added test PASSES and only the borrowed placeholder fails -- pre-fix that
+  // was genuinely_red / pass:true.
+  const borrowedRunner = {
+    testResults: [
+      {
+        status: 'failed',
+        assertionResults: [
+          {
+            title: 'should foo',
+            status: 'failed',
+            failureMessages: ["AssertionError: expected 'foo' to be 'fixme' // Object.is equality"],
+          },
+          { title: conjuredTitle, status: 'passed', failureMessages: [] },
+        ],
+      },
+    ],
+  };
+  const borrowedVerdict = classify({ newErrors: 0 }, borrowedRunner, testOnlyDiff);
+
+  if (borrowedVerdict !== 'false_green') {
+    fail(
+      `[crux 5] a PASSING added test alongside a pre-existing FAILING one classified '${borrowedVerdict}', ` +
+        "expected 'false_green' -- a borrowed failure must never pass the D-06 gate",
+    );
+  }
+
+  // ... and a failure that cannot be tied to any added test is its own verdict, never a pass and
+  // never a claim that the added test passed.
+  const strangerRunner = {
+    testResults: [
+      {
+        status: 'failed',
+        assertionResults: [
+          { title: 'should foo', status: 'failed', failureMessages: ["AssertionError: expected 'foo' to be 'fixme'"] },
+        ],
+      },
+    ],
+  };
+  const strangerVerdict = classify({ newErrors: 0 }, strangerRunner, testOnlyDiff);
+
+  if (strangerVerdict !== 'unattributable') {
+    fail(`[crux 5] a failure belonging to no added test classified '${strangerVerdict}', expected 'unattributable'`);
+  }
+
+  console.log(
+    '  [crux 5] classifier OK (genuinely_red + false_green re-assert; a borrowed failure stays false_green and ' +
+      'an unmatched one unattributable; grade-red --selfcheck covers all 8 classes)',
+  );
 }
 
 // ---- crux 7: the D-06 gate against the TARGET's own toolchain (fabricated runDir) --------------
@@ -730,11 +841,33 @@ function checkTargetToolchainCanary() {
     if (g.new_tsc_errors !== 0) {
       fail(`[crux 7] fabricated runDir reported ${g.new_tsc_errors} NEW tsc errors, expected 0`);
     }
+
+    // ATTRIBUTION against the TARGET's real runner. Everywhere else the attribution is asserted
+    // over hand-built assertionResults, so this is the only step that proves the runner's actual
+    // report carries a `title` the gate can tie back to the diff. If it did not, every real run
+    // would grade `unattributable` and the whole eval would read as a model failure.
+    const want = 'degrades in quality twice as fast as a normal item';
+
+    if (!Array.isArray(g.added_test_titles) || !g.added_test_titles.includes(want)) {
+      fail(`[crux 7] the gate did not extract the fixture's added test title from the diff: ${JSON.stringify(g.added_test_titles)}`);
+    }
+
+    if (g.attributed_failures !== 1) {
+      fail(
+        `[crux 7] the gate attributed ${g.attributed_failures} failure(s) to the added test, expected 1 -- ` +
+          "the runner's reported titles are not matching the diff's",
+      );
+    }
+
+    if (!String(g.failure_excerpt || '').startsWith(`added test ${JSON.stringify(want)}:`)) {
+      fail(`[crux 7] failure_excerpt does not name the ADDED test: ${JSON.stringify(String(g.failure_excerpt).slice(0, 120))}`);
+    }
   });
 
   if (grade) {
     console.log(
-      `  [crux 7] target-toolchain canary OK (fabricated runDir -> ${grade.verdict}, runner ${grade.runner}@${grade.runner_version}; kata intact, no leftover worktree)`,
+      `  [crux 7] target-toolchain canary OK (fabricated runDir -> ${grade.verdict}, runner ${grade.runner}@${grade.runner_version}; ` +
+        `${grade.attributed_failures} failure attributed to the ADDED test; kata intact, no leftover worktree)`,
     );
   }
 
@@ -783,6 +916,44 @@ function checkTargetToolchainCanary() {
     console.log(
       `  [crux 7] differential-discriminates canary OK (type-broken spec -> ${compileGrade.verdict}, ` +
         `${compileGrade.new_tsc_errors} NEW tsc errors against a clean baseline)`,
+    );
+  }
+
+  // THE ATTRIBUTION ANTI-REGRESSION, against the real target. The three canaries above all write a
+  // BRAND-NEW spec file, which is the one shape where "the file has a failing assertion" and "the
+  // test the model added failed" happen to coincide -- so none of them can see the D-06 hole the
+  // k=1 with_skill pilot exposed. This fixture reproduces that run's exact shape instead: it
+  // APPENDS to the kata's own test/vitest/gilded-rose.spec.ts, which ships a permanently failing
+  // `should foo` placeholder asserting 'fixme', and the test it appends PASSES on current code.
+  //
+  // So the file IS red and the produced test is a FALSE GREEN. Pre-attribution the gate answered
+  // the file-level question, recorded the placeholder's "expected 'foo' to be 'fixme'" as the
+  // failure_excerpt, and returned genuinely_red / pass:true. grade-red --selfcheck proves the same
+  // discrimination purely; this proves it end to end through the kata's real vitest.
+  const borrowedGrade = gradeFabricatedRunDir('canary-borrowed', (g) => {
+    if (g.verdict !== 'false_green' || g.pass !== false) {
+      fail(
+        `[crux 7] a PASSING test appended to a spec that already contains a failing one graded ` +
+          `'${g.verdict}' (pass=${g.pass}), expected false_green / pass=false -- the borrowed-failure ` +
+          `hole is open again. why: ${g.why}`,
+      );
+    }
+
+    if (g.attributed_failures !== 0) {
+      fail(`[crux 7] the gate attributed ${g.attributed_failures} failure(s) to a test that passed`);
+    }
+
+    // The excerpt is the field a human reads to sanity-check a verdict. It must SAY the failure it
+    // is quoting is not the model's, rather than presenting a borrowed one as the produced RED.
+    if (!/^PRE-EXISTING test /.test(String(g.failure_excerpt || ''))) {
+      fail(`[crux 7] the excerpt presents a borrowed failure as the produced test's: ${JSON.stringify(String(g.failure_excerpt).slice(0, 160))}`);
+    }
+  });
+
+  if (borrowedGrade) {
+    console.log(
+      `  [crux 7] borrowed-failure canary OK (a PASSING test appended to the kata's own failing spec -> ` +
+        `${borrowedGrade.verdict}, pass=${borrowedGrade.pass}; excerpt ${JSON.stringify(String(borrowedGrade.failure_excerpt).slice(0, 48))})`,
     );
   }
 }
@@ -874,7 +1045,7 @@ function checkDiffContainment() {
 
   // ... and the shipped fixtures, which are real captures, must still pass. A containment check
   // that rejects legitimate input is just a broken gate.
-  for (const fixtureName of ['canary-rundir', 'canary-nocollect', 'canary-compile']) {
+  for (const fixtureName of ['canary-rundir', 'canary-nocollect', 'canary-compile', 'canary-borrowed']) {
     const p = join(HERE, 'fixtures', fixtureName, 'diff.patch');
     const body = fs.readFileSync(p, 'utf8');
 

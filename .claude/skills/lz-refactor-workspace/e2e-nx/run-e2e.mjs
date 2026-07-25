@@ -870,6 +870,23 @@ function report() {
   console.log(`\n${metas.length} runs captured. (Pass@k on skill-firing; grade answer quality by reading answer.md vs targets.json.)`);
 }
 
+// How many of these runs MODEL-FIRED one of the suite's OWN tracked skills.
+//
+// The end-of-run summary used to count `used_refactor || used_tpp` -- two hardcoded scalars derived
+// from the LEGACY substring probe (a tracked name appearing anywhere in a tool_use blob). On any
+// suite whose trackSkills are not the lz-refactor pair those scalars name the wrong skills
+// entirely: the RED suite printed "with_skill: 0/1 runs invoked an lz skill (lz-refactor or
+// lz-tpp)" immediately under the correct per-run `model-fired: lz-red` line, two contradicting
+// statements about the same run in one output.
+//
+// skills_model_fired is written by runOne for every meta this is called with, so there is no legacy
+// fallback here -- a missing key would mean a bug in runOne, and defaulting it to 0 would hide that.
+// `report()` deliberately still reads the scalars: it walks ALREADY-CAPTURED results from disk,
+// including pre-fix lz-refactor metas, which is where back-compat actually matters.
+function countModelFired(metas, trackSkills = TRACK_SKILLS) {
+  return metas.filter((m) => trackSkills.some((name) => ((m && m.skills_model_fired) || {})[name] > 0)).length;
+}
+
 function main() {
   const args = parseArgs(process.argv.slice(2));
 
@@ -995,11 +1012,11 @@ function main() {
   }
 
   const withSkill = metas.filter((m) => m.arm === 'with_skill');
-  const used = withSkill.filter((m) => m.used_refactor || m.used_tpp).length;
   console.log(`\ndone. ${metas.length} runs captured under results/${args.mode}/`);
 
   if (withSkill.length) {
-    console.log(`with_skill: ${used}/${withSkill.length} runs invoked an lz skill (lz-refactor or lz-tpp).`);
+    const fired = countModelFired(withSkill, TRACK_SKILLS);
+    console.log(`with_skill: ${fired}/${withSkill.length} runs model-fired a tracked skill (${TRACK_SKILLS.join(' or ')}).`);
   }
 
   console.log(`next: read results/${args.mode}/<arm>/<pN>/answer.md and grade against targets.json.`);
@@ -1013,4 +1030,4 @@ if (isMainModule) {
   main();
 }
 
-export { extractResult, buildSyntheticBase, git, MATTPOCOCK_DIR, CODE_REVIEW_COMMAND };
+export { extractResult, buildSyntheticBase, countModelFired, git, MATTPOCOCK_DIR, CODE_REVIEW_COMMAND };

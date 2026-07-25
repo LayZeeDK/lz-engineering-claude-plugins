@@ -1,0 +1,15 @@
+diff --git a/TypeScript/test/vitest/gilded-rose.spec.ts b/TypeScript/test/vitest/gilded-rose.spec.ts
+index 6533075..b077ded 100644
+--- a/TypeScript/test/vitest/gilded-rose.spec.ts
++++ b/TypeScript/test/vitest/gilded-rose.spec.ts
+@@ -6,4 +6,10 @@ describe('Gilded Rose', () => {
+     const items = gildedRose.updateQuality();
+     expect(items[0].name).toBe('fixme');
+   });
++
++  it('degrades a normal item by one before its sell-by date', () => {
++    const gildedRose = new GildedRose([new Item('normal', 5, 10)]);
++
++    expect(gildedRose.updateQuality()[0].quality).toBe(9);
++  });
+ });

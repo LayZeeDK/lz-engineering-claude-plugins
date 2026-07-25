@@ -181,6 +181,40 @@ function checkCompositionAndParity() {
   }
 
   console.log('  [crux 2] prompt-parity OK (no_skill == with_skill byte-identical; invoke_skill == "/lz-tdd:lz-red " + with_skill)');
+
+  // The prompt must make NO claim about the current pass/fail state of the target's existing
+  // tests. It used to open "The tests for `app/gilded-rose.ts` are all green right now", which is
+  // measurably false -- both shipped placeholder specs fail on current code. A false premise
+  // invites the model to repair the placeholder instead of adding a test, and a repair-only turn
+  // grades false_green: a correctness failure manufactured by the instrument rather than by the
+  // model. Guard the regression rather than trusting the file to stay fixed.
+  //
+  // The tokens are claims ABOUT THE EXISTING SUITE, not the word "failing" -- asking for the next
+  // failing test IS the task, so the ask itself must not trip this.
+  const stateClaimTokens = [
+    'all green',
+    'all passing',
+    'are green',
+    'are passing',
+    'currently green',
+    'currently passing',
+    'currently pass',
+    'currently fail',
+    'tests pass',
+    'suite is green',
+    'right now',
+  ];
+  const lowered = wsPrompt.toLowerCase();
+  const claimed = stateClaimTokens.filter((t) => lowered.includes(t));
+
+  if (claimed.length) {
+    fail(
+      `[crux 2] the prompt makes a claim about the existing tests' pass/fail state (${JSON.stringify(claimed)}); ` +
+        'the RED prompt must not assert that the target\'s tests currently pass or fail',
+    );
+  }
+
+  console.log(`  [crux 2] no test-state claim in the prompt OK (checked ${stateClaimTokens.length} tokens)`);
 }
 
 // ---- crux 3: worktree build/teardown leaves the borrowed repo pristine ------------------------

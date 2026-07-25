@@ -29,10 +29,10 @@
 //      type-broken one (compile_error with NEW errors -- the negative control that proves the
 //      differential still tells two inputs apart).
 //   8. EXPLOIT REGRESSIONS -- the steering and write exploits measured against the real toolchain
-//      on 2026-07-25 stay blocked: a captured diff cannot write into the borrowed repo through the
-//      toolchain junction, the no-tests signal comes from the runner rather than from the produced
-//      spec's own text, and the vacuous-differential guard ignores ordinary source diagnostics.
-//      Pure and offline, so it never SKIPs.
+//      on 2026-07-25 stay blocked: a captured diff cannot NAME a path into the borrowed repo, its
+//      own git state or outside the worktree; the no-tests signal comes from the runner rather than
+//      from the produced spec's own text; and the vacuous-differential guard ignores ordinary
+//      source diagnostics. Pure and offline, so it never SKIPs.
 //   9. RUNTIME WRITE PATH -- crux 8 covers what a captured diff DECLARES; this one covers what the
 //      produced spec DOES when the runner executes it. A spec declaring a legitimate path whose
 //      BODY deletes and overwrites through node_modules/ is graded for real against a THROWAWAY
@@ -468,10 +468,12 @@ function gradeFabricatedRunDir(fixtureName, assertGrade) {
 
   assertGrade(grade);
 
-  // T-63f-01: the grading worktree links the target's real node_modules, so teardown ordering is a
-  // data-loss boundary, not a style point. Assert the borrowed repo survived intact.
+  // T-63f-01 / T-63f-05: grading reads the target's real node_modules to build its own copy, and
+  // it used to LINK that directory instead, which made teardown ordering a data-loss boundary
+  // rather than a style point. Keep asserting the borrowed repo survived: this is the outcome the
+  // whole containment exists for, and it must not depend on remembering which mechanism is in use.
   if (!fs.existsSync(realNodeModules)) {
-    fail(`[crux 7:${fixtureName}] the kata's real node_modules is GONE after grading (${realNodeModules}) -- teardown followed the link`);
+    fail(`[crux 7:${fixtureName}] the kata's real node_modules is GONE after grading (${realNodeModules})`);
   }
 
   const porcelain = (git(ctx.repo, ['status', '--porcelain']).stdout || '').trim();
@@ -486,17 +488,20 @@ function gradeFabricatedRunDir(fixtureName, assertGrade) {
     fail(`[crux 7:${fixtureName}] leftover grading worktree after teardown:\n${worktrees}`);
   }
 
-  // The grading worktree carries a LIVE junction into the borrowed repo for most of its life, so a
-  // directory left behind on disk is a stranded link, not just clutter. `git worktree list` above
-  // would not notice one that git already pruned.
+  // A grading worktree left behind on disk is now ~143 MB of toolchain copy rather than the
+  // stranded link into the borrowed repo it used to be -- clutter instead of a hazard, but a
+  // fan-out of nine would strand over a gigabyte of it. `git worktree list` above would not notice
+  // one that git had already pruned.
   const stranded = fs.readdirSync(os.tmpdir()).filter((e) => e.startsWith('red-wt-'));
 
   if (stranded.length) {
     fail(`[crux 7:${fixtureName}] stranded grading worktree director(ies) under the temp dir: ${stranded.join(', ')}`);
   }
 
-  // gradeRun installs SIGINT/SIGTERM handlers so an interrupted fan-out cannot strand that junction.
-  // They are per-run and must not accumulate across the 9 runs of a fan-out.
+  // gradeRun installs SIGINT/SIGTERM handlers so an interrupted fan-out cleans its toolchain up.
+  // They are per-run and must not accumulate across the 9 runs of a fan-out. (This assertion does
+  // NOT exercise the signal path -- see the withdrawn IM-04 coverage claim in REVIEW-FIX.md; it
+  // only pins that the handlers are removed again.)
   for (const signal of ['SIGINT', 'SIGTERM']) {
     if (process.listenerCount(signal) !== 0) {
       fail(`[crux 7:${fixtureName}] gradeRun leaked a ${signal} handler (${process.listenerCount(signal)} still registered)`);
@@ -633,10 +638,13 @@ function newFilePatch(targetPath, line) {
 }
 
 function checkDiffContainment() {
-  // T-63f-01, WRITE direction. The grading worktree links the kata's REAL node_modules so the
-  // differential typecheck has a toolchain, and diff.patch is whatever the model under test staged.
-  // MEASURED 2026-07-25: with nothing constraining the paths, both a modify hunk and a new-file
-  // hunk under node_modules/ applied straight THROUGH the junction into the borrowed checkout.
+  // T-63f-01, the DECLARED-PATH write direction. diff.patch is whatever the model under test
+  // staged. MEASURED 2026-07-25 back when the grading worktree LINKED the kata's real node_modules:
+  // with nothing constraining the paths, both a modify hunk and a new-file hunk under node_modules/
+  // applied straight through the junction into the borrowed checkout. The junction is gone
+  // (T-63f-05, crux 9) so that patch would now only reach a throwaway copy -- this crux pins the
+  // FIRST layer, which must hold on its own and also covers '..' and '.git', neither of which the
+  // copy has anything to do with.
   const exploits = {
     'new file under node_modules': newFilePatch('TypeScript/node_modules/.bin/EVIL.txt', 'pwned'),
     'modify under node_modules': [
@@ -694,7 +702,7 @@ function checkDiffContainment() {
   });
 
   console.log(
-    `  [crux 8] captured-diff containment OK (${Object.keys(exploits).length} write paths into the borrowed repo rejected; ` +
+    `  [crux 8] captured-diff containment OK (${Object.keys(exploits).length} forbidden path shapes rejected; ` +
       'real captures and production edits still accepted)',
   );
 }

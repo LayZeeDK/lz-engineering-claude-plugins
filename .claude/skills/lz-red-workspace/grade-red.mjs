@@ -157,8 +157,11 @@ export function assertReadableDiff(diffText) {
 // ---- captured-diff path containment (T-63f-01 write direction) --------------------------------
 
 // A path segment the grade must never write through. '..' escapes the worktree; '.git' is git's own
-// state; 'node_modules' is the TARGET's real dependency tree, reachable from inside the grading
-// worktree through the toolchain junction gradeRun() creates.
+// state; 'node_modules' WAS the TARGET's real dependency tree, reachable from inside the grading
+// worktree through the toolchain junction gradeRun() used to create. That junction is gone
+// (T-63f-05, the toolchain is a per-grade copy), so a patch under node_modules/ would now only
+// reach a throwaway -- but it is still not gradable input, and this list is the FIRST layer, whose
+// job is to be true regardless of what the second one happens to be.
 const FORBIDDEN_PATH_SEGMENT_RE = /(?:^|\/)(?:node_modules|\.git|\.\.)(?:\/|$)/;
 // An absolute path (POSIX root, UNC, or a Windows drive letter).
 const ABSOLUTE_PATH_RE = /^(?:\/|\\|[A-Za-z]:)/;
@@ -173,7 +176,7 @@ const FORBIDDEN_IN_HEADER_RE = /(?:^|[\s"/\\])(?:node_modules|\.git|\.\.)(?:[/\\
 // changedPaths()'s regexes silently skip a quoted header -- so a hand-rolled allowlist can disagree
 // with what `git apply` actually writes, which is the one divergence a containment check cannot
 // afford. `--numstat` is git's own parse and prints raw, unquoted, NUL-separated paths. It needs no
-// repository (measured 2026-07-25), so it runs in a neutral cwd, before any worktree or junction
+// repository (measured 2026-07-25), so it runs in a neutral cwd, before any worktree or toolchain
 // exists.
 export function diffTargetPaths(diffPath) {
   const r = spawnSync('git', ['apply', '--numstat', '-z', diffPath], {
@@ -211,19 +214,25 @@ export function diffTargetPaths(diffPath) {
   return out;
 }
 
-// Fail closed BEFORE the grading worktree and its toolchain junction exist (T-63f-01, write
-// direction). diff.patch is attacker-shaped input -- it is whatever the model under test staged --
-// and the grading worktree deliberately links the TARGET repo's real node_modules so the
-// differential typecheck has a toolchain. Applying an unconstrained patch inside that worktree
-// therefore writes THROUGH the junction into a third-party checkout this gate does not own
-// (measured 2026-07-25: both a modify hunk and a new-file hunk under TypeScript/node_modules/
-// landed in the link target). The original threat model only considered the DELETION direction.
+// Fail closed BEFORE the grading worktree and its toolchain exist (T-63f-01, write direction).
+// diff.patch is attacker-shaped input -- it is whatever the model under test staged.
+//
+// WHY IT WAS WRITTEN: the grading worktree used to LINK the target repo's real node_modules so the
+// differential typecheck had a toolchain, so applying an unconstrained patch inside that worktree
+// wrote THROUGH the junction into a third-party checkout this gate does not own (measured
+// 2026-07-25: both a modify hunk and a new-file hunk under TypeScript/node_modules/ landed in the
+// link target). The threat model before that only considered the DELETION direction.
+//
+// WHY IT STAYS: the junction is gone (T-63f-05), so this is no longer the only thing standing
+// between a hostile patch and the borrowed repo -- but it is still the FIRST layer and it covers
+// ground the copy does not. '..' traversal and writes into '.git' have nothing to do with the
+// toolchain, and a first layer that quietly depends on the second is not a layer.
 export function assertSafeDiffPaths(diffText, diffPath) {
   const reject = (what, why) => {
     throw new Error(
       `grade-red: refusing to apply ${diffPath} -- it names '${what}' (${why}). A captured diff is ` +
-        "attacker-shaped input and the grading worktree links the TARGET's real node_modules, so an " +
-        'unconstrained apply is a write path into a repository this gate does not own ' +
+        'attacker-shaped input, and a path that escapes the grading worktree or targets its ' +
+        'toolchain or git state is never gradable ' +
         '(fail closed, T-63f-01).',
     );
   };
@@ -1037,8 +1046,8 @@ export function gradeRun({ runDir, suiteDir }) {
       runner: runnerName,
       runner_version: readRunnerVersion(armCwd, worktree, runnerName),
       // The measured cost of copying the target's node_modules into this grade's worktree
-      // (T-63f-05). Recorded rather than printed so the per-grade overhead of the containment is
-      // auditable in every artifact, not just in whoever happened to watch the console.
+      // (T-63f-05). The CLI prints it too, but recording it puts the containment's overhead in
+      // every artifact rather than only in front of whoever watched the console.
       toolchain_ms: toolchainMs,
       produced_test_files: producedTests,
       failure_excerpt: firstFailureExcerpt(runnerJson),

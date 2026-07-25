@@ -8,7 +8,7 @@ status: verifying
 stopped_at: HALTED at 21-04 Task-3 blocking-human run gate; BUILD verified GREEN (7/7 must-haves, 21-VERIFICATION.md); metered 3-arm apply run user-gated per RUN-GATE.md, zero spend
 last_updated: "2026-07-23T07:00:22.332Z"
 last_activity: 2026-07-25
-last_activity_desc: "Quick 260725-63f: audited/triaged 5 RED-instrument findings (F4 rejected), fixed 4 + 3 review Criticals; still HALTED at metered-run gate"
+last_activity_desc: "Quick 260725-63f: RED instrument hardened + 3 approved pilot runs ($1.67); auto-trigger measured 2/2; full round still gated"
 progress:
   total_phases: 8
   completed_phases: 8
@@ -185,17 +185,48 @@ None open. lz-tdd@0.0.1 shipped with all prior concerns resolved:
 - RESOLVED (2026-07-02): repo renamed to plural `lz-engineering-claude-plugins`, GitHub repo created, `origin` wired, `main` in sync; `claude plugin marketplace add LayZeeDK/lz-engineering-claude-plugins` clones + validates the marketplace and resolves `./plugins/lz-tdd` (closed D-13's ship-time deferral).
 - RESOLVED (2026-07-03): triggering accuracy (SKILL-05 / EVAL-01) validated empirically via the native eval harness -- 100% recall / 100% specificity on the shipped description.
 
-### Open before the Phase-21 metered run (from quick 260725-63f, gsd-verifier human_needed)
+### Phase-21 pilot runs + open items (quick 260725-63f)
 
-- **OPEN (decide before spend): the `node_modules` junction is a live RUNTIME write path into the
-  borrowed kata.** CR-01 closed the `git apply` direction, but the runner spawn
-  (`grade-red.mjs`, the target-runner `spawnSync`) executes the model-authored spec with the
-  junction up, and `assertSafeDiffPaths` scans DECLARED paths only, never hunk CONTENT. Verifier
-  measured a patch declaring a legitimate `TypeScript/test/vitest/evil.spec.ts` whose body calls
-  `fs.rmSync('node_modules/typescript', {recursive:true})` -- ACCEPTED. Before the F1 junction this
-  was unreachable. The metered fan-out runs nine model-authored specs against a third-party repo we
-  do not own. Options: junction to a disposable COPY of node_modules; per-worktree `npm ci`;
-  content-scan the hunks; or accept-and-document. Nothing currently names this risk in RUN-GATE.md.
+**PILOT RESULTS (3 metered runs, $1.67 total, all user-approved; GRC anchor, opus-4-8/high).**
+The instrument works end to end -- apply -> capture -> grade -> tabulate -- and the kata was left
+pristine after every run. Each pilot found a defect the offline battery structurally could not see:
+
+| # | Arm | Cost | Verdict | What it exposed |
+|---|-----|------|---------|-----------------|
+| 1 | invoke_skill | $0.54 | genuinely_red | Trigger detector blind to slash-command invocation; anti-RED apply preamble; missing gitignore |
+| 2 | with_skill | $0.51 | genuinely_red | Auto-trigger detection CONFIRMED working; D-06 false-PASS on borrowed failures |
+| 3 | with_skill | $0.62 | **false_green** | Attribution fix caught a LIVE false green on its first fresh sample |
+
+- **Auto-trigger MEASURED: 2/2 with_skill runs model-fired `lz-red`** on a natural prompt with no
+  slash prefix (`skills_model_fired {lz-red:1}`, `skill_forced false`, `Skill` in the tool
+  histogram). The D-04 trigger dimension works. `invoke_skill` reads `fired` 0.00 BY DESIGN (an
+  expanded slash command emits no `Skill` tool_use); its control value is `avail 1.00 + force 1.00`.
+- **Calibration for scoping the full round:** ~$0.57/run mean, 78-139 s, 8-17 turns. 1 target x
+  3 arms x k=3 is ~$4.90 and ~13 min serial -- a floor, not an estimate.
+- **with_skill Pass@1 = 0.50 (1/2).** The pre-fix instrument would have reported 1.00 -- a 2x
+  inflation on the headline correctness number. Do NOT read these n=2 numbers as a result; they are
+  instrument calibration.
+
+**RESOLVED (was: runtime write path).** The `node_modules` junction into the borrowed kata is GONE.
+The grading worktree now gets a PER-GRADE DISPOSABLE COPY (measured 2.5-2.8 s copy + 0.7 s remove on
+7610 files / 142.8 MB; a shared cache was rejected as a mutable tree every grade writes through).
+`resolveArmCwd()` also closed a second path found while probing: `path.relative(gitRoot, repo)` can
+escape when git's long Windows path and the 8.3 short `os.tmpdir()` path disagree on form, which
+would have put apply, the runner spawn AND teardown's recursive delete inside the borrowed repo.
+selfcheck-red crux 9 proves containment (pre-fix module BREACHES a throwaway stand-in; shipped code
+leaves it byte-intact). Residual, named in RUN-GATE.md: a spec can still write to an ABSOLUTE path --
+containing that needs a sandbox.
+
+- **OPEN (eval design, decide before the full round): does a deliberate CHARACTERIZATION test count
+  as a RED failure?** Pilot 3's model replaced the kata's broken `should foo` stub with a passing
+  characterization test pinning current behavior (20->19, 10->9) and justified it explicitly from
+  Feathers: against untested legacy, characterize first; that is green BY DESIGN. D-06 graded it
+  `false_green` (correct -- no failing test was produced), but `lz-red`'s OWN `seams-and-legacy.md`
+  leaf teaches exactly that move, so the gate can penalize behavior the skill deliberately teaches.
+  The prompt does ask for the next FAILING test, and the model offered to flip it red. Decide
+  whether to (a) keep D-06 strict and read `false_green` clusters as a RED-discipline finding,
+  (b) tighten the prompt to exclude the characterization route, or (c) add a separate
+  characterization-aware dimension. Affects what Pass@k MEANS, so settle it before spending.
 - **OPEN (low): IM-03 and IM-04 shipped as fix-without-regression-test.** Junction teardown
   inversion and the SIGINT/SIGTERM unlink have no discriminating offline check (EPERM/EBUSY and a
   mid-run signal cannot be induced deterministically without mocking the thing under test). The

@@ -61,8 +61,8 @@ const RUNTIME_RE =
   /is not a function|is not defined|is not iterable|is not a constructor|cannot find|cannot read propert|referenceerror|syntaxerror/i;
 // A "suite loaded but declared no tests" message. Disambiguates no_tests from collection_error --
 // the two share an identical vitest JSON shape (numTotalTests 0, status failed, empty
-// assertionResults) EXCEPT this suite-level message. vitest: "No test found in suite <file>";
-// jest: "Your test suite must contain at least one test." [pinned 2026-07-22].
+// assertionResults) EXCEPT this suite-level message.
+//
 // Matched LINE BY LINE against the message with its code frame stripped, never as a substring of
 // the whole thing. Both runners append a frame quoting the produced spec's own source to
 // testResults[0].message, so a substring match over the raw message lets the MODEL UNDER TEST pick
@@ -97,6 +97,7 @@ export function runnerReportedNoTests(message) {
     .map((l) => l.trim())
     .some((l) => NO_TESTS_RE.test(l));
 }
+
 // A produced test file (the runner's spec/test glob).
 const TEST_FILE_RE = /\.(?:spec|test)\.[cm]?[jt]sx?$/i;
 
@@ -442,7 +443,7 @@ export function parseRunnerReport(runRes) {
     // Bytes on stdout mean the runner DID report and its output is merely unparseable. A zero exit
     // means the process ended some other way than a collection miss -- the produced spec calling
     // process.exit(0) at import time is the measured case.
-    if (stdout.trim() !== '' || runRes.status === 0) {
+    if (stdout.trim() !== '' || (runRes && runRes.status) === 0) {
       throw err;
     }
 

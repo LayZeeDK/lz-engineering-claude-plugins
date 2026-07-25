@@ -600,7 +600,14 @@ export function selectRunner(runnerSpec, testPath) {
     .sort((a, b) => b.length - a.length)
     .find((prefix) => String(testPath || '').startsWith(prefix));
 
-  return (hit && map[hit]) || (runnerSpec && runnerSpec.runner_default) || null;
+  // A MATCHED prefix wins even when its value is falsy. `(hit && map[hit]) || default` would have
+  // turned a config typo -- an empty string, a null -- into "quietly use the default" instead of
+  // the fail-closed error the caller raises for a runner with no command.
+  if (hit !== undefined) {
+    return map[hit];
+  }
+
+  return (runnerSpec && runnerSpec.runner_default) || null;
 }
 
 // The target repo's own typescript (never the workspace's -- Pitfall 4).

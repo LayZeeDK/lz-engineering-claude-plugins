@@ -199,6 +199,10 @@ function checkCompositionAndParity() {
   //
   // The tokens are claims ABOUT THE EXISTING SUITE, not the word "failing" -- asking for the next
   // failing test IS the task, so the ask itself must not trip this.
+  //
+  // Every token pairs a STATE word with the claim. A bare adverb would not: 'right now' on its own
+  // failed the battery for a benign rewording such as "the next failing test you'd write right
+  // now", which claims nothing about the existing suite.
   const stateClaimTokens = [
     'all green',
     'all passing',
@@ -210,7 +214,9 @@ function checkCompositionAndParity() {
     'currently fail',
     'tests pass',
     'suite is green',
-    'right now',
+    'green right now',
+    'passing right now',
+    'pass right now',
   ];
   const lowered = wsPrompt.toLowerCase();
   const claimed = stateClaimTokens.filter((t) => lowered.includes(t));
@@ -223,6 +229,26 @@ function checkCompositionAndParity() {
   }
 
   console.log(`  [crux 2] no test-state claim in the prompt OK (checked ${stateClaimTokens.length} tokens)`);
+
+  // The gate can only grade a spec a runner actually collects, so the landing directory must be
+  // PINNED rather than left to the model: a spec outside every collection root grades no_tests for
+  // a folder choice that says nothing about RED quality. targets.json declares the pin and the
+  // prompt states it; assert they agree, which is also what gives test_dir a consumer -- it was
+  // inert documentation that nothing read (`git grep test_dir` found no code).
+  const pinnedDir = (loadSuiteCtx(RED_SUITE_DIR).targetsById.get('GRC') || {}).test_dir;
+
+  if (!pinnedDir) {
+    fail('[crux 2] target GRC declares no test_dir, so the produced test has no pinned landing directory');
+  }
+
+  if (!wsPrompt.includes(pinnedDir)) {
+    fail(
+      `[crux 2] the prompt does not name the target's pinned test_dir ${JSON.stringify(pinnedDir)}, so the runner ` +
+        `and the produced test's location can disagree: ${JSON.stringify(wsPrompt)}`,
+    );
+  }
+
+  console.log(`  [crux 2] prompt pins the target's test_dir OK (${pinnedDir})`);
 }
 
 // ---- crux 3: worktree build/teardown leaves the borrowed repo pristine ------------------------

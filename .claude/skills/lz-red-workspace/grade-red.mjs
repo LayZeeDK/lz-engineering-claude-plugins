@@ -115,6 +115,103 @@ export function assertReadableDiff(diffText) {
   return diffText;
 }
 
+// ---- captured-diff path containment (T-63f-01 write direction) --------------------------------
+
+// A path segment the grade must never write through. '..' escapes the worktree; '.git' is git's own
+// state; 'node_modules' is the TARGET's real dependency tree, reachable from inside the grading
+// worktree through the toolchain junction gradeRun() creates.
+const FORBIDDEN_PATH_SEGMENT_RE = /(?:^|\/)(?:node_modules|\.git|\.\.)(?:\/|$)/;
+// An absolute path (POSIX root, UNC, or a Windows drive letter).
+const ABSOLUTE_PATH_RE = /^(?:\/|\\|[A-Za-z]:)/;
+// Header lines that NAME a path. `git apply --numstat` reports a rename/copy by its DESTINATION
+// only (measured 2026-07-25), so `rename from TypeScript/node_modules/...` -- which DELETES from the
+// borrowed tree -- is invisible to the numstat report and has to be caught in the raw text.
+const DIFF_PATH_HEADER_RE = /^(?:diff --git |--- |\+\+\+ |rename from |rename to |copy from |copy to )/;
+const FORBIDDEN_IN_HEADER_RE = /(?:^|[\s"/\\])(?:node_modules|\.git|\.\.)(?:[/\\"]|$)/;
+
+// Every path the patch would write, as GIT ITSELF resolves them. Hand-parsing is not good enough
+// here: git QUOTES any header path that needs escaping (`diff --git "a/pw\"ned" ...`), and
+// changedPaths()'s regexes silently skip a quoted header -- so a hand-rolled allowlist can disagree
+// with what `git apply` actually writes, which is the one divergence a containment check cannot
+// afford. `--numstat` is git's own parse and prints raw, unquoted, NUL-separated paths. It needs no
+// repository (measured 2026-07-25), so it runs in a neutral cwd, before any worktree or junction
+// exists.
+export function diffTargetPaths(diffPath) {
+  const r = spawnSync('git', ['apply', '--numstat', '-z', diffPath], {
+    cwd: os.tmpdir(),
+    encoding: 'utf8',
+    maxBuffer: 64 * 1024 * 1024,
+    windowsHide: true,
+  });
+
+  if (r.status !== 0) {
+    throw new Error(`grade-red: git could not parse ${diffPath} (fail closed): ${(r.stderr || '').trim()}`);
+  }
+
+  const out = [];
+
+  for (const field of (r.stdout || '').split('\0')) {
+    if (!field) {
+      continue;
+    }
+
+    const m = /^[^\t]*\t[^\t]*\t([\s\S]*)$/.exec(field);
+
+    if (!m) {
+      // A bare path field: the old/new pair git emits after an empty path slot for a rename.
+      out.push(field.trim());
+
+      continue;
+    }
+
+    if (m[1]) {
+      out.push(m[1].trim());
+    }
+  }
+
+  return out;
+}
+
+// Fail closed BEFORE the grading worktree and its toolchain junction exist (T-63f-01, write
+// direction). diff.patch is attacker-shaped input -- it is whatever the model under test staged --
+// and the grading worktree deliberately links the TARGET repo's real node_modules so the
+// differential typecheck has a toolchain. Applying an unconstrained patch inside that worktree
+// therefore writes THROUGH the junction into a third-party checkout this gate does not own
+// (measured 2026-07-25: both a modify hunk and a new-file hunk under TypeScript/node_modules/
+// landed in the link target). The original threat model only considered the DELETION direction.
+export function assertSafeDiffPaths(diffText, diffPath) {
+  const reject = (what, why) => {
+    throw new Error(
+      `grade-red: refusing to apply ${diffPath} -- it names '${what}' (${why}). A captured diff is ` +
+        "attacker-shaped input and the grading worktree links the TARGET's real node_modules, so an " +
+        'unconstrained apply is a write path into a repository this gate does not own ' +
+        '(fail closed, T-63f-01).',
+    );
+  };
+
+  for (const p of diffTargetPaths(diffPath)) {
+    if (ABSOLUTE_PATH_RE.test(p)) {
+      reject(p, 'an absolute path escapes the grading worktree');
+    }
+
+    if (p.includes('\\')) {
+      reject(p, 'git emits forward slashes, so a backslash is a separator or an escape');
+    }
+
+    if (FORBIDDEN_PATH_SEGMENT_RE.test(p)) {
+      reject(p, "'..', '.git' and 'node_modules' segments are never gradable");
+    }
+  }
+
+  for (const line of String(diffText == null ? '' : diffText).split('\n')) {
+    if (DIFF_PATH_HEADER_RE.test(line) && FORBIDDEN_IN_HEADER_RE.test(line)) {
+      reject(line.trim().slice(0, 200), 'a diff header names a forbidden path');
+    }
+  }
+
+  return diffText;
+}
+
 // ---- the pure classifier (shared by the real gate and --selfcheck) ---------------------------
 
 // tscResult: { newErrors: number }. runnerJson: the Jest-compatible runner report (vitest
@@ -466,6 +563,7 @@ export function gradeRun({ runDir, suiteDir }) {
   }
 
   assertReadableDiff(diffPatch);
+  assertSafeDiffPaths(diffPatch, diffPath);
 
   let meta;
 
@@ -546,6 +644,18 @@ export function gradeRun({ runDir, suiteDir }) {
 
   let linkCreated = false;
 
+  // 'junction' is the Windows-safe directory link (a plain symlink needs elevation there); the type
+  // argument is ignored on other platforms. The target must be absolute, which it is.
+  const linkToolchain = () => {
+    fs.symlinkSync(nodeModulesSrc, nodeModulesLink, 'junction');
+    linkCreated = true;
+  };
+
+  const unlinkToolchain = () => {
+    fs.rmSync(nodeModulesLink, { recursive: true, force: true });
+    linkCreated = false;
+  };
+
   const teardown = () => {
     // ORDER IS LOAD-BEARING (T-63f-01): unlink the node_modules junction BEFORE removing the
     // worktree, so no recursive delete can follow the link into the TARGET's real node_modules.
@@ -565,10 +675,7 @@ export function gradeRun({ runDir, suiteDir }) {
   };
 
   try {
-    // 'junction' is the Windows-safe directory link (a plain symlink needs elevation there); the
-    // type argument is ignored on other platforms. The target must be absolute, which it is.
-    fs.symlinkSync(nodeModulesSrc, nodeModulesLink, 'junction');
-    linkCreated = true;
+    linkToolchain();
 
     if (producedTests.length === 0) {
       // The diff was non-empty (assertReadableDiff passed) but no test file was produced: zero
@@ -615,11 +722,20 @@ export function gradeRun({ runDir, suiteDir }) {
       );
     }
 
+    // Defence in depth for T-63f-01: assertSafeDiffPaths() above already refuses any patch that
+    // names node_modules, but a containment check and the thing it protects should not share a
+    // single point of failure. Take the junction down for the duration of the apply, so even a
+    // patch that somehow got past the check writes into a throwaway %TEMP% directory -- the
+    // pre-junction behaviour -- rather than into the borrowed repo.
+    unlinkToolchain();
+
     const applyRes = git(worktree, ['apply', '--whitespace=nowarn', diffPath]);
 
     if (applyRes.status !== 0) {
       throw new Error(`grade-red: git apply of ${diffPath} failed in the worktree (fail closed): ${(applyRes.stderr || '').trim()}`);
     }
+
+    linkToolchain();
 
     const withErrors = targetTscErrors(armCwd, worktree, tscArgs);
     const newErrors = withErrors.filter((l) => !baseErrors.has(l));

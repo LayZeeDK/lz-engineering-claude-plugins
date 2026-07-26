@@ -2121,7 +2121,17 @@ function buildStandInRepo() {
   // The stand-in's own node_modules: a working toolchain (the workspace's, so the runner really
   // runs) plus a sentinel file and a victim package for the exploit to attack.
   const nodeModules = join(sub, 'node_modules');
-  fs.cpSync(join(HERE, 'node_modules'), nodeModules, { recursive: true });
+  // verbatimSymlinks for the same reason copyToolchainPaths passes it -- see the note there. The
+  // default RESOLVES each relative link against the SOURCE and writes an absolute path into the
+  // copy, so on any platform where npm writes `node_modules/.bin` entries as relative symlinks this
+  // stand-in's toolchain would come out pointing back at the WORKSPACE's own node_modules;
+  // copyToolchainPaths would then faithfully preserve those absolute links into the grading
+  // worktree, escapingLinks would report them, gradeRun would throw, and crux 9 would fail with
+  // "gradeRun threw instead of grading the exploit spec" -- a misleading failure that says nothing
+  // about the containment it exists to prove. Inert on THIS machine only because npm on Windows
+  // writes .bin entries as .cmd/.ps1 shim FILES: measured 0 symlinks across 939 entries. That is a
+  // platform accident, not a property to rely on.
+  fs.cpSync(join(HERE, 'node_modules'), nodeModules, { recursive: true, verbatimSymlinks: true });
   fs.writeFileSync(join(nodeModules, 'SENTINEL.txt'), T63F05_SENTINEL);
   fs.mkdirSync(join(nodeModules, 'victim'), { recursive: true });
   fs.writeFileSync(join(nodeModules, 'victim', 'package.json'), '{"name":"victim","version":"1.0.0"}\n');

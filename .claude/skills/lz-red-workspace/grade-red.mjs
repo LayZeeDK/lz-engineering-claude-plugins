@@ -1288,6 +1288,21 @@ export function resolveToolchainPaths(target) {
       );
     }
 
+    // The REPO ROOT itself, and anything under .git. Both are repo-relative and free of `..`, so
+    // every check above lets them through -- and the comment above promises "every other malformed
+    // entry throws before anything is created". A '.' entry makes the destination armCwd ITSELF:
+    // copyToolchainPaths would copy the entire borrowed repo (its .git included) over the grading
+    // worktree, and removeToolchain would then rmSync(armCwd, { recursive: true, force: true }).
+    // Contained -- the worktree is a throwaway -- and it would very likely die mid-copy on the
+    // .git file-vs-directory collision, but "dies confusingly" is not the contract.
+    if (normalised === '.' || normalised.split('/')[0] === '.git') {
+      throw new Error(
+        `grade-red: target '${id}' declares a toolchain_paths entry of '${entry}', which names the repo ROOT ` +
+          'or its git directory rather than a toolchain directory. The copy destination would be the grading ' +
+          'worktree itself and teardown would then remove it wholesale (fail closed)',
+      );
+    }
+
     return normalised;
   });
 }
@@ -1958,6 +1973,13 @@ export function gradeRun({ runDir, suiteDir }) {
       produced_test_files: producedTests,
       // The other half of "what did the diff touch", sat next to produced_test_files on purpose.
       // See the changedProduction computation above for why it is recorded on EVERY path.
+      //
+      // The two halves come from DIFFERENT sources and that is deliberate rather than an oversight:
+      // produced_test_files is meta.changed_files filtered, because the harness's own capture is
+      // what decides which file the RUNNER is pointed at, while this one is the DIFF filtered,
+      // because `git apply` is what actually lands the edits and the diff is therefore the only
+      // authority on what the grade measured. When a stale or partial meta.changed_files makes them
+      // disagree, the union is neither set -- read the diff, not the meta.
       changed_production_files: changedProduction,
       // The attribution evidence, recorded so an operator can check the verdict rather than take
       // it on trust: what the gate extracted from the diff, and how many reported assertions it
@@ -2348,7 +2370,21 @@ function runSelfcheck() {
     fail(`[resolveToolchainPaths] the declared list was not returned normalised: ${JSON.stringify(declaredPaths)}`);
   }
 
-  for (const bad of ['D:/elsewhere/node_modules', '/etc', '../sibling/node_modules', 'a/../../b', '', '   ']) {
+  for (const bad of [
+    'D:/elsewhere/node_modules',
+    '/etc',
+    '../sibling/node_modules',
+    'a/../../b',
+    '',
+    '   ',
+    // The repo ROOT and its git directory, in the spellings that survive normalisation. Each is
+    // repo-relative and `..`-free, so every other rejection above lets it through.
+    '.',
+    './',
+    './/',
+    '.git',
+    '.git/objects',
+  ]) {
     assertThrows(
       () => resolveToolchainPaths({ id: 'T', toolchain_paths: [bad] }),
       `a toolchain_paths entry of ${JSON.stringify(bad)}`,
@@ -2359,7 +2395,7 @@ function runSelfcheck() {
     '  [per-target config] relativeToBase / substituteRunnerCmd / resolveTypecheck / resolveToolchainPaths OK ' +
       '(path-base stripping is segment-exact, <reportFile> normalises to forward slashes, an empty ' +
       "typecheck.args falls back to --noEmit --strict, and toolchain_paths defaults to ['node_modules'] " +
-      'while an absolute / .. / empty entry throws)',
+      'while an absolute / .. / empty / repo-root / .git entry throws)',
   );
 
   // tscLinesOrThrow: a pass that did not RUN must never read as a pass that found nothing.

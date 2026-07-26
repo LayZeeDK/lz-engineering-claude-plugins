@@ -98,6 +98,7 @@ import {
   parseRunnerReport,
   resolveArmCwd,
   resolveGradeTmpDir,
+  resolveToolchainPaths,
   sameVolume,
 } from './grade-red.mjs';
 import { isSameOrNested } from './arm-anchor.mjs';
@@ -940,20 +941,32 @@ function gradeFabricatedRunDir(suiteDir, fixtureName, assertGrade) {
     return;
   }
 
-  const realNodeModules = join(ctx.repo, 'node_modules');
+  if (!fs.existsSync(fixture)) {
+    fail(`[crux 7:${fixtureName}] fixture dir missing: ${fixture}`);
+  }
 
-  if (!fs.existsSync(realNodeModules)) {
+  // The SKIP-if-absent check has to cover EVERY path the fixture's target declares, not just the
+  // root one. resolveToolchainPaths may now return several (a pnpm workspace), and gradeRun throws
+  // fail-closed on the first missing SOURCE -- so a repo with a root node_modules but no
+  // packages/primitives/node_modules (a filtered or pruned install) would hard-FAIL the battery
+  // with "gradeRun threw instead of producing a verdict" where the documented behaviour is a SKIP.
+  // An operator reads that as a gate regression. Read the fixture's own target rather than assuming
+  // one, so the guard tracks the config instead of a remembered layout.
+  const fixtureTarget = ctx.targetsById.get(readJson(join(fixture, 'meta.json')).target);
+  const declaredToolchain = resolveToolchainPaths(fixtureTarget);
+  const missingToolchain = declaredToolchain.map((rel) => join(ctx.repo, rel)).filter((p) => !fs.existsSync(p));
+
+  if (missingToolchain.length) {
     console.log(
-      `  [crux 7:${fixtureName}] SKIP -- ${ctx.repo} has no node_modules (${realNodeModules}); install the target's ` +
-        'dependencies there to exercise it',
+      `  [crux 7:${fixtureName}] SKIP -- ${ctx.repo} is missing declared toolchain path(s) ` +
+        `${missingToolchain.join(', ')}; install the target's dependencies there to exercise it ` +
+        '(a SKIP is not a pass)',
     );
 
     return;
   }
 
-  if (!fs.existsSync(fixture)) {
-    fail(`[crux 7:${fixtureName}] fixture dir missing: ${fixture}`);
-  }
+  const realNodeModules = join(ctx.repo, 'node_modules');
 
   // Never grade the committed fixture in place -- gradeRun writes red-grade.json into the runDir.
   const runDir = join(os.tmpdir(), `red-canary-${fixtureName}-${process.pid}-${Date.now()}`);
@@ -2540,18 +2553,6 @@ function checkLinkedToolchainSource() {
   );
 }
 
-// The escapingLinks BOUNDARY, proved by running TWO REAL RULES over ONE synthetic input rather
-// than asserting a remembered one. No flag switches the guard off: the discrimination comes from
-// passing the two boundaries as ordinary arguments, which is exactly what the pre-change and
-// post-change code do.
-//
-// The tree is shaped like a pnpm workspace worktree, because that is the shape that forced the
-// correction (MEASURED 2026-07-26, radix-ng/primitives): `wt/node_modules/.pnpm/x` is the store, a
-// link at `wt/pkg/node_modules/x` points UP into it exactly as pnpm's package-level links do, and
-// an ABSOLUTE link at `wt/node_modules/evil` points outside the worktree entirely. The up-link is
-// written with RELATIVE text where the platform allows it and falls back to a junction otherwise
-// (Windows junctions are always stored absolute); either way it resolves inside `wt` and outside
-// `pkgNm`, which is the property under test.
 // A directory link with RELATIVE text, falling back to an (always-absolute) Windows junction where
 // a plain directory symlink needs a privilege this machine does not have. Returns the link text
 // actually written, so a caller that cares can assert on it.
@@ -2569,6 +2570,18 @@ function linkDir(target, linkPath) {
   }
 }
 
+// The escapingLinks BOUNDARY, proved by running TWO REAL RULES over ONE synthetic input rather
+// than asserting a remembered one. No flag switches the guard off: the discrimination comes from
+// passing the two boundaries as ordinary arguments, which is exactly what the pre-change and
+// post-change code do.
+//
+// The tree is shaped like a pnpm workspace worktree, because that is the shape that forced the
+// correction (MEASURED 2026-07-26, radix-ng/primitives): `wt/node_modules/.pnpm/x` is the store, a
+// link at `wt/pkg/node_modules/x` points UP into it exactly as pnpm's package-level links do, and
+// an ABSOLUTE link at `wt/node_modules/evil` points outside the worktree entirely. The up-link is
+// written with RELATIVE text where the platform allows it and falls back to a junction otherwise
+// (Windows junctions are always stored absolute); either way it resolves inside `wt` and outside
+// `pkgNm`, which is the property under test.
 function checkWorktreeBoundedContainment() {
   const probe = join(os.tmpdir(), `red-boundary-${process.pid}-${Date.now()}`);
   const wt = join(probe, 'wt');

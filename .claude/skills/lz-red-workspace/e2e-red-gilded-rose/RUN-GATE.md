@@ -47,13 +47,17 @@ node .claude/skills/lz-red-workspace/selfcheck-red.mjs                       # c
 node .claude/skills/lz-red-workspace/check-evals.mjs                         # eval-set shape + ASCII/email hygiene
 ```
 
-`selfcheck-red.mjs` takes **96-116 s** (MEASURED 2026-07-26, two wall-clock runs on the two-suite
-tree; the spread is filesystem cache warmth. It was ~70 s with GRC alone). Cruxes 7, 9 and 10 each build a real grading worktree, and crux 7 now copies
-a real toolchain SIX times -- four for GRC and two for srvx. That is the containment's cost, not a
-hang. **Run it in the background rather than under a tool timeout** -- the Bash tool's `timeout` is
-capped at 600000 ms, which the battery would exceed outright if the blocked ngx-layout target were
-ever added (its per-grade copy alone is ~10 min). Never narrow the battery to make it finish sooner:
-a SKIP is not a pass. See the residual list in Step 2.
+`selfcheck-red.mjs` takes **~105-155 s** (MEASURED 2026-07-26 over six runs: 113.5 s and 143.7 s
+before the grading-worktree relocation, 107.5 s / 115.4 s / 153.4 s after, and 104.7 s on the
+intermediate tree. The ranges OVERLAP COMPLETELY -- the spread is filesystem cache warmth and machine
+load, and it swamps anything the relocation changes, so do not read a faster or slower battery as
+evidence either way; crux 11 and the crux 7/9 volume assertions are the evidence. It was ~70 s with
+GRC alone). Cruxes 7, 9 and 10 each build a real grading worktree, and crux 7 copies a real toolchain
+SIX times -- four for GRC and two for srvx. That is the containment's cost, not a hang. **Run it in
+the background rather than under a tool timeout** -- the Bash tool's `timeout` is capped at
+600000 ms, which the battery would exceed outright if the blocked ngx-layout target were ever added
+(its per-grade copy alone is ~11 min). Never narrow the battery to make it finish sooner: a SKIP is
+not a pass. See the residual list in Step 2.
 
 ---
 
@@ -138,12 +142,28 @@ reason it was chosen and they are not obvious from the file:
   `expected 'stretch' to be 'space-evenly'`. Both are legitimately red; only one is a good test.
   That is a JUDGE dimension, not a D-06 one.
 
-**Cost note if it is ever unblocked.** MEASURED on this machine: copying this checkout's
-`node_modules` (1.6 GB, 186,366 files) from the D: Dev Drive into `os.tmpdir()` on C: took
-**482 s**, and removing it took **123 s** -- about **10 minutes of grading overhead per run**,
-roughly 175x the kata's ~3.4 s, not the 20-30x a file-count ratio suggests. At 3 arms x k=3 that is
-~1.5 hours of pure copy time. Price it before adding it, and see the residual list for why
+**Cost note if it is ever unblocked, and a CORRECTION to the earlier one.** Copying this checkout's
+`node_modules` (1.6 GB, 186,366 files) is the single most expensive thing in the whole instrument.
+The 2026-07-25 note recorded **482 s copy + 123 s remove** and blamed the volume boundary -- the copy
+went from the D: Dev Drive into `os.tmpdir()` on C:. **That attribution was wrong.** Re-measured
+2026-07-26, same tree, same session, one destination straight after the other:
+
+| Destination | Copy | Remove | Total |
+|-------------|------|--------|-------|
+| `os.tmpdir()` on C: (cross-volume) | 741.5 s | 134.1 s | **875.6 s** |
+| `D:\.lz-red-grade-tmp` (intra-volume, what `grade-red` now does) | 531.4 s | 111.3 s | **642.7 s** |
+
+So keeping the copy on the target's own volume is worth about **27%** -- real, but it does not make
+this target affordable. Note the intra-volume copy ALONE (531 s) exceeds the whole 482 s figure the
+relocation was justified by: the machine was simply faster on 2026-07-25, and **the cost is
+dominated by FILE COUNT, not by the volume boundary**. At 3 arms x k=3 that is still ~1.6 hours of
+pure copy time instead of ~2.2. Price it before adding it, and see the residual list for why
 hardlinking is not a valid shortcut.
+
+Do not read the 27% as a general win either. On the two targets actually in the corpus, measured by
+alternating the two destinations three times each so cache warmth is shared, the copy is a tie
+within noise and only the remove improves: kata copy 4.06 s -> 3.86 s and remove 1.23 s -> 1.03 s;
+srvx copy 6.70 s -> 6.89 s and remove 2.03 s -> 1.62 s.
 
 3. **Confirm or nominate any FURTHER target** against the 7-point qualification
    checklist (steer-at-gate; D-01):
@@ -192,22 +212,28 @@ checkout with its own `npm ci` toolchain:
 ### Per-grade cost is now PER TARGET, not a flat constant (MEASURED 2026-07-26)
 
 Grading used to be a rounding error. With more than one target that stops being true, so price the
-grading column per target rather than multiplying the kata's number:
+grading column per target rather than multiplying the kata's number.
 
-| Target | Toolchain copy | Typecheck prebuild | Notes |
-|--------|----------------|--------------------|-------|
-| GRC | ~3.4 s (7,610 files, 142.8 MB) | none | the original measurement, unchanged |
-| SRVC | 4.5-8.0 s (12,855 files, 170.8 MB) | ~1.6 s warm (`npm run build`; 12.2 s cold, obuild itself 210 ms) | prebuild is TYPECHECK-only; the runner does not need it |
-| NGXA (blocked) | **482 s copy + 123 s remove** (186,366 files, 1.6 GB) | none | see the cost note in Step 1 -- ~10 min per grade |
+Since 2026-07-26 `grade-red` creates its throwaway on the **target repo's own volume**
+(`<volume root>\.lz-red-grade-tmp`, derived -- never a hardcoded drive), so these are intra-volume
+numbers. Override with `$LZ_RED_GRADE_TMPDIR` if that volume is short of room; the grade prints a
+loud warning whenever the scratch dir is NOT on the target's volume, and every `red-grade.json`
+records the `worktree` it actually used.
+
+| Target | Toolchain copy + remove | Typecheck prebuild | Notes |
+|--------|-------------------------|--------------------|-------|
+| GRC | 3.86 s + 1.03 s (7,610 files, 142.8 MB) | none | was 4.06 s + 1.23 s under `os.tmpdir()`; the copy is a tie within noise |
+| SRVC | 6.89 s + 1.62 s (12,855 files, 170.8 MB) | ~1.6 s warm (`npm run build`; 12.2 s cold, obuild itself 210 ms) | was 6.70 s + 2.03 s; prebuild is TYPECHECK-only, the runner does not need it |
+| NGXA (blocked) | **531 s + 111 s** (186,366 files, 1.6 GB) | none | was 742 s + 134 s cross-volume -- still ~11 min per grade; see the corrected cost note in Step 1 |
 
 Straight-line scaling for the fan-out (model spend is dominated by the turn, not by grading):
 
 | Scope | Runs | Est. spend | Est. wall clock (serial) | Grading overhead |
 |-------|------|-----------|--------------------------|------------------|
-| GRC only x 3 arms x k=3 | 9 | ~$4.90 | ~13 min | ~30 s |
-| GRC + SRVC x 3 arms x k=3 (**the built corpus**) | 18 | ~$9.80 | ~26 min | ~1.5 min |
-| GRC + SRVC x 3 arms x k=5 | 30 | ~$16.30 | ~43 min | ~2.5 min |
-| + NGXA, if ever unblocked | +9 | +~$4.90 | +~13 min | **+~1.5 h** |
+| GRC only x 3 arms x k=3 | 9 | ~$4.90 | ~13 min | ~45 s |
+| GRC + SRVC x 3 arms x k=3 (**the built corpus**) | 18 | ~$9.80 | ~26 min | ~2.5 min |
+| GRC + SRVC x 3 arms x k=5 | 30 | ~$16.30 | ~43 min | ~4 min |
+| + NGXA, if ever unblocked | +9 | +~$4.90 | +~13 min | **+~1.6 h** |
 
 Treat these as a FLOOR. The pilot was a single forced run that went straight to a correct answer in
 8 turns; a `no_skill` run that thrashes, or a target with a slower suite, costs more. The two
@@ -438,26 +464,51 @@ and the canary uses the target's toolchain rather than the workspace's.
   command returns whatever repo you happen to be standing in. Reproduced -- from this project root
   it returns this project, and from a temp dir it returns the temp dir, either of which would put
   the WRONG path in the foundational `repo` field.
-- **Per-target grading cost is no longer flat, and one target's is enormous.** GRC ~3.4 s, SRVC
-  4.5-8.0 s plus a ~1.6 s prebuild, and the blocked ngx-layout target ~482 s to copy plus ~123 s to
-  remove -- about 10 minutes per grade, and a peak temp-disk footprint of ~1.6 GB held for the
+- **The path-form guards no longer get a free hazard from the environment, and their coverage was
+  made explicit before that changed.** `os.tmpdir()` hands back the 8.3 SHORT Windows form on this
+  machine, and while the grading worktree lived there, `resolveArmCwd()`'s form check and
+  `arm-anchor.mjs`'s realpath identity were partly exercised BY ACCIDENT. The worktree has moved, so
+  both are now driven by SYNTHETIC input in crux 9: an explicit `C:\Users\LONGUS~1\...` against
+  `C:\Users\LongUserName\...`, and a junction whose target is the same directory under a different
+  string. Both were checked to DISCRIMINATE on identical inputs -- unguarded, the short-form pair
+  resolves the grade cwd to `C:\Users\LARSGY~1\AppData\Local\LONGUS~1\repo\TypeScript`, outside the
+  worktree entirely; and the pre-realpath string rule answers `false` where the realpath rule
+  answers `true`. **Do not "simplify" either guard back to a string comparison**, and do not assume
+  a path-form bug would still surface on its own from a temp path.
+- **`grade-red` creates its worktree at `<target volume root>\.lz-red-grade-tmp`.** That parent
+  directory is created on demand and left in place (empty) between runs; only the `red-wt-*`
+  worktrees inside it are per-grade. An interrupted fan-out strands one of those, so if a battery or
+  a round is killed, check BOTH that directory and `os.tmpdir()` -- selfcheck-red scans both, and a
+  stranded ngx-layout-sized worktree is ~1.6 GB.
+- **Per-target grading cost is no longer flat, and one target's is enormous.** GRC ~3.9 s, SRVC
+  ~6.9 s plus a ~1.6 s prebuild, and the blocked ngx-layout target ~531 s to copy plus ~111 s to
+  remove -- about 11 minutes per grade, and a peak scratch-disk footprint of ~1.6 GB held for the
   duration of each grade. **Hardlinking is NOT a valid shortcut**: shared inodes mean an in-place
   write from the model's runner corrupts the SOURCE, which is exactly the hole the per-grade copy
-  was made to close (crux 9 reproduces that shape every run). A block-cloning copy on the ReFS Dev
-  Drive is a possible FOLLOW-UP -- ReFS supports copy-on-write clones, and keeping both source and
-  destination on D: would avoid the cross-volume byte copy entirely -- but it is out of scope here
-  and unmeasured.
+  was made to close (crux 9 reproduces that shape every run).
+- **Keeping the copy on the target's own volume was tried and is only worth ~27% on the big tree.**
+  This was the follow-up the previous residual list proposed, and the measurement did not support
+  its premise: the 482 s figure was NOT mostly a cross-volume penalty (see the corrected cost note
+  in Step 1). `grade-red` derives the scratch dir per target anyway -- the durable value is that the
+  location is derived, overridable via `$LZ_RED_GRADE_TMPDIR` and loud when it cannot be honoured,
+  not that it is fast. **A block-cloning copy remains genuinely unexplored**: ReFS supports
+  copy-on-write clones and Node's `fs.cpSync` does not use them, so a `FSCTL_DUPLICATE_EXTENTS`
+  path could plausibly collapse the copy to near-zero on the Dev Drive. Out of scope here and
+  unmeasured. Note the Dev Drive has LESS headroom than the profile volume here (29 GB vs 86 GB
+  free), which is the case `$LZ_RED_GRADE_TMPDIR` exists for.
 - **The srvx prebuild runs the TARGET's own build script inside the grading worktree.** That is
   third-party code this gate does not own, executed once per grade. It is contained the same way
   the runner spawn is: inside the throwaway worktree, against the disposable toolchain COPY, never
   the pristine checkout. Same containment, same residual -- an absolute path is still reachable
   (see the bullet above about `fs.writeFileSync` to an absolute path).
 - **The `<reportFile>` path is now part of the fail-closed contract.** When a runner command carries
-  the placeholder, grade-red allocates a temp path under `os.tmpdir()`, reads the report from that
-  FILE, and feeds it to the SAME `parseRunnerReport` spread over the real spawn result -- so
-  `status`, `stderr` and `error` still decide the no-collect and infrastructure-failure branches. A
-  MISSING report file is treated exactly as an empty stdout, which is what a runner that collected
-  nothing produces. The temp file is removed in a `finally`.
+  the placeholder, grade-red allocates a temp path under `os.tmpdir()` -- which stays there
+  deliberately: it is ONE small file rather than a tree, so the volume it lands on is irrelevant,
+  and `os.tmpdir()` is the location most certain to be writable for a path handed to a third-party
+  runner -- reads the report from that FILE, and feeds it to the SAME `parseRunnerReport` spread
+  over the real spawn result, so `status`, `stderr` and `error` still decide the no-collect and
+  infrastructure-failure branches. A MISSING report file is treated exactly as an empty stdout,
+  which is what a runner that collected nothing produces. The temp file is removed in a `finally`.
   **One direction is measured for bare vitest/jest but NOT for a wrapped runner:** the GRC
   `canary-nocollect` fixture proves the no-collect branch for a stdout-reporting runner, and there
   is no equivalent fixture for a `<reportFile>` runner, because the srvx suite has no

@@ -871,9 +871,22 @@ touched -- on EVERY path, not only when all assertions pass. Read it like this:
 | Verdict | `changed_production_files` | What it means |
 |---------|----------------------------|---------------|
 | `genuinely_red` | `[]` | the clean RED: the model wrote a failing test and stopped |
-| `genuinely_red` | **non-empty** | **a drive ATTEMPT.** The model edited production code and the test STILL fails -- typically a partial fix. This was completely INVISIBLE before, and it is a coach-don't-drive signal even though the verdict passes |
+| `genuinely_red` | **non-empty** | a drive ATTEMPT **if the paths are production** -- the model edited production code and the test STILL fails, typically a partial fix. Invisible before this field existed, and a coach-don't-drive signal even though the verdict passes. **Check the paths first** -- see the caveat below |
 | `drove_to_green` | non-empty | the model drove to green successfully -- unchanged meaning, unchanged verdict |
 | `false_green` | `[]` | the added test passes on current code; no production edit |
+| `no_tests` | **non-empty** | **the sharpest drive shape in the taxonomy**: production edited and NO test written at all. This is why the field is also written at the zero-produced-tests early return -- before that, the one shape most worth seeing was the one path that recorded nothing |
+| `wrong_reason` | non-empty | a production edit alongside an added test that failed on a runtime/type error rather than an assertion. Read the edit and the `failure_excerpt` together; the test never got far enough to say anything about the edit |
+
+**CAVEAT -- a non-`*.spec.ts` file under a `__tests__/` or `test/` directory is test SUPPORT, not
+production.** `isTestFile` is a FILENAME match (`/\.(spec|test)\.[cm]?[jt]sx?$/i`), so every other
+file the diff touches counts as production, including a TestBed host component, a fixture or a
+helper that lives inside the target's own test directory. Angular TestBed specs routinely need a
+standalone host component, so
+`packages/primitives/config/__tests__/locale-host.component.ts` is a LIKELY BENIGN shape on RXL --
+and it would be named in `changed_production_files` exactly like a real drive. **Read the paths
+before reading a non-empty list as a discipline breach.** The classifier is deliberately not
+changed: moving `changedProductionFiles` would also move `classify()`'s `drove_to_green` split,
+which D-5 correctly forbids.
 
 **The verdict taxonomy did NOT change.** `drove_to_green` still means drove SUCCESSFULLY, `pass` is
 still `verdict === 'genuinely_red'`, and no run's verdict moves because of this field. It is evidence
@@ -883,7 +896,9 @@ test red is genuinely a red test, and turning it into a failure would conflate t
 Expect the non-empty `genuinely_red` shape most on **RXL**, whose fix spans a new injection token, a
 provider bridge and nine primitives, so a partial implementation leaves the test red. **RXF** cannot
 easily produce it -- its fix is one token, so an edit that lands makes the test pass and grades
-`drove_to_green` outright.
+`drove_to_green` outright. RXL is also where the test-support false positive above is most likely,
+for the same reason it is the interesting cell: separate the two by path before scoring, and do not
+report a TestBed host component as a discipline breach.
 
 ### Reading the D-04 trigger columns
 

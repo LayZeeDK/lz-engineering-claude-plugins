@@ -445,10 +445,50 @@ export function assertSafeDiffPaths(diffText, diffPath) {
 // Windows junctions count: `lstat` reports them as symlinks, so a `readdirSync` Dirent does too.
 // An unreadable link is reported as an escape -- a link that cannot be resolved cannot be proven
 // contained, and this check exists to fail closed.
+//
+// WHAT THIS DOES NOT CATCH, stated exactly rather than generously. Resolution is a SINGLE LEXICAL
+// HOP (`path.resolve(dir, readlinkSync(p))`, no `realpath`), and the WALKED set is the copied
+// toolchain destinations only -- which, since the boundary widened to the whole worktree, is
+// strictly SMALLER than the boundary. So a TWO-HOP chain is permitted: hop 1 from inside a copied
+// toolchain into the un-walked part of the worktree (the target's own checked-out content) is now
+// legitimately inside the boundary, and hop 2 out of the worktree from THERE is never examined,
+// because that directory is repo content and is not in the walked set. An earlier phrasing of this
+// paragraph claimed "any `..` chain that leaves the worktree" is caught; that is true only of a
+// chain whose FIRST hop leaves it. Reachability: hop 1 has to be a symlink COMMITTED in the
+// target's tracked content -- measured `git ls-tree -r HEAD | rg '^120000'` = 0 in all three
+// borrowed repos -- and everything inside the worktree is already reachable by the executing spec
+// through ordinary relative paths (T-g69-07 accepts that). selfcheck-red crux 9 PINS this
+// permitted shape, so the code and this paragraph cannot drift apart: close the two-hop case
+// (realpath the resolved target, and the boundary with it) and that assertion fails, which is the
+// signal to rewrite this paragraph rather than discover the mismatch in a review.
 export function escapingLinks(root, boundary = root) {
   const base = path.resolve(boundary);
   const escapes = [];
-  const stack = [path.resolve(root)];
+  const resolvedRoot = path.resolve(root);
+  let rootStat;
+
+  // THE ROOT ITSELF, under the same rule as every other entry -- and it used to be exempt.
+  // `readdirSync` FOLLOWS a directory link, so seeding the stack with the root and walking
+  // straight into it means the root is never `lstat`ed: a destination that IS a link enumerates
+  // the far side happily and this function returns [], reporting containment clean for a live path
+  // out of the worktree. MEASURED 2026-07-26 on a junction-rooted destination, identical input:
+  // [] before this check, one reported escape after. `copyToolchainPaths` cannot be the only
+  // guard, because this function is exported and its contract above promises containment that
+  // "does not depend on which target happens to be configured".
+  try {
+    rootStat = fs.lstatSync(resolvedRoot);
+  } catch (err) {
+    return [`${resolvedRoot} -> <unreadable: ${err.code || err.message}>`];
+  }
+
+  // A link is a LEAF everywhere else in this walk -- the loop below never descends into one -- so
+  // the root gets exactly that treatment: reported when it resolves outside the boundary, and
+  // never walked THROUGH either way.
+  if (rootStat.isSymbolicLink()) {
+    return linkEscapes(resolvedRoot, path.dirname(resolvedRoot), base);
+  }
+
+  const stack = [resolvedRoot];
 
   while (stack.length) {
     const dir = stack.pop();
@@ -457,19 +497,7 @@ export function escapingLinks(root, boundary = root) {
       const p = path.join(dir, entry.name);
 
       if (entry.isSymbolicLink()) {
-        let resolved;
-
-        try {
-          resolved = path.resolve(dir, fs.readlinkSync(p));
-        } catch (err) {
-          escapes.push(`${p} -> <unreadable: ${err.code || err.message}>`);
-
-          continue;
-        }
-
-        if (resolved !== base && !resolved.startsWith(base + path.sep)) {
-          escapes.push(`${p} -> ${resolved}`);
-        }
+        escapes.push(...linkEscapes(p, dir, base));
 
         continue;
       }
@@ -481,6 +509,24 @@ export function escapingLinks(root, boundary = root) {
   }
 
   return escapes;
+}
+
+// One link, one rule, one place -- so the root and every entry beneath it are judged identically
+// rather than by two copies of the comparison that can drift.
+function linkEscapes(linkPath, dir, base) {
+  let resolved;
+
+  try {
+    resolved = path.resolve(dir, fs.readlinkSync(linkPath));
+  } catch (err) {
+    return [`${linkPath} -> <unreadable: ${err.code || err.message}>`];
+  }
+
+  if (resolved !== base && !resolved.startsWith(base + path.sep)) {
+    return [`${linkPath} -> ${resolved}`];
+  }
+
+  return [];
 }
 
 // ---- where the throwaway grading worktree is created (T-rgw-01) -------------------------------
@@ -1284,6 +1330,29 @@ export function copyToolchainPaths(repo, armCwd, relPaths, target) {
         `grade-red: ${src} does not exist, so the grading worktree would not reproduce the target's ` +
           `toolchain and the differential typecheck could not discriminate (fail closed). Target '${id}' ` +
           `declares '${rel}'. Install the target's dependencies in ${repo} first, then re-run.`,
+      );
+    }
+
+    // A declared SOURCE that is itself a link can never produce a self-contained copy, so it is
+    // refused here rather than repaired later. Note the check above cannot see this: existsSync
+    // FOLLOWS a link, so a linked source passes it. MEASURED 2026-07-26, both shapes, on identical
+    // inputs through this function:
+    //   - source is a junction to a tree outside the repo -> verbatimSymlinks preserves the
+    //     absolute text, the DESTINATION is a live path out of the worktree, and the runner then
+    //     executes model-authored code with it mounted (T-63f-05, exactly what the copy closes);
+    //   - source is a RELATIVE link (e.g. `.store/nm`) -> the text is preserved verbatim and the
+    //     destination link DANGLES inside the worktree, so nothing resolves and the grade is
+    //     measured against a toolchain that is not there.
+    // escapingLinks now lstats its own root and catches the first shape at grade time, but this is
+    // the better place for BOTH: it is the only site that knows the path came from target CONFIG,
+    // so the message can name the target and the entry, it fires before ~949 MiB of copying, and
+    // the second shape is a provisioning fault rather than a containment one -- the guard would
+    // (correctly) call a dangling intra-worktree link contained.
+    if (fs.lstatSync(src).isSymbolicLink()) {
+      throw new Error(
+        `grade-red: target '${id}' declares toolchain path '${rel}', but ${src} is a LINK rather than a ` +
+          'directory. cpSync reproduces the link verbatim, so the grading worktree would hold either a live ' +
+          'path outside itself or a dangling one -- never a self-contained toolchain (fail closed, T-63f-05).',
       );
     }
   }

@@ -65,9 +65,11 @@
 //      resolveArmCwd() -- including an explicit 8.3 SHORT-form mismatch -- the escapingLinks
 //      BOUNDARY (one pnpm-shaped tree run under BOTH the pre-change copied-dir boundary and the
 //      worktree one, so the legitimate relative up-link is proved to flip while an absolute escape
-//      is proved to be caught under both), and MULTI-PATH provisioning (two synthetic
+//      is proved to be caught under both), MULTI-PATH provisioning (two synthetic
 //      node_modules copied through copyToolchainPaths, plus a declared-but-missing source that
-//      throws before anything is created).
+//      throws before anything is created), and a declared toolchain path whose SOURCE IS A LINK
+//      (refused before anything is created; and a destination ROOT that is a link is reported,
+//      which a walk seeded inside the root cannot see).
 //  11. GRADING TEMP DIR -- the throwaway is created on the TARGET REPO'S OWN VOLUME, derived, never
 //      os.tmpdir() and never a hardcoded drive, with an operator override and a LOUD warning when
 //      it cannot be honoured. Pure here; cruxes 7 and 9 assert it END TO END against the worktree
@@ -2400,6 +2402,110 @@ function checkContainmentInvariants() {
 
   checkWorktreeBoundedContainment();
   checkMultiPathToolchainCopy();
+  checkLinkedToolchainSource();
+}
+
+// A declared toolchain path whose SOURCE is a LINK (CR-01). Two real rules over one synthetic
+// input, no flag: the pre-change logic is reproduced by asking the same questions the pre-change
+// code asked (existsSync, and a walk seeded INSIDE the root), and the post-change logic is the
+// exported functions themselves.
+//
+// A Windows JUNCTION is the right probe shape here even though it is not a true symlink: the
+// property under test is "the destination is a reparse point that leads out of the worktree", and
+// lstat reports a junction as a symbolic link exactly as it does a symlink -- which is the same
+// fact escapingLinks' header already relies on. It also needs no privilege, so this probe does not
+// SKIP the way the relative-directory-link one has to.
+function checkLinkedToolchainSource() {
+  const probe = join(os.tmpdir(), `red-linkedsrc-${process.pid}-${Date.now()}`);
+  const repo = join(probe, 'repo');
+  const outside = join(probe, 'outside-store');
+  const wt = join(probe, 'wt');
+
+  fs.mkdirSync(join(outside, 'dep'), { recursive: true });
+  fs.mkdirSync(repo, { recursive: true });
+  fs.mkdirSync(wt, { recursive: true });
+
+  let copyThrew = false;
+  let copyMessage = '';
+  let destCreated = null;
+  let rootLinkEscapes = null;
+  let preChangeSaw = null;
+  let probeError;
+
+  try {
+    // The declared source is a junction into a tree OUTSIDE the repo -- the pnpm/nx/disk-pressure
+    // shared-store layout the guard's target-independence claim has to hold for.
+    fs.symlinkSync(outside, join(repo, 'node_modules'), 'junction');
+
+    // (a) PROVISIONING must refuse it before creating anything.
+    try {
+      copyToolchainPaths(repo, wt, ['node_modules'], { id: 'PROBE' });
+    } catch (err) {
+      copyThrew = true;
+      copyMessage = err.message;
+    }
+
+    destCreated = fs.existsSync(join(wt, 'node_modules'));
+
+    // (b) CONTAINMENT must report a linked ROOT. Build the destination the copy would have made,
+    // then ask both rules about it.
+    const dest = join(wt, 'node_modules');
+
+    if (!destCreated) {
+      fs.symlinkSync(outside, dest, 'junction');
+    }
+
+    rootLinkEscapes = escapingLinks(dest, wt);
+    // The PRE-CHANGE rule, reproduced rather than remembered: seed the walk INSIDE the root, which
+    // is what `stack = [path.resolve(root)]` + readdirSync did. It follows the link and enumerates
+    // the far side, so the root entry is never judged.
+    preChangeSaw = fs.readdirSync(dest).length;
+  } catch (err) {
+    probeError = err;
+  }
+
+  fs.rmSync(probe, { recursive: true, force: true });
+
+  if (probeError) {
+    fail(`[crux 9] could not build the linked-toolchain-source probe: ${probeError.message}`);
+  }
+
+  if (!copyThrew) {
+    fail(
+      '[crux 9] copyToolchainPaths ACCEPTED a declared toolchain path whose source is a LINK. existsSync ' +
+        'follows links, so the pre-change check passed it and cpSync reproduced the link -- the grading ' +
+        'worktree would hold a live path outside itself (T-63f-05)',
+    );
+  }
+
+  if (!copyMessage.includes('PROBE') || !copyMessage.includes('LINK')) {
+    fail(`[crux 9] the linked-source error names neither the target nor the fault: ${JSON.stringify(copyMessage.slice(0, 200))}`);
+  }
+
+  if (destCreated) {
+    fail('[crux 9] the linked-source check ran AFTER copying; every source must be verified before anything is created');
+  }
+
+  if (preChangeSaw === 0) {
+    fail(
+      '[crux 9] the probe did not reproduce the pre-change blind spot: walking INSIDE the linked root must ' +
+        'enumerate the far side, otherwise the assertion below proves nothing',
+    );
+  }
+
+  if (rootLinkEscapes.length !== 1 || !rootLinkEscapes[0].includes('outside-store')) {
+    fail(
+      `[crux 9] escapingLinks reported ${JSON.stringify(rootLinkEscapes)} for a destination ROOT that is a ` +
+        'link to a tree outside the boundary. The walk starts INSIDE the root, so the root must be lstat-ed ' +
+        'separately or containment reports clean for a live path out (CR-01)',
+    );
+  }
+
+  console.log(
+    '  [crux 9] linked toolchain source OK (a declared path whose SOURCE is a link is refused before ' +
+      'anything is created, naming the target; and escapingLinks reports a destination ROOT that is a ' +
+      'link out of the boundary, which the walk-from-inside-the-root rule could not see)',
+  );
 }
 
 // The escapingLinks BOUNDARY, proved by running TWO REAL RULES over ONE synthetic input rather

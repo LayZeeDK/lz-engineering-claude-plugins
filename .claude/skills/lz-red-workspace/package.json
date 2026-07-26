@@ -8,6 +8,7 @@
     "check": "node tools/check-red-references.mjs"
   },
   "devDependencies": {
+    "angular-typechecker": "0.2.4",
     "typescript": "6.0.3",
     "vitest": "4.1.10"
   }

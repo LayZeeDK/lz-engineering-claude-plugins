@@ -3,21 +3,29 @@
 //
 // This is the ONE hard gate of the Phase-21 applied-RED eval (D-06). For a captured run it applies
 // the produced test to a FRESH git worktree at applyBase -- created on the TARGET REPO'S OWN VOLUME
-// rather than under os.tmpdir(), see resolveGradeTmpDir -- runs a DIFFERENTIAL
-// `tsc --noEmit --strict` (NEW errors attributable to the test must be 0 -- NOT the target's
-// pre-existing non-strict source), runs the TARGET's own test runner with a machine-readable JSON
-// reporter, and classifies the produced test into exactly one of:
+// rather than under os.tmpdir(), see resolveGradeTmpDir -- runs a DIFFERENTIAL strict typecheck
+// (NEW errors attributable to the test must be 0 -- NOT the target's pre-existing non-strict
+// source), runs the TARGET's own test runner with a machine-readable JSON reporter, and classifies
+// the produced test into exactly one of:
 //
-//   genuinely_red   tsc-strict clean AND >=1 ASSERTION failure in a test THE DIFF ADDED (the ONLY pass)
+//   genuinely_red   typecheck-clean AND >=1 ASSERTION failure in a test THE DIFF ADDED (the ONLY pass)
 //   false_green     the tests the diff added all pass; the diff changed only test files
 //   drove_to_green  the tests the diff added all pass because the diff changed PRODUCTION code
-//   compile_error   the produced test introduces NEW tsc --strict errors
+//   compile_error   the produced test introduces NEW strict typecheck errors
 //   collection_error the suite failed to LOAD before any assertion ran (import/setup throw)
 //   no_tests        zero it()/test() bodies collected
 //   wrong_reason    an ADDED test's failure is a runtime/type error masquerading as an assertion
 //   unattributable  something in the file failed, but no failure belongs to a test the diff ADDED
 //
 // pass == (verdict === 'genuinely_red'). Everything else is reported, not passed (D-06).
+//
+// The differential's CHECKER is PER TARGET (resolveTypecheck). It DEFAULTS to `tsc --noEmit
+// --strict`, which is what every pre-existing target keeps; a target may select `atc`
+// (angular-typechecker) instead, which is what the two radix targets do because tsc is structurally
+// BLIND to Angular template diagnostics (MEASURED at the radix pin: tsc 0 against atc's 15, same
+// tsconfig, same session). Both checkers feed the SAME normalized single-line diagnostic records
+// into the SAME position-insensitive multiset subtraction and the SAME classifier, so there is no
+// per-checker branch past the normalizer.
 //
 // ATTRIBUTION is load-bearing (added 2026-07-25 by quick 260725-63f). Until it existed, "the file
 // has >= 1 assertion failure" WAS the pass criterion, and the k=1 with_skill pilot showed why that
@@ -54,6 +62,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
 import { spawnSync } from 'node:child_process';
+import { createRequire } from 'node:module';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -872,6 +881,58 @@ export function isConfigLevelTscError(line) {
   return TSCONFIG_FILE_RE.test(scoped[1].trim());
 }
 
+// The same question on the ATC path -- and it needs its own answer, because isConfigLevelTscError is
+// STRUCTURALLY BLIND to atc's whole-program faults.
+//
+// WHY THE CODE GATE CANNOT BE REUSED. atc synthesizes its OWN error-severity diagnostics for the
+// config layer, in a code space chosen DELIBERATELY outside both the TypeScript and the Angular
+// ranges so it cannot collide (VERIFIED in the installed 0.2.4 source: `ATC90001` for a
+// references-only or empty project, `ATC90002` for a referenced project that was not found; the
+// label helper emits `ATC` + the raw code for anything at or above 90000). isConfigLevelTscError's
+// first line requires `error TS5xxx`/`TS6xxx`, so it returns FALSE for every one of them -- the very
+// property that makes it precise on the tsc path makes it miss these.
+//
+// SO THIS PREDICATE REQUIRES A FILE AND ENUMERATES NO CODES, on three grounds:
+//   - It is the project's allowlist-inversion instinct: require the GOOD shape (a file-scoped
+//     diagnostic is a finding about source) and flag everything else, rather than encoding the bad
+//     values.
+//   - It survives atc adding a further synthesized code, which its own source comments explicitly
+//     anticipate ("a future `90003` cannot silently collide"). A code list would have to be chased.
+//   - atc's own project-boundary filter already equates file-less with a whole-program fault and
+//     REFUSES to suppress it, documenting the class as "config errors, the zero-rootNames guard". So
+//     this agrees with the tool rather than second-guessing it.
+//
+// THE FAILURE CHAIN IT CLOSES -- not defensive noise, a measured hole. A tsconfig path that resolves
+// to a references-only or empty project makes atc exit NON-ZERO with a single synthesized file-less
+// fault. Under the four-way exit table in atcDiagnosticsOrThrow alone that is the ordinary
+// has-diagnostics case and passes straight through. The identical fault then appears in BOTH
+// differential passes -- it does not depend on the applied diff -- cancels in the multiset
+// subtraction, and the gate reports ZERO NEW errors for a differential that checked ZERO root names.
+// That is exactly the hazard Advisory A-1 exists to close, arriving through a code space the
+// pre-existing guard does not match. MEASURED 2026-07-26 against a real empty project: exit 1, two
+// file-less error diagnostics (`TS18002` and `ATC90001`), rootNamesCount 0 -- and isConfigLevelTscError
+// reads NEITHER as config-level, because TS18002 is outside the 5xxx/6xxx range too.
+//
+// A file-less normalized record carries NO file-scoped prefix by construction (see atcRecordLine),
+// so the shape test is the same one isConfigLevelTscError already performs -- one representation
+// serves both paths.
+export function isConfigLevelAtcError(line) {
+  const text = String(line == null ? '' : line);
+  const scoped = FILE_SCOPED_TSC_RE.exec(text);
+
+  if (!scoped) {
+    return true;
+  }
+
+  return TSCONFIG_FILE_RE.test(scoped[1].trim());
+}
+
+// The baseline config-level predicate for a resolved checker. ONE selection point, so the tsc path
+// keeps the byte-unchanged proved predicate and the atc path cannot accidentally inherit it.
+export function configLevelPredicateFor(checker) {
+  return checker === 'atc' ? isConfigLevelAtcError : isConfigLevelTscError;
+}
+
 // tsc error lines (`error TS####`) from a `node <tscBin> ...args` run in cwd. Errors go to stdout
 // by default; scan both streams to be safe.
 function tscErrorLines(cwd, args, tscBin) {
@@ -1213,18 +1274,133 @@ export function substituteRunnerCmd(template, { testPath, reportFile } = {}) {
   return out;
 }
 
-// The differential typecheck's args + an optional prebuild, per target.
-//
-// An EMPTY array falls back to the default on purpose. `--noEmit --strict` IS D-06 clause 1, and a
-// config typo (`"args": []`) that silently disabled it would make the gate report "tsc clean" for
-// every produced test -- the same vacuous-differential failure isConfigLevelTscError() exists to
-// catch, arriving through config rather than through the compiler.
-export function resolveTypecheck(target) {
-  const tc = (target && target.typecheck) || {};
-  const args = Array.isArray(tc.args) && tc.args.length ? tc.args.slice() : ['--noEmit', '--strict'];
-  const prebuild = typeof tc.prebuild === 'string' && tc.prebuild.trim() !== '' ? tc.prebuild : null;
+// The differential typecheckers a target may select. `tsc` is the DEFAULT and the historical
+// behaviour; `atc` is angular-typechecker, adopted for the radix targets 2026-07-26 because tsc is
+// structurally BLIND to Angular template diagnostics (MEASURED on radix at its pin: tsc 0 template
+// diagnostics against atc's 15, same tsconfig, same session).
+export const CHECKERS = ['tsc', 'atc'];
+export const DEFAULT_CHECKER = 'tsc';
 
-  return { args, prebuild };
+// The differential typecheck's CHECKER + args + an optional prebuild, per target.
+//
+// An EMPTY args array falls back to the tsc default on purpose. `--noEmit --strict` IS D-06
+// clause 1, and a config typo (`"args": []`) that silently disabled it would make the gate report
+// "tsc clean" for every produced test -- the same vacuous-differential failure
+// isConfigLevelTscError() exists to catch, arriving through config rather than through the compiler.
+//
+// THE CHECKER IS ASYMMETRIC WITH THAT FALLBACK, DELIBERATELY. An ABSENT checker resolves to `tsc`,
+// which is what keeps every pre-existing target (GRC, SRVC) byte-identical -- absent means "the
+// historical behaviour", and the historical behaviour is a known-good gate. But an UNKNOWN checker
+// has no knowable stronger fallback: guessing `tsc` for a target whose author wrote `atc` (or
+// `atcc`, or `ATC`) would silently REDUCE the differential to one that cannot see the very
+// diagnostics the target was switched over FOR, and it would do so with no signal at all. So
+// everything except absent throws, BEFORE the grading worktree exists. Same convention as the
+// surrounding guards: an empty entry may fall back only when the fallback is the stronger gate.
+export function resolveTypecheck(target) {
+  const id = (target && target.id) || '<unnamed target>';
+  const tc = (target && target.typecheck) || {};
+  const prebuild = typeof tc.prebuild === 'string' && tc.prebuild.trim() !== '' ? tc.prebuild : null;
+  const checker = resolveChecker(id, tc);
+
+  if (checker === 'atc') {
+    // On the atc path the target declares a tsconfig PATH rather than an arg list, and this
+    // function COMPOSES the argument list -- so `--format json` is owned by the code and cannot be
+    // typo'd away in config. atc's own `--strict` is deliberately NOT passed: the project's
+    // tsconfig already sets strict, the A/B baseline was measured WITHOUT it, and adding an
+    // unmeasured flag would move the baseline every recorded figure is stated against.
+    const tsconfig = resolveAtcTsconfig(id, tc);
+
+    // A tsc arg list alongside the atc checker would be SILENTLY IGNORED -- exactly the class of
+    // invisible config fault the surrounding guards exist to catch, so it throws instead.
+    if (tc.args !== undefined) {
+      throw new Error(
+        `grade-red: target '${id}' declares typecheck.checker 'atc' AND typecheck.args ` +
+          `(${JSON.stringify(tc.args)}). The atc argument list is composed by grade-red, so those args ` +
+          'would be silently ignored and the target would grade against a different invocation than its ' +
+          'config states (fail closed)',
+      );
+    }
+
+    return { checker, args: ['-c', tsconfig, '--format', 'json'], tsconfig, prebuild };
+  }
+
+  const args = Array.isArray(tc.args) && tc.args.length ? tc.args.slice() : ['--noEmit', '--strict'];
+
+  return { checker, args, prebuild };
+}
+
+// The checker id, or a THROW. Absent -> the tsc default (see the asymmetry note above); every other
+// malformed shape throws while it is still free to.
+function resolveChecker(id, tc) {
+  const declared = tc.checker;
+
+  if (declared === undefined) {
+    return DEFAULT_CHECKER;
+  }
+
+  if (typeof declared !== 'string') {
+    throw new Error(
+      `grade-red: target '${id}' declares a typecheck.checker that is not a string ` +
+        `(${JSON.stringify(declared)}) -- refusing to guess which checker it meant, because guessing ` +
+        `could silently REDUCE the differential (fail closed). Known checkers: ${CHECKERS.join(', ')}`,
+    );
+  }
+
+  if (declared.trim() === '') {
+    throw new Error(
+      `grade-red: target '${id}' declares an EMPTY typecheck.checker. Unlike an empty typecheck.args ` +
+        'this does NOT fall back: the args default is the stronger gate, an unknown checker has no ' +
+        `stronger fallback (fail closed). Known checkers: ${CHECKERS.join(', ')}`,
+    );
+  }
+
+  if (!CHECKERS.includes(declared)) {
+    throw new Error(
+      `grade-red: target '${id}' declares an unknown typecheck.checker '${declared}' (fail closed). ` +
+        `Known checkers: ${CHECKERS.join(', ')}`,
+    );
+  }
+
+  return declared;
+}
+
+// The atc path's REQUIRED repo-relative tsconfig path. Same shape rules resolveToolchainPaths
+// applies to its copy paths -- a non-empty string, not absolute, no drive prefix, no parent segment
+// -- for the same reason: the value is resolved INSIDE the grading worktree, so a path that escapes
+// it points at the borrowed checkout this gate only ever reads.
+//
+// It is REQUIRED rather than defaulted because there is nothing to default TO. atc's `-c` is
+// mandatory (its own CLI rejects an invocation without one), and a guessed project is precisely the
+// vacuous differential the whole guard set exists to prevent.
+function resolveAtcTsconfig(id, tc) {
+  const declared = tc.tsconfig;
+
+  if (typeof declared !== 'string' || declared.trim() === '') {
+    throw new Error(
+      `grade-red: target '${id}' declares typecheck.checker 'atc' but no usable typecheck.tsconfig ` +
+        `(${JSON.stringify(declared)}). atc requires a project to check, and a guessed one is the ` +
+        'vacuous differential this gate refuses to grade on (fail closed)',
+    );
+  }
+
+  const normalised = declared.trim().split('\\').join('/');
+
+  if (path.isAbsolute(normalised) || /^[A-Za-z]:/.test(normalised) || normalised.startsWith('/')) {
+    throw new Error(
+      `grade-red: target '${id}' declares an ABSOLUTE typecheck.tsconfig '${declared}'. It is resolved ` +
+        'inside the grading worktree, so an absolute path would typecheck the borrowed checkout itself ' +
+        'rather than the applied produced test (fail closed)',
+    );
+  }
+
+  if (normalised.split('/').includes('..')) {
+    throw new Error(
+      `grade-red: target '${id}' declares a typecheck.tsconfig containing a '..' segment ` +
+        `('${declared}'), which can name a project outside the grading worktree (fail closed)`,
+    );
+  }
+
+  return normalised;
 }
 
 // ---- toolchain provisioning: every node_modules a target declares ----------------------------
@@ -1500,6 +1676,243 @@ function targetTscErrors(armCwd, worktree, args) {
   );
 }
 
+// ---- the atc checker path (angular-typechecker) -----------------------------------------------
+
+// The severity values atc's own projection can emit, read from the installed 0.2.4 source
+// (`severityOf` maps ts.DiagnosticCategory Error/Warning/Suggestion/anything-else). Only `error` and
+// `warning` were OBSERVED on the radix baseline; the other two are in the tool's domain, so they are
+// recognised-and-dropped rather than treated as drift. Anything OUTSIDE this set throws -- silently
+// discarding an unrecognised record would REDUCE the gate, which is the one direction that can
+// manufacture a false pass.
+const ATC_SEVERITIES = new Set(['error', 'warning', 'suggestion', 'message']);
+
+// The atc CLI from the INSTALLED package, never a global binary and never the sibling checkout.
+//
+// Resolved through `angular-typechecker/package.json`, which the package's own `exports` map makes
+// resolvable, then joined to `bin.atc`. It FAILS CLOSED naming the workspace install step, because a
+// FRESH WORKTREE has the tracked manifests but no installed dependencies -- that `node_modules` is
+// gitignored -- and a fallthrough to whatever `atc` happened to be on PATH would grade against an
+// unknown version. MEASURED 2026-07-26: the installed CLI reports 0.2.4 and `bin` maps both
+// `angular-typechecker` and `atc` to the same entry point.
+function atcCliPath() {
+  const requireFromHere = createRequire(import.meta.url);
+  let pkgJsonPath;
+
+  try {
+    pkgJsonPath = requireFromHere.resolve('angular-typechecker/package.json');
+  } catch (err) {
+    throw new Error(
+      'grade-red: cannot resolve the angular-typechecker package, so the atc differential cannot run ' +
+        `(fail closed): ${err.message}. This workspace's node_modules is gitignored while its ` +
+        `package.json and package-lock.json are tracked, so a fresh worktree needs \`npm install\` in ` +
+        `${HERE} before the atc checker path works.`,
+    );
+  }
+
+  let bin;
+
+  try {
+    bin = JSON.parse(fs.readFileSync(pkgJsonPath, 'utf8')).bin.atc;
+  } catch (err) {
+    bin = undefined;
+  }
+
+  if (typeof bin !== 'string' || bin.trim() === '') {
+    throw new Error(
+      `grade-red: ${pkgJsonPath} declares no bin.atc entry, so there is no atc CLI to run (fail closed). ` +
+        'Refusing to fall through to a global binary, whose version would be unknown to every recorded figure.',
+    );
+  }
+
+  return path.join(path.dirname(pkgJsonPath), bin);
+}
+
+// ONE atc diagnostic record -> the SAME single-line shape the tsc path already produces, so the
+// existing identity function, the existing config-level check, the existing multiset subtraction and
+// classify() all keep working with NO per-checker branch downstream.
+//
+// `code` is used DIRECTLY. VERIFIED against the installed 0.2.4 source AND against the captured
+// payload: the record builder sets `code` from a helper that returns `NG####` for a negative raw
+// code, `ATC9000x` at or above 90000, and `TS####` otherwise -- it NEVER returns a bare number, and
+// every code in the captured radix payload is a prefixed string. So adding a prefix here would
+// DOUBLE-prefix it (`TSTS2339`) and break both the identity keying and the config-level matching.
+// `rawCode` is the bare number and is deliberately NOT used for the record text, because prefixing
+// that by hand is exactly how the double-prefix gets built.
+//
+// The file path is used as-is for the same measured reason: atc relativizes it against a base and
+// normalizes separators before emitting, and the captured payload carries ZERO absolute paths and
+// forward slashes throughout. Re-relativizing would double-strip.
+//
+// A FILE-LESS record -- no file, or a file whose name is the empty string -- gets NO parenthesized
+// position and NO file prefix at all. Two reasons, both load-bearing. Its positions are all-null BY
+// CONSTRUCTION (the position helper short-circuits on all four axes when the file or the start offset
+// is undefined), so there is nothing truthful to put in parentheses. And the ABSENCE of a
+// file-scoped prefix is precisely what isConfigLevelAtcError tests -- the same shape test
+// isConfigLevelTscError already performs -- so one representation serves both, and the record keys as
+// itself under tscErrorIdentity exactly as that function's comment already promises for an
+// option-level line.
+//
+// Embedded newlines collapse to a single-line separator. Template and nested-type diagnostics are
+// multi-line (29 of the 80 captured records are), and the whole differential is built on ONE
+// DIAGNOSTIC PER LINE. Both passes collapse identically, so the identity is unaffected -- this is a
+// record-shape decision, not a semantic one.
+export function atcRecordLine(record) {
+  const code = String((record && record.code) != null ? record.code : '');
+  const message = String((record && record.message) != null ? record.message : '')
+    .split('\n')
+    .map((l) => l.trim())
+    .filter((l) => l !== '')
+    .join(' ');
+  const file = record && typeof record.file === 'string' ? record.file : '';
+
+  if (file === '') {
+    return `error ${code}: ${message}`;
+  }
+
+  return `${file}(${record.line},${record.column}): error ${code}: ${message}`;
+}
+
+// The ERROR-severity diagnostics one atc pass produced, normalized -- or a THROW when that pass did
+// not run to completion. Guard and parse live in ONE function on purpose, exactly as
+// tscLinesOrThrow and newTscErrorsOrThrow each own theirs: a later caller cannot reach the
+// diagnostics without the check.
+//
+// It mirrors the tsc path's contract and extends it with atc's NATIVE exit-code taxonomy, which is
+// strictly more information than tsc offers (exit 0 clean / 1 verdict-fail / 2
+// infrastructure-or-usage):
+//
+//   exit 2                        -- REFUSED. Infrastructure or usage: a rejected flag, a missing
+//                                    peer, a tsconfig that cannot be read. This is the atc-path
+//                                    equivalent of the config-level guard's purpose, and the tool
+//                                    hands it over explicitly rather than making us infer it.
+//   unparseable stdout            -- REFUSED. Nothing was measured.
+//   parsed, no diagnostics array  -- REFUSED. The payload is not the contract this parser was
+//                                    written against; a drifted or truncated shape must not read as
+//                                    "found nothing".
+//   status != 0 + EMPTY array     -- REFUSED. Nothing was checked, and the subtraction would report a
+//                                    type-broken produced test as clean. The exact shape correlation
+//                                    the tsc path already refuses.
+//   status 0 + diagnostics        -- ALLOWED, for the same fail-safe reason the tsc path allows it:
+//                                    an extra diagnostic either appears in BOTH passes and cancels,
+//                                    or lands only in the WITH pass and fails the produced test.
+//                                    Neither direction can manufacture a false PASS, so throwing here
+//                                    would turn a harmless oddity into a dead round.
+//   status 0 + empty array        -- genuinely clean. The ONLY way to read zero.
+//   spawn error / null status     -- REFUSED, same as the tsc path (a failed spawn, a maxBuffer
+//                                    overflow, or a pass killed by a signal).
+export function atcDiagnosticsOrThrow(result) {
+  if (!result || result.error) {
+    const detail = result && result.error ? result.error.message : 'no spawn result';
+
+    throw new Error(
+      'grade-red: an atc differential typecheck pass did not run (the spawn failed, or its output ' +
+        'exceeded maxBuffer), so the differential cannot discriminate and would report a type-broken ' +
+        `produced test as clean (fail closed, T-63f-04 / A-1): ${detail}`,
+    );
+  }
+
+  if (result.status === null) {
+    throw new Error(
+      'grade-red: an atc differential typecheck pass was KILLED before it finished ' +
+        `(signal ${result.signal || 'unknown'}), so it produced no diagnostics and the differential would ` +
+        'subtract to zero NEW errors -- reporting a type-broken produced test as clean ' +
+        '(fail closed, T-63f-04 / A-1)',
+    );
+  }
+
+  const stdout = `${result.stdout || ''}`;
+  const stderr = `${result.stderr || ''}`;
+
+  // atc's OWN infrastructure-or-usage signal. Consulted BEFORE the parse: an exit 2 can still print
+  // a well-formed payload, and reading its diagnostics would be reading a pass that never checked.
+  if (result.status === 2) {
+    const excerpt = `${stdout}\n${stderr}`.trim().slice(0, 400) || '(the pass printed nothing at all)';
+
+    throw new Error(
+      'grade-red: the atc differential typecheck pass exited 2, which is atc\'s own ' +
+        'INFRASTRUCTURE-OR-USAGE status rather than a type verdict (a rejected flag, an unreadable or ' +
+        'missing tsconfig, a missing peer). Nothing was typechecked, so the differential would subtract ' +
+        `to zero NEW errors and report a type-broken produced test as clean (fail closed, A-1). What the ` +
+        `pass actually printed: ${excerpt}`,
+    );
+  }
+
+  let payload;
+
+  try {
+    payload = JSON.parse(stdout);
+  } catch (err) {
+    const excerpt = `${stdout}\n${stderr}`.trim().slice(0, 400) || '(the pass printed nothing at all)';
+
+    throw new Error(
+      `grade-red: the atc differential typecheck pass exited ${result.status} but its stdout does not ` +
+        'parse as JSON, so no diagnostic was measured and the differential would subtract to zero NEW ' +
+        `errors (fail closed, A-1): ${err.message}. What the pass actually printed: ${excerpt}`,
+    );
+  }
+
+  const diagnostics = payload && payload.diagnostics;
+
+  if (!Array.isArray(diagnostics)) {
+    throw new Error(
+      `grade-red: the atc differential typecheck pass exited ${result.status} and printed parseable JSON ` +
+        'with NO diagnostics array, so its payload is not the shape this parser was written against. A ' +
+        'drifted or truncated payload must never read as "found nothing" (fail closed, A-1): keys were ' +
+        `${JSON.stringify(Object.keys(payload && typeof payload === 'object' ? payload : {}))}`,
+    );
+  }
+
+  if (result.status !== 0 && diagnostics.length === 0) {
+    const excerpt = `${stdout}\n${stderr}`.trim().slice(0, 400) || '(the pass printed nothing at all)';
+
+    throw new Error(
+      `grade-red: the atc differential typecheck pass exited ${result.status} but reported ZERO ` +
+        'diagnostics, so it did not typecheck anything. The differential would subtract to zero NEW ' +
+        `errors and report a type-broken produced test as clean (fail closed, T-63f-04 / A-1). What the ` +
+        `pass actually printed: ${excerpt}`,
+    );
+  }
+
+  const errors = [];
+
+  for (const record of diagnostics) {
+    const severity = record && record.severity;
+
+    if (!ATC_SEVERITIES.has(severity)) {
+      throw new Error(
+        `grade-red: an atc diagnostic carries the unrecognised severity ${JSON.stringify(severity)}. ` +
+          'Refusing to drop a record whose severity this gate does not understand -- silently discarding ' +
+          `one REDUCES the differential (fail closed). Known severities: ${[...ATC_SEVERITIES].join(', ')}. ` +
+          `The record: ${JSON.stringify(record).slice(0, 300)}`,
+      );
+    }
+
+    if (severity === 'error') {
+      errors.push(atcRecordLine(record));
+    }
+  }
+
+  return errors;
+}
+
+// The diagnostics of ONE differential pass, for whichever checker the target resolved to. The SINGLE
+// dispatch point: both call sites inside gradeRun's differential (the baseline pass and the WITH
+// pass) route through here, so neither can drift onto the other checker's binary or parser.
+function targetTypecheckErrors(armCwd, worktree, args, checker) {
+  if (checker === 'atc') {
+    return atcDiagnosticsOrThrow(
+      spawnSync(process.execPath, [atcCliPath(), ...args], {
+        cwd: armCwd,
+        encoding: 'utf8',
+        maxBuffer: 256 * 1024 * 1024,
+        windowsHide: true,
+      }),
+    );
+  }
+
+  return targetTscErrors(armCwd, worktree, args);
+}
+
 // What makes two tsc diagnostics THE SAME diagnostic for the differential: the file, the TS code and
 // the message -- everything the raw line carries EXCEPT the `(line,col)` of its file prefix. So
 // `f.ts(81,42): error TS2339: Property 'x' ...` and the identical diagnostic at `(85,42)` key alike,
@@ -1706,7 +2119,9 @@ export function gradeRun({ runDir, suiteDir }) {
   // --include`, repo-relative otherwise). Recorded in red-grade.json so an operator can see what
   // the command actually received rather than inferring it from two config fields.
   const testForTemplate = relativeToBase(testForRunner, runnerSpec.runner_path_base);
-  const { args: tscArgs, prebuild } = resolveTypecheck(target);
+  // The CHECKER is resolved here, with the args, so a malformed checker / tsconfig / args
+  // combination throws BEFORE the worktree and the toolchain copy exist.
+  const { checker, args: tscArgs, prebuild } = resolveTypecheck(target);
 
   // The target's OWN node_modules, COPIED into the grading worktree below. A fresh worktree has
   // none (node_modules is gitignored and untracked), and without it the gate degrades SILENTLY
@@ -1870,6 +2285,10 @@ export function gradeRun({ runDir, suiteDir }) {
         verdict: 'no_tests',
         pass: false,
         why: 'the produced diff contains no test file (nothing to run)',
+        // WHICH checker the target resolved to, recorded even though no pass ran on this path -- the
+        // field answers "what would have measured this", and an absent key would make a tsc-era
+        // artifact and an atc-era one indistinguishable.
+        checker,
         new_tsc_errors: 0,
         // No differential ran on this path (there is nothing to typecheck), so the evidence field
         // is present and EMPTY rather than absent -- same reason changed_production_files is
@@ -1936,19 +2355,27 @@ export function gradeRun({ runDir, suiteDir }) {
     // rejects becomes a TS6046 in BOTH runs, i.e. exactly the vacuous differential guarded below.
     //
     // tscArgs comes from resolveTypecheck(target): the pair above unless the target declares its
-    // own (a project flag for a monorepo library whose specs live under their own tsconfig).
-    const baseErrors = new Set(targetTscErrors(armCwd, worktree, tscArgs));
+    // own (a project flag for a monorepo library whose specs live under their own tsconfig), or the
+    // composed atc argument list when the target selected that checker.
+    const baseErrors = new Set(targetTypecheckErrors(armCwd, worktree, tscArgs, checker));
 
-    // Fail closed on an OPTION/CONFIG-level tsc error. Those abort the compile before any source is
-    // checked, and the identical line then lands in both differential runs -- so newErrors
-    // subtracts to 0 for EVERY input and D-06 clause 1 silently passes anything. Never grade on a
-    // differential that cannot discriminate.
-    const configError = [...baseErrors].find(isConfigLevelTscError);
+    // Fail closed on an OPTION/CONFIG-level error. Those abort before any source is checked, and the
+    // identical line then lands in both differential runs -- so newErrors subtracts to 0 for EVERY
+    // input and D-06 clause 1 silently passes anything. Never grade on a differential that cannot
+    // discriminate.
+    //
+    // The predicate is CHECKER-AWARE and must stay that way. isConfigLevelTscError gates on a
+    // TypeScript code range, so it is blind to atc's own synthesized whole-program faults, which sit
+    // in a code space chosen deliberately outside that range. It is left byte-unchanged for the tsc
+    // path -- proved and pinned -- and the atc path gets a predicate that requires a FILE. See
+    // isConfigLevelAtcError for the full failure chain and why no code is enumerated.
+    const configError = [...baseErrors].find(configLevelPredicateFor(checker));
 
     if (configError) {
       throw new Error(
-        'grade-red: the target typecheck failed at the option/config layer, so the differential ' +
-          `cannot discriminate and would report every produced test as tsc-clean (fail closed): ${configError}`,
+        `grade-red: the target typecheck (${checker}) failed at the option/config layer, so the ` +
+          'differential cannot discriminate and would report every produced test as typecheck-clean ' +
+          `(fail closed): ${configError}`,
       );
     }
 
@@ -1965,7 +2392,7 @@ export function gradeRun({ runDir, suiteDir }) {
       throw new Error(`grade-red: git apply of ${diffPath} failed in the worktree (fail closed): ${(applyRes.stderr || '').trim()}`);
     }
 
-    const withErrors = targetTscErrors(armCwd, worktree, tscArgs);
+    const withErrors = targetTypecheckErrors(armCwd, worktree, tscArgs, checker);
     const newErrors = newTscErrorsOrThrow(baseErrors, withErrors);
     const tscResult = { newErrors: newErrors.length, errors: newErrors };
 
@@ -2045,18 +2472,31 @@ export function gradeRun({ runDir, suiteDir }) {
       verdict,
       pass: verdictPass(verdict),
       why: whyFor(verdict, tscResult, addedTitles),
+      // WHICH checker produced the diagnostics below (`tsc` or `atc`). Recorded because the two see
+      // DIFFERENT programs -- atc reports Angular template diagnostics tsc is structurally blind to
+      // -- so a new-error count is only comparable across artifacts that agree on this field.
+      checker,
       new_tsc_errors: tscResult.newErrors,
       // The actual NEW diagnostics, capped, mirroring failure_excerpt's purpose: a verdict an
       // operator can CHECK rather than take on trust.
       //
       // A count alone is self-evident only where the baseline is CLEAN (GRC, SRVC): "N new errors"
-      // can only be the model's. On radix the baseline is 55 errors across 17 files and the
-      // differential is line-exact string subtraction, so a produced spec that PERTURBS an existing
-      // diagnostic's text or position -- plausible for one that adds a module augmentation, a
-      // `declare`, or a type that changes inference in a shared file -- yields "new" lines that are
-      // RELOCATED baseline errors rather than the model's. Without the text, a compile_error /
-      // pass:false verdict on a dirty baseline is the one verdict in the taxonomy with no evidence
-      // attached, and it penalises the model unauditably.
+      // can only be the model's. On radix the baseline is dozens of error-severity diagnostics
+      // across dozens of files, so a produced spec that PERTURBS an existing diagnostic's text --
+      // plausible for one that adds a module augmentation, a `declare`, or a type that changes
+      // inference in a shared file -- yields "new" lines that are pre-existing errors rather than the
+      // model's. Without the text, a compile_error / pass:false verdict on a dirty baseline is the one
+      // verdict in the taxonomy with no evidence attached, and it penalises the model unauditably.
+      //
+      // TWO CLAIMS IN THE PREVIOUS WORDING WERE SUPERSEDED AND ARE CORRECTED HERE. The subtraction is
+      // no longer "line-exact string subtraction" -- it is a POSITION-INSENSITIVE multiset keyed on
+      // (file, code, message), fixed 2026-07-26 after the metered pilot showed 8 of 9 reported NEW
+      // errors were baseline diagnostics that merely SHIFTED. And the "55 errors across 17 files"
+      // figure was the tsc-era radix baseline; that target now grades through atc, whose measured
+      // baseline is different (see the suite's typecheck_note for the current figures). The field
+      // NAMES deliberately keep their `tsc` spelling: they mean "the differential's NEW diagnostics",
+      // several consumers and the whole residual record already key on them, and renaming would churn
+      // the tabulator and every captured artifact for no gain.
       new_tsc_error_lines: tscResult.errors.slice(0, 10),
       runner: runnerName,
       runner_version: readRunnerVersion(armCwd, worktree, runnerName),
@@ -2140,6 +2580,22 @@ function tscLinesPreStatusCorrelation(result) {
   const text = `${result.stdout || ''}\n${result.stderr || ''}`;
 
   return text.split('\n').filter((l) => /error TS\d+/.test(l)).map((l) => l.trim());
+}
+
+// The atc parse WITHOUT its guard: read stdout, hand back whatever diagnostics parse, and answer
+// "clean" for anything unexpected. This is the shape a naive implementation takes -- and the shape
+// the tsc path ACTUALLY had before its own exit-status correlation -- so the discrimination proof
+// below compares two REAL rules on identical inputs rather than asserting against a remembered one.
+// Dead-end copy, same contract as the three below: nothing else calls it, and it must never be wired
+// back into the gate.
+function atcDiagnosticsPreGuard(result) {
+  try {
+    const payload = JSON.parse(`${(result && result.stdout) || ''}`);
+
+    return (payload.diagnostics || []).filter((d) => d.severity === 'error').map(atcRecordLine);
+  } catch {
+    return [];
+  }
 }
 
 // The differential subtraction as it stood before BOTH corrections: a set difference on RAW lines --
@@ -2477,6 +2933,60 @@ function runSelfcheck() {
     fail('[resolveTypecheck] a whitespace-only prebuild must resolve to null rather than spawning an empty shell command');
   }
 
+  // ---- the CHECKER: a tsc default that keeps every pre-existing target byte-identical, and a
+  // fail-closed rejection for every other malformed shape (there is no knowable stronger fallback
+  // for an unknown checker, so guessing could silently REDUCE the differential).
+
+  if (defTc.checker !== 'tsc' || ownTc.checker !== 'tsc') {
+    fail(
+      `[resolveTypecheck] an ABSENT typecheck.checker must resolve to 'tsc' so GRC and SRVC stay ` +
+        `byte-identical; got ${JSON.stringify(defTc.checker)} / ${JSON.stringify(ownTc.checker)}`,
+    );
+  }
+
+  const atcTc = resolveTypecheck({ id: 'RXF', typecheck: { checker: 'atc', tsconfig: 'packages/primitives/tsconfig.spec.json' } });
+
+  if (atcTc.checker !== 'atc' || atcTc.tsconfig !== 'packages/primitives/tsconfig.spec.json') {
+    fail(`[resolveTypecheck] the atc checker was not resolved: ${JSON.stringify(atcTc)}`);
+  }
+
+  // The argument list is COMPOSED by the code, so `--format json` cannot be typed away in config,
+  // and atc's own --strict is deliberately absent (the project's tsconfig already sets strict and the
+  // baseline was measured without it).
+  eqStr(
+    atcTc.args.join(' '),
+    '-c packages/primitives/tsconfig.spec.json --format json',
+    '[resolveTypecheck] the composed atc argument list',
+  );
+
+  if (atcTc.args.includes('--strict') || atcTc.args.includes('-p') || atcTc.args.includes('--project')) {
+    fail(`[resolveTypecheck] the composed atc argument list must not carry --strict or a tsc project flag: ${JSON.stringify(atcTc.args)}`);
+  }
+
+  for (const [label, cfg] of [
+    ['an unknown checker', { checker: 'tsc-strict', tsconfig: 'a/tsconfig.json' }],
+    ['a checker differing only in case', { checker: 'ATC', tsconfig: 'a/tsconfig.json' }],
+    ['an EMPTY checker string', { checker: '', tsconfig: 'a/tsconfig.json' }],
+    ['a whitespace-only checker string', { checker: '   ', tsconfig: 'a/tsconfig.json' }],
+    ['a non-string checker (null)', { checker: null, tsconfig: 'a/tsconfig.json' }],
+    ['a non-string checker (number)', { checker: 1, tsconfig: 'a/tsconfig.json' }],
+    ['an atc checker with NO tsconfig', { checker: 'atc' }],
+    ['an atc checker with an empty tsconfig', { checker: 'atc', tsconfig: '' }],
+    ['an atc checker with a whitespace tsconfig', { checker: 'atc', tsconfig: '  ' }],
+    ['an atc checker with a non-string tsconfig', { checker: 'atc', tsconfig: 42 }],
+    ['an atc checker with an ABSOLUTE tsconfig', { checker: 'atc', tsconfig: '/etc/tsconfig.json' }],
+    ['an atc checker with a DRIVE-prefixed tsconfig', { checker: 'atc', tsconfig: 'D:/elsewhere/tsconfig.json' }],
+    ['an atc checker with a .. segment in its tsconfig', { checker: 'atc', tsconfig: '../sibling/tsconfig.json' }],
+    ['an atc checker with a nested .. segment', { checker: 'atc', tsconfig: 'a/../../b/tsconfig.json' }],
+    // A tsc arg list alongside atc would be SILENTLY IGNORED -- the same class of invisible config
+    // fault every guard around it exists to catch. An EMPTY array is rejected too: it is still a
+    // declaration that the atc path cannot honour.
+    ['an atc checker WITH tsc args', { checker: 'atc', tsconfig: 'a/tsconfig.json', args: ['--noEmit', '--strict'] }],
+    ['an atc checker with an empty args array', { checker: 'atc', tsconfig: 'a/tsconfig.json', args: [] }],
+  ]) {
+    assertThrows(() => resolveTypecheck({ id: 'T', typecheck: cfg }), `resolveTypecheck with ${label}`);
+  }
+
   // resolveToolchainPaths: absent-by-default in all three malformed-config shapes, the declared
   // list when present, and a THROW for every entry that could name a directory the copy must never
   // touch. Same contract as resolveTypecheck: a config typo must never silently REDUCE the grading
@@ -2528,6 +3038,14 @@ function runSelfcheck() {
       '(path-base stripping is segment-exact, <reportFile> normalises to forward slashes, an empty ' +
       "typecheck.args falls back to --noEmit --strict, and toolchain_paths defaults to ['node_modules'] " +
       'while an absolute / .. / empty / repo-root / .git entry throws)',
+  );
+  console.log(
+    '  [per-target checker] resolveTypecheck resolves the CHECKER OK (absent -> tsc, so every pre-existing ' +
+      "target is byte-identical; 'atc' composes `-c <tsconfig> --format json` with the format flag owned by " +
+      'the CODE and no --strict; while an unknown / case-variant / empty / whitespace / non-string checker, a ' +
+      'missing / empty / non-string / absolute / drive-prefixed / ..-bearing atc tsconfig, and tsc args ' +
+      'declared alongside atc ALL throw -- an unknown checker has no stronger fallback, so unlike an empty ' +
+      'args array it must never fall back)',
   );
 
   // tscLinesOrThrow: a pass that did not RUN must never read as a pass that found nothing.
@@ -2599,6 +3117,247 @@ function runSelfcheck() {
       'NON-ZERO exit that printed no diagnostic all THROW, naming the status and quoting the output -- the ' +
       'pre-change code returned [] for all of them, which subtracts to zero NEW errors and reports a ' +
       'type-broken produced test as tsc clean)',
+  );
+
+  // ---- the atc checker path: guard, normalizer, and the VACUOUS-DIFFERENTIAL guard --------------
+  //
+  // Driven by the two CAPTURED payloads under fixtures/atc/, so these assertions are pinned against
+  // what the real CLI actually emits rather than against a hand-written shape that could drift from it.
+  const atcHealthy = JSON.parse(fs.readFileSync(path.join(HERE, 'fixtures', 'atc', 'radix-healthy.json'), 'utf8'));
+  const atcFault = JSON.parse(fs.readFileSync(path.join(HERE, 'fixtures', 'atc', 'config-fault.json'), 'utf8'));
+  const atcHealthyStdout = JSON.stringify(atcHealthy);
+
+  // The normalizer + the ordinary has-diagnostics pass. atc exits 1 on a type verdict.
+  const atcErrors = atcDiagnosticsOrThrow({ status: 1, stdout: atcHealthyStdout, stderr: '' });
+  const wantErrorCount = atcHealthy.diagnostics.filter((d) => d.severity === 'error').length;
+  const wantWarningCount = atcHealthy.diagnostics.filter((d) => d.severity === 'warning').length;
+
+  if (atcErrors.length !== wantErrorCount) {
+    fail(`[atcDiagnosticsOrThrow] the captured payload yielded ${atcErrors.length} error records, expected ${wantErrorCount}`);
+  }
+
+  // WARNING-severity records are excluded from the error set. atc reports NG8113 (an unused-in-template
+  // declaration) at warning severity; letting one into the differential would put a non-error in the
+  // subtraction the classifier reads as compile_error.
+  if (wantWarningCount === 0) {
+    fail('[atcDiagnosticsOrThrow] the captured payload has NO warning-severity record, so the exclusion assertion below proves nothing');
+  }
+
+  if (atcErrors.some((l) => /error NG8113:/.test(l))) {
+    fail('[atcDiagnosticsOrThrow] a WARNING-severity record (NG8113) reached the error set');
+  }
+
+  // The record SHAPE the whole differential is built on: `file(line,col): error CODE: message`, one
+  // diagnostic per line, the code used VERBATIM (already prefixed by atc -- adding one here would
+  // produce `TSTS2339`), the file left as atc emitted it (already repo-relative and slash-normalized).
+  const atcJestDom = atcErrors.filter((l) => l.includes('calendar.spec.ts') && l.includes('TS2339'));
+
+  if (atcJestDom.length !== 8) {
+    fail(`[atcRecordLine] expected the 8 MEASURED calendar-spec jest-dom TS2339 records, got ${atcJestDom.length}`);
+  }
+
+  if (!atcJestDom.every((l) => /^packages\/primitives\/calendar\/__tests__\/calendar\.spec\.ts\(\d+,\d+\): error TS2339: /.test(l))) {
+    fail(`[atcRecordLine] a normalized record does not carry the tsc-path record shape: ${JSON.stringify(atcJestDom[0])}`);
+  }
+
+  if (atcErrors.some((l) => /error (?:TSTS|TSNG|NGNG|TSATC)/.test(l))) {
+    fail("[atcRecordLine] a code was DOUBLE-PREFIXED -- atc's `code` field is already a full label and must be used verbatim");
+  }
+
+  if (atcErrors.some((l) => l.includes('\n'))) {
+    fail('[atcRecordLine] a multi-line message survived into a record -- the differential is one diagnostic PER LINE');
+  }
+
+  // Scoped to the FILE PREFIX rather than the whole line: a diagnostic MESSAGE can legitimately quote
+  // a backslash or a drive letter (a string-literal type, a path in a resolver error), and asserting
+  // over the message would make this fail on correct data. What is being pinned is that atc already
+  // relativizes and slash-normalizes the PATH, so the normalizer adds no relativization step.
+  const atcFilePrefixes = atcErrors.map((l) => (FILE_SCOPED_TSC_RE.exec(l) || [null, ''])[1]);
+
+  if (atcFilePrefixes.some((p) => /^[A-Za-z]:/.test(p) || p.includes('\\'))) {
+    fail(
+      '[atcRecordLine] a record carries an absolute or backslashed FILE path; atc already relativizes and ' +
+        `slash-normalizes, so no relativization step belongs here: ${JSON.stringify(atcFilePrefixes.find((p) => /^[A-Za-z]:/.test(p) || p.includes('\\')))}`,
+    );
+  }
+
+  // Every normalized record must key to ITSELF minus its position under the UNCHANGED identity
+  // function, which is what lets the atc path reuse the multiset subtraction with no branch.
+  const atcRoundTrip = newTscErrorsOrThrow(new Set(atcErrors), [...atcErrors]);
+
+  if (atcRoundTrip.length !== 0) {
+    fail(`[atcRecordLine] the identical atc record set did not subtract to zero NEW errors: ${JSON.stringify(atcRoundTrip.slice(0, 2))}`);
+  }
+
+  // A CLEAN pass: exit 0 with an empty diagnostics array is the only way to read zero.
+  if (atcDiagnosticsOrThrow({ status: 0, stdout: JSON.stringify({ ...atcHealthy, diagnostics: [] }), stderr: '' }).length !== 0) {
+    fail('[atcDiagnosticsOrThrow] a clean pass (exit 0, empty diagnostics) must yield an empty list rather than throwing');
+  }
+
+  // ... and exit 0 WITH diagnostics is ALLOWED, the same fail-safe direction the tsc path allows.
+  if (atcDiagnosticsOrThrow({ status: 0, stdout: atcHealthyStdout, stderr: '' }).length !== wantErrorCount) {
+    fail('[atcDiagnosticsOrThrow] exit 0 WITH diagnostics must be allowed (an extra diagnostic cancels or fails the test; neither can manufacture a false PASS)');
+  }
+
+  // Every REFUSED shape.
+  const atcExit2 = { status: 2, stdout: atcHealthyStdout, stderr: '' };
+  const atcUnparseable = { status: 1, stdout: 'atc: cannot find module @angular/compiler-cli', stderr: '' };
+  const atcNoArray = { status: 1, stdout: JSON.stringify({ formatVersion: 1, tool: 'angular-typechecker', summary: {} }), stderr: '' };
+  const atcEmptyNonZero = { status: 1, stdout: JSON.stringify({ ...atcHealthy, diagnostics: [] }), stderr: '' };
+
+  assertThrows(() => atcDiagnosticsOrThrow(atcExit2), "atc's own exit 2 (infrastructure-or-usage)");
+  assertThrows(() => atcDiagnosticsOrThrow(atcUnparseable), 'an atc pass whose stdout does not parse as JSON');
+  assertThrows(() => atcDiagnosticsOrThrow(atcNoArray), 'an atc payload with no diagnostics array');
+  assertThrows(() => atcDiagnosticsOrThrow(atcEmptyNonZero), 'a non-zero atc exit reporting ZERO diagnostics');
+  assertThrows(() => atcDiagnosticsOrThrow({ status: null, signal: 'SIGKILL', stdout: '', stderr: '' }), 'a KILLED atc pass');
+  assertThrows(
+    () => atcDiagnosticsOrThrow({ status: null, error: new Error('spawnSync atc ENOBUFS'), stdout: '', stderr: '' }),
+    'an atc pass whose spawn failed / overflowed maxBuffer',
+  );
+  assertThrows(() => atcDiagnosticsOrThrow(undefined), 'a missing atc spawn result');
+
+  // An UNRECOGNISED severity throws rather than being dropped: silently discarding a record REDUCES
+  // the gate, which is the one direction that can manufacture a false pass.
+  assertThrows(
+    () =>
+      atcDiagnosticsOrThrow({
+        status: 1,
+        stdout: JSON.stringify({ ...atcHealthy, diagnostics: [{ ...atcHealthy.diagnostics[0], severity: 'fatal' }] }),
+        stderr: '',
+      }),
+    'an atc diagnostic carrying an unrecognised severity',
+  );
+
+  // THE DISCRIMINATION, house style: the pre-guard parse answers "clean" for the exact shapes the
+  // shipped guard refuses, on IDENTICAL inputs. Without this the throws above could be satisfied by a
+  // guard that only rejects inputs a naive parse already handled.
+  for (const [label, shape] of [
+    ['exit 2', atcExit2],
+    ['unparseable stdout', atcUnparseable],
+    ['no diagnostics array', atcNoArray],
+    ['a non-zero exit with an empty array', atcEmptyNonZero],
+  ]) {
+    const preGuard = atcDiagnosticsPreGuard(shape);
+
+    if (label === 'exit 2') {
+      // The pre-guard parse reads exit 2's well-formed payload as an ordinary result -- it never looks
+      // at `status` -- so its diagnostics flow into the differential as if the pass had checked.
+      if (preGuard.length !== wantErrorCount) {
+        fail(`[atcDiagnosticsOrThrow] the pre-guard parse did not read ${label} as an ordinary pass, so it proves nothing about the guard`);
+      }
+
+      continue;
+    }
+
+    if (preGuard.length !== 0) {
+      fail(
+        `[atcDiagnosticsOrThrow] the pre-guard parse did not swallow ${label}, so this input proves nothing ` +
+          'about the guard -- pick one the unguarded parse really did read as clean',
+      );
+    }
+  }
+
+  // ---- the VACUOUS-DIFFERENTIAL guard on the atc path (T-uqn-06) --------------------------------
+  //
+  // The CAPTURED config-fault payload: a references-only / empty project. MEASURED 2026-07-26 -- exit
+  // 1, rootNamesCount 0, TWO file-less error diagnostics.
+  const atcFaultLines = atcDiagnosticsOrThrow({ status: 1, stdout: JSON.stringify(atcFault), stderr: '' });
+  const synthesized = atcFaultLines.find((l) => l.includes('ATC90001'));
+
+  if (!synthesized) {
+    fail(`[isConfigLevelAtcError] the captured config-fault payload carries no ATC90001 record: ${JSON.stringify(atcFaultLines)}`);
+  }
+
+  // 1. The atc predicate reads it as config-level, so the grade ABORTS instead of cancelling to zero.
+  if (!isConfigLevelAtcError(synthesized)) {
+    fail(`[isConfigLevelAtcError] the synthesized file-less fault must read as config-level: ${JSON.stringify(synthesized)}`);
+  }
+
+  // 2. THE DISCRIMINATION, and the whole reason this predicate exists: the pre-change,
+  //    TypeScript-code-gated predicate does NOT read that same normalized record as config-level.
+  //    Revert to it and the chain in step 4 goes silently clean. This assertion is what proves the new
+  //    predicate is LOAD-BEARING rather than redundant.
+  if (isConfigLevelTscError(synthesized)) {
+    fail(
+      '[isConfigLevelAtcError] isConfigLevelTscError already reads the synthesized fault as config-level, so ' +
+        'the atc predicate proves nothing -- pick an input the TypeScript-gated rule really does miss',
+    );
+  }
+
+  // ... and it misses the OTHER captured file-less fault too, because TS18002 sits outside the
+  // 5xxx/6xxx range the tsc predicate gates on. Both halves of the measured payload are covered.
+  for (const line of atcFaultLines) {
+    if (!isConfigLevelAtcError(line)) {
+      fail(`[isConfigLevelAtcError] a file-less error-severity record did not read as config-level: ${JSON.stringify(line)}`);
+    }
+  }
+
+  // 3. It must NOT fire on an ordinary file-scoped diagnostic, or it would abort a grade for a
+  //    legitimate finding. An Angular-coded template record from the HEALTHY payload is the case that
+  //    matters: NG-coded, error severity, and nothing to do with the config layer.
+  const atcTemplateRecord = atcErrors.find((l) => /error NG\d+:/.test(l));
+
+  if (!atcTemplateRecord) {
+    fail('[isConfigLevelAtcError] the healthy payload carries no error-severity NG record, so the false-positive assertion proves nothing');
+  }
+
+  if (isConfigLevelAtcError(atcTemplateRecord)) {
+    fail(`[isConfigLevelAtcError] an ordinary file-scoped Angular diagnostic must NOT read as config-level: ${JSON.stringify(atcTemplateRecord)}`);
+  }
+
+  // ... and NONE of the measured healthy baseline is file-less, asserted by running EVERY record
+  // through the REAL predicate rather than by eye. If one were, the guard would hard-abort every grade
+  // on this target -- so this is the guard's false-positive direction, measured rather than assumed.
+  const healthyConfigLevel = atcErrors.filter(isConfigLevelAtcError);
+
+  if (healthyConfigLevel.length !== 0) {
+    fail(
+      `[isConfigLevelAtcError] ${healthyConfigLevel.length} record(s) of the MEASURED healthy radix baseline read as ` +
+        `config-level, so the guard would abort every grade on that target: ${JSON.stringify(healthyConfigLevel.slice(0, 3))}`,
+    );
+  }
+
+  // 4. THE FULL FAILURE CHAIN, end to end on normalized records. The fault does not depend on the
+  //    applied diff, so it appears in BOTH passes; the multiset subtraction cancels it to ZERO NEW
+  //    errors -- which is the SILENT-CLEAN outcome, a differential that checked zero root names
+  //    reported as clean -- and the BASELINE predicate is the only thing that refuses it.
+  const vacuous = newTscErrorsOrThrow(new Set(atcFaultLines), [...atcFaultLines]);
+
+  if (vacuous.length !== 0) {
+    fail(
+      '[isConfigLevelAtcError] the config fault did not cancel to zero NEW errors, so the chain this guard ' +
+        `closes is not the one being reproduced: ${JSON.stringify(vacuous)}`,
+    );
+  }
+
+  if (classify({ newErrors: vacuous.length }, greenRunner, testOnlyDiff) !== 'false_green') {
+    fail('[isConfigLevelAtcError] the cancelled-to-zero differential did not fall through clause 1, so the silent-clean outcome is not reproduced');
+  }
+
+  if (![...new Set(atcFaultLines)].some(configLevelPredicateFor('atc'))) {
+    fail('[configLevelPredicateFor] the atc baseline predicate did not refuse the vacuous differential');
+  }
+
+  if ([...new Set(atcFaultLines)].some(configLevelPredicateFor('tsc'))) {
+    fail('[configLevelPredicateFor] the tsc predicate must NOT be what refuses it -- that is the reverted state this assertion exists to catch');
+  }
+
+  console.log(
+    `  [atcDiagnosticsOrThrow] the atc guard + normalizer OK against the CAPTURED payloads (${wantErrorCount} ` +
+      `error records of ${atcHealthy.diagnostics.length} normalized to the tsc-path record shape, ${wantWarningCount} ` +
+      'warning-severity records excluded, codes used VERBATIM so nothing double-prefixes, multi-line messages ' +
+      "collapsed, and the identical set subtracting to zero through the UNCHANGED multiset; while atc's own exit 2, " +
+      'unparseable stdout, an absent diagnostics array, a non-zero exit with an EMPTY array, a KILLED pass, a failed ' +
+      'spawn, a missing result and an unrecognised severity all THROW -- the pre-guard parse read every one of those ' +
+      'as clean, and read exit 2 as an ordinary pass)',
+  );
+  console.log(
+    '  [isConfigLevelAtcError] the VACUOUS-DIFFERENTIAL guard covers atc OK (the captured references-only project ' +
+      'emits file-less error diagnostics that the atc predicate reads as config-level while isConfigLevelTscError ' +
+      'reads NEITHER -- its TypeScript code gate cannot see ATC90001 or TS18002 -- and the full chain is reproduced: ' +
+      'the fault cancels to ZERO NEW errors in both passes and falls through clause 1, so only the baseline predicate ' +
+      'stands between a differential that checked ZERO root names and a clean verdict; ZERO records of the measured ' +
+      'healthy radix baseline are file-less, and an ordinary file-scoped Angular diagnostic never fires it)',
   );
 
   // newTscErrorsOrThrow: the asymmetric collapse guard (A-1's second half). A pass that "succeeded"

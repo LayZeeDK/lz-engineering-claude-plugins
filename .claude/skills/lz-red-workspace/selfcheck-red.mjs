@@ -37,12 +37,16 @@
 //      against the kata's OWN toolchain: a real verdict, the selected runner, a real runner_version
 //      (not the 'unknown' sentinel), and the borrowed repo intact afterwards. Every other crux and
 //      every grade-red fixture uses the WORKSPACE toolchain, so this is the only step that proves
-//      the gate works against the actual target. Kata absent -> SKIP. Four fixtures: a clean spec
-//      (genuinely_red), one outside every collection root (no_tests, not a crash), a type-broken
-//      one (compile_error with NEW errors -- the negative control that proves the differential
-//      still tells two inputs apart), and a PASSING test APPENDED to the kata's own spec, which
-//      already contains a permanently failing placeholder (false_green -- the attribution
-//      anti-regression; pre-fix it graded genuinely_red / pass:true on the borrowed failure).
+//      the gate works against the actual target. Kata absent -> SKIP. Five kata fixtures: a clean
+//      spec (genuinely_red), one outside every collection root (no_tests, not a crash), a
+//      type-broken one (compile_error with NEW errors -- the negative control that proves the
+//      differential still tells two inputs apart), a PASSING test APPENDED to the kata's own spec,
+//      which already contains a permanently failing placeholder (false_green -- the attribution
+//      anti-regression; pre-fix it graded genuinely_red / pass:true on the borrowed failure), and a
+//      FAILING added test alongside a PARTIAL production edit (still genuinely_red, but
+//      changed_production_files now NAMES that production file -- the drive-evidence
+//      discriminator; pre-fix the field did not exist and the drive attempt was invisible on the
+//      RED path). The clean-spec fixture pins the EMPTY half of that field's shape.
 //   8. EXPLOIT REGRESSIONS -- the steering and write exploits measured against the real toolchain
 //      on 2026-07-25 stay blocked: a captured diff cannot NAME a path into the borrowed repo, its
 //      own git state or outside the worktree; the no-tests signal comes from the runner rather than
@@ -1085,6 +1089,20 @@ function runGrcCanaries() {
     if (!String(g.failure_excerpt || '').startsWith(`added test ${JSON.stringify(want)}:`)) {
       fail(`[crux 7] failure_excerpt does not name the ADDED test: ${JSON.stringify(String(g.failure_excerpt).slice(0, 120))}`);
     }
+
+    // The EMPTY half of the changed_production_files shape. This fixture's diff is test-only, so
+    // the field must be PRESENT and empty -- hasOwnProperty rather than a .length test, because an
+    // absent key and an empty array are different claims and `(g.changed_production_files ||
+    // []).length === 0` would pass for a field that was dropped entirely. The non-empty half is
+    // canary-grc-drive-red below; between them a field that only materialises when it has
+    // something to say cannot slip through.
+    if (!Object.prototype.hasOwnProperty.call(g, 'changed_production_files')) {
+      fail('[crux 7] red-grade.json has no changed_production_files key at all -- a test-only diff must still record the empty array');
+    }
+
+    if (!Array.isArray(g.changed_production_files) || g.changed_production_files.length !== 0) {
+      fail(`[crux 7] a test-only diff recorded changed_production_files ${JSON.stringify(g.changed_production_files)}, expected []`);
+    }
   });
 
   if (grade) {
@@ -1177,6 +1195,66 @@ function runGrcCanaries() {
     console.log(
       `  [crux 7] borrowed-failure canary OK (a PASSING test appended to the kata's own failing spec -> ` +
         `${borrowedGrade.verdict}, pass=${borrowedGrade.pass}; excerpt ${JSON.stringify(String(borrowedGrade.failure_excerpt).slice(0, 48))})`,
+    );
+  }
+
+  // THE DRIVE-EVIDENCE DISCRIMINATOR. Every canary above has a TEST-ONLY diff, so none of them can
+  // see the hole this one closes: changedProductionFiles() was consulted only inside classify()'s
+  // all-green branch and nothing was written to red-grade.json, so a model that edited PRODUCTION
+  // code and left its own test still failing graded genuinely_red / pass:true with the drive
+  // attempt completely invisible.
+  //
+  // The fixture reproduces exactly that shape: a spec asserting the Conjured rule BEFORE the
+  // sell-by date, plus a PARTIAL production edit that implements the doubled decay only in the
+  // already-expired branch. The added test therefore still fails on an assertion (5, not 4), which
+  // is the point -- it sits on the RED path, precisely where the evidence used to be discarded, so
+  // a field written only inside the all-green branch fails here.
+  //
+  // It runs against the KATA rather than a radix target deliberately: the field is computed from
+  // the diff and is target-independent, so proving it costs one ~3.5 s toolchain copy instead of
+  // two ~949 MiB ones.
+  const driveGrade = gradeFabricatedRunDir(RED_SUITE_DIR, 'canary-grc-drive-red', (g) => {
+    // (1) THE TAXONOMY DID NOT MOVE. drove_to_green still means drove SUCCESSFULLY; a production
+    // edit that leaves the added test failing is still a genuine RED.
+    if (g.verdict !== 'genuinely_red' || g.pass !== true) {
+      fail(
+        `[crux 7] a FAILING added test alongside a partial production edit graded '${g.verdict}' ` +
+          `(pass=${g.pass}), expected genuinely_red / pass=true -- recording the drive evidence must not ` +
+          `move the verdict taxonomy. why: ${g.why}`,
+      );
+    }
+
+    // (2) THE KEY IS PRESENT. Checked before its contents, and by hasOwnProperty rather than by
+    // length, so a dropped field fails here rather than reading as "no production files".
+    if (!Object.prototype.hasOwnProperty.call(g, 'changed_production_files')) {
+      fail(
+        '[crux 7] red-grade.json has no changed_production_files key on the RED path -- the drive attempt ' +
+          'is invisible again, which is the whole defect this field exists to close',
+      );
+    }
+
+    // (3) IT NAMES THE PRODUCTION FILE, and only that. A field populated from meta.changed_files
+    // wholesale, or from the produced spec, would pass (2) and fail here.
+    const want = 'TypeScript/app/gilded-rose.ts';
+    const spec = 'TypeScript/test/vitest/canary-drive-conjured.spec.ts';
+
+    if (!Array.isArray(g.changed_production_files) || !g.changed_production_files.includes(want)) {
+      fail(
+        `[crux 7] changed_production_files is ${JSON.stringify(g.changed_production_files)}; it must name the ` +
+          `production file the diff edited (${want})`,
+      );
+    }
+
+    if (g.changed_production_files.includes(spec)) {
+      fail(`[crux 7] changed_production_files lists the produced SPEC (${spec}); it must carry production files only`);
+    }
+  });
+
+  if (driveGrade) {
+    console.log(
+      `  [crux 7] drive-evidence canary OK (a failing added test PLUS a partial production edit -> ` +
+        `${driveGrade.verdict}, pass=${driveGrade.pass}; changed_production_files ` +
+        `${JSON.stringify(driveGrade.changed_production_files)} recorded on the RED path)`,
     );
   }
 }

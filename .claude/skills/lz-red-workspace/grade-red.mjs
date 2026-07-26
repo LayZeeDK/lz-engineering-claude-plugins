@@ -1271,6 +1271,23 @@ export function gradeRun({ runDir, suiteDir }) {
   // the produced test file(s) from meta.changed_files (the runner's spec/test glob).
   const producedTests = meta.changed_files.filter((f) => isTestFile(f));
 
+  // The PRODUCTION (non-test) files the diff touched, computed ONCE and recorded in every grade
+  // below -- on the RED path as well as the green one.
+  //
+  // WHY UNCONDITIONALLY. changedProductionFiles() was consulted only inside classify()'s
+  // all-assertions-pass branch, which splits false_green from drove_to_green, and nothing was ever
+  // written to red-grade.json. So a model that EDITED PRODUCTION CODE and left its own test still
+  // failing scored genuinely_red / pass:true with the drive attempt completely invisible -- a
+  // mis-scored discipline breach on the exact axis (coach-don't-drive) the round measures. That is
+  // not a hypothetical shape: a fix that spans many call sites leaves the test red until the LAST
+  // one lands, so a partial implementation -- the most likely way a model oversteps -- is precisely
+  // the case that used to disappear.
+  //
+  // The taxonomy does NOT move. classify() is untouched, drove_to_green still means drove
+  // SUCCESSFULLY, and this field is EVIDENCE for the operator and the judge rather than a gate: a
+  // genuinely_red verdict WITH a non-empty list reads as a drive ATTEMPT.
+  const changedProduction = changedProductionFiles(diffPatch);
+
   const gitRoot = (git(repo, ['rev-parse', '--show-toplevel'], { mustSucceed: true }).stdout || '').trim();
   const stamp = `${process.pid}-${Date.now()}`;
   // On the target's OWN volume, so the per-grade toolchain copy below does not cross a filesystem
@@ -1464,6 +1481,7 @@ export function gradeRun({ runDir, suiteDir }) {
         toolchain_ms: toolchainMs,
         prebuild_ms: prebuildMs,
         produced_test_files: [],
+        changed_production_files: changedProduction,
         added_test_titles: [],
         attributed_failures: 0,
         failure_excerpt: '',
@@ -1652,6 +1670,9 @@ export function gradeRun({ runDir, suiteDir }) {
       // toolchain_ms: it is a real per-grade cost that must be priceable from the artifacts.
       prebuild_ms: prebuildMs,
       produced_test_files: producedTests,
+      // The other half of "what did the diff touch", sat next to produced_test_files on purpose.
+      // See the changedProduction computation above for why it is recorded on EVERY path.
+      changed_production_files: changedProduction,
       // The attribution evidence, recorded so an operator can check the verdict rather than take
       // it on trust: what the gate extracted from the diff, and how many reported assertions it
       // could tie back to those titles. An `unattributable` verdict is unreadable without them.

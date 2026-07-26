@@ -51,8 +51,10 @@
 //   9. RUNTIME WRITE PATH -- crux 8 covers what a captured diff DECLARES; this one covers what the
 //      produced spec DOES when the runner executes it. A spec declaring a legitimate path whose
 //      BODY deletes and overwrites through node_modules/ is graded for real against a THROWAWAY
-//      stand-in repo (never the kata) and asserted to leave that tree byte-intact. Plus the two
-//      pure invariants the containment rests on: escapingLinks() and resolveArmCwd().
+//      stand-in repo (never the kata) and asserted to leave that tree byte-intact. Plus the three
+//      pure invariants the containment rests on: escapingLinks(), arm-anchor's realpath identity
+//      (driven by a SYNTHETIC junction alias rather than by whatever form os.tmpdir() returns), and
+//      resolveArmCwd() -- including an explicit 8.3 SHORT-form mismatch.
 //
 // Fail-closed: any violation prints a FAIL line and exits 1; an OK line + exit 0 on success. Zero
 // claude spend, borrowed repo left pristine. NOT wired into `npm run check` (it touches the borrowed
@@ -74,6 +76,7 @@ import {
   parseRunnerReport,
   resolveArmCwd,
 } from './grade-red.mjs';
+import { isSameOrNested } from './arm-anchor.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const RUN_E2E = resolve(HERE, '..', 'lz-refactor-workspace', 'e2e-nx', 'run-e2e.mjs');
@@ -1387,6 +1390,9 @@ function checkAnchorArmingAndGuard() {
 // pins ONE exploit that was reproduced against the real toolchain during the code review. Delete
 // the corresponding guard in grade-red.mjs and exactly one of these fails.
 
+// The caller supplies its OWN crux prefix in `label`, for the same reason gitOrFail() does: this
+// helper is shared by more than one crux, and a hardcoded prefix attributes one crux's failure to
+// another.
 function expectThrows(fn, label) {
   let threw = false;
 
@@ -1397,7 +1403,7 @@ function expectThrows(fn, label) {
   }
 
   if (!threw) {
-    fail(`[crux 8] ${label}: expected the fail-closed path to throw, but it did not`);
+    fail(`${label}: expected the fail-closed path to throw, but it did not`);
   }
 }
 
@@ -1462,7 +1468,7 @@ function checkDiffContainment() {
 
   for (const [label, body] of Object.entries(exploits)) {
     withPatchFile(body, (p) => {
-      expectThrows(() => assertSafeDiffPaths(body, p), label);
+      expectThrows(() => assertSafeDiffPaths(body, p), `[crux 8] ${label}`);
     });
   }
 
@@ -1525,12 +1531,12 @@ function checkRunnerSignalIsRunnerAuthored() {
     stderr: jestCodeFrameStderr(['// no tests found', 'process.exit(0);']),
   };
 
-  expectThrows(() => parseRunnerReport(steer), 'a spec comment reading "no tests found" must not become a verdict');
+  expectThrows(() => parseRunnerReport(steer), '[crux 8] a spec comment reading "no tests found" must not become a verdict');
 
   // The same echo with a non-zero exit: still only a code frame, still not the runner's status line.
   expectThrows(
     () => parseRunnerReport({ ...steer, status: 1 }),
-    'an echoed "no tests found" comment must not become a verdict even on a non-zero exit',
+    '[crux 8] an echoed "no tests found" comment must not become a verdict even on a non-zero exit',
   );
 
   // A test TITLE carrying the phrase is the realistic version of the same steer.
@@ -1540,7 +1546,7 @@ function checkRunnerSignalIsRunnerAuthored() {
       status: 1,
       stderr: jestCodeFrameStderr(["describe('x', () => {", "  it('says no tests found when empty', () => {})", '});']),
     }),
-    'a test title reading "no tests found" must not become a verdict',
+    '[crux 8] a test title reading "no tests found" must not become a verdict',
   );
 
   // Infrastructure failures are not verdicts either, whatever text happens to be on the streams.
@@ -1551,7 +1557,7 @@ function checkRunnerSignalIsRunnerAuthored() {
       error: Object.assign(new Error('spawn npx ENOENT'), { code: 'ENOENT' }),
       stderr: 'No tests found, exiting with code 1',
     }),
-    'a spawn failure must throw, not synthesise a verdict',
+    '[crux 8] a spawn failure must throw, not synthesise a verdict',
   );
   expectThrows(
     () => parseRunnerReport({
@@ -1559,7 +1565,7 @@ function checkRunnerSignalIsRunnerAuthored() {
       status: 1,
       stderr: 'No tests found, exiting with code 1',
     }),
-    'a TRUNCATED stdout payload must throw, not synthesise a verdict',
+    '[crux 8] a TRUNCATED stdout payload must throw, not synthesise a verdict',
   );
 
   // ... and the genuine collection miss still becomes an honest verdict rather than a crash. Both
@@ -1923,18 +1929,33 @@ function checkContainmentInvariants() {
   const probe = join(os.tmpdir(), `red-links-${process.pid}-${Date.now()}`);
   const inside = join(probe, 'copy', 'pkg');
   const outside = join(probe, 'borrowed');
-  fs.mkdirSync(inside, { recursive: true });
+  const containedLink = join(probe, 'copy', 'contained-link');
+  fs.mkdirSync(join(inside, 'sub'), { recursive: true });
   fs.mkdirSync(outside, { recursive: true });
 
   let escapes;
   let linkError;
+  let alias;
 
   try {
     // 'junction' is the Windows-safe directory link (a plain symlink needs elevation there); the
     // type argument is ignored elsewhere.
-    fs.symlinkSync(inside, join(probe, 'copy', 'contained-link'), 'junction');
+    fs.symlinkSync(inside, containedLink, 'junction');
     fs.symlinkSync(outside, join(probe, 'copy', 'escaping-link'), 'junction');
     escapes = escapingLinks(join(probe, 'copy'));
+
+    // arm-anchor.mjs identifies a throwaway by REALPATH, not by string -- and that has only ever
+    // been exercised INCIDENTALLY, because os.tmpdir() happens to hand back the 8.3 SHORT Windows
+    // form on this machine while git reports its toplevel LONG. A guard whose only coverage is a
+    // coincidence of the local environment is one refactor away from being decoration, so the
+    // identity is driven here by a SYNTHETIC alias instead: a junction and its target are two
+    // different strings naming one directory, on any machine.
+    alias = {
+      rawDiffers: resolve(containedLink) !== resolve(inside),
+      same: isSameOrNested(containedLink, inside),
+      nested: isSameOrNested(join(containedLink, 'sub'), inside),
+      unrelated: isSameOrNested(outside, inside),
+    };
   } catch (err) {
     linkError = err;
   }
@@ -1950,6 +1971,24 @@ function checkContainmentInvariants() {
       `[crux 9] escapingLinks() reported ${JSON.stringify(escapes)}; expected exactly the one link ` +
         'resolving outside the copy (a contained link must NOT be flagged, an escaping one MUST be)',
     );
+  }
+
+  // The discrimination first: if the two strings were already equal, everything below would pass
+  // without the realpath ever being consulted.
+  if (!alias.rawDiffers) {
+    fail('[crux 9] the alias probe is not exercising anything -- the junction and its target are the same string');
+  }
+
+  if (!alias.same || !alias.nested) {
+    fail(
+      `[crux 9] arm-anchor's isSameOrNested() did not recognise a junction as its target ` +
+        `(same=${alias.same}, nested=${alias.nested}). It is comparing STRINGS, so it would refuse a valid ` +
+        'throwaway and, worse, let an aliased path slip past the pristine-checkout containment check',
+    );
+  }
+
+  if (alias.unrelated) {
+    fail("[crux 9] arm-anchor's isSameOrNested() claimed an unrelated sibling directory is nested inside the target");
   }
 
   // resolveArmCwd() is the other half: `rel` is arithmetic over two path strings, and if they
@@ -1972,12 +2011,23 @@ function checkContainmentInvariants() {
 
   expectThrows(
     () => resolveArmCwd(worktree, '/long/form/root', '/short/form/root/TypeScript'),
-    'a suite.repo that disagrees with the git toplevel must not resolve the grade back onto the source tree',
+    '[crux 9] a suite.repo that disagrees with the git toplevel must not resolve the grade back onto the source tree',
+  );
+
+  // ... and the SPECIFIC shape the guard was written for, spelled out rather than left to whatever
+  // os.tmpdir() happens to return: an 8.3 SHORT Windows path against git's LONG one. The two
+  // positive cases above are what keep this from being satisfied by a guard that simply always
+  // throws.
+  expectThrows(
+    () => resolveArmCwd(worktree, 'C:\\Users\\LongUserName\\repo', 'C:\\Users\\LONGUS~1\\repo\\TypeScript'),
+    '[crux 9] an 8.3 SHORT-form suite.repo against a LONG-form git toplevel must be refused',
   );
 
   console.log(
-    '  [crux 9] containment invariants OK (escapingLinks flags the escaping link only; resolveArmCwd ' +
-      'keeps the grade inside the worktree and refuses a path-form mismatch)',
+    '  [crux 9] containment invariants OK (escapingLinks flags the escaping link only; a junction and its ' +
+      "target compare EQUAL through arm-anchor's realpath identity while an unrelated sibling does not; " +
+      'resolveArmCwd keeps the grade inside the worktree and refuses a path-form mismatch, including an ' +
+      'explicit 8.3 short-form one)',
   );
 }
 

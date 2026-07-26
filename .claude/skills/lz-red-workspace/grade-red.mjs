@@ -1500,6 +1500,16 @@ function targetTscErrors(armCwd, worktree, args) {
   );
 }
 
+// What makes two tsc diagnostics THE SAME diagnostic for the differential: the file, the TS code and
+// the message -- everything the raw line carries EXCEPT the `(line,col)` of its file prefix. So
+// `f.ts(81,42): error TS2339: Property 'x' ...` and the identical diagnostic at `(85,42)` key alike,
+// while the same message in a DIFFERENT file, or a different code or message in the same file, does
+// not. Reuses the prefix shape isConfigLevelTscError already relies on; a diagnostic with no file
+// prefix at all (`error TS6046: ...`) keys as itself, which is what the option-level lines want.
+function tscErrorIdentity(line) {
+  return String(line == null ? '' : line).replace(FILE_SCOPED_TSC_RE, '$1(L,C):');
+}
+
 // The NEW diagnostics of one differential -- or a THROW when the two passes cannot be subtracted
 // honestly. The subtraction and its guard live in ONE function on purpose: a later caller cannot
 // reach the arithmetic without the check.
@@ -1517,7 +1527,30 @@ function targetTscErrors(armCwd, worktree, args) {
 // declined for precisely that reason; this is the strictly-safe middle ground A-1 asked for. Inert
 // where the baseline is already clean (srvx, post-prebuild), which is correct: a target with no
 // pre-existing diagnostics offers nothing to detect the collapse WITH.
+//
+// The subtraction itself is POSITION-INSENSITIVE, and that is a 2026-07-26 correction rather than a
+// nicety. It used to be a set difference on RAW lines, which carry `(line,col)` -- so a produced test
+// APPENDED to a file that already has diagnostics SHIFTED every one below the insertion point, and
+// each shifted line failed the `has()` and was re-counted as the model's. MEASURED on the metered
+// pilot: RXF graded compile_error / pass:false on 9 NEW errors, of which 8 were the baseline's own
+// `toHaveTextContent` diagnostics moved from lines 81/82/88/89/95/96/106/110 to 85/86/92/93/99/100/
+// 122/126. Exactly ONE was the model's. No offline fixture could reach it -- GRC's baseline errors
+// live in production code the specs do not touch, srvx's baseline is 0 after its prebuild, and every
+// canary creates a NEW file -- so it needed a real model appending to a dirty file, which is ordinary
+// behaviour rather than an edge case.
+//
+// A MULTISET, not a set, and the distinction is load-bearing: keying alone would let a NINTH
+// `toHaveTextContent` in a file that already had eight cancel against one of them and vanish. Counts
+// are consumed one for one, so 8 -> 9 still yields a delta of 1.
+//
+// Only the DIFFERENCING is position-insensitive. What is RETURNED is the RAW line, positions intact,
+// because new_tsc_error_lines is the audit trail behind a compile_error verdict -- a delta an
+// operator cannot locate in a file is not evidence.
 export function newTscErrorsOrThrow(baseErrors, withErrors) {
+  // Unchanged by the keying: this asks whether the WITH pass reported anything AT ALL against a
+  // baseline that did, which is a question about the two passes rather than about any diagnostic's
+  // identity. baseErrors is still the raw-line Set the caller built, so `.size` still means "the
+  // baseline found something".
   if (withErrors.length === 0 && baseErrors.size > 0) {
     throw new Error(
       `grade-red: the differential collapsed -- the baseline pass reported ${baseErrors.size} diagnostic(s) and ` +
@@ -1528,7 +1561,26 @@ export function newTscErrorsOrThrow(baseErrors, withErrors) {
     );
   }
 
-  return withErrors.filter((l) => !baseErrors.has(l));
+  const unclaimed = new Map();
+
+  for (const line of baseErrors) {
+    const key = tscErrorIdentity(line);
+
+    unclaimed.set(key, (unclaimed.get(key) || 0) + 1);
+  }
+
+  return withErrors.filter((line) => {
+    const key = tscErrorIdentity(line);
+    const left = unclaimed.get(key) || 0;
+
+    if (left > 0) {
+      unclaimed.set(key, left - 1);
+
+      return false;
+    }
+
+    return true;
+  });
 }
 
 // Grade one captured run: fail-closed reads, fresh full-repo worktree at applyBase, differential
@@ -2090,9 +2142,12 @@ function tscLinesPreStatusCorrelation(result) {
   return text.split('\n').filter((l) => /error TS\d+/.test(l)).map((l) => l.trim());
 }
 
-// The differential subtraction as it stood before the collapse guard: filter, return, never compare
-// against the baseline's SIZE. Dead-end copy, same contract as the two above.
-function newTscErrorsPreCollapseGuard(baseErrors, withErrors) {
+// The differential subtraction as it stood before BOTH corrections: a set difference on RAW lines --
+// never compares against the baseline's SIZE, and treats a diagnostic's `(line,col)` as part of its
+// identity. One body reproduces both defects because the pre-change code was literally this one
+// expression. Dead-end copy, same contract as the two above: it exists so each discrimination proof
+// compares two REAL rules on identical inputs, and it must never be wired back into the gate.
+function newTscErrorsRawSetDifference(baseErrors, withErrors) {
   return withErrors.filter((l) => !baseErrors.has(l));
 }
 
@@ -2573,11 +2628,124 @@ function runSelfcheck() {
 
   // The discrimination, on that identical collapse input: the pre-change subtraction answers "zero
   // NEW errors", which is D-06 clause 1 falling through to a tsc-clean verdict.
-  const preCollapse = newTscErrorsPreCollapseGuard(dirtyBaseline, []);
+  const preCollapse = newTscErrorsRawSetDifference(dirtyBaseline, []);
 
   if (preCollapse.length !== 0) {
     fail(`[newTscErrorsOrThrow] the pre-change subtraction did not read the collapse as clean: ${JSON.stringify(preCollapse)}`);
   }
+
+  // The config-level guard is a DIFFERENT reading of the same baseline lines and is untouched by the
+  // keying above -- it runs on the RAW lines the caller collected, before any subtraction. Pinned
+  // here so a later "simplification" that feeds it identities instead breaks the battery: the
+  // tsconfig-anchored form would survive that, but the UNPREFIXED form is the one that matters and
+  // it must keep firing.
+  if (!isConfigLevelTscError("error TS6046: Argument for '--lib' option must be: 'es5', 'es6'")) {
+    fail('[isConfigLevelTscError] an UNPREFIXED option-level diagnostic must still read as config-level');
+  }
+
+  if (!isConfigLevelTscError("tsconfig.json(4,15): error TS5107: Option 'target=ES3' is deprecated")) {
+    fail('[isConfigLevelTscError] a diagnostic anchored at the tsconfig itself must still read as config-level');
+  }
+
+  if (isConfigLevelTscError("a.ts(1,1): error TS2322: Type 'x' is not assignable.")) {
+    fail('[isConfigLevelTscError] an ordinary file-scoped diagnostic must NOT read as config-level');
+  }
+
+  // ---- the differential is POSITION-INSENSITIVE, and its masking guard -------------------------
+  //
+  // THE PILOT SHAPE, reduced to the two facts that matter: the model APPENDED its test to a spec that
+  // already had diagnostics, so every pre-existing one below the insertion point moved DOWN. Same
+  // file, same code, same message, different line. Measured on the metered RXF run, where 8 of the 9
+  // reported "new" errors were exactly this.
+  const shiftedBaseline = new Set([
+    "f.ts(81,42): error TS2339: Property 'toHaveTextContent' does not exist on type 'JestMatchers<HTMLElement>'.",
+    "f.ts(82,36): error TS2339: Property 'toHaveTextContent' does not exist on type 'JestMatchers<HTMLElement>'.",
+  ]);
+  const shiftedWith = [
+    "f.ts(85,42): error TS2339: Property 'toHaveTextContent' does not exist on type 'JestMatchers<HTMLElement>'.",
+    "f.ts(86,36): error TS2339: Property 'toHaveTextContent' does not exist on type 'JestMatchers<HTMLElement>'.",
+  ];
+  const shifted = newTscErrorsOrThrow(shiftedBaseline, shiftedWith);
+
+  if (shifted.length !== 0) {
+    fail(
+      '[newTscErrorsOrThrow] a pre-existing diagnostic that merely MOVED (the produced test was appended above ' +
+        `it) must not be re-counted as the model's: ${JSON.stringify(shifted)}`,
+    );
+  }
+
+  // The discrimination, on that identical input: the pre-change RAW set difference re-counts BOTH
+  // shifted lines, which is the compile_error / pass:false the pilot actually got.
+  const shiftedBefore = newTscErrorsRawSetDifference(shiftedBaseline, shiftedWith);
+
+  if (shiftedBefore.length !== 2) {
+    fail(
+      `[newTscErrorsOrThrow] the pre-change subtraction re-counted ${shiftedBefore.length} shifted line(s), not 2 -- ` +
+        'this input proves nothing about the keying; pick one the raw set difference really did mis-count',
+    );
+  }
+
+  // THE MASKING GUARD -- why a MULTISET and not a set. Two identical-message diagnostics in one file
+  // at the baseline, THREE after the produced test: the count must go 8 -> 9 in the real shape and 2
+  // -> 3 here, so the delta is 1. A plain keyed SET would cancel all three against the one key and
+  // report ZERO -- a genuine new error made invisible by the very fix that closes the shift.
+  const maskBaseline = new Set([
+    "f.ts(10,5): error TS2339: Property 'toHaveTextContent' does not exist on type 'JestMatchers<HTMLElement>'.",
+    "f.ts(20,5): error TS2339: Property 'toHaveTextContent' does not exist on type 'JestMatchers<HTMLElement>'.",
+  ]);
+  const masked = newTscErrorsOrThrow(maskBaseline, [
+    "f.ts(12,5): error TS2339: Property 'toHaveTextContent' does not exist on type 'JestMatchers<HTMLElement>'.",
+    "f.ts(22,5): error TS2339: Property 'toHaveTextContent' does not exist on type 'JestMatchers<HTMLElement>'.",
+    "f.ts(31,5): error TS2339: Property 'toHaveTextContent' does not exist on type 'JestMatchers<HTMLElement>'.",
+  ]);
+
+  if (masked.length !== 1 || !masked[0].includes('(31,5)')) {
+    fail(
+      '[newTscErrorsOrThrow] 2 identical-message baseline diagnostics against 3 in the WITH pass must yield a ' +
+        `delta of exactly 1 -- a keyed SET would mask the third: ${JSON.stringify(masked)}`,
+    );
+  }
+
+  // A genuinely new, DISTINCT error still surfaces even while its neighbours shift, and what comes
+  // back is the RAW line with its position -- new_tsc_error_lines is the audit trail behind a
+  // compile_error verdict, so a delta an operator cannot locate in the file is not evidence. This is
+  // the whole RXF shape: 8 shifted, 1 real.
+  const realOne = newTscErrorsOrThrow(shiftedBaseline, [
+    ...shiftedWith,
+    "f.ts(111,28): error TS2339: Property 'toHaveAttribute' does not exist on type 'JestMatchers<HTMLElement>'.",
+  ]);
+
+  if (realOne.length !== 1 || !realOne[0].includes('toHaveAttribute') || !realOne[0].includes('(111,28)')) {
+    fail(
+      "[newTscErrorsOrThrow] the model's own new diagnostic must survive the keying AND keep its position for the " +
+        `audit trail: ${JSON.stringify(realOne)}`,
+    );
+  }
+
+  // Position-insensitive is not file-insensitive. The same message in a DIFFERENT file is a different
+  // diagnostic and must NOT be swallowed as pre-existing -- the produced spec is usually a new file,
+  // so this is the direction a too-loose key would silently break.
+  const otherFile = newTscErrorsOrThrow(shiftedBaseline, [
+    "g.ts(81,42): error TS2339: Property 'toHaveTextContent' does not exist on type 'JestMatchers<HTMLElement>'.",
+  ]);
+
+  if (otherFile.length !== 1 || !otherFile[0].startsWith('g.ts')) {
+    fail(
+      '[newTscErrorsOrThrow] the same message in a DIFFERENT file must count as NEW, not cancel against the ' +
+        `baseline's: ${JSON.stringify(otherFile)}`,
+    );
+  }
+
+  // ... and neither is it code- or message-insensitive: same file, same position, different code.
+  const otherCode = newTscErrorsOrThrow(new Set(['a.ts(1,1): error TS2322: x']), ['a.ts(1,1): error TS2531: x']);
+
+  if (otherCode.length !== 1) {
+    fail(`[newTscErrorsOrThrow] a different TS code at the same position must count as NEW: ${JSON.stringify(otherCode)}`);
+  }
+
+  // The collapse guard still fires AFTER the keying change -- it reads the two passes, not any
+  // diagnostic's identity, and the shifted baseline is the input most likely to have broken it.
+  assertThrows(() => newTscErrorsOrThrow(shiftedBaseline, []), 'a WITH pass that erased every SHIFTED baseline diagnostic');
 
   console.log(
     '  [newTscErrorsOrThrow] the differential-collapse guard OK (an ordinary subtraction against a DIRTY ' +
@@ -2585,6 +2753,13 @@ function runSelfcheck() {
       'grades zero NEW errors -- the declined IM-06 count invariant stays declined -- a clean baseline stays ' +
       'inert, while a WITH pass reporting NONE against a non-empty baseline THROWS; the pre-change ' +
       'subtraction answered zero NEW errors for that same input)',
+  );
+  console.log(
+    '  [newTscErrorsOrThrow] the differential is POSITION-INSENSITIVE OK (a pre-existing diagnostic that merely ' +
+      'MOVED is no longer re-counted -- the pre-change raw set difference re-counted both, which is the ' +
+      'compile_error the metered pilot got -- while a MULTISET keeps 2-of-a-kind vs 3 at a delta of 1, a ' +
+      'genuinely new diagnostic still surfaces WITH its position for the audit trail, and a different file, ' +
+      'code or message never cancels; the collapse guard still throws on the shifted baseline)',
   );
 
   // Fail-closed paths (T-21-02 / T-21-V5): empty/missing diff and garbled/empty runner JSON must

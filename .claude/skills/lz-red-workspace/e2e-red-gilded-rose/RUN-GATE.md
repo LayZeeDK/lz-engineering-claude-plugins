@@ -684,6 +684,56 @@ and the canary uses the target's toolchain rather than the workspace's.
   reproductions of the pre-change logic on identical inputs, in the same style as the attribution
   proof -- the unguarded parse answers "clean" for both refused spawn shapes, and the unguarded
   subtraction answers "zero NEW errors" for the collapse.
+- **CLOSED 2026-07-26 -- the differential compared diagnostics by POSITION, so a produced test
+  appended to an already-dirty file re-counted every pre-existing diagnostic below it as the
+  model's.** `newTscErrorsOrThrow` did a set difference on RAW tsc lines, and a raw line carries
+  `(line,col)`. Insert a test into a spec that already has diagnostics and every one below the
+  insertion point MOVES; each moved line failed the `has()` and was attributed to the model.
+  **FOUND ON REAL MODEL OUTPUT, not by inspection.** The user-approved k=1 metered pilot graded RXF
+  `compile_error` / `pass:false` on **9 NEW errors** -- of which **8** were the baseline's own
+  `toHaveTextContent` diagnostics shifted from lines 81/82/88/89/95/96/106/110 to
+  85/86/92/93/99/100/122/126. Exactly ONE (`toHaveAttribute` at 111,28) was the model's. Re-graded
+  offline after the fix: **9 -> 1**, with RXL and SRVC byte-identical apart from the throwaway path
+  and the timings, which is the no-regression half of the same measurement.
+  **Why no offline check could have caught it, stated exactly.** GRC's baseline diagnostics live in
+  `app/gilded-rose.ts`, which no produced spec edits, so nothing shifts; srvx's baseline is 0 after
+  its prebuild; and every canary -- fabricated and real -- creates a NEW spec file, where there is
+  no pre-existing diagnostic to move. It is reachable ONLY when a model appends to a file that
+  already has diagnostics, which is legitimate and common. **The lesson generalises past this bug: a
+  differential whose fixtures all ADD NEW FILES never exercises the append path**, so a canary suite
+  built that way can be complete and still blind.
+  **What prevents it now.** The subtraction is a MULTISET difference keyed on
+  `(file, TS code, message)` with `(line,col)` stripped, so a diagnostic that merely MOVED cancels
+  while the same message in a different file, a different code, or a different message does not.
+  MULTISET rather than set is load-bearing and is asserted as such: a NINTH identical-message
+  diagnostic in a file that already had eight must take the count 8 -> 9 and yield a delta of 1,
+  which a keyed SET would silently mask. Only the DIFFERENCING is position-insensitive --
+  `new_tsc_error_lines` still records the RAW line WITH its position, because a `compile_error`
+  verdict an operator cannot locate in the file is not evidence. Both neighbouring guarantees were
+  RE-CHECKED against the new representation rather than assumed: the A-1 collapse guard asks whether
+  the WITH pass reported anything AT ALL against a baseline that did -- a question about the two
+  passes, not about any diagnostic's identity -- so it is untouched and is now re-asserted on the
+  SHIFTED baseline specifically; `isConfigLevelTscError` runs on the raw baseline lines BEFORE any
+  subtraction, is likewise untouched, and is now pinned in the same block so a later change that
+  feeds it identities instead breaks the battery. Five synthetic assertions in `grade-red
+  --selfcheck` cover the pilot shape, the masking guard, a genuinely new diagnostic keeping its
+  position, a same-message-different-file line and a same-position-different-code line; the pilot
+  shape DISCRIMINATES against a dead-end copy of the pre-change rule on identical inputs, which
+  re-counts both shifted lines. **Do not "simplify" the multiset into a keyed set.**
+  **The RXF verdict did NOT change, and no tolerance was added to make it change.** At 1 NEW error
+  it is still `compile_error` / `pass:false`: the model wrote `.toHaveAttribute` where the target's
+  typings expose no such matcher, which is the model's own diagnostic and a real result. Whether a
+  single missing-matcher diagnostic SHOULD sink a run is an owner decision about the D-06 taxonomy,
+  not an instrument defect -- **a matcher allowlist or any target-specific tolerance in the grader
+  would be forging the measurement, and was deliberately not written.**
+  **Two residuals this does not close.** (1) A produced spec that changes a pre-existing
+  diagnostic's MESSAGE rather than its position -- plausible for one adding a module augmentation or
+  a `declare` that shifts inference in a shared file -- still reads as one line disappearing and a
+  different one appearing, i.e. 1 NEW error. That is the FAIL-SAFE direction and `new_tsc_error_lines`
+  makes it visible, but it is not silent-proof. (2) The caller still collects the baseline into a
+  `Set` of raw lines, so a target emitting the same diagnostic TWICE at the same position would
+  under-count the baseline by one and over-report by one -- again fail-safe, and not observed on any
+  of the three targets.
 
 **Optional extra (metered, NOT required):** once the fan-out is approved and the first real runs are
 captured, grading one of them is a free sanity read on real model output --

@@ -2,6 +2,8 @@
   "name": "red-gilded-rose",
   "repo": "D:/projects/github/emilybache/GildedRose-Refactoring-Kata/TypeScript",
   "applyBase": "main",
+  "requireExplicitApplyBase": true,
+  "requireExplicitApplyBase_note": "This suite's real base is chosen AT THE GATE, not baked in above: arm-anchor.mjs commits the approvals snapshot inside the throwaway checkout, so the round's base is the ARMED sha. gradeRun() therefore refuses to grade this suite when E2E_APPLY_BASE is unset, before it creates a worktree or copies a toolchain. The guard exists because the two steps of a round fail DIFFERENTLY: forgetting the export on the DRIVE is loud (run-e2e.mjs computes rev-list APPLY_BASE..HEAD and throws, because the arming commit puts HEAD ahead of main), while forgetting it on a later `grade-red --run` was SILENT -- gradeRun has no ahead-check and no protected-branch check, so it graded the armed round against the unarmed base with no signal. RUN-GATE documents driving and grading as separate commands, which makes that an ordinary operator slip. The `applyBase` value above stays 'main' as the honest unarmed default for a fabricated canary, which genuinely does grade against the unarmed base and never touches the snapshot. The two new suites deliberately do NOT set this flag: their bases are fixed pins and there is nothing to arm, so demanding an export there would be ceremony.",
   "protectedBranches": ["main", "master"],
   "skillCommand": "/lz-tdd:lz-red",
   "trackSkills": ["lz-red", "lz-tpp"],

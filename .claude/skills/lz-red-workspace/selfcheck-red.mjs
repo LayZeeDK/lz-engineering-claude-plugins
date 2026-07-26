@@ -918,13 +918,38 @@ function gradeFabricatedRunDir(suiteDir, fixtureName, assertGrade) {
 }
 
 // The GRC (kata) canaries. Kept in their OWN function, not merged into a loop over suites, for a
-// containment reason rather than a style one: Task-4's requireExplicitApplyBase guard makes these
-// four calls need E2E_APPLY_BASE set, and gradeRun resolves its base as
-// `process.env.E2E_APPLY_BASE || suite.applyBase`. A value that leaked past them would SILENTLY
-// replace every other suite's pinned SHA with the kata's base and grade the wrong commit with no
-// operator-visible signal. Scoping the variable to this function -- set on entry, restored in a
-// finally on exit -- makes that leak structurally impossible instead of a thing to remember.
+// containment reason rather than a style one.
+//
+// The GRC suite sets requireExplicitApplyBase, so these four calls need E2E_APPLY_BASE set. Setting
+// it to 'main' is HONEST: a fabricated canary genuinely grades against the unarmed base and never
+// touches the snapshot, and doing it explicitly makes that deliberate choice visible instead of
+// implicit.
+//
+// The RESTORE is the load-bearing half. gradeRun resolves its base as
+// `process.env.E2E_APPLY_BASE || suite.applyBase`, so a value that leaked past these calls would
+// SILENTLY replace every OTHER suite's pinned SHA with 'main' -- grading the wrong commit, in the
+// two suites whose whole point is a fixed pin, with no operator-visible signal. That is exactly the
+// silent-failure class the requireExplicitApplyBase guard exists to eliminate, merely relocated.
+// Scoping the variable to this function makes the leak structurally impossible rather than
+// something to remember, which is why the sibling suites' canaries are a separate call and not the
+// next iteration of a loop.
 function checkGrcCanaries() {
+  const hadKey = Object.prototype.hasOwnProperty.call(process.env, 'E2E_APPLY_BASE');
+  const prior = process.env.E2E_APPLY_BASE;
+  process.env.E2E_APPLY_BASE = 'main';
+
+  try {
+    runGrcCanaries();
+  } finally {
+    if (hadKey) {
+      process.env.E2E_APPLY_BASE = prior;
+    } else {
+      delete process.env.E2E_APPLY_BASE;
+    }
+  }
+}
+
+function runGrcCanaries() {
   const grade = gradeFabricatedRunDir(RED_SUITE_DIR, 'canary-rundir', (g) => {
     if (g.verdict !== 'genuinely_red' || g.pass !== true) {
       fail(`[crux 7] fabricated runDir graded '${g.verdict}' (pass=${g.pass}), expected genuinely_red / pass=true -- why: ${g.why}`);
@@ -946,6 +971,12 @@ function checkGrcCanaries() {
 
     if (g.new_tsc_errors !== 0) {
       fail(`[crux 7] fabricated runDir reported ${g.new_tsc_errors} NEW tsc errors, expected 0`);
+    }
+
+    // The audit trail must actually be populated, and it must record the base this canary really
+    // used rather than a default someone assumed.
+    if (g.apply_base !== 'main') {
+      fail(`[crux 7] red-grade.json records apply_base ${JSON.stringify(g.apply_base)}, expected 'main' for a fabricated canary`);
     }
 
     // ATTRIBUTION against the TARGET's real runner. Everywhere else the attribution is asserted
@@ -1127,6 +1158,21 @@ function checkSrvcCanaries() {
     if (!(g.prebuild_ms > 0)) {
       fail(`[crux 7:SRVC] prebuild_ms is ${g.prebuild_ms}; the target declares a typecheck.prebuild, so it must have run and been timed`);
     }
+
+    // THE LEAK CHECK, and the reason apply_base is worth recording. checkGrcCanaries() sets
+    // E2E_APPLY_BASE=main for its four calls; gradeRun resolves the base as
+    // `process.env.E2E_APPLY_BASE || suite.applyBase`, so if that value survived its finally this
+    // grade would silently have run against the KATA's base instead of this suite's pin -- and
+    // every other field would look identical. This assertion is what turns that from a silent
+    // wrong number into a failure.
+    const pinned = loadSuiteCtx(SRVX_SUITE_DIR).applyBase;
+
+    if (g.apply_base !== pinned) {
+      fail(
+        `[crux 7:SRVC] this grade ran against apply_base ${JSON.stringify(g.apply_base)}, not the suite's pin ` +
+          `${JSON.stringify(pinned)}. E2E_APPLY_BASE leaked out of checkGrcCanaries(), so the wrong commit was graded`,
+      );
+    }
   });
 
   if (redGrade) {
@@ -1164,6 +1210,175 @@ function checkSrvcCanaries() {
 function checkTargetToolchainCanary() {
   checkGrcCanaries();
   checkSrvcCanaries();
+}
+
+// ---- crux 10: anchor arming + the unstated-base guard -----------------------------------------
+//
+// Two things the operator relies on, both proved WITHOUT a toolchain and without a metered
+// anything:
+//
+//   (a) gradeRun REFUSES to grade a requireExplicitApplyBase suite when E2E_APPLY_BASE is unset,
+//       and grades normally when it is set. Without the guard the unset case silently graded the
+//       armed round against the UNARMED base -- no throw, no warning, a plausible-looking number.
+//   (b) arm-anchor.mjs --verify DISCRIMINATES: it fails on an unarmed throwaway and passes on an
+//       armed one, and leaves the borrowed kata pristine either way.
+//
+// The auto-write behavior itself is NOT asserted here -- it is a MEASUREMENT, recorded in
+// arm-anchor.mjs's header (vitest 0.28.5: 2 snapshots written, exit 0, outside --ci). What this
+// crux tests is the verifier's logic and the guard, which are the parts an operator's round rests
+// on.
+function checkApplyBaseGuard() {
+  const fixture = join(HERE, 'fixtures', 'canary-rundir');
+  const hadKey = Object.prototype.hasOwnProperty.call(process.env, 'E2E_APPLY_BASE');
+  const prior = process.env.E2E_APPLY_BASE;
+  delete process.env.E2E_APPLY_BASE;
+
+  try {
+    // The runDir is a copy so nothing is written into the committed fixture -- though with the
+    // guard in place gradeRun throws before it creates anything at all, which is the point of
+    // putting the check first.
+    const runDir = join(os.tmpdir(), `red-crux10-${process.pid}-${Date.now()}`);
+    fs.cpSync(fixture, runDir, { recursive: true });
+
+    let threw = null;
+
+    try {
+      gradeRun({ runDir, suiteDir: RED_SUITE_DIR });
+    } catch (err) {
+      threw = err;
+    } finally {
+      fs.rmSync(runDir, { recursive: true, force: true });
+    }
+
+    if (!threw) {
+      fail(
+        '[crux 10] gradeRun GRADED a requireExplicitApplyBase suite with E2E_APPLY_BASE unset. An armed round ' +
+          'would be measured against the unarmed base with no signal at all',
+      );
+    }
+
+    if (!/E2E_APPLY_BASE/.test(String(threw.message))) {
+      fail(`[crux 10] the refusal does not name the variable an operator has to set: ${JSON.stringify(String(threw.message).slice(0, 200))}`);
+    }
+  } finally {
+    if (hadKey) {
+      process.env.E2E_APPLY_BASE = prior;
+    } else {
+      delete process.env.E2E_APPLY_BASE;
+    }
+  }
+
+  console.log('  [crux 10] unstated-base guard OK (gradeRun REFUSES the GRC suite with E2E_APPLY_BASE unset, naming the variable)');
+}
+
+function checkAnchorArming() {
+  const ctx = loadSuiteCtx(RED_SUITE_DIR);
+
+  // SKIP-if-absent, matching cruxes 3 and 7: the metered run is gated anyway and a missing borrowed
+  // repo must not fail the whole battery.
+  if (!ctx.repo || !fs.existsSync(ctx.repo)) {
+    console.log(`  [crux 10] SKIP -- kata repo not on disk (${ctx.repo})`);
+
+    return;
+  }
+
+  const gitRoot = (git(ctx.repo, ['rev-parse', '--show-toplevel']).stdout || '').trim();
+
+  if (!gitRoot) {
+    console.log(`  [crux 10] SKIP -- ${ctx.repo} is not a git repo`);
+
+    return;
+  }
+
+  const armScript = join(HERE, 'arm-anchor.mjs');
+  const throwaway = join(os.tmpdir(), `red-arm-crux10-${process.pid}-${Date.now()}`);
+  const rel = resolve(ctx.repo).slice(resolve(gitRoot).length + 1).split(/[\\/]/).filter(Boolean).join('/');
+  const snapRootRel = `${rel ? `${rel}/` : ''}test/vitest/__snapshots__/approvals.spec.ts.snap`;
+
+  const runArm = (mode) =>
+    spawnSync(process.execPath, [armScript, mode, throwaway], { encoding: 'utf8', maxBuffer: 16 * 1024 * 1024 });
+
+  // --detach: a named branch on the borrowed repo is out of bounds.
+  gitOrFail(gitRoot, ['worktree', 'add', '--detach', throwaway, 'main'], '[crux 10] worktree add');
+
+  try {
+    const unarmed = runArm('--verify');
+
+    if (unarmed.status === 0) {
+      fail(`[crux 10] --verify PASSED on an UNARMED throwaway, so it cannot tell armed from unarmed:\n${unarmed.stdout}`);
+    }
+
+    if (!/snapshot|not tracked|NOT ARMED/i.test(`${unarmed.stdout}${unarmed.stderr}`)) {
+      fail(`[crux 10] --verify failed on the unarmed throwaway for an unrelated reason: ${(unarmed.stderr || '').trim().slice(0, 240)}`);
+    }
+
+    // Hand-create the snapshot and commit it BY NAME. Deliberately not via --arm: that needs a real
+    // toolchain and a real runner invocation, which is a metered-scale cost for a check about
+    // git-visible state. --arm is exercised at the gate, and its own steps assert the runner side.
+    const snapAbs = join(throwaway, ...snapRootRel.split('/'));
+    fs.mkdirSync(dirname(snapAbs), { recursive: true });
+    fs.writeFileSync(
+      snapAbs,
+      '// Vitest Snapshot v1\n\nexports[`Gilded Rose Approval > should foo 1`] = `\n[\n  Item {\n    "name": "foo",\n    "quality": 0,\n    "sellIn": -1,\n  },\n]\n`;\n',
+    );
+    gitOrFail(throwaway, ['add', '--', snapRootRel], '[crux 10] stage the snapshot');
+    gitOrFail(throwaway, ['commit', '-m', 'test: arm the approvals snapshot (crux 10 fixture)'], '[crux 10] commit the snapshot');
+
+    const armed = runArm('--verify');
+
+    if (armed.status !== 0) {
+      fail(`[crux 10] --verify FAILED on an armed throwaway: ${(armed.stderr || '').trim().slice(0, 300)}`);
+    }
+
+    const sha = (git(throwaway, ['rev-parse', 'HEAD']).stdout || '').trim();
+
+    if (!armed.stdout.includes(sha)) {
+      fail(`[crux 10] --verify passed but did not print the armed SHA the operator has to export:\n${armed.stdout}`);
+    }
+
+    if (!/E2E_APPLY_BASE/.test(armed.stdout)) {
+      fail(`[crux 10] --verify passed but did not print the E2E_APPLY_BASE export line:\n${armed.stdout}`);
+    }
+
+    console.log(
+      `  [crux 10] anchor arming OK (--verify FAILS unarmed and PASSES armed, printing ${sha.slice(0, 8)} and the ` +
+        'E2E_APPLY_BASE export line)',
+    );
+  } finally {
+    fs.rmSync(throwaway, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 });
+    git(gitRoot, ['worktree', 'remove', '--force', throwaway]);
+    git(gitRoot, ['worktree', 'prune']);
+  }
+
+  // The borrowed kata must be pristine afterwards.
+  const porcelain = (git(gitRoot, ['status', '--porcelain']).stdout || '').trim();
+
+  if (porcelain) {
+    fail(`[crux 10] kata not clean after the arming probe: ${porcelain}`);
+  }
+
+  const worktrees = git(gitRoot, ['worktree', 'list']).stdout || '';
+
+  if (/red-arm-crux10-/.test(worktrees)) {
+    fail(`[crux 10] leftover arming worktree after teardown:\n${worktrees}`);
+  }
+
+  // Scoped to a GLOB, never a bare listing: the kata legitimately has `main`, so a bare
+  // `git branch` would "find a leftover branch" in the fully correct end state. checkWorktreeBase()
+  // uses the same idiom for review-*.
+  const branches = (git(gitRoot, ['branch', '--list', 'red-*']).stdout || '').trim();
+
+  if (branches) {
+    fail(`[crux 10] leftover red-* branch after teardown (the throwaway must be --detach): ${branches}`);
+  }
+
+  console.log('  [crux 10] kata pristine after the arming probe OK (clean tree, no leftover worktree, no red-* branch)');
+}
+
+function checkAnchorArmingAndGuard() {
+  // The guard first: it is pure, needs no borrowed repo, and costs nothing.
+  checkApplyBaseGuard();
+  checkAnchorArming();
 }
 
 // ---- crux 8: the measured 2026-07-25 steering exploits stay blocked ---------------------------
@@ -1485,11 +1700,13 @@ function checkNoTestsDisambiguationIsRunnerAuthored() {
 const T63F05_SENTINEL = 'DO-NOT-TOUCH-ME';
 const T63F05_MARKER = 'T63F05-SPEC-EXECUTED';
 
+// The caller supplies its OWN crux prefix in `label`: this helper is shared by cruxes 9 and 10, and
+// a hardcoded prefix would attribute one crux's git failure to the other.
 function gitOrFail(cwd, args, label) {
   const r = git(cwd, args);
 
   if (r.status !== 0) {
-    fail(`[crux 9] ${label}: git ${args.join(' ')} failed in ${cwd}: ${(r.stderr || '').trim()}`);
+    fail(`${label}: git ${args.join(' ')} failed in ${cwd}: ${(r.stderr || '').trim()}`);
   }
 
   return r;
@@ -1531,16 +1748,16 @@ function buildStandInRepo() {
   fs.writeFileSync(join(sub, 'app', 'thing.ts'), 'export function thing(): number {\n  return 1;\n}\n');
   fs.writeFileSync(join(sub, 'test', 'vitest', '.gitkeep'), '');
 
-  gitOrFail(root, ['init', '-q'], 'stand-in init');
-  gitOrFail(root, ['add', '.gitignore', 'TypeScript'], 'stand-in add');
+  gitOrFail(root, ['init', '-q'], '[crux 9] stand-in init');
+  gitOrFail(root, ['add', '.gitignore', 'TypeScript'], '[crux 9] stand-in add');
   // A throwaway identity, so the probe never depends on (or writes) a real one.
-  gitOrFail(root, ['-c', 'user.name=probe', '-c', 'user.email=probe', 'commit', '-q', '-m', 'stand-in base'], 'stand-in commit');
+  gitOrFail(root, ['-c', 'user.name=probe', '-c', 'user.email=probe', 'commit', '-q', '-m', 'stand-in base'], '[crux 9] stand-in commit');
 
-  const base = (gitOrFail(root, ['rev-parse', 'HEAD'], 'stand-in rev-parse').stdout || '').trim();
+  const base = (gitOrFail(root, ['rev-parse', 'HEAD'], '[crux 9] stand-in rev-parse').stdout || '').trim();
   // Take the toplevel in GIT'S form. os.tmpdir() can hand back an 8.3 short path while git reports
   // long, and resolveArmCwd() now (correctly) refuses that mismatch outright -- so the probe has to
   // be internally consistent or it would only ever exercise the new guard.
-  const topLevel = (gitOrFail(root, ['rev-parse', '--show-toplevel'], 'stand-in toplevel').stdout || '').trim();
+  const topLevel = (gitOrFail(root, ['rev-parse', '--show-toplevel'], '[crux 9] stand-in toplevel').stdout || '').trim();
   const repo = `${topLevel}/TypeScript`;
 
   // The stand-in's own node_modules: a working toolchain (the workspace's, so the runner really
@@ -1820,6 +2037,7 @@ checkCompositionAndParity();
 checkWorktreeBase();
 checkTranscriptParse();
 checkClassifier();
+checkAnchorArmingAndGuard();
 checkTargetToolchainCanary();
 checkDiffContainment();
 checkRunnerSignalIsRunnerAuthored();

@@ -1077,6 +1077,32 @@ export function gradeRun({ runDir, suiteDir }) {
   const applyBase = process.env.E2E_APPLY_BASE || suite.applyBase;
   const runnerSpec = target.runner || {};
 
+  // FAIL CLOSED on an unstated base, BEFORE anything is created (T-wpu-08).
+  //
+  // A suite whose base is chosen AT THE GATE rather than baked into suite.json sets
+  // requireExplicitApplyBase. The Gilded Rose anchor is the case: arm-anchor.mjs commits the
+  // approvals snapshot inside the throwaway, so the base for that round is the ARMED sha, not
+  // `main`.
+  //
+  // WHY A GUARD AND NOT A NOTE. The two steps of a round do NOT fail the same way. Forgetting the
+  // export on the DRIVE is loud -- run-e2e.mjs computes `rev-list APPLY_BASE..HEAD` and throws
+  // because the arming commit puts HEAD ahead. Forgetting it on a later `grade-red --run` was
+  // SILENT: gradeRun has no ahead-check and no protected-branch check of its own, so it simply
+  // built a worktree at whatever base it resolved and graded the armed round against the UNARMED
+  // one, with no signal at all. RUN-GATE documents driving and grading as separate commands, which
+  // makes that an ordinary operator slip rather than an exotic one.
+  //
+  // Placed before the worktree and the toolchain copy so the failure is instant and leaves nothing
+  // behind.
+  if (suite.requireExplicitApplyBase && !process.env.E2E_APPLY_BASE) {
+    throw new Error(
+      `grade-red: suite '${suite.name || suiteDir}' sets requireExplicitApplyBase, so its base is chosen at the ` +
+        'gate rather than baked into suite.json -- refusing to grade against an unstated base (fail closed, ' +
+        'T-wpu-08). Run `node arm-anchor.mjs --verify <throwaway checkout>`: it prints the armed SHA and the ' +
+        'exact E2E_APPLY_BASE export line, which is required on EVERY grade invocation, not only on the drive.',
+    );
+  }
+
   // the produced test file(s) from meta.changed_files (the runner's spec/test glob).
   const producedTests = meta.changed_files.filter((f) => isTestFile(f));
 
@@ -1263,6 +1289,7 @@ export function gradeRun({ runDir, suiteDir }) {
         runner: runnerName,
         runner_version: readRunnerVersion(armCwd, worktree, runnerName),
         runner_test_path: testForTemplate,
+        apply_base: applyBase,
         toolchain_ms: toolchainMs,
         prebuild_ms: prebuildMs,
         produced_test_files: [],
@@ -1434,6 +1461,12 @@ export function gradeRun({ runDir, suiteDir }) {
       // used the unstripped one; recording both halves of that split keeps a per-target path config
       // checkable rather than something an operator has to re-derive from two config fields.
       runner_test_path: testForTemplate,
+      // The commit this grade was actually measured against (T-wpu-08). Prevention is the
+      // requireExplicitApplyBase guard above; this is the AUDIT TRAIL, so a post-hoc reader can
+      // check which base a round used rather than take it on trust. It matters most for a suite
+      // whose base is armed at the gate, where "main" and "the armed sha" are different
+      // measurements that look identical in every other field.
+      apply_base: applyBase,
       // The measured cost of copying the target's node_modules into this grade's worktree
       // (T-63f-05). The CLI prints it too, but recording it puts the containment's overhead in
       // every artifact rather than only in front of whoever watched the console.

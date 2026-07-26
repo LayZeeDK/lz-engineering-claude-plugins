@@ -412,7 +412,10 @@ export function assertSafeDiffPaths(diffText, diffPath) {
 
 // ---- toolchain-copy containment (T-63f-05 runtime write direction) ----------------------------
 
-// Every link under `root` whose target resolves OUTSIDE `root`, as `<link> -> <resolved>` strings.
+// Every link under `root` whose target resolves OUTSIDE `boundary`, as `<link> -> <resolved>`
+// strings. `root` is the tree that is WALKED; `boundary` is what each resolved target is compared
+// against, and it defaults to `root` so every call site that passes one argument keeps its exact
+// pre-existing meaning.
 //
 // The grading worktree's toolchain is a disposable COPY precisely so that nothing inside the
 // worktree leads back to the borrowed repo -- but `fs.cpSync` copies a symlink AS a symlink, so a
@@ -421,13 +424,31 @@ export function assertSafeDiffPaths(diffText, diffPath) {
 // npm workspaces or a `file:` dependency can, and the whole point of a structural containment is
 // that it does not depend on which target happens to be configured. Verify, do not assume.
 //
+// WHY THE BOUNDARY IS SEPARATE FROM THE WALKED ROOT, and why this is a CORRECTION rather than a
+// relaxation. The hole this guard closes is stated in the paragraph above: "a link escaping the
+// WORKTREE leads back to the borrowed repo". But gradeRun compared every resolved target against
+// the copied node_modules DIRECTORY -- strictly narrower than the guard's own contract, and narrow
+// enough to false-flag links that never leave the worktree at all. MEASURED 2026-07-26 against a
+// pnpm workspace (radix-ng/primitives at its pin): 8,164 symlinks, 100% RELATIVE, ZERO absolute,
+// ZERO resolving outside the repo -- yet SEVEN of them resolve outside their own copied root. Six
+// are the package-level `packages/primitives/node_modules` links, which legitimately point UP into
+// the root store; the seventh is `node_modules/.pnpm/node_modules/@radix-ng/primitives`, the
+// workspace SELF-link back into the checkout's own source, which fires even on a single-path copy.
+// Under the narrow boundary every grade of that target THROWS.
+//
+// Widening to the worktree keeps everything that matters failing closed: an ABSOLUTE link into the
+// source checkout, an unreadable link, and any `..` chain that leaves the worktree are all still
+// reported. selfcheck-red crux 9 asserts both boundaries over ONE synthetic pnpm-shaped tree, so
+// the legitimate up-link is proved to flip while the absolute escape is proved to be caught under
+// BOTH -- the guard is demonstrably intact rather than merely quieter.
+//
 // Windows junctions count: `lstat` reports them as symlinks, so a `readdirSync` Dirent does too.
 // An unreadable link is reported as an escape -- a link that cannot be resolved cannot be proven
 // contained, and this check exists to fail closed.
-export function escapingLinks(root) {
-  const base = path.resolve(root);
+export function escapingLinks(root, boundary = root) {
+  const base = path.resolve(boundary);
   const escapes = [];
-  const stack = [base];
+  const stack = [path.resolve(root)];
 
   while (stack.length) {
     const dir = stack.pop();
@@ -1160,6 +1181,117 @@ export function resolveTypecheck(target) {
   return { args, prebuild };
 }
 
+// ---- toolchain provisioning: every node_modules a target declares ----------------------------
+
+// The repo-relative directories to copy into the grading worktree, in declaration order.
+//
+// ABSENT BY DEFAULT: a target that declares nothing gets ['node_modules'], which is exactly what
+// provisioning did before this field existed -- so the kata and srvx suites are byte-identical.
+//
+// A pnpm (or npm/yarn) WORKSPACE can need more than one. MEASURED 2026-07-26 on
+// radix-ng/primitives: `packages/primitives/node_modules` is a real directory of 6 links and 0
+// files, and every one of its deps is ALSO present in the root store -- five resolving to the
+// byte-identical .pnpm entry, with only @angular-devkit/schematics genuinely differing (21.2.12
+// against the root's 22.0.2). So this is a FIDELITY mechanism, not the resolution-breaking blocker
+// it was first inferred to be: a single-path copy would very likely still run. It ships anyway
+// because a grading worktree that silently resolves DIFFERENTLY from the target is the class of
+// defect this gate exists to avoid, and 6 links cost nothing.
+//
+// An EMPTY array falls back to the default for the same reason resolveTypecheck's does: a config
+// typo must never silently REDUCE the grading environment. Every other malformed entry throws
+// before anything is created -- a declared path is a copy SOURCE inside a borrowed repo and a
+// DESTINATION inside the worktree, so both halves have to stay contained, and a typo that silently
+// skipped a path would degrade the environment invisibly.
+export function resolveToolchainPaths(target) {
+  const id = (target && target.id) || '<unnamed target>';
+  const declared = target && target.toolchain_paths;
+
+  if (!Array.isArray(declared) || declared.length === 0) {
+    return ['node_modules'];
+  }
+
+  return declared.map((entry) => {
+    if (typeof entry !== 'string' || entry.trim() === '') {
+      throw new Error(
+        `grade-red: target '${id}' declares a toolchain_paths entry that is not a non-empty string ` +
+          `(${JSON.stringify(entry)}) -- refusing to guess which directory it meant (fail closed)`,
+      );
+    }
+
+    const normalised = entry.trim().split('\\').join('/').replace(/\/+$/, '');
+
+    if (path.isAbsolute(normalised) || /^[A-Za-z]:/.test(normalised) || normalised.startsWith('/')) {
+      throw new Error(
+        `grade-red: target '${id}' declares an ABSOLUTE toolchain_paths entry '${entry}'. Entries are ` +
+          'copy sources inside the borrowed repo AND destinations inside the grading worktree, so they ' +
+          'must be repo-relative (fail closed)',
+      );
+    }
+
+    if (normalised.split('/').includes('..')) {
+      throw new Error(
+        `grade-red: target '${id}' declares a toolchain_paths entry containing a '..' segment ('${entry}'), ` +
+          'which can name a directory outside the repo and outside the worktree (fail closed)',
+      );
+    }
+
+    if (normalised === '') {
+      throw new Error(
+        `grade-red: target '${id}' declares a toolchain_paths entry that normalises to nothing ('${entry}') ` +
+          '(fail closed)',
+      );
+    }
+
+    return normalised;
+  });
+}
+
+// Copy each `<repo>/<rel>` to `<armCwd>/<rel>`, returning the destinations in creation order and
+// the TOTAL elapsed milliseconds.
+//
+// Every SOURCE is checked before anything is created, so a typo leaves no half-provisioned
+// worktree behind. fs.cpSync is link-PRESERVING by default and that is load-bearing: pnpm's links
+// are relative, so a preserving copy stays resolvable at the new path, while dereferencing would
+// cost the full tree per link.
+//
+// toolchain_ms stays ONE summed number rather than a per-path breakdown. The copy is dominated by
+// the root tree in every measured layout, and a per-path split is precision an operator cannot act
+// on.
+export function copyToolchainPaths(repo, armCwd, relPaths, target) {
+  const id = (target && target.id) || '<unnamed target>';
+
+  for (const rel of relPaths) {
+    const src = path.join(repo, rel);
+
+    if (!fs.existsSync(src)) {
+      throw new Error(
+        `grade-red: ${src} does not exist, so the grading worktree would not reproduce the target's ` +
+          `toolchain and the differential typecheck could not discriminate (fail closed). Target '${id}' ` +
+          `declares '${rel}'. Install the target's dependencies in ${repo} first, then re-run.`,
+      );
+    }
+  }
+
+  // The destinations are pure arithmetic over armCwd, so gradeRun derives the same list BEFORE
+  // calling this (via toolchainDestinations) and arms teardown with it. A copy that throws
+  // part-way therefore still has every candidate destination registered for removal.
+  const destinations = toolchainDestinations(armCwd, relPaths);
+  const started = Date.now();
+
+  for (const rel of relPaths) {
+    fs.cpSync(path.join(repo, rel), path.join(armCwd, rel), { recursive: true });
+  }
+
+  return { destinations, ms: Date.now() - started };
+}
+
+// Where each declared path lands inside the grading worktree. Pure arithmetic, so both gradeRun
+// (arming teardown before the copy starts) and copyToolchainPaths (reporting what it made) derive
+// the identical list rather than one trusting the other.
+export function toolchainDestinations(armCwd, relPaths) {
+  return relPaths.map((rel) => path.join(armCwd, rel));
+}
+
 // The target repo's own typescript (never the workspace's -- Pitfall 4).
 function targetTscBin(armCwd, worktree) {
   for (const base of [armCwd, worktree]) {
@@ -1331,21 +1463,19 @@ export function gradeRun({ runDir, suiteDir }) {
   // aborts at config parse before checking any source. The identical abort then appears in BOTH
   // differential runs, so newErrors subtracts to 0 and D-06 clause 1 reports "tsc clean" for a
   // produced test with blatant type errors. Fail closed here instead (T-63f-04).
-  const nodeModulesSrc = path.join(repo, 'node_modules');
-  const toolchainDir = path.join(armCwd, 'node_modules');
-
-  if (!fs.existsSync(nodeModulesSrc)) {
-    throw new Error(
-      `grade-red: ${nodeModulesSrc} does not exist, so the grading worktree would have no toolchain ` +
-        'and the differential typecheck could not discriminate (fail closed). Install the target\'s ' +
-        `dependencies there first (npm ci in ${repo}), then re-run.`,
-    );
-  }
+  //
+  // A target may declare MORE THAN ONE (a workspace layout); resolveToolchainPaths defaults to the
+  // single root directory, so a target that declares nothing behaves exactly as before. The config
+  // is validated here, before the worktree exists, so a malformed entry leaves nothing behind.
+  const toolchainRelPaths = resolveToolchainPaths(target);
 
   // detached worktree at the pristine applyBase (RED needs the FULL repo so the produced test can
   // import/typecheck/run -- not a one-file synthetic tree; RESEARCH anti-pattern).
   git(gitRoot, ['worktree', 'add', '--detach', worktree, applyBase], { mustSucceed: true });
 
+  // Armed BEFORE the copy starts: a cpSync that throws part-way must still have every candidate
+  // destination registered for removal.
+  const toolchainDests = toolchainDestinations(armCwd, toolchainRelPaths);
   let toolchainInstalled = false;
   let toolchainMs = 0;
   let prebuildMs = 0;
@@ -1375,18 +1505,26 @@ export function gradeRun({ runDir, suiteDir }) {
   // deterministic gate, and it executes third-party postinstall scripts -- MORE attack surface,
   // not less.
   const provisionToolchain = () => {
-    const started = Date.now();
-    fs.cpSync(nodeModulesSrc, toolchainDir, { recursive: true });
-    // Set BEFORE the containment assertion below, so a rejected copy is still torn down.
+    // Set BEFORE the copy, so a cpSync that throws part-way is still torn down.
     toolchainInstalled = true;
-    toolchainMs = Date.now() - started;
 
-    const escapes = escapingLinks(toolchainDir);
+    const { ms } = copyToolchainPaths(repo, armCwd, toolchainRelPaths, target);
+    toolchainMs = ms;
+
+    // ONE containment check, AFTER every declared path has been copied, bounded by the WORKTREE.
+    //
+    // BOTH halves of that sentence are load-bearing. The BOUNDARY is the worktree because that is
+    // what the guard's own contract names -- see escapingLinks -- and because a workspace's
+    // package-level links legitimately resolve UP into the root store while the root store itself
+    // can carry a workspace self-link back into the checkout's own source. The ORDER is
+    // after-everything because those up-links resolve INTO the root copy: checking a package-level
+    // tree before the root tree exists reports escapes for a worktree that is merely half-built.
+    const escapes = toolchainDests.flatMap((dest) => escapingLinks(dest, worktree));
 
     if (escapes.length) {
       throw new Error(
         `grade-red: the copied toolchain is not self-contained -- ${escapes.length} link(s) resolve ` +
-          `outside ${toolchainDir}, which is a path straight back out of the grading worktree ` +
+          `outside ${worktree}, which is a path straight back out of the grading worktree ` +
           `(fail closed, T-63f-05): ${escapes.slice(0, 3).join('; ')}`,
       );
     }
@@ -1395,8 +1533,14 @@ export function gradeRun({ runDir, suiteDir }) {
   // maxRetries covers the routine Windows case: a scanner or indexer still holding a handle
   // somewhere in a 7000-file tree moments after the runner exited. rmSync backs off and retries
   // rather than turning a transient handle into a failed grade.
+  //
+  // REVERSE creation order: a package-level copy nests inside the worktree alongside the root one,
+  // and removing the innermost first keeps each rmSync walking the smallest tree it can.
   const removeToolchain = () => {
-    fs.rmSync(toolchainDir, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 });
+    for (const dest of [...toolchainDests].reverse()) {
+      fs.rmSync(dest, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 });
+    }
+
     toolchainInstalled = false;
   };
 
@@ -1415,9 +1559,9 @@ export function gradeRun({ runDir, suiteDir }) {
         // half-deleted tree and a confusing error; stop instead and make a human look. This can
         // mask a pending error from the graded run, but the grade is offline and free to re-run.
         throw new Error(
-          `grade-red: could NOT remove the toolchain copy ${toolchainDir} (${err.code || err.message}). ` +
-            'Refusing to force-remove the grading worktree while something still holds files inside ' +
-            'it -- delete it by hand first (fail closed, T-63f-01).',
+          `grade-red: could NOT remove the toolchain cop(ies) ${toolchainDests.join(', ')} ` +
+            `(${err.code || err.message}). Refusing to force-remove the grading worktree while something ` +
+            'still holds files inside it -- delete it by hand first (fail closed, T-63f-01).',
         );
       }
     }
@@ -1446,10 +1590,12 @@ export function gradeRun({ runDir, suiteDir }) {
   // orphaned worktree is harmless, and removing it here would need git plumbing inside a signal
   // handler.
   const onSignal = (signal) => {
-    try {
-      fs.rmSync(toolchainDir, { recursive: true, force: true, maxRetries: 2, retryDelay: 50 });
-    } catch {
-      // there is nothing better to do from inside a signal handler
+    for (const dest of [...toolchainDests].reverse()) {
+      try {
+        fs.rmSync(dest, { recursive: true, force: true, maxRetries: 2, retryDelay: 50 });
+      } catch {
+        // there is nothing better to do from inside a signal handler
+      }
     }
 
     process.exit(signal === 'SIGINT' ? 130 : 143);
@@ -2037,10 +2183,43 @@ function runSelfcheck() {
     fail('[resolveTypecheck] a whitespace-only prebuild must resolve to null rather than spawning an empty shell command');
   }
 
+  // resolveToolchainPaths: absent-by-default in all three malformed-config shapes, the declared
+  // list when present, and a THROW for every entry that could name a directory the copy must never
+  // touch. Same contract as resolveTypecheck: a config typo must never silently REDUCE the grading
+  // environment, and must never silently WIDEN where it copies from or to.
+  for (const [label, cfg] of [
+    ['absent', {}],
+    ['non-array', { toolchain_paths: 'node_modules' }],
+    ['empty array', { toolchain_paths: [] }],
+  ]) {
+    const got = resolveToolchainPaths({ id: 'T', ...cfg });
+
+    if (got.length !== 1 || got[0] !== 'node_modules') {
+      fail(`[resolveToolchainPaths] a ${label} config gave ${JSON.stringify(got)}, expected the single-root default ['node_modules']`);
+    }
+  }
+
+  const declaredPaths = resolveToolchainPaths({
+    id: 'T',
+    toolchain_paths: ['node_modules', 'packages/primitives/node_modules/'],
+  });
+
+  if (declaredPaths.join('|') !== 'node_modules|packages/primitives/node_modules') {
+    fail(`[resolveToolchainPaths] the declared list was not returned normalised: ${JSON.stringify(declaredPaths)}`);
+  }
+
+  for (const bad of ['D:/elsewhere/node_modules', '/etc', '../sibling/node_modules', 'a/../../b', '', '   ']) {
+    assertThrows(
+      () => resolveToolchainPaths({ id: 'T', toolchain_paths: [bad] }),
+      `a toolchain_paths entry of ${JSON.stringify(bad)}`,
+    );
+  }
+
   console.log(
-    '  [per-target config] relativeToBase / substituteRunnerCmd / resolveTypecheck OK ' +
+    '  [per-target config] relativeToBase / substituteRunnerCmd / resolveTypecheck / resolveToolchainPaths OK ' +
       '(path-base stripping is segment-exact, <reportFile> normalises to forward slashes, an empty ' +
-      'typecheck.args falls back to --noEmit --strict)',
+      "typecheck.args falls back to --noEmit --strict, and toolchain_paths defaults to ['node_modules'] " +
+      'while an absolute / .. / empty entry throws)',
   );
 
   // Fail-closed paths (T-21-02 / T-21-V5): empty/missing diff and garbled/empty runner JSON must

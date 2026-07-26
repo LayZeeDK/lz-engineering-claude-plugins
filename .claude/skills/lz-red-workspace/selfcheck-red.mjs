@@ -55,10 +55,15 @@
 //   9. RUNTIME WRITE PATH -- crux 8 covers what a captured diff DECLARES; this one covers what the
 //      produced spec DOES when the runner executes it. A spec declaring a legitimate path whose
 //      BODY deletes and overwrites through node_modules/ is graded for real against a THROWAWAY
-//      stand-in repo (never the kata) and asserted to leave that tree byte-intact. Plus the three
-//      pure invariants the containment rests on: escapingLinks(), arm-anchor's realpath identity
-//      (driven by a SYNTHETIC junction alias rather than by whatever form os.tmpdir() returns), and
-//      resolveArmCwd() -- including an explicit 8.3 SHORT-form mismatch.
+//      stand-in repo (never the kata) and asserted to leave that tree byte-intact. Plus the pure
+//      invariants the containment rests on: escapingLinks(), arm-anchor's realpath identity
+//      (driven by a SYNTHETIC junction alias rather than by whatever form os.tmpdir() returns),
+//      resolveArmCwd() -- including an explicit 8.3 SHORT-form mismatch -- the escapingLinks
+//      BOUNDARY (one pnpm-shaped tree run under BOTH the pre-change copied-dir boundary and the
+//      worktree one, so the legitimate relative up-link is proved to flip while an absolute escape
+//      is proved to be caught under both), and MULTI-PATH provisioning (two synthetic
+//      node_modules copied through copyToolchainPaths, plus a declared-but-missing source that
+//      throws before anything is created).
 //  11. GRADING TEMP DIR -- the throwaway is created on the TARGET REPO'S OWN VOLUME, derived, never
 //      os.tmpdir() and never a hardcoded drive, with an operator override and a LOUD warning when
 //      it cannot be honoured. Pure here; cruxes 7 and 9 assert it END TO END against the worktree
@@ -78,6 +83,7 @@ import { buildSyntheticBase, countModelFired, extractResult, git } from '../lz-r
 import {
   assertSafeDiffPaths,
   classify,
+  copyToolchainPaths,
   escapingLinks,
   GRADE_TMPDIR_ENV,
   gradeRun,
@@ -2207,6 +2213,180 @@ function checkContainmentInvariants() {
       "target compare EQUAL through arm-anchor's realpath identity while an unrelated sibling does not; " +
       'resolveArmCwd keeps the grade inside the worktree and refuses a path-form mismatch, including an ' +
       'explicit 8.3 short-form one)',
+  );
+
+  checkWorktreeBoundedContainment();
+  checkMultiPathToolchainCopy();
+}
+
+// The escapingLinks BOUNDARY, proved by running TWO REAL RULES over ONE synthetic input rather
+// than asserting a remembered one. No flag switches the guard off: the discrimination comes from
+// passing the two boundaries as ordinary arguments, which is exactly what the pre-change and
+// post-change code do.
+//
+// The tree is shaped like a pnpm workspace worktree, because that is the shape that forced the
+// correction (MEASURED 2026-07-26, radix-ng/primitives): `wt/node_modules/.pnpm/x` is the store, a
+// RELATIVE link at `wt/pkg/node_modules/x` points up into it, and an ABSOLUTE link at
+// `wt/node_modules/evil` points outside the worktree entirely.
+function checkWorktreeBoundedContainment() {
+  const probe = join(os.tmpdir(), `red-boundary-${process.pid}-${Date.now()}`);
+  const wt = join(probe, 'wt');
+  const store = join(wt, 'node_modules', '.pnpm', 'x');
+  const pkgNm = join(wt, 'pkg', 'node_modules');
+  const outside = join(probe, 'borrowed');
+
+  fs.mkdirSync(store, { recursive: true });
+  fs.mkdirSync(pkgNm, { recursive: true });
+  fs.mkdirSync(outside, { recursive: true });
+
+  let narrowPkg;
+  let widePkg;
+  let narrowRoot;
+  let wideRoot;
+  let probeError;
+
+  try {
+    // The legitimate up-link, written RELATIVE exactly as pnpm writes it.
+    fs.symlinkSync(resolve(store), join(pkgNm, 'x'), 'junction');
+    // The genuine escape: an ABSOLUTE link out of the worktree.
+    fs.symlinkSync(outside, join(wt, 'node_modules', 'evil'), 'junction');
+
+    // The PRE-CHANGE rule: the walked directory IS the boundary, passed explicitly.
+    narrowPkg = escapingLinks(pkgNm, pkgNm);
+    narrowRoot = escapingLinks(join(wt, 'node_modules'), join(wt, 'node_modules'));
+    // The POST-CHANGE rule: the same trees, bounded by the WORKTREE.
+    widePkg = escapingLinks(pkgNm, wt);
+    wideRoot = escapingLinks(join(wt, 'node_modules'), wt);
+  } catch (err) {
+    probeError = err;
+  }
+
+  fs.rmSync(probe, { recursive: true, force: true });
+
+  if (probeError) {
+    fail(`[crux 9] could not build the boundary probe: ${probeError.message}`);
+  }
+
+  // (1) THE DISCRIMINATION. Under the narrow boundary the legitimate relative up-link IS reported
+  // -- that is the pre-change rule, and it is why every grade of a pnpm-workspace target threw.
+  if (narrowPkg.length !== 1 || !narrowPkg[0].includes('pkg')) {
+    fail(
+      `[crux 9] the NARROW boundary reported ${JSON.stringify(narrowPkg)}; it must flag the legitimate ` +
+        'relative up-link, otherwise this probe is not reproducing the pre-change rule and the widening ' +
+        'below proves nothing',
+    );
+  }
+
+  // (2) THE CORRECTION. Bounded by the worktree, the same link is NOT an escape.
+  if (widePkg.length !== 0) {
+    fail(
+      `[crux 9] the WORKTREE boundary still reports ${JSON.stringify(widePkg)}; a package-level pnpm link ` +
+        'resolving up into the root store never leaves the worktree and must not be flagged',
+    );
+  }
+
+  // (3) THE GUARD IS INTACT, not merely quieter: the ABSOLUTE link out of the worktree is caught
+  // under BOTH boundaries. Without this the widening would be indistinguishable from deleting the
+  // check.
+  for (const [label, got] of [['narrow', narrowRoot], ['worktree', wideRoot]]) {
+    if (got.length !== 1 || !got[0].includes('evil')) {
+      fail(
+        `[crux 9] under the ${label} boundary the ABSOLUTE link out of the worktree was reported as ` +
+          `${JSON.stringify(got)}; it must still be an escape under BOTH boundaries`,
+      );
+    }
+  }
+
+  console.log(
+    '  [crux 9] escapingLinks boundary OK (ONE pnpm-shaped tree, TWO real boundaries: the narrow ' +
+      'copied-dir boundary flags the legitimate relative up-link -- the pre-change rule -- while the ' +
+      'WORKTREE boundary does not, and an absolute link out of the worktree is caught under both)',
+  );
+}
+
+// Multi-path provisioning, proved against synthetic trees: no borrowed repo, no runner, no metered
+// anything. The single-path code copies only the first declared directory, so the two-destination
+// assertion fails without the change.
+function checkMultiPathToolchainCopy() {
+  const probe = join(os.tmpdir(), `red-toolchain-${process.pid}-${Date.now()}`);
+  const src = join(probe, 'repo');
+  const armCwd = join(probe, 'wt');
+
+  fs.mkdirSync(join(src, 'node_modules'), { recursive: true });
+  fs.mkdirSync(join(src, 'packages', 'primitives', 'node_modules'), { recursive: true });
+  fs.mkdirSync(armCwd, { recursive: true });
+  fs.writeFileSync(join(src, 'node_modules', 'root-marker.txt'), 'root');
+  fs.writeFileSync(join(src, 'packages', 'primitives', 'node_modules', 'pkg-marker.txt'), 'pkg');
+
+  const declared = ['node_modules', 'packages/primitives/node_modules'];
+  let result;
+  let probeError;
+
+  try {
+    result = copyToolchainPaths(src, armCwd, declared, { id: 'PROBE' });
+  } catch (err) {
+    probeError = err;
+  }
+
+  const rootMarker = join(armCwd, 'node_modules', 'root-marker.txt');
+  const pkgMarker = join(armCwd, 'packages', 'primitives', 'node_modules', 'pkg-marker.txt');
+  const seen = {
+    root: fs.existsSync(rootMarker) && fs.readFileSync(rootMarker, 'utf8') === 'root',
+    pkg: fs.existsSync(pkgMarker) && fs.readFileSync(pkgMarker, 'utf8') === 'pkg',
+  };
+
+  // A declared-but-MISSING source must throw before anything is created, naming the target and the
+  // path -- the fail-closed half. Asserted here rather than in a separate probe so it runs against
+  // the same real source tree.
+  let missingThrew = false;
+  let missingMessage = '';
+
+  try {
+    copyToolchainPaths(src, join(probe, 'wt2'), ['node_modules', 'packages/typo/node_modules'], { id: 'PROBE' });
+  } catch (err) {
+    missingThrew = true;
+    missingMessage = err.message;
+  }
+
+  const wt2Created = fs.existsSync(join(probe, 'wt2', 'node_modules'));
+
+  fs.rmSync(probe, { recursive: true, force: true });
+
+  if (probeError) {
+    fail(`[crux 9] copyToolchainPaths threw on a well-formed two-path source: ${probeError.message}`);
+  }
+
+  if (!seen.root || !seen.pkg) {
+    fail(
+      `[crux 9] a two-path toolchain copy produced root=${seen.root} pkg=${seen.pkg}; BOTH declared ` +
+        'directories must land in the worktree with their contents -- the single-path code copies only the first',
+    );
+  }
+
+  if (!Array.isArray(result.destinations) || result.destinations.length !== declared.length) {
+    fail(`[crux 9] copyToolchainPaths reported ${JSON.stringify(result.destinations)}, expected one destination per declared path`);
+  }
+
+  if (typeof result.ms !== 'number' || result.ms < 0) {
+    fail(`[crux 9] copyToolchainPaths reported a non-numeric elapsed time (${JSON.stringify(result.ms)}); toolchain_ms must stay priceable`);
+  }
+
+  if (!missingThrew) {
+    fail('[crux 9] a declared-but-missing toolchain source did NOT throw -- provisioning would silently skip it and degrade the grading environment invisibly');
+  }
+
+  if (!missingMessage.includes('PROBE') || !missingMessage.includes('packages/typo/node_modules')) {
+    fail(`[crux 9] the missing-source error names neither the target nor the offending path: ${JSON.stringify(missingMessage.slice(0, 200))}`);
+  }
+
+  if (wt2Created) {
+    fail('[crux 9] the missing-source check ran AFTER copying, leaving a half-provisioned worktree behind; every source must be verified before anything is created');
+  }
+
+  console.log(
+    '  [crux 9] multi-path toolchain provisioning OK (both declared node_modules land in the worktree ' +
+      'with their contents where the single-path code lands one; a declared-but-missing source throws ' +
+      'before anything is created, naming the target and the entry)',
   );
 }
 

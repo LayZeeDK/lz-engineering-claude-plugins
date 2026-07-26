@@ -13,12 +13,15 @@
 //       positives (the RED positives re-tagged should_trigger:false for the sibling probes);
 //   (7) repo hygiene (AGENTS.md): the ONLY email-shaped token in any present eval file is the
 //       approved public contact -- allowlist-inversion; the forbidden value is NEVER encoded here.
+//   (8) the same hygiene over the AUTHORED files of every e2e-red-* apply suite (suite.json,
+//       targets.json, prompts/*.md): ASCII-only AND the email allowlist. Those are hand-written
+//       prose files in a public repo and nothing else checked them mechanically.
 // ponytail: single self-contained script, no framework, no config file.
 // This is a local lint, NOT a claude -p run (D-11 respected).
 
-import { readFileSync, existsSync } from 'node:fs';
+import { readFileSync, existsSync, readdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { dirname, join } from 'node:path';
+import { dirname, extname, join } from 'node:path';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const evalPath = join(here, 'evals', 'trigger-eval.json');
@@ -228,10 +231,77 @@ if (existsSync(behaviorPath)) {
   scanEmails('evals.json', readFileSync(behaviorPath, 'utf8'));
 }
 
+// (8) the same two hygiene properties over every AUTHORED file in the RED apply suite dirs.
+//
+// Each suite dir is four to six hand-written, prose-heavy files -- suite.json, targets.json and one
+// prompt per target -- and until now none of them was covered by anything mechanical. The radix
+// suite landed four such files and they were verified BY HAND, which does not survive the next
+// suite or the next author. ASCII-only matters because Windows cp1252 mangles a stray en dash or
+// curly quote into mojibake the moment the file is piped anywhere; the email allowlist is
+// AGENTS.md's rule for a public repo, asserted by inversion so the forbidden value is never written
+// here as a needle.
+//
+// Scope: `.json` and `.md` under `e2e-red-*/`, skipping the gitignored runtime output that lives in
+// the same dirs (`results*/`, `run-*/`, `outputs/`, `mechanical-red.json`). That output is captured
+// MODEL text, not authored content, and it is not committed -- scanning it would fail this lint on
+// whatever a model happened to emit.
+const SUITE_SCAN_EXTS = new Set(['.json', '.md']);
+const SUITE_SKIP_DIR = /^(?:results|outputs|node_modules)|^run-/;
+
+function authoredSuiteFiles(dir, out = []) {
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    if (entry.isDirectory()) {
+      if (!SUITE_SKIP_DIR.test(entry.name)) {
+        authoredSuiteFiles(join(dir, entry.name), out);
+      }
+
+      continue;
+    }
+
+    if (entry.name !== 'mechanical-red.json' && SUITE_SCAN_EXTS.has(extname(entry.name))) {
+      out.push(join(dir, entry.name));
+    }
+  }
+
+  return out;
+}
+
+function scanNonAscii(label, raw) {
+  const offending = Buffer.from(raw, 'utf8').findIndex((b) => b > 0x7f);
+
+  if (offending !== -1) {
+    fail(`${label} contains a non-ASCII byte (> 0x7F) at offset ${offending}; committed content here is ASCII-only`);
+  }
+}
+
+const suiteDirs = readdirSync(here, { withFileTypes: true })
+  .filter((e) => e.isDirectory() && e.name.startsWith('e2e-red-'))
+  .map((e) => join(here, e.name));
+let suiteFileCount = 0;
+
+for (const suiteDir of suiteDirs) {
+  for (const file of authoredSuiteFiles(suiteDir)) {
+    const label = file.slice(here.length + 1).split('\\').join('/');
+    const raw = readFileSync(file, 'utf8');
+    scanNonAscii(label, raw);
+    scanEmails(label, raw);
+    suiteFileCount += 1;
+  }
+}
+
+if (suiteDirs.length > 0 && suiteFileCount === 0) {
+  fail(
+    `found ${suiteDirs.length} e2e-red-* suite dir(s) but scanned 0 authored files in them; the hygiene ` +
+      'sweep is not reaching the suite content it exists to cover (a SKIP is not a pass)',
+  );
+}
+
 console.log(
   `check-evals: OK - ${data.length} queries ` +
     `(${positives.length} trigger / ${negatives.length} near-miss; ` +
     `${tppSeamNegatives.length} lz-tpp-seam + ${refactorSeamNegatives.length} lz-refactor-seam), ` +
-    `reciprocal ${recip.length} all-false byte-consistent, ASCII-clean, email-allowlist-clean`,
+    `reciprocal ${recip.length} all-false byte-consistent, ASCII-clean, email-allowlist-clean; ` +
+    `${suiteFileCount} authored file(s) across ${suiteDirs.length} e2e-red-* suite dir(s) swept for ` +
+    'non-ASCII bytes and disallowed email-shaped tokens',
 );
 process.exit(0);

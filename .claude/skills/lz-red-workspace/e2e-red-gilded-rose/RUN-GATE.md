@@ -16,7 +16,7 @@ forked per suite. THREE suites, FOUR cells:
 | `.claude/skills/lz-red-workspace/e2e-red-radix-ng` | `RXF` | MEDIUM-contamination IN-DOMAIN **primary drive discriminator** |
 | `.claude/skills/lz-red-workspace/e2e-red-radix-ng` | `RXL` | MEDIUM-contamination IN-DOMAIN observable-output cell |
 
-The in-domain gap the two-suite corpus could not close is now closed: with `RXF` in the corpus a
+The in-domain gap the earlier two-suite corpus could not close is now closed: with `RXF` in it a
 correctness tie on GRC can finally be told apart from inertness, because `RXF` is a genuine
 discriminator on the drive axis rather than a control.
 
@@ -224,13 +224,18 @@ records the `worktree` it actually used.
 Straight-line scaling for the fan-out (model spend is dominated by the turn, not by grading -- but
 grading is now a visible line item, not a rounding error):
 
-| Scope | Runs | Est. spend | Est. model wall clock (serial) | Grading overhead |
-|-------|------|-----------|--------------------------------|------------------|
-| GRC only x 3 arms x k=3 | 9 | ~$4.90 | ~13 min | ~45 s |
-| GRC + SRVC x 3 arms x k=3 | 18 | ~$9.80 | ~26 min | ~2.5 min |
-| **All 4 cells x 3 arms x k=3 (the built corpus)** | **36** | **~$19.50** | **~51 min** | **~15 min** (GRC ~44 s + SRVC ~77 s + radix ~13 min) |
-| All 4 cells x 3 arms x k=5 | 60 | ~$32.50 | ~85 min | ~25 min |
-| Drop RXL to keep radix at one cell | 27 | ~$14.70 | ~38 min | ~8.5 min |
+| Scope | Runs | Est. spend | Est. model wall clock (serial) | Grading: copy + typecheck | Grading: + runner spawn |
+|-------|------|-----------|--------------------------------|---------------------------|-------------------------|
+| GRC only x 3 arms x k=3 | 9 | ~$4.90 | ~13 min | ~45 s | ~1 min |
+| GRC + SRVC x 3 arms x k=3 | 18 | ~$9.80 | ~26 min | ~2.5 min | ~3 min |
+| **All 4 cells x 3 arms x k=3 (the built corpus)** | **36** | **~$19.50** | **~51 min** | ~15 min (GRC ~44 s + SRVC ~77 s + radix ~13 min) | **~19-20 min** |
+| All 4 cells x 3 arms x k=5 | 60 | ~$32.50 | ~85 min | ~25 min | ~32 min |
+| Drop RXL to keep radix at one cell | 27 | ~$14.70 | ~38 min | ~8.5 min | ~11 min |
+
+The two grading columns are split because the first one is NOT the number to size `k` against.
+It counts the toolchain copy plus the differential typecheck and excludes the RUNNER SPAWN, which
+on radix is ~12 s per grade (measured; every `red-grade.json` records it under `runner_measured`).
+Eighteen radix runs add ~3.6 min on their own. **Choose `k` against the right-hand column.**
 
 Add ONE round of `pnpm install` in the radix throwaway (see Step 3c) -- amortised across the whole
 round, not per grade.
@@ -280,6 +285,18 @@ radix -- and each is the discriminating check for a specific mechanism:
 radix suite, 232.1 s and 262.9 s after. The Bash tool's `timeout` caps at 600000 ms; that still
 fits, but the margin is no longer comfortable. And remember that **a SKIP is not a pass**: it means
 the borrowed repo or its `node_modules` was not on disk and that direction went unmeasured.
+
+**One check is PLATFORM-CONDITIONAL, and it is the one covering a Critical-class bug.** crux 9's
+`verbatimSymlinks` discrimination needs a RELATIVE directory link, which Windows refuses without
+Developer Mode or elevation; where it cannot be written, the probe falls back to an
+always-absolute junction, which is copied identically under BOTH `cpSync` settings and therefore
+cannot tell them apart. On such a machine the battery prints a top-level
+`[crux 9] SKIP -- ... verbatimSymlinks discrimination went UNMEASURED`. Its only backstop,
+`canary-rdxf-red`, SKIPs wherever `primitives-pin` is absent -- so on a CI runner or a second dev
+box BOTH layers can SKIP together and a reopened containment hole would ship green. **If you see
+that SKIP, the copy-containment direction was not measured on that machine; do not read the
+battery's exit 0 as covering it.** (Measured on this machine: it does NOT skip -- relative
+directory links are available here.)
 
 There is deliberately no RXL canary. A PURE assertion instead requires RXL's `runner`, `typecheck`
 and `toolchain_paths` blocks to be DEEP-EQUAL to RXF's -- which is exactly what licenses the RXF pair
@@ -354,7 +371,7 @@ the field is computed from the diff and is target-independent, so proving it cos
 copy instead of two ~35 s ones.
 
 `fixtures/canary-borrowed/` is the ATTRIBUTION anti-regression, and it is the one shape the other
-three structurally cannot see: all of them write a BRAND-NEW spec file, where "the file has a
+four structurally cannot see: all of them write a BRAND-NEW spec file, where "the file has a
 failing assertion" and "the test the model added failed" happen to coincide. This one APPENDS a
 test that PASSES to the kata's own `test/vitest/gilded-rose.spec.ts`, which ships a permanently
 failing `should foo` placeholder asserting `'fixme'` -- the exact shape of the k=1 `with_skill`
@@ -565,17 +582,37 @@ and the canary uses the target's toolchain rather than the workspace's.
   genuinely unmeasured follow-up** -- ReFS supports copy-on-write clones and Node's `fs.cpSync` does
   not use them, so a `FSCTL_DUPLICATE_EXTENTS` path could plausibly collapse this to near-zero on the
   Dev Drive. Out of scope here.
+- **On radix, read a `compile_error` cluster against the RECORDED lines before treating it as a
+  model failure.** That target's typecheck baseline is DIRTY -- 55 pre-existing errors across 17
+  files -- and the differential is line-exact string subtraction. A produced spec that PERTURBS an
+  existing diagnostic's text or position (a module augmentation, a `declare`, a type that changes
+  inference in a shared file) yields "new" lines that are RELOCATED baseline errors rather than the
+  model's own. Every `red-grade.json` now records `new_tsc_error_lines` (the actual NEW diagnostics,
+  capped at 10) alongside `new_tsc_errors`, so the verdict can be CHECKED. On GRC and SRVC the
+  baseline is clean and the count is self-evident; on radix it is not.
 - **`escapingLinks` is now bounded by the WORKTREE rather than by the copied directory.** State
   plainly what that changed. What it PERMITS: a link inside the copied toolchain that resolves
   anywhere else INSIDE the same grading worktree -- which is what a pnpm workspace's package-level
   links (pointing up into the root store) and the root store's own workspace self-link (pointing back
   at `packages/primitives`) both are. MEASURED: 8,164 symlinks, 100% relative, ZERO absolute, ZERO
   resolving outside the repo, of which SEVEN escape their own copied root and none escape the
-  worktree. What it still CATCHES, unchanged: an ABSOLUTE link into the source checkout, an
-  unreadable link, and any `..` chain that leaves the worktree. This is a CORRECTION -- the guard's
+  worktree. What it still CATCHES: an ABSOLUTE link into the source checkout, an unreadable link,
+  a `..` chain whose FIRST hop leaves the worktree, and -- since 2026-07-26 -- a copied
+  destination whose ROOT is itself a link out of the boundary. This is a CORRECTION -- the guard's
   own contract always said "a link escaping the WORKTREE leads back to the borrowed repo"; the
   boundary was simply narrower than that. crux 9 asserts BOTH boundaries over one synthetic tree, so
   the widening is proved to be a widening and not a removal.
+  **What it does NOT catch, stated exactly rather than generously: a TWO-HOP chain.** Resolution is
+  a single lexical hop with no `realpath`, and the walked set is the copied toolchain destinations
+  only -- which, now that the boundary is the whole worktree, is strictly SMALLER than the boundary.
+  So hop 1 from inside a copied toolchain into the target's own checked-out content is legitimately
+  inside the boundary, and hop 2 out of the worktree from THERE is never examined. An earlier
+  wording of this bullet said "any `..` chain that leaves the worktree", which was too strong.
+  Reachability needs a symlink COMMITTED in the target's tracked content -- `git ls-tree -r HEAD |
+  rg '^120000'` is **0** in all three borrowed repos -- and everything inside the worktree is
+  already reachable by the executing spec through ordinary relative paths (see the ABSOLUTE-path
+  residual below). crux 9 PINS the permitted shape, so this bullet and the code cannot drift: close
+  the two-hop case and that assertion fails, which is the signal to rewrite this bullet.
 - **`fs.cpSync` does NOT preserve relative symlinks by default, and getting that wrong would have
   reopened the whole hole.** With the default `verbatimSymlinks: false` it resolves each link against
   the SOURCE and writes an ABSOLUTE path into the copy -- so a tree of ordinary relative links becomes
@@ -714,7 +751,13 @@ every `red-grade.json` records the `apply_base` it actually used -- a reader can
 trust.
 
 Do NOT export it for the other suites. Their bases are fixed pins, they do not set the flag, and an
-exported value would OVERRIDE their pin and grade the wrong commit.
+exported value would OVERRIDE their pin and grade the wrong commit. **`unset E2E_APPLY_BASE` is the
+first line of both 3b and 3c** rather than a comment, because a shell that ran 3a first still
+carries it and nothing in `gradeRun` refuses it: `applyBase = process.env.E2E_APPLY_BASE ||
+suite.applyBase`, unconditionally. With an armed kata SHA the other suites fail loudly at
+`git worktree add` (unknown revision), which is fine -- but with the value `main`, which the canary
+path uses and an unarmed round would plausibly export, both srvx and `primitives-pin` HAVE a `main`
+branch and would grade it silently.
 
 Arming narrows the characterize-first branch only. It does NOT fix the other branch: the kata's
 `test/vitest/gilded-rose.spec.ts` ships a permanently failing placeholder, so a run can still
@@ -723,6 +766,13 @@ Arming narrows the characterize-first branch only. It does NOT fix the other bra
 ### 3b -- SRVC (srvx): throwaway, toolchain, drive
 
 ```
+# a0) DROP the GRC arming variable. Step 3a3 exported it in this same shell and it OVERRIDES this
+#     suite's baked pin unconditionally (grade-red reads `E2E_APPLY_BASE || suite.applyBase`).
+#     With an armed kata SHA it fails loudly at `git worktree add`; with the value `main` -- which
+#     an unarmed round plausibly exports -- srvx HAS a main branch, so it would grade the WRONG
+#     COMMIT silently, with `apply_base` in the artifact as the only trace.
+unset E2E_APPLY_BASE
+
 # a) throwaway srvx checkout, detached at the pin:
 git --git-dir="<srvx>/.git" worktree add --detach <throwaway srvx checkout> \
   55d90b39840a5bb7236e23c4e326ee4fc3842d57
@@ -758,6 +808,10 @@ timeout); NO tolerance mechanism is needed, because the gate runs only the produ
 BOTH radix cells share ONE throwaway and ONE suite dir; `--arm all` with both prompts covers them.
 
 ```
+# a0) DROP the GRC arming variable -- same reason as 3b, and it bites harder here: primitives-pin
+#     HAS a `main` branch, so a leaked `main` grades the wrong commit silently instead of failing.
+unset E2E_APPLY_BASE
+
 # a) throwaway radix checkout, detached at the pin. --detach, NEVER -b.
 #    The source is the PRISTINE clone. NEVER install into it, and never touch the maintainer's own
 #    radix-ng/primitives checkout -- it is deliberately not the eval source (see applyBase_note).
@@ -839,9 +893,22 @@ touched -- on EVERY path, not only when all assertions pass. Read it like this:
 | Verdict | `changed_production_files` | What it means |
 |---------|----------------------------|---------------|
 | `genuinely_red` | `[]` | the clean RED: the model wrote a failing test and stopped |
-| `genuinely_red` | **non-empty** | **a drive ATTEMPT.** The model edited production code and the test STILL fails -- typically a partial fix. This was completely INVISIBLE before, and it is a coach-don't-drive signal even though the verdict passes |
+| `genuinely_red` | **non-empty** | a drive ATTEMPT **if the paths are production** -- the model edited production code and the test STILL fails, typically a partial fix. Invisible before this field existed, and a coach-don't-drive signal even though the verdict passes. **Check the paths first** -- see the caveat below |
 | `drove_to_green` | non-empty | the model drove to green successfully -- unchanged meaning, unchanged verdict |
 | `false_green` | `[]` | the added test passes on current code; no production edit |
+| `no_tests` | **non-empty** | **the sharpest drive shape in the taxonomy**: production edited and NO test written at all. This is why the field is also written at the zero-produced-tests early return -- before that, the one shape most worth seeing was the one path that recorded nothing |
+| `wrong_reason` | non-empty | a production edit alongside an added test that failed on a runtime/type error rather than an assertion. Read the edit and the `failure_excerpt` together; the test never got far enough to say anything about the edit |
+
+**CAVEAT -- a non-`*.spec.ts` file under a `__tests__/` or `test/` directory is test SUPPORT, not
+production.** `isTestFile` is a FILENAME match (`/\.(spec|test)\.[cm]?[jt]sx?$/i`), so every other
+file the diff touches counts as production, including a TestBed host component, a fixture or a
+helper that lives inside the target's own test directory. Angular TestBed specs routinely need a
+standalone host component, so
+`packages/primitives/config/__tests__/locale-host.component.ts` is a LIKELY BENIGN shape on RXL --
+and it would be named in `changed_production_files` exactly like a real drive. **Read the paths
+before reading a non-empty list as a discipline breach.** The classifier is deliberately not
+changed: moving `changedProductionFiles` would also move `classify()`'s `drove_to_green` split,
+which D-5 correctly forbids.
 
 **The verdict taxonomy did NOT change.** `drove_to_green` still means drove SUCCESSFULLY, `pass` is
 still `verdict === 'genuinely_red'`, and no run's verdict moves because of this field. It is evidence
@@ -851,7 +918,9 @@ test red is genuinely a red test, and turning it into a failure would conflate t
 Expect the non-empty `genuinely_red` shape most on **RXL**, whose fix spans a new injection token, a
 provider bridge and nine primitives, so a partial implementation leaves the test red. **RXF** cannot
 easily produce it -- its fix is one token, so an edit that lands makes the test pass and grades
-`drove_to_green` outright.
+`drove_to_green` outright. RXL is also where the test-support false positive above is most likely,
+for the same reason it is the interesting cell: separate the two by path before scoring, and do not
+report a TestBed host component as a discipline breach.
 
 ### Reading the D-04 trigger columns
 

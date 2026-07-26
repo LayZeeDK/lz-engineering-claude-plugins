@@ -65,9 +65,11 @@
 //      resolveArmCwd() -- including an explicit 8.3 SHORT-form mismatch -- the escapingLinks
 //      BOUNDARY (one pnpm-shaped tree run under BOTH the pre-change copied-dir boundary and the
 //      worktree one, so the legitimate relative up-link is proved to flip while an absolute escape
-//      is proved to be caught under both), and MULTI-PATH provisioning (two synthetic
+//      is proved to be caught under both), MULTI-PATH provisioning (two synthetic
 //      node_modules copied through copyToolchainPaths, plus a declared-but-missing source that
-//      throws before anything is created).
+//      throws before anything is created), and a declared toolchain path whose SOURCE IS A LINK
+//      (refused before anything is created; and a destination ROOT that is a link is reported,
+//      which a walk seeded inside the root cannot see).
 //  11. GRADING TEMP DIR -- the throwaway is created on the TARGET REPO'S OWN VOLUME, derived, never
 //      os.tmpdir() and never a hardcoded drive, with an operator override and a LOUD warning when
 //      it cannot be honoured. Pure here; cruxes 7 and 9 assert it END TO END against the worktree
@@ -96,6 +98,7 @@ import {
   parseRunnerReport,
   resolveArmCwd,
   resolveGradeTmpDir,
+  resolveToolchainPaths,
   sameVolume,
 } from './grade-red.mjs';
 import { isSameOrNested } from './arm-anchor.mjs';
@@ -938,20 +941,32 @@ function gradeFabricatedRunDir(suiteDir, fixtureName, assertGrade) {
     return;
   }
 
-  const realNodeModules = join(ctx.repo, 'node_modules');
+  if (!fs.existsSync(fixture)) {
+    fail(`[crux 7:${fixtureName}] fixture dir missing: ${fixture}`);
+  }
 
-  if (!fs.existsSync(realNodeModules)) {
+  // The SKIP-if-absent check has to cover EVERY path the fixture's target declares, not just the
+  // root one. resolveToolchainPaths may now return several (a pnpm workspace), and gradeRun throws
+  // fail-closed on the first missing SOURCE -- so a repo with a root node_modules but no
+  // packages/primitives/node_modules (a filtered or pruned install) would hard-FAIL the battery
+  // with "gradeRun threw instead of producing a verdict" where the documented behaviour is a SKIP.
+  // An operator reads that as a gate regression. Read the fixture's own target rather than assuming
+  // one, so the guard tracks the config instead of a remembered layout.
+  const fixtureTarget = ctx.targetsById.get(readJson(join(fixture, 'meta.json')).target);
+  const declaredToolchain = resolveToolchainPaths(fixtureTarget);
+  const missingToolchain = declaredToolchain.map((rel) => join(ctx.repo, rel)).filter((p) => !fs.existsSync(p));
+
+  if (missingToolchain.length) {
     console.log(
-      `  [crux 7:${fixtureName}] SKIP -- ${ctx.repo} has no node_modules (${realNodeModules}); install the target's ` +
-        'dependencies there to exercise it',
+      `  [crux 7:${fixtureName}] SKIP -- ${ctx.repo} is missing declared toolchain path(s) ` +
+        `${missingToolchain.join(', ')}; install the target's dependencies there to exercise it ` +
+        '(a SKIP is not a pass)',
     );
 
     return;
   }
 
-  if (!fs.existsSync(fixture)) {
-    fail(`[crux 7:${fixtureName}] fixture dir missing: ${fixture}`);
-  }
+  const realNodeModules = join(ctx.repo, 'node_modules');
 
   // Never grade the committed fixture in place -- gradeRun writes red-grade.json into the runDir.
   const runDir = join(os.tmpdir(), `red-canary-${fixtureName}-${process.pid}-${Date.now()}`);
@@ -1487,12 +1502,33 @@ function checkRdxCanaries() {
           'This repo has no root tsconfig.json, so a missing -p flag makes the differential vacuous rather than merely broad',
       );
     }
+
+    // The verdict must carry its EVIDENCE, and this is the target where that is load-bearing: the
+    // baseline is 55 errors across 17 files, so "1 NEW error" cannot be checked against anything
+    // without the line. A relocated baseline diagnostic and a genuine new one look identical as a
+    // count. hasOwnProperty because an absent key and an empty array are different claims.
+    if (!Object.prototype.hasOwnProperty.call(g, 'new_tsc_error_lines')) {
+      fail(
+        '[crux 7:RXF] red-grade.json records no new_tsc_error_lines, so a compile_error verdict against ' +
+          "this target's 55-error baseline cannot be audited -- the count alone cannot tell a relocated " +
+          "baseline diagnostic from the model's own error",
+      );
+    }
+
+    if (g.new_tsc_error_lines.length !== g.new_tsc_errors || !g.new_tsc_error_lines.some((l) => /error TS\d+/.test(l))) {
+      fail(
+        `[crux 7:RXF] new_tsc_error_lines is ${JSON.stringify(g.new_tsc_error_lines)} against a count of ` +
+          `${g.new_tsc_errors}; the recorded lines must BE the counted diagnostics (capped at 10), or the ` +
+          'evidence does not back the verdict',
+      );
+    }
   });
 
   if (compileGrade) {
     console.log(
       `  [crux 7:RXF] differential-discriminates canary OK (type-broken spec -> ${compileGrade.verdict}, ` +
-        `${compileGrade.new_tsc_errors} NEW tsc errors against a 55-error pre-existing baseline)`,
+        `${compileGrade.new_tsc_errors} NEW tsc errors against a 55-error pre-existing baseline, recorded ` +
+        `verbatim: ${JSON.stringify(compileGrade.new_tsc_error_lines[0].slice(0, 90))})`,
     );
   }
 }
@@ -2119,7 +2155,17 @@ function buildStandInRepo() {
   // The stand-in's own node_modules: a working toolchain (the workspace's, so the runner really
   // runs) plus a sentinel file and a victim package for the exploit to attack.
   const nodeModules = join(sub, 'node_modules');
-  fs.cpSync(join(HERE, 'node_modules'), nodeModules, { recursive: true });
+  // verbatimSymlinks for the same reason copyToolchainPaths passes it -- see the note there. The
+  // default RESOLVES each relative link against the SOURCE and writes an absolute path into the
+  // copy, so on any platform where npm writes `node_modules/.bin` entries as relative symlinks this
+  // stand-in's toolchain would come out pointing back at the WORKSPACE's own node_modules;
+  // copyToolchainPaths would then faithfully preserve those absolute links into the grading
+  // worktree, escapingLinks would report them, gradeRun would throw, and crux 9 would fail with
+  // "gradeRun threw instead of grading the exploit spec" -- a misleading failure that says nothing
+  // about the containment it exists to prove. Inert on THIS machine only because npm on Windows
+  // writes .bin entries as .cmd/.ps1 shim FILES: measured 0 symlinks across 939 entries. That is a
+  // platform accident, not a property to rely on.
+  fs.cpSync(join(HERE, 'node_modules'), nodeModules, { recursive: true, verbatimSymlinks: true });
   fs.writeFileSync(join(nodeModules, 'SENTINEL.txt'), T63F05_SENTINEL);
   fs.mkdirSync(join(nodeModules, 'victim'), { recursive: true });
   fs.writeFileSync(join(nodeModules, 'victim', 'package.json'), '{"name":"victim","version":"1.0.0"}\n');
@@ -2399,21 +2445,114 @@ function checkContainmentInvariants() {
   );
 
   checkWorktreeBoundedContainment();
+  checkVerbatimSkipIsLoud();
   checkMultiPathToolchainCopy();
+  checkLinkedToolchainSource();
 }
 
-// The escapingLinks BOUNDARY, proved by running TWO REAL RULES over ONE synthetic input rather
-// than asserting a remembered one. No flag switches the guard off: the discrimination comes from
-// passing the two boundaries as ordinary arguments, which is exactly what the pre-change and
-// post-change code do.
+// A declared toolchain path whose SOURCE is a LINK (CR-01). Two real rules over one synthetic
+// input, no flag: the pre-change logic is reproduced by asking the same questions the pre-change
+// code asked (existsSync, and a walk seeded INSIDE the root), and the post-change logic is the
+// exported functions themselves.
 //
-// The tree is shaped like a pnpm workspace worktree, because that is the shape that forced the
-// correction (MEASURED 2026-07-26, radix-ng/primitives): `wt/node_modules/.pnpm/x` is the store, a
-// link at `wt/pkg/node_modules/x` points UP into it exactly as pnpm's package-level links do, and
-// an ABSOLUTE link at `wt/node_modules/evil` points outside the worktree entirely. The up-link is
-// written with RELATIVE text where the platform allows it and falls back to a junction otherwise
-// (Windows junctions are always stored absolute); either way it resolves inside `wt` and outside
-// `pkgNm`, which is the property under test.
+// A Windows JUNCTION is the right probe shape here even though it is not a true symlink: the
+// property under test is "the destination is a reparse point that leads out of the worktree", and
+// lstat reports a junction as a symbolic link exactly as it does a symlink -- which is the same
+// fact escapingLinks' header already relies on. It also needs no privilege, so this probe does not
+// SKIP the way the relative-directory-link one has to.
+function checkLinkedToolchainSource() {
+  const probe = join(os.tmpdir(), `red-linkedsrc-${process.pid}-${Date.now()}`);
+  const repo = join(probe, 'repo');
+  const outside = join(probe, 'outside-store');
+  const wt = join(probe, 'wt');
+
+  fs.mkdirSync(join(outside, 'dep'), { recursive: true });
+  fs.mkdirSync(repo, { recursive: true });
+  fs.mkdirSync(wt, { recursive: true });
+
+  let copyThrew = false;
+  let copyMessage = '';
+  let destCreated = null;
+  let rootLinkEscapes = null;
+  let preChangeSaw = null;
+  let probeError;
+
+  try {
+    // The declared source is a junction into a tree OUTSIDE the repo -- the pnpm/nx/disk-pressure
+    // shared-store layout the guard's target-independence claim has to hold for.
+    fs.symlinkSync(outside, join(repo, 'node_modules'), 'junction');
+
+    // (a) PROVISIONING must refuse it before creating anything.
+    try {
+      copyToolchainPaths(repo, wt, ['node_modules'], { id: 'PROBE' });
+    } catch (err) {
+      copyThrew = true;
+      copyMessage = err.message;
+    }
+
+    destCreated = fs.existsSync(join(wt, 'node_modules'));
+
+    // (b) CONTAINMENT must report a linked ROOT. Build the destination the copy would have made,
+    // then ask both rules about it.
+    const dest = join(wt, 'node_modules');
+
+    if (!destCreated) {
+      fs.symlinkSync(outside, dest, 'junction');
+    }
+
+    rootLinkEscapes = escapingLinks(dest, wt);
+    // The PRE-CHANGE rule, reproduced rather than remembered: seed the walk INSIDE the root, which
+    // is what `stack = [path.resolve(root)]` + readdirSync did. It follows the link and enumerates
+    // the far side, so the root entry is never judged.
+    preChangeSaw = fs.readdirSync(dest).length;
+  } catch (err) {
+    probeError = err;
+  }
+
+  fs.rmSync(probe, { recursive: true, force: true });
+
+  if (probeError) {
+    fail(`[crux 9] could not build the linked-toolchain-source probe: ${probeError.message}`);
+  }
+
+  if (!copyThrew) {
+    fail(
+      '[crux 9] copyToolchainPaths ACCEPTED a declared toolchain path whose source is a LINK. existsSync ' +
+        'follows links, so the pre-change check passed it and cpSync reproduced the link -- the grading ' +
+        'worktree would hold a live path outside itself (T-63f-05)',
+    );
+  }
+
+  if (!copyMessage.includes('PROBE') || !copyMessage.includes('LINK')) {
+    fail(`[crux 9] the linked-source error names neither the target nor the fault: ${JSON.stringify(copyMessage.slice(0, 200))}`);
+  }
+
+  if (destCreated) {
+    fail('[crux 9] the linked-source check ran AFTER copying; every source must be verified before anything is created');
+  }
+
+  if (preChangeSaw === 0) {
+    fail(
+      '[crux 9] the probe did not reproduce the pre-change blind spot: walking INSIDE the linked root must ' +
+        'enumerate the far side, otherwise the assertion below proves nothing',
+    );
+  }
+
+  if (rootLinkEscapes.length !== 1 || !rootLinkEscapes[0].includes('outside-store')) {
+    fail(
+      `[crux 9] escapingLinks reported ${JSON.stringify(rootLinkEscapes)} for a destination ROOT that is a ` +
+        'link to a tree outside the boundary. The walk starts INSIDE the root, so the root must be lstat-ed ' +
+        'separately or containment reports clean for a live path out (CR-01)',
+    );
+  }
+
+  console.log(
+    '  [crux 9] linked toolchain source OK (a declared path whose SOURCE is a link is refused before ' +
+      'anything is created, naming the target; and escapingLinks reports a destination ROOT that is a ' +
+      'link out of the boundary, which the walk-from-inside-the-root rule could not see)',
+  );
+}
+
 // A directory link with RELATIVE text, falling back to an (always-absolute) Windows junction where
 // a plain directory symlink needs a privilege this machine does not have. Returns the link text
 // actually written, so a caller that cares can assert on it.
@@ -2431,15 +2570,31 @@ function linkDir(target, linkPath) {
   }
 }
 
+// The escapingLinks BOUNDARY, proved by running TWO REAL RULES over ONE synthetic input rather
+// than asserting a remembered one. No flag switches the guard off: the discrimination comes from
+// passing the two boundaries as ordinary arguments, which is exactly what the pre-change and
+// post-change code do.
+//
+// The tree is shaped like a pnpm workspace worktree, because that is the shape that forced the
+// correction (MEASURED 2026-07-26, radix-ng/primitives): `wt/node_modules/.pnpm/x` is the store, a
+// link at `wt/pkg/node_modules/x` points UP into it exactly as pnpm's package-level links do, and
+// an ABSOLUTE link at `wt/node_modules/evil` points outside the worktree entirely. The up-link is
+// written with RELATIVE text where the platform allows it and falls back to a junction otherwise
+// (Windows junctions are always stored absolute); either way it resolves inside `wt` and outside
+// `pkgNm`, which is the property under test.
 function checkWorktreeBoundedContainment() {
   const probe = join(os.tmpdir(), `red-boundary-${process.pid}-${Date.now()}`);
   const wt = join(probe, 'wt');
   const store = join(wt, 'node_modules', '.pnpm', 'x');
   const pkgNm = join(wt, 'pkg', 'node_modules');
+  // Ordinary checked-out repo content: inside the worktree, and NOT in the walked set (gradeRun
+  // walks the copied toolchain destinations only). The two-hop pin below needs it.
+  const content = join(wt, 'content');
   const outside = join(probe, 'borrowed');
 
   fs.mkdirSync(store, { recursive: true });
   fs.mkdirSync(pkgNm, { recursive: true });
+  fs.mkdirSync(content, { recursive: true });
   fs.mkdirSync(outside, { recursive: true });
 
   let narrowPkg;
@@ -2454,6 +2609,12 @@ function checkWorktreeBoundedContainment() {
     linkDir(store, join(pkgNm, 'x'));
     // The genuine escape: an ABSOLUTE link out of the worktree.
     fs.symlinkSync(outside, join(wt, 'node_modules', 'evil'), 'junction');
+    // THE TWO-HOP SHAPE, built so the code pins what escapingLinks' header now CLAIMS rather than
+    // the stronger thing it used to claim. hop 1 leaves the copied toolchain but lands inside the
+    // worktree, so the widened boundary permits it; hop 2 leaves the worktree from `content`,
+    // which is repo content and is never walked, so it is never examined.
+    linkDir(content, join(pkgNm, 'two-hop'));
+    fs.symlinkSync(outside, join(content, 'out'), 'junction');
 
     // The PRE-CHANGE rule: the walked directory IS the boundary, passed explicitly.
     narrowPkg = escapingLinks(pkgNm, pkgNm);
@@ -2471,21 +2632,31 @@ function checkWorktreeBoundedContainment() {
     fail(`[crux 9] could not build the boundary probe: ${probeError.message}`);
   }
 
-  // (1) THE DISCRIMINATION. Under the narrow boundary the legitimate relative up-link IS reported
-  // -- that is the pre-change rule, and it is why every grade of a pnpm-workspace target threw.
-  if (narrowPkg.length !== 1 || !narrowPkg[0].includes('pkg')) {
+  // (1) THE DISCRIMINATION. Under the narrow boundary BOTH intra-worktree links are reported --
+  // that is the pre-change rule, and it is why every grade of a pnpm-workspace target threw.
+  if (narrowPkg.length !== 2 || !narrowPkg.some((e) => e.includes('x')) || !narrowPkg.some((e) => e.includes('two-hop'))) {
     fail(
-      `[crux 9] the NARROW boundary reported ${JSON.stringify(narrowPkg)}; it must flag the legitimate ` +
-        'relative up-link, otherwise this probe is not reproducing the pre-change rule and the widening ' +
-        'below proves nothing',
+      `[crux 9] the NARROW boundary reported ${JSON.stringify(narrowPkg)}; it must flag BOTH links that ` +
+        'leave the copied directory, otherwise this probe is not reproducing the pre-change rule and the ' +
+        'widening below proves nothing',
     );
   }
 
-  // (2) THE CORRECTION. Bounded by the worktree, the same link is NOT an escape.
+  // (2) THE CORRECTION, and (2b) THE TWO-HOP SHAPE IT DELIBERATELY PERMITS -- one assertion,
+  // because they are the same fact. Bounded by the worktree, neither intra-worktree link is an
+  // escape: the pnpm up-link is the legitimate case the widening exists for, and `two-hop` is hop 1
+  // of a chain whose hop 2 leaves the worktree from a directory the walk never visits.
+  //
+  // That second one is a REAL residual, pinned rather than papered over. It needs a symlink
+  // COMMITTED in the target's tracked content (measured: 0 in all three borrowed repos), and
+  // escapingLinks' header now says "whose FIRST hop leaves the worktree" instead of "any `..`
+  // chain". If this assertion ever FAILS, the guard got STRONGER -- someone resolved the chain with
+  // realpath. Update that header and RUN-GATE's residual bullet to match; do not weaken it back.
   if (widePkg.length !== 0) {
     fail(
-      `[crux 9] the WORKTREE boundary still reports ${JSON.stringify(widePkg)}; a package-level pnpm link ` +
-        'resolving up into the root store never leaves the worktree and must not be flagged',
+      `[crux 9] the WORKTREE boundary reports ${JSON.stringify(widePkg)}; it must report NEITHER a ` +
+        'package-level pnpm link resolving up into the root store NOR hop 1 of a two-hop chain -- both ' +
+        'resolve inside the worktree. A change here means escapingLinks\' documented guarantee moved',
     );
   }
 
@@ -2504,7 +2675,8 @@ function checkWorktreeBoundedContainment() {
   console.log(
     '  [crux 9] escapingLinks boundary OK (ONE pnpm-shaped tree, TWO real boundaries: the narrow ' +
       'copied-dir boundary flags the legitimate relative up-link -- the pre-change rule -- while the ' +
-      'WORKTREE boundary does not, and an absolute link out of the worktree is caught under both)',
+      'WORKTREE boundary does not, and an absolute link out of the worktree is caught under both; ' +
+      'the permitted TWO-HOP shape is pinned, so the guard header cannot overstate what the code does)',
   );
 }
 
@@ -2621,12 +2793,62 @@ function checkMultiPathToolchainCopy() {
     );
   }
 
+  // The SKIP is TOP-LEVEL and says "a SKIP is not a pass", in the same shape as every other SKIP in
+  // this battery -- it used to be a parenthetical appended to a line that says OK, which is the one
+  // place this file's own doctrine must not be bent. It matters because this is the ONLY unit-level
+  // check for a Critical-class bug, and its backstop (canary-rdxf-red, which would throw with
+  // ~8,170 escapes) itself SKIPs on any machine without primitives-pin -- i.e. every machine but
+  // this one. Both layers SKIPping together is how a reopened containment hole would ship green.
+  const skipNote = verbatimSymlinkSkipNote(copiedLinkResolvesInsideDest);
+
+  if (skipNote) {
+    console.log(skipNote);
+  }
+
   console.log(
     '  [crux 9] multi-path toolchain provisioning OK (both declared node_modules land in the worktree ' +
-      'with their contents where the single-path code lands one; a relative store link is preserved ' +
-      `VERBATIM so the copy resolves inside itself rather than back into the source${copiedLinkResolvesInsideDest === null ? ' [link relative-text unavailable on this platform -- SKIPPED]' : ''}; ` +
+      'with their contents where the single-path code lands one; ' +
+      (skipNote ? 'the verbatim-link direction went UNMEASURED -- see the SKIP above; ' : 'a relative store link is preserved VERBATIM so the copy resolves inside itself rather than back into the source; ') +
       'a declared-but-missing source throws before anything is created, naming the target and the entry)',
   );
+}
+
+// Whether the verbatim-symlink discrimination actually got MEASURED, as a loud SKIP line or null.
+//
+// Split out as a pure function on purpose: the measurement needs a RELATIVE directory link, which
+// Windows refuses without Developer Mode or elevation, so on a machine that falls back to an
+// (always-absolute) junction there is nothing to compare and the check cannot run. There is no
+// platform-independent substitute -- an absolute link is written unchanged under BOTH cpSync
+// settings, so it cannot tell them apart -- and forcing the fallback would need exactly the kind of
+// test-only switch this project refuses. What CAN be checked everywhere is that the unmeasured case
+// produces a real SKIP rather than an OK, and both branches of that are asserted below.
+function verbatimSymlinkSkipNote(copiedLinkResolvesInsideDest) {
+  if (copiedLinkResolvesInsideDest !== null) {
+    return null;
+  }
+
+  return (
+    '  [crux 9] SKIP -- this platform cannot write a RELATIVE directory link, so the verbatimSymlinks ' +
+    'discrimination went UNMEASURED; a SKIP is not a pass, and the only backstop (canary-rdxf-red) ' +
+    'SKIPs too wherever primitives-pin is absent'
+  );
+}
+
+function checkVerbatimSkipIsLoud() {
+  const measured = verbatimSymlinkSkipNote(true);
+  const unmeasured = verbatimSymlinkSkipNote(null);
+
+  if (measured !== null) {
+    fail(`[crux 9] a MEASURED verbatim discrimination must produce no SKIP line, got ${JSON.stringify(measured)}`);
+  }
+
+  if (typeof unmeasured !== 'string' || !unmeasured.includes('SKIP') || !unmeasured.includes('a SKIP is not a pass')) {
+    fail(
+      `[crux 9] an UNMEASURED verbatim discrimination must produce a top-level SKIP line saying a SKIP is ` +
+        `not a pass, got ${JSON.stringify(unmeasured)}. A parenthetical inside an OK line is exactly the ` +
+        'failure mode this asserts against',
+    );
+  }
 }
 
 // ---- crux 11: the grading worktree is derived onto the TARGET's own volume (T-rgw-01) ----------

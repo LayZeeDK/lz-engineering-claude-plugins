@@ -445,10 +445,50 @@ export function assertSafeDiffPaths(diffText, diffPath) {
 // Windows junctions count: `lstat` reports them as symlinks, so a `readdirSync` Dirent does too.
 // An unreadable link is reported as an escape -- a link that cannot be resolved cannot be proven
 // contained, and this check exists to fail closed.
+//
+// WHAT THIS DOES NOT CATCH, stated exactly rather than generously. Resolution is a SINGLE LEXICAL
+// HOP (`path.resolve(dir, readlinkSync(p))`, no `realpath`), and the WALKED set is the copied
+// toolchain destinations only -- which, since the boundary widened to the whole worktree, is
+// strictly SMALLER than the boundary. So a TWO-HOP chain is permitted: hop 1 from inside a copied
+// toolchain into the un-walked part of the worktree (the target's own checked-out content) is now
+// legitimately inside the boundary, and hop 2 out of the worktree from THERE is never examined,
+// because that directory is repo content and is not in the walked set. An earlier phrasing of this
+// paragraph claimed "any `..` chain that leaves the worktree" is caught; that is true only of a
+// chain whose FIRST hop leaves it. Reachability: hop 1 has to be a symlink COMMITTED in the
+// target's tracked content -- measured `git ls-tree -r HEAD | rg '^120000'` = 0 in all three
+// borrowed repos -- and everything inside the worktree is already reachable by the executing spec
+// through ordinary relative paths (T-g69-07 accepts that). selfcheck-red crux 9 PINS this
+// permitted shape, so the code and this paragraph cannot drift apart: close the two-hop case
+// (realpath the resolved target, and the boundary with it) and that assertion fails, which is the
+// signal to rewrite this paragraph rather than discover the mismatch in a review.
 export function escapingLinks(root, boundary = root) {
   const base = path.resolve(boundary);
   const escapes = [];
-  const stack = [path.resolve(root)];
+  const resolvedRoot = path.resolve(root);
+  let rootStat;
+
+  // THE ROOT ITSELF, under the same rule as every other entry -- and it used to be exempt.
+  // `readdirSync` FOLLOWS a directory link, so seeding the stack with the root and walking
+  // straight into it means the root is never `lstat`ed: a destination that IS a link enumerates
+  // the far side happily and this function returns [], reporting containment clean for a live path
+  // out of the worktree. MEASURED 2026-07-26 on a junction-rooted destination, identical input:
+  // [] before this check, one reported escape after. `copyToolchainPaths` cannot be the only
+  // guard, because this function is exported and its contract above promises containment that
+  // "does not depend on which target happens to be configured".
+  try {
+    rootStat = fs.lstatSync(resolvedRoot);
+  } catch (err) {
+    return [`${resolvedRoot} -> <unreadable: ${err.code || err.message}>`];
+  }
+
+  // A link is a LEAF everywhere else in this walk -- the loop below never descends into one -- so
+  // the root gets exactly that treatment: reported when it resolves outside the boundary, and
+  // never walked THROUGH either way.
+  if (rootStat.isSymbolicLink()) {
+    return linkEscapes(resolvedRoot, path.dirname(resolvedRoot), base);
+  }
+
+  const stack = [resolvedRoot];
 
   while (stack.length) {
     const dir = stack.pop();
@@ -457,19 +497,7 @@ export function escapingLinks(root, boundary = root) {
       const p = path.join(dir, entry.name);
 
       if (entry.isSymbolicLink()) {
-        let resolved;
-
-        try {
-          resolved = path.resolve(dir, fs.readlinkSync(p));
-        } catch (err) {
-          escapes.push(`${p} -> <unreadable: ${err.code || err.message}>`);
-
-          continue;
-        }
-
-        if (resolved !== base && !resolved.startsWith(base + path.sep)) {
-          escapes.push(`${p} -> ${resolved}`);
-        }
+        escapes.push(...linkEscapes(p, dir, base));
 
         continue;
       }
@@ -481,6 +509,24 @@ export function escapingLinks(root, boundary = root) {
   }
 
   return escapes;
+}
+
+// One link, one rule, one place -- so the root and every entry beneath it are judged identically
+// rather than by two copies of the comparison that can drift.
+function linkEscapes(linkPath, dir, base) {
+  let resolved;
+
+  try {
+    resolved = path.resolve(dir, fs.readlinkSync(linkPath));
+  } catch (err) {
+    return [`${linkPath} -> <unreadable: ${err.code || err.message}>`];
+  }
+
+  if (resolved !== base && !resolved.startsWith(base + path.sep)) {
+    return [`${linkPath} -> ${resolved}`];
+  }
+
+  return [];
 }
 
 // ---- where the throwaway grading worktree is created (T-rgw-01) -------------------------------
@@ -1242,6 +1288,21 @@ export function resolveToolchainPaths(target) {
       );
     }
 
+    // The REPO ROOT itself, and anything under .git. Both are repo-relative and free of `..`, so
+    // every check above lets them through -- and the comment above promises "every other malformed
+    // entry throws before anything is created". A '.' entry makes the destination armCwd ITSELF:
+    // copyToolchainPaths would copy the entire borrowed repo (its .git included) over the grading
+    // worktree, and removeToolchain would then rmSync(armCwd, { recursive: true, force: true }).
+    // Contained -- the worktree is a throwaway -- and it would very likely die mid-copy on the
+    // .git file-vs-directory collision, but "dies confusingly" is not the contract.
+    if (normalised === '.' || normalised.split('/')[0] === '.git') {
+      throw new Error(
+        `grade-red: target '${id}' declares a toolchain_paths entry of '${entry}', which names the repo ROOT ` +
+          'or its git directory rather than a toolchain directory. The copy destination would be the grading ' +
+          'worktree itself and teardown would then remove it wholesale (fail closed)',
+      );
+    }
+
     return normalised;
   });
 }
@@ -1286,6 +1347,29 @@ export function copyToolchainPaths(repo, armCwd, relPaths, target) {
           `declares '${rel}'. Install the target's dependencies in ${repo} first, then re-run.`,
       );
     }
+
+    // A declared SOURCE that is itself a link can never produce a self-contained copy, so it is
+    // refused here rather than repaired later. Note the check above cannot see this: existsSync
+    // FOLLOWS a link, so a linked source passes it. MEASURED 2026-07-26, both shapes, on identical
+    // inputs through this function:
+    //   - source is a junction to a tree outside the repo -> verbatimSymlinks preserves the
+    //     absolute text, the DESTINATION is a live path out of the worktree, and the runner then
+    //     executes model-authored code with it mounted (T-63f-05, exactly what the copy closes);
+    //   - source is a RELATIVE link (e.g. `.store/nm`) -> the text is preserved verbatim and the
+    //     destination link DANGLES inside the worktree, so nothing resolves and the grade is
+    //     measured against a toolchain that is not there.
+    // escapingLinks now lstats its own root and catches the first shape at grade time, but this is
+    // the better place for BOTH: it is the only site that knows the path came from target CONFIG,
+    // so the message can name the target and the entry, it fires before ~949 MiB of copying, and
+    // the second shape is a provisioning fault rather than a containment one -- the guard would
+    // (correctly) call a dangling intra-worktree link contained.
+    if (fs.lstatSync(src).isSymbolicLink()) {
+      throw new Error(
+        `grade-red: target '${id}' declares toolchain path '${rel}', but ${src} is a LINK rather than a ` +
+          'directory. cpSync reproduces the link verbatim, so the grading worktree would hold either a live ' +
+          'path outside itself or a dangling one -- never a self-contained toolchain (fail closed, T-63f-05).',
+      );
+    }
   }
 
   // The destinations are pure arithmetic over armCwd, so gradeRun derives the same list BEFORE
@@ -1321,30 +1405,69 @@ function targetTscBin(armCwd, worktree) {
   return null;
 }
 
+// The diagnostic lines one tsc pass produced -- or a THROW when that pass did not run to
+// completion.
+//
+// The spawn RESULT is consulted, and it used to be ignored entirely. That mattered because the
+// differential subtracts the second pass's lines from the first's: a pass that produced no output
+// at all subtracts to ZERO NEW ERRORS, clause 1 of classify() falls through, and a type-broken
+// produced test is reported tsc CLEAN. Silently -- the same failure mode T-63f-04 was written to
+// eliminate, arrived by a different route.
+//
+// tsc's EXIT CODE cannot detect this: it exits non-zero precisely when there ARE errors, so a
+// status check would reject every ordinary run. What does detect it is the spawn result -- `error`
+// set (the spawn itself failed, or maxBuffer overflowed with ENOBUFS) or `status === null` (killed
+// by a signal: OOM, a CI reaper, Ctrl-C). A full Angular project pass being OOM-killed on a loaded
+// machine partway through a 36-run fan-out is not exotic. isConfigLevelTscError guards only the
+// BASELINE and matches only `error TS\d+` lines, so it cannot see a pass that produced none.
+export function tscLinesOrThrow(result) {
+  if (!result || result.error) {
+    const detail = result && result.error ? result.error.message : 'no spawn result';
+
+    throw new Error(
+      'grade-red: a differential typecheck pass did not run (the spawn failed, or its output exceeded ' +
+        `maxBuffer), so the differential cannot discriminate and would report a type-broken produced test ` +
+        `as tsc clean (fail closed, T-63f-04): ${detail}`,
+    );
+  }
+
+  if (result.status === null) {
+    throw new Error(
+      'grade-red: a differential typecheck pass was KILLED before it finished ' +
+        `(signal ${result.signal || 'unknown'}), so it produced no diagnostics and the differential would ` +
+        'subtract to zero NEW errors -- reporting a type-broken produced test as tsc clean ' +
+        '(fail closed, T-63f-04)',
+    );
+  }
+
+  const text = `${result.stdout || ''}\n${result.stderr || ''}`;
+
+  return text.split('\n').filter((l) => /error TS\d+/.test(l)).map((l) => l.trim());
+}
+
 function targetTscErrors(armCwd, worktree, args) {
   const bin = targetTscBin(armCwd, worktree);
-  let text;
 
   if (bin) {
-    const r = spawnSync(process.execPath, [bin, ...args], {
-      cwd: armCwd,
-      encoding: 'utf8',
-      maxBuffer: 64 * 1024 * 1024,
-      windowsHide: true,
-    });
-    text = `${r.stdout || ''}\n${r.stderr || ''}`;
-  } else {
-    const r = spawnSync('npx', ['tsc', ...args], {
+    return tscLinesOrThrow(
+      spawnSync(process.execPath, [bin, ...args], {
+        cwd: armCwd,
+        encoding: 'utf8',
+        maxBuffer: 64 * 1024 * 1024,
+        windowsHide: true,
+      }),
+    );
+  }
+
+  return tscLinesOrThrow(
+    spawnSync('npx', ['tsc', ...args], {
       cwd: armCwd,
       shell: true,
       encoding: 'utf8',
       maxBuffer: 64 * 1024 * 1024,
       windowsHide: true,
-    });
-    text = `${r.stdout || ''}\n${r.stderr || ''}`;
-  }
-
-  return text.split('\n').filter((l) => /error TS\d+/.test(l)).map((l) => l.trim());
+    }),
+  );
 }
 
 // Grade one captured run: fail-closed reads, fresh full-repo worktree at applyBase, differential
@@ -1635,6 +1758,10 @@ export function gradeRun({ runDir, suiteDir }) {
         pass: false,
         why: 'the produced diff contains no test file (nothing to run)',
         new_tsc_errors: 0,
+        // No differential ran on this path (there is nothing to typecheck), so the evidence field
+        // is present and EMPTY rather than absent -- same reason changed_production_files is
+        // written here: an absent key and an empty array are different claims to a reader.
+        new_tsc_error_lines: [],
         runner: runnerName,
         runner_version: readRunnerVersion(armCwd, worktree, runnerName),
         runner_test_path: testForTemplate,
@@ -1806,6 +1933,18 @@ export function gradeRun({ runDir, suiteDir }) {
       pass: verdictPass(verdict),
       why: whyFor(verdict, tscResult, addedTitles),
       new_tsc_errors: tscResult.newErrors,
+      // The actual NEW diagnostics, capped, mirroring failure_excerpt's purpose: a verdict an
+      // operator can CHECK rather than take on trust.
+      //
+      // A count alone is self-evident only where the baseline is CLEAN (GRC, SRVC): "N new errors"
+      // can only be the model's. On radix the baseline is 55 errors across 17 files and the
+      // differential is line-exact string subtraction, so a produced spec that PERTURBS an existing
+      // diagnostic's text or position -- plausible for one that adds a module augmentation, a
+      // `declare`, or a type that changes inference in a shared file -- yields "new" lines that are
+      // RELOCATED baseline errors rather than the model's. Without the text, a compile_error /
+      // pass:false verdict on a dirty baseline is the one verdict in the taxonomy with no evidence
+      // attached, and it penalises the model unauditably.
+      new_tsc_error_lines: tscResult.errors.slice(0, 10),
       runner: runnerName,
       runner_version: readRunnerVersion(armCwd, worktree, runnerName),
       // The path the runner COMMAND actually received, after runner_path_base stripping. Selection
@@ -1834,6 +1973,13 @@ export function gradeRun({ runDir, suiteDir }) {
       produced_test_files: producedTests,
       // The other half of "what did the diff touch", sat next to produced_test_files on purpose.
       // See the changedProduction computation above for why it is recorded on EVERY path.
+      //
+      // The two halves come from DIFFERENT sources and that is deliberate rather than an oversight:
+      // produced_test_files is meta.changed_files filtered, because the harness's own capture is
+      // what decides which file the RUNNER is pointed at, while this one is the DIFF filtered,
+      // because `git apply` is what actually lands the edits and the diff is therefore the only
+      // authority on what the grade measured. When a stale or partial meta.changed_files makes them
+      // disagree, the union is neither set -- read the diff, not the meta.
       changed_production_files: changedProduction,
       // The attribution evidence, recorded so an operator can check the verdict rather than take
       // it on trust: what the gate extracted from the diff, and how many reported assertions it
@@ -2224,7 +2370,21 @@ function runSelfcheck() {
     fail(`[resolveToolchainPaths] the declared list was not returned normalised: ${JSON.stringify(declaredPaths)}`);
   }
 
-  for (const bad of ['D:/elsewhere/node_modules', '/etc', '../sibling/node_modules', 'a/../../b', '', '   ']) {
+  for (const bad of [
+    'D:/elsewhere/node_modules',
+    '/etc',
+    '../sibling/node_modules',
+    'a/../../b',
+    '',
+    '   ',
+    // The repo ROOT and its git directory, in the spellings that survive normalisation. Each is
+    // repo-relative and `..`-free, so every other rejection above lets it through.
+    '.',
+    './',
+    './/',
+    '.git',
+    '.git/objects',
+  ]) {
     assertThrows(
       () => resolveToolchainPaths({ id: 'T', toolchain_paths: [bad] }),
       `a toolchain_paths entry of ${JSON.stringify(bad)}`,
@@ -2235,7 +2395,39 @@ function runSelfcheck() {
     '  [per-target config] relativeToBase / substituteRunnerCmd / resolveTypecheck / resolveToolchainPaths OK ' +
       '(path-base stripping is segment-exact, <reportFile> normalises to forward slashes, an empty ' +
       "typecheck.args falls back to --noEmit --strict, and toolchain_paths defaults to ['node_modules'] " +
-      'while an absolute / .. / empty entry throws)',
+      'while an absolute / .. / empty / repo-root / .git entry throws)',
+  );
+
+  // tscLinesOrThrow: a pass that did not RUN must never read as a pass that found nothing.
+  //
+  // Both directions, because a guard that always threw would be just as broken as one that never
+  // did. The two ORDINARY shapes must return lines: tsc exits non-zero precisely when it found
+  // errors, so a status check alone would reject every real diagnostic run.
+  const errorExit = tscLinesOrThrow({
+    status: 2,
+    stdout: "a.ts(1,1): error TS2322: Type 'x' is not assignable.\nFound 1 error.\n",
+    stderr: '',
+  });
+
+  if (errorExit.length !== 1 || !errorExit[0].includes('TS2322')) {
+    fail(`[tscLinesOrThrow] an ordinary non-zero tsc exit must still yield its diagnostics, got ${JSON.stringify(errorExit)}`);
+  }
+
+  if (tscLinesOrThrow({ status: 0, stdout: '', stderr: '' }).length !== 0) {
+    fail('[tscLinesOrThrow] a clean pass must yield an empty list rather than throwing');
+  }
+
+  assertThrows(() => tscLinesOrThrow({ status: null, signal: 'SIGKILL', stdout: '', stderr: '' }), 'a KILLED typecheck pass');
+  assertThrows(
+    () => tscLinesOrThrow({ status: null, error: new Error('spawnSync tsc ENOBUFS'), stdout: '', stderr: '' }),
+    'a typecheck pass whose spawn failed / overflowed maxBuffer',
+  );
+  assertThrows(() => tscLinesOrThrow(undefined), 'a missing spawn result');
+  console.log(
+    '  [tscLinesOrThrow] spawn status is consulted OK (an ordinary non-zero tsc exit still yields its ' +
+      'diagnostics and a clean pass yields none, while a KILLED pass, a failed spawn and a missing result ' +
+      'all THROW -- the pre-change code returned [] for all three, which subtracts to zero NEW errors and ' +
+      'reports a type-broken produced test as tsc clean)',
   );
 
   // Fail-closed paths (T-21-02 / T-21-V5): empty/missing diff and garbled/empty runner JSON must

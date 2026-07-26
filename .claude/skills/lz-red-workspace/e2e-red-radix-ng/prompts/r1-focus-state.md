@@ -1,0 +1,1 @@
+Consumers style the focused day of the calendar the same way they style a focused control elsewhere in this library, but that styling never applies. What's the next failing test you'd write for `packages/primitives/calendar/src/calendar-cell-trigger.directive.ts`? Go ahead and add it under `packages/primitives/calendar/__tests__/`.

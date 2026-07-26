@@ -7,17 +7,18 @@ separate, freshly-approved, orchestrator-driven step.
 Skill under test: `plugins/lz-tdd/skills/lz-red`. Milestone lz-tdd@0.0.3.
 
 This is the single gated presentation for the WHOLE RED round, across every suite -- it is not
-forked per suite. Suites:
+forked per suite. THREE suites, FOUR cells:
 
 | Suite dir | Target | Role |
 |-----------|--------|------|
 | `.claude/skills/lz-red-workspace/e2e-red-gilded-rose` | `GRC` | HIGH-contamination correctness SMOKE anchor |
 | `.claude/skills/lz-red-workspace/e2e-red-srvx` | `SRVC` | LOW-contamination OUT-OF-DOMAIN control |
+| `.claude/skills/lz-red-workspace/e2e-red-radix-ng` | `RXF` | MEDIUM-contamination IN-DOMAIN **primary drive discriminator** |
+| `.claude/skills/lz-red-workspace/e2e-red-radix-ng` | `RXL` | MEDIUM-contamination IN-DOMAIN observable-output cell |
 
-A third, in-domain discriminator (`ngbracket/ngx-layout`) was built up to the measurement step and
-is BLOCKED on a target-selection decision -- see "Blocked third target" in Step 1. Do not treat the
-two-suite corpus as final without reading that section: with only one discriminating target, a
-correctness tie on GRC still cannot be told apart from pass-at-ceiling.
+The in-domain gap the two-suite corpus could not close is now closed: with `RXF` in the corpus a
+correctness tie on GRC can finally be told apart from inertness, because `RXF` is a genuine
+discriminator on the drive axis rather than a control.
 
 ---
 
@@ -47,24 +48,32 @@ node .claude/skills/lz-red-workspace/selfcheck-red.mjs                       # c
 node .claude/skills/lz-red-workspace/check-evals.mjs                         # eval-set shape + ASCII/email hygiene
 ```
 
-`selfcheck-red.mjs` takes **~105-155 s** (MEASURED 2026-07-26 over six runs: 113.5 s and 143.7 s
-before the grading-worktree relocation, 107.5 s / 115.4 s / 153.4 s after, and 104.7 s on the
-intermediate tree. The ranges OVERLAP COMPLETELY -- the spread is filesystem cache warmth and machine
-load, and it swamps anything the relocation changes, so do not read a faster or slower battery as
-evidence either way; crux 11 and the crux 7/9 volume assertions are the evidence. It was ~70 s with
-GRC alone). Cruxes 7, 9 and 10 each build a real grading worktree, and crux 7 copies a real toolchain
-SIX times -- four for GRC and two for srvx. That is the containment's cost, not a hang. **Run it in
-the background rather than under a tool timeout** -- the Bash tool's `timeout` is capped at
-600000 ms, which the battery would exceed outright if the blocked ngx-layout target were ever added
-(its per-grade copy alone is ~11 min). Never narrow the battery to make it finish sooner: a SKIP is
-not a pass. See the residual list in Step 2.
+`selfcheck-red.mjs` now takes **~4-4.5 minutes** and the radix suite is why. MEASURED 2026-07-26 on
+the same machine in the same session: **114.9 s immediately BEFORE the radix suite was wired, then
+232.1 s and 262.9 s after** -- a **+117 to +148 s** increase, accounted for by the two radix
+toolchain copies the new canaries add (~35 s each, copy plus remove) plus their two ~12 s vitest runs
+and four ~3.9 s tsc passes. The 30 s spread between the two post-wiring runs is machine load, not
+drift. That is the containment's cost, not a hang.
+
+Earlier ranges for context: ~70 s with GRC alone, and 105-155 s over six runs with GRC + srvx (the
+spread there is filesystem cache warmth and machine load, and it swamps anything the
+grading-worktree relocation changes -- do not read a faster or slower battery as evidence either
+way; crux 11 and the crux 7/9 volume assertions are the evidence).
+
+Cruxes 7, 9 and 10 each build a real grading worktree, and crux 7 now copies a real toolchain
+NINE times -- five for GRC, two for srvx, two for radix. **Run it in the background rather than under
+a tool timeout** -- the Bash tool's `timeout` is capped at 600000 ms, and while 232-263 s still fits,
+the margin is no longer comfortable and would vanish outright if a third radix cell or the closed
+ngx-layout target were added (the latter's per-grade copy alone is ~11 min). Never narrow the battery
+to make it finish sooner: a SKIP is not a pass. See the residual list in Step 2.
 
 ---
 
 ## Step 1 -- Pre-run confirmation checklist (D-01, target confirmation)
 
-Before any spend, confirm the target corpus with the user at the gate. Two suites are BUILT and
-canary-green; a third is blocked on a decision only the user can make.
+Before any spend, confirm the target corpus with the user at the gate. All THREE suites and all FOUR
+cells are BUILT and canary-green. The corpus is still steer-at-gate: the user confirms it, and may
+drop cells for spend.
 
 1. **Anchor is fixed: GRC (Gilded Rose `Conjured`).** Verified genuinely-red (tsc-clean +
    assertion-red on current code). Contamination HIGH -- it is a correctness SMOKE anchor, NOT a
@@ -84,89 +93,70 @@ canary-green; a third is blocked on a decision only the user can make.
 
    **Read a GRC-vs-SRVC comparison as domain-transfer, not as a discriminator pair.** SRVC is a
    CONTROL: it answers "does any lift survive outside the kata's domain", not "how large is the
-   lift". With no in-domain discriminator in the corpus (see below), a tie on both targets remains
-   genuinely ambiguous between pass-at-ceiling and inertness.
+   lift". On its own it cannot tell pass-at-ceiling from inertness -- that is what `RXF` is for.
 
-### Blocked third target -- ngbracket/ngx-layout (needs a decision, do NOT auto-resolve)
+3. **RXF (radix-ng `data-focus` on the calendar cell trigger) is BUILT and canary-green -- the
+   IN-DOMAIN PRIMARY drive discriminator.** Pinned at
+   `4a7390a2b058457aa47c6f3e0e03b69b70dee025`, sourced from the PRISTINE clone
+   `D:/projects/github/radix-ng/primitives-pin` (see the `applyBase_note` in `suite.json` for why
+   the maintainer's own checkout is excluded). Scored against the 7-point checklist in
+   `e2e-red-radix-ng/targets.json`; contamination MEDIUM because the contract is declared in the
+   repo's own committed docs.
 
-The in-domain discriminator was built up to the measurement step and stopped there. MEASURED
-2026-07-26 in a detached throwaway at the declared pin
-(`daeb01f487b8f354199931489a9199d67d19182d`) with a copied toolchain:
+   **This is the cell most likely to discriminate.** The fix is ONE TOKEN on one host-binding line,
+   against a convention seven sibling primitives already follow -- maximum drive temptation, and
+   coach-don't-drive is exactly where Phase-20 EVL-02 found lz-red's real, unbiased-reviewer-confirmed
+   edge (eval-8, COMMAND handoff). Read `changed_production_files` on this cell before anything else
+   (see "Reading `changed_production_files`" below).
 
-- `npx ng test @ngbracket/ngx-layout --include "flex/layout-align/layout-align.spec.ts"` -- the
-  TARGET'S OWN existing spec, not a produced one -- FAILS to collect: `numTotalTests: 0`,
-  `suite.status: failed`, message `Missing "./_private-utils" specifier in "@ngbracket/ngx-layout"
-  package`. The library self-references by package name, and at the pin
-  `projects/libs/flex-layout/package.json` declares an `exports` map holding only `./mq` and
-  `./_mq`, so every subpath import fails resolution at run time.
-- Swapping in ONE later file, `vitest-base.config.ts`, and changing nothing else makes the same
-  worktree at the same pin run: **exit 0, 33 passed**. That file adds `resolve.alias` entries for
-  each subpath. So the pin's unrunnability is caused precisely by that commit being absent.
-- That commit (`5b16200`) exists ONLY on the fork's own branch
-  `LayZeeDK/test/migrate-custom-test-utilities`. `upstream/main` and `origin/main` are both exactly
-  the pin, so **no upstream revision of this repo can run `ng test` for this library.**
+4. **RXL (radix-ng `RadixNGConfig.locale` inheritance) is BUILT -- the in-domain observable-output
+   cell.** Same suite, same pin, same toolchain. It buys a different file, a different package, a
+   different assertion shape (rendered month heading, single answer) and the PARTIAL-FIX drive case:
+   the fix spans a new injection token, a provider bridge and nine primitives that hardcode a locale
+   default, so a partial implementation leaves the test red -- the exact shape the unconditional
+   `changed_production_files` field was built to make visible. RXF's one-token fix cannot produce it.
 
-TARGETS.md records "33 passed" as MEASURED for this target. That measurement is real but was taken
-against the fork's branch tip, not against the pin it declares -- which is exactly what the
-measure-first step exists to catch.
+   RXL ships with NO standing end-to-end canary of its own -- see the residual list in Step 2 for
+   exactly what that does and does not cover.
 
-Two things DID come out of it and are already shipped, so re-attempting this target is cheap:
+### Third target CLOSED -- ngbracket/ngx-layout is permanently out
 
-- the JSON report shape is confirmed Jest-compatible and readable by `classify()`; the correct flag
-  is `--output-file` (dash-case), NOT the schema's `outputFile`, which the CLI rejects outright;
-- `grade-red`'s `<reportFile>`, `runner_path_base` and `typecheck.args` mechanisms all exist and are
-  canary-proven (via SRVC for the first, purely for the other two).
+The former in-domain candidate `ngbracket/ngx-layout` is CLOSED with evidence and must not be
+revisited: no UPSTREAM revision of that repo can run `ng test` for the library (the pin's
+`package.json` `exports` map omits every subpath the specs import; the commit that adds the resolving
+aliases exists only on a fork branch), and its per-grade toolchain copy is ~11 minutes against a
+1.6 GB / 186,366-file tree. Both routes out of that -- re-pinning to an unpushed fork commit, or
+arming the target's test infrastructure before measuring the model on it -- change what the eval
+measures. The in-domain slot it was meant to fill is now filled by `RXF` and `RXL` at a fraction of
+the cost. The full measurement record, including the two properties worth carrying to any future
+in-domain candidate (a live committed false green, and a helper that collapses assertions to an
+opaque boolean), is preserved in the state record and in this file's history. Do not re-open it.
 
-**Resolving it is a target-selection decision (D-01 steer-at-gate), not an executor one.** The two
-obvious routes both change what the eval measures:
+### Historical cost record -- ngx-layout, kept only because a residual bullet cites it
 
-| Route | What it costs |
-|-------|---------------|
-| Re-pin the suite to the fork branch tip `5b16200` | Pins the eval to an unpushed, fork-only commit: not reproducible from upstream, and it puts the fork's own in-flight test-infrastructure migration under measurement. |
-| Keep the upstream pin and ARM the target's test config (apply the alias commit in the throwaway, like the GRC snapshot arming) | Modifies the target's test infrastructure before the model is measured on it, and the aliases are a non-trivial behavioural change rather than a latent-net arming. |
+Copying that checkout's `node_modules` (1.6 GB, 186,366 files) was the single most expensive thing
+ever measured in this instrument. Re-measured 2026-07-26, same tree, same session, one destination
+straight after the other: `os.tmpdir()` on C: (cross-volume) 741.5 s copy + 134.1 s remove = 875.6 s;
+`D:\.lz-red-grade-tmp` (intra-volume, what `grade-red` does) 531.4 s + 111.3 s = 642.7 s. So keeping
+the copy on the target's own volume is worth about **27%** -- real, but it never made that target
+affordable, and **the cost is dominated by FILE COUNT, not by the volume boundary** (the intra-volume
+copy ALONE exceeds the 482 s figure the relocation was originally justified by; the machine was
+simply faster that day).
 
-A third route -- find a DIFFERENT in-domain discriminator -- is also open and may be cheaper than
-either. Bring this to the user; do not pick one to keep the corpus at three.
+Do not read the 27% as a general win. On the targets actually in the corpus, measured by alternating
+the two destinations three times each so cache warmth is shared, the copy is a tie within noise and
+only the remove improves: kata copy 4.06 s -> 3.86 s and remove 1.23 s -> 1.03 s; srvx copy 6.70 s ->
+6.89 s and remove 2.03 s -> 1.62 s. The durable value of `resolveGradeTmpDir` is that the location is
+DERIVED, overridable via `$LZ_RED_GRADE_TMPDIR` and loud when it cannot be honoured -- not that it is
+fast.
 
-Two properties of that target are worth carrying into whichever route wins, because they are the
-reason it was chosen and they are not obvious from the file:
-
-- **A COMMITTED FALSE GREEN, live rather than planted.** `layout-align.spec.ts:240-256` is the only
-  `space-evenly` test in the file, it is main-axis, and its single assertion sits inside
-  `if (platform.SAFARI)`, which is false under jsdom -- so it executes zero assertions and always
-  passes. If this target is ever run, **read a run that "fixes" that test instead of writing the
-  missing cross-axis one as a coach-don't-drive signal, not as an instrument artifact.**
-- **A free grading axis.** The file's helper `expectElementStyles` collapses to a boolean
-  (`expect(allStylesMatch).toBe(expected)`), so a helper-based assertion yields the opaque
-  `expected false to be true` while a direct `lookupStyle` yields the diagnostic
-  `expected 'stretch' to be 'space-evenly'`. Both are legitimately red; only one is a good test.
-  That is a JUDGE dimension, not a D-06 one.
-
-**Cost note if it is ever unblocked, and a CORRECTION to the earlier one.** Copying this checkout's
-`node_modules` (1.6 GB, 186,366 files) is the single most expensive thing in the whole instrument.
-The 2026-07-25 note recorded **482 s copy + 123 s remove** and blamed the volume boundary -- the copy
-went from the D: Dev Drive into `os.tmpdir()` on C:. **That attribution was wrong.** Re-measured
-2026-07-26, same tree, same session, one destination straight after the other:
-
-| Destination | Copy | Remove | Total |
-|-------------|------|--------|-------|
-| `os.tmpdir()` on C: (cross-volume) | 741.5 s | 134.1 s | **875.6 s** |
-| `D:\.lz-red-grade-tmp` (intra-volume, what `grade-red` now does) | 531.4 s | 111.3 s | **642.7 s** |
-
-So keeping the copy on the target's own volume is worth about **27%** -- real, but it does not make
-this target affordable. Note the intra-volume copy ALONE (531 s) exceeds the whole 482 s figure the
-relocation was justified by: the machine was simply faster on 2026-07-25, and **the cost is
-dominated by FILE COUNT, not by the volume boundary**. At 3 arms x k=3 that is still ~1.6 hours of
-pure copy time instead of ~2.2. Price it before adding it, and see the residual list for why
-hardlinking is not a valid shortcut.
-
-Do not read the 27% as a general win either. On the two targets actually in the corpus, measured by
-alternating the two destinations three times each so cache warmth is shared, the copy is a tie
-within noise and only the remove improves: kata copy 4.06 s -> 3.86 s and remove 1.23 s -> 1.03 s;
-srvx copy 6.70 s -> 6.89 s and remove 2.03 s -> 1.62 s.
-
-3. **Confirm or nominate any FURTHER target** against the 7-point qualification
-   checklist (steer-at-gate; D-01):
+5. **Confirm or nominate any FURTHER target** against the 7-point qualification
+   checklist (steer-at-gate; D-01). The radix suite also records a DEFERRED candidate, CAND-3
+   (`data-outside-visible-view` on the same directive as RXF), with full evidence and an enable
+   checklist in `e2e-red-radix-ng/targets.json`. Enabling it is DATA ONLY -- but read the attribution
+   warning there first: it is a second attribute on the SAME file as RXF, so running both in one
+   round is the only configuration in the corpus where a run can legitimately land on the other
+   cell's gap.
    1. Small + Vitest/Jest + offline-vendorable (its `npm test` runs a single file quickly).
    2. The target public API EXISTS and COMPILES (so the test is tsc-clean, not a compile error).
    3. A specific behavior is wrong/missing so a correct-behavior test FAILS on an ASSERTION (not
@@ -179,17 +169,21 @@ srvx copy 6.70 s -> 6.89 s and remove 2.03 s -> 1.62 s.
       answer).
    7. It stresses at least one RED-DISCIPLINE axis (classify-first / assert-observable-behavior /
       message-matrix-over-mock / coach-don't-drive-to-green).
-4. **Package-legitimacy gate on ANY newly nominated repo (T-21-SC).** If the user nominates a NEW
+6. **Package-legitimacy gate on ANY newly nominated repo (T-21-SC).** If the user nominates a NEW
    real-OSS repo (not the already-vendored kata), run the package-legitimacy gate on it FIRST --
    confirm it is a real, maintained repo (registry age / downloads / source repo) -- and only then
    `npm install` + vendor it. Do NOT auto-substitute a similarly-named alternative if an install
    fails; surface it to the user. The anchor kata is already vendored + verified, so no install is
    needed for a GRC-only round. srvx was legitimacy-gated at measurement time (first publish
-   2024-09-16, 83 versions, MIT, 0 runtime deps, repo live) -- recorded in its `targets.json`.
-5. **Decide run scope for spend (D-03):** the built corpus is 2 targets x 3 arms x k=3 = **18 runs**;
-   the exact target count and k are tuned here for spend. Report Pass@k AND Pass^k
-   (k = 1, 3, 5, total) per target + overall. Scope it against the measured calibration point below
-   rather than a guess -- and note that grading is no longer a flat rounding error across targets.
+   2024-09-16, 83 versions, MIT, 0 runtime deps, repo live) and radix-ng at wiring time
+   (`@radix-ng/primitives`, MIT, 265 stars, 2,148 weekly downloads, 89 versions, 12 contributors,
+   last commit 2026-07-19, not deprecated) -- both recorded in their `targets.json`.
+7. **Decide run scope for spend (D-03):** the built corpus is 4 cells x 3 arms x k=3 = **36 runs**;
+   the exact cell count and k are tuned here for spend. Report Pass@k AND Pass^k
+   (k = 1, 3, 5, total) per cell + overall. Scope it against the measured calibration point below
+   rather than a guess -- and note that **grading is no longer a rounding error**: the two radix
+   cells cost ~35 s of toolchain copy EACH PER GRADE, plus a differential typecheck that runs a full
+   `packages/primitives/tsconfig.spec.json` pass TWICE. The operator must see that before choosing k.
 
 ### Calibration -- what the k=1 pilot actually cost (2026-07-25, user-approved)
 
@@ -220,20 +214,26 @@ numbers. Override with `$LZ_RED_GRADE_TMPDIR` if that volume is short of room; t
 loud warning whenever the scratch dir is NOT on the target's volume, and every `red-grade.json`
 records the `worktree` it actually used.
 
-| Target | Toolchain copy + remove | Typecheck prebuild | Notes |
-|--------|-------------------------|--------------------|-------|
-| GRC | 3.86 s + 1.03 s (7,610 files, 142.8 MB) | none | was 4.06 s + 1.23 s under `os.tmpdir()`; the copy is a tie within noise |
-| SRVC | 6.89 s + 1.62 s (12,855 files, 170.8 MB) | ~1.6 s warm (`npm run build`; 12.2 s cold, obuild itself 210 ms) | was 6.70 s + 2.03 s; prebuild is TYPECHECK-only, the runner does not need it |
-| NGXA (blocked) | **531 s + 111 s** (186,366 files, 1.6 GB) | none | was 742 s + 134 s cross-volume -- still ~11 min per grade; see the corrected cost note in Step 1 |
+| Target | Toolchain copy + remove | Differential typecheck | Notes |
+|--------|-------------------------|------------------------|-------|
+| GRC | 3.86 s + 1.03 s (7,610 files, 142.8 MB) | negligible; no prebuild | was 4.06 s + 1.23 s under `os.tmpdir()`; the copy is a tie within noise |
+| SRVC | 6.89 s + 1.62 s (12,855 files, 170.8 MB) | plus a ~1.6 s warm `npm run build` prebuild (12.2 s cold, obuild itself 210 ms) | prebuild is TYPECHECK-only, the runner does not need it |
+| **RXF / RXL** | **27.7 s + 7.1 s = ~34.8 s** (78,694 files, 949.5 MiB, 8,164 symlinks) | **~3.9 s per pass x 2 = ~7.8 s** against a 55-error pre-existing baseline; no prebuild | MEASURED 2026-07-26 copying BOTH declared `node_modules` paths intra-volume. Peak TRANSIENT disk **~949 MiB per grade**, held for the duration of that grade only (grades are sequential, so that is the peak, not the total). If the Dev Drive is short of headroom, `$LZ_RED_GRADE_TMPDIR` relocates it. |
+| NGXA (CLOSED) | 531 s + 111 s (186,366 files, 1.6 GB) | none | historical record only -- the target is permanently out; see Step 1 |
 
-Straight-line scaling for the fan-out (model spend is dominated by the turn, not by grading):
+Straight-line scaling for the fan-out (model spend is dominated by the turn, not by grading -- but
+grading is now a visible line item, not a rounding error):
 
-| Scope | Runs | Est. spend | Est. wall clock (serial) | Grading overhead |
-|-------|------|-----------|--------------------------|------------------|
+| Scope | Runs | Est. spend | Est. model wall clock (serial) | Grading overhead |
+|-------|------|-----------|--------------------------------|------------------|
 | GRC only x 3 arms x k=3 | 9 | ~$4.90 | ~13 min | ~45 s |
-| GRC + SRVC x 3 arms x k=3 (**the built corpus**) | 18 | ~$9.80 | ~26 min | ~2.5 min |
-| GRC + SRVC x 3 arms x k=5 | 30 | ~$16.30 | ~43 min | ~4 min |
-| + NGXA, if ever unblocked | +9 | +~$4.90 | +~13 min | **+~1.6 h** |
+| GRC + SRVC x 3 arms x k=3 | 18 | ~$9.80 | ~26 min | ~2.5 min |
+| **All 4 cells x 3 arms x k=3 (the built corpus)** | **36** | **~$19.50** | **~51 min** | **~15 min** (GRC ~44 s + SRVC ~77 s + radix ~13 min) |
+| All 4 cells x 3 arms x k=5 | 60 | ~$32.50 | ~85 min | ~25 min |
+| Drop RXL to keep radix at one cell | 27 | ~$14.70 | ~38 min | ~8.5 min |
+
+Add ONE round of `pnpm install` in the radix throwaway (see Step 3c) -- amortised across the whole
+round, not per grade.
 
 Treat these as a FLOOR. The pilot was a single forced run that went straight to a correct answer in
 8 turns; a `no_skill` run that thrashes, or a target with a slower suite, costs more. The two
@@ -254,20 +254,41 @@ residual list in Step 2), so the next round measures what it claims to.
 
 ## Step 2 -- REQUIRED zero-spend canary before the full fan-out
 
-**This canary is a REQUIRED gate step; run it BEFORE committing to the full k=3 x 2-target spend.
+**This canary is a REQUIRED gate step; run it BEFORE committing to the full k=3 x 4-cell spend.
 It costs NOTHING, so there is no reason to skip it.**
 
 ```
-node .claude/skills/lz-red-workspace/selfcheck-red.mjs      # run in the BACKGROUND; 96-116 s
+node .claude/skills/lz-red-workspace/selfcheck-red.mjs      # run in the BACKGROUND; ~4-4.5 min (232-263 s measured)
 ```
 
-The battery now covers **SIX fabricated runDirs across two suites** -- four GRC and two srvx -- and
-it runs for one and a half to two minutes rather than the old ~70 s, dominated by the six toolchain
-copies. Run
-it in the background rather than under a tool timeout, and remember that **a SKIP is not a pass**:
-it means the borrowed repo or its `node_modules` was not on disk and that direction went unmeasured.
+The battery now covers **NINE fabricated runDirs across three suites** -- five GRC, two srvx, two
+radix -- and each is the discriminating check for a specific mechanism:
 
-Beyond the four GRC fixtures described below, the two srvx fixtures cover mechanisms the kata's
+| Fixture | Suite | The mechanism it is the discriminating check for |
+|---------|-------|--------------------------------------------------|
+| `canary-rundir` | GRC | the gate sees the TARGET's toolchain, routes to a runner that collects the spec, and attributes the failure to the ADDED test; also pins `changed_production_files` PRESENT and EMPTY |
+| `canary-nocollect` | GRC | a spec outside every collection root returns `no_tests` rather than throwing |
+| `canary-compile` | GRC | the differential typecheck still tells a clean spec from a type-broken one |
+| `canary-borrowed` | GRC | RED attribution -- a PASSING test appended to an already-failing spec grades `false_green`, not a borrowed pass |
+| `canary-grc-drive-red` | GRC | `changed_production_files` is recorded ON THE RED PATH, where the drive evidence used to be discarded |
+| `canary-srvc-red` | SRVC | the `<reportFile>` report source AND `typecheck.prebuild`; plus the `E2E_APPLY_BASE` leak check |
+| `canary-srvc-compile` | SRVC | that target's OWN `typecheck.args` still discriminate |
+| `canary-rdxf-red` | RXF | MULTI-PATH toolchain provisioning and the WORKTREE-bounded containment check, end to end against a pnpm workspace of 8,164 symlinks |
+| `canary-rdxf-compile` | RXF | the `-p packages/primitives/tsconfig.spec.json` differential -- this repo has NO root `tsconfig.json`, so a dropped project flag makes the differential VACUOUS rather than merely broad |
+
+**Run it in the BACKGROUND, not under a tool timeout.** MEASURED 2026-07-26: 114.9 s before the
+radix suite, 232.1 s and 262.9 s after. The Bash tool's `timeout` caps at 600000 ms; that still
+fits, but the margin is no longer comfortable. And remember that **a SKIP is not a pass**: it means
+the borrowed repo or its `node_modules` was not on disk and that direction went unmeasured.
+
+There is deliberately no RXL canary. A PURE assertion instead requires RXL's `runner`, `typecheck`
+and `toolchain_paths` blocks to be DEEP-EQUAL to RXF's -- which is exactly what licenses the RXF pair
+to cover it, since one `runner_select` prefix routes both test dirs, one tsconfig project includes
+both, and one toolchain serves both. Give RXL a divergent config and the battery FAILS, forcing a
+canary rather than letting it silently inherit an unproven one. See the residual list for what that
+does NOT cover.
+
+Beyond the five GRC fixtures described below, the two srvx fixtures cover mechanisms the kata's
 structurally cannot reach, because the kata declares neither:
 
 - `fixtures/canary-srvc-red/` proves the `<reportFile>` report source AND the `typecheck.prebuild`.
@@ -295,7 +316,7 @@ Crux 2 now loops EVERY suite, every prompt and both modes. It also checks each p
 target's own `prompt_forbidden_tokens` in BOTH directions: the real composed prompt must name none,
 and the same prompt poisoned with one of those tokens in a different letter case must be caught. A
 target that declares an empty list FAILS the crux, so the guard cannot be quietly emptied. It
-further asserts every RED suite declares byte-identical apply preamble bytes -- two suites measured
+further asserts every RED suite declares byte-identical apply preamble bytes -- suites measured
 under different instructions are not comparable.
 
 Crux 7 inside that battery grades a FABRICATED runDir -- a committed `meta.json` + `diff.patch`
@@ -314,12 +335,23 @@ the kata's OWN toolchain, and asserts:
   the only step that proves the target's real runner reports a title the gate can tie back to the
   diff, rather than one that would make every real run `unattributable`.
 
-Three more fixtures cover the other directions. `fixtures/canary-nocollect/` puts the produced spec
-outside every collection root and asserts the gate returns `no_tests` rather than throwing.
+Four more GRC fixtures cover the other directions. `fixtures/canary-nocollect/` puts the produced
+spec outside every collection root and asserts the gate returns `no_tests` rather than throwing.
 `fixtures/canary-compile/` is the NEGATIVE control: a spec with one deliberate type error, asserted
 to grade `compile_error` with `new_tsc_errors > 0`. Without it nothing in the whole battery would
 notice the differential typecheck silently ceasing to discriminate, which is the exact defect that
 made a produced test with blatant type errors grade as tsc-clean.
+
+`fixtures/canary-grc-drive-red/` is the DRIVE-EVIDENCE discriminator, and it is the one shape none
+of the others can see: every other fixture's diff is TEST-ONLY. This one adds a FAILING spec AND
+makes a PARTIAL production edit (the Conjured rule implemented only in the already-expired branch),
+so the added test still fails on an assertion. It asserts the verdict stays `genuinely_red` -- the
+taxonomy did not move -- while `changed_production_files` NAMES that production file. It sits on the
+RED path precisely because that is where the evidence used to be discarded: before this, a model
+that edited production code and left its test failing scored `genuinely_red` / `pass: true` with the
+drive attempt completely invisible. It runs against the kata rather than a radix target on purpose:
+the field is computed from the diff and is target-independent, so proving it costs one ~5 s toolchain
+copy instead of two ~35 s ones.
 
 `fixtures/canary-borrowed/` is the ATTRIBUTION anti-regression, and it is the one shape the other
 three structurally cannot see: all of them write a BRAND-NEW spec file, where "the file has a
@@ -370,7 +402,7 @@ and the canary uses the target's toolchain rather than the workspace's.
 
 **Residual risk after this canary (the honest list, not just reporter shape):**
 
-- The canary drives FOUR fabricated diffs, not every possible one. They prove the gate mechanism
+- The canary drives NINE fabricated diffs, not every possible one. They prove the gate mechanism
   -- that it sees the target toolchain, routes to a runner that collects the spec, still tells a
   clean spec from a type-broken one, attributes a failure to the test the diff added rather than to
   one that was already in the file, and returns a verdict rather than crashing when nothing is
@@ -429,13 +461,13 @@ and the canary uses the target's toolchain rather than the workspace's.
   hit by accident, whereas an absolute path has to be typed on purpose -- but it is not zero.
   **Check the kata after each metered round** (`git status --porcelain` clean, exactly one
   worktree, `TypeScript/node_modules` intact) rather than assuming it.
-- **Operator-visible cost of the containment:** the copy adds about 3.5 s per graded run on this
-  machine (measured: 2.5-2.8 s to copy the kata's 7610-file / 142.8 MB tree, ~0.7 s to remove it),
-  so roughly 30 s across a 9-run fan-out, and about 13 s to a `selfcheck-red` run. Each grade holds
-  one ~143 MB copy under the temp dir while it runs; grades are sequential, so that is the peak,
-  not the total. Every `red-grade.json` records the real figure as `toolchain_ms` and the CLI
+- **Operator-visible cost of the containment:** on the KATA the copy adds about 4.9 s per graded run
+  (2.5-2.8 s to copy its 7,610-file / 142.8 MB tree, ~1 s to remove it), so roughly 45 s across a
+  9-run GRC fan-out. On the RADIX cells it is ~34.8 s per grade -- see the dedicated bullet below.
+  Each grade holds ONE copy under the temp dir while it runs; grades are sequential, so that is the
+  peak, not the total. Every `red-grade.json` records the real figure as `toolchain_ms` and the CLI
   prints it, so if a round feels slow the number is already in the artifacts. There is deliberately
-  no shared cache: it would save the 30 s but hand every grade a mutable tree to write through, and
+  no shared cache: it would save that time but hand every grade a mutable tree to write through, and
   one poisoned compiler would silently be measured against for the rest of the round.
 - The produced test's directory is now PINNED in the prompt (`test/vitest/`, byte-identical across
   arms) and asserted against `targets.json`, which closes the directory lottery: a spec outside
@@ -479,13 +511,10 @@ and the canary uses the target's toolchain rather than the workspace's.
   directory is created on demand and left in place (empty) between runs; only the `red-wt-*`
   worktrees inside it are per-grade. An interrupted fan-out strands one of those, so if a battery or
   a round is killed, check BOTH that directory and `os.tmpdir()` -- selfcheck-red scans both, and a
-  stranded ngx-layout-sized worktree is ~1.6 GB.
-- **Per-target grading cost is no longer flat, and one target's is enormous.** GRC ~3.9 s, SRVC
-  ~6.9 s plus a ~1.6 s prebuild, and the blocked ngx-layout target ~531 s to copy plus ~111 s to
-  remove -- about 11 minutes per grade, and a peak scratch-disk footprint of ~1.6 GB held for the
-  duration of each grade. **Hardlinking is NOT a valid shortcut**: shared inodes mean an in-place
-  write from the model's runner corrupts the SOURCE, which is exactly the hole the per-grade copy
-  was made to close (crux 9 reproduces that shape every run).
+  stranded radix worktree is ~949 MiB.
+- **Per-target grading cost is not flat.** GRC ~4.9 s, SRVC ~8.5 s plus a ~1.6 s prebuild, and each
+  radix cell ~34.8 s plus a ~7.8 s double typecheck pass. See the dedicated radix bullet below for
+  its transient footprint and why hardlinking is not a way out.
 - **Keeping the copy on the target's own volume was tried and is only worth ~27% on the big tree.**
   This was the follow-up the previous residual list proposed, and the measurement did not support
   its premise: the 482 s figure was NOT mostly a cross-volume penalty (see the corrected cost note
@@ -522,9 +551,67 @@ and the canary uses the target's toolchain rather than the workspace's.
   rather than adding one. That grades `unattributable` and needs hand inspection. Arming narrows the
   characterize-first branch only.
 - Contamination on GRC is HIGH, so a correctness tie across arms is expected (Step 1). SRVC is a
-  CONTROL, not a discriminator, so a tie there does not settle the question either -- with the
-  in-domain discriminator blocked, the corpus cannot currently distinguish pass-at-ceiling from
-  inertness. Say so in the writeup rather than reading a two-target tie as a result.
+  CONTROL, not a discriminator, so a tie there does not settle the question either. **RXF is the
+  cell that can settle it** -- it is in-domain, MEDIUM contamination, and maximum drive temptation.
+  Read a tie on GRC + SRVC alone as inconclusive, exactly as before; read RXF as the result.
+- **Radix per-grade copy cost, and its peak transient footprint.** ~27.7 s to copy plus ~7.1 s to
+  remove per grade, and **~949 MiB of transient disk held for the duration of each grade** (78,694
+  files, 8,164 symlinks, both declared `node_modules` paths). Grades are sequential, so that is the
+  peak rather than the total. Across the 18 radix runs of a k=3 round that is ~10.5 minutes of pure
+  copy time. `$LZ_RED_GRADE_TMPDIR` relocates it if the Dev Drive is short of headroom -- it has less
+  than the profile volume here. **Hardlinking is NOT a valid shortcut**: shared inodes mean an
+  in-place write from the model's runner corrupts the SOURCE, which is exactly the hole the per-grade
+  copy was made to close (crux 9 reproduces that shape every run). **ReFS block cloning remains a
+  genuinely unmeasured follow-up** -- ReFS supports copy-on-write clones and Node's `fs.cpSync` does
+  not use them, so a `FSCTL_DUPLICATE_EXTENTS` path could plausibly collapse this to near-zero on the
+  Dev Drive. Out of scope here.
+- **`escapingLinks` is now bounded by the WORKTREE rather than by the copied directory.** State
+  plainly what that changed. What it PERMITS: a link inside the copied toolchain that resolves
+  anywhere else INSIDE the same grading worktree -- which is what a pnpm workspace's package-level
+  links (pointing up into the root store) and the root store's own workspace self-link (pointing back
+  at `packages/primitives`) both are. MEASURED: 8,164 symlinks, 100% relative, ZERO absolute, ZERO
+  resolving outside the repo, of which SEVEN escape their own copied root and none escape the
+  worktree. What it still CATCHES, unchanged: an ABSOLUTE link into the source checkout, an
+  unreadable link, and any `..` chain that leaves the worktree. This is a CORRECTION -- the guard's
+  own contract always said "a link escaping the WORKTREE leads back to the borrowed repo"; the
+  boundary was simply narrower than that. crux 9 asserts BOTH boundaries over one synthetic tree, so
+  the widening is proved to be a widening and not a removal.
+- **`fs.cpSync` does NOT preserve relative symlinks by default, and getting that wrong would have
+  reopened the whole hole.** With the default `verbatimSymlinks: false` it resolves each link against
+  the SOURCE and writes an ABSOLUTE path into the copy -- so a tree of ordinary relative links becomes
+  a tree of links pointing straight back into the borrowed repo. FOUND end to end: the first real
+  radix grade tripped `escapingLinks` with 8,170 links resolving into `primitives-pin`. Provisioning
+  now passes `verbatimSymlinks: true`, and crux 9 asserts a copied relative link resolves inside the
+  destination. An ABSOLUTE link in the source is still preserved as absolute and still reported as an
+  escape, so the fail-closed direction is unchanged. **Do not "simplify" that option away.**
+- **The `@angular-devkit/schematics` version divergence between the two radix `node_modules` is real
+  and is now faithfully reproduced.** `packages/primitives/node_modules` pins 21.2.12 while the root
+  store has 22.0.2; the other five package-level deps resolve to byte-identical store entries. No
+  spec imports schematics, so it does not affect any current grade -- recorded here so a future
+  reader does not rediscover it as a surprise, and so nobody "simplifies" `toolchain_paths` back to a
+  single path on the grounds that the second one looks empty (it is 6 links and 0 files).
+- **RXL has NO standing end-to-end canary, and its CROSS-PACKAGE IMPORT rests on a one-time
+  measurement.** The deep-equality assertion licenses the RXF pair to cover RXL's
+  `runner_select` prefix match, its shared tsconfig project and its shared toolchain -- and it
+  genuinely does cover those. It does NOT cover the thing that is specific to RXL: its spec lives
+  under `config/__tests__/` and imports the CALENDAR to observe locale-driven rendering. That
+  resolution was proven ONCE, by hand, during this suite's measurement phase (the disciplined spec
+  ran to its assertion and added 0 NEW tsc errors), behind a STOP-and-report gate -- and nothing
+  re-proves it afterwards. If a future change to the tsconfig project, the path mappings or the
+  vitest resolve config broke cross-package resolution, the battery would stay green and every real
+  RXL run would fail at import. **Read a `collection_error` cluster on RXL specifically as a possible
+  cross-package resolution regression**, and consider promoting RXL to its own canary if that ever
+  happens.
+- **A produced spec that lands OUTSIDE `packages/primitives/` is invisible to the radix differential
+  typecheck** -- the project only includes `**/*.spec.ts` relative to that directory. That is the
+  FAIL-SAFE direction rather than a hole: vitest's `root` is the same directory, so such a spec
+  cannot be collected either, and the grade is `no_tests` rather than a false pass. Recorded so
+  nobody adds a tolerance the gate does not need.
+- **The `<reportFile>` no-collect direction is still open, and radix does not close it.** Both radix
+  targets use a `<reportFile>` runner, and like srvx neither has an
+  outside-every-collection-root fixture, so the branch where a wrapped runner puts its no-collect
+  status line on STDOUT rather than stderr remains unmeasured for report-file runners. Unchanged from
+  the previous round; see the `<reportFile>` bullet above.
 
 **Optional extra (metered, NOT required):** once the fan-out is approved and the first real runs are
 captured, grading one of them is a free sanity read on real model output --
@@ -666,18 +753,69 @@ on this machine for environmental reasons (a da-DK locale time format and a port
 timeout); NO tolerance mechanism is needed, because the gate runs only the produced test file and
 `classify()` reads `testResults[0]`.
 
+### 3c -- RXF/RXL (radix-ng): throwaway, toolchain, drive
+
+BOTH radix cells share ONE throwaway and ONE suite dir; `--arm all` with both prompts covers them.
+
+```
+# a) throwaway radix checkout, detached at the pin. --detach, NEVER -b.
+#    The source is the PRISTINE clone. NEVER install into it, and never touch the maintainer's own
+#    radix-ng/primitives checkout -- it is deliberately not the eval source (see applyBase_note).
+git --git-dir="D:/projects/github/radix-ng/primitives-pin/.git" \
+    --work-tree="D:/projects/github/radix-ng/primitives-pin" \
+    worktree add --detach <throwaway radix checkout> \
+    4a7390a2b058457aa47c6f3e0e03b69b70dee025
+
+# a2) TOOLCHAIN -- ONCE PER ROUND, amortised across every run, NOT per grade.
+#     The repo documents pnpm and its packageManager is pnpm@11.5.1.
+pnpm install --dir <throwaway radix checkout>
+
+# b) drive the radix suite (both prompts, arm all = no_skill + with_skill + invoke_skill), k=3.
+#    NO E2E_APPLY_BASE -- this suite's base is the pin in suite.json, and an exported value would
+#    override it and grade the wrong commit:
+node .claude/skills/lz-refactor-workspace/e2e-nx/run-e2e.mjs \
+  --suite .claude/skills/lz-red-workspace/e2e-red-radix-ng \
+  --mode apply --arm all \
+  --cwd <throwaway radix checkout> \
+  --runs 3
+
+# c) grade each captured run:
+node .claude/skills/lz-red-workspace/grade-red.mjs --run <runDir> \
+  --suite .claude/skills/lz-red-workspace/e2e-red-radix-ng
+```
+
+**`a2` is not tidiness -- it is the MEASUREMENT.** Without a toolchain in the apply checkout the
+model cannot RUN the test it writes, which silently removes "watch it fail for the right reason"
+from the RED loop in ALL THREE ARMS at once. That is the same failure class as the anti-RED apply
+preamble that was already removed, and it would hit every arm equally while hollowing out exactly
+what the eval measures.
+
+MEASURED 2026-07-26 in a detached throwaway at the pin: `pnpm install` exits 0 in **37.8 s**
+(2,417 packages; 25.9 s was measured earlier with a fully warm store). `--ignore-scripts` is NOT
+needed and no QEMU fallback occurs -- but note one CORRECTION to the earlier "all 20 native packages
+resolved to win32-arm64" note: `msgpackr-extract@3.0.4` ships NO win32-arm64 prebuild, so its
+postinstall COMPILES LOCALLY via node-gyp (observed: Python 3.14 + VS2026 BuildTools, `gyp info ok`,
+exit 0). It succeeds here, and it is the bulk of the difference between 25.9 s and 37.8 s -- but a
+machine without a working node-gyp toolchain would see that postinstall fail. Check the install's
+exit code rather than assuming.
+
+Grading radix runs copies **both** declared `node_modules` paths (`node_modules` and
+`packages/primitives/node_modules`) into each grading worktree: ~27.7 s in, ~7.1 s out, ~949 MiB
+transient. The differential typecheck runs a full `packages/primitives/tsconfig.spec.json` pass
+TWICE per grade (~3.9 s each) against a 55-error pre-existing baseline. No prebuild is declared.
+
 ### 3d -- tabulate ALL suites
 
 ```
 node .claude/skills/lz-red-workspace/tabulate-mechanical-red.mjs
 ```
 
-The tabulator now WALKS EVERY `e2e-red-*` suite dir that has a `suite.json`, prints ONE combined
-table, and writes each suite's own cells to that suite's own `mechanical-red.json` -- so a per-suite
-artifact never carries another repo's numbers. It FAILS CLOSED if two different suites produce the
-same `target:pid|arm` cell key: two repos blended into one cell is a wrong number that looks
-entirely plausible, since the `n` doubles and the Pass@k becomes a mix with nothing in the output
-saying so.
+The tabulator now WALKS EVERY `e2e-red-*` suite dir that has a `suite.json` -- THREE of them -- prints
+ONE combined table, and writes each suite's own cells to that suite's own `mechanical-red.json`, so a
+per-suite artifact never carries another repo's numbers. The four cell keys are globally unique
+(`GRC`, `SRVC`, `RXF`, `RXL`), and the tabulator FAILS CLOSED if two different suites ever produce
+the same `target:pid|arm` key: two repos blended into one cell is a wrong number that looks entirely
+plausible, since the `n` doubles and the Pass@k becomes a mix with nothing in the output saying so.
 
 **Why `a2` matters for the MEASUREMENT, not just for tidiness.** A fresh `git worktree add` checkout
 has no `node_modules` -- it is gitignored and untracked, so nothing is copied into it. Without a
@@ -692,6 +830,28 @@ differential `tsc --strict` is clean AND at least one failing assertion belongs 
 produced diff ADDED). Pass@k over exit-0 runs only. Each `red-grade.json` records the attribution
 evidence -- `added_test_titles`, `attributed_failures`, and a `failure_excerpt` that names the test
 the message came from -- so a verdict can be checked rather than taken on trust.
+
+### Reading `changed_production_files` (new; EVIDENCE, not a gate)
+
+Every `red-grade.json` now records `changed_production_files` -- the non-test files the captured diff
+touched -- on EVERY path, not only when all assertions pass. Read it like this:
+
+| Verdict | `changed_production_files` | What it means |
+|---------|----------------------------|---------------|
+| `genuinely_red` | `[]` | the clean RED: the model wrote a failing test and stopped |
+| `genuinely_red` | **non-empty** | **a drive ATTEMPT.** The model edited production code and the test STILL fails -- typically a partial fix. This was completely INVISIBLE before, and it is a coach-don't-drive signal even though the verdict passes |
+| `drove_to_green` | non-empty | the model drove to green successfully -- unchanged meaning, unchanged verdict |
+| `false_green` | `[]` | the added test passes on current code; no production edit |
+
+**The verdict taxonomy did NOT change.** `drove_to_green` still means drove SUCCESSFULLY, `pass` is
+still `verdict === 'genuinely_red'`, and no run's verdict moves because of this field. It is evidence
+for the OPERATOR and the JUDGE, not a gate -- deliberately, because a partial edit that leaves the
+test red is genuinely a red test, and turning it into a failure would conflate two different things.
+
+Expect the non-empty `genuinely_red` shape most on **RXL**, whose fix spans a new injection token, a
+provider bridge and nine primitives, so a partial implementation leaves the test red. **RXF** cannot
+easily produce it -- its fix is one token, so an edit that lands makes the test pass and grades
+`drove_to_green` outright.
 
 ### Reading the D-04 trigger columns
 
@@ -737,6 +897,15 @@ After the metered run, the ORCHESTRATOR (the gsd-executor cannot spawn subagents
    Blind the judge by feeding ONLY the produced test code + the target behavior spec -- NO arm label,
    NO skill self-identification (strip comments / normalize formatting). This is the Pitfall 7
    improvement over Phase 20 (a test file blinds far better than a self-identifying transcript).
+
+   **Substring rule, radix cells (RXF/RXL).** Tell the judge that on these two cells an assertion
+   must be EXACT on trimmed text: one month-name spelling is a strict PREFIX of the other, and one
+   attribute spelling is a strict prefix of the other, so a `toContain` / `toMatch` / `startsWith`
+   form is a FALSE GREEN that passes on current code. REPRODUCED 2026-07-26 on the exact fixture.
+   The MECHANICAL gate already grades that form `false_green` (the assertion passes, the diff stays
+   test-only), so no new mechanism was built and none is needed -- but it means **a cluster of
+   `false_green` on these cells is worth reading as a substring-assertion signal rather than only as
+   a discipline signal.**
 2. **Second blind judge (contingent):** add classify-first ("is the right next move RED, not
    green/refactor?") as a THIRD dim only via a SECOND judge, and only if the confirmed targets stress
    it -- keep <= 2 dims per judge.
@@ -811,7 +980,9 @@ skill is inert.
 
 Each `red-grade.json` records, alongside the verdict: `apply_base` (which commit the grade actually
 ran against), `runner_test_path` (the path the runner command received, after any
-`runner_path_base` stripping), `toolchain_ms` and `prebuild_ms`.
+`runner_path_base` stripping), `produced_test_files`, **`changed_production_files`** (the non-test
+files the diff touched -- recorded on EVERY path, see "Reading `changed_production_files`" in
+Step 3), `toolchain_ms` and `prebuild_ms`.
 
 All of the above is documentation only. Nothing here runs during execute-phase; the metered run starts
 only on fresh explicit user approval.

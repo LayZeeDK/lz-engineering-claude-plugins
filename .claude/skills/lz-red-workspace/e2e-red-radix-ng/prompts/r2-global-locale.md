@@ -1,0 +1,1 @@
+We configure the library globally with a non-English locale, but the calendar still renders its month names in English. What's the next failing test you'd write for `packages/primitives/config/src/config.provider.ts`? Go ahead and add it under `packages/primitives/config/__tests__/`.

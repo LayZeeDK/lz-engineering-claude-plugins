@@ -1397,14 +1397,23 @@ function checkSrvcCanaries() {
   }
 }
 
-// The RXF (radix-ng) canaries -- the IN-DOMAIN drive discriminator's half of crux 7.
+// The RXF (radix-ng) canaries -- the IN-DOMAIN drive discriminator's half of crux 7. FOUR of them.
 //
-// These exercise the two mechanisms this suite added, neither of which the kata or srvx can reach:
-// MULTI-PATH toolchain provisioning (a pnpm workspace with a second, package-level node_modules)
-// and the WORKTREE-bounded containment check, without which every grade of this target throws on
-// links that never leave the worktree.
+// These exercise the mechanisms this suite added, none of which the kata or srvx can reach:
+// MULTI-PATH toolchain provisioning (a pnpm workspace with a second, package-level node_modules),
+// the WORKTREE-bounded containment check, without which every grade of this target throws on links
+// that never leave the worktree, and -- since 2026-07-26 -- the atc CHECKER path.
 //
-// ONE canary pair covers BOTH radix targets, and that is licensed by a pure assertion rather than
+// The four, and what each one is the ONLY proof of:
+//   canary-rdxf-red      the suite's plumbing end to end: runner selection, the copied two-path
+//                        toolchain, attribution against the real runner, this suite's own apply base.
+//   canary-rdxf-compile  the differential still discriminates on a TYPESCRIPT-coded defect.
+//   canary-rdxf-template the differential discriminates on a defect atc reports and tsc does NOT --
+//                        the Angular-template blind spot the checker switch exists to close.
+//   canary-rdxf-append   a produced test APPENDED onto a file that already carries diagnostics still
+//                        grades zero NEW errors. The class the whole offline battery lacked.
+//
+// ONE canary set covers BOTH radix targets, and that is licensed by a pure assertion rather than
 // by hope -- see checkRadixTargetConfigEquality below.
 function checkRdxCanaries() {
   const redGrade = gradeFabricatedRunDir(RADIX_SUITE_DIR, 'canary-rdxf-red', (g) => {
@@ -1428,9 +1437,19 @@ function checkRdxCanaries() {
 
     if (g.new_tsc_errors !== 0) {
       fail(
-        `[crux 7:RXF] the disciplined spec reported ${g.new_tsc_errors} NEW tsc errors, expected 0. The ` +
-          'baseline under -p packages/primitives/tsconfig.spec.json is 55 pre-existing errors; a non-zero ' +
-          'differential here means the project flag or the copied toolchain changed',
+        `[crux 7:RXF] the disciplined spec reported ${g.new_tsc_errors} NEW diagnostics, expected 0. The atc ` +
+          'baseline at packages/primitives/tsconfig.spec.json is 73 error-severity diagnostics across 26 ' +
+          'files; a non-zero differential here means the tsConfig path or the copied toolchain changed',
+      );
+    }
+
+    // WHICH checker measured it. This target grades through atc, and a silent fallback to tsc would
+    // reopen the Angular-template blind spot the whole switch closes -- while every other field in
+    // this grade would look identical.
+    if (g.checker !== 'atc') {
+      fail(
+        `[crux 7:RXF] red-grade.json records checker '${g.checker}', expected 'atc'. A grade measured by tsc ` +
+          'cannot see the Angular template diagnostics this target was switched over for',
       );
     }
 
@@ -1486,10 +1505,12 @@ function checkRdxCanaries() {
     );
   }
 
-  // The NEGATIVE control. Without it nothing would notice this target's differential ceasing to
-  // discriminate -- and the failure mode here is specific: drop the `-p
-  // packages/primitives/tsconfig.spec.json` flag and there is NO root tsconfig.json to fall back
-  // on, so the differential goes vacuous and D-06 clause 1 would pass any produced test.
+  // The NEGATIVE control for the TypeScript half. Without it nothing would notice this target's
+  // differential ceasing to discriminate -- and the failure mode here is specific: a missing or wrong
+  // `typecheck.tsconfig` makes the differential VACUOUS rather than merely broad, because atc's -c is
+  // required and this repo has no root tsconfig.json to fall back on. The guard set now also covers
+  // atc's own INFRASTRUCTURE exit code (2), which the tsc path had to infer from a status/output
+  // correlation instead.
   const compileGrade = gradeFabricatedRunDir(RADIX_SUITE_DIR, 'canary-rdxf-compile', (g) => {
     if (g.verdict !== 'compile_error' || g.pass !== false) {
       fail(`[crux 7:RXF] the type-broken spec graded '${g.verdict}' (pass=${g.pass}), expected compile_error / pass=false -- why: ${g.why}`);
@@ -1497,21 +1518,23 @@ function checkRdxCanaries() {
 
     if (!(g.new_tsc_errors > 0)) {
       fail(
-        `[crux 7:RXF] the type-broken spec reported ${g.new_tsc_errors} NEW tsc errors. The differential is NOT ` +
-          "discriminating under this target's own typecheck args, so D-06 clause 1 would pass any produced test. " +
-          'This repo has no root tsconfig.json, so a missing -p flag makes the differential vacuous rather than merely broad',
+        `[crux 7:RXF] the type-broken spec reported ${g.new_tsc_errors} NEW diagnostics. The differential is NOT ` +
+          "discriminating under this target's own checker and tsConfig, so D-06 clause 1 would pass any produced " +
+          "test. atc's -c is required and this repo has no root tsconfig.json, so a missing or wrong tsConfig " +
+          'path makes the differential vacuous rather than merely broad',
       );
     }
 
-    // The verdict must carry its EVIDENCE, and this is the target where that is load-bearing: the
-    // baseline is 55 errors across 17 files, so "1 NEW error" cannot be checked against anything
-    // without the line. A relocated baseline diagnostic and a genuine new one look identical as a
-    // count. hasOwnProperty because an absent key and an empty array are different claims.
+    // The verdict must carry its EVIDENCE, and this is the target where that is load-bearing: the atc
+    // baseline is 73 error-severity diagnostics across 26 files, so "1 NEW error" cannot be checked
+    // against anything without the line. A pre-existing diagnostic and a genuine new one look
+    // identical as a count. hasOwnProperty because an absent key and an empty array are different
+    // claims.
     if (!Object.prototype.hasOwnProperty.call(g, 'new_tsc_error_lines')) {
       fail(
         '[crux 7:RXF] red-grade.json records no new_tsc_error_lines, so a compile_error verdict against ' +
-          "this target's 55-error baseline cannot be audited -- the count alone cannot tell a relocated " +
-          "baseline diagnostic from the model's own error",
+          "this target's 73-error atc baseline cannot be audited -- the count alone cannot tell a " +
+          "pre-existing diagnostic from the model's own error",
       );
     }
 
@@ -1527,19 +1550,149 @@ function checkRdxCanaries() {
   if (compileGrade) {
     console.log(
       `  [crux 7:RXF] differential-discriminates canary OK (type-broken spec -> ${compileGrade.verdict}, ` +
-        `${compileGrade.new_tsc_errors} NEW tsc errors against a 55-error pre-existing baseline, recorded ` +
+        `${compileGrade.new_tsc_errors} NEW diagnostic(s) against a 73-error atc baseline, recorded ` +
         `verbatim: ${JSON.stringify(compileGrade.new_tsc_error_lines[0].slice(0, 90))})`,
+    );
+  }
+
+  // THE ANGULAR-TEMPLATE half, which is the whole reason this target moved off tsc. The defect is
+  // NG8007 in an inline template: atc reports it at ERROR severity, tsc reports NOTHING at all
+  // (MEASURED on the SAME spec -- 55 baseline error lines, 55 with it applied), and it is
+  // RUNTIME-INERT, so gradeRun reaches a verdict rather than throwing.
+  //
+  // The code FAMILY is asserted rather than merely the count. canary-rdxf-compile's `error TS\d+`
+  // assertion does not transfer, and pinning that the recorded diagnostic is ANGULAR-coded is what
+  // proves atc is seeing what tsc structurally cannot -- a count alone would still pass if the gate
+  // silently fell back to tsc and picked up some unrelated TypeScript error.
+  const templateGrade = gradeFabricatedRunDir(RADIX_SUITE_DIR, 'canary-rdxf-template', (g) => {
+    if (g.verdict !== 'compile_error' || g.pass !== false) {
+      fail(
+        `[crux 7:RXF] the template-broken spec graded '${g.verdict}' (pass=${g.pass}), expected compile_error / ` +
+          `pass=false -- why: ${g.why}`,
+      );
+    }
+
+    if (!(g.new_tsc_errors > 0)) {
+      fail(
+        `[crux 7:RXF] the template-broken spec reported ${g.new_tsc_errors} NEW diagnostics. tsc reports ZERO on ` +
+          'this spec (measured), so a zero here means the differential is back to being blind to Angular ' +
+          'template diagnostics and a template-broken produced test would pass D-06 clause 1 clean',
+      );
+    }
+
+    if (g.checker !== 'atc') {
+      fail(`[crux 7:RXF] the template canary was measured by checker '${g.checker}', which cannot see a template diagnostic at all`);
+    }
+
+    const angular = (g.new_tsc_error_lines || []).filter((l) => /error NG\d+:/.test(l));
+
+    if (angular.length === 0) {
+      fail(
+        '[crux 7:RXF] the template canary recorded no ANGULAR-coded diagnostic: ' +
+          `${JSON.stringify(g.new_tsc_error_lines)}. A TypeScript-coded line here would mean the canary is ` +
+          'proving the tsc path over again rather than the template blind spot atc closes',
+      );
+    }
+
+    if (!angular.some((l) => l.includes('NG8007'))) {
+      fail(`[crux 7:RXF] expected the MEASURED NG8007 two-way-binding diagnostic, got ${JSON.stringify(angular)}`);
+    }
+
+    if (g.new_tsc_error_lines.length !== g.new_tsc_errors) {
+      fail(
+        `[crux 7:RXF] new_tsc_error_lines is ${JSON.stringify(g.new_tsc_error_lines)} against a count of ` +
+          `${g.new_tsc_errors}; the recorded lines must BE the counted diagnostics`,
+      );
+    }
+  });
+
+  if (templateGrade) {
+    console.log(
+      `  [crux 7:RXF] template-blind-spot canary OK (atc-visible / tsc-INVISIBLE defect -> ${templateGrade.verdict}, ` +
+        `${templateGrade.new_tsc_errors} NEW Angular-coded diagnostic(s); a MEASURED tsc pass on the SAME spec adds ` +
+        `0: ${JSON.stringify(templateGrade.new_tsc_error_lines[0].slice(0, 90))})`,
+    );
+  }
+
+  // THE APPEND CANARY -- the class the entire offline battery lacked, and the reason the
+  // position-sensitive differential survived a two-round plan check, a code review, an 8/8
+  // verification and a full bisect until a metered pilot surfaced it. No offline fixture could reach
+  // it: GRC's baseline errors live in production code its specs do not touch, srvx's baseline is 0
+  // after its prebuild, and every other canary creates a NEW file.
+  //
+  // Its diff appends a failing test to the calendar spec that ALREADY carries the eight measured
+  // jest-dom diagnostics, AND adds an import in a hunk at the TOP so every one of those eight SHIFTS
+  // by a line. MEASURED: 0 NEW under the shipped position-insensitive multiset, 8 NEW under a raw
+  // positioned difference. This is the END-TO-END proof on the real atc path; the five synthetic
+  // position-insensitivity assertions in grade-red --selfcheck already own the unit-level
+  // discrimination and are checker-agnostic, so it is deliberately not rebuilt here.
+  const appendGrade = gradeFabricatedRunDir(RADIX_SUITE_DIR, 'canary-rdxf-append', (g) => {
+    if (g.verdict !== 'genuinely_red' || g.pass !== true) {
+      fail(
+        `[crux 7:RXF] the append canary graded '${g.verdict}' (pass=${g.pass}), expected genuinely_red / pass=true ` +
+          `-- why: ${g.why}. new_tsc_errors=${g.new_tsc_errors}, lines=${JSON.stringify(g.new_tsc_error_lines)}`,
+      );
+    }
+
+    // THE POINT. Eight pre-existing diagnostics moved down a line; not one of them may be re-counted
+    // as the model's.
+    if (g.new_tsc_errors !== 0) {
+      fail(
+        `[crux 7:RXF] the append canary reported ${g.new_tsc_errors} NEW diagnostics, expected 0. Its diff adds an ` +
+          "import at the TOP of a spec that already carries eight diagnostics, so every one SHIFTS -- a non-zero " +
+          'count here means the differential is position-SENSITIVE again, which is exactly the compile_error the ' +
+          `metered pilot got: ${JSON.stringify(g.new_tsc_error_lines)}`,
+      );
+    }
+
+    if (g.attributed_failures !== 1) {
+      fail(
+        `[crux 7:RXF] the append canary attributed ${g.attributed_failures} failure(s), expected exactly 1. The ` +
+          "appended test's title is unique in the file, so anything else means attribution is claiming the " +
+          'file\'s pre-existing tests or missing the appended one',
+      );
+    }
+
+    const want = 'exposes the documented focus attribute on the first day of the month';
+
+    if (!Array.isArray(g.added_test_titles) || !g.added_test_titles.includes(want)) {
+      fail(`[crux 7:RXF] the append canary's added title was not extracted from the diff: ${JSON.stringify(g.added_test_titles)}`);
+    }
+
+    // The excerpt must name the APPENDED test, not one of the five that were already in the file --
+    // borrowing a pre-existing failure is the defect attribution exists to close, and this canary is
+    // the only fixture where a real borrowed failure is even available.
+    if (!String(g.failure_excerpt || '').startsWith(`added test ${JSON.stringify(want)}:`)) {
+      fail(
+        '[crux 7:RXF] the append canary\'s failure_excerpt does not name the APPENDED test: ' +
+          `${JSON.stringify(String(g.failure_excerpt).slice(0, 160))}`,
+      );
+    }
+
+    if (!Array.isArray(g.changed_production_files) || g.changed_production_files.length !== 0) {
+      fail(`[crux 7:RXF] the append canary recorded changed_production_files ${JSON.stringify(g.changed_production_files)}, expected []`);
+    }
+  });
+
+  if (appendGrade) {
+    console.log(
+      `  [crux 7:RXF] append-onto-a-dirty-file canary OK (${appendGrade.verdict}, ${appendGrade.new_tsc_errors} NEW ` +
+        'diagnostics despite an import hunk at the TOP shifting all eight of the calendar spec\'s jest-dom ' +
+        `diagnostics -- a RAW positioned difference reports 8 -- and exactly ${appendGrade.attributed_failures} ` +
+        'failure attributed to the APPENDED test rather than to the five already in the file)',
     );
   }
 }
 
 // WHY RXL SHIPS WITHOUT A CANARY OF ITS OWN, stated as an assertion rather than as a claim.
 //
-// The RXF pair above proves the SUITE's plumbing: that runner_select routes a spec under
+// The RXF canaries above prove the SUITE's plumbing: that runner_select routes a spec under
 // packages/primitives/ to vitest, that the copied two-path toolchain is visible and contained,
-// that the tsconfig project makes the differential discriminate, and that apply_base is this
-// suite's pin. Every one of those rests on config RXL SHARES -- one runner_select prefix covers
-// both test dirs, one tsconfig.spec.json project includes both, one toolchain serves both.
+// that the declared atc tsConfig project makes the differential discriminate on BOTH a
+// TypeScript-coded and an Angular-coded defect, that an APPEND onto a dirty file still grades zero
+// NEW errors, and that apply_base is this suite's pin. Every one of those rests on config RXL
+// SHARES -- one runner_select prefix covers both test dirs, one tsconfig.spec.json project includes
+// both, one checker and one toolchain serve both.
 //
 // So the honest reading of "each new target needs a canary" is: the canary proves the shared
 // plumbing, and this EQUALITY is what licenses the transfer. Give RXL a different project flag, a
@@ -1590,7 +1743,8 @@ function checkRadixTargetConfigEquality() {
 
   console.log(
     `  [crux 7:RXF] target config equality OK (${others.map((t) => t.id).join(', ')} share RXF's runner, typecheck ` +
-      'and toolchain_paths byte-for-byte, which is what licenses one canary pair to cover them; divergence forces its own canary)',
+      "and toolchain_paths byte-for-byte -- one checker, one tsConfig project, one runner_select prefix and one " +
+      'toolchain -- which is what licenses ONE canary set to cover them; divergence forces its own canary)',
   );
 }
 

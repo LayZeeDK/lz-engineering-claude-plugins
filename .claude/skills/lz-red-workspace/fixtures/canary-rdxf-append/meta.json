@@ -1,0 +1,9 @@
+{
+  "prompt_id": "r1",
+  "target": "RXF",
+  "arm": "canary",
+  "run_idx": 0,
+  "changed_files": [
+    "packages/primitives/calendar/__tests__/calendar.spec.ts"
+  ]
+}

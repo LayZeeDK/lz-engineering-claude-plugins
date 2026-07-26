@@ -1,0 +1,30 @@
+diff --git a/packages/primitives/calendar/__tests__/calendar.spec.ts b/packages/primitives/calendar/__tests__/calendar.spec.ts
+index b0ef6093..b94d5020 100644
+--- a/packages/primitives/calendar/__tests__/calendar.spec.ts
++++ b/packages/primitives/calendar/__tests__/calendar.spec.ts
+@@ -1,3 +1,4 @@
++import { startOfMonth } from '@internationalized/date';
+ import { ComponentFixture, TestBed } from '@angular/core/testing';
+ import { CalendarDate, CalendarDateTime, DateValue, toZoned } from '@internationalized/date';
+ import { userEvent } from '@testing-library/user-event';
+@@ -110,3 +111,20 @@ describe('Calendar', () => {
+         expect(heading).toHaveTextContent('January 1981');
+     });
+ });
++
++describe('Calendar focus attribute (append canary)', () => {
++    it('exposes the documented focus attribute on the first day of the month', async () => {
++        await TestBed.configureTestingModule({
++            imports: [CalendarDefault]
++        }).compileComponents();
++
++        const appendFixture: ComponentFixture<CalendarDefault> = TestBed.createComponent(CalendarDefault);
++        appendFixture.componentInstance.date = startOfMonth(calendarDate);
++        appendFixture.detectChanges();
++
++        const appendHostEl: HTMLElement = appendFixture.nativeElement;
++        const focusedCell = appendHostEl.querySelector<HTMLElement>('[data-rdx-calendar-cell-trigger][data-focused]');
++
++        expect(focusedCell?.textContent?.trim()).toBe('1');
++    });
++});

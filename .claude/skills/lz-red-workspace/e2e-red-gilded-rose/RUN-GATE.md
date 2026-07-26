@@ -16,7 +16,7 @@ forked per suite. THREE suites, FOUR cells:
 | `.claude/skills/lz-red-workspace/e2e-red-radix-ng` | `RXF` | MEDIUM-contamination IN-DOMAIN **primary drive discriminator** |
 | `.claude/skills/lz-red-workspace/e2e-red-radix-ng` | `RXL` | MEDIUM-contamination IN-DOMAIN observable-output cell |
 
-The in-domain gap the two-suite corpus could not close is now closed: with `RXF` in the corpus a
+The in-domain gap the earlier two-suite corpus could not close is now closed: with `RXF` in it a
 correctness tie on GRC can finally be told apart from inertness, because `RXF` is a genuine
 discriminator on the drive axis rather than a control.
 
@@ -224,13 +224,18 @@ records the `worktree` it actually used.
 Straight-line scaling for the fan-out (model spend is dominated by the turn, not by grading -- but
 grading is now a visible line item, not a rounding error):
 
-| Scope | Runs | Est. spend | Est. model wall clock (serial) | Grading overhead |
-|-------|------|-----------|--------------------------------|------------------|
-| GRC only x 3 arms x k=3 | 9 | ~$4.90 | ~13 min | ~45 s |
-| GRC + SRVC x 3 arms x k=3 | 18 | ~$9.80 | ~26 min | ~2.5 min |
-| **All 4 cells x 3 arms x k=3 (the built corpus)** | **36** | **~$19.50** | **~51 min** | **~15 min** (GRC ~44 s + SRVC ~77 s + radix ~13 min) |
-| All 4 cells x 3 arms x k=5 | 60 | ~$32.50 | ~85 min | ~25 min |
-| Drop RXL to keep radix at one cell | 27 | ~$14.70 | ~38 min | ~8.5 min |
+| Scope | Runs | Est. spend | Est. model wall clock (serial) | Grading: copy + typecheck | Grading: + runner spawn |
+|-------|------|-----------|--------------------------------|---------------------------|-------------------------|
+| GRC only x 3 arms x k=3 | 9 | ~$4.90 | ~13 min | ~45 s | ~1 min |
+| GRC + SRVC x 3 arms x k=3 | 18 | ~$9.80 | ~26 min | ~2.5 min | ~3 min |
+| **All 4 cells x 3 arms x k=3 (the built corpus)** | **36** | **~$19.50** | **~51 min** | ~15 min (GRC ~44 s + SRVC ~77 s + radix ~13 min) | **~19-20 min** |
+| All 4 cells x 3 arms x k=5 | 60 | ~$32.50 | ~85 min | ~25 min | ~32 min |
+| Drop RXL to keep radix at one cell | 27 | ~$14.70 | ~38 min | ~8.5 min | ~11 min |
+
+The two grading columns are split because the first one is NOT the number to size `k` against.
+It counts the toolchain copy plus the differential typecheck and excludes the RUNNER SPAWN, which
+on radix is ~12 s per grade (measured; every `red-grade.json` records it under `runner_measured`).
+Eighteen radix runs add ~3.6 min on their own. **Choose `k` against the right-hand column.**
 
 Add ONE round of `pnpm install` in the radix throwaway (see Step 3c) -- amortised across the whole
 round, not per grade.
@@ -366,7 +371,7 @@ the field is computed from the diff and is target-independent, so proving it cos
 copy instead of two ~35 s ones.
 
 `fixtures/canary-borrowed/` is the ATTRIBUTION anti-regression, and it is the one shape the other
-three structurally cannot see: all of them write a BRAND-NEW spec file, where "the file has a
+four structurally cannot see: all of them write a BRAND-NEW spec file, where "the file has a
 failing assertion" and "the test the model added failed" happen to coincide. This one APPENDS a
 test that PASSES to the kata's own `test/vitest/gilded-rose.spec.ts`, which ships a permanently
 failing `should foo` placeholder asserting `'fixme'` -- the exact shape of the k=1 `with_skill`
@@ -746,7 +751,13 @@ every `red-grade.json` records the `apply_base` it actually used -- a reader can
 trust.
 
 Do NOT export it for the other suites. Their bases are fixed pins, they do not set the flag, and an
-exported value would OVERRIDE their pin and grade the wrong commit.
+exported value would OVERRIDE their pin and grade the wrong commit. **`unset E2E_APPLY_BASE` is the
+first line of both 3b and 3c** rather than a comment, because a shell that ran 3a first still
+carries it and nothing in `gradeRun` refuses it: `applyBase = process.env.E2E_APPLY_BASE ||
+suite.applyBase`, unconditionally. With an armed kata SHA the other suites fail loudly at
+`git worktree add` (unknown revision), which is fine -- but with the value `main`, which the canary
+path uses and an unarmed round would plausibly export, both srvx and `primitives-pin` HAVE a `main`
+branch and would grade it silently.
 
 Arming narrows the characterize-first branch only. It does NOT fix the other branch: the kata's
 `test/vitest/gilded-rose.spec.ts` ships a permanently failing placeholder, so a run can still
@@ -755,6 +766,13 @@ Arming narrows the characterize-first branch only. It does NOT fix the other bra
 ### 3b -- SRVC (srvx): throwaway, toolchain, drive
 
 ```
+# a0) DROP the GRC arming variable. Step 3a3 exported it in this same shell and it OVERRIDES this
+#     suite's baked pin unconditionally (grade-red reads `E2E_APPLY_BASE || suite.applyBase`).
+#     With an armed kata SHA it fails loudly at `git worktree add`; with the value `main` -- which
+#     an unarmed round plausibly exports -- srvx HAS a main branch, so it would grade the WRONG
+#     COMMIT silently, with `apply_base` in the artifact as the only trace.
+unset E2E_APPLY_BASE
+
 # a) throwaway srvx checkout, detached at the pin:
 git --git-dir="<srvx>/.git" worktree add --detach <throwaway srvx checkout> \
   55d90b39840a5bb7236e23c4e326ee4fc3842d57
@@ -790,6 +808,10 @@ timeout); NO tolerance mechanism is needed, because the gate runs only the produ
 BOTH radix cells share ONE throwaway and ONE suite dir; `--arm all` with both prompts covers them.
 
 ```
+# a0) DROP the GRC arming variable -- same reason as 3b, and it bites harder here: primitives-pin
+#     HAS a `main` branch, so a leaked `main` grades the wrong commit silently instead of failing.
+unset E2E_APPLY_BASE
+
 # a) throwaway radix checkout, detached at the pin. --detach, NEVER -b.
 #    The source is the PRISTINE clone. NEVER install into it, and never touch the maintainer's own
 #    radix-ng/primitives checkout -- it is deliberately not the eval source (see applyBase_note).

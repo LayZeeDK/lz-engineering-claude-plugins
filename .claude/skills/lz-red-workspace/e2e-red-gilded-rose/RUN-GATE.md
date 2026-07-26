@@ -48,12 +48,14 @@ node .claude/skills/lz-red-workspace/selfcheck-red.mjs                       # c
 node .claude/skills/lz-red-workspace/check-evals.mjs                         # eval-set shape + ASCII/email hygiene
 ```
 
-`selfcheck-red.mjs` now takes **~4-4.5 minutes** and the radix suite is why. MEASURED 2026-07-26 on
-the same machine in the same session: **114.9 s immediately BEFORE the radix suite was wired, then
-232.1 s and 262.9 s after** -- a **+117 to +148 s** increase, accounted for by the two radix
-toolchain copies the new canaries add (~35 s each, copy plus remove) plus their two ~12 s vitest runs
-and four ~3.9 s tsc passes. The 30 s spread between the two post-wiring runs is machine load, not
-drift. That is the containment's cost, not a hang.
+`selfcheck-red.mjs` now takes **~6.5-7 minutes** and the radix suite is why. MEASURED 2026-07-26 on
+the same machine in the same session, in three stages: **114.9 s immediately BEFORE the radix suite
+was wired, then 232.1 s and 262.9 s once its first two canaries existed, then 404.5 s after the atc
+switch added two MORE radix canaries.** The first jump (+117 to +148 s) was the two radix toolchain
+copies (~35 s each, copy plus remove) plus their ~12 s vitest runs and their differential passes. The
+second (+142 to +172 s) is the two NEW canaries' own copies and runs, plus atc being ~2.2x tsc per
+pass across all four (~19 s per grade rather than ~7.8 s). The 30 s spread between the two 2026-07-26
+mid-stage runs is machine load, not drift. That is the containment's cost, not a hang.
 
 Earlier ranges for context: ~70 s with GRC alone, and 105-155 s over six runs with GRC + srvx (the
 spread there is filesystem cache warmth and machine load, and it swamps anything the
@@ -61,11 +63,14 @@ grading-worktree relocation changes -- do not read a faster or slower battery as
 way; crux 11 and the crux 7/9 volume assertions are the evidence).
 
 Cruxes 7, 9 and 10 each build a real grading worktree, and crux 7 now copies a real toolchain
-NINE times -- five for GRC, two for srvx, two for radix. **Run it in the background rather than under
-a tool timeout** -- the Bash tool's `timeout` is capped at 600000 ms, and while 232-263 s still fits,
-the margin is no longer comfortable and would vanish outright if a third radix cell or the closed
-ngx-layout target were added (the latter's per-grade copy alone is ~11 min). Never narrow the battery
-to make it finish sooner: a SKIP is not a pass. See the residual list in Step 2.
+ELEVEN times -- five for GRC, two for srvx, FOUR for radix. **Run it in the background rather than
+under a tool timeout** -- the Bash tool's `timeout` is capped at 600000 ms, and at 404.5 s the margin
+is down to ~3 min and would vanish outright if a third radix cell or the closed ngx-layout target
+were added (the latter's per-grade copy alone is ~11 min). **Gate on the PROCESS EXIT STATUS, not on
+the log text alone**: the radix block runs in the MIDDLE of the battery, `fail()` exits immediately,
+and everything already written to the log SURVIVES -- so a log-only assertion reports success while a
+later crux (containment, apply-base, multi-path toolchain, nx regression) is failing. Never narrow the
+battery to make it finish sooner: a SKIP is not a pass. See the residual list in Step 2.
 
 ---
 
@@ -183,7 +188,8 @@ fast.
    (k = 1, 3, 5, total) per cell + overall. Scope it against the measured calibration point below
    rather than a guess -- and note that **grading is no longer a rounding error**: the two radix
    cells cost ~35 s of toolchain copy EACH PER GRADE, plus a differential typecheck that runs a full
-   `packages/primitives/tsconfig.spec.json` pass TWICE. The operator must see that before choosing k.
+   `packages/primitives/tsconfig.spec.json` **atc** pass TWICE (~19 s per grade, re-priced 2026-07-26
+   from the tsc-era ~7.8 s). The operator must see that before choosing k.
 
 ### Calibration -- what the k=1 pilot actually cost (2026-07-25, user-approved)
 
@@ -218,7 +224,7 @@ records the `worktree` it actually used.
 |--------|-------------------------|------------------------|-------|
 | GRC | 3.86 s + 1.03 s (7,610 files, 142.8 MB) | negligible; no prebuild | was 4.06 s + 1.23 s under `os.tmpdir()`; the copy is a tie within noise |
 | SRVC | 6.89 s + 1.62 s (12,855 files, 170.8 MB) | plus a ~1.6 s warm `npm run build` prebuild (12.2 s cold, obuild itself 210 ms) | prebuild is TYPECHECK-only, the runner does not need it |
-| **RXF / RXL** | **27.7 s + 7.1 s = ~34.8 s** (78,694 files, 949.5 MiB, 8,164 symlinks) | **~3.9 s per pass x 2 = ~7.8 s** against a 55-error pre-existing baseline; no prebuild | MEASURED 2026-07-26 copying BOTH declared `node_modules` paths intra-volume. Peak TRANSIENT disk **~949 MiB per grade**, held for the duration of that grade only (grades are sequential, so that is the peak, not the total). If the Dev Drive is short of headroom, `$LZ_RED_GRADE_TMPDIR` relocates it. |
+| **RXF / RXL** | **27.7 s + 7.1 s = ~34.8 s** (78,694 files, 949.5 MiB, 8,164 symlinks) | **~9.0-9.9 s per pass x 2 = ~19 s** against a 73-error pre-existing baseline; no prebuild | MEASURED 2026-07-26 copying BOTH declared `node_modules` paths intra-volume. The typecheck column is the RE-PRICED **atc** figure -- these targets no longer grade through tsc, and atc is ~2.2x per pass (the tsc-era numbers were ~3.9 s per pass, ~7.8 s per grade, against a 55-error baseline). Peak TRANSIENT disk **~949 MiB per grade**, held for the duration of that grade only (grades are sequential, so that is the peak, not the total). If the Dev Drive is short of headroom, `$LZ_RED_GRADE_TMPDIR` relocates it. |
 | NGXA (CLOSED) | 531 s + 111 s (186,366 files, 1.6 GB) | none | historical record only -- the target is permanently out; see Step 1 |
 
 Straight-line scaling for the fan-out (model spend is dominated by the turn, not by grading -- but
@@ -228,14 +234,19 @@ grading is now a visible line item, not a rounding error):
 |-------|------|-----------|--------------------------------|---------------------------|-------------------------|
 | GRC only x 3 arms x k=3 | 9 | ~$4.90 | ~13 min | ~45 s | ~1 min |
 | GRC + SRVC x 3 arms x k=3 | 18 | ~$9.80 | ~26 min | ~2.5 min | ~3 min |
-| **All 4 cells x 3 arms x k=3 (the built corpus)** | **36** | **~$19.50** | **~51 min** | ~15 min (GRC ~44 s + SRVC ~77 s + radix ~13 min) | **~19-20 min** |
-| All 4 cells x 3 arms x k=5 | 60 | ~$32.50 | ~85 min | ~25 min | ~32 min |
-| Drop RXL to keep radix at one cell | 27 | ~$14.70 | ~38 min | ~8.5 min | ~11 min |
+| **All 4 cells x 3 arms x k=3 (the built corpus)** | **36** | **~$19.50** | **~51 min** | ~18 min (GRC ~44 s + SRVC ~77 s + radix ~16 min) | **~22-23 min** |
+| All 4 cells x 3 arms x k=5 | 60 | ~$32.50 | ~85 min | ~31 min | ~37 min |
+| Drop RXL to keep radix at one cell | 27 | ~$14.70 | ~38 min | ~10 min | ~12 min |
 
 The two grading columns are split because the first one is NOT the number to size `k` against.
 It counts the toolchain copy plus the differential typecheck and excludes the RUNNER SPAWN, which
 on radix is ~12 s per grade (measured; every `red-grade.json` records it under `runner_measured`).
 Eighteen radix runs add ~3.6 min on their own. **Choose `k` against the right-hand column.**
+
+The radix grading columns were RE-PRICED 2026-07-26 when those two cells moved from tsc to atc: the
+per-grade differential went from ~7.8 s to ~19 s, so a k=3 round's radix grading is ~54 s per grade
+(~35 s copy + ~19 s typecheck) rather than ~43 s -- about +3 min across the 18 radix runs. Model
+spend is unchanged; only the grading columns move.
 
 Add ONE round of `pnpm install` in the radix throwaway (see Step 3c) -- amortised across the whole
 round, not per grade.
@@ -263,10 +274,10 @@ residual list in Step 2), so the next round measures what it claims to.
 It costs NOTHING, so there is no reason to skip it.**
 
 ```
-node .claude/skills/lz-red-workspace/selfcheck-red.mjs      # run in the BACKGROUND; ~4-4.5 min (232-263 s measured)
+node .claude/skills/lz-red-workspace/selfcheck-red.mjs      # run in the BACKGROUND; ~6.5-7 min (404.5 s measured)
 ```
 
-The battery now covers **NINE fabricated runDirs across three suites** -- five GRC, two srvx, two
+The battery now covers **ELEVEN fabricated runDirs across three suites** -- five GRC, two srvx, FOUR
 radix -- and each is the discriminating check for a specific mechanism:
 
 | Fixture | Suite | The mechanism it is the discriminating check for |
@@ -279,12 +290,17 @@ radix -- and each is the discriminating check for a specific mechanism:
 | `canary-srvc-red` | SRVC | the `<reportFile>` report source AND `typecheck.prebuild`; plus the `E2E_APPLY_BASE` leak check |
 | `canary-srvc-compile` | SRVC | that target's OWN `typecheck.args` still discriminate |
 | `canary-rdxf-red` | RXF | MULTI-PATH toolchain provisioning and the WORKTREE-bounded containment check, end to end against a pnpm workspace of 8,164 symlinks |
-| `canary-rdxf-compile` | RXF | the `-p packages/primitives/tsconfig.spec.json` differential -- this repo has NO root `tsconfig.json`, so a dropped project flag makes the differential VACUOUS rather than merely broad |
+| `canary-rdxf-compile` | RXF | the `packages/primitives/tsconfig.spec.json` differential on a TYPESCRIPT-coded defect -- this repo has NO root `tsconfig.json` and atc's `-c` is required, so a dropped or wrong tsConfig path makes the differential VACUOUS rather than merely broad |
+| `canary-rdxf-template` | RXF | the differential discriminates on a defect **atc reports and tsc does NOT** -- the Angular-template blind spot the checker switch exists to close. Asserts the recorded diagnostic is ANGULAR-coded (`NG8007`), because a count alone would still pass if the gate silently fell back to tsc |
+| `canary-rdxf-append` | RXF | a produced test APPENDED onto a file that ALREADY carries diagnostics still grades zero NEW errors. The class the whole offline battery lacked; MEASURED 0 NEW under the shipped multiset against 8 under a raw positioned difference |
 
 **Run it in the BACKGROUND, not under a tool timeout.** MEASURED 2026-07-26: 114.9 s before the
-radix suite, 232.1 s and 262.9 s after. The Bash tool's `timeout` caps at 600000 ms; that still
-fits, but the margin is no longer comfortable. And remember that **a SKIP is not a pass**: it means
-the borrowed repo or its `node_modules` was not on disk and that direction went unmeasured.
+radix suite, 232.1 s and 262.9 s with its first two canaries, **404.5 s** after the atc switch added
+two more. The Bash tool's `timeout` caps at 600000 ms; that still fits, but the margin is down to
+~3 min. And remember that **a SKIP is not a pass**: it means the borrowed repo or its `node_modules`
+was not on disk and that direction went unmeasured. The radix fixtures SKIP per fixture name
+(`[crux 7:canary-rdxf-append] SKIP -- ...`), not under an `RXF` label, so grep the fixture names when
+checking a log -- and gate on the exit status regardless.
 
 **One check is PLATFORM-CONDITIONAL, and it is the one covering a Critical-class bug.** crux 9's
 `verbatimSymlinks` discrimination needs a RELATIVE directory link, which Windows refuses without
@@ -299,9 +315,9 @@ battery's exit 0 as covering it.** (Measured on this machine: it does NOT skip -
 directory links are available here.)
 
 There is deliberately no RXL canary. A PURE assertion instead requires RXL's `runner`, `typecheck`
-and `toolchain_paths` blocks to be DEEP-EQUAL to RXF's -- which is exactly what licenses the RXF pair
-to cover it, since one `runner_select` prefix routes both test dirs, one tsconfig project includes
-both, and one toolchain serves both. Give RXL a divergent config and the battery FAILS, forcing a
+and `toolchain_paths` blocks to be DEEP-EQUAL to RXF's -- which is exactly what licenses the RXF
+canaries to cover it, since one `runner_select` prefix routes both test dirs, one checker and one
+tsConfig project cover both, and one toolchain serves both. Give RXL a divergent config and the battery FAILS, forcing a
 canary rather than letting it silently inherit an unproven one. See the residual list for what that
 does NOT cover.
 
@@ -341,7 +357,7 @@ under `fixtures/canary-rundir/`, the same two files a real capture contributes -
 the kata's OWN toolchain, and asserts:
 
 - the gate produced a VERDICT rather than throwing;
-- the verdict is `genuinely_red` with `pass: true`, and zero NEW differential tsc errors;
+- the verdict is `genuinely_red` with `pass: true`, and zero NEW differential typecheck errors;
 - the recorded `runner` is the one the produced test's directory routes to;
 - the recorded `runner_version` is a REAL version, not the `unknown` sentinel -- which is only
   readable from a `node_modules` the grading worktree can actually see;
@@ -419,12 +435,14 @@ and the canary uses the target's toolchain rather than the workspace's.
 
 **Residual risk after this canary (the honest list, not just reporter shape):**
 
-- The canary drives NINE fabricated diffs, not every possible one. They prove the gate mechanism
+- The canary drives ELEVEN fabricated diffs, not every possible one. They prove the gate mechanism
   -- that it sees the target toolchain, routes to a runner that collects the spec, still tells a
-  clean spec from a type-broken one, attributes a failure to the test the diff added rather than to
-  one that was already in the file, and returns a verdict rather than crashing when nothing is
-  collected. They do not prove every model-produced diff applies cleanly; a malformed capture still
-  fails closed at `git apply`.
+  clean spec from a type-broken one (and, on radix, from a TEMPLATE-broken one that tsc cannot see),
+  attributes a failure to the test the diff added rather than to one that was already in the file,
+  keeps its differential position-insensitive when a diff APPENDS to a file that already carries
+  diagnostics, and returns a verdict rather than crashing when nothing is collected. They do not
+  prove every model-produced diff applies cleanly; a malformed capture still fails closed at
+  `git apply`.
 - **What RED ATTRIBUTION does and does not cover** (added 2026-07-25, after the k=1 `with_skill`
   pilot). `genuinely_red` now requires at least one failing assertion belonging to a test the
   produced diff ADDED, matched by extracting `it()` / `test()` titles from the diff's `+` lines and
@@ -530,8 +548,9 @@ and the canary uses the target's toolchain rather than the workspace's.
   a round is killed, check BOTH that directory and `os.tmpdir()` -- selfcheck-red scans both, and a
   stranded radix worktree is ~949 MiB.
 - **Per-target grading cost is not flat.** GRC ~4.9 s, SRVC ~8.5 s plus a ~1.6 s prebuild, and each
-  radix cell ~34.8 s plus a ~7.8 s double typecheck pass. See the dedicated radix bullet below for
-  its transient footprint and why hardlinking is not a way out.
+  radix cell ~34.8 s plus a ~19 s double **atc** pass (re-priced 2026-07-26 from the tsc-era ~7.8 s).
+  See the dedicated radix bullet below for its transient footprint and why hardlinking is not a way
+  out.
 - **Keeping the copy on the target's own volume was tried and is only worth ~27% on the big tree.**
   This was the follow-up the previous residual list proposed, and the measurement did not support
   its premise: the 482 s figure was NOT mostly a cross-volume penalty (see the corrected cost note
@@ -583,13 +602,15 @@ and the canary uses the target's toolchain rather than the workspace's.
   not use them, so a `FSCTL_DUPLICATE_EXTENTS` path could plausibly collapse this to near-zero on the
   Dev Drive. Out of scope here.
 - **On radix, read a `compile_error` cluster against the RECORDED lines before treating it as a
-  model failure.** That target's typecheck baseline is DIRTY -- 55 pre-existing errors across 17
-  files -- and the differential is line-exact string subtraction. A produced spec that PERTURBS an
-  existing diagnostic's text or position (a module augmentation, a `declare`, a type that changes
-  inference in a shared file) yields "new" lines that are RELOCATED baseline errors rather than the
-  model's own. Every `red-grade.json` now records `new_tsc_error_lines` (the actual NEW diagnostics,
-  capped at 10) alongside `new_tsc_errors`, so the verdict can be CHECKED. On GRC and SRVC the
-  baseline is clean and the count is self-evident; on radix it is not.
+  model failure.** That target's typecheck baseline is DIRTY -- **73 error-severity diagnostics across
+  26 files** under atc (the tsc-era figure was 55 across 17) -- so a produced spec that PERTURBS an
+  existing diagnostic's MESSAGE (a module augmentation, a `declare`, a type that changes inference in
+  a shared file) yields a "new" line that is a pre-existing error rather than the model's own. The
+  POSITION direction is closed -- the subtraction is position-insensitive since 2026-07-26 -- but the
+  message direction is not, and it is fail-safe rather than silent-proof. Every `red-grade.json`
+  records `new_tsc_error_lines` (the actual NEW diagnostics, capped at 10) alongside `new_tsc_errors`
+  and now also `checker`, so the verdict can be CHECKED. On GRC and SRVC the baseline is clean and the
+  count is self-evident; on radix it is not.
 - **`escapingLinks` is now bounded by the WORKTREE rather than by the copied directory.** State
   plainly what that changed. What it PERMITS: a link inside the copied toolchain that resolves
   anywhere else INSIDE the same grading worktree -- which is what a pnpm workspace's package-level
@@ -629,12 +650,12 @@ and the canary uses the target's toolchain rather than the workspace's.
   single path on the grounds that the second one looks empty (it is 6 links and 0 files).
 - **RXL has NO standing end-to-end canary, and its CROSS-PACKAGE IMPORT rests on a one-time
   measurement.** The deep-equality assertion licenses the RXF pair to cover RXL's
-  `runner_select` prefix match, its shared tsconfig project and its shared toolchain -- and it
-  genuinely does cover those. It does NOT cover the thing that is specific to RXL: its spec lives
-  under `config/__tests__/` and imports the CALENDAR to observe locale-driven rendering. That
+  `runner_select` prefix match, its shared checker and tsConfig project, and its shared toolchain --
+  and it genuinely does cover those. It does NOT cover the thing that is specific to RXL: its spec
+  lives under `config/__tests__/` and imports the CALENDAR to observe locale-driven rendering. That
   resolution was proven ONCE, by hand, during this suite's measurement phase (the disciplined spec
-  ran to its assertion and added 0 NEW tsc errors), behind a STOP-and-report gate -- and nothing
-  re-proves it afterwards. If a future change to the tsconfig project, the path mappings or the
+  ran to its assertion and added 0 NEW differential errors), behind a STOP-and-report gate -- and
+  nothing re-proves it afterwards. If a future change to the tsconfig project, the path mappings or the
   vitest resolve config broke cross-package resolution, the battery would stay green and every real
   RXL run would fail at import. **Read a `collection_error` cluster on RXL specifically as a possible
   cross-package resolution regression**, and consider promoting RXL to its own canary if that ever
@@ -671,9 +692,9 @@ and the canary uses the target's toolchain rather than the workspace's.
     against a non-empty baseline THROWS: applying a test file cannot erase a pre-existing error, so
     that pass typechecked a different or empty program -- a `-p` naming the wrong project, an
     include glob matching no file. It EXITS ZERO, which is exactly what the status correlation
-    cannot see. BINDS on radix (55-error baseline) and GRC; INERT on srvx, whose baseline is 0 after
-    its prebuild, and that is correct -- a target with no pre-existing diagnostics offers nothing to
-    detect the collapse with.
+    cannot see. BINDS on radix (73-error atc baseline) and GRC; INERT on srvx, whose baseline is 0
+    after its prebuild, and that is correct -- a target with no pre-existing diagnostics offers
+    nothing to detect the collapse with.
 
   **The declined IM-06 baseline-COUNT invariant stays declined, and is pinned as declined.** The
   collapse guard is asymmetric on purpose: a produced spec can legitimately RESOLVE a pre-existing
@@ -734,6 +755,82 @@ and the canary uses the target's toolchain rather than the workspace's.
   `Set` of raw lines, so a target emitting the same diagnostic TWICE at the same position would
   under-count the baseline by one and over-report by one -- again fail-safe, and not observed on any
   of the three targets.
+- **2026-07-26 -- the radix targets now grade through `angular-typechecker` (atc) rather than tsc.**
+  Four parts, each labelled rather than left implicit.
+
+  **ACCEPTED (the owner's decision) -- RXF's `compile_error` verdict STANDS on the jest-dom matcher
+  diagnostic.** The root cause is now measured and settled: `@types/jest-axe/index.d.ts` opens with a
+  triple-slash `reference types="jest"` directive, which pulls in `@types/jest` (present in radix's
+  pnpm store as jest-axe's own dependency); `@types/jest` declares `expect` as returning
+  `JestMatchers<T>`, while `@testing-library/jest-dom/vitest` augments VITEST's `Assertion` interface.
+  The matchers land on a type nothing uses, so every jest-dom matcher call in that program is a
+  TS2339. Proven with `tsc --explainFiles`, which names the referencing file outright. **WHAT IT
+  COSTS, said plainly:** a produced test that uses a matcher the repo REGISTERS AT RUNTIME, and that
+  matches the house idiom the calendar spec itself uses, grades `compile_error`. So jest-dom matcher
+  choice partly decides RXF grading, and that is a real consequence of a real type environment rather
+  than an instrument defect. **A matcher allowlist, a baseline-keyed noise rule and any
+  target-specific tolerance were deliberately NOT written -- they would forge the measurement.**
+  **HOW TO READ IT:** a `compile_error` cluster on RXF is worth inspecting against the recorded
+  `new_tsc_error_lines` BEFORE attributing anything to an arm. If the recorded diagnostics are
+  jest-dom matcher TS2339s, that is this residual and not an arm effect.
+
+  **CLOSED -- the Angular-template blind spot.** tsc reported **ZERO** Angular-coded diagnostics on
+  this project against atc's **15** (`NG8113` x7 at warning severity, `NG8007` x7 and `NG8022` x1 at
+  error severity), same tsconfig, same session. radix's own specs define inline
+  misuse-host-component templates, so a produced test plausibly defines one too -- and a
+  template-broken produced test passed the differential CLEAN while still throwing an honest-looking
+  assertion failure. That is the same false-pass class the measured counterfactual proved the
+  differential exists to close, in a place tsc structurally cannot see.
+  **`fixtures/canary-rdxf-template/` now covers it**: an `NG8007` two-way-binding defect that atc
+  reports at error severity and that a MEASURED tsc pass on the SAME spec does not report at all
+  (55 baseline error lines, 55 with it applied). The canary asserts the recorded diagnostic is
+  ANGULAR-coded, because a count alone would still pass if the gate silently fell back to tsc.
+  **And the extra findings cannot sink a produced test:** atc's additional diagnostics sit in OTHER
+  spec files (alert-dialog, autocomplete, checkbox, combobox, dialog, drawer, menu, number-field,
+  popover, preview-card, radio, slider, switch, tooltip), so for the differential they are pure
+  ABSORBED BASELINE.
+  **`fixtures/canary-rdxf-append/` closes the other hole the same round** -- the append-onto-a-dirty-file
+  class the whole offline battery lacked. MEASURED: 0 NEW under the shipped position-insensitive
+  multiset while all eight of the calendar spec's jest-dom diagnostics shift by a line, against 8 NEW
+  under a raw positioned difference.
+
+  **OPEN -- a FIDELITY deviation, not a defect: atc resolves `@angular/compiler-cli` from its OWN
+  dependency tree rather than the target's.** So the Angular compiler doing the template check is not
+  the one radix ships, which departs from the grade-with-the-target's-toolchain principle the
+  per-grade toolchain copy upholds everywhere else. **Direction of the risk:** a version skew can
+  make atc report a template diagnostic the target's own compiler would not, or miss one it would --
+  the first direction would grade a produced test `compile_error` on a diagnostic the target does not
+  actually have (over-strict, visible in `new_tsc_error_lines`), the second would reopen a narrow slice
+  of the blind spot. **Accepted knowingly**, because the alternative is installing atc into a borrowed
+  repo, which is forbidden. Recorded here rather than hidden; read a `compile_error` cluster whose
+  recorded diagnostics are Angular-coded against the target's own Angular version before treating it
+  as a model failure.
+
+  **RE-PRICED -- the differential now costs ~19 s per grade on radix, not ~7.8 s.** atc is ~2.2x per
+  pass (~9.0-9.9 s against tsc's ~3.9 s) and the differential runs TWO passes per grade. The cost
+  table in Step 1, the fan-out estimates and the Step 3c prose all carry the re-priced figures; no
+  tsc-era number survives for these targets. Model spend is unchanged -- only the grading columns
+  move, by about +3 min across a k=3 round's 18 radix runs.
+
+  **Fail-closed properties the switch preserves, so this is not a weakening.** Advisory A-1's
+  property holds on BOTH checker paths: on the atc path, exit 2 (atc's own
+  infrastructure-or-usage status), unparseable stdout, an absent `diagnostics` key, a non-zero exit
+  with an EMPTY diagnostics array, a spawn error, a null status and an unrecognised severity all
+  THROW, and exit 0 clean is the only way to read zero. The vacuous-differential guard was EXTENDED
+  rather than reused: atc synthesizes its own error-severity FILE-LESS faults in a code space chosen
+  deliberately outside the TypeScript range, so `isConfigLevelTscError` cannot see them -- the fault
+  would appear in both passes, cancel, and report a differential that checked ZERO root names as
+  clean. `isConfigLevelTscError` is byte-unchanged for the tsc path; the atc predicate requires a
+  FILE and enumerates NO codes (allowlist-inversion, survives a future synthesized code, and agrees
+  with atc's own project-boundary filter). MEASURED against a real empty project: exit 1,
+  `rootNamesCount` 0, two file-less error diagnostics (`TS18002` and `ATC90001`), and the
+  TypeScript-gated predicate reads NEITHER as config-level. Also measured in the false-positive
+  direction: ZERO of the 73 error-severity records in the healthy radix baseline is file-less, so the
+  guard cannot hard-abort a legitimate grade. Every one of those is pinned in `grade-red --selfcheck`
+  against CAPTURED payloads under `fixtures/atc/`, with a dead-end copy proving discrimination.
+  **Do not "simplify" the atc predicate into a code list, and do not let the checker default to
+  anything but `tsc`** -- an unknown `typecheck.checker` THROWS precisely because guessing could
+  silently reduce the differential.
 
 **Optional extra (metered, NOT required):** once the fan-out is approved and the first real runs are
 captured, grading one of them is a free sanity read on real model output --
@@ -941,7 +1038,9 @@ exit code rather than assuming.
 Grading radix runs copies **both** declared `node_modules` paths (`node_modules` and
 `packages/primitives/node_modules`) into each grading worktree: ~27.7 s in, ~7.1 s out, ~949 MiB
 transient. The differential typecheck runs a full `packages/primitives/tsconfig.spec.json` pass
-TWICE per grade (~3.9 s each) against a 55-error pre-existing baseline. No prebuild is declared.
+TWICE per grade. Since 2026-07-26 those targets run **atc**, not tsc, so that is **~9.0-9.9 s each,
+~19 s per grade** against a 73-error pre-existing baseline -- RE-PRICED from the tsc-era ~3.9 s each
+/ ~7.8 s per grade / 55-error figures, because atc is ~2.2x per pass. No prebuild is declared.
 
 ### 3d -- tabulate ALL suites
 
@@ -965,8 +1064,9 @@ a fresh detached kata worktree has no `TypeScript/node_modules`, and neither `np
 tsc` resolves the kata's pinned versions from inside it. Install or link BEFORE driving `b`.
 
 `c` (the pass criterion) = runs whose `red-grade.pass === true` (verdict `genuinely_red`: the
-differential `tsc --strict` is clean AND at least one failing assertion belongs to a test the
-produced diff ADDED). Pass@k over exit-0 runs only. Each `red-grade.json` records the attribution
+differential strict typecheck is clean -- `tsc` on GRC and SRVC, `atc` on RXF and RXL, recorded per
+grade under `checker` -- AND at least one failing assertion belongs to a test the produced diff
+ADDED). Pass@k over exit-0 runs only. Each `red-grade.json` records the attribution
 evidence -- `added_test_titles`, `attributed_failures`, and a `failure_excerpt` that names the test
 the message came from -- so a verdict can be checked rather than taken on trust.
 

@@ -7,8 +7,8 @@ current_phase_name: applied-red-eval-real-oss-repos
 status: verifying
 stopped_at: HALTED at 21-04 Task-3 blocking-human run gate; BUILD verified GREEN (7/7 must-haves, 21-VERIFICATION.md); metered 3-arm apply run user-gated per RUN-GATE.md, zero spend
 last_updated: "2026-07-23T07:00:22.332Z"
-last_activity: 2026-07-26
-last_activity_desc: "JestMatchers SETTLED (types-array premise falsified), RXF compile_error verdict STANDS, differential proven load-bearing by counterfactual, angular-typechecker adopted for the radix cells only; verifier 12/12, battery exit 0; metered gate still closed"
+last_activity: 2026-07-27
+last_activity_desc: "RXL with_skill pilot RAN ($1.93, approved): D-04 auto-trigger ANSWERED 2/2 fired (first ever on SRVC/RXF/RXL), coach-don't-drive 3/3 perfect; RXL's D-06 verdict found DESIGN-CONFOUNDED (tracks which injection token the model imagined) -> owner scoped RXL to DISCIPLINE DIMENSIONS ONLY; ~$39 four-cell round still the only blocking item"
 progress:
   total_phases: 8
   completed_phases: 8
@@ -32,7 +32,7 @@ See: .planning/PROJECT.md (updated 2026-07-18 -- started milestone lz-tdd@0.0.3)
 Phase: 21 (applied-red-eval-real-oss-repos) -- BUILD complete + verified, HALTED
 Plan: 4 of 4
 Status: BUILD verified GREEN (7/7 must-haves); HALTED at metered-run approval gate
-Last activity: 2026-07-26 -- quick 260726-uqn settled the JestMatchers question (types-array premise FALSIFIED), decided RXF's compile_error verdict STANDS, proved the differential typecheck load-bearing by counterfactual, and adopted angular-typechecker for the radix cells only; verifier 12/12, battery exit 0. NOTHING TECHNICAL BLOCKING -- only metered spend approval outstanding
+Last activity: 2026-07-27 -- RXL with_skill pilot RAN (2 runs, $1.9286, user-approved). D-04 auto-trigger ANSWERED: 2/2 fired, corroborated four ways, the first with_skill firing ever on SRVC/RXF/RXL; coach-don't-drive 3/3 PERFECT (zero production files every run). FINDING: RXL's mechanical D-06 verdict is DESIGN-CONFOUNDED -- it tracks which injection token the model imagined (invoke_skill picked the existing LOCALE_ID and passed; with_skill picked the library-mirroring RDX_LOCALE, which does not exist, and graded compile_error 2/2), and neither arm asserted the rendered output the cell's own traps require, so even the PASS is incidental. OWNER DECISION: report RXL on the DISCIPLINE DIMENSIONS ONLY, no gate/prompt change and no verdict reclassified. See 21-WITHSKILL-PILOT.md. NOTHING TECHNICAL BLOCKING -- only the ~$39 four-cell round awaits approval
 
 ## Performance Metrics
 

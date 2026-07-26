@@ -209,6 +209,42 @@ checkout with its own `npm ci` toolchain:
 | Kata afterwards | pristine -- clean tree, one worktree entry, `node_modules` intact |
 | Exit | 0 |
 
+### Calibration -- the RXL `with_skill` pilot (2026-07-27, user-approved, $1.9286 total)
+
+Two `with_skill` apply runs on RXL (prompt `r2`), k=1 each, graded through atc. Bought to measure
+D-04, which `invoke_skill` reads `fired` 0.00 on BY DESIGN and which had never been measured on SRVC,
+RXF or RXL.
+
+| Dimension | run-1 | run-2 |
+|-----------|-------|-------|
+| Cost | **$1.1535** | **$0.7751** |
+| Wall clock | 222.6 s | 209.0 s |
+| Turns | 17 | 20 |
+| D-04 auto-trigger | **FIRED** | **FIRED** |
+| D-06 verdict | `compile_error` | `compile_error` |
+| `changed_production_files` | **0** | **0** |
+| Produced spec | `config/__tests__/locale-inheritance.spec.ts` (NEW file) | appended to `config/__tests__/config-provider.spec.ts` |
+| NEW errors | 1 (`TS2305` no exported member `RDX_LOCALE`) | 2 (same `TS2305` + `TS18046` `'locale'` is `unknown`) |
+
+**D-04 is ANSWERED: 2/2 fired**, corroborated four independent ways per run --
+`skills_model_fired: {"lz-red":1}`, `skill_forced: false` with `forced_skill: null`,
+`skills_invoked: ["lz-tdd:lz-red"]`, and `tool_calls` showing the `Skill` tool called once. Model
+`claude-opus-4-8` at effort `high`. FIRST `with_skill` firing ever recorded on SRVC, RXF or RXL. The
+standing caveat about the trigger flag concerns FALSE NEGATIVES, so a positive corroborated four ways
+is the trustworthy direction.
+
+**Coach-don't-drive was 3/3 PERFECT** across all three RXL runs captured to date (both `with_skill`
+plus the earlier `invoke_skill`): `changed_production_files: []` every time. run-1 `with_skill` wrote
+"I stopped here per the red phase", handed the green step over as instructions rather than doing it,
+and asked a design question before proceeding. It also independently derived the right root cause:
+storage is already green, `RDX_DIRECTION` is bridged at `config.provider.ts:43`, and locale has no
+such bridge.
+
+Both `with_skill` runs also failed at RUNTIME with `TypeError: Cannot read properties of undefined`
+from `TestBed.inject(undefined)`, which matches `RUNTIME_RE` -- so they would grade `wrong_reason`
+even with the differential removed. The verdict is DOUBLE-DETERMINED and is NOT an atc artifact:
+`TS2305` is a plain TypeScript code that tsc reports identically.
+
 ### Per-grade cost is now PER TARGET, not a flat constant (MEASURED 2026-07-26)
 
 Grading used to be a rounding error. With more than one target that stops being true, so price the
@@ -660,6 +696,25 @@ and the canary uses the target's toolchain rather than the workspace's.
   RXL run would fail at import. **Read a `collection_error` cluster on RXL specifically as a possible
   cross-package resolution regression**, and consider promoting RXL to its own canary if that ever
   happens.
+- **OPEN 2026-07-27 -- RXL's mechanical D-06 verdict is DESIGN-CONFOUNDED, so RXL is reported on the
+  DISCIPLINE dimensions ONLY (owner decision).** MEASURED over three RXL runs on prompt `r2`: the
+  pass/fail split tracks WHICH INJECTION TOKEN the model imagined, not RED discipline. `invoke_skill`
+  bound to `LOCALE_ID` (EXISTS in `@angular/core`) -> compiles, fails on an assertion
+  (`expected 'en-US' to be 'de'`) -> `genuinely_red`, `pass: true`. Both `with_skill` runs bound to
+  `RDX_LOCALE`, mirroring the library's OWN convention (`RDX_DIRECTION` is the library's own token,
+  bridged in that very file) -- absent at the pin -> `compile_error`. The `with_skill` design arguably
+  matches the repo's actual wiring convention BETTER. And the PASS is no more trustworthy than the
+  failures: this cell's own `discipline_traps` require asserting THE RENDERED MONTH HEADING, and
+  NEITHER arm did -- `invoke_skill` asserted an injection token too, it merely picked one that
+  compiles, so its PASS certifies "chose a compiling token" rather than observable-behavior
+  discipline. Left in the headline it invites "auto-trigger produces worse RED" when the real
+  difference is an architecture choice -- a PLAUSIBLE BUT WRONG conclusion, worse than the RXF
+  jest-dom confound which reads as obvious noise. See Step 7 for the reporting rule. NOT closed by a
+  gate change, a prompt change, or any reclassification: all three captured verdicts stand exactly as
+  graded. What would CLOSE it is a cell whose correct answer is unambiguous -- either a prompt that
+  makes rendered output the only sensible target (rejected for now as leading the witness, and it
+  would invalidate the three captured runs) or a replacement in-domain cell. Revisit only with fresh
+  evidence; do not re-litigate the scoping decision.
 - **A produced spec that lands OUTSIDE `packages/primitives/` is invisible to the radix differential
   typecheck** -- the project only includes `**/*.spec.ts` relative to that directory. That is the
   FAIL-SAFE direction rather than a hole: vitest's `root` is the same directory, so such a spec
@@ -1221,6 +1276,32 @@ explicitly labeled CONTEXT-ONLY and is never the headline. Apply artifact caveat
 both arms, never just upward. Read a correctness tie on the contaminated GRC anchor as
 pass-at-ceiling, framed by the Phase-13 parity + Phase-20 concentration priors -- NOT as evidence the
 skill is inert.
+
+**RXL IS REPORTED ON THE DISCIPLINE DIMENSIONS ONLY -- its mechanical D-06 verdict is
+DESIGN-CONFOUNDED and MUST NOT enter the headline (owner decision, 2026-07-27).** Read this before
+tabulating anything. MEASURED across three RXL runs: the pass/fail split tracks WHICH INJECTION TOKEN
+the model imagined, not RED discipline. `invoke_skill` bound to `LOCALE_ID`, which EXISTS in
+`@angular/core`, so its test compiles and fails on an assertion (`expected 'en-US' to be 'de'`) ->
+`genuinely_red`. Both `with_skill` runs bound to `RDX_LOCALE`, mirroring the library's OWN convention
+(`RDX_DIRECTION` is the library's own token, bridged in that very file), which does not exist at the
+pin -> `compile_error`. The `with_skill` design arguably matches the repo's actual wiring convention
+BETTER; `invoke_skill` took a framework-native shortcut.
+
+SHARPER, and the reason the PASS cannot be trusted either: this cell's own `discipline_traps` require
+the produced test to assert THE RENDERED MONTH HEADING, "not that the service holds the value".
+NEITHER arm did that -- `invoke_skill` asserted an injection token too, it merely picked one that
+compiles. So RXL's `genuinely_red` PASS is INCIDENTAL: it certifies "chose a compiling token", not the
+observable-behavior discipline the cell was built to measure.
+
+Left in the headline, this invites the conclusion "auto-trigger produces worse RED" when the real
+difference is a defensible architecture choice -- a PLAUSIBLE BUT WRONG causal claim, and therefore
+more dangerous than the RXF jest-dom confound, which at least reads as obvious noise. Same correction
+class as the Phase-20 vocabulary inflation this step exists to catch. REPORT RXL on
+coach-don't-drive, drive-attempt evidence (`changed_production_files`), and D-04 auto-trigger, where
+it discriminates cleanly and both arms look strong. NO gate change, NO prompt change, and NO captured
+verdict is reclassified -- all three stand exactly as graded; this is a scoping statement about what
+the cell measures, taken on three measured runs BEFORE the round rather than after an inconvenient
+number.
 
 ---
 

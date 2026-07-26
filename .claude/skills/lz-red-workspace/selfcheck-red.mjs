@@ -2411,6 +2411,7 @@ function checkContainmentInvariants() {
   );
 
   checkWorktreeBoundedContainment();
+  checkVerbatimSkipIsLoud();
   checkMultiPathToolchainCopy();
   checkLinkedToolchainSource();
 }
@@ -2758,12 +2759,62 @@ function checkMultiPathToolchainCopy() {
     );
   }
 
+  // The SKIP is TOP-LEVEL and says "a SKIP is not a pass", in the same shape as every other SKIP in
+  // this battery -- it used to be a parenthetical appended to a line that says OK, which is the one
+  // place this file's own doctrine must not be bent. It matters because this is the ONLY unit-level
+  // check for a Critical-class bug, and its backstop (canary-rdxf-red, which would throw with
+  // ~8,170 escapes) itself SKIPs on any machine without primitives-pin -- i.e. every machine but
+  // this one. Both layers SKIPping together is how a reopened containment hole would ship green.
+  const skipNote = verbatimSymlinkSkipNote(copiedLinkResolvesInsideDest);
+
+  if (skipNote) {
+    console.log(skipNote);
+  }
+
   console.log(
     '  [crux 9] multi-path toolchain provisioning OK (both declared node_modules land in the worktree ' +
-      'with their contents where the single-path code lands one; a relative store link is preserved ' +
-      `VERBATIM so the copy resolves inside itself rather than back into the source${copiedLinkResolvesInsideDest === null ? ' [link relative-text unavailable on this platform -- SKIPPED]' : ''}; ` +
+      'with their contents where the single-path code lands one; ' +
+      (skipNote ? 'the verbatim-link direction went UNMEASURED -- see the SKIP above; ' : 'a relative store link is preserved VERBATIM so the copy resolves inside itself rather than back into the source; ') +
       'a declared-but-missing source throws before anything is created, naming the target and the entry)',
   );
+}
+
+// Whether the verbatim-symlink discrimination actually got MEASURED, as a loud SKIP line or null.
+//
+// Split out as a pure function on purpose: the measurement needs a RELATIVE directory link, which
+// Windows refuses without Developer Mode or elevation, so on a machine that falls back to an
+// (always-absolute) junction there is nothing to compare and the check cannot run. There is no
+// platform-independent substitute -- an absolute link is written unchanged under BOTH cpSync
+// settings, so it cannot tell them apart -- and forcing the fallback would need exactly the kind of
+// test-only switch this project refuses. What CAN be checked everywhere is that the unmeasured case
+// produces a real SKIP rather than an OK, and both branches of that are asserted below.
+function verbatimSymlinkSkipNote(copiedLinkResolvesInsideDest) {
+  if (copiedLinkResolvesInsideDest !== null) {
+    return null;
+  }
+
+  return (
+    '  [crux 9] SKIP -- this platform cannot write a RELATIVE directory link, so the verbatimSymlinks ' +
+    'discrimination went UNMEASURED; a SKIP is not a pass, and the only backstop (canary-rdxf-red) ' +
+    'SKIPs too wherever primitives-pin is absent'
+  );
+}
+
+function checkVerbatimSkipIsLoud() {
+  const measured = verbatimSymlinkSkipNote(true);
+  const unmeasured = verbatimSymlinkSkipNote(null);
+
+  if (measured !== null) {
+    fail(`[crux 9] a MEASURED verbatim discrimination must produce no SKIP line, got ${JSON.stringify(measured)}`);
+  }
+
+  if (typeof unmeasured !== 'string' || !unmeasured.includes('SKIP') || !unmeasured.includes('a SKIP is not a pass')) {
+    fail(
+      `[crux 9] an UNMEASURED verbatim discrimination must produce a top-level SKIP line saying a SKIP is ` +
+        `not a pass, got ${JSON.stringify(unmeasured)}. A parenthetical inside an OK line is exactly the ` +
+        'failure mode this asserts against',
+    );
+  }
 }
 
 // ---- crux 11: the grading worktree is derived onto the TARGET's own volume (T-rgw-01) ----------

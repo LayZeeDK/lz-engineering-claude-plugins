@@ -281,6 +281,18 @@ radix suite, 232.1 s and 262.9 s after. The Bash tool's `timeout` caps at 600000
 fits, but the margin is no longer comfortable. And remember that **a SKIP is not a pass**: it means
 the borrowed repo or its `node_modules` was not on disk and that direction went unmeasured.
 
+**One check is PLATFORM-CONDITIONAL, and it is the one covering a Critical-class bug.** crux 9's
+`verbatimSymlinks` discrimination needs a RELATIVE directory link, which Windows refuses without
+Developer Mode or elevation; where it cannot be written, the probe falls back to an
+always-absolute junction, which is copied identically under BOTH `cpSync` settings and therefore
+cannot tell them apart. On such a machine the battery prints a top-level
+`[crux 9] SKIP -- ... verbatimSymlinks discrimination went UNMEASURED`. Its only backstop,
+`canary-rdxf-red`, SKIPs wherever `primitives-pin` is absent -- so on a CI runner or a second dev
+box BOTH layers can SKIP together and a reopened containment hole would ship green. **If you see
+that SKIP, the copy-containment direction was not measured on that machine; do not read the
+battery's exit 0 as covering it.** (Measured on this machine: it does NOT skip -- relative
+directory links are available here.)
+
 There is deliberately no RXL canary. A PURE assertion instead requires RXL's `runner`, `typecheck`
 and `toolchain_paths` blocks to be DEEP-EQUAL to RXF's -- which is exactly what licenses the RXF pair
 to cover it, since one `runner_select` prefix routes both test dirs, one tsconfig project includes

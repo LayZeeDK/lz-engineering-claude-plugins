@@ -2542,10 +2542,14 @@ function checkWorktreeBoundedContainment() {
   const wt = join(probe, 'wt');
   const store = join(wt, 'node_modules', '.pnpm', 'x');
   const pkgNm = join(wt, 'pkg', 'node_modules');
+  // Ordinary checked-out repo content: inside the worktree, and NOT in the walked set (gradeRun
+  // walks the copied toolchain destinations only). The two-hop pin below needs it.
+  const content = join(wt, 'content');
   const outside = join(probe, 'borrowed');
 
   fs.mkdirSync(store, { recursive: true });
   fs.mkdirSync(pkgNm, { recursive: true });
+  fs.mkdirSync(content, { recursive: true });
   fs.mkdirSync(outside, { recursive: true });
 
   let narrowPkg;
@@ -2560,6 +2564,12 @@ function checkWorktreeBoundedContainment() {
     linkDir(store, join(pkgNm, 'x'));
     // The genuine escape: an ABSOLUTE link out of the worktree.
     fs.symlinkSync(outside, join(wt, 'node_modules', 'evil'), 'junction');
+    // THE TWO-HOP SHAPE, built so the code pins what escapingLinks' header now CLAIMS rather than
+    // the stronger thing it used to claim. hop 1 leaves the copied toolchain but lands inside the
+    // worktree, so the widened boundary permits it; hop 2 leaves the worktree from `content`,
+    // which is repo content and is never walked, so it is never examined.
+    linkDir(content, join(pkgNm, 'two-hop'));
+    fs.symlinkSync(outside, join(content, 'out'), 'junction');
 
     // The PRE-CHANGE rule: the walked directory IS the boundary, passed explicitly.
     narrowPkg = escapingLinks(pkgNm, pkgNm);
@@ -2577,21 +2587,31 @@ function checkWorktreeBoundedContainment() {
     fail(`[crux 9] could not build the boundary probe: ${probeError.message}`);
   }
 
-  // (1) THE DISCRIMINATION. Under the narrow boundary the legitimate relative up-link IS reported
-  // -- that is the pre-change rule, and it is why every grade of a pnpm-workspace target threw.
-  if (narrowPkg.length !== 1 || !narrowPkg[0].includes('pkg')) {
+  // (1) THE DISCRIMINATION. Under the narrow boundary BOTH intra-worktree links are reported --
+  // that is the pre-change rule, and it is why every grade of a pnpm-workspace target threw.
+  if (narrowPkg.length !== 2 || !narrowPkg.some((e) => e.includes('x')) || !narrowPkg.some((e) => e.includes('two-hop'))) {
     fail(
-      `[crux 9] the NARROW boundary reported ${JSON.stringify(narrowPkg)}; it must flag the legitimate ` +
-        'relative up-link, otherwise this probe is not reproducing the pre-change rule and the widening ' +
-        'below proves nothing',
+      `[crux 9] the NARROW boundary reported ${JSON.stringify(narrowPkg)}; it must flag BOTH links that ` +
+        'leave the copied directory, otherwise this probe is not reproducing the pre-change rule and the ' +
+        'widening below proves nothing',
     );
   }
 
-  // (2) THE CORRECTION. Bounded by the worktree, the same link is NOT an escape.
+  // (2) THE CORRECTION, and (2b) THE TWO-HOP SHAPE IT DELIBERATELY PERMITS -- one assertion,
+  // because they are the same fact. Bounded by the worktree, neither intra-worktree link is an
+  // escape: the pnpm up-link is the legitimate case the widening exists for, and `two-hop` is hop 1
+  // of a chain whose hop 2 leaves the worktree from a directory the walk never visits.
+  //
+  // That second one is a REAL residual, pinned rather than papered over. It needs a symlink
+  // COMMITTED in the target's tracked content (measured: 0 in all three borrowed repos), and
+  // escapingLinks' header now says "whose FIRST hop leaves the worktree" instead of "any `..`
+  // chain". If this assertion ever FAILS, the guard got STRONGER -- someone resolved the chain with
+  // realpath. Update that header and RUN-GATE's residual bullet to match; do not weaken it back.
   if (widePkg.length !== 0) {
     fail(
-      `[crux 9] the WORKTREE boundary still reports ${JSON.stringify(widePkg)}; a package-level pnpm link ` +
-        'resolving up into the root store never leaves the worktree and must not be flagged',
+      `[crux 9] the WORKTREE boundary reports ${JSON.stringify(widePkg)}; it must report NEITHER a ` +
+        'package-level pnpm link resolving up into the root store NOR hop 1 of a two-hop chain -- both ' +
+        'resolve inside the worktree. A change here means escapingLinks\' documented guarantee moved',
     );
   }
 
@@ -2610,7 +2630,8 @@ function checkWorktreeBoundedContainment() {
   console.log(
     '  [crux 9] escapingLinks boundary OK (ONE pnpm-shaped tree, TWO real boundaries: the narrow ' +
       'copied-dir boundary flags the legitimate relative up-link -- the pre-change rule -- while the ' +
-      'WORKTREE boundary does not, and an absolute link out of the worktree is caught under both)',
+      'WORKTREE boundary does not, and an absolute link out of the worktree is caught under both; ' +
+      'the permitted TWO-HOP shape is pinned, so the guard header cannot overstate what the code does)',
   );
 }
 

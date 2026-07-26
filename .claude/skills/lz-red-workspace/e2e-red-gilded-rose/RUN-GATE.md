@@ -571,11 +571,23 @@ and the canary uses the target's toolchain rather than the workspace's.
   links (pointing up into the root store) and the root store's own workspace self-link (pointing back
   at `packages/primitives`) both are. MEASURED: 8,164 symlinks, 100% relative, ZERO absolute, ZERO
   resolving outside the repo, of which SEVEN escape their own copied root and none escape the
-  worktree. What it still CATCHES, unchanged: an ABSOLUTE link into the source checkout, an
-  unreadable link, and any `..` chain that leaves the worktree. This is a CORRECTION -- the guard's
+  worktree. What it still CATCHES: an ABSOLUTE link into the source checkout, an unreadable link,
+  a `..` chain whose FIRST hop leaves the worktree, and -- since 2026-07-26 -- a copied
+  destination whose ROOT is itself a link out of the boundary. This is a CORRECTION -- the guard's
   own contract always said "a link escaping the WORKTREE leads back to the borrowed repo"; the
   boundary was simply narrower than that. crux 9 asserts BOTH boundaries over one synthetic tree, so
   the widening is proved to be a widening and not a removal.
+  **What it does NOT catch, stated exactly rather than generously: a TWO-HOP chain.** Resolution is
+  a single lexical hop with no `realpath`, and the walked set is the copied toolchain destinations
+  only -- which, now that the boundary is the whole worktree, is strictly SMALLER than the boundary.
+  So hop 1 from inside a copied toolchain into the target's own checked-out content is legitimately
+  inside the boundary, and hop 2 out of the worktree from THERE is never examined. An earlier
+  wording of this bullet said "any `..` chain that leaves the worktree", which was too strong.
+  Reachability needs a symlink COMMITTED in the target's tracked content -- `git ls-tree -r HEAD |
+  rg '^120000'` is **0** in all three borrowed repos -- and everything inside the worktree is
+  already reachable by the executing spec through ordinary relative paths (see the ABSOLUTE-path
+  residual below). crux 9 PINS the permitted shape, so this bullet and the code cannot drift: close
+  the two-hop case and that assertion fails, which is the signal to rewrite this bullet.
 - **`fs.cpSync` does NOT preserve relative symlinks by default, and getting that wrong would have
   reopened the whole hole.** With the default `verbatimSymlinks: false` it resolves each link against
   the SOURCE and writes an ABSOLUTE path into the copy -- so a tree of ordinary relative links becomes

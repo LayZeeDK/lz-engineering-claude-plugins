@@ -1414,12 +1414,28 @@ function targetTscBin(armCwd, worktree) {
 // produced test is reported tsc CLEAN. Silently -- the same failure mode T-63f-04 was written to
 // eliminate, arrived by a different route.
 //
-// tsc's EXIT CODE cannot detect this: it exits non-zero precisely when there ARE errors, so a
-// status check would reject every ordinary run. What does detect it is the spawn result -- `error`
-// set (the spawn itself failed, or maxBuffer overflowed with ENOBUFS) or `status === null` (killed
-// by a signal: OOM, a CI reaper, Ctrl-C). A full Angular project pass being OOM-killed on a loaded
-// machine partway through a 36-run fan-out is not exotic. isConfigLevelTscError guards only the
-// BASELINE and matches only `error TS\d+` lines, so it cannot see a pass that produced none.
+// Three things are consulted, and the pre-change code consulted none of them. `error` set (the
+// spawn itself failed, or maxBuffer overflowed with ENOBUFS), `status === null` (killed by a signal:
+// OOM, a CI reaper, Ctrl-C), and -- the case A-1 named -- a NON-ZERO exit that produced no
+// diagnostic at all. A full Angular project pass being OOM-killed on a loaded machine partway
+// through a 36-run fan-out is not exotic, and neither is `npx tsc` in a tree that has no
+// node_modules: npx exits non-zero printing its OWN error text, which carries no `error TS####`.
+//
+// The exit status ALONE cannot decide, which is why the pre-change code skipped it: tsc exits
+// non-zero precisely when it found errors, so rejecting every non-zero run would reject every real
+// diagnostic pass. What decides is the status CORRELATED with what was parsed. Only one of the four
+// combinations is unexplained:
+//
+//   status 0    + no lines -- genuinely clean (the srvx post-prebuild baseline is exactly this)
+//   status != 0 + lines    -- the ordinary has-diagnostics case
+//   status != 0 + no lines -- REFUSED: nothing typechecked, and the differential cannot see it
+//   status 0    + lines    -- allowed. It is the FAIL-SAFE direction: an extra line either appears
+//                             in BOTH passes and cancels, or lands only in the WITH pass and fails
+//                             the produced test. Neither direction can manufacture a false PASS,
+//                             so a throw here would only turn a harmless oddity into a dead round.
+//
+// isConfigLevelTscError guards only the BASELINE and matches only `error TS\d+` lines, so it cannot
+// see a pass that produced none.
 export function tscLinesOrThrow(result) {
   if (!result || result.error) {
     const detail = result && result.error ? result.error.message : 'no spawn result';
@@ -1441,8 +1457,22 @@ export function tscLinesOrThrow(result) {
   }
 
   const text = `${result.stdout || ''}\n${result.stderr || ''}`;
+  const lines = text.split('\n').filter((l) => /error TS\d+/.test(l)).map((l) => l.trim());
 
-  return text.split('\n').filter((l) => /error TS\d+/.test(l)).map((l) => l.trim());
+  if (result.status !== 0 && lines.length === 0) {
+    // The excerpt is the whole point of the throw. Without it an operator sees a fail-closed abort
+    // and no reason -- and the reason is precisely the text that is NOT a tsc diagnostic.
+    const excerpt = text.trim().slice(0, 400) || '(the pass printed nothing at all)';
+
+    throw new Error(
+      `grade-red: a differential typecheck pass exited ${result.status} but produced no tsc diagnostic, ` +
+        'so it did not typecheck anything (no compiler on PATH, a rejected flag, a resolver failure, a ' +
+        'crashed compiler). The differential would subtract to zero NEW errors and report a type-broken ' +
+        `produced test as tsc clean (fail closed, T-63f-04 / A-1). What the pass actually printed: ${excerpt}`,
+    );
+  }
+
+  return lines;
 }
 
 function targetTscErrors(armCwd, worktree, args) {
@@ -2019,6 +2049,16 @@ function assertThrows(fn, label) {
   }
 }
 
+// tscLinesOrThrow's PARSE as it stood before the exit-status correlation: split, filter, return,
+// never look at `status`. Same dead-end-copy contract as classifyPreAttribution below -- it exists
+// so the discrimination proof compares two REAL rules on identical inputs, and it must never be
+// wired back into the gate.
+function tscLinesPreStatusCorrelation(result) {
+  const text = `${result.stdout || ''}\n${result.stderr || ''}`;
+
+  return text.split('\n').filter((l) => /error TS\d+/.test(l)).map((l) => l.trim());
+}
+
 // The classifier as it stood BEFORE attribution, reproduced verbatim from the pre-fix source so the
 // discrimination proof below compares two REAL rules on identical inputs rather than an assertion
 // against a remembered one. It is deliberately a dead-end copy: nothing else calls it, and it must
@@ -2423,11 +2463,50 @@ function runSelfcheck() {
     'a typecheck pass whose spawn failed / overflowed maxBuffer',
   );
   assertThrows(() => tscLinesOrThrow(undefined), 'a missing spawn result');
+
+  // ... and the shape a NON-NULL exit status leaves behind (A-1). The first is the REACHABLE one:
+  // targetTscErrors falls back to `npx tsc` when the target has no local compiler, and npx in a tree
+  // with no node_modules exits non-zero printing its OWN error text, which carries no `error TS####`.
+  // The second is a crashed compiler. Both used to return [] and grade a type-broken spec tsc clean.
+  const didNotRun = [
+    { status: 1, stdout: 'npm error could not determine executable to run', stderr: '' },
+    { status: 2, stdout: '', stderr: 'Debug Failure. False expression.' },
+  ];
+
+  for (const shape of didNotRun) {
+    assertThrows(() => tscLinesOrThrow(shape), `a tsc pass that exited ${shape.status} printing no diagnostic`);
+
+    // The discrimination: the SAME input through the pre-change parse yields an empty list, i.e. a
+    // silent "tsc clean". Without this the throw above could be satisfied by a guard that rejects
+    // inputs the old code already handled.
+    if (tscLinesPreStatusCorrelation(shape).length !== 0) {
+      fail(
+        `[tscLinesOrThrow] the pre-change reproduction did not swallow ${JSON.stringify(shape)}, so this input ` +
+          'proves nothing about the guard -- pick one the unguarded parse really did read as clean',
+      );
+    }
+  }
+
+  // The message has to carry the exit status AND what the pass printed. A fail-closed abort with
+  // neither leaves an operator with a dead round and no reason for it.
+  let didNotRunMessage = '';
+
+  try {
+    tscLinesOrThrow(didNotRun[0]);
+  } catch (err) {
+    didNotRunMessage = err.message;
+  }
+
+  if (!didNotRunMessage.includes('exited 1') || !didNotRunMessage.includes('could not determine executable')) {
+    fail(`[tscLinesOrThrow] the throw must name the exit status and quote the output; got: ${didNotRunMessage}`);
+  }
+
   console.log(
     '  [tscLinesOrThrow] spawn status is consulted OK (an ordinary non-zero tsc exit still yields its ' +
-      'diagnostics and a clean pass yields none, while a KILLED pass, a failed spawn and a missing result ' +
-      'all THROW -- the pre-change code returned [] for all three, which subtracts to zero NEW errors and ' +
-      'reports a type-broken produced test as tsc clean)',
+      'diagnostics and a clean pass yields none, while a KILLED pass, a failed spawn, a missing result and a ' +
+      'NON-ZERO exit that printed no diagnostic all THROW, naming the status and quoting the output -- the ' +
+      'pre-change code returned [] for all of them, which subtracts to zero NEW errors and reports a ' +
+      'type-broken produced test as tsc clean)',
   );
 
   // Fail-closed paths (T-21-02 / T-21-V5): empty/missing diff and garbled/empty runner JSON must

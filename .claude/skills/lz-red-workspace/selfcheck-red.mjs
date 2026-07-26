@@ -78,6 +78,7 @@ import {
 const HERE = dirname(fileURLToPath(import.meta.url));
 const RUN_E2E = resolve(HERE, '..', 'lz-refactor-workspace', 'e2e-nx', 'run-e2e.mjs');
 const RED_SUITE_DIR = join(HERE, 'e2e-red-gilded-rose');
+const SRVX_SUITE_DIR = join(HERE, 'e2e-red-srvx');
 
 // The lz-refactor apply preamble, pinned BYTE-FOR-BYTE. run-e2e.mjs is shared with the lz-refactor
 // suites, where "run the affected tests to confirm nothing broke" is exactly right -- a refactoring
@@ -171,125 +172,246 @@ function flagValue(argv, flag) {
   return i >= 0 ? argv[i + 1] : undefined;
 }
 
-// ---- crux 1 + 2: composition + prompt-parity (RED suite, recommend, all arms) -----------------
+// ---- crux 1 + 2: composition + prompt-parity (EVERY RED suite, every prompt, both modes) -------
 
-function checkCompositionAndParity() {
-  const stdout = dryRun(['--suite', RED_SUITE_DIR, '--mode', 'recommend', '--arm', 'all', '--prompt', 'r1']);
-  const arms = armMap(stdout);
+// Every RED suite dir: a direct child of HERE named e2e-red-* that carries a suite.json. Mirrors
+// tabulate-mechanical-red.mjs's discoverSuiteDirs() deliberately -- the battery and the tabulator
+// must not be able to disagree about what "the RED suites" are, or a suite could be tabulated
+// without ever having been composition-checked.
+function discoverRedSuites() {
+  return fs
+    .readdirSync(HERE, { withFileTypes: true })
+    .filter((e) => e.isDirectory() && e.name.startsWith('e2e-red-'))
+    .map((e) => join(HERE, e.name))
+    .filter((d) => fs.existsSync(join(d, 'suite.json')))
+    .sort();
+}
+
+// The tokens from `tokens` that appear in `prompt`, case-insensitively. PURE, and exported so it
+// can be driven in BOTH directions.
+//
+// Both directions are the point. A positive-only assertion ("the real prompt is clean") passes
+// trivially today and would keep passing with a case-folding bug, an emptied token list, or a
+// matcher wired to the wrong field -- so it would prove nothing about the guard and everything
+// about the prompt happening not to contain a lowercase copy of anything. Crux 2 therefore also
+// feeds a POISONED prompt (the real one plus one of that target's own tokens, in a different
+// letter case) through this same function and requires a non-empty result.
+//
+// Empty and whitespace-only tokens are dropped rather than matched: `''` is a substring of every
+// string, so one blank entry in a list would make the guard claim to have caught everything.
+export function forbiddenTokensIn(prompt, tokens) {
+  const lowered = String(prompt == null ? '' : prompt).toLowerCase();
+
+  return (Array.isArray(tokens) ? tokens : [])
+    .filter((t) => typeof t === 'string' && t.trim() !== '')
+    .filter((t) => lowered.includes(t.toLowerCase()));
+}
+
+// Claims ABOUT THE EXISTING SUITE's pass/fail state. The RED prompt must make none.
+//
+// It used to open "The tests for `app/gilded-rose.ts` are all green right now", which is measurably
+// false -- both shipped placeholder specs fail on current code. A false premise invites the model
+// to repair the placeholder instead of adding a test, and a repair-only turn grades false_green: a
+// correctness failure manufactured by the instrument rather than by the model.
+//
+// The tokens are claims, not the word "failing" -- asking for the next failing test IS the task, so
+// the ask itself must not trip this. Every token pairs a STATE word with the claim; a bare adverb
+// would not. 'right now' on its own failed the battery for the benign rewording "the next failing
+// test you'd write right now", which claims nothing about the existing suite.
+const STATE_CLAIM_TOKENS = [
+  'all green',
+  'all passing',
+  'are green',
+  'are passing',
+  'currently green',
+  'currently passing',
+  'currently pass',
+  'currently fail',
+  'tests pass',
+  'suite is green',
+  'green right now',
+  'passing right now',
+  'pass right now',
+];
+
+// Crux 1 + 2 for ONE (suite, prompt, mode) triple. Returns the composed with_skill prompt.
+function checkComposedPrompt(suiteDir, suite, target, promptEntry, mode) {
+  const label = `${suite.name}/${promptEntry.id}/${mode}`;
+  const extra = ['--suite', suiteDir, '--mode', mode, '--arm', 'all', '--prompt', promptEntry.id];
+
+  // apply mode requires --cwd and, under --dry-run, only echoes it; no git command runs.
+  if (mode === 'apply') {
+    extra.push('--cwd', HERE);
+  }
+
+  const arms = armMap(dryRun(extra));
 
   for (const name of ['no_skill', 'with_skill', 'invoke_skill']) {
     if (!arms[name]) {
-      fail(`[crux 1] dry-run did not compose the ${name} arm (got: ${Object.keys(arms).join(', ')})`);
+      fail(`[crux 1] ${label}: dry-run did not compose the ${name} arm (got: ${Object.keys(arms).join(', ')})`);
     }
   }
 
   // no_skill: NO --plugin-dir (baseline).
   if (arms.no_skill.indexOf('--plugin-dir') >= 0) {
-    fail('[crux 1] no_skill must NOT have --plugin-dir');
+    fail(`[crux 1] ${label}: no_skill must NOT have --plugin-dir`);
   }
 
   // with_skill: --plugin-dir ends with plugins/lz-tdd; -p is a natural prompt (no slash command).
   const wsPlugin = flagValue(arms.with_skill, '--plugin-dir') || '';
 
   if (!/[\\/]plugins[\\/]lz-tdd$/.test(wsPlugin)) {
-    fail(`[crux 1] with_skill --plugin-dir is not plugins/lz-tdd: ${JSON.stringify(wsPlugin)}`);
+    fail(`[crux 1] ${label}: with_skill --plugin-dir is not plugins/lz-tdd: ${JSON.stringify(wsPlugin)}`);
   }
 
   const wsPrompt = flagValue(arms.with_skill, '-p') || '';
 
   if (wsPrompt.startsWith('/')) {
-    fail(`[crux 1] with_skill -p must be a natural prompt (no leading slash command): ${JSON.stringify(wsPrompt.slice(0, 40))}`);
+    fail(`[crux 1] ${label}: with_skill -p must be a natural prompt (no leading slash command): ${JSON.stringify(wsPrompt.slice(0, 40))}`);
   }
 
-  // invoke_skill: -p force-starts with the slash command.
+  // invoke_skill: -p force-starts with the suite's own slash command.
+  const prefix = `${suite.skillCommand} `;
   const isPrompt = flagValue(arms.invoke_skill, '-p') || '';
 
-  if (!isPrompt.startsWith('/lz-tdd:lz-red ')) {
-    fail(`[crux 1] invoke_skill -p must start with '/lz-tdd:lz-red ': ${JSON.stringify(isPrompt.slice(0, 40))}`);
+  if (!isPrompt.startsWith(prefix)) {
+    fail(`[crux 1] ${label}: invoke_skill -p must start with ${JSON.stringify(prefix)}: ${JSON.stringify(isPrompt.slice(0, 40))}`);
   }
 
   const isPlugin = flagValue(arms.invoke_skill, '--plugin-dir') || '';
 
   if (!/[\\/]plugins[\\/]lz-tdd$/.test(isPlugin)) {
-    fail(`[crux 1] invoke_skill --plugin-dir is not plugins/lz-tdd: ${JSON.stringify(isPlugin)}`);
+    fail(`[crux 1] ${label}: invoke_skill --plugin-dir is not plugins/lz-tdd: ${JSON.stringify(isPlugin)}`);
   }
-
-  console.log('  [crux 1] composition OK (no_skill: no plugin; with_skill: lz-tdd + natural prompt; invoke_skill: /lz-tdd:lz-red + lz-tdd)');
 
   // crux 2: prompt-parity (EVL-03.1). no_skill == with_skill byte-identical; invoke == prefix + with_skill.
   const nsPrompt = flagValue(arms.no_skill, '-p') || '';
 
   if (nsPrompt !== wsPrompt) {
-    fail(`[crux 2] no_skill vs with_skill -p differ (must be byte-identical):\n  no_skill=${JSON.stringify(nsPrompt)}\n  with_skill=${JSON.stringify(wsPrompt)}`);
+    fail(`[crux 2] ${label}: no_skill vs with_skill -p differ (must be byte-identical):\n  no_skill=${JSON.stringify(nsPrompt)}\n  with_skill=${JSON.stringify(wsPrompt)}`);
   }
 
-  if (isPrompt !== '/lz-tdd:lz-red ' + wsPrompt) {
-    fail(`[crux 2] invoke_skill -p is not with_skill -p + '/lz-tdd:lz-red ':\n  invoke=${JSON.stringify(isPrompt)}\n  expected=${JSON.stringify('/lz-tdd:lz-red ' + wsPrompt)}`);
+  if (isPrompt !== prefix + wsPrompt) {
+    fail(`[crux 2] ${label}: invoke_skill -p is not with_skill -p + ${JSON.stringify(prefix)}:\n  invoke=${JSON.stringify(isPrompt)}`);
   }
 
-  console.log('  [crux 2] prompt-parity OK (no_skill == with_skill byte-identical; invoke_skill == "/lz-tdd:lz-red " + with_skill)');
-
-  // The prompt must make NO claim about the current pass/fail state of the target's existing
-  // tests. It used to open "The tests for `app/gilded-rose.ts` are all green right now", which is
-  // measurably false -- both shipped placeholder specs fail on current code. A false premise
-  // invites the model to repair the placeholder instead of adding a test, and a repair-only turn
-  // grades false_green: a correctness failure manufactured by the instrument rather than by the
-  // model. Guard the regression rather than trusting the file to stay fixed.
-  //
-  // The tokens are claims ABOUT THE EXISTING SUITE, not the word "failing" -- asking for the next
-  // failing test IS the task, so the ask itself must not trip this.
-  //
-  // Every token pairs a STATE word with the claim. A bare adverb would not: 'right now' on its own
-  // failed the battery for a benign rewording such as "the next failing test you'd write right
-  // now", which claims nothing about the existing suite.
-  const stateClaimTokens = [
-    'all green',
-    'all passing',
-    'are green',
-    'are passing',
-    'currently green',
-    'currently passing',
-    'currently pass',
-    'currently fail',
-    'tests pass',
-    'suite is green',
-    'green right now',
-    'passing right now',
-    'pass right now',
-  ];
   const lowered = wsPrompt.toLowerCase();
-  const claimed = stateClaimTokens.filter((t) => lowered.includes(t));
+  const claimed = STATE_CLAIM_TOKENS.filter((t) => lowered.includes(t));
 
   if (claimed.length) {
     fail(
-      `[crux 2] the prompt makes a claim about the existing tests' pass/fail state (${JSON.stringify(claimed)}); ` +
-        'the RED prompt must not assert that the target\'s tests currently pass or fail',
+      `[crux 2] ${label}: the prompt makes a claim about the existing tests' pass/fail state ` +
+        `(${JSON.stringify(claimed)}); the RED prompt must not assert that the target's tests currently pass or fail`,
     );
   }
-
-  console.log(`  [crux 2] no test-state claim in the prompt OK (checked ${stateClaimTokens.length} tokens)`);
 
   // The gate can only grade a spec a runner actually collects, so the landing directory must be
   // PINNED rather than left to the model: a spec outside every collection root grades no_tests for
   // a folder choice that says nothing about RED quality. targets.json declares the pin and the
-  // prompt states it; assert they agree, which is also what gives test_dir a consumer -- it was
-  // inert documentation that nothing read (`git grep test_dir` found no code).
-  const pinnedDir = (loadSuiteCtx(RED_SUITE_DIR).targetsById.get('GRC') || {}).test_dir;
-
-  if (!pinnedDir) {
-    fail('[crux 2] target GRC declares no test_dir, so the produced test has no pinned landing directory');
+  // prompt states it; assert they agree, which is also what gives test_dir a consumer.
+  if (!target.test_dir) {
+    fail(`[crux 2] ${label}: target ${target.id} declares no test_dir, so the produced test has no pinned landing directory`);
   }
 
-  if (!wsPrompt.includes(pinnedDir)) {
+  if (!wsPrompt.includes(target.test_dir)) {
     fail(
-      `[crux 2] the prompt does not name the target's pinned test_dir ${JSON.stringify(pinnedDir)}, so the runner ` +
-        `and the produced test's location can disagree: ${JSON.stringify(wsPrompt)}`,
+      `[crux 2] ${label}: the prompt does not name the target's pinned test_dir ${JSON.stringify(target.test_dir)}, ` +
+        `so the runner and the produced test's location can disagree: ${JSON.stringify(wsPrompt)}`,
     );
   }
 
-  console.log(`  [crux 2] prompt pins the target's test_dir OK (${pinnedDir})`);
+  // NON-LEADING, in both directions. The real prompt must name none of the target's own forbidden
+  // tokens; the same prompt poisoned with one of them, in a DIFFERENT letter case, must be caught.
+  const tokens = target.prompt_forbidden_tokens;
 
-  checkRedApplyPreamble();
+  if (!Array.isArray(tokens) || tokens.length === 0) {
+    fail(
+      `[crux 2] ${label}: target ${target.id} declares no prompt_forbidden_tokens, so nothing stops the prompt ` +
+        'from naming the expected behavior. An empty list must FAIL this crux rather than pass it vacuously',
+    );
+  }
+
+  const led = forbiddenTokensIn(wsPrompt, tokens);
+
+  if (led.length) {
+    fail(`[crux 2] ${label}: the composed prompt names ${JSON.stringify(led)}; it must stay non-leading`);
+  }
+
+  // Flip the case of the poison token so a matcher that forgot to fold case is caught too.
+  const poison = String(tokens[0]);
+  const flipped = poison === poison.toUpperCase() ? poison.toLowerCase() : poison.toUpperCase();
+  const caught = forbiddenTokensIn(`${wsPrompt} ${flipped}`, tokens);
+
+  if (!caught.includes(poison)) {
+    fail(
+      `[crux 2] ${label}: a POISONED prompt carrying ${JSON.stringify(flipped)} was NOT caught (got ${JSON.stringify(caught)}). ` +
+        'The token check is unreachable or case-sensitive, so the clean result above proves nothing',
+    );
+  }
+
+  return wsPrompt;
+}
+
+function checkCompositionAndParity() {
+  const suiteDirs = discoverRedSuites();
+
+  if (!suiteDirs.length) {
+    fail(`[crux 1] no e2e-red-* suite dir with a suite.json was discovered under ${HERE}`);
+  }
+
+  const preambles = [];
+  let prompts = 0;
+
+  for (const suiteDir of suiteDirs) {
+    const suite = readJson(join(suiteDir, 'suite.json'));
+    const ctx = loadSuiteCtx(suiteDir);
+    const declared = (suite.preambles || {}).apply;
+
+    if (!declared) {
+      fail(
+        `[crux 2] ${suite.name} declares no apply preamble override, so it inherits the lz-refactor default that ` +
+          'tells the model the tests must stay green',
+      );
+    }
+
+    preambles.push({ name: suite.name, declared });
+
+    for (const promptEntry of suite.prompts || []) {
+      const target = ctx.targetsById.get(promptEntry.target);
+
+      if (!target) {
+        fail(`[crux 1] ${suite.name}/${promptEntry.id} names target '${promptEntry.target}', which is not in targets.json`);
+      }
+
+      checkComposedPrompt(suiteDir, suite, target, promptEntry, 'recommend');
+      const applyPrompt = checkComposedPrompt(suiteDir, suite, target, promptEntry, 'apply');
+      checkRedApplyPreamble(suite, declared, applyPrompt);
+      prompts++;
+    }
+  }
+
+  // EVERY RED suite must declare the SAME apply preamble bytes. A per-suite override is how the
+  // RED preamble exists at all, so nothing structural stops two suites drifting apart -- and two
+  // suites measured under different instructions are not comparable, which is the whole point of
+  // running more than one.
+  const [first, ...rest] = preambles;
+  const drifted = rest.filter((p) => p.declared !== first.declared);
+
+  if (drifted.length) {
+    fail(
+      `[crux 2] RED suites declare DIFFERENT apply preambles (${JSON.stringify(drifted.map((p) => p.name))} differ from ` +
+        `${JSON.stringify(first.name)}); every RED suite must be measured under byte-identical instructions`,
+    );
+  }
+
+  console.log(
+    `  [crux 1+2] composition + parity OK across ${suiteDirs.length} RED suite(s) / ${prompts} prompt(s) x 2 modes ` +
+      '(no_skill: no plugin; with_skill: lz-tdd + natural prompt; invoke_skill: slash command + lz-tdd; ' +
+      'no_skill == with_skill byte-identical)',
+  );
+  console.log(`  [crux 2] no test-state claim in any prompt OK (checked ${STATE_CLAIM_TOKENS.length} tokens per prompt)`);
+  console.log('  [crux 2] every prompt pins its target test_dir OK, names none of its forbidden tokens, and a POISONED prompt IS caught');
+  console.log(`  [crux 2] all ${preambles.length} RED suite(s) declare byte-identical apply preamble bytes OK`);
 }
 
 // crux 2 (apply mode): the RED suite's own apply preamble. The shared default ends "...run the
@@ -302,43 +424,17 @@ function checkCompositionAndParity() {
 // (ii) it keeps the two constraints the harness depends on (typecheck, never commit), (iii) it
 // makes no green-preserving claim, (iv) it stays non-leading, and (v) apply-mode prompt parity
 // across the three arms still holds -- an override applied per arm would silently break the A/B.
-function checkRedApplyPreamble() {
-  // --cwd is required by apply mode and, in --dry-run, is only echoed; no git command runs.
-  const stdout = dryRun(['--suite', RED_SUITE_DIR, '--mode', 'apply', '--cwd', HERE, '--arm', 'all', '--prompt', 'r1']);
-  const arms = armMap(stdout);
-
-  for (const name of ['no_skill', 'with_skill', 'invoke_skill']) {
-    if (!arms[name]) {
-      fail(`[crux 2] apply mode did not compose the ${name} arm (got: ${Object.keys(arms).join(', ')})`);
-    }
-  }
-
-  const wsPrompt = flagValue(arms.with_skill, '-p') || '';
-  const nsPrompt = flagValue(arms.no_skill, '-p') || '';
-  const isPrompt = flagValue(arms.invoke_skill, '-p') || '';
-
-  // (v) parity, in apply mode too.
-  if (nsPrompt !== wsPrompt) {
-    fail(`[crux 2] apply mode: no_skill vs with_skill -p differ (must be byte-identical):\n  no_skill=${JSON.stringify(nsPrompt)}\n  with_skill=${JSON.stringify(wsPrompt)}`);
-  }
-
-  if (isPrompt !== '/lz-tdd:lz-red ' + wsPrompt) {
-    fail(`[crux 2] apply mode: invoke_skill -p is not with_skill -p + '/lz-tdd:lz-red ':\n  invoke=${JSON.stringify(isPrompt)}`);
-  }
-
-  const declared = (readJson(join(RED_SUITE_DIR, 'suite.json')).preambles || {}).apply;
-
-  if (!declared) {
-    fail('[crux 2] the RED suite declares no apply preamble override, so it inherits the lz-refactor default that tells the model the tests must stay green');
-  }
-
+function checkRedApplyPreamble(suite, declared, wsPrompt) {
   // (i) the declared override is what actually gets composed.
   if (!wsPrompt.startsWith(declared)) {
-    fail(`[crux 2] the composed apply prompt does not start with the suite's declared preamble -- the override did not take effect:\n  composed=${JSON.stringify(wsPrompt.slice(0, 120))}`);
+    fail(
+      `[crux 2] ${suite.name}: the composed apply prompt does not start with the suite's declared preamble -- the ` +
+        `override did not take effect:\n  composed=${JSON.stringify(wsPrompt.slice(0, 120))}`,
+    );
   }
 
   if (wsPrompt.startsWith(DEFAULT_APPLY_PREAMBLE)) {
-    fail('[crux 2] the RED suite is still composing the shared lz-refactor apply preamble');
+    fail(`[crux 2] ${suite.name} is still composing the shared lz-refactor apply preamble`);
   }
 
   // (ii) the harness depends on both of these: an untypechecked edit muddies the compile_error
@@ -385,8 +481,8 @@ function checkRedApplyPreamble() {
   }
 
   console.log(
-    `  [crux 2] RED apply preamble OK (suite override in effect, byte-identical across the 3 arms, asks for a ` +
-      `typecheck, forbids committing, makes no stay-green claim, and names no smell/behavior/verdict)`,
+    `  [crux 2] ${suite.name} apply preamble OK (suite override in effect, byte-identical across the 3 arms, asks ` +
+      'for a typecheck, forbids committing, makes no stay-green claim, and names no smell/behavior/verdict)',
   );
 }
 
@@ -730,8 +826,8 @@ function checkClassifier() {
 // against the kata's real toolchain, at zero spend. The fixture's spec is pinned under the
 // vitest-collected dir on purpose, so the crux cannot pass unless the gate BOTH sees the toolchain
 // AND routes to a runner whose collection config includes that path.
-function gradeFabricatedRunDir(fixtureName, assertGrade) {
-  const ctx = loadSuiteCtx(RED_SUITE_DIR);
+function gradeFabricatedRunDir(suiteDir, fixtureName, assertGrade) {
+  const ctx = loadSuiteCtx(suiteDir);
   const fixture = join(HERE, 'fixtures', fixtureName);
 
   // Mirror crux 3's SKIP-if-absent discipline: the metered run is gated anyway, and a missing
@@ -739,7 +835,7 @@ function gradeFabricatedRunDir(fixtureName, assertGrade) {
   // -- join(undefined, ...) throws a TypeError and takes the whole battery down instead of
   // printing the SKIP, which made the !ctx.repo half of the guard unreachable.
   if (!ctx.repo || !fs.existsSync(ctx.repo)) {
-    console.log(`  [crux 7:${fixtureName}] SKIP -- kata repo not on disk (${ctx.repo})`);
+    console.log(`  [crux 7:${fixtureName}] SKIP -- target repo not on disk (${ctx.repo})`);
 
     return;
   }
@@ -747,7 +843,10 @@ function gradeFabricatedRunDir(fixtureName, assertGrade) {
   const realNodeModules = join(ctx.repo, 'node_modules');
 
   if (!fs.existsSync(realNodeModules)) {
-    console.log(`  [crux 7:${fixtureName}] SKIP -- kata has no node_modules (${realNodeModules}); run npm ci there to exercise it`);
+    console.log(
+      `  [crux 7:${fixtureName}] SKIP -- ${ctx.repo} has no node_modules (${realNodeModules}); install the target's ` +
+        'dependencies there to exercise it',
+    );
 
     return;
   }
@@ -763,7 +862,7 @@ function gradeFabricatedRunDir(fixtureName, assertGrade) {
   let grade;
 
   try {
-    grade = gradeRun({ runDir, suiteDir: RED_SUITE_DIR });
+    grade = gradeRun({ runDir, suiteDir });
   } catch (err) {
     // Clean up BEFORE failing: fail() calls process.exit(1), which does not unwind the stack, so a
     // finally here would never run and every failed canary would leave a directory behind.
@@ -780,13 +879,13 @@ function gradeFabricatedRunDir(fixtureName, assertGrade) {
   // rather than a style point. Keep asserting the borrowed repo survived: this is the outcome the
   // whole containment exists for, and it must not depend on remembering which mechanism is in use.
   if (!fs.existsSync(realNodeModules)) {
-    fail(`[crux 7:${fixtureName}] the kata's real node_modules is GONE after grading (${realNodeModules})`);
+    fail(`[crux 7:${fixtureName}] the target's real node_modules is GONE after grading (${realNodeModules})`);
   }
 
   const porcelain = (git(ctx.repo, ['status', '--porcelain']).stdout || '').trim();
 
   if (porcelain) {
-    fail(`[crux 7:${fixtureName}] kata not clean after grading: ${porcelain}`);
+    fail(`[crux 7:${fixtureName}] ${ctx.repo} not clean after grading: ${porcelain}`);
   }
 
   const worktrees = git(ctx.repo, ['worktree', 'list']).stdout || '';
@@ -818,8 +917,40 @@ function gradeFabricatedRunDir(fixtureName, assertGrade) {
   return grade;
 }
 
-function checkTargetToolchainCanary() {
-  const grade = gradeFabricatedRunDir('canary-rundir', (g) => {
+// The GRC (kata) canaries. Kept in their OWN function, not merged into a loop over suites, for a
+// containment reason rather than a style one.
+//
+// The GRC suite sets requireExplicitApplyBase, so these four calls need E2E_APPLY_BASE set. Setting
+// it to 'main' is HONEST: a fabricated canary genuinely grades against the unarmed base and never
+// touches the snapshot, and doing it explicitly makes that deliberate choice visible instead of
+// implicit.
+//
+// The RESTORE is the load-bearing half. gradeRun resolves its base as
+// `process.env.E2E_APPLY_BASE || suite.applyBase`, so a value that leaked past these calls would
+// SILENTLY replace every OTHER suite's pinned SHA with 'main' -- grading the wrong commit, in the
+// two suites whose whole point is a fixed pin, with no operator-visible signal. That is exactly the
+// silent-failure class the requireExplicitApplyBase guard exists to eliminate, merely relocated.
+// Scoping the variable to this function makes the leak structurally impossible rather than
+// something to remember, which is why the sibling suites' canaries are a separate call and not the
+// next iteration of a loop.
+function checkGrcCanaries() {
+  const hadKey = Object.prototype.hasOwnProperty.call(process.env, 'E2E_APPLY_BASE');
+  const prior = process.env.E2E_APPLY_BASE;
+  process.env.E2E_APPLY_BASE = 'main';
+
+  try {
+    runGrcCanaries();
+  } finally {
+    if (hadKey) {
+      process.env.E2E_APPLY_BASE = prior;
+    } else {
+      delete process.env.E2E_APPLY_BASE;
+    }
+  }
+}
+
+function runGrcCanaries() {
+  const grade = gradeFabricatedRunDir(RED_SUITE_DIR, 'canary-rundir', (g) => {
     if (g.verdict !== 'genuinely_red' || g.pass !== true) {
       fail(`[crux 7] fabricated runDir graded '${g.verdict}' (pass=${g.pass}), expected genuinely_red / pass=true -- why: ${g.why}`);
     }
@@ -840,6 +971,12 @@ function checkTargetToolchainCanary() {
 
     if (g.new_tsc_errors !== 0) {
       fail(`[crux 7] fabricated runDir reported ${g.new_tsc_errors} NEW tsc errors, expected 0`);
+    }
+
+    // The audit trail must actually be populated, and it must record the base this canary really
+    // used rather than a default someone assumed.
+    if (g.apply_base !== 'main') {
+      fail(`[crux 7] red-grade.json records apply_base ${JSON.stringify(g.apply_base)}, expected 'main' for a fabricated canary`);
     }
 
     // ATTRIBUTION against the TARGET's real runner. Everywhere else the attribution is asserted
@@ -877,7 +1014,7 @@ function checkTargetToolchainCanary() {
   // Without that branch the grade THROWS and no red-grade.json is written at all, which the
   // downstream tabulator then fails closed on -- so a run that merely landed in the wrong folder
   // takes the whole grade down instead of being counted honestly.
-  const missGrade = gradeFabricatedRunDir('canary-nocollect', (g) => {
+  const missGrade = gradeFabricatedRunDir(RED_SUITE_DIR, 'canary-nocollect', (g) => {
     if (g.verdict !== 'no_tests' || g.pass !== false) {
       fail(`[crux 7] uncollected spec graded '${g.verdict}' (pass=${g.pass}), expected no_tests / pass=false`);
     }
@@ -899,7 +1036,7 @@ function checkTargetToolchainCanary() {
   // this task existed. runner_version is a proxy: it proves a node_modules was VISIBLE, not that
   // the typecheck can tell two inputs apart. This third fixture is the negative control: the same
   // fabricated-runDir shape, the same vitest-collected dir, one deliberate type error.
-  const compileGrade = gradeFabricatedRunDir('canary-compile', (g) => {
+  const compileGrade = gradeFabricatedRunDir(RED_SUITE_DIR, 'canary-compile', (g) => {
     if (g.verdict !== 'compile_error' || g.pass !== false) {
       fail(`[crux 7] the type-broken spec graded '${g.verdict}' (pass=${g.pass}), expected compile_error / pass=false -- why: ${g.why}`);
     }
@@ -930,7 +1067,7 @@ function checkTargetToolchainCanary() {
   // the file-level question, recorded the placeholder's "expected 'foo' to be 'fixme'" as the
   // failure_excerpt, and returned genuinely_red / pass:true. grade-red --selfcheck proves the same
   // discrimination purely; this proves it end to end through the kata's real vitest.
-  const borrowedGrade = gradeFabricatedRunDir('canary-borrowed', (g) => {
+  const borrowedGrade = gradeFabricatedRunDir(RED_SUITE_DIR, 'canary-borrowed', (g) => {
     if (g.verdict !== 'false_green' || g.pass !== false) {
       fail(
         `[crux 7] a PASSING test appended to a spec that already contains a failing one graded ` +
@@ -956,6 +1093,292 @@ function checkTargetToolchainCanary() {
         `${borrowedGrade.verdict}, pass=${borrowedGrade.pass}; excerpt ${JSON.stringify(String(borrowedGrade.failure_excerpt).slice(0, 48))})`,
     );
   }
+}
+
+// The SRVC (srvx) canaries -- the OUT-OF-DOMAIN control's half of crux 7.
+//
+// These exercise two mechanisms the kata's canaries structurally cannot reach, because the kata
+// declares neither: the `<reportFile>` report source (srvx's runner writes its JSON to a file
+// grade-red allocates, rather than to stdout) and `typecheck.prebuild` (srvx's public entry points
+// resolve through a gitignored dist/, so an unbuilt worktree manufactures a module-resolution error
+// for any produced test that imports them).
+function checkSrvcCanaries() {
+  // The POSITIVE control, and the discriminating check for typecheck.prebuild. The spec imports
+  // the package's PUBLIC entry point on purpose: MEASURED 2026-07-26 in a throwaway at the pin,
+  // WITHOUT the prebuild that import adds 2 NEW differential errors (TS2307 plus a knock-on
+  // TS7006) and this canary would grade compile_error; WITH it the baseline is 0 and the same spec
+  // adds 0. So deleting the prebuild flips this canary, which is what makes it a check rather than
+  // a demonstration.
+  const redGrade = gradeFabricatedRunDir(SRVX_SUITE_DIR, 'canary-srvc-red', (g) => {
+    if (g.verdict !== 'genuinely_red' || g.pass !== true) {
+      fail(
+        `[crux 7:SRVC] the disciplined spec graded '${g.verdict}' (pass=${g.pass}), expected genuinely_red / ` +
+          `pass=true -- why: ${g.why}. A compile_error here means typecheck.prebuild did not run: the public-entry ` +
+          'import resolves through a gitignored dist/ that a fresh worktree does not have',
+      );
+    }
+
+    if (g.runner !== 'vitest') {
+      fail(`[crux 7:SRVC] recorded runner '${g.runner}', expected 'vitest'`);
+    }
+
+    // runner_version can only be read out of a node_modules the grading worktree can actually see,
+    // so the 'unknown' sentinel means the toolchain was invisible and the differential typecheck
+    // was not discriminating.
+    if (!/^\d+\.\d+\.\d+/.test(String(g.runner_version || ''))) {
+      fail(`[crux 7:SRVC] runner_version is '${g.runner_version}', not a real version -- the grading worktree could not see the target's toolchain`);
+    }
+
+    if (g.new_tsc_errors !== 0) {
+      fail(`[crux 7:SRVC] the disciplined spec reported ${g.new_tsc_errors} NEW tsc errors, expected 0`);
+    }
+
+    // ATTRIBUTION through the `<reportFile>` path. Everywhere else the report arrives on stdout, so
+    // this is the only step proving a FILE-sourced report still carries a title the gate can tie
+    // back to the diff. If it did not, every real SRVC run would grade unattributable and read as a
+    // model failure.
+    const want = 'keeps a Set-Cookie header already set on the Node response';
+
+    if (!Array.isArray(g.added_test_titles) || !g.added_test_titles.includes(want)) {
+      fail(`[crux 7:SRVC] the gate did not extract the fixture's added test title from the diff: ${JSON.stringify(g.added_test_titles)}`);
+    }
+
+    if (g.attributed_failures !== 1) {
+      fail(
+        `[crux 7:SRVC] the gate attributed ${g.attributed_failures} failure(s) to the added test, expected 1 -- ` +
+          "the runner's reported titles are not matching the diff's",
+      );
+    }
+
+    if (!String(g.failure_excerpt || '').startsWith(`added test ${JSON.stringify(want)}:`)) {
+      fail(`[crux 7:SRVC] failure_excerpt does not name the ADDED test: ${JSON.stringify(String(g.failure_excerpt).slice(0, 140))}`);
+    }
+
+    // The prebuild is a real per-grade cost, so it must be recorded rather than invisible.
+    if (!(g.prebuild_ms > 0)) {
+      fail(`[crux 7:SRVC] prebuild_ms is ${g.prebuild_ms}; the target declares a typecheck.prebuild, so it must have run and been timed`);
+    }
+
+    // THE LEAK CHECK, and the reason apply_base is worth recording. checkGrcCanaries() sets
+    // E2E_APPLY_BASE=main for its four calls; gradeRun resolves the base as
+    // `process.env.E2E_APPLY_BASE || suite.applyBase`, so if that value survived its finally this
+    // grade would silently have run against the KATA's base instead of this suite's pin -- and
+    // every other field would look identical. This assertion is what turns that from a silent
+    // wrong number into a failure.
+    const pinned = loadSuiteCtx(SRVX_SUITE_DIR).applyBase;
+
+    if (g.apply_base !== pinned) {
+      fail(
+        `[crux 7:SRVC] this grade ran against apply_base ${JSON.stringify(g.apply_base)}, not the suite's pin ` +
+          `${JSON.stringify(pinned)}. E2E_APPLY_BASE leaked out of checkGrcCanaries(), so the wrong commit was graded`,
+      );
+    }
+  });
+
+  if (redGrade) {
+    console.log(
+      `  [crux 7:SRVC] out-of-domain canary OK (${redGrade.verdict}, runner ${redGrade.runner}@${redGrade.runner_version} via ` +
+        `<reportFile>; ${redGrade.attributed_failures} failure attributed to the ADDED test; prebuild ${redGrade.prebuild_ms} ms, ` +
+        `toolchain copy ${redGrade.toolchain_ms} ms; srvx intact, no leftover worktree)`,
+    );
+  }
+
+  // The NEGATIVE control. Without it nothing would notice this target's differential ceasing to
+  // discriminate -- and its args differ from the default (--skipLibCheck), so the GRC compile
+  // canary does not cover them.
+  const compileGrade = gradeFabricatedRunDir(SRVX_SUITE_DIR, 'canary-srvc-compile', (g) => {
+    if (g.verdict !== 'compile_error' || g.pass !== false) {
+      fail(`[crux 7:SRVC] the type-broken spec graded '${g.verdict}' (pass=${g.pass}), expected compile_error / pass=false -- why: ${g.why}`);
+    }
+
+    if (!(g.new_tsc_errors > 0)) {
+      fail(
+        `[crux 7:SRVC] the type-broken spec reported ${g.new_tsc_errors} NEW tsc errors. The differential is NOT ` +
+          "discriminating under this target's own typecheck args, so D-06 clause 1 would pass any produced test",
+      );
+    }
+  });
+
+  if (compileGrade) {
+    console.log(
+      `  [crux 7:SRVC] differential-discriminates canary OK (type-broken spec -> ${compileGrade.verdict}, ` +
+        `${compileGrade.new_tsc_errors} NEW tsc errors against a clean post-prebuild baseline)`,
+    );
+  }
+}
+
+function checkTargetToolchainCanary() {
+  checkGrcCanaries();
+  checkSrvcCanaries();
+}
+
+// ---- crux 10: anchor arming + the unstated-base guard -----------------------------------------
+//
+// Two things the operator relies on, both proved WITHOUT a toolchain and without a metered
+// anything:
+//
+//   (a) gradeRun REFUSES to grade a requireExplicitApplyBase suite when E2E_APPLY_BASE is unset,
+//       and grades normally when it is set. Without the guard the unset case silently graded the
+//       armed round against the UNARMED base -- no throw, no warning, a plausible-looking number.
+//   (b) arm-anchor.mjs --verify DISCRIMINATES: it fails on an unarmed throwaway and passes on an
+//       armed one, and leaves the borrowed kata pristine either way.
+//
+// The auto-write behavior itself is NOT asserted here -- it is a MEASUREMENT, recorded in
+// arm-anchor.mjs's header (vitest 0.28.5: 2 snapshots written, exit 0, outside --ci). What this
+// crux tests is the verifier's logic and the guard, which are the parts an operator's round rests
+// on.
+function checkApplyBaseGuard() {
+  const fixture = join(HERE, 'fixtures', 'canary-rundir');
+  const hadKey = Object.prototype.hasOwnProperty.call(process.env, 'E2E_APPLY_BASE');
+  const prior = process.env.E2E_APPLY_BASE;
+  delete process.env.E2E_APPLY_BASE;
+
+  try {
+    // The runDir is a copy so nothing is written into the committed fixture -- though with the
+    // guard in place gradeRun throws before it creates anything at all, which is the point of
+    // putting the check first.
+    const runDir = join(os.tmpdir(), `red-crux10-${process.pid}-${Date.now()}`);
+    fs.cpSync(fixture, runDir, { recursive: true });
+
+    let threw = null;
+
+    try {
+      gradeRun({ runDir, suiteDir: RED_SUITE_DIR });
+    } catch (err) {
+      threw = err;
+    } finally {
+      fs.rmSync(runDir, { recursive: true, force: true });
+    }
+
+    if (!threw) {
+      fail(
+        '[crux 10] gradeRun GRADED a requireExplicitApplyBase suite with E2E_APPLY_BASE unset. An armed round ' +
+          'would be measured against the unarmed base with no signal at all',
+      );
+    }
+
+    if (!/E2E_APPLY_BASE/.test(String(threw.message))) {
+      fail(`[crux 10] the refusal does not name the variable an operator has to set: ${JSON.stringify(String(threw.message).slice(0, 200))}`);
+    }
+  } finally {
+    if (hadKey) {
+      process.env.E2E_APPLY_BASE = prior;
+    } else {
+      delete process.env.E2E_APPLY_BASE;
+    }
+  }
+
+  console.log('  [crux 10] unstated-base guard OK (gradeRun REFUSES the GRC suite with E2E_APPLY_BASE unset, naming the variable)');
+}
+
+function checkAnchorArming() {
+  const ctx = loadSuiteCtx(RED_SUITE_DIR);
+
+  // SKIP-if-absent, matching cruxes 3 and 7: the metered run is gated anyway and a missing borrowed
+  // repo must not fail the whole battery.
+  if (!ctx.repo || !fs.existsSync(ctx.repo)) {
+    console.log(`  [crux 10] SKIP -- kata repo not on disk (${ctx.repo})`);
+
+    return;
+  }
+
+  const gitRoot = (git(ctx.repo, ['rev-parse', '--show-toplevel']).stdout || '').trim();
+
+  if (!gitRoot) {
+    console.log(`  [crux 10] SKIP -- ${ctx.repo} is not a git repo`);
+
+    return;
+  }
+
+  const armScript = join(HERE, 'arm-anchor.mjs');
+  const throwaway = join(os.tmpdir(), `red-arm-crux10-${process.pid}-${Date.now()}`);
+  const rel = resolve(ctx.repo).slice(resolve(gitRoot).length + 1).split(/[\\/]/).filter(Boolean).join('/');
+  const snapRootRel = `${rel ? `${rel}/` : ''}test/vitest/__snapshots__/approvals.spec.ts.snap`;
+
+  const runArm = (mode) =>
+    spawnSync(process.execPath, [armScript, mode, throwaway], { encoding: 'utf8', maxBuffer: 16 * 1024 * 1024 });
+
+  // --detach: a named branch on the borrowed repo is out of bounds.
+  gitOrFail(gitRoot, ['worktree', 'add', '--detach', throwaway, 'main'], '[crux 10] worktree add');
+
+  try {
+    const unarmed = runArm('--verify');
+
+    if (unarmed.status === 0) {
+      fail(`[crux 10] --verify PASSED on an UNARMED throwaway, so it cannot tell armed from unarmed:\n${unarmed.stdout}`);
+    }
+
+    if (!/snapshot|not tracked|NOT ARMED/i.test(`${unarmed.stdout}${unarmed.stderr}`)) {
+      fail(`[crux 10] --verify failed on the unarmed throwaway for an unrelated reason: ${(unarmed.stderr || '').trim().slice(0, 240)}`);
+    }
+
+    // Hand-create the snapshot and commit it BY NAME. Deliberately not via --arm: that needs a real
+    // toolchain and a real runner invocation, which is a metered-scale cost for a check about
+    // git-visible state. --arm is exercised at the gate, and its own steps assert the runner side.
+    const snapAbs = join(throwaway, ...snapRootRel.split('/'));
+    fs.mkdirSync(dirname(snapAbs), { recursive: true });
+    fs.writeFileSync(
+      snapAbs,
+      '// Vitest Snapshot v1\n\nexports[`Gilded Rose Approval > should foo 1`] = `\n[\n  Item {\n    "name": "foo",\n    "quality": 0,\n    "sellIn": -1,\n  },\n]\n`;\n',
+    );
+    gitOrFail(throwaway, ['add', '--', snapRootRel], '[crux 10] stage the snapshot');
+    gitOrFail(throwaway, ['commit', '-m', 'test: arm the approvals snapshot (crux 10 fixture)'], '[crux 10] commit the snapshot');
+
+    const armed = runArm('--verify');
+
+    if (armed.status !== 0) {
+      fail(`[crux 10] --verify FAILED on an armed throwaway: ${(armed.stderr || '').trim().slice(0, 300)}`);
+    }
+
+    const sha = (git(throwaway, ['rev-parse', 'HEAD']).stdout || '').trim();
+
+    if (!armed.stdout.includes(sha)) {
+      fail(`[crux 10] --verify passed but did not print the armed SHA the operator has to export:\n${armed.stdout}`);
+    }
+
+    if (!/E2E_APPLY_BASE/.test(armed.stdout)) {
+      fail(`[crux 10] --verify passed but did not print the E2E_APPLY_BASE export line:\n${armed.stdout}`);
+    }
+
+    console.log(
+      `  [crux 10] anchor arming OK (--verify FAILS unarmed and PASSES armed, printing ${sha.slice(0, 8)} and the ` +
+        'E2E_APPLY_BASE export line)',
+    );
+  } finally {
+    fs.rmSync(throwaway, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 });
+    git(gitRoot, ['worktree', 'remove', '--force', throwaway]);
+    git(gitRoot, ['worktree', 'prune']);
+  }
+
+  // The borrowed kata must be pristine afterwards.
+  const porcelain = (git(gitRoot, ['status', '--porcelain']).stdout || '').trim();
+
+  if (porcelain) {
+    fail(`[crux 10] kata not clean after the arming probe: ${porcelain}`);
+  }
+
+  const worktrees = git(gitRoot, ['worktree', 'list']).stdout || '';
+
+  if (/red-arm-crux10-/.test(worktrees)) {
+    fail(`[crux 10] leftover arming worktree after teardown:\n${worktrees}`);
+  }
+
+  // Scoped to a GLOB, never a bare listing: the kata legitimately has `main`, so a bare
+  // `git branch` would "find a leftover branch" in the fully correct end state. checkWorktreeBase()
+  // uses the same idiom for review-*.
+  const branches = (git(gitRoot, ['branch', '--list', 'red-*']).stdout || '').trim();
+
+  if (branches) {
+    fail(`[crux 10] leftover red-* branch after teardown (the throwaway must be --detach): ${branches}`);
+  }
+
+  console.log('  [crux 10] kata pristine after the arming probe OK (clean tree, no leftover worktree, no red-* branch)');
+}
+
+function checkAnchorArmingAndGuard() {
+  // The guard first: it is pure, needs no borrowed repo, and costs nothing.
+  checkApplyBaseGuard();
+  checkAnchorArming();
 }
 
 // ---- crux 8: the measured 2026-07-25 steering exploits stay blocked ---------------------------
@@ -1277,11 +1700,13 @@ function checkNoTestsDisambiguationIsRunnerAuthored() {
 const T63F05_SENTINEL = 'DO-NOT-TOUCH-ME';
 const T63F05_MARKER = 'T63F05-SPEC-EXECUTED';
 
+// The caller supplies its OWN crux prefix in `label`: this helper is shared by cruxes 9 and 10, and
+// a hardcoded prefix would attribute one crux's git failure to the other.
 function gitOrFail(cwd, args, label) {
   const r = git(cwd, args);
 
   if (r.status !== 0) {
-    fail(`[crux 9] ${label}: git ${args.join(' ')} failed in ${cwd}: ${(r.stderr || '').trim()}`);
+    fail(`${label}: git ${args.join(' ')} failed in ${cwd}: ${(r.stderr || '').trim()}`);
   }
 
   return r;
@@ -1323,16 +1748,16 @@ function buildStandInRepo() {
   fs.writeFileSync(join(sub, 'app', 'thing.ts'), 'export function thing(): number {\n  return 1;\n}\n');
   fs.writeFileSync(join(sub, 'test', 'vitest', '.gitkeep'), '');
 
-  gitOrFail(root, ['init', '-q'], 'stand-in init');
-  gitOrFail(root, ['add', '.gitignore', 'TypeScript'], 'stand-in add');
+  gitOrFail(root, ['init', '-q'], '[crux 9] stand-in init');
+  gitOrFail(root, ['add', '.gitignore', 'TypeScript'], '[crux 9] stand-in add');
   // A throwaway identity, so the probe never depends on (or writes) a real one.
-  gitOrFail(root, ['-c', 'user.name=probe', '-c', 'user.email=probe', 'commit', '-q', '-m', 'stand-in base'], 'stand-in commit');
+  gitOrFail(root, ['-c', 'user.name=probe', '-c', 'user.email=probe', 'commit', '-q', '-m', 'stand-in base'], '[crux 9] stand-in commit');
 
-  const base = (gitOrFail(root, ['rev-parse', 'HEAD'], 'stand-in rev-parse').stdout || '').trim();
+  const base = (gitOrFail(root, ['rev-parse', 'HEAD'], '[crux 9] stand-in rev-parse').stdout || '').trim();
   // Take the toplevel in GIT'S form. os.tmpdir() can hand back an 8.3 short path while git reports
   // long, and resolveArmCwd() now (correctly) refuses that mismatch outright -- so the probe has to
   // be internally consistent or it would only ever exercise the new guard.
-  const topLevel = (gitOrFail(root, ['rev-parse', '--show-toplevel'], 'stand-in toplevel').stdout || '').trim();
+  const topLevel = (gitOrFail(root, ['rev-parse', '--show-toplevel'], '[crux 9] stand-in toplevel').stdout || '').trim();
   const repo = `${topLevel}/TypeScript`;
 
   // The stand-in's own node_modules: a working toolchain (the workspace's, so the runner really
@@ -1612,6 +2037,7 @@ checkCompositionAndParity();
 checkWorktreeBase();
 checkTranscriptParse();
 checkClassifier();
+checkAnchorArmingAndGuard();
 checkTargetToolchainCanary();
 checkDiffContainment();
 checkRunnerSignalIsRunnerAuthored();

@@ -1,0 +1,71 @@
+{
+  "repo": "D:/projects/github/h3js/srvx",
+  "branch": "detached at 55d90b39840a5bb7236e23c4e326ee4fc3842d57 (v0.12.4)",
+  "focus": "sendNodeResponse drops headers already set on the Node response",
+  "rationale": "The OUT-OF-DOMAIN control for the RED apply eval. GRC is a HIGH-contamination kata anchor and every in-domain candidate so far is an Angular/CSS library; a universal HTTP server package exercises the same RED discipline on unrelated material, so a lift that survives here is not a domain artifact. The public API EXISTS and compiles, the defect is live at the pin, and a correct-behavior test is tsc-clean and ASSERTION-red -- the D-06 / Pitfall 1 shape.",
+  "targets": [
+    {
+      "id": "SRVC",
+      "file": "src/adapters/_node/send.ts",
+      "symbol": "sendNodeResponse",
+      "runner": {
+        "vitest": "npx vitest run <producedTestFile> --typecheck.enabled=false --reporter=json --outputFile \"<reportFile>\"",
+        "runner_select": {
+          "test/": "vitest"
+        },
+        "runner_default": "vitest",
+        "runner_select_note": "MACHINE-READABLE selector read by grade-red.mjs selectRunner(): repo-relative path prefix -> runner name, longest prefix first, falling back to runner_default. A runner_default is SET rather than omitted so a produced spec landing outside test/ grades no_tests honestly instead of throwing for a folder choice that says nothing about RED quality. There is no runner_path_base: the repo IS its git root and vitest takes a repo-relative path, so the produced test's path needs no stripping.",
+        "typecheck_flag_note": "--typecheck.enabled=false MATTERS. vitest.config.mjs sets typecheck: { enabled: true }, and leaving it on turns TYPE diagnostics into test failures -- which would muddy the classifier, because D-06 clause 1 already owns the type question through the differential tsc and clause 2 must see assertion failures only.",
+        "report_file_note": "The runner writes its report to the <reportFile> path grade-red substitutes, rather than to stdout. vitest can report on stdout (that is what the GRC suite does), but a file is the deterministic source: nothing the produced spec prints can end up inside the parsed payload. The fail-closed contract is unchanged -- the file's contents are fed to the SAME parseRunnerReport spread over the real spawn result, so status/stderr/error still decide the no-collect and infrastructure branches, and a missing file reads as the empty stdout a collection miss produces.",
+        "runner_measured": "MEASURED 2026-07-26 in a detached throwaway at the pin with a copied toolchain: exit 1 in 1458 ms, a Jest-compatible report (numTotalTests 1, numFailedTests 1) whose testResults[0].assertionResults[0] carries title, status 'failed', and the failureMessage \"AssertionError: expected [ 'b=2' ] to deeply equal [ 'a=1', 'b=2' ]\". vitest 4.1.10."
+      },
+      "typecheck": {
+        "args": ["--noEmit", "--strict", "--skipLibCheck"],
+        "prebuild": "npm run build"
+      },
+      "typecheck_note": "The prebuild exists because the package SELF-REFERENCES: its public entry points resolve through a gitignored dist/, so an unbuilt worktree -- which is exactly what `git worktree add` produces -- manufactures a NEW module-resolution error for any produced test that imports the public API. That is a FALSE compile_error which reads as a model failure. MEASURED 2026-07-26, same throwaway: unbuilt baseline 13 errors and the red canary adds 2 NEW (TS2307 'Cannot find module srvx/node' plus a knock-on TS7006); after `npm run build` the baseline is 0 and the same canary adds 0. The RUNNER does not need the build for a bare `srvx` import (vitest.config.mjs aliases that at the source), so the prebuild is a TYPECHECK-only cost -- 12.2 s measured, of which obuild itself is 210 ms.",
+      "test_dir": "test/",
+      "test_dir_note": "The PINNED landing directory, named verbatim in prompts/r1-next-test.md and asserted by selfcheck-red crux 2, so the prompt and the target spec cannot silently disagree. vitest collects the whole repo, but pinning the directory removes a variable that says nothing about RED quality, and runner_select keys on the same prefix.",
+      "behavior_gap": "_sendNodeResponse builds the header list it passes to the Node response's write-head call from the web Response's headers ONLY; it never merges headers already set on the Node response object. Node gives that argument precedence, so a cookie set by earlier middleware is silently dropped. Upstream issue #144, maintainer-labelled a bug, open since 2025-11-11. The SAME defect exists on the fast path, so a run that patches only one path is a root-cause-versus-symptom signal rather than a fix.",
+      "expected_red_color": "genuinely_red",
+      "red_shape_rationale": "existing-compiling-API + wrong behavior (D-06 / RESEARCH Pitfall 1): the correct-behavior test is tsc-clean AND fails on an assertion -- not a compile error and not a false green. MEASURED: the server responds 200 and simply drops the earlier cookie; no exception escapes.",
+      "constraint": "do NOT modify the adapter to make the test pass",
+      "constraint_note": "the produced test asserts observable behavior only (what the CLIENT receives). If production files change so the test passes, that is drove_to_green -- overstepping into lz-tpp's green step -- not a RED pass.",
+      "mock_has_no_diagnostic_power_note": "The strongest property measured anywhere in this target search, and the reason this target grades test DESIGN rather than domain knowledge. A naive fabricated double -- an object literal of vi.fn()s asserted to have been called with the right arguments -- is green BEFORE AND AFTER a correct fix. It has ZERO diagnostic power, not merely a false green: the double never implements the header GETTER, so the optional call short-circuits and the merge branch is skipped entirely. Verified by applying a real fix and re-running. CAVEAT, decide deliberately if a post-fix signal is ever scored: a variant double that DOES implement the getter is still green at the pin (discrimination intact) but goes RED after a correct fix -- that is mock brittleness, not bug detection.",
+      "environmental_failures_note": "Two test files fail on this machine for environmental reasons and are NOT flakes: test/log.test.ts (a da-DK locale renders the time as [22.04.21] against a regex expecting 1:23:45) and test/cli.test.ts (GetPortError, timeout waiting for a port after 100 retries). NO tolerance mechanism is needed and none was added -- the gate runs ONLY the produced test file, so neither is ever collected, and classify() reads testResults[0], the single file it ran. The differential typecheck is likewise unaffected: both files are type-clean and appear identically in the baseline and the with-test run. Recorded here so a future reader does not re-derive it and add a tolerance the gate does not need.",
+      "discipline_traps": [
+        "message-matrix-over-mock (a fabricated double of the Node response is green before AND after a correct fix; only a real server plus a real client request can see the defect)",
+        "assert-observable-behavior (assert what the CLIENT receives, not which internal call was made with which arguments)",
+        "classify-first (this is RED -- choosing and writing the next failing test -- not GREEN or REFACTOR)",
+        "coach-don't-drive-to-green (write the failing test and stop; making it pass is lz-tpp's job)",
+        "root-cause-over-symptom (the same defect exists on both response paths)"
+      ],
+      "contamination": "LOW",
+      "contamination_note": "Not a textbook example and not a kata: a live, maintainer-labelled bug in a package with no tutorial presence. ONE caveat -- a fix PR (#200, 'node: preserve pre-existing Set-Cookie headers in sendNodeResponse') exists upstream and was CLOSED UNMERGED, so a model that searches the web could find the attempt. The bug is genuinely live at the pin either way.",
+      "coverage_note": "`git grep -n sendNodeResponse -- test/` returns NOTHING at the pin: the function is completely uncovered, so there is no existing test for a run to tighten instead of writing one. That is the opposite of the GRC anchor, whose shipped placeholder spec makes the tighten-an-existing-test branch reachable.",
+      "prompt_forbidden_tokens": [
+        "writeHead",
+        "getHeaders",
+        "setHeader",
+        "rawHeaders",
+        "merge",
+        "FastResponse",
+        "fast path",
+        "_toNodeResponse",
+        "sendNodeResponse"
+      ],
+      "prompt_forbidden_tokens_note": "Asserted in BOTH directions by selfcheck-red crux 2: the real composed prompt must contain NONE of these, and the same prompt with one of them appended in a different letter case must be caught. The prompt names the SYMPTOM because the function is unguessable from the path alone -- and naming the symptom is not leading the DESIGN, which is what this target grades. Everything that would hand the model the mechanism, the internal call sequence, or the second affected path is on this list.",
+      "axis": "out-of-domain control + message-matrix-over-mock discipline stressor (contamination LOW)"
+    }
+  ],
+  "qualification_checklist_scored": [
+    "1. Small + Vitest + offline-vendorable: YES -- 170.8 MB / 12,855-file node_modules, and the gate runs a single file in ~1.5 s.",
+    "2. Public API exists and compiles: YES -- `serve` from srvx/node, tsc-clean after the prebuild.",
+    "3. A correct-behavior test FAILS on an ASSERTION on current code: YES, measured.",
+    "4. A genuine bug rather than a design choice: YES -- upstream issue #144, maintainer-labelled a bug.",
+    "5. Contamination: LOW, with the closed-unmerged-PR caveat above.",
+    "6. A byte-identical short human prompt works: YES -- the symptom is nameable without naming the design.",
+    "7. Stresses a RED-DISCIPLINE axis: YES -- message-matrix-over-mock, with a measured zero-diagnostic-power double."
+  ],
+  "legitimacy_gate": "PASS (T-21-SC / T-wpu-SC). First publish 2024-09-16, latest 0.12.4 (2026-07-22), 83 versions, MIT, 0 runtime dependencies, not deprecated, repo live and not a fork. Installs happen only inside throwaway checkouts."
+}

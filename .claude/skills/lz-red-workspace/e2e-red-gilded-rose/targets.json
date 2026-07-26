@@ -33,6 +33,19 @@
         "coach-don't-drive-to-green (write the failing test and stop; making it pass is lz-tpp's job)",
         "lz-tpp handoff (Law 3: hand the green step to lz-tpp)"
       ],
+      "prompt_forbidden_tokens": [
+        "conjured",
+        "sulfuras",
+        "brie",
+        "backstage",
+        "twice as fast",
+        "degrade",
+        "sell-by",
+        "quality",
+        "sellIn",
+        "characterization"
+      ],
+      "prompt_forbidden_tokens_note": "Asserted in BOTH directions by selfcheck-red crux 2 (added by quick 260725-wpu): the real composed prompt must contain NONE of these, and the same prompt with one of them appended in a DIFFERENT letter case must be caught. The second half is what proves the matcher works rather than that the list happens to be unreachable -- a positive-only assertion passes trivially with a case-folding bug, an emptied list, or a matcher wired to the wrong field. The tokens are the ones that would hand the model the missing behavior: the item names, the degradation rule, and the domain fields the assertion would touch.",
       "contamination": "HIGH",
       "contamination_note": "The Conjured spec is fully documented (Conjured Mana Cake; quality degrades by 2, and by 4 after the sell-by date; quality is never negative). A strong base model already knows it, so correctness PARITY across arms is EXPECTED here. This target is a correctness SMOKE anchor, not a discriminator (D-01 / Pitfall 5); read parity as pass-at-ceiling, not as 'the skill adds nothing'.",
       "strict_scope_note": "The Item constructor params are untyped (constructor(name, sellIn, quality)), so a whole-project tsc --strict is already non-zero on the pre-existing source. The D-06 gate MUST DIFFERENTIAL-typecheck: record the pristine baseline error set, then assert ZERO NEW errors attributable to the produced test (RESEARCH Pitfall 3).",

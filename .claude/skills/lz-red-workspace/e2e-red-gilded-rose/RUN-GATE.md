@@ -4,8 +4,20 @@ This file is DOCUMENTATION. It presents the ready-to-run gated metered commands 
 Running any command below is out of scope for execute-phase; the metered 3-arm apply run is a
 separate, freshly-approved, orchestrator-driven step.
 
-Skill under test: `plugins/lz-tdd/skills/lz-red`. Milestone lz-tdd@0.0.3. Suite:
-`.claude/skills/lz-red-workspace/e2e-red-gilded-rose`.
+Skill under test: `plugins/lz-tdd/skills/lz-red`. Milestone lz-tdd@0.0.3.
+
+This is the single gated presentation for the WHOLE RED round, across every suite -- it is not
+forked per suite. Suites:
+
+| Suite dir | Target | Role |
+|-----------|--------|------|
+| `.claude/skills/lz-red-workspace/e2e-red-gilded-rose` | `GRC` | HIGH-contamination correctness SMOKE anchor |
+| `.claude/skills/lz-red-workspace/e2e-red-srvx` | `SRVC` | LOW-contamination OUT-OF-DOMAIN control |
+
+A third, in-domain discriminator (`ngbracket/ngx-layout`) was built up to the measurement step and
+is BLOCKED on a target-selection decision -- see "Blocked third target" in Step 1. Do not treat the
+two-suite corpus as final without reading that section: with only one discriminating target, a
+correctness tie on GRC still cannot be told apart from pass-at-ceiling.
 
 ---
 
@@ -35,22 +47,105 @@ node .claude/skills/lz-red-workspace/selfcheck-red.mjs                       # c
 node .claude/skills/lz-red-workspace/check-evals.mjs                         # eval-set shape + ASCII/email hygiene
 ```
 
-`selfcheck-red.mjs` takes about 70 s: cruxes 7 and 9 each build a real grading worktree and copy a
-real toolchain into it. That is the containment's cost, not a hang -- see the residual list in
-Step 2.
+`selfcheck-red.mjs` takes **96-116 s** (MEASURED 2026-07-26, two wall-clock runs on the two-suite
+tree; the spread is filesystem cache warmth. It was ~70 s with GRC alone). Cruxes 7, 9 and 10 each build a real grading worktree, and crux 7 now copies
+a real toolchain SIX times -- four for GRC and two for srvx. That is the containment's cost, not a
+hang. **Run it in the background rather than under a tool timeout** -- the Bash tool's `timeout` is
+capped at 600000 ms, which the battery would exceed outright if the blocked ngx-layout target were
+ever added (its per-grade copy alone is ~10 min). Never narrow the battery to make it finish sooner:
+a SKIP is not a pass. See the residual list in Step 2.
 
 ---
 
 ## Step 1 -- Pre-run confirmation checklist (D-01, target confirmation)
 
-Before any spend, confirm the target corpus with the user at the gate:
+Before any spend, confirm the target corpus with the user at the gate. Two suites are BUILT and
+canary-green; a third is blocked on a decision only the user can make.
 
 1. **Anchor is fixed: GRC (Gilded Rose `Conjured`).** Verified genuinely-red (tsc-clean +
    assertion-red on current code). Contamination HIGH -- it is a correctness SMOKE anchor, NOT a
    discriminator. A correctness tie across all three arms on GRC is EXPECTED (read as pass-at-ceiling,
    not "the skill adds nothing"; RESEARCH Pitfall 5). Keeping GRC alone at k=3-5 is a valid first
-   round (backup).
-2. **Confirm or nominate the discriminating 2nd/3rd target** against the 7-point qualification
+   round (backup). Its base is ARMED at the gate -- see Step 3a3; this is the only suite that needs
+   `E2E_APPLY_BASE`.
+
+2. **SRVC (h3js/srvx `sendNodeResponse`) is BUILT and canary-green -- the out-of-domain control.**
+   Pinned at `55d90b39840a5bb7236e23c4e326ee4fc3842d57` (v0.12.4). Scored against the 7-point
+   checklist in `e2e-red-srvx/targets.json`; contamination LOW with one caveat (a fix PR exists
+   upstream, closed unmerged, so a web-searching model could find the attempt). It stresses
+   message-matrix-over-mock on the strongest property measured anywhere in the target search: the
+   naive fabricated double is green BEFORE AND AFTER a correct fix, so it has zero diagnostic power
+   rather than merely being a false green. What this target grades is the test's DESIGN, which is
+   why naming the SYMPTOM in the prompt is not leading it.
+
+   **Read a GRC-vs-SRVC comparison as domain-transfer, not as a discriminator pair.** SRVC is a
+   CONTROL: it answers "does any lift survive outside the kata's domain", not "how large is the
+   lift". With no in-domain discriminator in the corpus (see below), a tie on both targets remains
+   genuinely ambiguous between pass-at-ceiling and inertness.
+
+### Blocked third target -- ngbracket/ngx-layout (needs a decision, do NOT auto-resolve)
+
+The in-domain discriminator was built up to the measurement step and stopped there. MEASURED
+2026-07-26 in a detached throwaway at the declared pin
+(`daeb01f487b8f354199931489a9199d67d19182d`) with a copied toolchain:
+
+- `npx ng test @ngbracket/ngx-layout --include "flex/layout-align/layout-align.spec.ts"` -- the
+  TARGET'S OWN existing spec, not a produced one -- FAILS to collect: `numTotalTests: 0`,
+  `suite.status: failed`, message `Missing "./_private-utils" specifier in "@ngbracket/ngx-layout"
+  package`. The library self-references by package name, and at the pin
+  `projects/libs/flex-layout/package.json` declares an `exports` map holding only `./mq` and
+  `./_mq`, so every subpath import fails resolution at run time.
+- Swapping in ONE later file, `vitest-base.config.ts`, and changing nothing else makes the same
+  worktree at the same pin run: **exit 0, 33 passed**. That file adds `resolve.alias` entries for
+  each subpath. So the pin's unrunnability is caused precisely by that commit being absent.
+- That commit (`5b16200`) exists ONLY on the fork's own branch
+  `LayZeeDK/test/migrate-custom-test-utilities`. `upstream/main` and `origin/main` are both exactly
+  the pin, so **no upstream revision of this repo can run `ng test` for this library.**
+
+TARGETS.md records "33 passed" as MEASURED for this target. That measurement is real but was taken
+against the fork's branch tip, not against the pin it declares -- which is exactly what the
+measure-first step exists to catch.
+
+Two things DID come out of it and are already shipped, so re-attempting this target is cheap:
+
+- the JSON report shape is confirmed Jest-compatible and readable by `classify()`; the correct flag
+  is `--output-file` (dash-case), NOT the schema's `outputFile`, which the CLI rejects outright;
+- `grade-red`'s `<reportFile>`, `runner_path_base` and `typecheck.args` mechanisms all exist and are
+  canary-proven (via SRVC for the first, purely for the other two).
+
+**Resolving it is a target-selection decision (D-01 steer-at-gate), not an executor one.** The two
+obvious routes both change what the eval measures:
+
+| Route | What it costs |
+|-------|---------------|
+| Re-pin the suite to the fork branch tip `5b16200` | Pins the eval to an unpushed, fork-only commit: not reproducible from upstream, and it puts the fork's own in-flight test-infrastructure migration under measurement. |
+| Keep the upstream pin and ARM the target's test config (apply the alias commit in the throwaway, like the GRC snapshot arming) | Modifies the target's test infrastructure before the model is measured on it, and the aliases are a non-trivial behavioural change rather than a latent-net arming. |
+
+A third route -- find a DIFFERENT in-domain discriminator -- is also open and may be cheaper than
+either. Bring this to the user; do not pick one to keep the corpus at three.
+
+Two properties of that target are worth carrying into whichever route wins, because they are the
+reason it was chosen and they are not obvious from the file:
+
+- **A COMMITTED FALSE GREEN, live rather than planted.** `layout-align.spec.ts:240-256` is the only
+  `space-evenly` test in the file, it is main-axis, and its single assertion sits inside
+  `if (platform.SAFARI)`, which is false under jsdom -- so it executes zero assertions and always
+  passes. If this target is ever run, **read a run that "fixes" that test instead of writing the
+  missing cross-axis one as a coach-don't-drive signal, not as an instrument artifact.**
+- **A free grading axis.** The file's helper `expectElementStyles` collapses to a boolean
+  (`expect(allStylesMatch).toBe(expected)`), so a helper-based assertion yields the opaque
+  `expected false to be true` while a direct `lookupStyle` yields the diagnostic
+  `expected 'stretch' to be 'space-evenly'`. Both are legitimately red; only one is a good test.
+  That is a JUDGE dimension, not a D-06 one.
+
+**Cost note if it is ever unblocked.** MEASURED on this machine: copying this checkout's
+`node_modules` (1.6 GB, 186,366 files) from the D: Dev Drive into `os.tmpdir()` on C: took
+**482 s**, and removing it took **123 s** -- about **10 minutes of grading overhead per run**,
+roughly 175x the kata's ~3.4 s, not the 20-30x a file-count ratio suggests. At 3 arms x k=3 that is
+~1.5 hours of pure copy time. Price it before adding it, and see the residual list for why
+hardlinking is not a valid shortcut.
+
+3. **Confirm or nominate any FURTHER target** against the 7-point qualification
    checklist (steer-at-gate; D-01):
    1. Small + Vitest/Jest + offline-vendorable (its `npm test` runs a single file quickly).
    2. The target public API EXISTS and COMPILES (so the test is tsc-clean, not a compile error).
@@ -64,15 +159,17 @@ Before any spend, confirm the target corpus with the user at the gate:
       answer).
    7. It stresses at least one RED-DISCIPLINE axis (classify-first / assert-observable-behavior /
       message-matrix-over-mock / coach-don't-drive-to-green).
-3. **Package-legitimacy gate on ANY newly nominated repo (T-21-SC).** If the user nominates a NEW
+4. **Package-legitimacy gate on ANY newly nominated repo (T-21-SC).** If the user nominates a NEW
    real-OSS repo (not the already-vendored kata), run the package-legitimacy gate on it FIRST --
    confirm it is a real, maintained repo (registry age / downloads / source repo) -- and only then
    `npm install` + vendor it. Do NOT auto-substitute a similarly-named alternative if an install
    fails; surface it to the user. The anchor kata is already vendored + verified, so no install is
-   needed for a GRC-only round.
-4. **Decide run scope for spend (D-03):** ~2-3 targets x k=3; the exact target count and k are tuned
-   here for spend. Report Pass@k AND Pass^k (k = 1, 3, 5, total) per target + overall. Scope it
-   against the measured calibration point below rather than a guess.
+   needed for a GRC-only round. srvx was legitimacy-gated at measurement time (first publish
+   2024-09-16, 83 versions, MIT, 0 runtime deps, repo live) -- recorded in its `targets.json`.
+5. **Decide run scope for spend (D-03):** the built corpus is 2 targets x 3 arms x k=3 = **18 runs**;
+   the exact target count and k are tuned here for spend. Report Pass@k AND Pass^k
+   (k = 1, 3, 5, total) per target + overall. Scope it against the measured calibration point below
+   rather than a guess -- and note that grading is no longer a flat rounding error across targets.
 
 ### Calibration -- what the k=1 pilot actually cost (2026-07-25, user-approved)
 
@@ -92,14 +189,25 @@ checkout with its own `npm ci` toolchain:
 | Kata afterwards | pristine -- clean tree, one worktree entry, `node_modules` intact |
 | Exit | 0 |
 
-Straight-line scaling for the fan-out (cost is dominated by the model turn, not by grading):
+### Per-grade cost is now PER TARGET, not a flat constant (MEASURED 2026-07-26)
 
-| Scope | Runs | Est. spend | Est. wall clock (serial) |
-|-------|------|-----------|--------------------------|
-| 1 target x 3 arms x k=3 | 9 | ~$4.90 | ~13 min + ~30 s grading |
-| 2 targets x 3 arms x k=3 | 18 | ~$9.80 | ~26 min + ~1 min grading |
-| 3 targets x 3 arms x k=3 | 27 | ~$14.70 | ~38 min + ~1.5 min grading |
-| 1 target x 3 arms x k=5 | 15 | ~$8.20 | ~21 min |
+Grading used to be a rounding error. With more than one target that stops being true, so price the
+grading column per target rather than multiplying the kata's number:
+
+| Target | Toolchain copy | Typecheck prebuild | Notes |
+|--------|----------------|--------------------|-------|
+| GRC | ~3.4 s (7,610 files, 142.8 MB) | none | the original measurement, unchanged |
+| SRVC | 4.5-8.0 s (12,855 files, 170.8 MB) | ~1.6 s warm (`npm run build`; 12.2 s cold, obuild itself 210 ms) | prebuild is TYPECHECK-only; the runner does not need it |
+| NGXA (blocked) | **482 s copy + 123 s remove** (186,366 files, 1.6 GB) | none | see the cost note in Step 1 -- ~10 min per grade |
+
+Straight-line scaling for the fan-out (model spend is dominated by the turn, not by grading):
+
+| Scope | Runs | Est. spend | Est. wall clock (serial) | Grading overhead |
+|-------|------|-----------|--------------------------|------------------|
+| GRC only x 3 arms x k=3 | 9 | ~$4.90 | ~13 min | ~30 s |
+| GRC + SRVC x 3 arms x k=3 (**the built corpus**) | 18 | ~$9.80 | ~26 min | ~1.5 min |
+| GRC + SRVC x 3 arms x k=5 | 30 | ~$16.30 | ~43 min | ~2.5 min |
+| + NGXA, if ever unblocked | +9 | +~$4.90 | +~13 min | **+~1.5 h** |
 
 Treat these as a FLOOR. The pilot was a single forced run that went straight to a correct answer in
 8 turns; a `no_skill` run that thrashes, or a target with a slower suite, costs more. The two
@@ -120,12 +228,49 @@ residual list in Step 2), so the next round measures what it claims to.
 
 ## Step 2 -- REQUIRED zero-spend canary before the full fan-out
 
-**This canary is a REQUIRED gate step; run it BEFORE committing to the full k=3 x 2-3-target spend.
+**This canary is a REQUIRED gate step; run it BEFORE committing to the full k=3 x 2-target spend.
 It costs NOTHING, so there is no reason to skip it.**
 
 ```
-node .claude/skills/lz-red-workspace/selfcheck-red.mjs
+node .claude/skills/lz-red-workspace/selfcheck-red.mjs      # run in the BACKGROUND; 96-116 s
 ```
+
+The battery now covers **SIX fabricated runDirs across two suites** -- four GRC and two srvx -- and
+it runs for one and a half to two minutes rather than the old ~70 s, dominated by the six toolchain
+copies. Run
+it in the background rather than under a tool timeout, and remember that **a SKIP is not a pass**:
+it means the borrowed repo or its `node_modules` was not on disk and that direction went unmeasured.
+
+Beyond the four GRC fixtures described below, the two srvx fixtures cover mechanisms the kata's
+structurally cannot reach, because the kata declares neither:
+
+- `fixtures/canary-srvc-red/` proves the `<reportFile>` report source AND the `typecheck.prebuild`.
+  Its spec imports the package's PUBLIC entry point on purpose: MEASURED, without the prebuild that
+  import adds 2 NEW differential errors and the canary would grade a false `compile_error`; with it
+  the baseline is 0 and the same spec adds 0. It is also the only step proving that a FILE-sourced
+  report still carries a `title` the gate can attribute -- if it did not, every real srvx run would
+  grade `unattributable` and read as a model failure.
+- `fixtures/canary-srvc-compile/` is that target's NEGATIVE control (4 NEW tsc errors). It is not
+  redundant with the GRC one: srvx sets its own `typecheck.args`, so the GRC canary does not
+  exercise them.
+
+The srvx red canary additionally asserts that its recorded `apply_base` equals its OWN pin. That is
+the leak check for Step 3a3's `E2E_APPLY_BASE`: the GRC canaries run with that variable set, and if
+it survived past them this grade would silently run against the kata's base instead. Verified to
+discriminate -- with the leak simulated, the grade still returned `genuinely_red` and `apply_base`
+was the only field that differed.
+
+Crux 10 is new and needs no toolchain at all. It asserts, in both directions, that `gradeRun`
+REFUSES a `requireExplicitApplyBase` suite when `E2E_APPLY_BASE` is unset (naming the variable), and
+that `arm-anchor.mjs --verify` FAILS on an unarmed throwaway and PASSES on an armed one while
+leaving the kata clean, with one worktree and no `red-*` branch.
+
+Crux 2 now loops EVERY suite, every prompt and both modes. It also checks each prompt against its
+target's own `prompt_forbidden_tokens` in BOTH directions: the real composed prompt must name none,
+and the same prompt poisoned with one of those tokens in a different letter case must be caught. A
+target that declares an empty list FAILS the crux, so the guard cannot be quietly emptied. It
+further asserts every RED suite declares byte-identical apply preamble bytes -- two suites measured
+under different instructions are not comparable.
 
 Crux 7 inside that battery grades a FABRICATED runDir -- a committed `meta.json` + `diff.patch`
 under `fixtures/canary-rundir/`, the same two files a real capture contributes -- end to end against
@@ -287,8 +432,48 @@ and the canary uses the target's toolchain rather than the workspace's.
   its working directory back onto the target checkout itself, putting the apply, the runner spawn
   and teardown's recursive delete inside the borrowed repo. `grade-red` now refuses that outright
   before it creates anything, so the failure is a clear error rather than damage; the fix is to
-  paste git's own path.
-- Contamination on GRC is HIGH, so a correctness tie across arms is expected (Step 1).
+  paste git's own path. **Take it from git with BOTH flags** --
+  `git --git-dir=<repo>/.git --work-tree=<repo> rev-parse --show-toplevel`. `--work-tree` is not
+  redundant: with `--git-dir` alone git resolves the work tree from the CURRENT directory, so the
+  command returns whatever repo you happen to be standing in. Reproduced -- from this project root
+  it returns this project, and from a temp dir it returns the temp dir, either of which would put
+  the WRONG path in the foundational `repo` field.
+- **Per-target grading cost is no longer flat, and one target's is enormous.** GRC ~3.4 s, SRVC
+  4.5-8.0 s plus a ~1.6 s prebuild, and the blocked ngx-layout target ~482 s to copy plus ~123 s to
+  remove -- about 10 minutes per grade, and a peak temp-disk footprint of ~1.6 GB held for the
+  duration of each grade. **Hardlinking is NOT a valid shortcut**: shared inodes mean an in-place
+  write from the model's runner corrupts the SOURCE, which is exactly the hole the per-grade copy
+  was made to close (crux 9 reproduces that shape every run). A block-cloning copy on the ReFS Dev
+  Drive is a possible FOLLOW-UP -- ReFS supports copy-on-write clones, and keeping both source and
+  destination on D: would avoid the cross-volume byte copy entirely -- but it is out of scope here
+  and unmeasured.
+- **The srvx prebuild runs the TARGET's own build script inside the grading worktree.** That is
+  third-party code this gate does not own, executed once per grade. It is contained the same way
+  the runner spawn is: inside the throwaway worktree, against the disposable toolchain COPY, never
+  the pristine checkout. Same containment, same residual -- an absolute path is still reachable
+  (see the bullet above about `fs.writeFileSync` to an absolute path).
+- **The `<reportFile>` path is now part of the fail-closed contract.** When a runner command carries
+  the placeholder, grade-red allocates a temp path under `os.tmpdir()`, reads the report from that
+  FILE, and feeds it to the SAME `parseRunnerReport` spread over the real spawn result -- so
+  `status`, `stderr` and `error` still decide the no-collect and infrastructure-failure branches. A
+  MISSING report file is treated exactly as an empty stdout, which is what a runner that collected
+  nothing produces. The temp file is removed in a `finally`.
+  **One direction is measured for bare vitest/jest but NOT for a wrapped runner:** the GRC
+  `canary-nocollect` fixture proves the no-collect branch for a stdout-reporting runner, and there
+  is no equivalent fixture for a `<reportFile>` runner, because the srvx suite has no
+  outside-every-collection-root case. If a future wrapped runner puts its no-collect status line on
+  STDOUT (which the override discards) rather than stderr, that branch would throw instead of
+  grading `no_tests`. **Read a thrown grade on a report-file runner as a possible instrument
+  artifact and inspect where the spec landed** -- and do NOT loosen `parseRunnerReport` to make it
+  pass; that contract is load-bearing for every suite.
+- **What arming does NOT fix** (Step 3a3): the kata's `test/vitest/gilded-rose.spec.ts` ships a
+  permanently failing placeholder, so a run can still "answer" by tightening that existing test
+  rather than adding one. That grades `unattributable` and needs hand inspection. Arming narrows the
+  characterize-first branch only.
+- Contamination on GRC is HIGH, so a correctness tie across arms is expected (Step 1). SRVC is a
+  CONTROL, not a discriminator, so a tie there does not settle the question either -- with the
+  in-domain discriminator blocked, the corpus cannot currently distinguish pass-at-ceiling from
+  inertness. Say so in the writeup rather than reading a two-target tie as a result.
 
 **Optional extra (metered, NOT required):** once the fan-out is approved and the first real runs are
 captured, grading one of them is a free sanity read on real model output --
@@ -311,12 +496,19 @@ Isolation (baked into the suite / reused driver): `--strict-mcp-config` + `--set
 (drop MCP servers and the user's global plugins); model `claude-opus-4-8` at effort `high`; arms x
 prompts x runs run SERIALLY; one suite dir per target repo, driven sequentially.
 
-The apply harness refuses to run on a protected branch (`main` / `master` per `suite.json`), so first
-create a THROWAWAY branch checkout of the kata -- NEVER run apply against the pristine tree:
+Drive ONE suite at a time, sequentially. The apply harness refuses to run on a protected branch
+(`main` / `master` per `suite.json`), so each suite first needs a THROWAWAY checkout -- NEVER run
+apply against a pristine tree.
+
+**Use `--detach` for EVERY throwaway.** A named branch on a borrowed repo is out of bounds; it was
+correctly refused by the permission classifier earlier, and the arming commit in 3a3 must not be
+reachable once the worktree is gone.
+
+### 3a -- GRC (Gilded Rose): throwaway, toolchain, ARM, drive
 
 ```
-# a) throwaway kata checkout (never the pristine main tree):
-git --git-dir="<kata>/.git" worktree add -b red-run-<stamp> <throwaway kata checkout> main
+# a) throwaway kata checkout (never the pristine main tree). --detach, never -b:
+git --git-dir="<kata>/.git" worktree add --detach <throwaway kata checkout> main
 
 # a2) GIVE THAT CHECKOUT A TOOLCHAIN -- see the note below; do NOT skip this.
 #     `npm ci` ALONE CANNOT WORK HERE: TypeScript/.gitignore lists package-lock.json, so no
@@ -339,20 +531,102 @@ npm --prefix "<throwaway kata checkout>/TypeScript" ci
 #     list in Step 2). A copy would work here as well, but an install is better for the apply
 #     checkout: the model may legitimately add a dependency during its turn.
 
-# b) drive the RED suite (arm all = no_skill + with_skill + invoke_skill), serial, k=3:
+# a3) ARM THE ANCHOR -- kata only. See the sub-section below; this is not optional for GRC.
+node .claude/skills/lz-red-workspace/arm-anchor.mjs --arm    <throwaway kata checkout>
+node .claude/skills/lz-red-workspace/arm-anchor.mjs --verify <throwaway kata checkout>
+export E2E_APPLY_BASE=<the sha those two printed>
+
+# b) drive the GRC suite (arm all = no_skill + with_skill + invoke_skill), serial, k=3:
 node .claude/skills/lz-refactor-workspace/e2e-nx/run-e2e.mjs \
   --suite .claude/skills/lz-red-workspace/e2e-red-gilded-rose \
   --mode apply --arm all \
   --cwd <throwaway kata checkout>/TypeScript \
   --runs 3
 
-# c) grade each captured run (D-06 gate -> red-grade.json):
+# c) grade each captured run (D-06 gate -> red-grade.json). E2E_APPLY_BASE MUST still be exported:
 node .claude/skills/lz-red-workspace/grade-red.mjs --run <runDir> \
   --suite .claude/skills/lz-red-workspace/e2e-red-gilded-rose
+```
 
-# d) tabulate the mechanical dims + Pass@k/Pass^k on the correctness gate:
+### 3a3 -- ARM the anchor, and export the base for BOTH the drive AND every grade
+
+The kata's approvals spec uses `toMatchSnapshot()` but commits no snapshot, so its characterization
+net is LATENT. That left "characterize the legacy code first" a defensible alternative answer and
+cost a scoreable result in pilot 3. `arm-anchor.mjs --arm` writes the snapshot with the runner's
+explicit `--update` flag, proves it with a plain re-run, and commits that ONE file inside the
+throwaway. MEASURED 2026-07-26: vitest 0.28.5 also AUTO-writes the missing snapshot and passes
+outside `--ci` (2 written, exit 0) -- but arming does not rely on that, and it must never run under
+CI mode, which refuses to write new snapshots.
+
+Committing puts the snapshot in the BASE, where it is invisible to the captured diff by construction
+and restored by each inter-run reset, while a snapshot the MODEL writes still shows up. An untracked
+one would land in the model's diff; `.git/info/exclude` would hide the model's too.
+
+**CORRECTION to the earlier framing, and the reason this is a sub-step rather than a note: the two
+commands FAIL DIFFERENTLY.** The arming commit puts HEAD ahead of `main`, so the DRIVE refuses on its
+own -- `run-e2e.mjs` computes `rev-list APPLY_BASE..HEAD` and throws. The GRADE had no such check:
+`gradeRun` has no ahead-check and no protected-branch check, so a forgotten export on a later
+`grade-red --run` silently graded the armed round against the UNARMED base. Since this file
+documents driving and grading as separate commands, that is an ordinary operator slip.
+
+What protects the grade is the `requireExplicitApplyBase` flag on the GRC suite: a missing
+`E2E_APPLY_BASE` is now an INSTANT refusal naming the variable, raised before a worktree or a
+toolchain copy exists. So **export it on EVERY grade invocation, not just the drive**, and note that
+every `red-grade.json` records the `apply_base` it actually used -- a reader can verify rather than
+trust.
+
+Do NOT export it for the other suites. Their bases are fixed pins, they do not set the flag, and an
+exported value would OVERRIDE their pin and grade the wrong commit.
+
+Arming narrows the characterize-first branch only. It does NOT fix the other branch: the kata's
+`test/vitest/gilded-rose.spec.ts` ships a permanently failing placeholder, so a run can still
+"answer" by tightening that existing test, which grades `unattributable` and needs hand inspection.
+
+### 3b -- SRVC (srvx): throwaway, toolchain, drive
+
+```
+# a) throwaway srvx checkout, detached at the pin:
+git --git-dir="<srvx>/.git" worktree add --detach <throwaway srvx checkout> \
+  55d90b39840a5bb7236e23c4e326ee4fc3842d57
+
+# a2) TOOLCHAIN. srvx ships only a pnpm lockfile, so there is NO tracked npm lockfile to copy and
+#     `npm ci` cannot work. Use install, and keep the generated package-lock.json INSIDE the
+#     throwaway -- writing one into the borrowed checkout would leave it permanently dirty.
+#     MEASURED: exit 0, 33 s, 478 packages; --ignore-scripts NOT needed; the win32-arm64 oxlint /
+#     oxfmt / rolldown bindings are present and execute.
+npm --prefix "<throwaway srvx checkout>" install
+
+# b) drive the SRVC suite. NO E2E_APPLY_BASE -- this suite's base is the pin in suite.json, and an
+#    exported value would override it:
+node .claude/skills/lz-refactor-workspace/e2e-nx/run-e2e.mjs \
+  --suite .claude/skills/lz-red-workspace/e2e-red-srvx \
+  --mode apply --arm all \
+  --cwd <throwaway srvx checkout> \
+  --runs 3
+
+# c) grade each captured run:
+node .claude/skills/lz-red-workspace/grade-red.mjs --run <runDir> \
+  --suite .claude/skills/lz-red-workspace/e2e-red-srvx
+```
+
+Grading srvx runs `npm run build` once per grade inside the grading worktree (`typecheck.prebuild`),
+because the package self-references through a gitignored `dist/`. Two of srvx's own test files fail
+on this machine for environmental reasons (a da-DK locale time format and a port-allocation
+timeout); NO tolerance mechanism is needed, because the gate runs only the produced test file and
+`classify()` reads `testResults[0]`.
+
+### 3d -- tabulate ALL suites
+
+```
 node .claude/skills/lz-red-workspace/tabulate-mechanical-red.mjs
 ```
+
+The tabulator now WALKS EVERY `e2e-red-*` suite dir that has a `suite.json`, prints ONE combined
+table, and writes each suite's own cells to that suite's own `mechanical-red.json` -- so a per-suite
+artifact never carries another repo's numbers. It FAILS CLOSED if two different suites produce the
+same `target:pid|arm` cell key: two repos blended into one cell is a wrong number that looks
+entirely plausible, since the `n` doubles and the Pass@k becomes a mix with nothing in the output
+saying so.
 
 **Why `a2` matters for the MEASUREMENT, not just for tidiness.** A fresh `git worktree add` checkout
 has no `node_modules` -- it is gitignored and untracked, so nothing is copied into it. Without a
@@ -478,10 +752,15 @@ skill is inert.
 
 ## Reference -- expected outputs
 
-- `results/apply/<arm>/<pid>/run-*/` (git-ignored): `meta.json`, `answer.md`, `diff.patch`,
-  `red-grade.json`, `outputs/`.
-- `mechanical-red.json`: the tabulated mechanical dims + Pass@k/Pass^k.
+- `<suite dir>/results/apply/<arm>/<pid>/run-*/` (git-ignored, PER SUITE): `meta.json`, `answer.md`,
+  `diff.patch`, `red-grade.json`, `outputs/`.
+- `<suite dir>/mechanical-red.json` (PER SUITE, git-ignored): that suite's own tabulated mechanical
+  dims + Pass@k/Pass^k. The tabulator also prints one COMBINED table across all suites.
 - `EVAL-RESULTS.md`: filled from the run + the graded dims + the unbiased-reviewer verdict.
+
+Each `red-grade.json` records, alongside the verdict: `apply_base` (which commit the grade actually
+ran against), `runner_test_path` (the path the runner command received, after any
+`runner_path_base` stripping), `toolchain_ms` and `prebuild_ms`.
 
 All of the above is documentation only. Nothing here runs during execute-phase; the metered run starts
 only on fresh explicit user approval.

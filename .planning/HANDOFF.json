@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-07-26T23:45:00.000Z",
+  "timestamp": "2026-07-26T22:46:20.724Z",
   "phase": "21",
   "phase_name": "applied-red-eval-real-oss-repos",
   "phase_dir": ".planning/phases/21-applied-red-eval-in-real-oss-repos-multi-dimensional-3-arm-i",
@@ -8,44 +8,175 @@
   "task": 3,
   "total_tasks": 3,
   "status": "paused",
-  "summary": "Phase 21's RED apply instrument is BUILT, hardened and GREEN, and the CORPUS IS COMPLETE: 4 cells across 3 suites (GRC armed smoke anchor, SRVC out-of-domain control, RXF + RXL in-domain drive discriminators). Three user-approved pilot runs were captured ($3.26; about $4.93 across all pilots to date). The JestMatchers question that caused the earlier pause is now SETTLED and the RXF verdict is DECIDED -- see 21-ATC-ADOPTION.md. The radix cells now grade through angular-typechecker (atc) rather than tsc, because tsc is structurally BLIND to Angular template diagnostics (measured: 0 against atc's 15 on the same project), and two new canaries close both that blind spot and the append-onto-a-dirty-file gap. NOTHING technical is blocking. The ONLY thing outstanding is spend approval for the metered round.",
+  "summary": "Phase 21 is TECHNICALLY COMPLETE and every technical question it paused on is settled. The RED apply instrument is built, hardened and GREEN across 4 cells in 3 suites. This session: (1) SETTLED the JestMatchers question -- the cause is @types/jest-axe's triple-slash reference pulling in @types/jest, whose expect returns JestMatchers<T>, a type jest-dom never augments; the tsconfig `types`-array premise the phase paused on is FALSIFIED. (2) PROVED the differential typecheck load-bearing by counterfactual. (3) DECIDED RXF's compile_error verdict STANDS. (4) ADOPTED angular-typechecker (atc) for the two radix cells only, because tsc is structurally blind to Angular template diagnostics (MEASURED 0 vs atc's 15). (5) RAN the approved with_skill pilot on RXL ($1.9286): D-04 auto-trigger ANSWERED 2/2 fired, coach-don't-drive 3/3 perfect, and found RXL's mechanical D-06 verdict to be DESIGN-CONFOUNDED, which the owner scoped to discipline-dimensions-only reporting. NOTHING TECHNICAL IS BLOCKING. The single outstanding item is the ~$39 four-cell metered round, which needs fresh explicit approval.",
   "completed_tasks": [
-    {"id": "260725-63f", "name": "Audit + triage 5 RED-instrument findings; F4 REJECTED with evidence; 3 code-review Criticals fixed", "status": "done", "commit": "7671a3e"},
-    {"id": "pilots-1-3", "name": "Three approved GRC pilots ($1.67): found trigger-detector blindness to slash-command invocation, an anti-RED apply preamble, a D-06 borrowed-failure false-PASS, and a live false green", "status": "done", "commit": "ae35763"},
-    {"id": "260726-relocate", "name": "Grading worktree derived onto the target's own volume; the stated cross-volume premise was FALSIFIED (27%, not the cause)", "status": "done", "commit": "b49af17"},
-    {"id": "260725-wpu", "name": "srvx suite built + GRC anchor ARMED; ngx-layout closed with evidence (upstream never had a runnable Vitest suite)", "status": "done", "commit": "4a43216"},
-    {"id": "target-search", "name": "Six search passes; radix-ng/primitives @ 4a7390a2 selected and fresh-clone verified as the in-domain discriminator", "status": "done", "commit": "71517e1"},
-    {"id": "260726-g69", "name": "radix-ng wired (RXF + RXL) via the full validated pipeline; gsd-verifier PASSED 8/8 with bisect run IN FULL (15 trees, 45/45 checks, zero skips)", "status": "done", "commit": "c67b436"},
-    {"id": "A-1", "name": "Closed advisory A-1 with two guards: a typecheck pass that did not really run can no longer read as clean", "status": "done", "commit": "fccad1c"},
-    {"id": "pilot-3cell", "name": "Approved 3-cell pilot ($3.26): SRVC genuinely_red, RXL genuinely_red (cross-package import PROVEN), RXF compile_error which exposed the line-shift defect", "status": "done", "commit": "fccad1c"},
-    {"id": "diff-fix", "name": "Differential made position-insensitive (multiset on file+code+message); RXF re-graded offline, 9 NEW -> 1 NEW; SRVC and RXL unchanged", "status": "done", "commit": "3c50958"},
-    {"id": "jestmatchers-research", "name": "SETTLED: the cause is @types/jest-axe's triple-slash reference types=\"jest\", which pulls in @types/jest, whose expect returns JestMatchers<T> -- a type @testing-library/jest-dom/vitest never augments (it augments vitest's Assertion). Proven with tsc --explainFiles. The types-array premise this phase paused on is FALSIFIED: jest-dom's types DO load. Also verified the runner cannot fail on type errors at all (Analog v2.6.1 defaults disableTypeChecking true; radix passes no options), so nothing in the repo typechecks specs. Recorded in 21-ATC-ADOPTION.md.", "status": "done"},
-    {"id": "rxf-verdict", "name": "DECIDED: RXF's compile_error verdict STANDS. The diagnostic is the model's own and the gate is behaving as designed; no matcher allowlist, no baseline-keyed noise rule and no target-specific tolerance was written, because each would forge the measurement. The accepted consequence -- jest-dom matcher choice partly decides RXF grading -- is RECORDED as a residual in RUN-GATE rather than engineered away.", "status": "done"},
-    {"id": "260726-uqn", "name": "Adopted angular-typechecker 0.2.4 (npm, tracked devDependency) as the differential checker for RXF + RXL only; GRC and SRVC stay on tsc byte-identically. Per-target fail-closed checker selection, an atc JSON normalizer feeding the UNCHANGED position-insensitive multiset, the vacuous-differential guard extended to atc's own file-less synthesized faults, and TWO new canaries: canary-rdxf-template (a defect atc reports and tsc does not) and canary-rdxf-append (the first append-onto-a-dirty-file canary in the suite). Differential re-priced ~7.8 s -> ~19 s per radix grade.", "status": "done"}
+    {
+      "id": "260725-63f",
+      "name": "Audit + triage 5 RED-instrument findings; F4 REJECTED with evidence; 3 code-review Criticals fixed",
+      "status": "done",
+      "commit": "7671a3e"
+    },
+    {
+      "id": "pilots-1-3",
+      "name": "Three approved GRC pilots ($1.67): found trigger-detector blindness to slash-command invocation, an anti-RED apply preamble, a D-06 borrowed-failure false-PASS, and a live false green",
+      "status": "done",
+      "commit": "ae35763"
+    },
+    {
+      "id": "260726-relocate",
+      "name": "Grading worktree derived onto the target's own volume; the stated cross-volume premise was FALSIFIED (27%, not the cause)",
+      "status": "done",
+      "commit": "b49af17"
+    },
+    {
+      "id": "260725-wpu",
+      "name": "srvx suite built + GRC anchor ARMED; ngx-layout closed with evidence (upstream never had a runnable Vitest suite)",
+      "status": "done",
+      "commit": "4a43216"
+    },
+    {
+      "id": "target-search",
+      "name": "Six search passes; radix-ng/primitives @ 4a7390a2 selected and fresh-clone verified as the in-domain discriminator",
+      "status": "done",
+      "commit": "71517e1"
+    },
+    {
+      "id": "260726-g69",
+      "name": "radix-ng wired (RXF + RXL) via the full validated pipeline; gsd-verifier PASSED 8/8 with bisect run IN FULL (15 trees, 45/45 checks, zero skips)",
+      "status": "done",
+      "commit": "c67b436"
+    },
+    {
+      "id": "A-1",
+      "name": "Closed advisory A-1 with two guards: a typecheck pass that did not really run can no longer read as clean",
+      "status": "done",
+      "commit": "fccad1c"
+    },
+    {
+      "id": "pilot-3cell",
+      "name": "Approved 3-cell pilot ($3.26): SRVC genuinely_red, RXL genuinely_red (cross-package import PROVEN), RXF compile_error which exposed the line-shift defect",
+      "status": "done",
+      "commit": "fccad1c"
+    },
+    {
+      "id": "diff-fix",
+      "name": "Differential made position-insensitive (multiset on file+code+message); RXF re-graded offline, 9 NEW -> 1 NEW; SRVC and RXL unchanged",
+      "status": "done",
+      "commit": "3c50958"
+    },
+    {
+      "id": "jestmatchers-research",
+      "name": "SETTLED: the cause is @types/jest-axe's triple-slash reference types=\"jest\", which pulls in @types/jest, whose expect returns JestMatchers<T> -- a type @testing-library/jest-dom/vitest never augments (it augments vitest's Assertion). Proven with tsc --explainFiles. The types-array premise this phase paused on is FALSIFIED: jest-dom's types DO load. Also verified the runner cannot fail on type errors at all (Analog v2.6.1 defaults disableTypeChecking true; radix passes no options), so nothing in the repo typechecks specs. Recorded in 21-ATC-ADOPTION.md.",
+      "status": "done"
+    },
+    {
+      "id": "rxf-verdict",
+      "name": "DECIDED: RXF's compile_error verdict STANDS. The diagnostic is the model's own and the gate is behaving as designed; no matcher allowlist, no baseline-keyed noise rule and no target-specific tolerance was written, because each would forge the measurement. The accepted consequence -- jest-dom matcher choice partly decides RXF grading -- is RECORDED as a residual in RUN-GATE rather than engineered away.",
+      "status": "done"
+    },
+    {
+      "id": "260726-uqn",
+      "name": "Adopted angular-typechecker 0.2.4 (npm, tracked devDependency) as the differential checker for RXF + RXL only; GRC and SRVC stay on tsc byte-identically. Per-target fail-closed checker selection, an atc JSON normalizer feeding the UNCHANGED position-insensitive multiset, the vacuous-differential guard extended to atc's own file-less synthesized faults, and TWO new canaries: canary-rdxf-template (a defect atc reports and tsc does not) and canary-rdxf-append (the first append-onto-a-dirty-file canary in the suite). Differential re-priced ~7.8 s -> ~19 s per radix grade.",
+      "status": "done"
+    },
+    {
+      "id": "260726-uqn",
+      "name": "Settled the JestMatchers mechanism (types-array premise FALSIFIED), proved the differential load-bearing by counterfactual, decided RXF compile_error STANDS, and adopted angular-typechecker for the radix cells only. Verifier 12/12; full battery exit 0 twice (395-405 s, 11 fabricated runDirs, 0 skips). Three radix canaries incl. the suite FIRST append-onto-a-dirty-file fixture.",
+      "status": "done",
+      "commit": "fc174c7,7ade70a,9794e90,ba69fe5"
+    },
+    {
+      "id": "withskill-pilot",
+      "name": "RXL with_skill pilot, 2 runs, $1.9286 (user-approved). D-04 ANSWERED: auto-trigger fired 2/2, corroborated four ways per run; FIRST with_skill firing ever on SRVC/RXF/RXL. Coach-don't-drive 3/3 PERFECT. Found RXL's D-06 verdict DESIGN-CONFOUNDED -> owner scoped RXL to discipline dims only.",
+      "status": "done",
+      "commit": "134e5b5"
+    }
   ],
   "remaining_tasks": [
-    {"id": "withskill-pilot", "name": "CONSIDER: no with_skill run has EVER happened on SRVC, RXF or RXL. The D-04 auto-trigger dimension depends on with_skill; invoke_skill reads fired 0.00 BY DESIGN. About $1.10 for one cell.", "status": "not_started"},
-    {"id": "full-round", "name": "GATED: 4 cells x 3 arms x k=3 = 36 runs, about $39 at the MEASURED $1.09/run (not the earlier $0.57 extrapolation). Needs fresh explicit approval.", "status": "not_started"},
-    {"id": "close-21", "name": "Post-round closure: /gsd-secure-phase 21, /gsd-validate-phase 21, /gsd-extract-learnings 21.", "status": "not_started"},
-    {"id": "milestone", "name": "/gsd-complete-milestone lz-tdd@0.0.3 (manual archival for the @-scoped version).", "status": "not_started"}
+    {
+      "id": "full-round",
+      "name": "GATED: 4 cells x 3 arms x k=3 = 36 runs, about $39 at the MEASURED $1.09/run (not the earlier $0.57 extrapolation). Needs fresh explicit approval.",
+      "status": "not_started"
+    },
+    {
+      "id": "close-21",
+      "name": "Post-round closure: /gsd-secure-phase 21, /gsd-validate-phase 21, /gsd-extract-learnings 21.",
+      "status": "not_started"
+    },
+    {
+      "id": "milestone",
+      "name": "/gsd-complete-milestone lz-tdd@0.0.3 (manual archival for the @-scoped version).",
+      "status": "not_started"
+    }
   ],
   "blockers": [
-    {"description": "The full metered round needs fresh explicit user approval (eval-run-approval-gate). Cost re-estimated UPWARD to about $39 after the pilot measured $1.09/run against a $0.57 projection.", "type": "human_action", "workaround": "The instrument is built and green; the three pilots already answered the mechanical questions."}
+    {
+      "description": "The ~$39 four-cell metered round needs FRESH explicit approval naming the scope (eval-run-approval-gate). 4 cells x 3 arms x k=3 = 36 runs at the MEASURED ~$1.09/run. This is the ONLY outstanding item and it is NOT technical -- the instrument is green and the corpus is complete.",
+      "type": "human_action",
+      "workaround": "None needed. Recipes are in RUN-GATE Step 3a-3d. Read RUN-GATE Step 7 BEFORE tabulating: RXL is reported on discipline dimensions ONLY."
+    }
   ],
   "async_jobs": [],
   "human_actions_pending": [
-    {"action": "Approve or decline the ~$39 four-cell round, and decide whether to pilot with_skill on one cell first (~$1.10).", "context": "invoke_skill reads fired 0.00 by design, so the D-04 auto-trigger dimension is unmeasured on all three new cells. This is the ONLY blocking human action left on the phase -- the JestMatchers research and the RXF verdict are settled.", "blocking": true}
+    {
+      "action": "Approve or decline the ~$39 four-cell round (36 runs).",
+      "context": "Everything technical is closed. D-04 is already answered by the pilot (2/2 fired), so the round now buys the k=3 correctness + judge dimensions across all four cells rather than the trigger question.",
+      "blocking": true
+    }
   ],
   "decisions": [
-    {"decision": "radix-ng/primitives @ 4a7390a2 is the in-domain discriminator; ngx-layout permanently rejected.", "rationale": "ngx-layout can only run its tests via a harness-supplied out-of-repo --runner-config, which is the declined arm-the-test-config route in another form. A developer cloning at that pin cannot run the tests, so any fix we supply measures the model in an environment no real user has. Closed with evidence: Vitest existed on its upstream main for only 8 commits and both endpoints measured broken.", "phase": "21"},
-    {"decision": "Per-candidate prompts; NO single file-path prompt.", "rationale": "A prompt admitting two answers makes the judge dimension unanswerable and destroys per-candidate attribution, even though the mechanical D-06 gate would pass either.", "phase": "21"},
-    {"decision": "Vitest only; Jest and Karma deferred until a Vitest result exists.", "rationale": "Owner decision. Later evidence showed Vitest was never the binding constraint anyway -- the leading Jest fallback (ngworker/spectacular) fails on MERIT: no declared-contract gap at all, and its committed false green produces GREEN rather than red.", "phase": "21"},
-    {"decision": "Kept the differential typecheck on radix rather than dropping it or adding a matcher allowlist. RESOLVED 2026-07-26 -- the decision HELD and is no longer to be revisited.", "rationale": "The JestMatchers research is DONE and it did NOT overturn the decision, contrary to the earlier 'revisit, the runtime-registration evidence points the other way' note now superseded. Two measurements settled it. (1) The differential is LOAD-BEARING: the real classify() on identical runner input gives compile_error/pass:false at 1 new error and genuinely_red/pass:TRUE at 0, so wrong_reason does not cover the type-broken canary and dropping the typecheck would open a false pass. (2) The runtime-registration argument cuts the other way once the mechanism is known -- the matchers are registered at runtime but land on JestMatchers<T>, a type jest-dom never augments, so the diagnostic is a genuine property of the program rather than a config oversight. Corrected data also stands: only 8 of the tsc-era 55 baseline errors were jest-dom. See 21-ATC-ADOPTION.md.", "phase": "21"},
-    {"decision": "The eval measures DRIVE/APPLY mode.", "rationale": "Owner. Apply is the only mode where coach-don't-drive is measurable at all; in recommend mode the model cannot drive to green by construction. RXF is PRIMARY because its one-token fix maximises drive temptation, and coach-don't-drive is where Phase-20 EVL-02 found lz-red's real unbiased-reviewer-confirmed edge.", "phase": "21"},
-    {"decision": "Ran the full validated pipeline for the wiring; lighter paths for scoped single-mechanism changes.", "rationale": "Every checker and review round this session found something execution would otherwise have paid for later.", "phase": "21"},
-    {"decision": "angular-typechecker (atc) 0.2.4 is the differential checker for the RADIX cells ONLY; GRC and SRVC stay on tsc, byte-identically. RXF's compile_error verdict STANDS.", "rationale": "tsc is STRUCTURALLY BLIND to Angular template diagnostics -- measured 0 against atc's 15 on the identical project and tsconfig. radix's own specs define inline misuse-host-component templates, so a produced test plausibly defines one too, and a template-broken produced test passed the differential CLEAN while still throwing an honest-looking assertion failure: the same false-pass class the counterfactual proved the differential exists to close, in a place tsc cannot see. Scoped to radix because GRC and SRVC are non-Angular and atc loads @angular/compiler-cli. typecheck.checker DEFAULTS to tsc so absent config means the historical behaviour, while every malformed form throws before the grading worktree exists -- an unknown checker has no knowable stronger fallback, so guessing could silently REDUCE the differential. The verdict stands because the diagnostic is the model's own and a matcher allowlist or target-specific tolerance would forge the measurement; the consequence is recorded as a residual instead. Accepted knowingly: atc resolves @angular/compiler-cli from its own tree rather than the target's, an open fidelity residual.", "phase": "21"}
+    {
+      "decision": "radix-ng/primitives @ 4a7390a2 is the in-domain discriminator; ngx-layout permanently rejected.",
+      "rationale": "ngx-layout can only run its tests via a harness-supplied out-of-repo --runner-config, which is the declined arm-the-test-config route in another form. A developer cloning at that pin cannot run the tests, so any fix we supply measures the model in an environment no real user has. Closed with evidence: Vitest existed on its upstream main for only 8 commits and both endpoints measured broken.",
+      "phase": "21"
+    },
+    {
+      "decision": "Per-candidate prompts; NO single file-path prompt.",
+      "rationale": "A prompt admitting two answers makes the judge dimension unanswerable and destroys per-candidate attribution, even though the mechanical D-06 gate would pass either.",
+      "phase": "21"
+    },
+    {
+      "decision": "Vitest only; Jest and Karma deferred until a Vitest result exists.",
+      "rationale": "Owner decision. Later evidence showed Vitest was never the binding constraint anyway -- the leading Jest fallback (ngworker/spectacular) fails on MERIT: no declared-contract gap at all, and its committed false green produces GREEN rather than red.",
+      "phase": "21"
+    },
+    {
+      "decision": "Kept the differential typecheck on radix rather than dropping it or adding a matcher allowlist. RESOLVED 2026-07-26 -- the decision HELD and is no longer to be revisited.",
+      "rationale": "The JestMatchers research is DONE and it did NOT overturn the decision, contrary to the earlier 'revisit, the runtime-registration evidence points the other way' note now superseded. Two measurements settled it. (1) The differential is LOAD-BEARING: the real classify() on identical runner input gives compile_error/pass:false at 1 new error and genuinely_red/pass:TRUE at 0, so wrong_reason does not cover the type-broken canary and dropping the typecheck would open a false pass. (2) The runtime-registration argument cuts the other way once the mechanism is known -- the matchers are registered at runtime but land on JestMatchers<T>, a type jest-dom never augments, so the diagnostic is a genuine property of the program rather than a config oversight. Corrected data also stands: only 8 of the tsc-era 55 baseline errors were jest-dom. See 21-ATC-ADOPTION.md.",
+      "phase": "21"
+    },
+    {
+      "decision": "The eval measures DRIVE/APPLY mode.",
+      "rationale": "Owner. Apply is the only mode where coach-don't-drive is measurable at all; in recommend mode the model cannot drive to green by construction. RXF is PRIMARY because its one-token fix maximises drive temptation, and coach-don't-drive is where Phase-20 EVL-02 found lz-red's real unbiased-reviewer-confirmed edge.",
+      "phase": "21"
+    },
+    {
+      "decision": "Ran the full validated pipeline for the wiring; lighter paths for scoped single-mechanism changes.",
+      "rationale": "Every checker and review round this session found something execution would otherwise have paid for later.",
+      "phase": "21"
+    },
+    {
+      "decision": "angular-typechecker (atc) 0.2.4 is the differential checker for the RADIX cells ONLY; GRC and SRVC stay on tsc, byte-identically. RXF's compile_error verdict STANDS.",
+      "rationale": "tsc is STRUCTURALLY BLIND to Angular template diagnostics -- measured 0 against atc's 15 on the identical project and tsconfig. radix's own specs define inline misuse-host-component templates, so a produced test plausibly defines one too, and a template-broken produced test passed the differential CLEAN while still throwing an honest-looking assertion failure: the same false-pass class the counterfactual proved the differential exists to close, in a place tsc cannot see. Scoped to radix because GRC and SRVC are non-Angular and atc loads @angular/compiler-cli. typecheck.checker DEFAULTS to tsc so absent config means the historical behaviour, while every malformed form throws before the grading worktree exists -- an unknown checker has no knowable stronger fallback, so guessing could silently REDUCE the differential. The verdict stands because the diagnostic is the model's own and a matcher allowlist or target-specific tolerance would forge the measurement; the consequence is recorded as a residual instead. Accepted knowingly: atc resolves @angular/compiler-cli from its own tree rather than the target's, an open fidelity residual.",
+      "phase": "21"
+    },
+    {
+      "decision": "RXF's compile_error verdict STANDS; no matcher allowlist, noise rule or target tolerance.",
+      "rationale": "Owner, 2026-07-26. The accepted consequence -- that jest-dom matcher choice partly decides RXF grading -- is RECORDED as a RUN-GATE residual rather than engineered away. Root cause is a broken assertion-type environment in the target (@types/jest leaking via @types/jest-axe), not an instrument defect, and it reproduces identically under both tsc and atc (8 JestMatchers either way).",
+      "phase": "21"
+    },
+    {
+      "decision": "angular-typechecker (atc) is the differential checker for the radix cells ONLY; GRC and SRVC stay on tsc.",
+      "rationale": "tsc is structurally blind to Angular template diagnostics -- MEASURED same-session on the identical project and tsconfig: tsc 55 errors and ZERO Angular-coded, atc 80 diagnostics including 15 Angular. radix's own specs define inline misuse-host templates, so a template-broken produced test used to pass the differential clean while still throwing a plausible assertion failure. GRC and SRVC are non-Angular and atc loads @angular/compiler-cli, so it cannot serve them.",
+      "phase": "21"
+    },
+    {
+      "decision": "RXL is reported on the DISCIPLINE dimensions ONLY; its mechanical D-06 verdict is excluded from the headline.",
+      "rationale": "Owner, 2026-07-27, on three measured runs. The pass/fail split tracks WHICH INJECTION TOKEN the model imagined (invoke_skill picked the existing LOCALE_ID and passed; both with_skill runs picked the library-mirroring RDX_LOCALE, absent at the pin, and graded compile_error). Neither arm asserted the rendered output the cell's own discipline_traps require, so even the PASS is incidental. Left in the headline it invites a PLAUSIBLE BUT WRONG causal claim that auto-trigger produces worse RED. No gate change, no prompt change, no verdict reclassified.",
+      "phase": "21"
+    }
   ],
   "uncommitted_files": [],
-  "next_action": "NOTHING TECHNICAL IS BLOCKING. The two items left are both METERED and both need FRESH explicit user approval naming the scope (eval-run-approval-gate): (1) optionally a single with_skill cell at about $1.10, which is the only way to measure the D-04 auto-trigger dimension because invoke_skill reads fired 0.00 by design and no with_skill run has ever happened on SRVC, RXF or RXL; and (2) the full 4 cells x 3 arms x k=3 = 36-run round at about $39 at the measured $1.09/run. Do NOT self-approve either. Before driving, re-read 21-ATC-ADOPTION.md and the RUN-GATE residual list: the radix cells now grade through atc, the per-grade differential is re-priced from about 7.8 s to about 19 s (so a k=3 round's grading is about 22-23 min rather than 19-20), and a compile_error cluster on RXF should be read against the recorded new_tsc_error_lines before attributing anything to an arm.",
-  "context_notes": "MEASURE, DO NOT REASON. This is the session's dominant lesson and it cost real time. SIX orchestrator premises have now been falsified by agents that went and measured: (1) 'the cross-volume hop explains the copy cost' -- worth 27%, the cost is dominated by FILE COUNT; (2) 'fs.cpSync preserves symlinks verbatim' -- it does NOT by default, it resolves relative links against the SOURCE and writes absolute paths, which turned the per-grade disposable copy into a live path back into a borrowed third-party repo (8,170 links, caught by escapingLinks); (3) 'the second node_modules is a BLOCKING resolution problem' -- it is FIDELITY, the real blocker was escapingLinks throwing on every radix grade; (4) 'all 55 radix baseline errors are jest-dom matchers' -- only 8 are; (5) 'tsconfig.spec.json's types array omits jest-dom so the TYPES never load' -- FALSE, they DO load; a types array restricts AUTOMATIC @types inclusion and does not block a triple-slash reference inside an imported declaration file, and the real cause is a matcher-TARGET mismatch (@types/jest's JestMatchers<T> vs the vitest Assertion interface jest-dom augments); (6) a plan draft asserted atc's JSON `code` field was a bare number needing a TS prefix -- it is ALREADY a fully prefixed label, and following the draft would have produced TSTS2339. COROLLARIES worth carrying: synthetic symlink probes on Windows are UNRELIABLE (junctions behave differently from true symlinks; two probes gave misleading answers and only the real 8,164-link tree was trustworthy); cross-session performance comparison is INVALID (the same copy measured 482 s one day and 741 s the next, so a cross-session read would have concluded the fix made it worse -- require a same-session A/B); CONFIRM A PAYLOAD SHAPE FROM THE PAYLOAD before writing a parser for it, never from prose or memory. THE APPEND-CANARY LESSON, now generalised: a differential whose fixtures ALL ADD NEW FILES never exercises the APPEND path, which is exactly how the line-shift defect survived a two-round plan check, a code review, an 8/8 verification, a full bisect and every offline canary, and needed a metered pilot to surface. fixtures/canary-rdxf-append now closes it end to end (0 NEW under the shipped multiset while all eight calendar-spec diagnostics shift, against 8 NEW under a raw positioned difference) -- when adding a target with a DIRTY baseline, add an append canary at the same time. THE CHECKER-FIDELITY LESSON: atc resolves @angular/compiler-cli from its OWN dependency tree rather than the target's, so the compiler doing the template check is not the one the target ships. That departs from the grade-with-the-target's-toolchain principle the per-grade toolchain copy upholds everywhere else. It was accepted knowingly (the alternative is installing into a borrowed repo, which is forbidden) and recorded as an OPEN residual in RUN-GATE -- so when a checker is chosen for a target, ask which toolchain it actually resolves against, and record the answer rather than assuming it inherits the target's. PILOTS EARN THEIR COST: every pilot run this session found something no offline work could. OPERATIONAL: never shorten selfcheck-red.mjs to fit a timeout (now LONGER than the 230-260 s tsc-era figure, because atc is about 2.2x per pass and two more radix canaries were added; background it and wait) -- a SKIP is not a pass, and gate on the PROCESS EXIT STATUS rather than on the log text, since the radix block runs mid-battery and its 'canary OK' lines survive a later crux's failure. The workspace's node_modules is gitignored while its package.json and package-lock.json are tracked, so a FRESH WORKTREE must run npm install in .claude/skills/lz-red-workspace before the atc path resolves (it fails closed with a message naming that step). Do NOT add an env var or flag that disables a guard for testing; that has been correctly refused three times. FOUR borrowed repos are READ-ONLY and must end git-clean: the GildedRose kata (ONE worktree, TypeScript/node_modules 308 non-dotted, no named branch, --detach only), h3js/srvx, radix-ng/primitives-pin (THE EVAL SOURCE, detached at 4a7390a2), and radix-ng/primitives (the OWNER'S checkout -- never open, install into, or modify; its dirty files are their own work). Also do not modify LayZeeDK/angular-typechecker or analogjs/analog -- both were restored to their exact prior state during this session's research and the Analog one carries the owner's uncommitted WIP."
+  "next_action": "PRESENT THE METERED GATE and WAIT. Nothing technical is blocking; do not start build work. The single outstanding item is the ~$39 four-cell round (4 cells x 3 arms x k=3 = 36 runs at the MEASURED ~$1.09/run), which needs FRESH explicit approval naming the scope per the eval-run-approval-gate. Recipes: RUN-GATE Step 3a (GRC, needs arming + E2E_APPLY_BASE exported), 3b (SRVC), 3c (RXF/RXL, MUST `unset E2E_APPLY_BASE` -- primitives-pin HAS a main branch so a leaked value grades the wrong commit silently), 3d (tabulate). Before tabulating, READ RUN-GATE Step 7: the headline is SUBSTANCE-ONLY, and RXL is reported on DISCIPLINE DIMENSIONS ONLY. D-04 is already answered (2/2 fired) so the round no longer needs to buy the trigger question. If the user declines the round, the phase can still be closed on the build + pilots: /gsd-secure-phase 21, /gsd-validate-phase 21, /gsd-extract-learnings 21, then /gsd-complete-milestone lz-tdd@0.0.3 (manual archival for the @-scoped version).",
+  "context_notes": "MEASURE, DO NOT REASON remains the dominant lesson, and it fired twice more this session. The handoff this session RESUMED from asserted the wrong root cause (the tsconfig `types` array); tsc --explainFiles falsified it. And the orchestrator wrongly framed tsconfig.spec.json as editor-only; the tagged Analog v2.6.1 source showed it IS the config the runner compiles with, just with semantic diagnostics masked. PILOTS EARN THEIR COST held again: the first with_skill run surfaced the design confound, and the second (bought deliberately to disambiguate) proved it systematic rather than variance -- $1.93 that prevented a plausible-but-wrong conclusion on the in-domain cell in a $39 round. THE CHECKER ROUND ALSO PAID: it found atc synthesizes its OWN file-less config faults (ATC90001/ATC90002) that isConfigLevelTscError's TS5xxx/6xxx gate can never match, which would cancel to newErrors:0 in both differential passes -- a clean verdict for a run that checked ZERO root names. Closed by treating any file-less atc diagnostic as config-level BY CONSTRUCTION. NOTE a possible narrower version of the same hole on the TSC path: the config-fault capture also surfaced TS18002 as file-less and likewise outside that gate. Not in scope; worth a look. OPERATIONAL: `.claude/skills/lz-red-workspace/node_modules` is GITIGNORED while its package.json/package-lock.json are tracked, so a fresh worktree (or a post-worktree main checkout) needs `npm install` there before the atc path resolves -- the grade fails CLOSED with an actionable message, which is how it was caught. `.gitignore:22` matches `.continue-here.md` at ANY depth, so the phase-level resume file is LOCAL-ONLY and invisible to worktree agents; the TRACKED resume point is .planning/.continue-here.md. Six borrowed repos are READ-ONLY and all verified clean: primitives-pin (THE EVAL SOURCE, detached 4a7390a2), h3js/srvx, the GildedRose kata, radix-ng/primitives (owner's), LayZeeDK/angular-typechecker, and analogjs/analog (restored to the owner's exact prior WIP after being read at tag v2.6.1 -- it carries an angular-typechecker tarball line in package.json plus a regenerated lockfile, which are THEIRS). Never shorten selfcheck-red.mjs to fit a timeout (~400 s now); a SKIP is not a pass. Never add an env var or flag that disables a guard for testing -- refused three times, correctly; prove discrimination with a dead-end copy on identical inputs."
 }

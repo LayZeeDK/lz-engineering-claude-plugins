@@ -46,7 +46,11 @@
 //      FAILING added test alongside a PARTIAL production edit (still genuinely_red, but
 //      changed_production_files now NAMES that production file -- the drive-evidence
 //      discriminator; pre-fix the field did not exist and the drive attempt was invisible on the
-//      RED path). The clean-spec fixture pins the EMPTY half of that field's shape.
+//      RED path). The clean-spec fixture pins the EMPTY half of that field's shape. The srvx and
+//      radix-ng suites add a positive + compile_error pair each against their OWN toolchains; the
+//      radix pair is the only step exercising MULTI-PATH provisioning and the worktree-bounded
+//      containment check, and a PURE deep-equality assertion over the radix targets'
+//      runner/typecheck/toolchain_paths is what licenses that one pair to cover both of them.
 //   8. EXPLOIT REGRESSIONS -- the steering and write exploits measured against the real toolchain
 //      on 2026-07-25 stay blocked: a captured diff cannot NAME a path into the borrowed repo, its
 //      own git state or outside the worktree; the no-tests signal comes from the runner rather than
@@ -78,7 +82,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { dirname, join, parse, resolve } from 'node:path';
+import { dirname, isAbsolute, join, parse, relative, resolve, sep } from 'node:path';
 import { buildSyntheticBase, countModelFired, extractResult, git } from '../lz-refactor-workspace/e2e-nx/run-e2e.mjs';
 import {
   assertSafeDiffPaths,
@@ -100,6 +104,7 @@ const HERE = dirname(fileURLToPath(import.meta.url));
 const RUN_E2E = resolve(HERE, '..', 'lz-refactor-workspace', 'e2e-nx', 'run-e2e.mjs');
 const RED_SUITE_DIR = join(HERE, 'e2e-red-gilded-rose');
 const SRVX_SUITE_DIR = join(HERE, 'e2e-red-srvx');
+const RADIX_SUITE_DIR = join(HERE, 'e2e-red-radix-ng');
 
 // The lz-refactor apply preamble, pinned BYTE-FOR-BYTE. run-e2e.mjs is shared with the lz-refactor
 // suites, where "run the affected tests to confirm nothing broke" is exactly right -- a refactoring
@@ -1377,9 +1382,187 @@ function checkSrvcCanaries() {
   }
 }
 
+// The RXF (radix-ng) canaries -- the IN-DOMAIN drive discriminator's half of crux 7.
+//
+// These exercise the two mechanisms this suite added, neither of which the kata or srvx can reach:
+// MULTI-PATH toolchain provisioning (a pnpm workspace with a second, package-level node_modules)
+// and the WORKTREE-bounded containment check, without which every grade of this target throws on
+// links that never leave the worktree.
+//
+// ONE canary pair covers BOTH radix targets, and that is licensed by a pure assertion rather than
+// by hope -- see checkRadixTargetConfigEquality below.
+function checkRdxCanaries() {
+  const redGrade = gradeFabricatedRunDir(RADIX_SUITE_DIR, 'canary-rdxf-red', (g) => {
+    if (g.verdict !== 'genuinely_red' || g.pass !== true) {
+      fail(
+        `[crux 7:RXF] the disciplined spec graded '${g.verdict}' (pass=${g.pass}), expected genuinely_red / ` +
+          `pass=true -- why: ${g.why}`,
+      );
+    }
+
+    if (g.runner !== 'vitest') {
+      fail(`[crux 7:RXF] recorded runner '${g.runner}', expected 'vitest' for a spec under packages/primitives/`);
+    }
+
+    // runner_version can only be read out of a node_modules the grading worktree can actually see,
+    // so the 'unknown' sentinel means the toolchain was invisible -- which for THIS target also
+    // means the multi-path copy or the worktree-bounded containment check did not do its job.
+    if (!/^\d+\.\d+\.\d+/.test(String(g.runner_version || ''))) {
+      fail(`[crux 7:RXF] runner_version is '${g.runner_version}', not a real version -- the grading worktree could not see the target's toolchain`);
+    }
+
+    if (g.new_tsc_errors !== 0) {
+      fail(
+        `[crux 7:RXF] the disciplined spec reported ${g.new_tsc_errors} NEW tsc errors, expected 0. The ` +
+          'baseline under -p packages/primitives/tsconfig.spec.json is 55 pre-existing errors; a non-zero ' +
+          'differential here means the project flag or the copied toolchain changed',
+      );
+    }
+
+    // ATTRIBUTION against this target's real runner. If the report's titles did not tie back to
+    // the diff, every real RXF run would grade unattributable and read as a model failure.
+    const want = 'marks the focused day with the documented focus attribute';
+
+    if (!Array.isArray(g.added_test_titles) || !g.added_test_titles.includes(want)) {
+      fail(`[crux 7:RXF] the gate did not extract the fixture's added test title from the diff: ${JSON.stringify(g.added_test_titles)}`);
+    }
+
+    if (g.attributed_failures !== 1) {
+      fail(
+        `[crux 7:RXF] the gate attributed ${g.attributed_failures} failure(s) to the added test, expected 1 -- ` +
+          "the runner's reported titles are not matching the diff's",
+      );
+    }
+
+    if (!String(g.failure_excerpt || '').startsWith(`added test ${JSON.stringify(want)}:`)) {
+      fail(`[crux 7:RXF] failure_excerpt does not name the ADDED test: ${JSON.stringify(String(g.failure_excerpt).slice(0, 140))}`);
+    }
+
+    // THE LEAK CHECK. checkGrcCanaries() sets E2E_APPLY_BASE=main for its calls, and gradeRun
+    // resolves the base as `process.env.E2E_APPLY_BASE || suite.applyBase`. A value surviving its
+    // finally would silently grade this suite against the KATA's base, with every other field
+    // identical.
+    const pinned = loadSuiteCtx(RADIX_SUITE_DIR).applyBase;
+
+    if (g.apply_base !== pinned) {
+      fail(
+        `[crux 7:RXF] this grade ran against apply_base ${JSON.stringify(g.apply_base)}, not the suite's pin ` +
+          `${JSON.stringify(pinned)}. E2E_APPLY_BASE leaked out of checkGrcCanaries(), so the wrong commit was graded`,
+      );
+    }
+
+    // The EMPTY half of changed_production_files, pinned on a second suite so the shape cannot be
+    // one suite's accident. hasOwnProperty rather than length: an absent key and an empty array
+    // are different claims.
+    if (!Object.prototype.hasOwnProperty.call(g, 'changed_production_files')) {
+      fail('[crux 7:RXF] red-grade.json has no changed_production_files key -- a test-only diff must still record the empty array');
+    }
+
+    if (!Array.isArray(g.changed_production_files) || g.changed_production_files.length !== 0) {
+      fail(`[crux 7:RXF] a test-only diff recorded changed_production_files ${JSON.stringify(g.changed_production_files)}, expected []`);
+    }
+  });
+
+  if (redGrade) {
+    console.log(
+      `  [crux 7:RXF] in-domain canary OK (${redGrade.verdict}, runner ${redGrade.runner}@${redGrade.runner_version} via ` +
+        `<reportFile>; ${redGrade.attributed_failures} failure attributed to the ADDED test; two-path toolchain ` +
+        `copied in ${redGrade.toolchain_ms} ms; apply_base pinned; primitives-pin intact, no leftover worktree)`,
+    );
+  }
+
+  // The NEGATIVE control. Without it nothing would notice this target's differential ceasing to
+  // discriminate -- and the failure mode here is specific: drop the `-p
+  // packages/primitives/tsconfig.spec.json` flag and there is NO root tsconfig.json to fall back
+  // on, so the differential goes vacuous and D-06 clause 1 would pass any produced test.
+  const compileGrade = gradeFabricatedRunDir(RADIX_SUITE_DIR, 'canary-rdxf-compile', (g) => {
+    if (g.verdict !== 'compile_error' || g.pass !== false) {
+      fail(`[crux 7:RXF] the type-broken spec graded '${g.verdict}' (pass=${g.pass}), expected compile_error / pass=false -- why: ${g.why}`);
+    }
+
+    if (!(g.new_tsc_errors > 0)) {
+      fail(
+        `[crux 7:RXF] the type-broken spec reported ${g.new_tsc_errors} NEW tsc errors. The differential is NOT ` +
+          "discriminating under this target's own typecheck args, so D-06 clause 1 would pass any produced test. " +
+          'This repo has no root tsconfig.json, so a missing -p flag makes the differential vacuous rather than merely broad',
+      );
+    }
+  });
+
+  if (compileGrade) {
+    console.log(
+      `  [crux 7:RXF] differential-discriminates canary OK (type-broken spec -> ${compileGrade.verdict}, ` +
+        `${compileGrade.new_tsc_errors} NEW tsc errors against a 55-error pre-existing baseline)`,
+    );
+  }
+}
+
+// WHY RXL SHIPS WITHOUT A CANARY OF ITS OWN, stated as an assertion rather than as a claim.
+//
+// The RXF pair above proves the SUITE's plumbing: that runner_select routes a spec under
+// packages/primitives/ to vitest, that the copied two-path toolchain is visible and contained,
+// that the tsconfig project makes the differential discriminate, and that apply_base is this
+// suite's pin. Every one of those rests on config RXL SHARES -- one runner_select prefix covers
+// both test dirs, one tsconfig.spec.json project includes both, one toolchain serves both.
+//
+// So the honest reading of "each new target needs a canary" is: the canary proves the shared
+// plumbing, and this EQUALITY is what licenses the transfer. Give RXL a different project flag, a
+// different runner command or a different toolchain path list and this fails, forcing a canary
+// rather than letting it silently inherit an unproven one.
+//
+// Pure and offline: it reads targets.json and never touches a repo, so it never SKIPs even when
+// the borrowed checkout is absent.
+function checkRadixTargetConfigEquality() {
+  const targetsPath = join(RADIX_SUITE_DIR, 'targets.json');
+
+  if (!fs.existsSync(targetsPath)) {
+    fail(`[crux 7:RXF] ${targetsPath} is missing, so the radix suite declares no targets`);
+  }
+
+  const doc = readJson(targetsPath);
+  const targets = Array.isArray(doc.targets) ? doc.targets : [];
+  const base = targets.find((t) => t && t.id === 'RXF');
+
+  if (!base) {
+    fail('[crux 7:RXF] the radix suite declares no RXF target, so the canary pair below proves nothing about the others');
+  }
+
+  const others = targets.filter((t) => t && t.id !== 'RXF');
+
+  if (others.length === 0) {
+    fail(
+      '[crux 7:RXF] the radix suite declares only RXF. This assertion exists to license ONE canary pair covering ' +
+        'SEVERAL targets; with a single target it would pass vacuously, so a suite that lost its second target ' +
+        'must fail here rather than quietly narrow',
+    );
+  }
+
+  for (const other of others) {
+    for (const key of ['runner', 'typecheck', 'toolchain_paths']) {
+      const a = JSON.stringify(base[key]);
+      const b = JSON.stringify(other[key]);
+
+      if (a !== b) {
+        fail(
+          `[crux 7:RXF] target ${other.id}'s '${key}' block is NOT deep-equal to RXF's, so the RXF canary pair does ` +
+            `not cover it. A divergent target needs its OWN fabricated-runDir canary -- the pair below only proves ` +
+            `the plumbing the targets SHARE.\n  RXF:   ${a}\n  ${other.id}: ${b}`,
+        );
+      }
+    }
+  }
+
+  console.log(
+    `  [crux 7:RXF] target config equality OK (${others.map((t) => t.id).join(', ')} share RXF's runner, typecheck ` +
+      'and toolchain_paths byte-for-byte, which is what licenses one canary pair to cover them; divergence forces its own canary)',
+  );
+}
+
 function checkTargetToolchainCanary() {
   checkGrcCanaries();
   checkSrvcCanaries();
+  checkRadixTargetConfigEquality();
+  checkRdxCanaries();
 }
 
 // ---- crux 10: anchor arming + the unstated-base guard -----------------------------------------
@@ -2226,8 +2409,28 @@ function checkContainmentInvariants() {
 //
 // The tree is shaped like a pnpm workspace worktree, because that is the shape that forced the
 // correction (MEASURED 2026-07-26, radix-ng/primitives): `wt/node_modules/.pnpm/x` is the store, a
-// RELATIVE link at `wt/pkg/node_modules/x` points up into it, and an ABSOLUTE link at
-// `wt/node_modules/evil` points outside the worktree entirely.
+// link at `wt/pkg/node_modules/x` points UP into it exactly as pnpm's package-level links do, and
+// an ABSOLUTE link at `wt/node_modules/evil` points outside the worktree entirely. The up-link is
+// written with RELATIVE text where the platform allows it and falls back to a junction otherwise
+// (Windows junctions are always stored absolute); either way it resolves inside `wt` and outside
+// `pkgNm`, which is the property under test.
+// A directory link with RELATIVE text, falling back to an (always-absolute) Windows junction where
+// a plain directory symlink needs a privilege this machine does not have. Returns the link text
+// actually written, so a caller that cares can assert on it.
+function linkDir(target, linkPath) {
+  const relText = relative(dirname(linkPath), target);
+
+  try {
+    fs.symlinkSync(relText, linkPath, 'dir');
+
+    return relText;
+  } catch {
+    fs.symlinkSync(resolve(target), linkPath, 'junction');
+
+    return resolve(target);
+  }
+}
+
 function checkWorktreeBoundedContainment() {
   const probe = join(os.tmpdir(), `red-boundary-${process.pid}-${Date.now()}`);
   const wt = join(probe, 'wt');
@@ -2246,8 +2449,9 @@ function checkWorktreeBoundedContainment() {
   let probeError;
 
   try {
-    // The legitimate up-link, written RELATIVE exactly as pnpm writes it.
-    fs.symlinkSync(resolve(store), join(pkgNm, 'x'), 'junction');
+    // The legitimate up-link, written RELATIVE where the platform allows it -- exactly as pnpm
+    // writes it -- and as a junction otherwise.
+    linkDir(store, join(pkgNm, 'x'));
     // The genuine escape: an ABSOLUTE link out of the worktree.
     fs.symlinkSync(outside, join(wt, 'node_modules', 'evil'), 'junction');
 
@@ -2312,11 +2516,13 @@ function checkMultiPathToolchainCopy() {
   const src = join(probe, 'repo');
   const armCwd = join(probe, 'wt');
 
-  fs.mkdirSync(join(src, 'node_modules'), { recursive: true });
+  fs.mkdirSync(join(src, 'node_modules', '.pnpm', 'dep'), { recursive: true });
   fs.mkdirSync(join(src, 'packages', 'primitives', 'node_modules'), { recursive: true });
   fs.mkdirSync(armCwd, { recursive: true });
   fs.writeFileSync(join(src, 'node_modules', 'root-marker.txt'), 'root');
   fs.writeFileSync(join(src, 'packages', 'primitives', 'node_modules', 'pkg-marker.txt'), 'pkg');
+  // A pnpm-shaped store link: relative text pointing at a sibling inside the SAME copied tree.
+  const storeLinkText = linkDir(join(src, 'node_modules', '.pnpm', 'dep'), join(src, 'node_modules', 'dep'));
 
   const declared = ['node_modules', 'packages/primitives/node_modules'];
   let result;
@@ -2334,6 +2540,22 @@ function checkMultiPathToolchainCopy() {
     root: fs.existsSync(rootMarker) && fs.readFileSync(rootMarker, 'utf8') === 'root',
     pkg: fs.existsSync(pkgMarker) && fs.readFileSync(pkgMarker, 'utf8') === 'pkg',
   };
+
+  // Did the COPIED link stay inside the copy, or was it rewritten to point back at the SOURCE?
+  let copiedLinkResolvesInsideDest = null;
+  let copiedLinkTarget = null;
+
+  if (!isAbsolute(storeLinkText)) {
+    const copiedLink = join(armCwd, 'node_modules', 'dep');
+
+    try {
+      copiedLinkTarget = resolve(dirname(copiedLink), fs.readlinkSync(copiedLink));
+      copiedLinkResolvesInsideDest = copiedLinkTarget.startsWith(resolve(armCwd) + sep);
+    } catch (err) {
+      copiedLinkTarget = `<unreadable: ${err.code || err.message}>`;
+      copiedLinkResolvesInsideDest = false;
+    }
+  }
 
   // A declared-but-MISSING source must throw before anything is created, naming the target and the
   // path -- the fail-closed half. Asserted here rather than in a separate probe so it runs against
@@ -2383,10 +2605,27 @@ function checkMultiPathToolchainCopy() {
     fail('[crux 9] the missing-source check ran AFTER copying, leaving a half-provisioned worktree behind; every source must be verified before anything is created');
   }
 
+  // THE VERBATIM-SYMLINK DISCRIMINATION, and the reason it is asserted rather than assumed.
+  //
+  // fs.cpSync DOES copy a symlink as a symlink, but with its DEFAULT verbatimSymlinks:false it
+  // first resolves the link text against the SOURCE and writes the resulting ABSOLUTE path into the
+  // copy -- turning a tree of ordinary relative links into a tree of links pointing straight back
+  // into the borrowed repo, which is precisely the hole the per-grade copy exists to close.
+  // MEASURED 2026-07-26: the first real radix grade tripped escapingLinks with 8,170 links
+  // resolving into the borrowed checkout. Drop verbatimSymlinks and this assertion fails.
+  if (copiedLinkResolvesInsideDest === false) {
+    fail(
+      `[crux 9] the COPIED store link resolves to ${copiedLinkTarget}, which is OUTSIDE the destination. ` +
+        "fs.cpSync rewrote the relative link against the SOURCE tree, so the grading worktree's toolchain " +
+        'is a live path back into the borrowed repo (verbatimSymlinks was dropped)',
+    );
+  }
+
   console.log(
     '  [crux 9] multi-path toolchain provisioning OK (both declared node_modules land in the worktree ' +
-      'with their contents where the single-path code lands one; a declared-but-missing source throws ' +
-      'before anything is created, naming the target and the entry)',
+      'with their contents where the single-path code lands one; a relative store link is preserved ' +
+      `VERBATIM so the copy resolves inside itself rather than back into the source${copiedLinkResolvesInsideDest === null ? ' [link relative-text unavailable on this platform -- SKIPPED]' : ''}; ` +
+      'a declared-but-missing source throws before anything is created, naming the target and the entry)',
   );
 }
 

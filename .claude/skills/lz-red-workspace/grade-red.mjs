@@ -1250,9 +1250,25 @@ export function resolveToolchainPaths(target) {
 // the TOTAL elapsed milliseconds.
 //
 // Every SOURCE is checked before anything is created, so a typo leaves no half-provisioned
-// worktree behind. fs.cpSync is link-PRESERVING by default and that is load-bearing: pnpm's links
-// are relative, so a preserving copy stays resolvable at the new path, while dereferencing would
-// cost the full tree per link.
+// worktree behind.
+//
+// verbatimSymlinks: true IS THE CONTAINMENT, and its default is a trap. `fs.cpSync` does copy a
+// symlink AS a symlink -- but with the DEFAULT `verbatimSymlinks: false` it first RESOLVES the link
+// text against the SOURCE directory and writes the resulting ABSOLUTE path into the copy. So a
+// source tree of ordinary relative links becomes a destination tree of absolute links pointing
+// straight back into the borrowed repo: the exact hole the per-grade copy was created to close
+// (T-63f-05), reopened by an option default.
+//
+// MEASURED 2026-07-26, twice. Directly, on a synthetic tree: a relative `../store/pkg` link copies
+// as `<source>/store/pkg` under the default and as `../store/pkg` under verbatimSymlinks. And end
+// to end, which is how it was found: the first real radix grade tripped escapingLinks with 8,170
+// links resolving to `<borrowed repo>/node_modules/.pnpm/...`. The guard did its job -- the copy
+// really was not self-contained -- so this is a genuine bug fix, not a guard being appeased. It
+// also CORRECTS the target brief's "fs.cpSync preserves symlinks VERBATIM by default", which is
+// false: verbatim is exactly what the default does NOT do.
+//
+// It stays fail-closed in the other direction. An ABSOLUTE link in the SOURCE is preserved as
+// absolute, still points outside, and is still reported as an escape.
 //
 // toolchain_ms stays ONE summed number rather than a per-path breakdown. The copy is dominated by
 // the root tree in every measured layout, and a per-path split is precision an operator cannot act
@@ -1279,7 +1295,7 @@ export function copyToolchainPaths(repo, armCwd, relPaths, target) {
   const started = Date.now();
 
   for (const rel of relPaths) {
-    fs.cpSync(path.join(repo, rel), path.join(armCwd, rel), { recursive: true });
+    fs.cpSync(path.join(repo, rel), path.join(armCwd, rel), { recursive: true, verbatimSymlinks: true });
   }
 
   return { destinations, ms: Date.now() - started };

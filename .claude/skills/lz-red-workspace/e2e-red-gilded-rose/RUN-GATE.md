@@ -649,6 +649,41 @@ and the canary uses the target's toolchain rather than the workspace's.
   outside-every-collection-root fixture, so the branch where a wrapped runner puts its no-collect
   status line on STDOUT rather than stderr remains unmeasured for report-file runners. Unchanged from
   the previous round; see the `<reportFile>` bullet above.
+- **CLOSED 2026-07-26 -- advisory A-1: a typecheck pass that did not really run no longer reads as
+  "clean".** The warning was that `tscLinesOrThrow` threw on a failed spawn and on a KILLED pass but
+  never consulted `result.status`, so a pass exiting NON-ZERO while printing nothing TS-shaped
+  returned `[]`, the differential subtracted to zero NEW errors, and a type-broken produced test
+  graded tsc clean. Two guards now close it, and they catch DIFFERENT failures -- neither subsumes
+  the other:
+  - **Exit status correlated with what was parsed** (`tscLinesOrThrow`). Non-zero AND zero
+    diagnostics THROWS, naming the exit status and quoting up to 400 characters of what the pass
+    actually printed -- without the excerpt an operator gets a dead round and no reason for it. The
+    status alone cannot decide (tsc exits non-zero precisely when it found errors), so the three
+    legitimate combinations are untouched: a clean pass, the ordinary has-diagnostics pass, and a
+    zero-exit pass that printed a diagnostic anyway. That last one is left ALLOWED deliberately: it
+    is the fail-safe direction, since a spurious line either appears in both passes and cancels or
+    lands only in the WITH pass and FAILS the produced test. The reachable shape is `npx tsc` in a
+    tree with no `node_modules` -- npx exits non-zero printing its own error text, which carries no
+    `error TS####`, and `targetTscErrors` falls back to npx whenever the target has no local
+    compiler.
+  - **The asymmetric collapse** (`newTscErrorsOrThrow`, which now owns the subtraction so a later
+    caller cannot reach the arithmetic without the check). A WITH pass reporting ZERO diagnostics
+    against a non-empty baseline THROWS: applying a test file cannot erase a pre-existing error, so
+    that pass typechecked a different or empty program -- a `-p` naming the wrong project, an
+    include glob matching no file. It EXITS ZERO, which is exactly what the status correlation
+    cannot see. BINDS on radix (55-error baseline) and GRC; INERT on srvx, whose baseline is 0 after
+    its prebuild, and that is correct -- a target with no pre-existing diagnostics offers nothing to
+    detect the collapse with.
+
+  **The declined IM-06 baseline-COUNT invariant stays declined, and is pinned as declined.** The
+  collapse guard is asymmetric on purpose: a produced spec can legitimately RESOLVE a pre-existing
+  diagnostic (a module augmentation, a `declare`), and comparing the two counts would fail closed on
+  a correct grade. `grade-red --selfcheck` asserts that case, so re-tightening the guard into a count
+  comparison BREAKS the battery rather than passing it. **Do not "simplify" either guard into a bare
+  status check or a count comparison.** Both are proved to DISCRIMINATE against dead-end
+  reproductions of the pre-change logic on identical inputs, in the same style as the attribution
+  proof -- the unguarded parse answers "clean" for both refused spawn shapes, and the unguarded
+  subtraction answers "zero NEW errors" for the collapse.
 
 **Optional extra (metered, NOT required):** once the fan-out is approved and the first real runs are
 captured, grading one of them is a free sanity read on real model output --

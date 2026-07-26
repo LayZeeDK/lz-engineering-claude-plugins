@@ -270,7 +270,44 @@ containing that needs a sandbox.
   **GRADER-ARTIFACT HAZARD, must be honoured in grading:** substring assertions are UNSAFE on this
   target. A `toContain('Januar')` assertion PASSES FALSELY because `'January'.includes('Januar')` is
   true. Require exact assertions.
-  BLOCKING BEFORE WIRING: a fresh-clone re-verification is in flight. The measurements above were
+  **FRESH-CLONE VERIFICATION DONE 2026-07-26 -- TARGET CONFIRMED.** Clone at
+  `D:/projects/github/radix-ng/primitives-pin`, detached at the full pin
+  `4a7390a2b058457aa47c6f3e0e03b69b70dee025`, `git status` empty, `pnpm install` 25.9 s (warm store),
+  949.5 MiB / 78,694 files. **All 20 native packages resolved to win32-arm64; ZERO win32-x64, no QEMU
+  fallback; `--ignore-scripts` NOT needed.** Pristine results reproduce the dirty checkout EXACTLY --
+  single spec 33 passed exit 0; full suite 137 passed / 5 skipped (142 files), 1644 passed / 5
+  skipped, exit 0; `nx test primitives --skip-nx-cache` exit 0. Only wall-clock differs (2.4x faster:
+  11.7 s and 33.8 s) -- a machine/cache artifact, so do NOT use the earlier timings as a regression
+  baseline. All three candidate reds re-verified assertion-red with verbatim messages.
+  Legitimacy: `@radix-ng/primitives`, MIT, 265 stars, 2,148/wk, 89 versions, 12 contributors, last
+  commit 2026-07-19.
+  **THE INERTNESS ARGUMENT WAS WRONG ON ITS FACTS, right only by luck.** The owner's dirty
+  `pnpm-lock.yaml` is 380 insertions / 74 deletions and perturbs the graph six ways -- notably
+  `@storybook/angular`'s peer hash changes, dragging `@analogjs/storybook-angular`, which is the
+  toolchain that COMPILES THE SPECS under vitest. So module resolution genuinely did shift; it simply
+  did not change the outcome. Vindicates insisting on the clone.
+  **EVAL SOURCE = `primitives-pin`, not the owner's checkout** -- the harness copies the target's
+  `node_modules` into every grading worktree, so the owner's tree would propagate a duplicated nx, a
+  shifted `@analogjs`/`@storybook` peer set, and a dependency on an out-of-repo tarball into every
+  grade. Real incremental disk cost of keeping both is only ~0.4 GB (pnpm hardlinks into the shared
+  D: store); 27.6 GB free.
+  EVIDENCE STRENGTHENED on all three candidates: CAND-2 -- `data-focused` is the HOUSE CONVENTION,
+  emitted by 7 other primitives and asserted in 2 spec files; calendar alone emits `data-focus`, so
+  the rest of the codebase agrees with the docs. CAND-3 -- the backing predicate ALREADY EXISTS
+  (`calendar.ts:135 isOutsideVisibleView()`, exposed on the root context at
+  `calendar-root.directive.ts:245`, assigned at :281); only the host binding is missing. CAND-1 --
+  `config-provider.spec.ts:21` asserts `radix.locale()` is set ON THE SERVICE and never that any
+  primitive inherits it, so the untested half IS the gap.
+  **NEW BLOCKING WIRING REQUIREMENT (found 2026-07-26, before any spend): radix-ng is a pnpm
+  WORKSPACE with TWO `node_modules` directories** -- the root one and
+  `packages/primitives/node_modules` (a real directory, not a link). `provisionToolchain` copies
+  exactly ONE (`nodeModulesSrc = path.join(repo, 'node_modules')`, grade-red.mjs:1317/1362), so
+  workspace resolution would break in every grading worktree. Toolchain provisioning must handle
+  MULTIPLE node_modules paths per target, declared in the suite. Related: `fs.cpSync` preserves
+  symlinks verbatim (verified) and pnpm's links here are RELATIVE, so a link-preserving copy stays
+  resolvable -- but `escapingLinks()` must be re-checked against 8,164 pnpm symlinks, and if the copy
+  ever dereferences instead, each worktree costs the full ~949 MiB.
+  SUPERSEDED NOTE: the measurements below were
   taken in the owner's checkout, which carries 2 dirty files (an unrelated `angular-typechecker`
   dogfooding devDep). Argued inert, but the ngx-layout rejection was for exactly this class of
   environment mismatch, and the harness COPIES the target's `node_modules` per grade, so a clean

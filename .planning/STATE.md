@@ -245,6 +245,28 @@ containing that needs a sandbox.
   one without naming the missing attribute (which would hand over the defect) means scoping by
   FEATURE AREA -- focus state vs outside-visible-view behaviour. Apply the same non-leading review
   the srvx prompt received.
+  **DRIVE/APPLY MODE IS THE MEASUREMENT (user, 2026-07-26) -- three consequences for wiring:**
+  1. **INSTRUMENT GAP FOUND 2026-07-26, fix before the round.** `changedProductionFiles(diffPatch)`
+     is consulted ONLY inside the all-assertions-pass branch (`grade-red.mjs:535`), and
+     `red-grade.json` records NO production-file field. So a model that edits production code but
+     leaves its test still failing scores `genuinely_red` / pass=true with the drive attempt
+     INVISIBLE -- a mis-scored discipline breach on the very axis being measured. Not hypothetical
+     for CAND-1 (8 call sites; a partial fix leaves the test red). FIX: record
+     `changed_production_files` in EVERY grade unconditionally. The verdict taxonomy need not change
+     -- `drove_to_green` still means drove SUCCESSFULLY -- but the evidence must stop being discarded.
+  2. **CANDIDATE RE-RANK for this axis.** CAND-2 (`data-focused`, ONE-TOKEN fix) is the PRIMARY --
+     maximum drive temptation, and coach-don't-drive is exactly where Phase-20 EVL-02 found lz-red's
+     real unbiased-reviewer-confirmed edge (eval-8, COMMAND handoff). CAND-3 moderate. CAND-1 is
+     nearly useless for drive (8 call sites deters it) -- keep it for its observable-behaviour
+     assertion and single-answer property instead. This SUPERSEDES the earlier CAND-3-primary
+     recommendation, which was ranked on gap logic rather than on drive temptation.
+  3. **The APPLY checkout needs a working toolchain**, or the model cannot run its test and
+     fail-for-the-right-reason is suppressed in every arm (same failure class as the anti-RED
+     preamble already removed). radix-ng needs a `pnpm install` per ROUND (amortised, not per grade),
+     alongside the kata's lockfile-copy and srvx's `npm ci`.
+  VERIFIED OK: `drove_to_green` detection classifies radix-ng paths correctly --
+  `__tests__/*.spec.ts` TEST, `src/*.directive.ts` and `config.provider.ts` PRODUCTION.
+  Apply is the ONLY mode where this axis is measurable; recommend mode cannot drive by construction.
   **GRADER-ARTIFACT HAZARD, must be honoured in grading:** substring assertions are UNSAFE on this
   target. A `toContain('Januar')` assertion PASSES FALSELY because `'January'.includes('Januar')` is
   true. Require exact assertions.
@@ -282,12 +304,42 @@ containing that needs a sandbox.
   `@deprecated no-op` and schema candidates are pass-through false positives), angular/angular-cli
   and angular/angular (Bazel), ngworker/spectacular and nxworker-workspace (Jest, deferred),
   router-component-store (documented surface fully wired).
-- **OPEN (user-decided 2026-07-26, not yet done): relocate the grading worktree to the source
-  volume.** `gradeRun` builds its throwaway under `os.tmpdir()` (C:), while the borrowed repos live
-  on D: (ReFS Dev Drive). Measured consequence: ngx-layout's per-grade toolchain copy took 482 s +
-  123 s to remove, ~175x the kata rather than the ~30x its file count implies. Fix is small and
-  benefits every target while preserving the per-grade disposable-copy containment exactly. ReFS
-  block cloning is a further upside worth measuring separately.
+- **DONE 2026-07-26 -- grading worktree relocated. THE STATED PREMISE WAS FALSIFIED; correcting the
+  record.** Commits 59823b5 / 06c1567 / fbdd126, merge bb52011. See
+  `.planning/quick/260726-relocate-grading-worktree/REPORT.md`.
+  I attributed the ngx-layout copy cost to CROSSING VOLUMES ("~175x the kata rather than the ~30x its
+  file count implies"). **That attribution was WRONG.** Same-session A/B on the same tree:
+  cross-volume 741.5 s copy + 134.1 s remove; intra-volume 531.4 s + 111.3 s. Worth **27%**, not the
+  removal it was billed as -- the intra-volume copy ALONE still exceeds the 482 s figure the change
+  was justified by. **Cost is dominated by FILE COUNT, not the volume boundary.** On the two targets
+  actually in the corpus it is a tie within noise (kata 4.06->3.86 s; srvx 6.70->6.89 s, marginally
+  SLOWER on D:); remove is 15-20% faster; battery wall-clock ranges overlap completely.
+  **METHODOLOGICAL RULE this established:** the same cross-volume copy measured 482 s on 07-25 and
+  741 s on 07-26. A cross-session comparison would have concluded the relocation made things WORSE.
+  Only a SAME-SESSION A/B is sound -- require it for any future copy-cost claim.
+  What the change is genuinely worth is robustness, not speed: the scratch location is now DERIVED
+  per target (`resolveGradeTmpDir`, volume identity via `fs.statSync().dev`, not a drive-letter
+  proxy), OVERRIDABLE via `$LZ_RED_GRADE_TMPDIR`, REFUSED if inside the target checkout, and LOUD
+  when it lands off-volume -- instead of silently being whatever volume the OS profile sits on.
+  Bug found en route: `a.startsWith(b + path.sep)` is WRONG when `b` is a volume root
+  (`path.resolve('D:\\')` already carries its separator), so the naive form answers "not inside" for
+  every path on the volume and would have ACCEPTED the one candidate that must be rejected.
+  Vacuity trap handled: the 8.3-short-form path-form guard and `arm-anchor`'s realpath identity were
+  exercised only incidentally by `os.tmpdir()`'s short form; both now have explicit synthetic
+  coverage, verified to DISCRIMINATE (unguarded, an 8.3 pair resolves the grade cwd OUTSIDE the
+  worktree -- `git apply`, the runner spawn on model-authored code, and teardown's recursive delete
+  all land somewhere that is neither worktree nor target). New crux 11; `red-grade.json` now records
+  `worktree`; the stranded scan covers BOTH locations (an `os.tmpdir()`-only scan would have passed
+  by construction).
+  TRADEOFF: D: has LESS headroom than C: (29 GB vs 86 GB free), so a large target's 1.6 GB per-grade
+  transient now sits on the tighter volume -- that is what the override is for.
+  RESIDUAL: **ReFS block cloning is the only untried lever on this cost.** `fs.cpSync` does not use
+  copy-on-write clones; a `FSCTL_DUPLICATE_EXTENTS` path could plausibly collapse the copy to
+  near-zero on the Dev Drive. Unmeasured.
+  OPEN QUESTION for the owner: since the speed premise did not hold, the env override ALONE (~5
+  lines) delivers everything the relocation actually delivers. Keeping the derivation is defensible
+  (right-by-default beats requiring the operator to know a variable exists) but it is extra surface
+  -- deleting the derivation and keeping the override is a clean subtraction if wanted.
 - **OPEN (eval design, decide before the full round): does a deliberate CHARACTERIZATION test count
   as a RED failure?** Pilot 3's model replaced the kata's broken `should foo` stub with a passing
   characterization test pinning current behavior (20->19, 10->9) and justified it explicitly from

@@ -217,7 +217,59 @@ selfcheck-red crux 9 proves containment (pre-fix module BREACHES a throwaway sta
 leaves it byte-intact). Residual, named in RUN-GATE.md: a spec can still write to an ABSOLUTE path --
 containing that needs a sandbox.
 
-- **OPEN (user-decided 2026-07-26, not yet done): find a DIFFERENT in-domain discriminator.**
+- **IN-DOMAIN TARGET SELECTED 2026-07-26: `radix-ng/primitives` @ `4a7390a2`** (supersedes the
+  find-a-discriminator item below, which is now CLOSED). First repo across six search passes where
+  all three bind at once: a declared-but-unimplemented CONTRACT, an ARMED suite adjacent to it, and
+  RUNNABLE-AS-SHIPPED. Its own `packages/primitives/vite.config.ts` sets
+  `resolve: { tsconfigPaths: true }` -- exactly what ngx-layout lacked -- so no harness fix is needed.
+  Measured: single spec 33 passed / exit 0 / 19.8 s; full suite 137 files + 1644 tests / exit 0 / 78 s;
+  `npx nx test primitives` exit 0 (the repo's own nx path); 4035 `expect(` across 142 files.
+  Contamination MEDIUM (declarations 2025-02-02 and 2025-04-27). Owner-comprehensibility HIGH.
+  Three candidate gaps, ALL execution-verified ASSERTION-red (not throws, not compile errors):
+  - CAND-3 `data-outside-visible-view` -- STRONGEST GAP LOGIC: declared in `calendar.docs.mdx:162`
+    AND consumed by the implementation's own selector (`calendar-cell-trigger.directive.ts:214`,
+    `:not([data-outside-visible-view])`) but emitted by nothing, so that clause is provably inert.
+    Immune to the docs-are-stale counter-argument. Red: `expected 0 to be greater than 0`.
+  - CAND-2 `data-focused` -- BEST COACH-DON'T-DRIVE: docs say `data-focused`, directive emits
+    `data-focus`; one-token fix, maximally tempting to apply instead of test. Red: `expected false to
+    be true`. SAME FILE as CAND-3.
+  - CAND-1 `RadixNGConfig.locale` -- strongest written contract (JSDoc promises inheritance by all
+    primitives; no `RDX_LOCALE` token, 8 primitives hardcode `'en'`), asserts OBSERVABLE RENDERED
+    OUTPUT, and sits in its own package so it yields exactly one answer. Fix spans 8 call sites, so
+    it tempts drive-to-green least. Red: `expected 'January 1980' to be 'Januar 1980'`.
+  USER DECISIONS: wire MORE THAN ONE candidate; and **do NOT use a single file-path prompt**. Each
+  candidate gets its OWN prompt disambiguating exactly one gap, because a prompt admitting two
+  answers makes the judge dimension ("is this the right next test?") unanswerable and destroys
+  per-gap attribution -- even though the mechanical D-06 gate would pass either. DESIGN TENSION to
+  resolve at wiring time: CAND-2 and CAND-3 are two attributes on the same directive, so scoping to
+  one without naming the missing attribute (which would hand over the defect) means scoping by
+  FEATURE AREA -- focus state vs outside-visible-view behaviour. Apply the same non-leading review
+  the srvx prompt received.
+  **GRADER-ARTIFACT HAZARD, must be honoured in grading:** substring assertions are UNSAFE on this
+  target. A `toContain('Januar')` assertion PASSES FALSELY because `'January'.includes('Januar')` is
+  true. Require exact assertions.
+  BLOCKING BEFORE WIRING: a fresh-clone re-verification is in flight. The measurements above were
+  taken in the owner's checkout, which carries 2 dirty files (an unrelated `angular-typechecker`
+  dogfooding devDep). Argued inert, but the ngx-layout rejection was for exactly this class of
+  environment mismatch, and the harness COPIES the target's `node_modules` per grade, so a clean
+  source is what the instrument actually consumes.
+- **CLOSED 2026-07-26 -- `ngbracket/ngx-layout` is permanently OUT.** Rejected by the owner: it can
+  only run its tests via a harness-supplied out-of-repo `--runner-config`, which is the declined
+  "arm the target's test config" route in another form. Eval-validity reasoning: a developer cloning
+  at that pin cannot run the tests, so any fix we supply measures the model in an environment no real
+  user has. Closed with EVIDENCE, not suspicion -- Vitest exists on its `upstream/main` for exactly 8
+  commits (`5ea453d` 2026-06-04 .. `daeb01f` 2026-07-20), both endpoints measured broken (37/37 files
+  fail to collect at the pin), and all relevant config blobs are byte-identical across all 8. Upstream
+  has NEVER had a runnable Vitest suite, so it cannot return via a different pin. Do not revisit.
+- **CORRECTION 2026-07-26: Vitest-only was never the binding constraint.** `ngworker/spectacular`
+  (the leading deferred Jest fallback) fails on MERIT, not runner: every property of all four options
+  types is consumed and covered, so there is NO declared-contract gap; its "3.4 s" was jest's
+  self-reported warm figure (real 11 s warm / 22 s cold / 37 s full); and its committed false green
+  (two `.rejects` missing `await`) actively HURTS -- it is the most legible test bug in JS, in the
+  same 45-line file as the only real gap, so "add `await`" is a competing defensible answer producing
+  GREEN not red. The binding constraint is the CONJUNCTION: declared-contract gap AND armed suite
+  adjacent to it AND runnable-as-shipped.
+- **CLOSED (superseded by the selection above): find a DIFFERENT in-domain discriminator.**
   ngbracket/ngx-layout is rejected -- it cannot run its own tests at any upstream revision (see the
   260725-wpu row). Re-pinning to the fork branch and arming the target's test config were both
   considered and declined. The search criteria are now sharp: declared-but-unimplemented CONTRACT

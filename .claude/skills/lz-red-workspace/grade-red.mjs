@@ -1390,30 +1390,69 @@ function targetTscBin(armCwd, worktree) {
   return null;
 }
 
+// The diagnostic lines one tsc pass produced -- or a THROW when that pass did not run to
+// completion.
+//
+// The spawn RESULT is consulted, and it used to be ignored entirely. That mattered because the
+// differential subtracts the second pass's lines from the first's: a pass that produced no output
+// at all subtracts to ZERO NEW ERRORS, clause 1 of classify() falls through, and a type-broken
+// produced test is reported tsc CLEAN. Silently -- the same failure mode T-63f-04 was written to
+// eliminate, arrived by a different route.
+//
+// tsc's EXIT CODE cannot detect this: it exits non-zero precisely when there ARE errors, so a
+// status check would reject every ordinary run. What does detect it is the spawn result -- `error`
+// set (the spawn itself failed, or maxBuffer overflowed with ENOBUFS) or `status === null` (killed
+// by a signal: OOM, a CI reaper, Ctrl-C). A full Angular project pass being OOM-killed on a loaded
+// machine partway through a 36-run fan-out is not exotic. isConfigLevelTscError guards only the
+// BASELINE and matches only `error TS\d+` lines, so it cannot see a pass that produced none.
+export function tscLinesOrThrow(result) {
+  if (!result || result.error) {
+    const detail = result && result.error ? result.error.message : 'no spawn result';
+
+    throw new Error(
+      'grade-red: a differential typecheck pass did not run (the spawn failed, or its output exceeded ' +
+        `maxBuffer), so the differential cannot discriminate and would report a type-broken produced test ` +
+        `as tsc clean (fail closed, T-63f-04): ${detail}`,
+    );
+  }
+
+  if (result.status === null) {
+    throw new Error(
+      'grade-red: a differential typecheck pass was KILLED before it finished ' +
+        `(signal ${result.signal || 'unknown'}), so it produced no diagnostics and the differential would ` +
+        'subtract to zero NEW errors -- reporting a type-broken produced test as tsc clean ' +
+        '(fail closed, T-63f-04)',
+    );
+  }
+
+  const text = `${result.stdout || ''}\n${result.stderr || ''}`;
+
+  return text.split('\n').filter((l) => /error TS\d+/.test(l)).map((l) => l.trim());
+}
+
 function targetTscErrors(armCwd, worktree, args) {
   const bin = targetTscBin(armCwd, worktree);
-  let text;
 
   if (bin) {
-    const r = spawnSync(process.execPath, [bin, ...args], {
-      cwd: armCwd,
-      encoding: 'utf8',
-      maxBuffer: 64 * 1024 * 1024,
-      windowsHide: true,
-    });
-    text = `${r.stdout || ''}\n${r.stderr || ''}`;
-  } else {
-    const r = spawnSync('npx', ['tsc', ...args], {
+    return tscLinesOrThrow(
+      spawnSync(process.execPath, [bin, ...args], {
+        cwd: armCwd,
+        encoding: 'utf8',
+        maxBuffer: 64 * 1024 * 1024,
+        windowsHide: true,
+      }),
+    );
+  }
+
+  return tscLinesOrThrow(
+    spawnSync('npx', ['tsc', ...args], {
       cwd: armCwd,
       shell: true,
       encoding: 'utf8',
       maxBuffer: 64 * 1024 * 1024,
       windowsHide: true,
-    });
-    text = `${r.stdout || ''}\n${r.stderr || ''}`;
-  }
-
-  return text.split('\n').filter((l) => /error TS\d+/.test(l)).map((l) => l.trim());
+    }),
+  );
 }
 
 // Grade one captured run: fail-closed reads, fresh full-repo worktree at applyBase, differential
@@ -2305,6 +2344,38 @@ function runSelfcheck() {
       '(path-base stripping is segment-exact, <reportFile> normalises to forward slashes, an empty ' +
       "typecheck.args falls back to --noEmit --strict, and toolchain_paths defaults to ['node_modules'] " +
       'while an absolute / .. / empty entry throws)',
+  );
+
+  // tscLinesOrThrow: a pass that did not RUN must never read as a pass that found nothing.
+  //
+  // Both directions, because a guard that always threw would be just as broken as one that never
+  // did. The two ORDINARY shapes must return lines: tsc exits non-zero precisely when it found
+  // errors, so a status check alone would reject every real diagnostic run.
+  const errorExit = tscLinesOrThrow({
+    status: 2,
+    stdout: "a.ts(1,1): error TS2322: Type 'x' is not assignable.\nFound 1 error.\n",
+    stderr: '',
+  });
+
+  if (errorExit.length !== 1 || !errorExit[0].includes('TS2322')) {
+    fail(`[tscLinesOrThrow] an ordinary non-zero tsc exit must still yield its diagnostics, got ${JSON.stringify(errorExit)}`);
+  }
+
+  if (tscLinesOrThrow({ status: 0, stdout: '', stderr: '' }).length !== 0) {
+    fail('[tscLinesOrThrow] a clean pass must yield an empty list rather than throwing');
+  }
+
+  assertThrows(() => tscLinesOrThrow({ status: null, signal: 'SIGKILL', stdout: '', stderr: '' }), 'a KILLED typecheck pass');
+  assertThrows(
+    () => tscLinesOrThrow({ status: null, error: new Error('spawnSync tsc ENOBUFS'), stdout: '', stderr: '' }),
+    'a typecheck pass whose spawn failed / overflowed maxBuffer',
+  );
+  assertThrows(() => tscLinesOrThrow(undefined), 'a missing spawn result');
+  console.log(
+    '  [tscLinesOrThrow] spawn status is consulted OK (an ordinary non-zero tsc exit still yields its ' +
+      'diagnostics and a clean pass yields none, while a KILLED pass, a failed spawn and a missing result ' +
+      'all THROW -- the pre-change code returned [] for all three, which subtracts to zero NEW errors and ' +
+      'reports a type-broken produced test as tsc clean)',
   );
 
   // Fail-closed paths (T-21-02 / T-21-V5): empty/missing diff and garbled/empty runner JSON must

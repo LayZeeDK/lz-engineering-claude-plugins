@@ -577,6 +577,14 @@ and the canary uses the target's toolchain rather than the workspace's.
   genuinely unmeasured follow-up** -- ReFS supports copy-on-write clones and Node's `fs.cpSync` does
   not use them, so a `FSCTL_DUPLICATE_EXTENTS` path could plausibly collapse this to near-zero on the
   Dev Drive. Out of scope here.
+- **On radix, read a `compile_error` cluster against the RECORDED lines before treating it as a
+  model failure.** That target's typecheck baseline is DIRTY -- 55 pre-existing errors across 17
+  files -- and the differential is line-exact string subtraction. A produced spec that PERTURBS an
+  existing diagnostic's text or position (a module augmentation, a `declare`, a type that changes
+  inference in a shared file) yields "new" lines that are RELOCATED baseline errors rather than the
+  model's own. Every `red-grade.json` now records `new_tsc_error_lines` (the actual NEW diagnostics,
+  capped at 10) alongside `new_tsc_errors`, so the verdict can be CHECKED. On GRC and SRVC the
+  baseline is clean and the count is self-evident; on radix it is not.
 - **`escapingLinks` is now bounded by the WORKTREE rather than by the copied directory.** State
   plainly what that changed. What it PERMITS: a link inside the copied toolchain that resolves
   anywhere else INSIDE the same grading worktree -- which is what a pnpm workspace's package-level

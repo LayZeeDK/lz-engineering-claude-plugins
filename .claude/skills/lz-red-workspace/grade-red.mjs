@@ -1743,6 +1743,10 @@ export function gradeRun({ runDir, suiteDir }) {
         pass: false,
         why: 'the produced diff contains no test file (nothing to run)',
         new_tsc_errors: 0,
+        // No differential ran on this path (there is nothing to typecheck), so the evidence field
+        // is present and EMPTY rather than absent -- same reason changed_production_files is
+        // written here: an absent key and an empty array are different claims to a reader.
+        new_tsc_error_lines: [],
         runner: runnerName,
         runner_version: readRunnerVersion(armCwd, worktree, runnerName),
         runner_test_path: testForTemplate,
@@ -1914,6 +1918,18 @@ export function gradeRun({ runDir, suiteDir }) {
       pass: verdictPass(verdict),
       why: whyFor(verdict, tscResult, addedTitles),
       new_tsc_errors: tscResult.newErrors,
+      // The actual NEW diagnostics, capped, mirroring failure_excerpt's purpose: a verdict an
+      // operator can CHECK rather than take on trust.
+      //
+      // A count alone is self-evident only where the baseline is CLEAN (GRC, SRVC): "N new errors"
+      // can only be the model's. On radix the baseline is 55 errors across 17 files and the
+      // differential is line-exact string subtraction, so a produced spec that PERTURBS an existing
+      // diagnostic's text or position -- plausible for one that adds a module augmentation, a
+      // `declare`, or a type that changes inference in a shared file -- yields "new" lines that are
+      // RELOCATED baseline errors rather than the model's. Without the text, a compile_error /
+      // pass:false verdict on a dirty baseline is the one verdict in the taxonomy with no evidence
+      // attached, and it penalises the model unauditably.
+      new_tsc_error_lines: tscResult.errors.slice(0, 10),
       runner: runnerName,
       runner_version: readRunnerVersion(armCwd, worktree, runnerName),
       // The path the runner COMMAND actually received, after runner_path_base stripping. Selection

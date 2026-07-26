@@ -1489,12 +1489,33 @@ function checkRdxCanaries() {
           'This repo has no root tsconfig.json, so a missing -p flag makes the differential vacuous rather than merely broad',
       );
     }
+
+    // The verdict must carry its EVIDENCE, and this is the target where that is load-bearing: the
+    // baseline is 55 errors across 17 files, so "1 NEW error" cannot be checked against anything
+    // without the line. A relocated baseline diagnostic and a genuine new one look identical as a
+    // count. hasOwnProperty because an absent key and an empty array are different claims.
+    if (!Object.prototype.hasOwnProperty.call(g, 'new_tsc_error_lines')) {
+      fail(
+        '[crux 7:RXF] red-grade.json records no new_tsc_error_lines, so a compile_error verdict against ' +
+          "this target's 55-error baseline cannot be audited -- the count alone cannot tell a relocated " +
+          "baseline diagnostic from the model's own error",
+      );
+    }
+
+    if (g.new_tsc_error_lines.length !== g.new_tsc_errors || !g.new_tsc_error_lines.some((l) => /error TS\d+/.test(l))) {
+      fail(
+        `[crux 7:RXF] new_tsc_error_lines is ${JSON.stringify(g.new_tsc_error_lines)} against a count of ` +
+          `${g.new_tsc_errors}; the recorded lines must BE the counted diagnostics (capped at 10), or the ` +
+          'evidence does not back the verdict',
+      );
+    }
   });
 
   if (compileGrade) {
     console.log(
       `  [crux 7:RXF] differential-discriminates canary OK (type-broken spec -> ${compileGrade.verdict}, ` +
-        `${compileGrade.new_tsc_errors} NEW tsc errors against a 55-error pre-existing baseline)`,
+        `${compileGrade.new_tsc_errors} NEW tsc errors against a 55-error pre-existing baseline, recorded ` +
+        `verbatim: ${JSON.stringify(compileGrade.new_tsc_error_lines[0].slice(0, 90))})`,
     );
   }
 }

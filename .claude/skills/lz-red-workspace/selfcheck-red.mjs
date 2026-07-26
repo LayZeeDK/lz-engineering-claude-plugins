@@ -55,6 +55,11 @@
 //      pure invariants the containment rests on: escapingLinks(), arm-anchor's realpath identity
 //      (driven by a SYNTHETIC junction alias rather than by whatever form os.tmpdir() returns), and
 //      resolveArmCwd() -- including an explicit 8.3 SHORT-form mismatch.
+//  11. GRADING TEMP DIR -- the throwaway is created on the TARGET REPO'S OWN VOLUME, derived, never
+//      os.tmpdir() and never a hardcoded drive, with an operator override and a LOUD warning when
+//      it cannot be honoured. Pure here; cruxes 7 and 9 assert it END TO END against the worktree
+//      each real grade recorded, and they cover two DIFFERENT volumes between them, so a resolver
+//      pinned to one would fail.
 //
 // Fail-closed: any violation prints a FAIL line and exits 1; an OK line + exit 0 on success. Zero
 // claude spend, borrowed repo left pristine. NOT wired into `npm run check` (it touches the borrowed
@@ -64,17 +69,20 @@ import fs from 'node:fs';
 import os from 'node:os';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { dirname, join, resolve } from 'node:path';
+import { dirname, join, parse, resolve } from 'node:path';
 import { buildSyntheticBase, countModelFired, extractResult, git } from '../lz-refactor-workspace/e2e-nx/run-e2e.mjs';
 import {
   assertSafeDiffPaths,
   classify,
   escapingLinks,
+  GRADE_TMPDIR_ENV,
   gradeRun,
   isConfigLevelTscError,
   newFileDiff,
   parseRunnerReport,
   resolveArmCwd,
+  resolveGradeTmpDir,
+  sameVolume,
 } from './grade-red.mjs';
 import { isSameOrNested } from './arm-anchor.mjs';
 
@@ -814,6 +822,78 @@ function checkClassifier() {
   );
 }
 
+// ---- shared: where the grading worktree landed, and whether any was left behind (T-rgw-01) -----
+
+// Every leftover `red-wt-*` grading worktree, scanned across BOTH the directory the grade actually
+// used and os.tmpdir(), which is where they were created before the relocation.
+//
+// Scanning both is the point. An os.tmpdir()-only scan can no longer see a grading worktree at all,
+// so after the move it would pass by construction -- a check that cannot fail is not a check. And
+// the old location still has to be watched, because the fallback inside resolveGradeTmpDir() can
+// legitimately put a worktree back there.
+function strandedGradingWorktrees(...dirs) {
+  const seen = new Set();
+  const out = [];
+
+  for (const dir of [os.tmpdir(), ...dirs]) {
+    if (!dir) {
+      continue;
+    }
+
+    const abs = resolve(dir);
+
+    if (seen.has(abs)) {
+      continue;
+    }
+
+    seen.add(abs);
+
+    let entries;
+
+    try {
+      entries = fs.readdirSync(abs);
+    } catch {
+      continue; // a directory that does not exist cannot be stranding anything
+    }
+
+    for (const entry of entries) {
+      if (entry.startsWith('red-wt-')) {
+        out.push(join(abs, entry));
+      }
+    }
+  }
+
+  return out;
+}
+
+// THE ANTI-REGRESSION for the relocation. gradeRun records the throwaway it actually used, and that
+// throwaway must sit on the SAME VOLUME as the target checkout -- otherwise every grade copies the
+// target's node_modules across a filesystem, which on the largest candidate target measured 875.6 s
+// against 642.7 s intra-volume (MEASURED 2026-07-26, same tree, same session; see
+// resolveGradeTmpDir's header for why that is a 27% win and not the removal it was billed as).
+//
+// It asserts the recorded path rather than re-deriving one, so a gradeRun that stopped calling
+// resolveGradeTmpDir() and went back to os.tmpdir() FAILS here instead of merely getting slower. The
+// worktree itself is gone by now (teardown removed it), so the volume is read off its PARENT, which
+// resolveGradeTmpDir() creates and leaves in place.
+function assertWorktreeOnTargetVolume(label, grade, repo) {
+  if (typeof grade.worktree !== 'string' || grade.worktree === '') {
+    fail(`${label} red-grade.json records no 'worktree', so there is no evidence of where the grade actually ran`);
+  }
+
+  const parent = dirname(grade.worktree);
+
+  if (!sameVolume(parent, repo)) {
+    fail(
+      `${label} the grading worktree was created in ${parent}, which is NOT on the volume ${repo} lives on. ` +
+        "Every grade copies the target's node_modules into it, so that copy crosses a filesystem again " +
+        '(T-rgw-01)',
+    );
+  }
+
+  return parent;
+}
+
 // ---- crux 7: the D-06 gate against the TARGET's own toolchain (fabricated runDir) --------------
 
 // Every other crux and every grade-red --selfcheck fixture is graded with the WORKSPACE's pinned
@@ -897,14 +977,17 @@ function gradeFabricatedRunDir(suiteDir, fixtureName, assertGrade) {
     fail(`[crux 7:${fixtureName}] leftover grading worktree after teardown:\n${worktrees}`);
   }
 
+  // The relocation's own assertion: the throwaway has to have been created on the TARGET's volume.
+  const gradeTmpDir = assertWorktreeOnTargetVolume(`[crux 7:${fixtureName}]`, grade, ctx.repo);
+
   // A grading worktree left behind on disk is now ~143 MB of toolchain copy rather than the
   // stranded link into the borrowed repo it used to be -- clutter instead of a hazard, but a
   // fan-out of nine would strand over a gigabyte of it. `git worktree list` above would not notice
   // one that git had already pruned.
-  const stranded = fs.readdirSync(os.tmpdir()).filter((e) => e.startsWith('red-wt-'));
+  const stranded = strandedGradingWorktrees(gradeTmpDir);
 
   if (stranded.length) {
-    fail(`[crux 7:${fixtureName}] stranded grading worktree director(ies) under the temp dir: ${stranded.join(', ')}`);
+    fail(`[crux 7:${fixtureName}] stranded grading worktree director(ies): ${stranded.join(', ')}`);
   }
 
   // gradeRun installs SIGINT/SIGTERM handlers so an interrupted fan-out cleans its toolchain up.
@@ -1391,7 +1474,7 @@ function checkAnchorArmingAndGuard() {
 // the corresponding guard in grade-red.mjs and exactly one of these fails.
 
 // The caller supplies its OWN crux prefix in `label`, for the same reason gitOrFail() does: this
-// helper is shared by more than one crux, and a hardcoded prefix attributes one crux's failure to
+// helper is shared by cruxes 8, 9 and 11, and a hardcoded prefix attributes one crux's failure to
 // another.
 function expectThrows(fn, label) {
   let threw = false;
@@ -1878,11 +1961,29 @@ function checkRuntimeWriteContainment() {
   const sentinel = fs.existsSync(sentinelPath) ? fs.readFileSync(sentinelPath, 'utf8') : '<DELETED>';
   const victimSurvived = fs.existsSync(victimPath);
   const excerpt = String((grade && grade.failure_excerpt) || '');
-  const stranded = fs.readdirSync(os.tmpdir()).filter((e) => e.startsWith('red-wt-'));
+  // The stand-in is built under os.tmpdir(), so it is on a DIFFERENT volume from the borrowed repos
+  // crux 7 grades. That makes this probe the proof that the grading temp dir is DERIVED per target
+  // rather than pinned to whichever volume the real targets happen to live on: crux 7's kata must
+  // get a worktree on the kata's volume, and this one must get a worktree on the stand-in's.
+  const standInVolumeOk = Boolean(grade) && sameVolume(dirname(String(grade.worktree || '')), standIn.root);
+  const recordedWorktree = grade ? String(grade.worktree || '') : '';
+  const stranded = strandedGradingWorktrees(recordedWorktree ? dirname(recordedWorktree) : null);
   fs.rmSync(standIn.root, { recursive: true, force: true });
 
   if (threw) {
     fail(`[crux 9] gradeRun threw instead of grading the exploit spec: ${threw.message}`);
+  }
+
+  if (!recordedWorktree) {
+    fail("[crux 9] red-grade.json records no 'worktree', so there is no evidence of where the grade actually ran");
+  }
+
+  if (!standInVolumeOk) {
+    fail(
+      `[crux 9] the grading worktree was created in ${dirname(recordedWorktree)}, which is NOT on the volume the ` +
+        `stand-in repo ${standIn.root} lives on. The grading temp dir is not being derived from the target under ` +
+        'grade (T-rgw-01)',
+    );
   }
 
   // The containment only means anything if the hostile spec actually EXECUTED. The marker is the
@@ -1912,13 +2013,13 @@ function checkRuntimeWriteContainment() {
   }
 
   if (stranded.length) {
-    fail(`[crux 9] stranded grading worktree director(ies) under the temp dir: ${stranded.join(', ')}`);
+    fail(`[crux 9] stranded grading worktree director(ies): ${stranded.join(', ')}`);
   }
 
   console.log(
     `  [crux 9] runtime write path contained OK (a legit-path spec whose body deletes + overwrites ` +
       `through node_modules ran to its assertion -> ${grade.verdict}; stand-in tree byte-intact, ` +
-      `toolchain copied in ${grade.toolchain_ms} ms)`,
+      `toolchain copied in ${grade.toolchain_ms} ms into ${dirname(recordedWorktree)}, the stand-in's own volume)`,
   );
 }
 
@@ -2031,6 +2132,77 @@ function checkContainmentInvariants() {
   );
 }
 
+// ---- crux 11: the grading worktree is derived onto the TARGET's own volume (T-rgw-01) ----------
+//
+// Pure and offline: no borrowed repo, no runner, no metered anything, so it never SKIPs. The
+// END-TO-END proof that gradeRun actually USES this lives in cruxes 7 and 9, which assert the
+// worktree each real grade recorded against its own target's volume. These pin the resolver's
+// contract those rest on.
+function checkGradeTmpDirResolution() {
+  const quiet = () => {};
+
+  // (a) DERIVATION. With no override, the scratch dir must land on the volume the target checkout
+  // lives on, outside that checkout, and it must NOT be os.tmpdir() -- which is the whole change:
+  // on this machine os.tmpdir() is on the profile volume while every borrowed repo is on another.
+  const derived = resolveGradeTmpDir(HERE, { env: {}, log: quiet });
+
+  if (!derived.onRepoVolume || !sameVolume(derived.dir, HERE)) {
+    fail(`[crux 11] the derived grading temp dir ${derived.dir} is not on ${HERE}'s volume: ${JSON.stringify(derived)}`);
+  }
+
+  if (isSameOrNested(derived.dir, HERE)) {
+    fail(`[crux 11] the derived grading temp dir ${derived.dir} is INSIDE the checkout it grades -- a grade would write into it`);
+  }
+
+  // The check above already covers "it silently settled for os.tmpdir()": on this machine that
+  // directory is on the profile volume and the target is not, so onRepoVolume would be false. On a
+  // machine where the two coincide there is nothing to discriminate, and saying so beats letting a
+  // reader infer a strength the run does not have.
+  if (sameVolume(os.tmpdir(), HERE)) {
+    console.log('  [crux 11] NOTE -- os.tmpdir() is on the same volume as the target here, so the derivation had nothing to beat');
+  }
+
+  // (b) IT MUST NEVER LAND INSIDE A BORROWED CHECKOUT. A checkout AT a volume root leaves nowhere on
+  // that volume that is not inside it, and os.tmpdir() is inside it too -- so the honest answer is a
+  // refusal, not a 1.6 GB toolchain copy written into a third-party repo.
+  expectThrows(
+    () => resolveGradeTmpDir(parse(resolve(os.tmpdir())).root, { env: {}, log: quiet }),
+    '[crux 11] a checkout that IS a volume root leaves nowhere on that volume, so the resolver must refuse',
+  );
+
+  // (c) THE OVERRIDE IS HONOURED, and landing off-volume is LOUD. The biconditional is the
+  // assertion: the warning must fire exactly when the chosen dir is off-volume. A machine with one
+  // volume satisfies it with no warning and no off-volume result; this one satisfies it with both.
+  // Deleting the log line fails it either way round.
+  const seen = [];
+  const overridden = resolveGradeTmpDir(HERE, { env: { [GRADE_TMPDIR_ENV]: os.tmpdir() }, log: (m) => seen.push(m) });
+
+  if (overridden.dir !== resolve(os.tmpdir())) {
+    fail(`[crux 11] $${GRADE_TMPDIR_ENV} was ignored: asked for ${os.tmpdir()}, got ${overridden.dir}`);
+  }
+
+  if (overridden.onRepoVolume !== sameVolume(overridden.dir, HERE)) {
+    fail(`[crux 11] onRepoVolume (${overridden.onRepoVolume}) disagrees with the actual volume comparison`);
+  }
+
+  if (overridden.onRepoVolume === (seen.length > 0)) {
+    fail(
+      `[crux 11] the off-volume warning is not tied to the off-volume result (onRepoVolume=${overridden.onRepoVolume}, ` +
+        `${seen.length} warning(s)). A silent fallback quietly reintroduces the cost this exists to remove`,
+    );
+  }
+
+  if (seen.length && !seen[0].includes(GRADE_TMPDIR_ENV)) {
+    fail(`[crux 11] the off-volume warning does not name the lever an operator has to pull: ${JSON.stringify(seen[0].slice(0, 200))}`);
+  }
+
+  console.log(
+    `  [crux 11] grading temp dir OK (derived onto ${derived.dir}, ${derived.source}, outside the checkout; a ` +
+      `checkout at a volume root is REFUSED; $${GRADE_TMPDIR_ENV} is honoured and an off-volume result warns ` +
+      `(${seen.length} warning(s), onRepoVolume=${overridden.onRepoVolume}))`,
+  );
+}
+
 // ---- crux 6: lz-refactor nx-suite regression (D-11) -------------------------------------------
 
 function checkNxRegression() {
@@ -2094,12 +2266,14 @@ checkRunnerSignalIsRunnerAuthored();
 checkNoTestsDisambiguationIsRunnerAuthored();
 checkConfigLevelTscGuard();
 checkContainmentInvariants();
+checkGradeTmpDirResolution();
 checkRuntimeWriteContainment();
 checkNxRegression();
 
 console.log(
   'selfcheck-red: OK -- composition, prompt-parity, worktree base, transcript parse, classifier, the ' +
-    'target-toolchain canary, captured-diff containment, the runtime write path, and the lz-refactor ' +
-    'nx regression all pass; zero claude spend, borrowed repo left pristine.',
+    'target-toolchain canary, captured-diff containment, the runtime write path, the grading temp dir ' +
+    "landing on each target's OWN volume, and the lz-refactor nx regression all pass; zero claude spend, " +
+    'borrowed repo left pristine.',
 );
 process.exit(0);

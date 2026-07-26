@@ -2,7 +2,8 @@
 // grade-red.mjs -- the D-06 RED correctness GATE + 7-class classifier (+ offline --selfcheck).
 //
 // This is the ONE hard gate of the Phase-21 applied-RED eval (D-06). For a captured run it applies
-// the produced test to a FRESH os.tmpdir() git worktree at applyBase, runs a DIFFERENTIAL
+// the produced test to a FRESH git worktree at applyBase -- created on the TARGET REPO'S OWN VOLUME
+// rather than under os.tmpdir(), see resolveGradeTmpDir -- runs a DIFFERENTIAL
 // `tsc --noEmit --strict` (NEW errors attributable to the test must be 0 -- NOT the target's
 // pre-existing non-strict source), runs the TARGET's own test runner with a machine-readable JSON
 // reporter, and classifies the produced test into exactly one of:
@@ -36,8 +37,8 @@
 // silently scoring "no change".
 //
 // It also runs MODEL-AUTHORED CODE -- the produced spec, under the target's own runner. Everything
-// that code can reach relatively is inside a throwaway worktree under os.tmpdir(), including the
-// toolchain, which is a per-grade COPY of the target's node_modules rather than a link to it
+// that code can reach relatively is inside a throwaway worktree (resolveGradeTmpDir picks where),
+// including the toolchain, which is a per-grade COPY of the target's node_modules rather than a link to it
 // (T-63f-05). The borrowed repo is read once, to make that copy, and is never a write target.
 //
 // The classifier logic is SHARED between the real gate (gradeRun) and --selfcheck (gradeFixture);
@@ -459,6 +460,170 @@ export function escapingLinks(root) {
   }
 
   return escapes;
+}
+
+// ---- where the throwaway grading worktree is created (T-rgw-01) -------------------------------
+
+// The operator override: a clearly-named environment variable rather than a flag, because the
+// choice is environmental (which volume has room, which one the borrowed checkouts live on, a CI
+// scratch mount) rather than something that varies per invocation.
+export const GRADE_TMPDIR_ENV = 'LZ_RED_GRADE_TMPDIR';
+
+// The directory created at a volume root. FIXED rather than per-run: the worktree underneath it
+// already carries pid + timestamp, and a stable, predictable parent is what makes a stranded
+// worktree findable -- by an operator and by selfcheck-red's stranded-worktree assertions.
+const GRADE_TMPDIR_NAME = '.lz-red-grade-tmp';
+
+// The volume a path lives on, as libuv reports it: the volume serial number on Windows, the device
+// id on POSIX. That answers the question this relocation is about -- "will the per-grade toolchain
+// copy cross a filesystem" -- rather than the proxy question a drive-letter comparison answers, and
+// it is the same answer on both platforms. null when the path cannot be stat'ed.
+function volumeOf(p) {
+  try {
+    return fs.statSync(p).dev;
+  } catch {
+    return null;
+  }
+}
+
+// Do two paths live on the SAME volume? A null (unstattable) side is never equal to anything, so an
+// unanswerable comparison reads as "not the same volume" and takes the loud branch below.
+export function sameVolume(a, b) {
+  const va = volumeOf(a);
+  const vb = volumeOf(b);
+
+  return va !== null && vb !== null && va === vb;
+}
+
+// Is `inner` the same directory as `outer`, or nested inside it? STRING containment on purpose:
+// this runs BEFORE the candidate exists, so there is nothing to realpath, and the only candidates
+// are a volume root + a fixed name (which cannot alias into a checkout), os.tmpdir(), and an
+// operator's own explicit override. arm-anchor.mjs's isSameOrNested() is the realpath version, used
+// where both sides already exist.
+// The trailing-separator case is NOT cosmetic here: `outer` can legitimately BE a volume root, which
+// path.resolve() already returns with its separator attached (`D:\`, `/`). Appending another would
+// build `D:\\`, which nothing starts with -- so the naive form would answer "not inside" for every
+// path on the volume, and the one candidate that MUST be rejected (a scratch dir at the root of a
+// checkout that IS that root) would be accepted instead.
+function isWithin(inner, outer) {
+  const a = path.resolve(inner);
+  const b = path.resolve(outer);
+  const prefix = b.endsWith(path.sep) ? b : b + path.sep;
+
+  return a === b || a.startsWith(prefix);
+}
+
+// The parent directory the throwaway grading worktree -- and therefore the per-grade toolchain COPY
+// inside it -- is created in.
+//
+// WHY IT IS NOT os.tmpdir(). Every grade copies the target's whole node_modules into the worktree
+// (T-63f-05), and os.tmpdir() is on whatever volume the OS put the user profile on -- which for
+// these borrowed checkouts is not theirs (C: NTFS profile; D: ReFS Dev Drive holding every borrowed
+// repo).
+//
+// READ THE MEASUREMENT BEFORE BELIEVING THE MOTIVATION, because the motivation was PARTLY WRONG.
+// The 482 s figure recorded on 2026-07-25 for the blocked ngx-layout target (1.6 GB, 186,366 files)
+// was attributed to the copy crossing volumes. It is not, or not mostly. Re-measured 2026-07-26,
+// same tree, same session, one destination after the other:
+//
+//   os.tmpdir() (C:, cross-volume) : 741.5 s copy + 134.1 s remove = 875.6 s
+//   D: (intra-volume)              : 531.4 s copy + 111.3 s remove = 642.7 s
+//
+// So the relocation is worth about 27% on that tree -- real, but it does NOT remove the cost. Nine
+// grades still spend ~1.6 h copying instead of ~2.2 h, which does not make that target affordable;
+// only a smaller target or a different containment would. And note the intra-volume copy ALONE
+// (531 s) is slower than the whole 482 s figure the change was justified by, because the machine
+// was simply slower today -- the cost is dominated by FILE COUNT, not by the volume boundary.
+//
+// On the two targets actually in the corpus the difference is close to nothing, measured by
+// alternating the two destinations three times each so cache warmth is shared:
+//
+//   kata  (7,610 files, 142.8 MB) : copy 4.06 s -> 3.86 s, remove 1.23 s -> 1.03 s
+//   srvx  (12,855 files, 170.8 MB): copy 6.70 s -> 6.89 s, remove 2.03 s -> 1.62 s
+//
+// i.e. copy is a tie within noise and remove is ~15-20% faster. What this function is really worth
+// is therefore NOT the speed: it is that the location is DERIVED per target, OVERRIDABLE, and LOUD
+// when it cannot be honoured, instead of being silently whatever volume the OS profile sits on.
+//
+// One tradeoff to know: the Dev Drive here has less headroom than the profile volume (29 GB vs
+// 86 GB free), and a per-grade copy of a large target is held for the whole grade. That is what
+// $LZ_RED_GRADE_TMPDIR is for.
+//
+// os.tmpdir() ALSO hands back the 8.3 SHORT Windows form on this machine (`C:\Users\LARSGY~1\...`),
+// which is precisely the path-form hazard resolveArmCwd() below and arm-anchor.mjs's realpath
+// comparison were hardened against. Not creating scratch space there removes one natural source of
+// it -- which is why the cruxes that cover those two guards now drive them with SYNTHETIC
+// short-form input rather than relying on os.tmpdir() to supply the hazard for free.
+//
+// WHAT DELIBERATELY STAYS UNDER os.tmpdir(), because moving it would buy nothing:
+//   - diffTargetPaths()'s neutral cwd for `git apply --numstat`. It creates no files and reads
+//     nothing from that directory; it only needs a cwd that is not a git repository, and it runs
+//     BEFORE anything exists -- so giving it a dependency on a mkdir would be a step backwards.
+//   - the two runner JSON report files (gradeFixture's --outputFile and the `<reportFile>` path).
+//     Each is ONE small file, not a recursive tree, so the cost this function addresses does not
+//     apply; and os.tmpdir() is the location most certain to be writable, which matters for a path
+//     handed to a third-party runner.
+//
+// Candidates are tried in order and the FIRST usable one wins:
+//   1. $LZ_RED_GRADE_TMPDIR, when the operator sets it.
+//   2. `<the target repo's volume root>/.lz-red-grade-tmp` -- derived, never a hardcoded drive, so a
+//      target on any volume gets scratch space on its own.
+//   3. os.tmpdir(), the last resort.
+//
+// A candidate is REJECTED when it is inside the target checkout (creating scratch space -- let alone
+// a 1.6 GB toolchain copy and a git worktree -- inside a borrowed third-party repo is exactly what
+// this whole gate exists not to do) or when it cannot be created.
+//
+// Landing anywhere other than the target's own volume is reported LOUDLY, never silently: a silent
+// fallback would quietly reintroduce the cost this function exists to remove, and the operator would
+// see only an unexplained ten-minute pause.
+export function resolveGradeTmpDir(gitRoot, { env = process.env, log = console.error } = {}) {
+  const root = path.resolve(gitRoot);
+  const rawOverride = env && typeof env[GRADE_TMPDIR_ENV] === 'string' ? env[GRADE_TMPDIR_ENV].trim() : '';
+  const candidates = [];
+
+  if (rawOverride) {
+    candidates.push({ dir: path.resolve(rawOverride), source: `$${GRADE_TMPDIR_ENV}` });
+  }
+
+  candidates.push({ dir: path.join(path.parse(root).root, GRADE_TMPDIR_NAME), source: "the target repo's own volume" });
+  candidates.push({ dir: path.resolve(os.tmpdir()), source: 'os.tmpdir()' });
+
+  const rejected = [];
+
+  for (const candidate of candidates) {
+    if (isWithin(candidate.dir, root)) {
+      rejected.push(`${candidate.dir} (${candidate.source}) is inside the target checkout ${root}`);
+
+      continue;
+    }
+
+    try {
+      fs.mkdirSync(candidate.dir, { recursive: true });
+    } catch (err) {
+      rejected.push(`${candidate.dir} (${candidate.source}) cannot be created: ${err.code || err.message}`);
+
+      continue;
+    }
+
+    const onRepoVolume = sameVolume(candidate.dir, root);
+
+    if (!onRepoVolume) {
+      log(
+        `grade-red: WARNING -- the grading worktree is going in ${candidate.dir} (${candidate.source}), which is ` +
+          `NOT the volume ${root} lives on. Every grade copies the target's node_modules into it, so that copy ` +
+          `crosses a filesystem and can be orders of magnitude slower on a large tree. Set $${GRADE_TMPDIR_ENV} ` +
+          'to a writable directory on the target\'s volume to avoid it' +
+          (rejected.length ? `. Rejected first: ${rejected.join('; ')}` : '.'),
+      );
+    }
+
+    return { dir: candidate.dir, source: candidate.source, onRepoVolume, rejected };
+  }
+
+  throw new Error(
+    `grade-red: no usable directory for the grading worktree, so there is nowhere to grade (fail closed): ${rejected.join('; ')}`,
+  );
 }
 
 // Where the grade actually runs inside the throwaway worktree, for a target whose repo may be a
@@ -1108,7 +1273,9 @@ export function gradeRun({ runDir, suiteDir }) {
 
   const gitRoot = (git(repo, ['rev-parse', '--show-toplevel'], { mustSucceed: true }).stdout || '').trim();
   const stamp = `${process.pid}-${Date.now()}`;
-  const worktree = path.join(os.tmpdir(), `red-wt-${meta.target}-${stamp}`);
+  // On the target's OWN volume, so the per-grade toolchain copy below does not cross a filesystem
+  // (T-rgw-01). Derived from gitRoot, never hardcoded, and loud when it cannot be honoured.
+  const worktree = path.join(resolveGradeTmpDir(gitRoot).dir, `red-wt-${meta.target}-${stamp}`);
   const { rel, armCwd } = resolveArmCwd(worktree, gitRoot, repo);
 
   // The runner command and runner_select are both relative to the REPO SUBDIR, while
@@ -1180,7 +1347,9 @@ export function gradeRun({ runDir, suiteDir }) {
   //
   // So the worktree gets its OWN copy and the damage lands on a throwaway that teardown deletes.
   // MEASURED on the kata's tree (7610 files, 142.8 MB): cpSync 2.5-2.8 s, rmSync ~0.7 s, i.e.
-  // ~3.5 s per grade, ~30 s across a 9-run fan-out. A SHARED cache under os.tmpdir() would save
+  // ~3.5 s per grade, ~30 s across a 9-run fan-out. That price is per FILE COUNT, not per byte: the
+  // same copy of a 186,366-file tree takes 531-741 s depending on the destination volume, which is
+  // what resolveGradeTmpDir() is about (and only ~27% of it is the volume). A SHARED cache would save
   // that but reintroduces a mutable tree every grade writes through -- one poisoned compiler and
   // every later grade in the round is measured against it -- for ~30 s on a run that costs real
   // money and many minutes. A per-grade copy needs no cache stamp, no freshness check and no
@@ -1251,7 +1420,8 @@ export function gradeRun({ runDir, suiteDir }) {
   };
 
   // teardown() only runs via the finally below. A Ctrl-C, a SIGTERM, or a closed terminal between
-  // provisionToolchain() and that finally would strand the toolchain copy under os.tmpdir(), and
+  // provisionToolchain() and that finally would strand the toolchain copy in the grading temp dir
+  // resolveGradeTmpDir() chose (a stable, predictable path, so an operator can find it), and
   // interrupting a 9-run fan-out is a normal operator action, not an exotic one. Since the
   // toolchain became a COPY (T-63f-05) what gets stranded is ~143 MB of throwaway rather than a
   // live junction into a borrowed repo, so this handler is now disk hygiene rather than a
@@ -1290,6 +1460,7 @@ export function gradeRun({ runDir, suiteDir }) {
         runner_version: readRunnerVersion(armCwd, worktree, runnerName),
         runner_test_path: testForTemplate,
         apply_base: applyBase,
+        worktree,
         toolchain_ms: toolchainMs,
         prebuild_ms: prebuildMs,
         produced_test_files: [],
@@ -1467,6 +1638,12 @@ export function gradeRun({ runDir, suiteDir }) {
       // whose base is armed at the gate, where "main" and "the armed sha" are different
       // measurements that look identical in every other field.
       apply_base: applyBase,
+      // The throwaway this grade actually ran in (T-rgw-01). It is gone by the time anyone reads
+      // this, and that is the point: the ONLY way to prove afterwards that the worktree landed on
+      // the TARGET's volume -- the whole property this relocation buys -- is to have recorded where
+      // it was. selfcheck-red's canaries assert exactly that against the target repo's volume, so a
+      // regression back to os.tmpdir() FAILS the battery instead of merely making it slower.
+      worktree,
       // The measured cost of copying the target's node_modules into this grade's worktree
       // (T-63f-05). The CLI prints it too, but recording it puts the containment's overhead in
       // every artifact rather than only in front of whoever watched the console.
@@ -1898,8 +2075,11 @@ function main(argv) {
     const suiteDir = suiteIdx >= 0 && argv[suiteIdx + 1] ? path.resolve(argv[suiteIdx + 1]) : runDirToSuiteDir(runDir);
     const grade = gradeRun({ runDir, suiteDir });
     console.log(`${grade.target} ${grade.arm} run-${grade.run_idx}: ${grade.verdict} (pass=${grade.pass}) -- ${grade.why}`);
-    // Make the containment's cost visible rather than a mystery pause (T-63f-05).
-    console.log(`toolchain: copied the target's node_modules into the grading worktree in ${grade.toolchain_ms} ms`);
+    // Make the containment's cost visible rather than a mystery pause (T-63f-05), and say WHERE the
+    // copy went -- that is what an unexpectedly slow grade is usually about (T-rgw-01).
+    console.log(
+      `toolchain: copied the target's node_modules into ${grade.worktree} in ${grade.toolchain_ms} ms`,
+    );
     console.log(`wrote ${path.join(runDir, 'red-grade.json')}`);
 
     return;

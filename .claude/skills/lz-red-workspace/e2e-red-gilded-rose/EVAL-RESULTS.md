@@ -145,13 +145,68 @@ from 7/9 to 8/9. The multi-line form remains unfixed by deliberate choice.
 | with_skill | 3 | 3 | 0 | 0.00 | 0.00 | - | 0.00 |
 | invoke_skill | 3 | 3 | 0 | 0.00 | 0.00 | - | 0.00 |
 
-**EXCLUDED from the correctness headline. This 0.00 is a PRE-REGISTERED target defect, not a RED
-result.** All nine runs graded `compile_error` with exactly 1 new diagnostic, and every one is a
+**EXCLUDED from the correctness headline. Report this cell as TWO numbers, not one:**
+
+| RXF, all three arms | value | evidence |
+|---------------------|-------|----------|
+| behaviourally RED | **9/9** | `attributed_failures: 1` on every run -- the added test collected, ran, and failed on its own assertion |
+| passes the differential | **0/9** | one new inherited type diagnostic per run |
+
+**Why two numbers, and why the gate is NOT going to be changed to fix it (investigated 2026-07-28).**
+The runner never sees these diagnostics -- Analog's `disableTypeChecking` defaults true -- and the repo
+has no typecheck target at all, which is why 55 errors sat unnoticed on its default branch. So the gate
+failed nine runs on a standard the target never applies, against tests that demonstrably ran and failed
+as designed. A precedence rule was proposed to fix it: if an added test collected and failed on its own
+assertion, treat a new type diagnostic as a warning rather than a verdict.
+
+**That rule was tested against the negative control and it FAILED.** `canary-compile` grades
+`compile_error` with `new_tsc_errors: 2` AND `attributed_failures: 1` -- its deliberate type error
+(`const app: number = new GildedRose(...)`) is ALSO runtime-inert, so esbuild strips the annotation, the
+test runs, and it fails its assertion (`expected 5 to be 4`). Under the proposed rule that control would
+flip to pass, and the clause a counterfactual proved load-bearing would acquire a false-pass hole. The
+rule is therefore rejected on evidence.
+
+The distinction that actually separates the two cases is not runtime-inertness -- both are runtime-inert
+-- but WHOSE defect it is. The produced RXF tests are type-correct given a correctly configured jest-dom;
+the canary's test is type-correct nowhere. The only mechanical way to see that difference is "does this
+diagnostic already appear in the baseline", which is precisely the baseline-keyed noise rule the owner
+ruled out. So no sound fix is available inside the gate, and the honest response is to report both
+numbers and name the limitation.
+
+**State it two-sidedly.** Calling this purely a target defect is too kind to the gate; calling it purely
+a gate defect is too kind to the runs, because a compiling convention was DOMINANT (90 of 142 files) and
+all nine specimens missed it. Both are true: the gate cannot tell an inherited type error from a
+self-inflicted one, and the specimens anchored on the repo's lone outlier file. All nine runs graded `compile_error` with exactly 1 new diagnostic, and every one is a
 jest-dom matcher TS2339 (`toHaveTextContent` / `toHaveAttribute` "does not exist on type
 `JestMatchers<...>`"). Cause: `@types/jest-axe` carries a triple-slash `reference types="jest"`, which
 pulls in `@types/jest`, whose `expect` returns `JestMatchers<T>` -- a type `@testing-library/jest-dom/vitest`
 never augments. The repo's own `calendar/__tests__/calendar.spec.ts` contains 8 instances of the
-identical error; every model used the house idiom and added a 9th, so the differential counted 1 new.
+identical error and each specimen added a 9th, so the differential counted 1 new.
+
+**CORRECTION (measured 2026-07-28, supersedes an earlier claim in this document that the models
+"followed the house idiom").** They did not. jest-dom matchers are NOT this repo's convention -- they
+are a single-file outlier, and the models mirrored the file they opened rather than the suite. Counted
+across the 142 `*.spec.ts` files under `packages/primitives`:
+
+| form | files |
+|------|-------|
+| `.toBe(` | 124 |
+| raw `getAttribute(` / `hasAttribute(` | **90** (76 in the exact `expect(el.getAttribute('data-x')).toBe('')` shape) |
+| `toHaveAttribute` | **0** |
+| `toBeInTheDocument` / `toBeVisible` / `toHaveClass` / `toBeDisabled` | **0 each** |
+| `toHaveTextContent` | **1** -- and that file IS `calendar/__tests__/calendar.spec.ts` |
+
+`test-setup.ts` does import `@testing-library/jest-dom/vitest`, so the matchers LOOK available, but the
+suite effectively does not use them. (`toHaveAttribute` occurs in 13 files, all Playwright locator
+assertions in the separate `apps/visual-regression` suite, not the unit suite these specimens target.)
+
+**Why this matters more than the original framing.** "The target's idiom is a trap" would excuse the
+result. The measured position is different: a compiling, convention-following route was not merely
+available -- it was DOMINANT, in 90 of 142 files -- and the specimens missed it by anchoring on the
+nearest file, which happens to be the repo's only jest-dom user. That is a discretion / salience gap,
+not a capability limit, and it is therefore the class of failure a forcing function can address. It
+makes "check the convention across the suite, not just the file you opened" the strongest
+force-functioning candidate this round produced.
 `21-ATC-ADOPTION.md:150-152` pre-registered that a jest-dom TS2339 cluster here "is this residual and
 not an arm effect". Reporting it as a quality result would contradict the project's own pre-registration.
 
@@ -377,6 +432,57 @@ verdict; `attributedAssertions` matches on `title` not `fullName`, so duplicate 
 different `describe`s could mis-attribute in the false-PASS direction; only `producedTests[0]` is run,
 so a second produced spec is silently unmeasured; `changedProductionFiles` would classify
 `vite.config.ts` or a `test/helpers.ts` as production.
+
+## Added dimensions (re-graded 2026-07-28, judges on Opus 5, faithful corpus, zero metered spend)
+
+Two dimensions the first pass left unmeasured. Both were graded blind over the same corpus, 9 specimens
+per cell, two dims per judge (the Phase-20 lock).
+
+### Classify-first (is the move RED?)
+
+Judged from the added lines plus the production diff -- NOT from the transcript, because `answer.md`
+self-identifies the skill and would unblind the arm instantly (Pitfall 7). That makes this dimension
+partly OVERLAPPING with the mechanical gate rather than a fully independent signal; read it as
+corroboration.
+
+| cell | RED | other |
+|------|-----|-------|
+| GRC | 8/9 | 1 REFACTOR (`invoke_skill/run-1` -- replaced the stub with an already-implemented normal-item case) |
+| SRVC | 9/9 | -- |
+| RXF | 9/9 | -- |
+| RXL | 7/9 | 2 MIXED (`invoke_skill/run-1`, `with_skill/run-1` -- created `RDX_LOCALE`, then asserted it) |
+
+Per arm: `no_skill` **12/12** RED, `with_skill` 11/12, `invoke_skill` 10/12. **The baseline is the
+cleanest arm on this dimension.** Every exception is a run already flagged by another signal, so the
+dimension confirms rather than discriminates -- but the direction is again mildly AGAINST the skill.
+
+### House-idiom adherence (CONTEXT-ONLY per D-08 -- never the headline)
+
+Each judge derived the convention from the target's own tests before scoring.
+
+| cell | HIGH | MIXED | LOW | the deviations that recurred |
+|------|------|-------|-----|------------------------------|
+| GRC | 5/9 | 4/9 | 0 | dropped the `should` title prefix; multi-line item array; destructuring over indexing |
+| SRVC | 2/9 | 7/9 | 0 | `runtime!` bang-chain where the house optional-chains (0 occurrences under `test/`); `expect.arrayContaining` (0 occurrences); missing `test.skipIf(isDeno)` on appends to the one file Deno also runs |
+| RXF | 7/9 | 2/9 | 0 | `toHaveAttribute` (0 of 142 spec files) |
+| RXL | 5/9 | 4/9 | 0 | `RADIX_LOCALE` against the repo's 13 `RDX_*` tokens; an `as Signal<string>` cast on `TestBed.inject` (0 house occurrences); `it.todo` (0 across ~200 specs) |
+
+Per-arm adherence was not computed: this is a context-only dimension and no per-arm pattern was
+apparent at cell level.
+
+**The finding worth carrying is an INVERSION, and it is the round's most useful by-product.** On BOTH
+radix cells, high idiom adherence coincided with total failure on the substance dims:
+
+- **RXL:** 5/9 judged HIGH -- several "indistinguishable from the house spec" -- because they faithfully
+  mirrored the shipped `config-provider.spec.ts`. But that spec asserts the SERVICE half, which is
+  already covered. Mirroring the nearest spec correctly is WHY nine of nine tested the wrong thing.
+- **RXF:** 7/9 judged HIGH at FILE level, because they matched the host file's `toBeTruthy` +
+  `toHaveTextContent` pair. That host file is the repo's only jest-dom user, 1 of 142.
+
+In both cells the specimens copied the file in front of them rather than the convention of the suite.
+`lz-red`'s SKILL.md step 3 currently advises "match the shape of the existing tests first" -- passively,
+and in these two cells that advice points the WRONG way. A lever that asks what the nearest spec ALREADY
+COVERS, and whether its idiom is representative of the suite, would address both failures at once.
 
 ## What this round licenses, and the next lever
 

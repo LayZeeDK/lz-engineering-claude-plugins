@@ -179,7 +179,23 @@ export function changedProductionFiles(diffPatch) {
 // Line-scoped by construction (`.` never crosses a newline), so neither pattern can run away over a
 // whole patch, and a `.each` table spanning several lines simply does not match -- which is the safe
 // direction: an unmatched title is unattributable, never a pass.
-const TITLE_MODIFIERS = '(?:\\.(?:only|skip|todo|failing|fails|concurrent|sequential|runIf|skipIf|for|extend))*';
+// Two kinds of modifier. A PLAIN one is followed straight by the title call. A CONDITIONAL one
+// (`runIf` / `skipIf`) takes a boolean argument FIRST and the title lands in a second call --
+// `test.skipIf(isDeno)('t')` -- which is the shape srvx's own suite uses. They were previously
+// listed as plain, so the pattern demanded a title literal where the condition sits and matched
+// nothing: a genuinely added, genuinely failing test graded `unattributable` and its own title was
+// reported back as PRE-EXISTING. Measured on 2 of 9 srvx runs (one per arm, so it deflated both).
+// Keeping them in the plain set is also a false-POSITIVE path -- a condition that happens to be a
+// string literal would be extracted as the title -- so they move rather than being added twice.
+// The condition may itself contain one level of nested parens (`skipIf(isDeno())`).
+// `each` stays absent from BOTH sets, so a `.each` site still cannot match DIRECT_TITLE_RE.
+// NOTE a separate, deliberately UNFIXED gap: `.for` / `.extend` also take an argument before the
+// title, so `test.for(cases)('t')` still grades unattributable. Left alone because `.for` carries
+// `.each`-style placeholder semantics this pattern would have to guess at, and guessing risks a
+// false POSITIVE, which is worse than the fail-closed miss.
+const TITLE_PLAIN_MODIFIER = '\\.(?:only|skip|todo|failing|fails|concurrent|sequential|for|extend)';
+const TITLE_COND_MODIFIER = '\\.(?:runIf|skipIf)\\s*\\([^()]*(?:\\([^()]*\\)[^()]*)*\\)';
+const TITLE_MODIFIERS = `(?:${TITLE_PLAIN_MODIFIER}|${TITLE_COND_MODIFIER})*`;
 // group 1 = the quote character, group 2 = the raw title text (escapes preserved).
 const TITLE_LITERAL = '([\'"`])((?:\\\\.|(?!\\1).)*)\\1';
 const DIRECT_TITLE_RE = new RegExp(`(?:^|[^\\w$.])(?:it|test)${TITLE_MODIFIERS}\\s*\\(\\s*${TITLE_LITERAL}`, 'g');
@@ -2858,6 +2874,73 @@ function runSelfcheck() {
   console.log(
     "  [classify:each] parameterized titles OK (substituted '.each' title attributes -> genuinely_red; " +
       'an unrelated title and an all-placeholder pattern both stay unattributable)',
+  );
+
+  // ---- CONDITIONAL modifiers: `test.skipIf(cond)('t')` ----------------------------------------
+  //
+  // The title sits in a SECOND call, after the condition. This is srvx's own house idiom, and no
+  // other fixture uses it: every one of the eleven selfcheck-red canaries writes a plain `it(`/
+  // `test(`, which is exactly why the battery was green while 2 of 9 real srvx runs graded
+  // `unattributable` and had their own test title quoted back as PRE-EXISTING.
+  const condDiff = newFileDiff(
+    'test/vitest/cond.spec.ts',
+    'test.skipIf(isDeno)("staged cookie survives", async () => { expect(got).toEqual(want); });\n',
+  );
+  const condRunner = {
+    testResults: [
+      {
+        status: 'failed',
+        assertionResults: [
+          {
+            title: 'staged cookie survives',
+            status: 'failed',
+            failureMessages: ["AssertionError: expected [ 'res=2' ] to deeply equal [ 'mw=1', 'res=2' ]"],
+          },
+        ],
+      },
+    ],
+  };
+  const condVerdict = classify({ newErrors: 0 }, condRunner, condDiff);
+
+  if (condVerdict !== 'genuinely_red') {
+    fail(
+      `[classify:cond] a 'test.skipIf(cond)' title classified '${condVerdict}', expected 'genuinely_red' -- ` +
+        'the conditional-modifier form is unreadable again, so an added failing test scores unattributable',
+    );
+  }
+
+  // Discrimination: widening the chain must NOT let an unrelated pre-existing failure attribute.
+  if (classify({ newErrors: 0 }, strangerRunner, condDiff) !== 'unattributable') {
+    fail('[classify:cond] an unrelated title attributed against a conditional-modifier diff -- the chain is too loose');
+  }
+
+  // False-POSITIVE guard: the CONDITION must never be mistaken for the title. A string-valued
+  // condition is the shape that would break if `skipIf` were ever moved back into the plain set.
+  const condStringDiff = newFileDiff(
+    'test/vitest/cond2.spec.ts',
+    'test.skipIf("someCondition")("the real title", () => { expect(1).toBe(2); });\n',
+  );
+  const condStringRunner = {
+    testResults: [
+      {
+        status: 'failed',
+        assertionResults: [
+          { title: 'someCondition', status: 'failed', failureMessages: ['AssertionError: expected 1 to be 2'] },
+        ],
+      },
+    ],
+  };
+
+  if (classify({ newErrors: 0 }, condStringRunner, condStringDiff) !== 'unattributable') {
+    fail(
+      '[classify:cond] a string CONDITION was extracted as the title -- `skipIf` is being read as a ' +
+        'plain modifier, which attributes a failure the produced test never declared',
+    );
+  }
+
+  console.log(
+    '  [classify:cond] conditional modifiers OK (a `test.skipIf(cond)` title attributes -> genuinely_red; ' +
+      'an unrelated title stays unattributable; a string CONDITION is never read as the title)',
   );
 
   // ---- the three per-target config mechanisms, asserted PURELY ---------------------------------

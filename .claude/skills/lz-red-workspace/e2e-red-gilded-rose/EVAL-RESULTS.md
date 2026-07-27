@@ -202,20 +202,37 @@ Straight off each run's `meta.json`. **`drove` counts clean runs whose diff chan
 means "changed any file", NOT "drove to green"; it reads 3/3 in all twelve cells and is therefore
 uninformative.** The drive signal to read is `changed_production_files`, below.
 
-| target | arm | wall mean (s) | cost mean ($) | turns mean | tool histogram (top) |
-|--------|-----|---------------|---------------|------------|----------------------|
-| GRC | no_skill | 111 | 0.38 | 10 | Read:14 Bash:8 Glob:3 Edit:3 |
-| GRC | with_skill | 92 | 0.46 | 11 | Read:13 PowerShell:5 Glob:3 Skill:3 Edit:3 |
-| GRC | invoke_skill | 137 | 0.43 | 10 | Read:13 Bash:8 Glob:3 Edit:3 |
-| SRVC | no_skill | 231 | 1.32 | 22 | Bash:27 Read:21 Write:5 Grep:4 Edit:4 |
-| SRVC | with_skill | 258 | 1.49 | 21 | Read:19 Bash:14 Grep:10 Skill:3 |
-| SRVC | invoke_skill | 222 | 1.25 | 18 | Read:19 Bash:10 Grep:9 Skill:1 |
-| RXF | no_skill | 169 | 0.59 | 13 | Bash:12 Read:11 Edit:4 Grep:4 |
-| RXF | with_skill | 186 | 0.68 | 14 | Read:14 Bash:12 Glob:5 Skill:1 |
-| RXF | invoke_skill | 172 | 0.62 | 13 | Read:10 Bash:9 Grep:7 Edit:6 |
-| RXL | no_skill | 189 | 0.63 | 15 | Bash:16 Read:13 Grep:6 Edit:4 |
-| RXL | with_skill | 264 | 0.98 | 20 | Bash:19 Read:16 Grep:9 Skill:2 |
-| RXL | invoke_skill | 268 | 0.86 | 17 | Read:16 Bash:15 Grep:10 Edit:3 |
+| target | arm | wall mean (s) | cost mean ($) | out tokens/run | turns mean | tool histogram (top) |
+|--------|-----|---------------|---------------|----------------|------------|----------------------|
+| GRC | no_skill | 111 | 0.38 | 5,057 | 10 | Read:14 Bash:8 Glob:3 Edit:3 |
+| GRC | with_skill | 92 | 0.46 | 5,097 | 11 | Read:13 PowerShell:5 Glob:3 Skill:3 Edit:3 |
+| GRC | invoke_skill | 137 | 0.43 | 6,658 | 10 | Read:13 Bash:8 Glob:3 Edit:3 |
+| SRVC | no_skill | 231 | 1.32 | 13,088 | 22 | Bash:27 Read:21 Write:5 Grep:4 Edit:4 |
+| SRVC | with_skill | 258 | 1.49 | 15,281 | 21 | Read:19 Bash:14 Grep:10 Skill:3 |
+| SRVC | invoke_skill | 222 | 1.25 | 13,321 | 18 | Read:19 Bash:10 Grep:9 Skill:1 |
+| RXF | no_skill | 169 | 0.59 | 4,819 | 13 | Bash:12 Read:11 Edit:4 Grep:4 |
+| RXF | with_skill | 186 | 0.68 | 4,809 | 14 | Read:14 Bash:12 Glob:5 Skill:1 |
+| RXF | invoke_skill | 172 | 0.62 | 5,430 | 13 | Read:10 Bash:9 Grep:7 Edit:6 |
+| RXL | no_skill | 189 | 0.63 | 7,271 | 15 | Bash:16 Read:13 Grep:6 Edit:4 |
+| RXL | with_skill | 264 | 0.98 | 11,991 | 20 | Bash:19 Read:16 Grep:9 Skill:2 |
+| RXL | invoke_skill | 268 | 0.86 | 11,068 | 17 | Read:16 Bash:15 Grep:10 Edit:3 |
+
+**Token dimension, pooled per arm across all four cells** (output tokens; the `model_usage` rollup,
+which includes sub-agent usage):
+
+| arm | output tokens | out/run | vs baseline |
+|-----|---------------|---------|-------------|
+| no_skill | 90,704 | 7,559 | -- |
+| with_skill | 111,533 | 9,294 | **+23%** |
+| invoke_skill | 109,433 | 9,119 | +21% |
+
+**+23% output tokens for `with_skill` over baseline**, consistent in direction with the cost and turn
+findings. The skill measurably costs more on every process dimension while buying nothing on
+correctness or design.
+
+Do NOT read `invoke_skill`'s near-zero INPUT tokens (2,630 vs ~12,700 for the other arms) as
+efficiency. The slash command is expanded by the CLI at prompt-processing time and that arm records no
+`haiku` auxiliary calls at all -- it is an artifact of how the arm is composed, not a saving.
 
 **Cost/turn finding (non-null):** the treated arms are consistently more expensive on 3 of 4 cells --
 `with_skill` exceeds `no_skill` on GRC (+$0.08), SRVC (+$0.17), RXF (+$0.09) and RXL (+$0.35). Loading

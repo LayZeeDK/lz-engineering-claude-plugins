@@ -25,7 +25,9 @@
 //   node run-e2e.mjs --mode apply --arm with_skill --cwd <nx-branch-checkout>
 //   node run-e2e.mjs --report                          # summarize captured runs, run nothing
 //
-// Env: CLAUDE_BIN (override CLI path), E2E_MODEL (override model, default claude-opus-4-8).
+// Env: CLAUDE_BIN (override CLI path), E2E_MODEL (override model, default claude-opus-5 -- see the
+// pin note at MODEL; it must track the current default Claude Code model, so re-check it per
+// model generation and pass E2E_MODEL to reproduce an older round).
 
 import fs from 'node:fs';
 import path from 'node:path';
@@ -70,7 +72,19 @@ const TARGET_BY_ID = new Map((TARGETS.targets || []).map((t) => [t.id, t]));
 // trackSkills: ["lz-red","lz-tpp"].
 const TRACK_SKILLS = SUITE.trackSkills || ['lz-refactor', 'lz-tpp'];
 
-const MODEL = process.env.E2E_MODEL || 'claude-opus-4-8';
+// REVIEW THIS PIN EVERY MODEL GENERATION -- it is the baseline every eval conclusion rests on.
+// The default must track the CURRENT default Claude Code model, because the point of the no_skill
+// arm is "what a user gets WITHOUT the skill" and a user gets today's default, not a frozen one.
+// Owner directive 2026-07-28: use Opus 5.
+//
+// This went stale once and it cost a dimension. The Phase-21 RED round (36 runs, 4 cells) ran on
+// `claude-opus-4-8` because that was the current Opus when this line was written and nothing
+// re-checked it when Opus 5 shipped. The output-quality NULL survives a stronger baseline (it was
+// a ceiling effect), but the round's one POSITIVE finding -- auto-trigger at 9/12 vs 0/12 -- does
+// NOT transfer, because trigger propensity depends on how a model weighs skill descriptions and
+// that can shift across a generation. A stale pin therefore silently scopes the headline result to
+// a model nobody is running any more.
+const MODEL = process.env.E2E_MODEL || 'claude-opus-5';
 // Effort is pinned explicitly (not left to the CLI default) so runs are reproducible and the value
 // is recorded in meta.json. `high` is Anthropic's built-in default; --setting-sources project drops
 // the user's global effortLevel, so without this pin the runs would silently ride the default.

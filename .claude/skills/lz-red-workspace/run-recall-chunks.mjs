@@ -109,7 +109,10 @@ for (let i = 0; i < chunks.length; i++) {
     fs.writeFileSync(setPath, JSON.stringify([...chunks[i], CANARY], null, 2));
     const out = execFileSync(
       "python",
-      ["-m", "scripts.run_eval", "--eval-set", setPath, "--skill-path", SKILL, "--model", "claude-opus-4-8", "--runs-per-query", "3", "--num-workers", "1"],
+      ["-m", "scripts.run_eval", "--eval-set", setPath, "--skill-path", SKILL, // Model pin: track the CURRENT default Claude Code model (owner directive 2026-07-28).
+      // Re-check every model generation -- see the pin note in e2e-nx/run-e2e.mjs for why a stale
+      // pin silently scopes a result to a model nobody runs.
+      "--model", "claude-opus-5", "--runs-per-query", "3", "--num-workers", "1"],
       { cwd: TOOL_DIR, env: { ...process.env, PONYTAIL_DEFAULT_MODE: "off" }, maxBuffer: 64 * 1024 * 1024, stdio: ["ignore", "pipe", "ignore"] },
     );
     fs.writeFileSync(resultPath(i), out);

@@ -12,9 +12,13 @@ the metered gate after the required zero-spend Step 2 canary passed (`selfcheck-
 SKIPs across all eleven fabricated runDirs, including the platform-conditional crux 9). Every number
 below is measured.
 
-**HEADLINE: no correctness lift and no test-design lift. The baseline is at ceiling.** After the
-corrections an independent unbiased audit could defend, pooled Pass@1 is 0.67 for all three arms, and
-blind-judge substance is 9/9 for `no_skill` on the three cells that can be judged. The non-null
+**HEADLINE: no correctness lift and no test-design lift from PASSIVE skill content. The baseline is at
+ceiling.** After the corrections an independent unbiased audit could defend, pooled Pass@1 is 0.67 for
+all three arms, and blind-judge substance is 9/9 for `no_skill` on the three cells that can be judged.
+The PASSIVE qualifier is load-bearing, not hedging: five lz-refactor probes established that passive
+content does not move this axis, and a sixth probe -- an always-active forcing function -- moved it and
+shipped. That lever has never been built for `lz-red`. See "What this round licenses, and the next
+lever". The non-null
 findings are all off the output axis: the description auto-triggered in 9 of 12 opportunities, the
 skill-bearing arms cost more and take more turns, and the only two production edits in the round came
 from skill-bearing arms -- which points AGAINST coach-don't-drive, not for it.
@@ -73,6 +77,16 @@ explicitly labeled CONTEXT-ONLY and is never the headline. No such number is rep
   not textbook moves. This round found no discipline edge either -- see the production-edit row.
 - **GRC contamination (Pitfall 5):** a correctness TIE across all three arms on GRC is EXPECTED and is
   pass-at-ceiling on a smoke anchor, NOT evidence of inertness.
+- **PASSIVE content is null; an ACTIVE forcing function is not (the lz-refactor result).** This is the
+  single most important prior for reading this round, and it is easy to state backwards. Five
+  successive lz-refactor probes that varied PASSIVE skill content -- prose, gate cues, mirrored
+  taxonomy text, few-shot examples, a widened scope clause -- all measured NULL. The SIXTH probe
+  flipped the axis: an always-active AUDIT+DECIDE step embedded in `SKILL.md` (deliberately NOT in a
+  leaf, so smell routing cannot bypass it) lifted held-out recall from 0/3 control to 5/5 after one
+  tightening (Pass@1 0.40 -> 1.00) while holding precision at 0/5 over-conversions on a decoy-bearing
+  target. It shipped. A prompt-level precursor had already gone 0/3 -> 5/5, which falsified an earlier
+  "judgment ceiling, stop" conclusion. **So "passive content does not move the output axis" is
+  established, and "nothing moves it" is FALSE.**
 
 ## Correctness gate -- Pass@k and Pass^k (D-06; the pass criterion)
 
@@ -346,6 +360,45 @@ verdict; `attributedAssertions` matches on `title` not `fullName`, so duplicate 
 different `describe`s could mis-attribute in the false-PASS direction; only `producedTests[0]` is run,
 so a second produced spec is silently unmeasured; `changedProductionFiles` would classify
 `vite.config.ts` or a `test/helpers.ts` as production.
+
+## What this round licenses, and the next lever
+
+**What it licenses.** On this corpus, at this model, `lz-red` produces no correctness lift and no
+test-design lift. The baseline is at ceiling on test design (9/9), so there was very little headroom for
+any skill to demonstrate.
+
+**What it does NOT license: the conclusion that the skill cannot help.** What was measured is PASSIVE
+skill content. `lz-red`'s `SKILL.md` is a six-step decision procedure that links out to reference
+leaves -- structurally the same class of artifact as the five lz-refactor probes that measured null,
+and NOT the class that worked. The one lever with positive, shipped, precision-controlled evidence --
+an always-active enumerate-and-decide forcing function -- has never been built for `lz-red`. This round
+therefore reproduces the known null; it does not test the known-good lever.
+
+**Two of this round's failures are the shape a forcing function addresses.** Both are discretion /
+salience gaps rather than capability gaps, which is exactly what the loop audit fixed on lz-refactor:
+
+- **RXL, 0/9 on BOTH judge dims, all arms.** Every run asserted an injection token instead of rendered
+  output, while the cell's own `discipline_traps` demand the rendered month heading. No specimen
+  rendered anything. A forcing function of the form "enumerate what the contract promises OBSERVABLY,
+  then assert that" targets this directly. The models were not incapable -- nine of nine simply never
+  considered rendering.
+- **RXF, 9/9 design but 0/9 mechanical.** Correct tests, using a matcher family that does not typecheck
+  in this repo. Step 5 already names fail-for-the-right-reason, but PASSIVELY: nothing forces the model
+  to confirm its test fails the way it intended.
+
+**Caveats on the transfer, which must not be assumed away.** The lz-refactor forcing function fixed a
+RECOGNITION gap in refactoring (see a loop, classify it, convert or decline). Whether the mechanic
+transfers to RED test SELECTION is UNPROVEN. And the precision half needs its own control before
+anything ships: a forcing function that makes models over-produce tests, or produce tests for
+behaviours that are already covered, would be worse than the current null. The lz-refactor probe only
+counted as a success because Option B measured 0/5 over-conversions on a decoy-bearing target at BOTH
+versions -- an equivalent negative control is mandatory here, not optional.
+
+**Suggested next probe (NOT run, needs its own scoping and approval):** embed an always-active
+enumerate-and-decide step in `lz-red`'s `SKILL.md` -- enumerate the declared-but-unverified observable
+behaviours, classify which are untested, pick the smallest failing test, and state how it will fail --
+then A/B it held-out with a paired recall target and a precision target carrying already-covered
+behaviours as decoys. Run it on Opus 5 from the start.
 
 ## Disclosures
 

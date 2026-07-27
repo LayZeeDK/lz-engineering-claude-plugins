@@ -19,12 +19,12 @@ findings are all off the output axis: the description auto-triggered in 9 of 12 
 skill-bearing arms cost more and take more turns, and the only two production edits in the round came
 from skill-bearing arms -- which points AGAINST coach-don't-drive, not for it.
 
-**SCOPE WARNING -- every number is `claude-opus-4-8`.** The harness default was a stale pin; Opus 5
-had been the default Claude Code model for about a week when this round ran. The output-quality null
-survives a stronger baseline (it is a ceiling effect), but the auto-trigger rate does NOT transfer:
-trigger propensity depends on how a model weighs skill descriptions, which can shift across a
-generation. The pin has since been moved to `claude-opus-5` in all six call sites. Any Opus-5 claim
-about this skill is UNMEASURED.
+**SCOPE -- every number in the main round is `claude-opus-4-8`.** The harness default was a stale pin;
+Opus 5 had been the default Claude Code model for about a week when this round ran. The output-quality
+null survives a stronger baseline (it is a ceiling effect). The auto-trigger rate was the finding at
+risk, because trigger propensity depends on how a model weighs skill descriptions and can shift across
+a generation. **A follow-up probe has now MEASURED it on Opus 5 and it holds -- see "Opus 5 trigger
+probe" below.** The pin has since been moved to `claude-opus-5` in all six call sites.
 
 ## Run configuration (as run)
 
@@ -239,6 +239,38 @@ Two further caveats. **`with_skill` is a MIXTURE arm:** 3 of 12 runs never fired
 runs wearing a treated label -- including 2 of the 3 RXF runs. And one `invoke_skill` SRVC run ALSO
 emitted a `Skill` tool_use, so `invoke_skill fired = 0.00` is the norm by construction but not an
 invariant.
+
+## Opus 5 trigger probe (user-approved follow-up, 2026-07-28)
+
+The main round's one positive finding was auto-trigger, and it was the finding most at risk from the
+stale pin. This probe answers that specific question and nothing else.
+
+**Scope:** GRC cell, `with_skill` arm only, k=3, model `claude-opus-5` at effort `high`, same armed base
+`ac6a0335`, same throwaway checkout and toolchain. 3 runs, **$2.4410** ($0.814/run).
+
+| measure | Opus 4.8 (main round) | Opus 5 (probe) |
+|---------|----------------------|----------------|
+| auto-trigger fired | 3/3 | **3/3** |
+| `skill_forced` | false | false |
+| D-06 verdict | 3/3 `genuinely_red` | **3/3 `genuinely_red`** |
+| `changed_production_files` | 0/3 | **0/3** |
+| cost mean | $0.46 | **$0.81** |
+| turns mean | 11 | **~19** |
+
+Model confirmed three ways -- the harness `meta.json` field, the CLI's own `system/init` event, and the
+`result` event's `modelUsage` keys all read `claude-opus-5`.
+
+**Conclusion: the description still auto-triggers on Opus 5, and RED discipline holds** (every run wrote
+a genuinely failing test and edited no production file).
+
+**What this does NOT establish.** It is same-cell replication, not transfer across the corpus. GRC also
+fired 3/3 on Opus 4.8, so this reproduces the easy case. The interesting cell is RXF, which fired only
+1/3 on Opus 4.8 and is **untested on Opus 5** -- so the round's overall 9/12 rate is still an Opus-4.8
+figure and must not be restated as an Opus-5 one. Nothing here speaks to correctness lift either: the
+probe has no `no_skill` comparison arm by construction.
+
+**Cost finding:** Opus 5 is roughly 1.8x the cost per run and takes noticeably more turns on the same
+cell against the same base. Worth budgeting for in the next round.
 
 ## Graded lift dims (D-07/D-09; blind LLM judge, <= 2 dims)
 

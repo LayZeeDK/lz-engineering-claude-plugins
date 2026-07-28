@@ -137,6 +137,10 @@ not caution.
   assertions): [references/vitest-typescript-mechanics.md](references/vitest-typescript-mechanics.md)
 - Source-to-recommendation backing and owned/unowned access tiers:
   [references/principle-backing.md](references/principle-backing.md)
+- What to call the thing you substitute, and which author to cite for it, when deciding what to stand
+  in for while writing the failing test -- read it before using the word stub, which owned sources
+  assign to opposite sides:
+  [references/test-double-taxonomy.md](references/test-double-taxonomy.md)
 - Adaptive testing-stance router -- navigation index (detection signals + route table); open a
   leaf to act: [references/testing-stance/README.md](references/testing-stance/README.md)
   - Functional core, imperative shell (Bernhardt):

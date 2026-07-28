@@ -20,8 +20,11 @@ The loop runs in three short beats, repeated once per small behavior:
 - Refactor: with the bar green and a safety net in place, improve the internal structure and remove
   the duplication the quick green step introduced, holding observable behavior fixed.
 
-The discipline is that structure only ever changes while the bar is green, never while chasing a
-failing test.
+The discipline that structure only ever changes while the bar is green is FOWLER's, not Beck's -- it is
+citable to Refactoring, 2nd Edition Ch. 4, where refactoring is defined as running under a green bar.
+It was previously attributed to Beck here, which overstated him. Do not overstate it in the other
+direction either: Beck's own kanban cycle sanctions a preparatory refactoring BEFORE green, so the
+green-bar rule is Fowler's discipline rather than an absolute both authors share.
 
 ## The two rules
 
@@ -64,3 +67,7 @@ here.
 - Beck, Test-Driven Development by Example. Unowned; high-confidence core only, no-oracle. There is
   no owned copy to verify against, so correctness rests on tight core scope, skill-reviewer review, and
   DST-04 hygiene (original prose; only technique NAMES kept verbatim).
+- Martin Fowler, Refactoring, 2nd Edition, Ch. 4 -- the green-bar discipline (structure changes only
+  while the bar is green), re-attributed here from Beck. Owned; oracle-verified against the clean-room
+  source. Beck's kanban cycle is noted alongside it as the exception that keeps the claim from being
+  overstated in the other direction.

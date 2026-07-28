@@ -7,10 +7,13 @@ language-agnostic red guidance lands on the concrete stack; the demo stack lives
 description or the router. Type-level and property-based mechanics are named as advanced, deferred
 pointers only.
 
-> No-oracle reference: high-confidence core mapped from the public Vitest 4.x API, with no owned
-> source to verify against. Original prose, no verbatim source prose or code (DST-04); API NAMES
-> (it.todo, test.each, vi.fn, vi.spyOn, vi.mock) are kept as plain facts. Version-pinned to Vitest
-> 4.1.10.
+> Mixed-provenance reference, and the tier is PER CLAIM. The Vitest mechanics are high-confidence core
+> mapped from the public Vitest 4.x API, with no owned source to verify against (no-oracle). The
+> failure-versus-error boundary is Martin Fowler's, Refactoring 2nd Edition Ch. 4, owned and
+> oracle-verified against the clean-room source. The act-line behaviour reported below was MEASURED on
+> the pinned toolchain rather than taken from a source. Original prose, no verbatim source prose or code
+> (DST-04); API NAMES (it.todo, test.each, vi.fn, vi.spyOn, vi.mock) are kept as plain facts.
+> Version-pinned to Vitest 4.1.10 and tsc 6.0.3.
 
 ## it.todo: capture the running test list
 
@@ -81,6 +84,19 @@ function throws because it is not a constructor. Value-returning arrow mocks are
 - Distilled note: the fast feedback is what makes the red step cheap. A test you watch go red tells
   you immediately whether it fails for the reason you intended.
 
+## Failure versus error: the boundary both red-bar sections rest on
+
+- Distinction (Martin Fowler, Refactoring 2nd Edition Ch. 4; owned, oracle-verified): a FAILURE is an
+  assertion mismatch -- the test ran its check and the value was wrong. An ERROR is an exception raised
+  in an earlier phase, before the check was reached.
+- When-to-use: whenever you name what you are looking at. It is the vocabulary the two sections below
+  depend on, and it is the same boundary the retagged backing for this criterion rests on, so it is
+  stated once here and referenced rather than repeated.
+- Distilled note: the distinction is about WHERE in the test's life the problem surfaced, not about how
+  serious it is. An error is not automatically worthless -- an exception raised at the act line is real
+  evidence about missing behavior. What the boundary buys you is the ability to say precisely which
+  kind of red you are holding.
+
 ## Read the red bar: fail for the right reason
 
 - Mechanic: read WHY a test is red and WHERE the failure originated, not just that it is red. An
@@ -150,5 +166,11 @@ form or a blunter one -- but it does not run the suite unprompted or edit the te
 - Vitest 4.x (version-pinned 4.1.10) -- the test-list, triangulation, mocking, and watch APIs mapped
   to the red step: it.todo, test.each / it.each, vi.fn / vi.spyOn / vi.mock, and watch mode. Public
   API; no-oracle (no owned source to verify against).
+- Martin Fowler, Refactoring, 2nd Edition, Ch. 4 -- the failure-versus-error boundary: a failure is an
+  assertion mismatch, an error is an exception raised in an earlier phase. Owned; oracle-verified
+  against the clean-room source. This is the boundary the retagged backing for the
+  fail-for-the-right-reason criterion rests on.
+- lz-red's own measurement on the pinned toolchain (Vitest 4.1.10, tsc 6.0.3) -- which failures land at
+  the act line and which land at collection. Not from a source; no-oracle.
 - fast-check -- property-based generation, named only as a deferred ADV-02 forward-pointer, not a
   dependency of this skill. Public API; no-oracle.

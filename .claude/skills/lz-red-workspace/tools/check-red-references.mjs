@@ -38,6 +38,27 @@
 //   - Every gate added by that task carries a leading `[j9m] ` in its LABEL, so the new RED baseline
 //     is mechanically separable from the eleven pre-existing surfaces. No pre-existing label changed.
 //
+// Revised in quick-260728-wev, again extended IN PLACE (no sibling checker). That task's acceptance
+// gate found the instrument itself defective, so the instrument was fixed FIRST and every new guard
+// was demonstrated to FAIL against the unmodified tree before any content was edited; the per-guard
+// evidence is recorded in 260728-wev-RED-BASELINE.md. THREE stale topics were removed and SEVENTEEN
+// guards (G1-G17) added:
+//   - R1, the `/\bcoined\b/i` topic. Its needle OUTLIVED ITS SUBJECT: two unrelated occurrences about
+//     Meszaros coining the umbrella term keep it PASSing after the coinage it policed is gone. A
+//     guard that cannot fail is worse than no guard, so it is removed rather than narrowed.
+//   - R2, the `/unaudited/i` topic. Its subject -- the fabricated cross-reference mapping caveat --
+//     is deleted, and it cannot coexist with the G4 absent guard that replaces it.
+//   - R3, the `/vintage/i` topic. The MIRROR of R1: a SUBJECT DELETED FROM UNDER A NEEDLE, which
+//     produces a false FAIL. Its sole occurrence was the opening line of the seniority block the
+//     revision deletes, so it would have flipped PASS to FAIL and blocked the phase. Both are the
+//     same coupling bug -- a positive topic silently depending on prose another change may move.
+//   - G1-G5, G11, G12 are taxonomy `absent` guards; G6-G10 and G13 taxonomy positive topics; G14 and
+//     G15 net-new SEMANTIC guards on the lz-red SKILL.md worked example (the entry already had an
+//     absent guard -- what it lacked was any guard on the example, which is why stale contradicting
+//     text passed at 12/12); G16 a principle-backing.md positive topic; G17 a net-new post-loop
+//     bare-qualifier gate. The taxonomy label constant below belongs to the sha256 byte-identity
+//     gate, NOT to any coinage gate, and was deliberately left alone.
+//
 // RED against the current placeholder / un-filled Phase-18 slices BY DESIGN -- this is the
 // instrument-first Wave-0 Nyquist baseline, NOT a failure. The tsc extractor is GREEN-on-empty (it
 // compiles whatever fences exist), so it cannot be the content-completeness signal; THIS checker is.
@@ -262,6 +283,14 @@ const FILES = [
       // DEL-7e: the retagged criterion rests on the failure-versus-error boundary (Fowler), which the
       // superseded Clean Code Ch. 9 row could not carry -- that chapter contradicts the criterion.
       { label: "[j9m] failure-vs-error boundary row", re: /failure|error boundary/i },
+      // [wev] G16: the title of the owned Beck essay that establishes the kanban-cycle surface. This
+      // gates the one fix in the revision that closes a SHIPPED self-contradiction -- the same file
+      // asserting both that the owned surface was NOT established and that Beck is one of four owned
+      // sources citing it. An untiered provenance claim slipping through unnoticed is the exact
+      // defect class the revision exists to correct, so it gets a machine lock rather than trust.
+      // The essay TITLE, never the book title: the D-05 honesty gate below fails any row whose
+      // Source cites the book with a tier beginning `Owned`.
+      { label: "[wev G16] kanban-cycle essay named as the owned surface", re: /TDD is Kanban for Code/i },
     ],
     absent: { label: "no stale deferral marker", re: /Phase 18/i },
   },
@@ -288,7 +317,21 @@ const FILES = [
       { label: "[j9m] prerequisite to clear", re: /prerequisite/i },
       { label: "[j9m] characterization carve-out", re: /characterization/i },
     ],
-    absent: { label: "no stale deferral marker", re: /Phase 18/i },
+    // [wev] G14 and G15 are the entry's first SEMANTIC guards on the worked example. The entry
+    // already carried an absent guard (the stale-marker one below); what it lacked was any guard on
+    // the example itself, which is why stale contradicting text and a latent false green both passed
+    // at 12/12.
+    absent: [
+      { label: "no stale deferral marker", re: /Phase 18/i },
+      // G14: the trailing clause of the fenced comment that denied what step 5 sanctions. The
+      // CORRECT sibling clause in the prose lead-in -- about a compile error -- differs by two words
+      // and is deliberately NOT caught by this needle.
+      { label: "[wev G14] worked example does not deny the not-implemented throw", re: /not a missing symbol/i },
+      // G15: the exact bare return statement of the example's wrong body, semicolon included. The
+      // semicolon matters: a real implementation begins with the same two words followed by an
+      // operator, and must not trip the guard.
+      { label: "[wev G15] worked-example body is not the identity return", re: /^\s*return total;\s*$/ },
+    ],
   },
   {
     // NET-NEW (quick-260728-j9m): the cross-author test-double vocabulary map, shipped as three
@@ -306,19 +349,64 @@ const FILES = [
       { label: "[j9m] lifetime axis", re: /lifetime/i },
       { label: "[j9m] bare-stub collision headline", re: /collision/i },
       { label: "[j9m] defines-vs-uses column", re: /\bdefines\b/i },
-      { label: "[j9m] coinage declared openly", re: /\bcoined\b/i },
       { label: "[j9m] Self Shunt disclosure model", re: /self shunt/i },
       { label: "[j9m] Saboteur polarity caveat", re: /saboteur/i },
       { label: "[j9m] Overspecified Software citation", re: /overspecified software/i },
       { label: "[j9m] Cooper false-friend caveat", re: /false friend/i },
       { label: "[j9m] degraded-scan confidence caveat", re: /degraded scan/i },
-      { label: "[j9m] unaudited Beck-Fake mapping caveat", re: /unaudited/i },
       { label: "[j9m] appendices not exhaustive", re: /not exhaustive/i },
       { label: "[j9m] authority is per cell", re: /per cell|per-cell/i },
       { label: "[j9m] Meszaros scoped as a reference frame, not the spine", re: /reference frame/i },
-      { label: "[j9m] two senses of different vintage", re: /vintage/i },
       { label: "[j9m] inherited disagreement named", re: /inherited/i },
       { label: "[j9m] no declared precedence for the TDD content sources", re: /no declared precedence/i },
+      // [wev] Positive topics G6-G10 and G13. Each is a CONTRACT on the revised document's wording,
+      // and each FAILED at baseline because the target wording did not exist yet.
+      // G6: the axis count as a word plus the word axes, which the section-1 heading must carry.
+      { label: "[wev G6] three-axis count named", re: /three axes/i },
+      // G7: the never-assert-an-empty-cell doctrine must be STATED, not merely obeyed, so the guard
+      // stays falsifiable even when every cell happens to be populated.
+      { label: "[wev G7] never-assert-an-empty-cell doctrine stated", re: /\bnever asserts\b/i },
+      // G8: citing the Boundaries talk without a delivery IS the defect -- the two deliveries differ
+      // on exactly the point the row asserts, so findings cannot transfer between them.
+      { label: "[wev G8] Bernhardt row names a specific delivery", re: /\b(PyCon|SCNA)\b/i },
+      // G9: the compound adjective for the version qualifier in the closing tier block.
+      { label: "[wev G9] tier assertions are version-bound", re: /version-bound/i },
+      // G10: what an automatic transcript can garble -- the medium qualifier and its absence-claim
+      // corollary both turn on it.
+      { label: "[wev G10] transcript mistranscription named", re: /mistranscri/i },
+      // G13: the INDEPENDENCE claim that replaces the deleted seniority argument. The bare word
+      // `independent` is VACUOUS as a needle -- the document already says twelve independent sources
+      // -- so the needle is the two-word phrase for two vocabularies that collided without either
+      // author citing the other.
+      { label: "[wev G13] independent vocabularies, no seniority claim", re: /independent vocabularies/i },
+    ],
+    // [wev] The taxonomy entry carried NO absent guard at all before this task -- only positive
+    // topics, which is how a self-falsifying claim, a fabricated mapping and a relative
+    // self-reference all shipped at full GREEN. G1-G5, G11 and G12 close that.
+    absent: [
+      // G1: the invented two-word term. Removed, not softened.
+      { label: "[wev G1] no invented term", re: /signature skeleton/i },
+      // G2: the self-falsifying claim that a cell is named by no author, which the document's own
+      // table falsified with five populated rows.
+      { label: "[wev G2] no empty-cell assertion", re: /no author names/i },
+      // G3: skill-relative self-reference. This machine-enforces the byte-identity rule: the file is
+      // byte-identical across three skills, so a relative reference resolves differently in each
+      // copy. Explicit naming of a specific skill stays legal; only the relative form is banned.
+      { label: "[wev G3] no skill-relative self-reference", re: /\bthis skill\b/i },
+      // G4: the word describing the fabricated mapping's audit status. There is no mapping to audit.
+      { label: "[wev G4] no unaudited-mapping caveat", re: /\bunaudited\b/i },
+      // G5: the carve-out that exempted one cell from the degraded-scan caveat -- precisely the
+      // fabricated cell, so the carve-out inverted the actual reliability.
+      { label: "[wev G5] no degraded-scan carve-out", re: /other than the Beck cell/i },
+      // G11: the Metz term that occurs nowhere in the twenty-one-file corpus.
+      { label: "[wev G11] no non-occurring Metz term", re: /do-nothing method/i },
+      // G12: the SUPERSEDED two-axis wording, one needle over both the axis-count phrase and the
+      // four-cell phrase. LOAD-BEARING: topics are file-scoped and match anywhere, so G6 alone is
+      // satisfied by the new prose appearing while the old heading, the old anchor and the four-cell
+      // sentence all still stand -- a document asserting BOTH axis counts, at full GREEN. The needle
+      // deliberately does not catch the legitimate new phrasing about all four COMBINATIONS of the
+      // first and second axes; combinations are not cells.
+      { label: "[wev G12] no superseded two-axis or four-cell wording", re: /two[ -]axes|four cells/i },
     ],
     deferral: null,
   },
@@ -478,6 +566,88 @@ if (missingCopies.length > 0) {
       : `digests DIVERGED -- ${digests.map(({ skill, digest }) => `${skill}=${digest.slice(0, 12)}`).join(", ")}`
   );
 }
+
+// [wev] G17 BARE-QUALIFIER GATE. The taxonomy's own hard rule -- never use the contested word
+// unqualified, say production-side or collaborator-side -- was enforced by NOTHING, so a regression
+// was silent, and three of the six violations live at baseline were introduced by the very merge
+// under review. A standalone post-loop block (the D-05 / SEAM-02 / byte-identity idiom) because it
+// reads a whole tree plus paths outside the lz-red references dir.
+//
+// Scope: every .md under the lz-red references tree, plus the three shipped SKILL.md routers. All
+// three TAXONOMY COPIES are EXCLUDED -- there the word is the document's own subject matter and
+// appears twenty-seven times per copy by design.
+//
+// Allowlist is exactly two forms and nothing else: an IMMEDIATELY PRECEDING canonical side
+// qualifier, and the meta-mention form that quotes the word as a word. The capitalised bare form is
+// deliberately NOT allowlisted -- it is canonicalised at the site instead.
+//
+// Fails CLOSED on an unreadable file, and reports every hit BY FILE AND LINE so a failure is
+// actionable rather than a bare count.
+const BARE_WORD_RE = /\b(stub|stubs|stubbed|stubbing)\b/gi;
+const SIDE_QUALIFIED_RE = /(production|collaborator)-side\s+$/i;
+const META_MENTION_RE = /\bthe word\s+[`'"]?$/i;
+const BARE_QUALIFIER_LABEL = "[wev G17] no bare unqualified contested word outside the taxonomy";
+const TAXONOMY_BASENAME = "test-double-taxonomy.md";
+
+const collectMarkdown = (dir) => {
+  const found = [];
+
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    const full = path.join(dir, entry.name);
+
+    if (entry.isDirectory()) {
+      found.push(...collectMarkdown(full));
+      continue;
+    }
+
+    if (entry.isFile() && entry.name.endsWith(".md")) {
+      found.push(full);
+    }
+  }
+
+  return found;
+};
+
+const bareQualifierTargets = [
+  ...collectMarkdown(REFERENCES).filter((file) => path.basename(file) !== TAXONOMY_BASENAME),
+  ...["lz-red", "lz-refactor", "lz-tpp"].map((skill) =>
+    path.join(repoRoot, "plugins", "lz-tdd", "skills", skill, "SKILL.md")
+  ),
+];
+const bareQualifierHits = [];
+
+for (const file of bareQualifierTargets) {
+  const shown = path.relative(repoRoot, file);
+  let bareText;
+
+  try {
+    bareText = fs.readFileSync(file, "utf8");
+  } catch (err) {
+    bareQualifierHits.push(`${shown}: UNREADABLE (${err.code ?? err.message})`);
+    continue;
+  }
+
+  bareText.split(/\r?\n/).forEach((line, index) => {
+    BARE_WORD_RE.lastIndex = 0;
+    let match;
+
+    while ((match = BARE_WORD_RE.exec(line)) !== null) {
+      const before = line.slice(0, match.index);
+
+      if (SIDE_QUALIFIED_RE.test(before) || META_MENTION_RE.test(before)) {
+        continue;
+      }
+
+      bareQualifierHits.push(`${shown}:${index + 1} (${match[0]})`);
+    }
+  });
+}
+
+report(
+  bareQualifierHits.length === 0,
+  BARE_QUALIFIER_LABEL,
+  bareQualifierHits.length === 0 ? "" : `${bareQualifierHits.length} bare use(s): ${bareQualifierHits.join("; ")}`
+);
 
 console.log("");
 

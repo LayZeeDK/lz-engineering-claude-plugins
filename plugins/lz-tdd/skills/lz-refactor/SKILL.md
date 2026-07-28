@@ -182,4 +182,5 @@ no-tests core techniques: [references/refactoring-without-tests.md](references/r
 ## Test-double and stand-in taxonomy (which artifacts are transitional)
 
 When a request turns on whether an artifact is a temporary step or a permanent fixture of the design,
-place it on the side and lifetime axes: [references/test-double-taxonomy.md](references/test-double-taxonomy.md)
+place it on the three axes -- where it lives, what it stands in for, and how long it lives:
+[references/test-double-taxonomy.md](references/test-double-taxonomy.md)

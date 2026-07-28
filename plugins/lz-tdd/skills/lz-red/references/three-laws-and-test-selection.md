@@ -75,7 +75,7 @@ describe('sumOf', () => {
   });
 });
 
-// A signature skeleton: the real symbol, the correct signature, nothing behind it yet.
+// A production-side stub: the real symbol, the correct signature, nothing behind it yet.
 // lz-tpp picks the transformation that fills it in.
 function sumOf(values: number[]): number {
   throw new Error('not implemented');

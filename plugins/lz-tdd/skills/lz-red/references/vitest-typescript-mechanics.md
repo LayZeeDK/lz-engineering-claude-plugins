@@ -61,7 +61,7 @@ function isEven(value: number): boolean {
 
 ## vi.fn, vi.spyOn, vi.mock: doubles with restraint
 
-- Mechanic: vi.fn creates a standalone spy or stub function, vi.spyOn wraps an existing method or
+- Mechanic: vi.fn creates a standalone spy or collaborator-side stub function, vi.spyOn wraps an existing method or
   accessor, and vi.mock replaces a whole module. Each observes or replaces a collaborator.
 - When-to-use: sparingly, and at a boundary. The one message that genuinely warrants a double is the
   outgoing command -- the expect-to-send in the

@@ -56,7 +56,8 @@ is documentation of the behavior, not of the method under test.
   A reader scans a uniform suite faster, and a coach that respects the house style is adopted rather
   than resisted.
 
-A behavior-oriented name reads as a sentence about what the code should do:
+A behavior-oriented name reads as a sentence about what the code should do. The production body below
+is shown for context only; at red time it is the not-yet-implemented form:
 
 ```ts
 import { describe, it, expect } from 'vitest';

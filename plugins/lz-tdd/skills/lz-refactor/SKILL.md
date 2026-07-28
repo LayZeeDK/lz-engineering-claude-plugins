@@ -178,3 +178,8 @@ idiom up in the by-idiom index:
 
 When the target code lacks the test coverage that makes ordinary refactoring safe, consult the
 no-tests core techniques: [references/refactoring-without-tests.md](references/refactoring-without-tests.md)
+
+## Test-double and stand-in taxonomy (which artifacts are transitional)
+
+When a request turns on whether an artifact is a temporary step or a permanent fixture of the design,
+place it on the side and lifetime axes: [references/test-double-taxonomy.md](references/test-double-taxonomy.md)

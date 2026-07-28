@@ -7,7 +7,12 @@ testing-stance index when the detection signal is untested legacy code with no o
 assert. This is the RED-step framing (write the pinning test); the refactor-step no-tests
 techniques already live in the lz-refactor skill.
 
-> No-oracle reference: high-confidence core only (no owned Feathers source to verify against).
+> No-oracle reference: high-confidence core only. An owned Feathers surface DOES exist -- Clean Code
+> Ch. 7, which he guest-authored -- so the earlier claim that there is no owned Feathers source was
+> false. What is true is narrower: that chapter does not cover seams or characterization tests, so the
+> recommendations here are no-oracle for lack of COVERAGE rather than for lack of an owned author. They
+> stay high-confidence core and are NOT upgraded to oracle-verified, because the owned surface does not
+> reach this material and so cannot verify it.
 > Original prose, no verbatim source prose or code (DST-04); technique NAMES are kept as plain
 > facts. RED-step framing only -- the refactor-step technique bodies are cross-linked below, not
 > copied.
@@ -52,5 +57,7 @@ rather than duplicating them here: see
 
 - Michael Feathers, Working Effectively with Legacy Code -- seams and characterization tests as the
   RED-step framing for untested legacy: find a seam, pin current behavior, then drive new behavior.
-  Unowned; high-confidence core only (no-oracle). Cross-linked to, not copied from, lz-refactor's
-  Feathers reference.
+  Unowned; high-confidence core only (no-oracle). The owned Feathers surface in the clean-room set is
+  Clean Code Ch. 7, which he guest-authored; it does not cover this material, so the no-oracle tag here
+  reflects missing COVERAGE rather than a missing owned author. Cross-linked to, not copied from,
+  lz-refactor's Feathers reference.

@@ -39,7 +39,9 @@ refactor step (lz-refactor). This is the coach's entry point: what to test next,
   resist writing more of the test than it takes to make it fail.
 - Distilled rationale (Robert C. Martin, owned; oracle-verified): the discipline is to grow the test
   only to the first failure, then stop -- a not-yet-defined symbol counts as that failure just as
-  much as a wrong result does. Holding each increment to one small step keeps the distance between
+  much as a wrong result does. That rule sizes the test, which is a different question from which red
+  you hand forward to the green step; the fail-for-the-right-reason step settles the second one.
+  Holding each increment to one small step keeps the distance between
   red and green tiny, so a red bar always names the single change that caused it and the diagnosis
   is immediate.
 
@@ -53,12 +55,15 @@ refactor step (lz-refactor). This is the coach's entry point: what to test next,
   implementation into existence with almost no logic. That gives you a green bar and a real function
   to grow, so later tests add the interesting behavior against something that already compiles.
 
-The opening move of a new behavior is often the empty case, written before the code exists:
+The opening move of a new behavior is often the empty case, written against a production symbol that
+has its signature but no implementation behind it yet:
 
 ```ts
 import { describe, it, expect } from 'vitest';
 
-// The starter test of a new behavior: the degenerate, empty input.
+// The starter test of a new behavior: the degenerate, empty input. At red time the
+// symbol exists with the right signature and no implementation, so the test runs and
+// fails at the act line -- a valid red, blunter than an AssertionError.
 describe('sumOf', () => {
   it('should be zero for an empty list', () => {
     // Arrange
@@ -70,8 +75,10 @@ describe('sumOf', () => {
   });
 });
 
+// A signature skeleton: the real symbol, the correct signature, nothing behind it yet.
+// lz-tpp picks the transformation that fills it in.
 function sumOf(values: number[]): number {
-  return values.reduce((running, value) => running + value, 0);
+  throw new Error('not implemented');
 }
 ```
 
@@ -102,7 +109,11 @@ triangulation all operate inside the discipline these laws impose.
   it takes to fail, then stop and watch it fail. A reference to a symbol that does not yet exist is a
   failure just as much as a wrong assertion is -- code that does not compile counts as the red bar.
   This is the same thread as "Take one small step" above: grow the test to the first failure and no
-  further (see that row for the not-yet-defined-symbol rationale in full).
+  further (see that row for the not-yet-defined-symbol rationale in full). Read the scope carefully:
+  Law 2 sizes the test, and the separate fail-for-the-right-reason step decides which red you hand
+  forward to the green step. Both are owned, they answer different questions, and the word failure does
+  double duty across them -- code that does not compile satisfies Law 2's stopping rule without being
+  the red you hand it forward on.
 - Law 3 -- the lz-tpp handoff (lz-red orchestration, no-oracle): write only as much production code as
   it takes to pass the one failing test. That is the green step, and it is lz-tpp's job, not this
   skill's. lz-red confirms the red bar fails for the right reason and hands the failing test forward;

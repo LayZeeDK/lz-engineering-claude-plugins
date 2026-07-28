@@ -61,7 +61,10 @@ reference leaf that carries the detail; do not restate a leaf's content here.
    do not restate it.
 2. Hold the Three Laws spine. Law 1 gates entry: write no production code until a failing test asks
    for it. Law 2 sizes the test: grow it only to the first failure, and a reference to a
-   not-yet-defined symbol counts as that failure. (Law 3 is step 6.) The owned spine and the
+   not-yet-defined symbol counts as that failure. Read that clause at its own scope: it governs when to
+   stop WRITING the test, and it is not yet the bar you hand forward. Law 2 sizes the test; step 5
+   decides what you hand to the green step. Two different questions that happen to share the word
+   failure. (Law 3 is step 6.) The owned spine and the
    test-selection moves -- running test list, one small step, the degenerate starter case, and
    triangulation -- live in
    [references/three-laws-and-test-selection.md](references/three-laws-and-test-selection.md); read it
@@ -77,15 +80,24 @@ reference leaf that carries the detail; do not restate a leaf's content here.
    given-when-then) and assert what the code does, not how it does it, per
    [references/test-structure-and-assertions.md](references/test-structure-and-assertions.md); do not
    restate it.
-5. Confirm it fails for the right reason. The fresh test must fail on its assertion -- an
-   AssertionError on the behavior it pins -- not on a compile, import, or setup error, and it must not
-   pass immediately (a false green); F.I.R.S.T. is the quality baseline. Explain which failure is the
-   right one and why; do not run the suite unprompted. The red-bar mechanics are in
+5. Confirm it fails for the right reason. The red you hand forward must have RUN and failed, and the
+   failure must originate in the code under test -- not in module load, test collection, or setup. An
+   AssertionError on the behavior it pins is the SHARPEST form, because it names both the expected and
+   the received value. A not-implemented throw, or an error raised inside the test body at the point of
+   use, is a valid but blunter red -- a real signal about missing behavior, not a broken test. A build,
+   import, module-resolution or collection failure is a prerequisite to CLEAR, not the red you hand
+   forward. A test that passes on its first run while driving new behavior is a false green -- with one
+   carve-out: a characterization test is green by construction, because it pins existing behavior
+   rather than driving new behavior, so it is a pin and not a driver. F.I.R.S.T. is the quality
+   baseline. Explain which failure is the right one and why; do not run the suite unprompted. The
+   red-bar mechanics are in
    [references/vitest-typescript-mechanics.md](references/vitest-typescript-mechanics.md) and the
    F.I.R.S.T. baseline in
    [references/test-structure-and-assertions.md](references/test-structure-and-assertions.md).
 6. Hand off forward to lz-tpp. Once the test is red for the right reason, making it pass is Law 3 --
-   the green step, and that is lz-tpp's job, not this skill's.
+   the green step, and that is lz-tpp's job, not this skill's. Because a not-implemented throw now
+   counts as a valid red, lz-red no longer has to author a wrong-value stub to reach one, which shrinks
+   the pressure on this seam without settling who owns that stub.
 
 The RED path end to end (Vitest + TypeScript). Classify (step 1): this is new behavior, so the next
 failing test is lz-red's. Pick the starter case (step 2) and shape it arrange-act-assert (step 4),
@@ -137,6 +149,10 @@ not caution.
   assertions): [references/vitest-typescript-mechanics.md](references/vitest-typescript-mechanics.md)
 - Source-to-recommendation backing and owned/unowned access tiers:
   [references/principle-backing.md](references/principle-backing.md)
+- What to call the thing you substitute, and which author to cite for it, when deciding what to stand
+  in for while writing the failing test -- read it before using the word stub, which owned sources
+  assign to opposite sides:
+  [references/test-double-taxonomy.md](references/test-double-taxonomy.md)
 - Adaptive testing-stance router -- navigation index (detection signals + route table); open a
   leaf to act: [references/testing-stance/README.md](references/testing-stance/README.md)
   - Functional core, imperative shell (Bernhardt):

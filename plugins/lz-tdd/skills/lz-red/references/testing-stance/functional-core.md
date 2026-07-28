@@ -50,7 +50,8 @@ index when the detection signal is value-in / value-out code with no mocking.
   belongs to the shell, and the message-matrix or seams-and-legacy stance fits it better.
 
 An output-based red test over the pure core feeds values in and asserts the value out, with no
-doubles; the shell would call this same function and persist its result:
+doubles; the shell would call this same function and persist its result. The core's body below is shown
+for context only; at red time it is the not-yet-implemented form:
 
 ```ts
 import { describe, it, expect } from 'vitest';

@@ -7,10 +7,13 @@ language-agnostic red guidance lands on the concrete stack; the demo stack lives
 description or the router. Type-level and property-based mechanics are named as advanced, deferred
 pointers only.
 
-> No-oracle reference: high-confidence core mapped from the public Vitest 4.x API, with no owned
-> source to verify against. Original prose, no verbatim source prose or code (DST-04); API NAMES
-> (it.todo, test.each, vi.fn, vi.spyOn, vi.mock) are kept as plain facts. Version-pinned to Vitest
-> 4.1.10.
+> Mixed-provenance reference, and the tier is PER CLAIM. The Vitest mechanics are high-confidence core
+> mapped from the public Vitest 4.x API, with no owned source to verify against (no-oracle). The
+> failure-versus-error boundary is Martin Fowler's, Refactoring 2nd Edition Ch. 4, owned and
+> oracle-verified against the clean-room source. The act-line behaviour reported below was MEASURED on
+> the pinned toolchain rather than taken from a source. Original prose, no verbatim source prose or code
+> (DST-04); API NAMES (it.todo, test.each, vi.fn, vi.spyOn, vi.mock) are kept as plain facts.
+> Version-pinned to Vitest 4.1.10 and tsc 6.0.3.
 
 ## it.todo: capture the running test list
 
@@ -31,7 +34,8 @@ pointers only.
   red case as one more row. This is the red-step SELECTION facet only; turning the examples into a
   general implementation is the green step (lz-tpp), not this table's job.
 
-An example table drives one behavior across several concrete rows:
+An example table drives one behavior across several concrete rows. The production body below is shown
+for context only; at red time it is the not-yet-implemented form, so the rows genuinely fail:
 
 ```ts
 import { describe, test, expect } from 'vitest';
@@ -80,16 +84,35 @@ function throws because it is not a constructor. Value-returning arrow mocks are
 - Distilled note: the fast feedback is what makes the red step cheap. A test you watch go red tells
   you immediately whether it fails for the reason you intended.
 
+## Failure versus error: the boundary both red-bar sections rest on
+
+- Distinction (Martin Fowler, Refactoring 2nd Edition Ch. 4; owned, oracle-verified): a FAILURE is an
+  assertion mismatch -- the test ran its check and the value was wrong. An ERROR is an exception raised
+  in an earlier phase, before the check was reached.
+- When-to-use: whenever you name what you are looking at. It is the vocabulary the two sections below
+  depend on, and it is the same boundary the retagged backing for this criterion rests on, so it is
+  stated once here and referenced rather than repeated.
+- Distilled note: the distinction is about WHERE in the test's life the problem surfaced, not about how
+  serious it is. An error is not automatically worthless -- an exception raised at the act line is real
+  evidence about missing behavior. What the boundary buys you is the ability to say precisely which
+  kind of red you are holding.
+
 ## Read the red bar: fail for the right reason
 
-- Mechanic: read WHY a test is red, not just that it is red. An AssertionError (expected X, received
-  Y) means the harness ran and the asserted behavior is missing -- a valid red. A ReferenceError, a
-  TypeError, or an import failure means the test never reached its assertion -- a broken harness, not
-  a real red.
+- Mechanic: read WHY a test is red and WHERE the failure originated, not just that it is red. An
+  AssertionError (expected X, received Y) is the sharpest red: the test ran, reached the assertion, and
+  the asserted behavior is missing. A ReferenceError or a TypeError raised at the ACT LINE is also a
+  valid red. Measured on the pinned toolchain (Vitest 4.1.10, tsc 6.0.3): a missing named export throws
+  a TypeError at the act line, and a bare undeclared identifier throws a ReferenceError at the act
+  line -- in both cases the test body RAN. Such a red is blunter than an AssertionError, because it
+  names no expected value, but it is not invalid. What is not the red you hand forward is a failure
+  that happens before the body runs at all: a missing MODULE fails at collection with zero tests run,
+  and a build or import error never reaches the body either.
 - When-to-use: the instant a new test goes red, before you write any production code to make it pass.
-- Distilled note: a valid red fails for the right reason -- the assertion -- so the green step has a
-  precise target. A red from a typo or a missing import is noise; fix the harness until the failure
-  is the assertion you wrote, then proceed.
+- Distilled note: a valid red fails for the right reason -- in the code under test -- so the green step
+  has a precise target. Locate the failure before judging it: a red at the act line is real evidence
+  about missing behavior, whereas a red from collection or module resolution is a prerequisite to clear
+  and says nothing yet. Clear the second kind, then read the first.
 
 ## Advanced red mechanics (deferred)
 
@@ -108,25 +131,46 @@ pointers:
 The Read-the-red-bar mechanic above is where this step gets its evidence; here that mechanic becomes
 a fixed procedure step on the coach's Three-Laws spine (LAW-02). The rule: after a fresh test is
 written and before a single line of production code is added, confirm the test is red for the reason
-you intended. A valid red is an AssertionError -- expected X, received Y -- so the harness ran,
-reached the assertion, and found the behavior missing. A ReferenceError, a TypeError, or an import
-or setup failure is a broken harness -- the test never reached its assertion, so its red says nothing
-about the behavior. A test that passes the instant it is written is a false green -- it asserts what
-the code already does, drives no new behavior, and must be sharpened until it fails.
+you intended. The red you hand forward must have RUN and failed, and the failure must originate in the
+code under test rather than in module load, collection, or setup. An AssertionError -- expected X,
+received Y -- is the sharpest form, because it names both what was expected and what arrived. A
+not-implemented throw, or an error raised inside the test body at the point of use, is a valid but
+blunter red: it is real evidence that the behavior is missing, not a defect in the test setup. A build,
+import, module-resolution or collection failure is different in kind -- it is a prerequisite to clear
+before any red means anything. A test that passes the instant it is written while driving new behavior
+is a false green: it asserts what the code already does and drives nothing out. The one carve-out is
+the characterization test, which is green by construction because it pins existing behavior rather than
+driving new behavior; it is a pin, not a driver, and it is not required to go red.
 
-Only when the red is the assertion you wrote does the failing test become a precise target for the
-green step, which is lz-tpp's job. This procedure step is the gate between choosing the test and
-handing it off: a well-formed red on the asserted behavior passes forward; a harness error or a
-false green sends you back to fix the test first.
+Only when the red originates in the code under test does the failing test become a precise target for
+the green step, which is lz-tpp's job. This procedure step is the gate between choosing the test and
+handing it off: a red that ran and failed in the code under test passes forward; a collection or build
+failure is cleared first, and a false green sends you back to sharpen the test.
+
+Instrument divergence, recorded rather than hidden. This project's own RED evaluation gate implements
+the assertion-only form of this rule -- it accepts an AssertionError and nothing else. That is STRICTER
+THAN the criterion stated above, and stricter than every owned source: Clean Code makes a build failure
+a legitimate red outright, Beck's instruction is to clear the compile error and then run and fail,
+Fowler puts the boundary at an exception raised in an earlier phase, and Meszaros treats an error as a
+legitimate, equally severe red that you are told NOT to convert into a failure. The narrower gate is
+deliberate evaluation design -- one unambiguous signal is easier to grade mechanically -- and not a
+claim about doctrine, so it is left exactly as it is. A skill that silently diverges from its own
+instrument has a defect; one that writes the divergence down does not.
 
 The coach questions rather than drives here. It reads the failure with the developer and explains
-which red is the right one and why -- an AssertionError versus a broken harness versus a false green
--- but it does not run the suite unprompted or edit the test to force the color.
+which red is the right one and why -- where the failure originated, and whether it is the sharpest
+form or a blunter one -- but it does not run the suite unprompted or edit the test to force the color.
 
 ## Sources
 
 - Vitest 4.x (version-pinned 4.1.10) -- the test-list, triangulation, mocking, and watch APIs mapped
   to the red step: it.todo, test.each / it.each, vi.fn / vi.spyOn / vi.mock, and watch mode. Public
   API; no-oracle (no owned source to verify against).
+- Martin Fowler, Refactoring, 2nd Edition, Ch. 4 -- the failure-versus-error boundary: a failure is an
+  assertion mismatch, an error is an exception raised in an earlier phase. Owned; oracle-verified
+  against the clean-room source. This is the boundary the retagged backing for the
+  fail-for-the-right-reason criterion rests on.
+- lz-red's own measurement on the pinned toolchain (Vitest 4.1.10, tsc 6.0.3) -- which failures land at
+  the act line and which land at collection. Not from a source; no-oracle.
 - fast-check -- property-based generation, named only as a deferred ADV-02 forward-pointer, not a
   dependency of this skill. Public API; no-oracle.

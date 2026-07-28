@@ -89,3 +89,6 @@ mandatory.
   [references/fibonacci-worked-example.md](references/fibonacci-worked-example.md)
 - Paired functional/imperative TypeScript plus TCO-safe recursion guidance:
   [references/typescript-and-tco.md](references/typescript-and-tco.md)
+- What to call a production symbol that has no implementation yet, while picking the transformation
+  that fills it -- read it before using the word stub, which owned sources assign to opposite sides:
+  [references/test-double-taxonomy.md](references/test-double-taxonomy.md)

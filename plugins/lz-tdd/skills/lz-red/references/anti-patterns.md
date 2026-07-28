@@ -64,16 +64,21 @@ change (Khorikov).
 
 ### 4. A test that passes immediately (no red)
 
-- Anti-pattern: a new test that is green the first time it runs, before any production code exists
-  to satisfy it -- so it never showed that it can fail.
+- Anti-pattern: a new test that is green the first time it runs while it is meant to DRIVE new
+  behavior -- so it never showed that it can fail.
 - Recognize by: a fresh test that passes immediately on its first run; an assertion so loose, or
-  aimed at code that already behaves that way, that nothing was actually driven out.
-- Correction: see the test fail first, for the reason you intend, before writing the code that
-  makes it pass. A test that was never red proves nothing about the behavior it claims to guard.
-  Reading a red bar to confirm it fails for the right reason is a mechanic in
-  [vitest-typescript-mechanics.md](vitest-typescript-mechanics.md); this entry is only the
-  anti-pattern, not the fail-for-the-right-reason procedure (which lands with the coach spine in a
-  later phase).
+  aimed at code that already behaves that way, that nothing was actually driven out. Establish what
+  the test is FOR before calling it: this recognizer applies to a test written to drive new behavior.
+- Carve-out: a characterization test is green by construction and is NOT this anti-pattern. It pins
+  what untested code already does, so that a later change becomes detectable -- a pin, not a driver.
+  Demanding a red from it would have this skill condemn its own legacy stance; see
+  [testing-stance/seams-and-legacy.md](testing-stance/seams-and-legacy.md).
+- Correction: for a test that drives new behavior, see it fail first, for the reason you intend,
+  before writing the code that makes it pass. A test that was never red proves nothing about the
+  behavior it claims to guard. Reading a red bar to confirm it fails for the right reason, and the
+  procedure step that gate feeds, are both in
+  [vitest-typescript-mechanics.md](vitest-typescript-mechanics.md); this entry is the anti-pattern
+  only.
 
 ### 5. Snapshot-as-thinking
 

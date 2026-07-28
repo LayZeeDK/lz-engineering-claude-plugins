@@ -65,7 +65,8 @@ an assertion pin observable behavior rather than implementation detail. This is 
   instead of leaving you to work out which of several checks tripped. The suite then reads as one
   clear statement of intent per test rather than a bundle you must decode.
 
-The same three-part shape reads under either vocabulary:
+The same three-part shape reads under either vocabulary. The production body below is shown for
+context only; at red time it is the not-yet-implemented form:
 
 ```ts
 import { describe, it, expect } from 'vitest';
@@ -138,7 +139,8 @@ function applyCredit(balance: number, credit: number): number {
   [seams and legacy code](testing-stance/seams-and-legacy.md). Open the matching leaf for the
   assert-vs-mock rule that style carries -- this slice only chooses between them.
 
-An output-based assertion pins the returned value, the observable result a caller sees:
+An output-based assertion pins the returned value, the observable result a caller sees. The production
+body below is shown for context only; at red time it is the not-yet-implemented form:
 
 ```ts
 import { describe, it, expect } from 'vitest';

@@ -44,7 +44,7 @@ Each backing row carries:
 | [Output/state/communication selection](test-structure-and-assertions.md) | Vladimir Khorikov, Unit Testing: Principles, Practices, and Patterns | Unowned; high-confidence core only (no-oracle). |
 | [Functional core, output-based assert](testing-stance/functional-core.md) | Gary Bernhardt, Boundaries (talk) | Owned; oracle-verified against the clean-room source. |
 | [Query/command message matrix](testing-stance/message-matrix.md) | Sandi Metz, The Magic Tricks of Testing (talk) | Owned; oracle-verified against the clean-room source. |
-| [Seams and characterization](testing-stance/seams-and-legacy.md) | Michael Feathers, Working Effectively with Legacy Code | Unowned; high-confidence core only (no-oracle). |
+| [Seams and characterization](testing-stance/seams-and-legacy.md) | Michael Feathers, Working Effectively with Legacy Code. An owned Feathers surface DOES exist -- Clean Code Ch. 7, which he guest-authored -- but it does not cover seams or characterization tests | No-oracle by lack of COVERAGE, not by absence of an owned author: high-confidence core only, and not upgradable to oracle-verified because the owned surface does not reach this material. |
 | [Avoid over-mocking and test-per-class](anti-patterns.md) | Ian Cooper | Owned; oracle-verified against the clean-room source. |
 | [Keep test doubles honest (double drift)](anti-patterns.md) | Sandi Metz, The Design of Tests (talk) | Owned; oracle-verified against the clean-room source. |
 | [Listen to the tests (test pain is design feedback)](anti-patterns.md) | Sandi Metz, The Design of Tests (talk) | Owned; oracle-verified against the clean-room source. |
@@ -63,9 +63,38 @@ high-confidence core only.
 | Recommendation | Source | Access tier |
 | --- | --- | --- |
 | [Three Laws of TDD spine](three-laws-and-test-selection.md) | Robert C. Martin, Clean Code Ch. 9 | Owned; oracle-verified against the clean-room source. |
-| [Fail for the right reason](vitest-typescript-mechanics.md) | Robert C. Martin, Clean Code Ch. 9 | Owned; oracle-verified against the clean-room source. |
+| [Fail for the right reason: the failure-versus-error boundary](vitest-typescript-mechanics.md) | Martin Fowler, Refactoring 2nd Edition Ch. 4 -- a failure is an assertion mismatch, an error is an exception raised in an earlier phase | Owned; oracle-verified against the clean-room source. |
+| [Fail for the right reason: clear the compile error, then run and fail](vitest-typescript-mechanics.md) | Kent Beck's kanban-cycle step | No-oracle. Which owned Beck surface carries the kanban cycle was NOT established, and a guessed owned tag is the exact defect this row exists to fix, so it is tagged down rather than up. |
+| [Fail for the right reason: the Vitest-specific mapping](vitest-typescript-mechanics.md) | lz-red's own measurement on the pinned toolchain | Unowned; high-confidence core only (no-oracle). |
 | [Classify-first and the forward lz-tpp handoff](three-laws-and-test-selection.md) | lz-red orchestration | Unowned; high-confidence core only (no-oracle). |
 | [Reverse lz-tpp -> lz-red pointer](../../lz-tpp/SKILL.md) | lz-red orchestration | Unowned; high-confidence core only (no-oracle). |
+| [Test-double taxonomy](test-double-taxonomy.md) | Twelve authors, mapped per row inside the linked document | PER SOURCE -- no single tier applies. Tiers vary by row inside that table, from owned and oracle-verified to no-oracle, and the coined term `signature skeleton` is lz-red's own with no source at all. Read the row, not this cell. |
+
+### Why the fail-for-the-right-reason backing was retagged
+
+The single row this replaces backed the criterion to Robert C. Martin's Clean Code Ch. 9, owned and
+oracle-verified. That backing was wrong in a specific way: the chapter explicitly makes a build failure
+a legitimate red, and nowhere requires an assertion failure -- checked for absence across eight
+chapters. It does not merely fail to support the assertion-only criterion, it CONTRADICTS it. So the
+tier was honest and the mapping was not.
+
+Four owned sources independently decline to require an AssertionError specifically:
+
+- Clean Code -- a build failure is explicitly a legitimate red.
+- Beck -- the instruction is to clear the compile error and then run and fail, and his own canonical
+  stub throws.
+- Fowler -- the boundary he draws is an exception raised in an earlier phase, not an assertion.
+- Meszaros -- an error is a legitimate, equally severe red, which you are told NOT to convert into a
+  failure.
+
+The important part is not the count. **Clean Code and Beck genuinely DISAGREE with each other** about
+whether a build failure is a valid red, and both are owned. This skill's own step-2 versus step-5
+contradiction was therefore a FAITHFUL TRANSCRIPTION of that disagreement: two owned sources were
+followed accurately in two different places, and their conflict travelled with them. It was not
+carelessness. The fix NAMES the disagreement and scopes each side to the question it actually answers,
+rather than silently picking a winner and presenting the result as though one source had been misread.
+The same inherited conflict is recorded from the vocabulary side in
+[test-double-taxonomy.md](test-double-taxonomy.md).
 
 ## Sources
 

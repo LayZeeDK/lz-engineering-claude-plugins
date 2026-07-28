@@ -90,7 +90,8 @@ The two axes give six cells; only one of them warrants a double:
   expensive.
 
 An incoming query is pinned by its return value; an outgoing command is pinned by an expect-to-send
-on a double for the collaborator:
+on a double for the collaborator. The Gate implementation below is shown for context only; at red time
+its methods are in the not-yet-implemented form:
 
 ```ts
 import { describe, it, expect, vi } from 'vitest';

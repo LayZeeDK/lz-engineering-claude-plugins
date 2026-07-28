@@ -29,7 +29,7 @@ change (Khorikov).
 - Anti-pattern: a suite that mirrors the production structure one-to-one -- one spec file per
   class, a test double stood up for every collaborator the class touches, and assertions that
   check a collaborator was called rather than what the code produced (Cooper).
-- Recognize by: a mock or stub for nearly every constructor argument; an assertion that a method
+- Recognize by: a mock or collaborator-side stub for nearly every constructor argument; an assertion that a method
   such as save was invoked; a fresh spec created reflexively the moment a new class is added.
 - Correction: drive tests from behavior reached through the public API or port, and reserve a
   double for the one boundary that warrants it -- an outgoing command at the edge of the module.

@@ -96,8 +96,8 @@ reference leaf that carries the detail; do not restate a leaf's content here.
    [references/test-structure-and-assertions.md](references/test-structure-and-assertions.md).
 6. Hand off forward to lz-tpp. Once the test is red for the right reason, making it pass is Law 3 --
    the green step, and that is lz-tpp's job, not this skill's. Because a not-implemented throw now
-   counts as a valid red, lz-red no longer has to author a wrong-value stub to reach one, which shrinks
-   the pressure on this seam without settling who owns that stub.
+   counts as a valid red, lz-red no longer has to author a wrong-value production-side stub to reach
+   one, which shrinks the pressure on this seam without settling who owns that production-side stub.
 
 The RED path end to end (Vitest + TypeScript). Classify (step 1): this is new behavior, so the next
 failing test is lz-red's. Pick the starter case (step 2) and shape it arrange-act-assert (step 4),
@@ -108,8 +108,9 @@ turning it green is lz-tpp's job (step 6):
 ```ts
 import { describe, it, expect } from 'vitest';
 
-// RED: the starter case for a new behavior. The stub compiles, so the bar is red
-// for the right reason -- an AssertionError on the value, not a missing symbol.
+// RED: the starter case for a new behavior. The production-side stub compiles, so the
+// bar is red for the right reason -- an AssertionError on the value, which is the
+// sharpest form of red. A not-implemented throw here would be valid too, just blunter.
 describe('applyDiscount', () => {
   it('should take ten percent off a total', () => {
     // Arrange
@@ -121,10 +122,11 @@ describe('applyDiscount', () => {
   });
 });
 
-// Production stub: correct type signature, wrong body -- returns the total untouched.
-// Not yet implemented; lz-tpp picks the transformation that turns this green.
+// Production-side stub: correct type signature, wrong body -- a not-a-number sentinel,
+// so it is wrong for EVERY input rather than accidentally right for a zero-percent
+// discount. Not yet implemented; lz-tpp picks the transformation that turns this green.
 function applyDiscount(total: number, percent: number): number {
-  return total;
+  return Number.NaN;
 }
 ```
 
@@ -150,8 +152,10 @@ not caution.
 - Source-to-recommendation backing and owned/unowned access tiers:
   [references/principle-backing.md](references/principle-backing.md)
 - What to call the thing you substitute, and which author to cite for it, when deciding what to stand
-  in for while writing the failing test -- read it before using the word stub, which owned sources
-  assign to opposite sides:
+  in for while writing the failing test. It places every artifact on three axes -- where it lives, what
+  it stands in for, and how long it lives -- and settles the naming rule: a production-side stub,
+  always qualified by side. Read it before using the word stub, which owned sources assign to opposite
+  sides:
   [references/test-double-taxonomy.md](references/test-double-taxonomy.md)
 - Adaptive testing-stance router -- navigation index (detection signals + route table); open a
   leaf to act: [references/testing-stance/README.md](references/testing-stance/README.md)

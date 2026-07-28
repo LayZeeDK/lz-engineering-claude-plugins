@@ -64,11 +64,11 @@ high-confidence core only.
 | --- | --- | --- |
 | [Three Laws of TDD spine](three-laws-and-test-selection.md) | Robert C. Martin, Clean Code Ch. 9 | Owned; oracle-verified against the clean-room source. |
 | [Fail for the right reason: the failure-versus-error boundary](vitest-typescript-mechanics.md) | Martin Fowler, Refactoring 2nd Edition Ch. 4 -- a failure is an assertion mismatch, an error is an exception raised in an earlier phase | Owned; oracle-verified against the clean-room source. |
-| [Fail for the right reason: clear the compile error, then run and fail](vitest-typescript-mechanics.md) | Kent Beck's kanban-cycle step | No-oracle. Which owned Beck surface carries the kanban cycle was NOT established, and a guessed owned tag is the exact defect this row exists to fix, so it is tagged down rather than up. |
+| [Fail for the right reason: clear the compile error, then run and fail](vitest-typescript-mechanics.md) | Kent Beck, TDD is Kanban for Code (essay). It enumerates a five-step cycle whose THIRD step is a preparatory refactoring, and the POSITION is what makes it decisive: that step sits AFTER the one that adds production stand-ins so the test compiles and fails when run, and BEFORE the one that changes logic to make the test pass. He also classifies refactoring done after the test passes as over-production, a waste category in the kanban frame | Owned; oracle-verified against the clean-room source. The surface IS now established, which supersedes the earlier tagged-down verdict on this row. TWO QUALIFIERS TRAVEL WITH THE CLAIM AND ARE NOT OPTIONAL. First, it is GATED on a red test existing: he states that changes to logic and to structure are not begun until a test is failing, which tightens the claim rather than weakening it. Second, it is ONE POSITION AMONG SEVERAL that Beck himself calls contradictory -- TDD is Not Hill Climbing states the opposite rule directly (with a red test the only permitted move is making it pass, and refactoring becomes available once all tests pass), Canon TDD has no prepare-to-implement step at all, and asked directly how tidy-first ordering coexists with refactor-last he answers that the two contradict each other and judgment is required. Never cite the kanban cycle as his settled doctrine. |
 | [Fail for the right reason: the Vitest-specific mapping](vitest-typescript-mechanics.md) | lz-red's own measurement on the pinned toolchain | Unowned; high-confidence core only (no-oracle). |
 | [Classify-first and the forward lz-tpp handoff](three-laws-and-test-selection.md) | lz-red orchestration | Unowned; high-confidence core only (no-oracle). |
 | [Reverse lz-tpp -> lz-red pointer](../../lz-tpp/SKILL.md) | lz-red orchestration | Unowned; high-confidence core only (no-oracle). |
-| [Test-double taxonomy](test-double-taxonomy.md) | Twelve authors, mapped per row inside the linked document | PER SOURCE -- no single tier applies. Tiers vary by row inside that table, from owned and oracle-verified to no-oracle, and the coined term `signature skeleton` is lz-red's own with no source at all. Read the row, not this cell. |
+| [Test-double taxonomy](test-double-taxonomy.md) | Twelve sources, mapped per row inside the linked document | PER SOURCE -- no single tier applies. Tiers vary by row inside that table, from owned and oracle-verified to no-oracle. No term is coined there: the production-side transitional artifact is named a production-side stub, always qualified by side, and four owned sources name it. Read the row, not this cell. |
 
 ### Why the fail-for-the-right-reason backing was retagged
 
@@ -82,7 +82,9 @@ Four owned sources independently decline to require an AssertionError specifical
 
 - Clean Code -- a build failure is explicitly a legitimate red.
 - Beck -- the instruction is to clear the compile error and then run and fail, and his own canonical
-  stub throws.
+  production-side stub throws. The owned surface carrying it is the essay TDD is Kanban for Code,
+  named in the row above; it is one of several positions he holds on cycle ordering and he calls them
+  contradictory, so cite it as that one position and not as his settled rule.
 - Fowler -- the boundary he draws is an exception raised in an earlier phase, not an assertion.
 - Meszaros -- an error is a legitimate, equally severe red, which you are told NOT to convert into a
   failure.
@@ -103,7 +105,9 @@ The same inherited conflict is recorded from the vocabulary side in
   Magic Tricks of Testing and The Design of Tests talks -- the message matrix and test-as-design-
   feedback; and, with Katrina Owen, 99 Bottles of OOP, JavaScript Edition, for test naming); Gary
   Bernhardt (Boundaries -- functional core / imperative shell); Kent Beck (Canon TDD -- running test
-  list, one small step, and assert-first; Test Desiderata essay and video series); and Ian Cooper.
+  list, one small step, and assert-first; Test Desiderata essay and video series; and TDD is Kanban
+  for Code, the essay establishing the kanban-cycle step, carrying the two qualifiers stated on its
+  row -- gated on a red test, and one position among several he calls contradictory); and Ian Cooper.
   Beck's remaining selection / structure rows (the starter / degenerate case, triangulation, and
   evident test data) remain no-oracle: they rest on Test-Driven Development by Example, a book held
   summary-only in the clean-room set, so they cannot be oracle-gated against full text. Unowned

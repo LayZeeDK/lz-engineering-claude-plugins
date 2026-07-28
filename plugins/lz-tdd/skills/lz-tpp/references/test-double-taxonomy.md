@@ -8,79 +8,135 @@ This document settles what to CALL things and which author to cite for each cell
 test-selection, structuring, or stance guidance of its own.
 
 > Mixed-provenance reference, and the mixing is the point: TIERS ARE PER ROW. This document maps
-> twelve authors whose access tiers differ, and several of whom disagree with each other; no single
+> twelve sources whose access tiers differ, and several of whom disagree with each other; no single
 > tier applies to the table as a whole. Every definition below is written in original words -- only
-> term NAMES are kept as plain facts (DST-04), with no verbatim source prose or code. One term in
-> section 5 is COINED by this skill and has no source at all; it is labelled as such where it appears.
+> term NAMES are kept as plain facts (DST-04), with no verbatim source prose or code.
 
 ## Table of contents
 
-- [1. The two axes: what it stands in for, and how long it lives](#1-the-two-axes-what-it-stands-in-for-and-how-long-it-lives)
+- [1. The three axes: where it lives, what it stands in for, and how long it lives](#1-the-three-axes-where-it-lives-what-it-stands-in-for-and-how-long-it-lives)
 - [2. The authority rule: authority is per cell](#2-the-authority-rule-authority-is-per-cell)
-- [3. The headline finding: bare stub is unusable](#3-the-headline-finding-bare-stub-is-unusable)
+- [3. The headline finding, credited to Meszaros: bare stub is unusable](#3-the-headline-finding-credited-to-meszaros-bare-stub-is-unusable)
 - [4. The per-author table](#4-the-per-author-table)
-- [5. The coined term: signature skeleton](#5-the-coined-term-signature-skeleton)
+- [5. Naming the production-side transitional artifact](#5-naming-the-production-side-transitional-artifact)
 - [6. Caveats that change a citation](#6-caveats-that-change-a-citation)
 - [Sources](#sources)
 
-## 1. The two axes: what it stands in for, and how long it lives
+## 1. The three axes: where it lives, what it stands in for, and how long it lives
 
-Every artifact in this document is placed by two questions, and almost every terminology argument in
-the literature is a disagreement about the first one.
+Every artifact in this document is placed by three questions, and almost every terminology argument in
+the literature is a disagreement about the second one.
 
-Axis one, WHAT IT STANDS IN FOR:
+Axis one, WHERE IT LIVES:
 
-- Production side -- the artifact stands in for the code under test's OWN unwritten implementation. It
-  is a real production symbol that does not do its job yet.
-- Collaborator side -- the artifact stands in for something the code under test TALKS TO. It lives in
-  the test's world and is wired in so the code under test can be exercised in isolation.
+- Production -- the artifact is a real production symbol, shipped in the production tree.
+- Test -- the artifact lives in the test's world and is wired in so the code under test can be
+  exercised in isolation.
 
-Axis two, LIFETIME:
+Axis two, WHAT IT STANDS IN FOR:
+
+- Its own unwritten implementation -- the artifact stands in for the job the symbol itself will
+  eventually do. It is the right symbol with nothing behind it yet.
+- A collaborator -- the artifact stands in for something else, which the code under test talks to.
+
+Axis three, LIFETIME:
 
 - Transitional -- the artifact is destined to be replaced. It is a step on the way to something else,
   and its own removal is part of the plan.
 - Permanent -- the artifact is a fixture of the design or of the suite. It is not waiting to be
   replaced by anything; it is what it will remain.
 
-Crossing the two axes gives four cells. Three of them are well populated by the literature. The
-fourth -- production side, transitional -- is the one no author names, which is why section 5 exists.
+**Why where-it-lives and what-it-stands-in-for are separate questions.** Collapsing them into one
+production-versus-collaborator column mis-places real artifacts. Bernhardt's IO substitute lives
+inside a real production class and yet stands in for a collaborator, so under the collapsed naming it
+fits neither value while this document claims to place every artifact it lists. The test for a genuine
+degree of freedom rather than a redundant description is whether every combination is occupied, and
+all four combinations of the first and second axes are populated by owned sources: Beck's
+production-side artifact is production and own; the Gang of Four's Proxy and Bernhardt's IO substitute
+are production and collaborator; Meszaros' five kinds are test and collaborator; his Subclassed Test
+Double and Self Shunt are test and own.
+
+That last combination also settles a question section 6 used to carry as an EXCEPTION for want of
+anywhere to put it: the code under test CAN be its own double, and the scheme has a place for it.
+What survives in section 6 is only the narrow citable rule about which part must not be doubled.
+
+**HARD RULE ON EMPTINESS: this document never asserts that a cell is empty.** It states only what
+POPULATES each cell, and where nothing does, the wording is that no source in this set populates it --
+a statement about the twelve sources mapped here, never about the literature at large and never about
+what some author does or does not name. The claim that started this document's own correction was an
+emptiness assertion that the table on this page falsified, so the doctrine is stated here rather than
+merely obeyed.
+
+Crossing the three axes gives eight cells. Rows typed `Either` on lifetime sit in both lifetime cells
+of their side pair, and are listed once below.
+
+- **Production / own / transitional.** Beck's `stub`; Metz's `shim` and `empty method`; 99 Bottles'
+  `empty class`; Kerievsky's `skeleton`. Six rows in the table land here. This is the cell section 5
+  names, and an earlier revision of this page wrongly described it as unnamed.
+- **Production / own / permanent.** Beck's `pass-through interface`; 99 Bottles' `empty subclass`; the
+  Gang of Four's Template Method hook and Builder's empty build operations.
+- **Production / collaborator / transitional.** 99 Bottles' `shim`, in its defaultable-argument sense.
+- **Production / collaborator / permanent.** The Gang of Four's Proxy, Adapter and `NullIterator`;
+  Bernhardt's IO substitute.
+- **Test / own / transitional.** No source in this set populates it. The test-side self-substitutions
+  that are mapped here are suite fixtures rather than steps toward something else.
+- **Test / own / permanent.** Meszaros' Subclassed Test Double and Self Shunt.
+- **Test / collaborator / transitional.** Meszaros' `Temporary Test Stub`; 99 Bottles' `shim` also
+  reads this way if the argument is read as test-facing.
+- **Test / collaborator / permanent.** Meszaros' `Dummy Object` and `Fake Object`; Metz's `stub`; and
+  every row typed `Either` on the test-and-collaborator pair -- Meszaros' `Test Double`, `Test Stub`,
+  `Test Spy`, `Mock Object`, `Responder` and `Saboteur`, Fowler's three web contributions, Cooper's
+  `classical`, Beck's `impostor` and `mocking`, 99 Bottles' `Fake`, and Bernhardt's
+  double-versus-value distinction.
+
+No eight-cell matrix diagram is drawn here on purpose. This page is read mid-cycle, and a list is
+cheaper to scan than a grid.
 
 ## 2. The authority rule: authority is per cell
 
 Read this section before citing anything below. Gerard Meszaros' material is the largest and most
 systematic block in the table, which makes it look like the spine. IT IS NOT THE SPINE.
 
-**Authority is PER CELL. No single author arbitrates this taxonomy.** Four scopes follow, and the
-last three are limits, not footnotes.
+**Authority is PER CELL. No single author arbitrates this taxonomy.** Meszaros is the frame for one
+part of it and is explicitly out of frame for the rest, and the limits below are limits, not
+footnotes.
 
 - Meszaros IS the reference frame for the COLLABORATOR-SIDE term set, and only for that. He coined the
   umbrella term and the five kinds under it; Fowler credits him rather than claiming them, and 99
   Bottles credits him with standardising the scheme. So for what separates a Test Spy from a Mock
   Object, cite MESZAROS. Citing a Fowler taxonomy for that split is the common error, and it is wrong.
-- He is NOT the authority for the PRODUCTION side. He does not name that artifact at all, and he has
-  already spent both of the obvious words on something else: `placeholder` and bare `Stub` are BOTH
-  registered aliases of his `Dummy Object`, which is collaborator side. On the one cell that most
-  needed a name from him, he is an obstacle rather than an authority.
+- **He is also the CORROBORATING AUTHORITY for the collision this document exists to record**, and
+  that is the reverse of treating him as an obstacle. Four notes in his own cross-reference apparatus
+  document the collision from the inside: another book's use of the contested term for an empty
+  implementation of a method -- the production side -- which he attributes to the procedural world and
+  maps to Null Object; the remote-procedure-call pair, included expressly because it is another use of
+  a term common in the TDD community; early mock-objects literature conflating the canned-answer
+  double with the expectation-bearing one; and a third book using his dummy term for his fake term.
+  Section 3's headline is HIS finding before it is this document's, and it is credited to him there.
+- He is NOT the authority for the PRODUCTION side. He does not name that artifact, and he has already
+  spent both of the obvious words on something else: `placeholder` and bare `Stub` are BOTH registered
+  aliases of his `Dummy Object`, which is collaborator side. On the one cell that most needed a name
+  from him, the words were already committed elsewhere.
 - He is NOT the authority on what counts as a valid red. His outcome vocabulary has no slot for a test
   that never ran -- all three of his outcome definitions start from the test having been run, so a
   compile failure falls outside his scheme entirely. He IS citable for the narrower and useful point
   that an error is a legitimate, equally severe red that should not be converted into a failure.
-- He is NOT the authority on Beck's usage. His mapping of his own `Test Stub` onto Beck's `Fake` is
-  unaudited -- see section 6 -- so it must not be used to interpret Beck.
+- He is NOT the authority on Beck's usage, and the reason is structural rather than evaluative: his
+  terminology cross-reference records no Beck equivalent for any of his five kinds (section 6). He
+  never mapped Beck, so nothing he wrote can be used to interpret Beck.
+- The contested second word of the coinage candidates now has a FOURTH claimant as a substitution
+  term, so nothing in this document is grounded on that word (section 5).
 
-**Two senses of different VINTAGE, not a deviation.** The production-side sense of one thing standing
-in for another is the older DOCUMENTED vocabulary, and the test-side sense is the newcomer on those
-words. The owned chronology: in 1994 the Gang of Four's Proxy carries `surrogate` and `placeholder` in
-its intent, and the same book reaches for `representative` and `stand-in`, framing a remote proxy as a
-local representative for an object living in a different address space. That book positions ITSELF as
-documenting prior practice rather than originating it -- each pattern had to be found in at least two
-prior uses from different domains -- and it credits the substitution ideas to earlier, differently
-named work: Coplien's `Ambassador`, Pascoe's `Encapsulators`, `Handle/Body`, Carolan's `Cheshire Cat`,
-Meyer's `Marriage of Convenience`, with the lineage reaching back to 1963. The test-double vocabulary
-arrives in 2007. So when Beck uses `stub` for a production-side artifact he is NOT deviating from a
-standard: on the production side the stand-in vocabulary is the senior one, and the collision came
-from the later literature taking those words for the test side. Do not present his usage as an error
-against a scheme that postdates it -- and note that lz-red's own step-2 mechanics rest on him.
+**Two INDEPENDENT VOCABULARIES that collided on one word.** This matters for exactly one reason: it
+stops Beck's production-side usage being presented as an ERROR against Meszaros' scheme, given that
+section 3's thesis is that the two collide. Meszaros' terminology cross-reference leaves the BECK
+COLUMN BLANK IN EVERY ROW. He lists Beck's 2002 book as a source and records no equivalent term for
+any of his five kinds, and because he filled in eight other source columns that blank is a DELIBERATE
+NEGATIVE rather than an oversight; owner-verified against the print book. Beck's collaborator-side
+vocabulary POSTDATES that 2007 book -- one term in an August 2008 essay, the other in a January 2022
+essay, both owned and both carrying rows in the table below. So neither author is citing the other and
+neither is deviating from the other. Beck's production-side usage is not an error against a scheme
+that never claimed him.
 
 This document deliberately does NOT assert an etymology for the specific word `stub`. A descent from
 remote-procedure-call stubs is a plausible story with no owned basis, so it is not claimed here, and
@@ -94,74 +150,95 @@ that lineage. He is imported here for vocabulary precision, not for TDD-cycle do
 only. There is **no declared precedence** for the TDD content sources mapped below -- which is
 precisely why authority has to be settled per cell rather than by rank.
 
-## 3. The headline finding: bare stub is unusable
+## 3. The headline finding, credited to Meszaros: bare stub is unusable
 
-This is the reason the document exists. Owned, oracle-verified sources assign `stub` to OPPOSITE
-cells, so the bare word carries no information.
+This is the reason the document exists, and the finding is Meszaros' before it is this document's: his
+own cross-reference notes record the contested term being used for an empty implementation of a
+method on the production side, and separately record a remote-procedure-call use of the same word,
+included expressly because the word is common in the TDD community (section 2). What this page adds is
+the measurement across twelve sources, not the observation.
+
+Owned, oracle-verified sources assign `stub` to OPPOSITE cells, so the bare word carries no
+information.
 
 - Production side: Kent Beck uses it consistently for a real production symbol that does not do its
-  job yet, across four separate files of his material. Clean Code Ch. 7 -- the chapter guest-authored
+  job yet, across a 1994 report and four later essays. Clean Code Ch. 7 -- the chapter guest-authored
   by Michael Feathers -- uses it the same way.
-- Collaborator side: Sandi Metz, 99 Bottles of OOP, Clean Code Ch. 17 and Ch. 10, Ian Cooper, Gary
-  Bernhardt, Fowler's web articles, and Meszaros all use it for a test-side substitute.
+- Test side: Sandi Metz, 99 Bottles of OOP, Clean Code Ch. 17 and Ch. 10, Ian Cooper, Gary Bernhardt,
+  Fowler's web articles, and Meszaros all use it for a test-side substitute.
 
-That is a genuine COLLISION between owned sources, not a misreading of one of them. Note that Clean
-Code lands on BOTH sides depending on the chapter, so even one book is not internally decisive.
+That is a genuine COLLISION between owned sources, not a misreading of one of them.
+
+**The collision reproduces INSIDE individual works, which strengthens the finding rather than
+weakening it.** A reader who treats this as a cross-author problem will trust a single work to be
+internally consistent, and these three are not:
+
+- Fowler uses the word production-side in the passage about driving code with tests and test-side in
+  the taxonomy passage of the SAME 2007 essay, without remarking on it.
+- 99 Bottles collides a SECOND word the same way: `fake` is production-side in chapter 2, where it
+  names Beck's get-to-green move, and collaborator-side in chapter 9, with no cross-reference between
+  them.
+- Clean Code carries THREE inconsistent names for the production-side transitional artifact across
+  chapters: the contested word in Ch. 7, which Feathers guest-authored; a structural word in Ch. 14;
+  and a degenerate-implementation phrasing in Ch. 4. So even one book is not internally decisive.
 
 Consequence for the coach, and it is a hard rule: **never use bare `stub` unqualified.** Say
 production-side stub or collaborator-side stub, or use a term that is not contested. When a developer
-says `stub`, establish which side they mean before answering rather than assuming the side this skill
-happens to prefer.
+says `stub`, establish which side they mean before answering rather than assuming the side lz-red
+happens to prefer. Outside this document that rule is machine-enforced, and this document is exempt
+from the gate because the word is its subject matter.
 
 ## 4. The per-author table
 
 Every row carries its OWN citability tier. A tier NEVER propagates to a neighbouring row and is never
 inherited from a block of rows or from the Sources section. `Defines or uses` separates a source that
 DEFINES a term from one that merely uses it in passing -- a distinction that matters because only the
-first kind can be cited for what the term means.
+first kind can be cited for what the term means. The one row that places no artifact at all carries an
+explicit not-applicable value in both side columns rather than a blank, so an empty cell is never left
+to be read as a claim.
 
-| Author | Term | Side | Lifetime | Defining property (this document's words) | Defines or uses | Source | Citability tier |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| Kent Beck | `stub` | Production | Transitional | A real production symbol that compiles but does not do its job yet | Uses consistently, does not formally define | Test-Driven Development by Example | Unowned; high-confidence core only (no-oracle) |
-| Kent Beck | `pass-through interface` | Production | Permanent | A symbol that satisfies a call by delegating it onward; denotes delegation, NOT absence | Uses | Test-Driven Development by Example | Unowned; high-confidence core only (no-oracle) |
-| Kent Beck | `impostor` | Collaborator | Either | His word for something standing in for a collaborator in a test | Uses | Test-Driven Development by Example | Unowned; high-confidence core only (no-oracle) |
-| Kent Beck | `mocking` | Collaborator | Either | His verb for substituting a collaborator in a test | Uses | Test-Driven Development by Example | Unowned; high-confidence core only (no-oracle) |
-| Sandi Metz (talks) | `stub` | Collaborator | Permanent | A test-side stand-in that answers a query with a canned value | Uses | The Magic Tricks of Testing; The Design of Tests | Owned; oracle-verified against the clean-room source |
-| Sandi Metz (talks) | `shim` | Production | Transitional | A minimal production definition standing where the real one will go | Uses | The Magic Tricks of Testing; The Design of Tests | Owned; oracle-verified against the clean-room source |
-| Sandi Metz (talks) | `empty method` | Production | Permanent | A method whose body is deliberately empty and stays that way | Uses | The Magic Tricks of Testing; The Design of Tests | Owned; oracle-verified against the clean-room source |
-| Sandi Metz (talks) | `do-nothing method` | Production | Permanent | Same artifact as an empty method, named for its behaviour | Uses | The Magic Tricks of Testing; The Design of Tests | Owned; oracle-verified against the clean-room source |
-| Metz and Owen | `Fake` | Collaborator | Either | The only test-side substitute term the book DEFINES | Defines | 99 Bottles of OOP, JavaScript Edition | Owned; oracle-verified against the clean-room source |
-| Metz and Owen | `empty class` | Production | Transitional | A class stood up with no behaviour so the code can be named and referenced | Uses | 99 Bottles of OOP, JavaScript Edition | Owned; oracle-verified against the clean-room source |
-| Metz and Owen | `empty method` | Production | Permanent | A method defined with no body | Uses | 99 Bottles of OOP, JavaScript Edition | Owned; oracle-verified against the clean-room source |
-| Metz and Owen | `empty subclass` | Production | Transitional | A subclass with no behaviour of its own, used to open a seam for the next step | Uses | 99 Bottles of OOP, JavaScript Edition | Owned; oracle-verified against the clean-room source |
-| Metz and Owen | `shim` | Collaborator | Transitional | A temporary DEFAULTABLE ARGUMENT -- not an empty definition, so NOT what Metz's talks mean by the word | Uses | 99 Bottles of OOP, JavaScript Edition | Owned; oracle-verified against the clean-room source |
-| Gary Bernhardt | double versus value | Collaborator | Either | The distinction between a substituted object and a plain value fed to a pure function | Uses; supplies a count only | Boundaries (talk) | Owned; oracle-verified against the clean-room source, for the double-versus-value point ONLY |
-| Martin Fowler (web) | `test double`, the five kinds, `SUT` | Collaborator | Either | The umbrella term, its five kinds, and the code-under-test abbreviation | Relays; credits Meszaros | Fowler's web articles | Cite as Meszaros, via Fowler; unowned relay (no-oracle) |
-| Martin Fowler (web) | state versus behaviour verification | Collaborator | Either | Whether a test checks resulting state or the messages that were sent | Defines; his OWN contribution | Fowler's web articles | Unowned; high-confidence core only (no-oracle) |
-| Martin Fowler (web) | `classicist` and `mockist` | Collaborator | Either | The two schools named for how readily they reach for a substitute | Defines; his OWN contribution | Fowler's web articles | Unowned; high-confidence core only (no-oracle) |
-| Martin Fowler (Refactoring 2e) | `failure` versus `error` | Neither | Permanent | A failure is an assertion mismatch; an error is an exception raised in an earlier phase | Defines | Refactoring, 2nd Edition, Ch. 4 | Owned; oracle-verified against the clean-room source |
-| Ian Cooper | `classical` | Collaborator | Either | Pre-TDD classical automated testing; see the false-friend note below | Uses loosely | Cooper's TDD talks | Owned as a talk, but NOT citable as a taxonomy |
-| Joshua Kerievsky | `skeleton` | Production | Transitional | A structural stand-in introduced as a temporary step toward an extraction | Defines | Refactoring to Patterns, Ch. 11 | Owned; oracle-verified against the clean-room source |
-| Gerard Meszaros | `Test Double` | Collaborator | Either | The umbrella for anything installed in place of a real collaborator | Defines; coined it | xUnit Test Patterns | Owned; oracle-verified against the clean-room source |
-| Gerard Meszaros | `Dummy Object` | Collaborator | Permanent | Something passed only to satisfy a signature, never exercised. Filed under Value Patterns in Ch. 27, and he notes that little of what applies to the other doubles applies to it | Defines | xUnit Test Patterns, Ch. 27 | Owned; oracle-verified against the clean-room source |
-| Gerard Meszaros | `Test Stub` | Collaborator | Either | Installed to feed the code under test the indirect INPUT a scenario needs | Defines | xUnit Test Patterns | Owned; oracle-verified against the clean-room source |
-| Gerard Meszaros | `Test Spy` | Collaborator | Either | Records the calls it receives so the test can inspect them afterwards | Defines | xUnit Test Patterns | Owned; oracle-verified against the clean-room source |
-| Gerard Meszaros | `Mock Object` | Collaborator | Either | Carries the expectation itself and fails the test when the expected call does not arrive | Defines | xUnit Test Patterns | Owned; oracle-verified against the clean-room source |
-| Gerard Meszaros | `Fake Object` | Collaborator | Permanent | A working lightweight implementation substituted for a real one that is too costly to use | Defines | xUnit Test Patterns | Owned; oracle-verified against the clean-room source |
-| Gerard Meszaros | `Responder` | Collaborator | Either | A Variation of Test Stub that returns a valid canned answer | Defines | xUnit Test Patterns, Ch. 23 | Owned; oracle-verified against the clean-room source |
-| Gerard Meszaros | `Saboteur` | Collaborator | Either | A Variation of Test Stub that injects a fault; see the polarity caveat below | Defines | xUnit Test Patterns, Ch. 23 | Owned; oracle-verified against the clean-room source |
-| Gerard Meszaros | `Temporary Test Stub` | Collaborator | Transitional | A Variation of Test Stub installed only until the real collaborator is available | Defines | xUnit Test Patterns | Owned; oracle-verified against the clean-room source |
-| Gang of Four | `Proxy`, alias `Surrogate` | Production | Permanent | An object taking the place of another so that access to it can be governed. Variants: `remote proxy`, `virtual proxy`, `protection proxy`, `smart reference` (also `smart pointers`); Coplien's `Ambassador` is credited for the remote kind | Defines | Design Patterns (1994) | Owned; production-side ancestor only |
-| Gang of Four | `Adapter`, alias `Wrapper` | Production | Permanent | Converts one interface into the one a client already expects. The book draws the timing contrast itself: an adapter makes things work AFTER the fact, a bridge before | Defines | Design Patterns (1994) | Owned; production-side ancestor only |
-| Gang of Four | Template Method `hook` | Production | Permanent | A default a subclass MAY extend, frequently doing nothing by default. PERMANENT, not transitional: the stated design goal is to minimise what a subclass must override | Defines | Design Patterns (1994) | Owned; production-side ancestor only |
-| Gang of Four | empty build operation (Builder) | Production | Permanent | Build operations deliberately defined empty rather than pure virtual, so a concrete builder overrides only the parts it cares about. Arguably a purer instance of the permanent empty default than the Template Method hook | Defines | Design Patterns (1994) | Owned; production-side ancestor only |
-| Gang of Four | `NullIterator` | Production | Permanent | An iterator that is always already done, so a caller needs no special-case branch. A NAMED INSTANCE only, not a general pattern -- see the caveat below | Names an instance; does not generalise | Design Patterns (1994) | Owned; production-side ancestor only |
+| Author | Term | Where it lives | What it stands in for | Lifetime | Defining property (this document's words) | Defines or uses | Source | Citability tier |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Kent Beck | `stub` | Production | Own implementation | Transitional | A real production symbol that compiles but does not do its job yet | Uses consistently, does not formally define | Smalltalk Report 4.2, October 1994; four essays 2007 to 2010 | Owned; oracle-verified against the clean-room source |
+| Kent Beck | `pass-through interface` | Production | Own implementation | Permanent | A symbol that satisfies a call by delegating it onward; denotes delegation, NOT absence | Uses | Essay, February 2022 | Owned; oracle-verified against the clean-room source |
+| Kent Beck | `impostor` | Test | A collaborator | Either | His word for something standing in for a collaborator in a test | Uses | Essay, August 2008 | Owned; oracle-verified against the clean-room source. The talks corpus uses this token only in the psychological sense |
+| Kent Beck | `mocking` | Test | A collaborator | Either | His verb for substituting a collaborator in a test | Uses | Essay, January 2022 | Owned; oracle-verified against the clean-room source |
+| Sandi Metz (talks) | `stub` | Test | A collaborator | Permanent | A test-side stand-in that answers a query with a canned value | Uses | The Magic Tricks of Testing; The Design of Tests | Owned; oracle-verified against the clean-room source, with the transcript qualifier in the closing tier note |
+| Sandi Metz (talks) | `shim` | Production | Own implementation | Transitional | A minimal production definition standing where the real one will go | Uses | RailsConf 2014 | Owned; oracle-verified against the clean-room source, with the transcript qualifier in the closing tier note |
+| Sandi Metz (talks) | `empty method` | Production | Own implementation | Transitional | A method stood up with no body so the call site can be written; filled in by intent rather than left empty | Uses | RailsConf 2014; corroborated by Katrina Owen, Cascadia Ruby 2012 | Owned; oracle-verified against the clean-room source, with the transcript qualifier in the closing tier note |
+| Metz and Owen | `Fake` | Test | A collaborator | Either | The only test-side substitute term the book DEFINES; note the same word is used production-side in chapter 2 | Defines | 99 Bottles of OOP, JavaScript Edition, Ch. 9 | Owned; oracle-verified against the clean-room source |
+| Metz and Owen | `empty class` | Production | Own implementation | Transitional | A class stood up with no behaviour so the code can be named and referenced | Uses | 99 Bottles of OOP, JavaScript Edition | Owned; oracle-verified against the clean-room source |
+| Metz and Owen | `empty method` | Production | Own implementation | Transitional | A method defined with no body, in the chapter-2 sense that IS this artifact rather than a body that stays empty | Uses | 99 Bottles of OOP, JavaScript Edition, Ch. 2 | Owned; oracle-verified against the clean-room source |
+| Metz and Owen | `empty subclass` | Production | Own implementation | Permanent | A subclass with no behaviour of its own that PERSISTS into the final code, inheriting full working behaviour | Uses | 99 Bottles of OOP, JavaScript Edition | Owned; oracle-verified against the clean-room source |
+| Metz and Owen | `shim` | Production | A collaborator | Transitional | A temporary DEFAULTABLE ARGUMENT -- not an empty definition, so NOT what Metz's talks mean by the word | Uses | 99 Bottles of OOP, JavaScript Edition | Owned; oracle-verified against the clean-room source |
+| Gary Bernhardt | double versus value | Test | A collaborator | Either | The distinction between a substituted object and a value handed to a function. His criterion for the value side is TWO numbered properties -- it is a function, values in and values out with nothing stashed mutably, AND it has no dependencies -- and he explicitly REJECTS simplicity as the reason | Uses; and in this delivery the count of substitutes is framed as a BENEFIT of isolated testing, since the pain of standing up ten of them reveals a bad design, not as an argument against substitutes | Boundaries, PyCon 2013 delivery | Owned; oracle-verified against the clean-room source, for the double-versus-value point ONLY. Exempt from the transcript qualifier; see the version qualifier in the closing tier note |
+| Gary Bernhardt | IO substitute | Production | A collaborator | Permanent | A substitute for the outside world that sits inside a real production class rather than in the test, pushing effects to the edge so the centre stays a function | Uses | Functional-core screencast | Owned; oracle-verified against the clean-room source. Exempt from the transcript qualifier |
+| Martin Fowler (web) | `test double`, the five kinds, `SUT` | Test | A collaborator | Either | The umbrella term, its five kinds, and the code-under-test abbreviation | Relays; credits Meszaros | Fowler's web articles | Cite as Meszaros, via Fowler; unowned relay (no-oracle) |
+| Martin Fowler (web) | state versus behaviour verification | Test | A collaborator | Either | Whether a test checks resulting state or the messages that were sent | Defines; his OWN contribution | Fowler's web articles | Unowned; high-confidence core only (no-oracle) |
+| Martin Fowler (web) | `classicist` and `mockist` | Test | A collaborator | Either | The two schools named for how readily they reach for a substitute | Defines; his OWN contribution | Fowler's web articles | Unowned; high-confidence core only (no-oracle) |
+| Martin Fowler (Refactoring 2e) | `failure` versus `error` | Not applicable | Not applicable | Permanent | A failure is an assertion mismatch; an error is an exception raised in an earlier phase. This row names an outcome distinction, not a substituted artifact | Defines | Refactoring, 2nd Edition, Ch. 4 | Owned; oracle-verified against the clean-room source |
+| Ian Cooper | `classical` | Test | A collaborator | Either | Pre-TDD classical automated testing; see the false-friend note below | Uses loosely | Cooper's TDD talks | Owned as a talk, but NOT citable as a taxonomy |
+| Joshua Kerievsky | `skeleton` | Production | Own implementation | Transitional | A structural stand-in introduced as a temporary step toward an extraction | Uses in passing; undefined and unindexed, a descriptive noun rather than a named pattern | Refactoring to Patterns, Ch. 10, Move Accumulation to Visitor | Owned; oracle-verified against the clean-room source |
+| Gerard Meszaros | `Test Double` | Test | A collaborator | Either | The umbrella for anything installed in place of a real collaborator | Defines; coined it | xUnit Test Patterns | Owned; oracle-verified against the clean-room source |
+| Gerard Meszaros | `Dummy Object` | Test | A collaborator | Permanent | Something passed only to satisfy a signature, never exercised. Filed under Value Patterns in Ch. 27, and he notes that little of what applies to the other doubles applies to it | Defines | xUnit Test Patterns, Ch. 27 | Owned; oracle-verified against the clean-room source |
+| Gerard Meszaros | `Test Stub` | Test | A collaborator | Either | Installed to feed the code under test the indirect INPUT a scenario needs | Defines | xUnit Test Patterns | Owned; oracle-verified against the clean-room source |
+| Gerard Meszaros | `Test Spy` | Test | A collaborator | Either | Records the calls it receives so the test can inspect them afterwards | Defines | xUnit Test Patterns | Owned; oracle-verified against the clean-room source |
+| Gerard Meszaros | `Mock Object` | Test | A collaborator | Either | Carries the expectation itself and fails the test when the expected call does not arrive | Defines | xUnit Test Patterns | Owned; oracle-verified against the clean-room source |
+| Gerard Meszaros | `Fake Object` | Test | A collaborator | Permanent | A working lightweight implementation substituted for a real one that is too costly to use | Defines | xUnit Test Patterns | Owned; oracle-verified against the clean-room source |
+| Gerard Meszaros | `Responder` | Test | A collaborator | Either | A Variation of Test Stub that returns a valid canned answer | Defines | xUnit Test Patterns, Ch. 23 | Owned; oracle-verified against the clean-room source |
+| Gerard Meszaros | `Saboteur` | Test | A collaborator | Either | A Variation of Test Stub that injects a fault; see the polarity caveat below | Defines | xUnit Test Patterns, Ch. 23 | Owned; oracle-verified against the clean-room source |
+| Gerard Meszaros | `Temporary Test Stub` | Test | A collaborator | Transitional | THE NEAREST MISS, and a reader will reach for it. He ties it to outside-in TDD, describes it as an empty shell with hardcoded returns, and says the shells EVOLVE INTO the real classes. It passes on destiny and fails only on where it lives: his shell stands in for a collaborator not yet available, not for the symbol's own unwritten implementation | Defines | xUnit Test Patterns | Owned; oracle-verified against the clean-room source |
+| Gang of Four | `Proxy`, alias `Surrogate` | Production | A collaborator | Permanent | An object taking the place of another so that access to it can be governed. Variants: `remote proxy`, `virtual proxy`, `protection proxy`, `smart reference` (also `smart pointers`); Coplien's `Ambassador` is credited for the remote kind | Defines | Design Patterns (1994) | Owned; production-side ancestor only |
+| Gang of Four | `Adapter`, alias `Wrapper` | Production | A collaborator | Permanent | Converts one interface into the one a client already expects. The book draws the timing contrast itself: an adapter makes things work AFTER the fact, a bridge before | Defines | Design Patterns (1994) | Owned; production-side ancestor only |
+| Gang of Four | Template Method `hook` | Production | Own implementation | Permanent | A default a subclass MAY extend, frequently doing nothing by default. PERMANENT, not transitional: the stated design goal is to minimise what a subclass must override | Defines | Design Patterns (1994) | Owned; production-side ancestor only |
+| Gang of Four | empty build operation (Builder) | Production | Own implementation | Permanent | Build operations deliberately defined empty rather than pure virtual, so a concrete builder overrides only the parts it cares about. Arguably a purer instance of the permanent empty default than the Template Method hook | Defines | Design Patterns (1994) | Owned; production-side ancestor only |
+| Gang of Four | `NullIterator` | Production | A collaborator | Permanent | An iterator that is always already done, so a caller needs no special-case branch. A NAMED INSTANCE only, not a general pattern -- see the caveat below | Names an instance; does not generalise | Design Patterns (1994) | Owned; production-side ancestor only |
 
 Beck's `fixture` (which he uses in two senses) and `test bed` are test-side words but are NOT
 substitution terms, so they get no row here; they name where a test's world is set up, not something
-standing in for anything. Clean Code's two opposed uses of `stub` are evidence in section 3 rather
-than rows here: what is established is WHICH SIDE each chapter lands on, not whether that chapter
-defines the term, and this table does not guess at the missing column.
+standing in for anything. Clean Code's opposed uses of the contested word are evidence in section 3
+rather than rows here: what is established is WHICH SIDE each chapter lands on, not whether that
+chapter defines the term, and this table does not guess at the missing column.
 
 **The Cooper FALSE FRIEND.** Cooper's `classical` means pre-TDD classical automated testing. It is a
 **false friend** for Fowler's `classicist`, which names a position on how readily to reach for a
@@ -171,49 +248,61 @@ INVERTS him. Cite Cooper for the over-mocking argument, never as a taxonomy.
 **Two live conflicts, presented rather than resolved.** Where owned sources genuinely disagree, this
 document names the disagreement as INHERITED instead of quietly picking a winner:
 
-- Clean Code versus Beck on whether a build failure is a valid red. Both are owned. They disagree.
+- Clean Code versus Beck on whether a build failure is a valid red. Both are owned -- Beck by the
+  report and essays cited in his rows above -- and Clean Code Ch. 9 states within the Second Law
+  itself that failing to compile counts as failing. They disagree.
 - Beck versus Meszaros on which side `stub` names -- section 3.
 
-The first of those has a direct consequence for this skill: lz-red's own step-2 versus step-5
-contradiction was a FAITHFUL TRANSCRIPTION of that inherited conflict, not carelessness. Two owned
-sources were followed accurately in two different places and the disagreement came along with them.
-The fix names the disagreement; it does not pretend one source was misread.
+The first of those has a direct consequence for lz-red: its own step-2 versus step-5 contradiction was
+a FAITHFUL TRANSCRIPTION of that inherited conflict, not carelessness. Two owned sources were followed
+accurately in two different places and the disagreement came along with them. The fix names the
+disagreement; it does not pretend one source was misread.
 
-## 5. The coined term: signature skeleton
+## 5. Naming the production-side transitional artifact
 
-The fourth cell -- production side, transitional -- has no name in any of the twelve sources mapped
-here. The artifact is specific and common: a real production symbol, with the correct signature, no
-working implementation behind it, written so that a test can run against it, and destined to become
-the real implementation. Twelve independent sources, and not one names it.
+The artifact is specific and common: a real production symbol, with the correct signature, no working
+implementation behind it, written so that a test can run against it, and destined to become the real
+implementation.
 
-This document therefore **coins** `signature skeleton` for it. The term is COINED HERE and belongs to
-no author. It is grounded on Kerievsky's owned `skeleton` -- the only owned candidate in the cell's
-neighbourhood -- and deliberately narrowed away from it by the qualifier.
+**Call it a production-side stub.** Always qualified by side, which is what the hard rule in section 3
+already prescribes. No new term is invented here, and none is needed.
 
-Declaring a coinage in the open, rather than smuggling it in as though a source supplied it, follows
-Meszaros' own model: he names the weaknesses of his `Self Shunt` naming himself instead of defending
-it. Same disclosure standard applies here.
+**Four owned sources NAME this artifact** -- Beck with the contested word, Metz's talks with two words,
+99 Bottles with two more, and Kerievsky with a structural word. Six rows in the table land in its
+cell. An earlier revision of this page asserted that the cell was unnamed and coined a term on that
+basis; the assertion was false against the table on this same page, and the coinage is withdrawn.
 
-Checked and rejected, with the reason each failed:
+**The true and stronger finding is that no UNAMBIGUOUS name exists.** Every available name reuses a
+word that some other owned source has already committed to a different cell. That is a claim about
+ambiguity, not about absence, and it is what the list below evidences.
+
+Checked, and each fails for a stated reason -- read the list as the evidence for ambiguity rather than
+as a justification for inventing anything:
 
 - `placeholder` -- contested from BOTH sides. Meszaros registers it as an alias of `Dummy Object`,
   which is collaborator side, so reusing it inverts the side axis; and it has been contested since
   1994, when the Gang of Four used it production-side in Proxy's intent sentence. That book formally
   registers only `Surrogate` as Proxy's also-known-as and never elevates `placeholder` to an alias, so
   the claim here is contested usage, not a second registration. Two claimants, opposite sides.
-- bare `stub` -- the collision this whole document exists to record.
+- bare `stub` -- the collision this whole document exists to record. Correct once qualified by side,
+  which is why the qualified form is the recommendation above.
 - `shim` -- Metz's talks use it production-side, but 99 Bottles uses it for a temporary defaultable
   argument, so the word is already split between the two owned Metz sources.
-- `empty method` and `do-nothing method` -- both denote a body that STAYS empty. This artifact's whole
-  point is that it will be filled.
+- `empty method` -- accurate for what the artifact looks like and wrong about what happens next in
+  some of its uses, since the same phrase also names a body that STAYS empty. 99 Bottles' chapter-2
+  sense IS this artifact, so the word is split within a single work rather than simply unsuitable.
 - `pass-through interface` -- Beck's, production-side, but it denotes delegation rather than absence.
 - `Walking Skeleton` -- a whole-system end-to-end scaffold, not a single symbol.
-- `impostor` -- Beck's, but TEST-side.
+- `impostor` -- Beck's, but test-side.
 - bare `skeleton` -- Kerievsky's, owned and the closest of any candidate, but his denotes a
-  transitional class-EXTRACTION step. Bare reuse would overload an owned term.
-- the Gang of Four stand-in family, `surrogate` and `representative` and `stand-in` -- production-side
-  and genuinely senior, but each denotes one object taking another's PLACE while both exist. None of
-  them denotes a symbol that has no implementation yet.
+  transitional class-EXTRACTION step. As a SUBSTITUTION TERM this word now has four claimants --
+  Kerievsky's extraction step, Clean Code Ch. 14's artifact, the Gang of Four's Template Method
+  algorithm outline, and the generated far end of a remote procedure call -- so nothing is grounded on
+  it in that sense. The claim is scoped to substitution terms deliberately: the word also has settled
+  in-house structural senses that are not in contention here.
+- the Gang of Four stand-in family, `surrogate` and `representative` and `stand-in` -- production-side,
+  but each denotes one object taking another's PLACE while both exist. None of them denotes a symbol
+  that has no implementation yet.
 
 ## 6. Caveats that change a citation
 
@@ -233,15 +322,21 @@ about a book, they are the difference between a correct citation and a wrong one
   `Fragile Test` smell, and itself a form of `Behavior Sensitivity` -- with the actual argument in
   Ch. 5, `Use the Front Door First`. `Behavior Sensitivity` alone carries NO anti-substitution
   content, so citing it for that argument cites nothing.
-- **Meszaros' mapping of his `Test Stub` onto Beck's `Fake` is UNAUDITED.** No page reference, no
-  explanatory note, and no discussion of Beck's `Fake It` anywhere in the volume. Do not use that
-  mapping to interpret Beck.
+- **There is NO Meszaros-to-Beck mapping to audit.** His terminology cross-reference leaves the BECK
+  COLUMN BLANK IN EVERY ROW: Beck's book is listed as a source and no equivalent term is recorded for
+  any of the five kinds. Owner-verified against the print book. An earlier revision of this page
+  asserted a specific mapping of his canned-answer double onto one of Beck's terms and then flagged
+  that mapping as unverified; the mapping does not exist, so the finding is the blank column and the
+  authority claim built on the mapping is withdrawn with it. TWO MARKUP TRAPS produced four readings
+  of that table, of which two were wrong and both wrong ones came by the owned path: a spanning
+  super-header carrying one cell more than the table declares, and header rows marked up as data cells
+  rather than as header cells. Anyone re-reading that table should expect both.
 - **`Fragile Fixture` is typed THREE different ways** across Ch. 2, Ch. 16 and Appendix F. Name the
   chapter you are citing, because the type of thing it is changes between them.
 - **Both registries are NOT EXHAUSTIVE.** Appendix F omits `Test Hook`; Appendix G omits two of
   `Self Shunt`'s aliases. Neither is a closed list, so an absence from either proves nothing.
-- **The cross-reference tables are a DEGRADED SCAN.** Per-column assignments other than the Beck cell
-  are consistent-with rather than confirmed. Treat them as corroboration, never as the sole warrant.
+- **The cross-reference tables are a DEGRADED SCAN.** Per-column assignments are consistent-with
+  rather than confirmed, with no exception. Treat them as corroboration, never as the sole warrant.
 - **`stub` is ABSENT from the 1994 Gang of Four book entirely** -- every sense, checked across the
   index, glossary, bibliography, footnotes, both appendices and all chapters. Its only `skeleton` is
   the Template Method algorithm outline, which is a different idea; citing that as an ancestor of the
@@ -257,10 +352,10 @@ about a book, they are the difference between a correct citation and a wrong one
   considers a do-nothing `Add` and REJECTS it, on the grounds that an attempted add to a leaf probably
   indicates a defect, and recommends failing instead. So it is not uniformly in favour of silently
   inert defaults: it distinguishes where empty is a legitimate value from where a no-op hides an error.
-- **`virtual proxy` is the nearest miss on the transitional cell, and it still fails.** Name it
-  explicitly, because a reader will reach for it. The proxy PERSISTS and keeps forwarding; what
+- **`virtual proxy` is the nearest miss among the production-side ancestors, and it still fails.** Name
+  it explicitly, because a reader will reach for it. The proxy PERSISTS and keeps forwarding; what
   changes over its life is only the sharpness of its reference. The artifact is never replaced -- it
-  graduates. That is a different lifetime from the one section 5 names.
+  graduates. That is a different lifetime from the transitional cell.
 - **`DebuggingGlyph` is a resemblance, never a claim.** It is a decorator that prints trace
   information before and after forwarding, and it is the closest thing in that book to what a later
   author would call a spy -- but it is presented purely as a production diagnostic, with no test
@@ -268,18 +363,26 @@ about a book, they are the difference between a correct citation and a wrong one
 
 ## Sources
 
-- Kent Beck, Test-Driven Development by Example -- production-side `stub` and `pass-through
-  interface`, plus the test-side words `impostor` and `mocking`. Unowned; high-confidence core only
-  (no-oracle), a book held summary-only in the clean-room set.
-- Sandi Metz, The Magic Tricks of Testing and The Design of Tests (talks) -- collaborator-side `stub`,
-  and the production-side `shim`, `empty method` and `do-nothing method`. Owned; oracle-verified
-  against the clean-room source.
+- Kent Beck -- production-side `stub` in the Smalltalk Report 4.2, October 1994 and across four essays
+  2007 to 2010; `pass-through interface` February 2022; `impostor` August 2008; `mocking` January 2022.
+  Owned; oracle-verified against the clean-room source. His book Test-Driven Development by Example is
+  a SEPARATE surface, held summary-only and unowned (no-oracle); it backs no row above, and the owned
+  tier on these essay-and-report rows does not reach it.
+- Sandi Metz, conference talks -- collaborator-side `stub` in The Magic Tricks of Testing and The
+  Design of Tests; production-side `shim` and `empty method` in RailsConf 2014, with Katrina Owen's
+  Cascadia Ruby 2012 talk corroborating the empty method. Owned; oracle-verified against the
+  clean-room source, subject to the transcript qualifier below.
 - Sandi Metz and Katrina Owen, 99 Bottles of OOP, JavaScript Edition -- the defined `Fake`, the empty
   class, method and subclass, and `shim` in its defaultable-argument sense. Owned; oracle-verified
   against the clean-room source.
-- Gary Bernhardt, Boundaries (talk) -- the double-versus-value distinction ONLY. He never states the
-  mock-versus-stub split, and his diagram supplies a count rather than a taxonomy. Owned;
-  oracle-verified against the clean-room source, for that one point.
+- Gary Bernhardt -- the double-versus-value distinction from Boundaries, and the IO substitute from the
+  functional-core screencast. Two deliveries of Boundaries exist and differ materially, so a claim must
+  name one: PyCon 2013 is a compressed thirty-minute cut of an originally forty-five-minute talk with
+  code examples deliberately dropped and no reference to the other delivery, while SCNA 2012 is a
+  separate thirty-four-minute delivery with Ruby examples and a hundred-and-thirty-slide deck whose
+  slides positionally label the substitutes by role. Findings do not transfer between them. He never
+  states the mock-versus-stub split in either, and that negative needs no hedge. Owned;
+  oracle-verified against the clean-room source, and EXEMPT from the transcript qualifier below.
 - Martin Fowler, web articles -- state-versus-behaviour verification and the classicist and mockist
   naming are his own; the umbrella term, the five kinds and `SUT` are Meszaros' and are cited here as
   Meszaros, via Fowler. Unowned; high-confidence core only (no-oracle).
@@ -287,12 +390,18 @@ about a book, they are the difference between a correct citation and a wrong one
   oracle-verified against the clean-room source. The BOOK carries ZERO test-double vocabulary; readers
   routinely assume the taxonomy is in it, and it is not.
 - Ian Cooper, TDD talks -- the over-mocking argument. Owned as a talk, but NOT citable as a taxonomy,
-  and his `classical` is a false friend for Fowler's `classicist`.
-- Joshua Kerievsky, Refactoring to Patterns, Ch. 11 -- `skeleton` as a transitional production-side
-  step. Owned; oracle-verified against the clean-room source.
+  and his `classical` is a false friend for Fowler's `classicist`. Subject to the transcript qualifier.
+- Joshua Kerievsky, Refactoring to Patterns, Ch. 10 -- `skeleton` as a transitional production-side
+  step, used in passing rather than defined. Owned; oracle-verified against the clean-room source.
 - Gerard Meszaros, xUnit Test Patterns -- the `Test Double` umbrella, the five kinds, the Variations of
-  Test Stub, and the smell vocabulary the caveats above correct. Owned; oracle-verified against the
-  clean-room source, with the degraded-scan limit noted in section 6.
+  Test Stub, the terminology cross-reference whose blank Beck column section 2 rests on, and the smell
+  vocabulary the caveats above correct. Owned; oracle-verified against the clean-room source, with the
+  degraded-scan limit noted in section 6.
+- Robert C. Martin and contributors, Clean Code -- the production-side use of the contested word in
+  Ch. 7, which Michael Feathers guest-authored; test-side uses in Ch. 17 and Ch. 10; a structural word
+  for the same artifact in Ch. 14 and a degenerate-implementation phrasing in Ch. 4; and the Second
+  Law in Ch. 9, which counts failing to compile as failing. Owned; oracle-verified against the
+  clean-room source. Carries load in sections 3 and 4 and is listed here so that load is tiered.
 - Gang of Four, Design Patterns (1994) -- the production-side ancestors: Proxy and its variants,
   Adapter, the Template Method hook, Builder's empty build operations, and the `NullIterator`
   instance. Owned; PRODUCTION-SIDE ANCESTOR ONLY. It has no testing vocabulary and never treats
@@ -302,9 +411,31 @@ about a book, they are the difference between a correct citation and a wrong one
 - Bobby Woolf, PLoPD3 -- Null Object, with Bruce Anderson credited for `active nothing`. Named here as
   the correct citation for a general inert-object pattern. Unowned; high-confidence core only
   (no-oracle).
-- `signature skeleton` (section 5) -- COINED by lz-red. No source, by construction.
 
 **A tier listed above does NOT license a tier for any table row that cites the same source.** Tiers
 are per row. A source can be owned overall while a specific claim drawn from it is unverified, or
 citable for one cell and not for another -- Bernhardt and Cooper are both live examples. Read the
 row's own tier cell and nothing else.
+
+Three further qualifiers on what a tier promises, because the tier vocabulary over-promises and the
+honest fix is to name the limit rather than to lower every row. Roughly thirty rows above are sound
+and are NOT downgraded here; the failures that prompted these qualifiers were specific, not random.
+
+1. BY CLAIM TYPE. Prose claims from print hold up. TABLE and other STRUCTURAL claims, from any medium,
+   are unreliable and require direct verification before use. The terminology cross-reference was
+   misread twice, once by a reader explicitly asserting two independent structural signals and denying
+   the precise hazard it had been warned about, and the two markup traps in section 6 explain how.
+2. BY SOURCE MEDIUM. Automatic-transcript sources are weaker, and the corollary a reader needs is that
+   for such a source an ABSENCE claim is the weak case: a single mistranscription hides a hit, so
+   "the term does not appear" carries far less from a transcript than from print. Reliability is per
+   source and depends on transcription quality rather than on the medium alone, so the rule is to NAME
+   THE SOURCE rather than to discount all video. Currently weaker: the Metz talks, the Beck talks, the
+   Cooper talks. Exempt and trustworthy: both Bernhardt sets.
+3. BY SOURCE VERSION. A tier records that a source WAS verified. It does not record WHICH VERSION was
+   verified, so every tier assertion here should be read as version-bound. When a source is later
+   re-acquired or re-transcribed, findings drawn from the earlier version silently inherit a tier they
+   no longer earn, and any row whose source has been re-acquired since the row was written needs
+   re-verification before its tier can be trusted. THE BERNHARDT DOUBLE-VERSUS-VALUE ROW IS THE
+   CONCRETE CASE, on two counts: its verification is stale because the transcript it was originally
+   verified against has since been replaced by an improved one, AND its citation was ambiguous between
+   two materially different deliveries until the row named one.

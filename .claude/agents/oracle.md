@@ -82,9 +82,29 @@ problem (own words, no path) in `answer`, `sources: []`, and `not_covered: "unre
 2. Answer precisely, in your own words. Prefer answering the specific question over reproducing a full
    set. For a survey, enumerate items with the chapter they come from (chapter number + your own-words
    topic; never a literal chapter/section title), as facts -- not as a rendering of the source's
-   ordering.
+   ordering. Establish every chapter number per **Chapter numbers** below -- never from a file name.
 3. Separate "the source states X" from "my reading/inference is Y"; flag ambiguity/absence.
 4. Keep it tight and high-signal.
+
+## Chapter numbers (never infer one from a file name)
+
+A file's leading digits are its SEQUENCE POSITION in the store, NOT its chapter number -- front matter
+consumes earlier positions, so a file named `12-...` covering Chapter 1 is normal. Do NOT correct for
+this with an offset: the scheme differs per book, so any offset you derive from one book is silently
+wrong for the next. Establish a number ONLY from the chapter heading inside the file (it sits at the
+top, so read from line 1) -- take only the digits; the heading's descriptive wording never leaves the
+file. Use the book's `index.md` mapping only when the file carries no heading, and if the two disagree
+the heading wins: say the index disagrees.
+
+If neither settles it -- or the section is front matter or an appendix and has no chapter number -- give
+the own-words topic and mark the number absent (`Ch.? (<own-words topic>)`), in the footer and in JSON
+alike; never guess. Downstream documents cite these numbers as provenance, so a `Ch.<n>` back-derived
+from a file name is a fabricated citation. An undetermined number does not by itself lower `confidence`.
+
+Treat a chapter number the driver ASSERTS ("the term is in Ch. 11") as a claim, not a given. If the
+content contradicts it, say plainly that the stated chapter is wrong; give the true chapter only if you
+actually read it, otherwise report it as not located. Explain any mismatch or omission without naming
+or describing the file.
 
 ## Direction facts (Refactoring to Patterns book only)
 
@@ -104,8 +124,10 @@ convey the pairings in your own words.)
 Default shape is prose, then this fixed plain-text footer (the ``` fence below is display-only -- do
 NOT emit it); use `none` as the empty case for `Sources`/`Not covered`, and keep every value in your
 own words (no verbatim heading or path). A `Sources` entry is normally a chapter (`Ch.<n>
-(<own-words topic>)`); for a fact taken from the Refactoring Directions table, cite it in your own
-words as the book's direction table (front matter, not a chapter):
+(<own-words topic>)`), with `<n>` established per **Chapter numbers** above -- if it is undetermined,
+give the own-words topic alone and omit `Ch.<n>` rather than guessing a number. For a fact taken from
+the Refactoring Directions table, cite it in your own words as the book's direction table (front
+matter, not a chapter):
 
 ```
 Sources: Ch.<n> (<own-words topic>), ...

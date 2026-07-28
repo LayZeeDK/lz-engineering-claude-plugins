@@ -21,6 +21,14 @@ Thumbs.db
 # Session/handoff scratch (GSD resume notes) -- never distributed.
 .continue-here.md
 
+# Agent worktrees created by subagent isolation (isolation: "worktree") and by GSD
+# execute/quick dispatch. Each is a full second checkout of this repo (~78 MB observed),
+# so leaving it untracked meant a stray `git add .` would stage a duplicate tree. The
+# nested checkout's own .gitignore already covers .oracle/ and .continue-here.md inside
+# it, so the exposure was bulk rather than sensitive -- but these are throwaway by
+# construction: merge the branch by exact name, then `git worktree remove`.
+.claude/worktrees/
+
 # Skill-creator eval workspaces (.claude/skills/<skill-name>-workspace/).
 # Keep the eval RECORD tracked -- eval sets, eval_metadata.json, benchmark.json/.md,
 # grading.json, EVAL-RESULTS.md, and the vendored tools/ harness. Ignore only caches

@@ -17,6 +17,27 @@
 // FLIPPED to positive content topics + an `absent: /Phase 18/i` no-stale-marker guard; every
 // Phase-16/17 topic is kept as the regression floor.
 //
+// TWELVE FILES entries as of quick-260728-j9m: the eleven above plus test-double-taxonomy.md, the
+// cross-author test-double vocabulary map. That entry sets requireFence: false on purpose -- the
+// taxonomy is prose and pipe tables only, so it never enters the tsc extractor's fence gate and the
+// lz-red tree's fence count is unchanged by it.
+//
+// Additions in quick-260728-j9m, every one PURELY ADDITIVE (no pre-existing topic, flag or gate was
+// weakened, loosened or removed):
+//   - `absent` now accepts EITHER a single guard object (as before) or an ARRAY of them, so one file
+//     can carry several no-stale-text guards. The DEL-7 contradiction sweep needs three of them.
+//   - An OPTIONAL per-entry `scaffoldExempt` array filters SCAFFOLD_RES for that entry only. It is
+//     set on the taxonomy entry ALONE, to /\bplaceholder\b/i, because that word is a REGISTERED
+//     ALIAS in the source taxonomy this document maps -- a domain term there, not a draft marker.
+//     Same precedent as lib/scaffold-phrases.mjs keeping TODO uppercase-only so a `todos` domain
+//     example never false-fails. The shared phrase list is deliberately NOT edited: the lz-refactor
+//     battery imports it too, and this exemption must not reach any other file.
+//   - A post-loop sha256 BYTE-IDENTITY gate: test-double-taxonomy.md ships as three copies (lz-red,
+//     lz-tpp, lz-refactor), one per skill because a bundled reference is scoped to its own skill
+//     directory. Duplication is safe only while the copies cannot drift, so the digests must agree.
+//   - Every gate added by that task carries a leading `[j9m] ` in its LABEL, so the new RED baseline
+//     is mechanically separable from the eleven pre-existing surfaces. No pre-existing label changed.
+//
 // RED against the current placeholder / un-filled Phase-18 slices BY DESIGN -- this is the
 // instrument-first Wave-0 Nyquist baseline, NOT a failure. The tsc extractor is GREEN-on-empty (it
 // compiles whatever fences exist), so it cannot be the content-completeness signal; THIS checker is.
@@ -28,6 +49,7 @@
 //   node .claude/skills/lz-red-workspace/tools/check-red-references.mjs
 import fs from "node:fs";
 import path from "node:path";
+import { createHash } from "node:crypto";
 import { fileURLToPath } from "node:url";
 import { SCAFFOLD_RES } from "./lib/scaffold-phrases.mjs";
 import { findBookCitedAsOwned } from "./lib/provenance-honesty.mjs";
@@ -53,6 +75,14 @@ const SKILL_ROOT = path.join(repoRoot, "plugins", "lz-tdd", "skills", "lz-red");
 // actually compiles; unlike requireFence's looser TS_FENCE_RE a ```ts ignore fence does NOT satisfy
 // it (VIT-02 real coverage). dir = optional per-entry base dir (defaults to REFERENCES); the SKILL.md
 // entry sets it to the skill root so the checker reaches the router at the tree root.
+// absent accepts a single guard object OR an array of them (j9m): the DEL-7 sweep needs several
+// no-stale-text guards on one file, and an array keeps them independently reported and named.
+// scaffoldExempt = optional array of SCAFFOLD_RES patterns to skip FOR THIS ENTRY ONLY, for a file
+// where one of those words is a genuine domain term rather than a draft marker.
+// labelPrefix = optional string prepended to this entry's AUTO-GENERATED labels (exists / fence /
+// scaffold), so a wholly NEW surface can be attributed as new work the same way its hand-written
+// topic labels are. Defaults to "" and is unset on all eleven pre-existing entries, whose reported
+// labels are therefore byte-unchanged.
 const FILES = [
   {
     name: "three-laws-and-test-selection.md",
@@ -66,6 +96,12 @@ const FILES = [
       // Phase-18 spine slice (filled this phase; LAW-01, SEAM-01).
       { label: "Three Laws spine present", re: /three laws|law 1|law 2|law 3/i },
       { label: "classify-first framing", re: /classify/i },
+      // DEL-7a: Law 2 sizes the TEST; the hand-forward bar is a different question. The two must be
+      // disambiguated here as well as in SKILL.md, since this file states Law 2 at length.
+      {
+        label: "[j9m] Law 2 sizes the test, not the hand-forward bar",
+        re: /hand forward|hand it forward|sizes the test/i,
+      },
     ],
     absent: { label: "no stale deferral marker", re: /Phase 18/i },
   },
@@ -167,8 +203,21 @@ const FILES = [
       { label: "cross-ref message-matrix.md", re: /message-matrix\.md/ },
       // Phase-18 slice (filled this phase; ties the red-bar mechanic to the LAW-02 procedure step).
       { label: "fail-for-the-right-reason procedure step", re: /procedure step|law-02|law 2/i },
+      // DEL-7b/7c/7f: the criterion restated correctly on the mechanics surface. `collection` is the
+      // measured boundary (only a missing MODULE fails at collection); the not-implemented throw is a
+      // valid-but-blunter red; and the divergence from this project's own stricter gate is recorded.
+      { label: "[j9m] collection vs act-line failure", re: /collection/i },
+      { label: "[j9m] not-implemented throw is a valid red", re: /not-implemented|not implemented/i },
+      { label: "[j9m] instrument divergence recorded", re: /stricter than/i },
     ],
-    absent: { label: "no stale deferral marker", re: /Phase 18/i },
+    absent: [
+      { label: "no stale deferral marker", re: /Phase 18/i },
+      // DEL-7c: MEASURED FALSE on the pinned toolchain (vitest 4.1.10, tsc 6.0.3) -- a missing named
+      // export and a bare undeclared identifier both throw AT THE ACT LINE, so the body DID run.
+      { label: "[j9m] no false never-reached-the-assertion claim", re: /never reached its assertion/i },
+      // DEL-7b: an unresolved name is not a broken harness; reserve that verdict for collection.
+      { label: "[j9m] no bare broken-harness verdict on an unresolved name", re: /broken harness/i },
+    ],
   },
   {
     name: "anti-patterns.md",
@@ -184,8 +233,18 @@ const FILES = [
       { label: "GOOS counterpoint", re: /goos|counterpoint/i },
       { label: "Test Desiderata", re: /desiderata/i },
       { label: "tradeoff/heuristic lens", re: /tradeoff|heuristic/i },
+      // DEL-7b: anti-pattern 4's recognizer must acknowledge the characterization carve-out, or the
+      // skill's own legacy stance is condemned by its own gate (a pin is green by construction).
+      { label: "[j9m] false-green carve-out names characterization", re: /characterization/i },
     ],
     deferral: null,
+    // DEL-7: the fail-for-the-right-reason procedure ships in THIS change, so the marker deferring it
+    // to a later phase is now wrong.
+    // NEEDLE NARROWED from the specified `/in a later phase/i`: absent guards are evaluated PER LINE,
+    // and the live marker wraps ("... in a" / "later phase)."), so the longer phrase can never match
+    // and the guard would report PASS while the stale text is fully present. `/later phase/i` matches
+    // the wrapped tail and is the file's only occurrence, so it gates the removal for real.
+    absent: { label: "[j9m] no stale later-phase marker", re: /later phase/i },
   },
   {
     name: "principle-backing.md",
@@ -198,6 +257,11 @@ const FILES = [
       // Phase-18 slice (filled this phase; LAW / SEAM backing rows + access tiers).
       { label: "Three Laws backing row", re: /three laws/i },
       { label: "lz-tpp seam backing row", re: /seam|handoff/i },
+      // DEL-5 fix (5): the new taxonomy reference is backed like every other recommendation.
+      { label: "[j9m] test-double taxonomy backing row", re: /test-double-taxonomy\.md/ },
+      // DEL-7e: the retagged criterion rests on the failure-versus-error boundary (Fowler), which the
+      // superseded Clean Code Ch. 9 row could not carry -- that chapter contradicts the criterion.
+      { label: "[j9m] failure-vs-error boundary row", re: /failure|error boundary/i },
     ],
     absent: { label: "no stale deferral marker", re: /Phase 18/i },
   },
@@ -216,8 +280,47 @@ const FILES = [
       { label: "natural-language override", re: /override|plain language|stance preference/i },
       { label: "fail for the right reason", re: /right reason|AssertionError/ },
       { label: "forward lz-tpp handoff", re: /lz-tpp/i },
+      // DEL-7b: the four-tier red hierarchy on the router. An assertion failure is the SHARPEST red,
+      // a not-implemented throw is a valid but BLUNTER one, a collection or build failure is a
+      // PREREQUISITE to clear rather than the red you hand forward, and the CHARACTERIZATION test is
+      // carved out of the false-green rule because it is green by construction.
+      { label: "[j9m] valid but blunter red", re: /blunter/i },
+      { label: "[j9m] prerequisite to clear", re: /prerequisite/i },
+      { label: "[j9m] characterization carve-out", re: /characterization/i },
     ],
     absent: { label: "no stale deferral marker", re: /Phase 18/i },
+  },
+  {
+    // NET-NEW (quick-260728-j9m): the cross-author test-double vocabulary map, shipped as three
+    // byte-identical copies (the digests are gated post-loop). requireFence is FALSE by house rule --
+    // this document is prose and pipe tables only, so it never enters the tsc extractor's fence gate.
+    // scaffoldExempt carries the ONE narrow exemption: /\bplaceholder\b/i is a registered alias in the
+    // source taxonomy this document maps, so here it is a domain term the document MUST name, not a
+    // draft marker. The exemption is scoped to this entry and lib/scaffold-phrases.mjs is untouched.
+    name: "test-double-taxonomy.md",
+    requireFence: false,
+    labelPrefix: "[j9m] ",
+    scaffoldExempt: [/\bplaceholder\b/i],
+    topics: [
+      { label: "[j9m] table of contents", re: /table of contents/i },
+      { label: "[j9m] lifetime axis", re: /lifetime/i },
+      { label: "[j9m] bare-stub collision headline", re: /collision/i },
+      { label: "[j9m] defines-vs-uses column", re: /\bdefines\b/i },
+      { label: "[j9m] coinage declared openly", re: /\bcoined\b/i },
+      { label: "[j9m] Self Shunt disclosure model", re: /self shunt/i },
+      { label: "[j9m] Saboteur polarity caveat", re: /saboteur/i },
+      { label: "[j9m] Overspecified Software citation", re: /overspecified software/i },
+      { label: "[j9m] Cooper false-friend caveat", re: /false friend/i },
+      { label: "[j9m] degraded-scan confidence caveat", re: /degraded scan/i },
+      { label: "[j9m] unaudited Beck-Fake mapping caveat", re: /unaudited/i },
+      { label: "[j9m] appendices not exhaustive", re: /not exhaustive/i },
+      { label: "[j9m] authority is per cell", re: /per cell|per-cell/i },
+      { label: "[j9m] Meszaros scoped as a reference frame, not the spine", re: /reference frame/i },
+      { label: "[j9m] two senses of different vintage", re: /vintage/i },
+      { label: "[j9m] inherited disagreement named", re: /inherited/i },
+      { label: "[j9m] no declared precedence for the TDD content sources", re: /no declared precedence/i },
+    ],
+    deferral: null,
   },
 ];
 
@@ -251,9 +354,12 @@ let filesPresent = 0;
 
 for (const spec of FILES) {
   const filePath = path.join(spec.dir ?? REFERENCES, spec.name);
+  // Auto-generated labels carry the entry's optional labelPrefix (unset, so empty, on all eleven
+  // pre-existing entries) -- see the labelPrefix note above.
+  const auto = (suffix) => `${spec.labelPrefix ?? ""}${spec.name}${suffix}`;
 
   if (!fs.existsSync(filePath)) {
-    report(false, `${spec.name} exists`, "not found");
+    report(false, auto(" exists"), "not found");
     continue;
   }
 
@@ -268,20 +374,26 @@ for (const spec of FILES) {
 
   if (spec.requireFence) {
     const hasFence = TS_FENCE_RE.test(text);
-    report(hasFence, `${spec.name}: >= 1 ts fence`, hasFence ? "" : "no tsc-strict TypeScript fence yet");
+    report(hasFence, auto(": >= 1 ts fence"), hasFence ? "" : "no tsc-strict TypeScript fence yet");
   }
 
   if (spec.requireNonIgnoreFence) {
     const hasNonIgnoreFence = NON_IGNORE_TS_FENCE_RE.test(text);
     report(
       hasNonIgnoreFence,
-      `${spec.name}: >= 1 non-ignore ts fence`,
+      auto(": >= 1 non-ignore ts fence"),
       hasNonIgnoreFence ? "" : "no bare tsc-strict TypeScript fence yet (a `ts ignore` fence does not count)"
     );
   }
 
-  const scaffold = SCAFFOLD_RES.find((re) => re.test(text));
-  report(!scaffold, `${spec.name}: no scaffold phrase`, scaffold ? `matches ${scaffold}` : "");
+  // Per-entry scaffold exemptions (j9m): filter the SHARED phrase list for this entry only, never
+  // edit it. An exempt pattern is one whose word is a genuine domain term in that specific document.
+  const scaffoldExempt = spec.scaffoldExempt ?? [];
+  const scaffoldRes = SCAFFOLD_RES.filter(
+    (re) => !scaffoldExempt.some((exempt) => exempt.source === re.source && exempt.flags === re.flags)
+  );
+  const scaffold = scaffoldRes.find((re) => re.test(text));
+  report(!scaffold, auto(": no scaffold phrase"), scaffold ? `matches ${scaffold}` : "");
 
   if (spec.deferral) {
     const kept = lines.some((line) => spec.deferral.re.test(line));
@@ -289,10 +401,15 @@ for (const spec of FILES) {
   }
 
   // Inverse of deferral (D-14): a filled slice must NOT keep its `/Phase 18/i` deferral artifact.
-  // PASS only when NO line matches; RED now because the un-filled slices still carry the marker.
+  // PASS only when NO line matches. Accepts a single guard or an ARRAY of them (j9m), so one file can
+  // carry several no-stale-text guards and each is reported independently under its own label.
   if (spec.absent) {
-    const present = lines.some((line) => spec.absent.re.test(line));
-    report(!present, `${spec.name}: ${spec.absent.label}`, present ? `stale marker still present (matches ${spec.absent.re})` : "");
+    const absentGuards = Array.isArray(spec.absent) ? spec.absent : [spec.absent];
+
+    for (const guard of absentGuards) {
+      const present = lines.some((line) => guard.re.test(line));
+      report(!present, `${spec.name}: ${guard.label}`, present ? `stale marker still present (matches ${guard.re})` : "");
+    }
   }
 }
 
@@ -331,10 +448,41 @@ if (fs.existsSync(lzTppSkillPath)) {
   );
 }
 
+// [j9m] Byte-identity gate. test-double-taxonomy.md ships as THREE copies -- one per skill -- because
+// a bundled reference is scoped to its own skill directory: no cross-skill ../ path, no symlink, and
+// no plugin-root shared dir. That duplication is only safe while the copies cannot silently diverge,
+// so sha256 must agree across all three. A standalone post-loop block (the D-05 honesty-gate and
+// SEAM-02 idiom) because it reads paths OUTSIDE the lz-red references tree. FAILs loud and BY NAME on
+// a missing copy rather than passing vacuously on the two that happen to exist.
+const TAXONOMY_LABEL = "[j9m] test-double-taxonomy.md byte-identical across all three skills";
+const taxonomyCopies = ["lz-red", "lz-tpp", "lz-refactor"].map((skill) => ({
+  skill,
+  file: path.join(repoRoot, "plugins", "lz-tdd", "skills", skill, "references", "test-double-taxonomy.md"),
+}));
+const missingCopies = taxonomyCopies.filter(({ file }) => !fs.existsSync(file));
+
+if (missingCopies.length > 0) {
+  report(false, TAXONOMY_LABEL, `copy MISSING for: ${missingCopies.map(({ skill }) => skill).join(", ")}`);
+} else {
+  const digests = taxonomyCopies.map(({ skill, file }) => ({
+    skill,
+    digest: createHash("sha256").update(fs.readFileSync(file)).digest("hex"),
+  }));
+  const identical = digests.every(({ digest }) => digest === digests[0].digest);
+
+  report(
+    identical,
+    TAXONOMY_LABEL,
+    identical
+      ? `sha256 ${digests[0].digest.slice(0, 12)} in all three`
+      : `digests DIVERGED -- ${digests.map(({ skill, digest }) => `${skill}=${digest.slice(0, 12)}`).join(", ")}`
+  );
+}
+
 console.log("");
 
 if (failures === 0) {
-  console.log(`SUMMARY: RED-REFS GREEN -- ${filesPresent}/${FILES.length} lz-red surfaces authored (SKILL.md coach procedure + SEL/STR/NAME/ASRT/RTR/VIT/ANTI references) with topics + required ts fences + cross-links, no scaffold leak, no stale Phase-18 markers, SEAM-02 lz-tpp reverse pointers present, D-05 honesty gate holds`);
+  console.log(`SUMMARY: RED-REFS GREEN -- ${filesPresent}/${FILES.length} lz-red surfaces authored (SKILL.md coach procedure + SEL/STR/NAME/ASRT/RTR/VIT/ANTI references + the test-double taxonomy) with topics + required ts fences + cross-links, no scaffold leak, no stale Phase-18 markers, the red criterion consistent across every surface that restates it, taxonomy byte-identical in all three skills, SEAM-02 lz-tpp reverse pointers present, D-05 honesty gate holds`);
   process.exit(0);
 }
 

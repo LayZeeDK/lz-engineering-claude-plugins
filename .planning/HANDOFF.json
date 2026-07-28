@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-07-26T22:46:20.724Z",
+  "timestamp": "2026-07-28T04:49:07.137Z",
   "phase": "21",
   "phase_name": "applied-red-eval-real-oss-repos",
   "phase_dir": ".planning/phases/21-applied-red-eval-in-real-oss-repos-multi-dimensional-3-arm-i",
@@ -8,175 +8,43 @@
   "task": 3,
   "total_tasks": 3,
   "status": "paused",
-  "summary": "Phase 21 is TECHNICALLY COMPLETE and every technical question it paused on is settled. The RED apply instrument is built, hardened and GREEN across 4 cells in 3 suites. This session: (1) SETTLED the JestMatchers question -- the cause is @types/jest-axe's triple-slash reference pulling in @types/jest, whose expect returns JestMatchers<T>, a type jest-dom never augments; the tsconfig `types`-array premise the phase paused on is FALSIFIED. (2) PROVED the differential typecheck load-bearing by counterfactual. (3) DECIDED RXF's compile_error verdict STANDS. (4) ADOPTED angular-typechecker (atc) for the two radix cells only, because tsc is structurally blind to Angular template diagnostics (MEASURED 0 vs atc's 15). (5) RAN the approved with_skill pilot on RXL ($1.9286): D-04 auto-trigger ANSWERED 2/2 fired, coach-don't-drive 3/3 perfect, and found RXL's mechanical D-06 verdict to be DESIGN-CONFOUNDED, which the owner scoped to discipline-dimensions-only reporting. NOTHING TECHNICAL IS BLOCKING. The single outstanding item is the ~$39 four-cell metered round, which needs fresh explicit approval.",
+  "summary": "The Phase-21 metered round RAN and is fully recorded. 36 runs, 4 cells, 3 suites, $29.04, claude-opus-4-8 at effort high, user-approved after the zero-spend canary passed with ZERO SKIPs. HEADLINE: no correctness lift and no test-design lift from PASSIVE skill content -- pooled Pass@1 0.67 for all three arms after every defensible correction, and blind-judge substance 9/9 for the baseline on the three judgeable cells. The baseline is at ceiling. Non-null findings are all off the output axis: auto-trigger fired in 9 of 12 opportunities (an ABSOLUTE rate; comparing it to no_skill 0/12 is a non-comparison because firing is impossible without --plugin-dir), treated arms cost +23% output tokens and more turns, and the round's only 2 production edits both came from skill-bearing arms, which points AGAINST coach-don't-drive. A follow-up Opus 5 probe (3 runs, $2.44, user-approved) confirmed auto-trigger still fires 3/3 on the current model. THEN a quick task (260728-1pj) asked to run the forcing-function probe and instead found a BLOCKING self-contradiction in the shipped lz-red skill; the fix was drafted twice, reviewed twice, and REVERTED both times. plugins/lz-tdd is byte-unchanged. The 7-item fix spec is preserved and ready to implement.",
   "completed_tasks": [
-    {
-      "id": "260725-63f",
-      "name": "Audit + triage 5 RED-instrument findings; F4 REJECTED with evidence; 3 code-review Criticals fixed",
-      "status": "done",
-      "commit": "7671a3e"
-    },
-    {
-      "id": "pilots-1-3",
-      "name": "Three approved GRC pilots ($1.67): found trigger-detector blindness to slash-command invocation, an anti-RED apply preamble, a D-06 borrowed-failure false-PASS, and a live false green",
-      "status": "done",
-      "commit": "ae35763"
-    },
-    {
-      "id": "260726-relocate",
-      "name": "Grading worktree derived onto the target's own volume; the stated cross-volume premise was FALSIFIED (27%, not the cause)",
-      "status": "done",
-      "commit": "b49af17"
-    },
-    {
-      "id": "260725-wpu",
-      "name": "srvx suite built + GRC anchor ARMED; ngx-layout closed with evidence (upstream never had a runnable Vitest suite)",
-      "status": "done",
-      "commit": "4a43216"
-    },
-    {
-      "id": "target-search",
-      "name": "Six search passes; radix-ng/primitives @ 4a7390a2 selected and fresh-clone verified as the in-domain discriminator",
-      "status": "done",
-      "commit": "71517e1"
-    },
-    {
-      "id": "260726-g69",
-      "name": "radix-ng wired (RXF + RXL) via the full validated pipeline; gsd-verifier PASSED 8/8 with bisect run IN FULL (15 trees, 45/45 checks, zero skips)",
-      "status": "done",
-      "commit": "c67b436"
-    },
-    {
-      "id": "A-1",
-      "name": "Closed advisory A-1 with two guards: a typecheck pass that did not really run can no longer read as clean",
-      "status": "done",
-      "commit": "fccad1c"
-    },
-    {
-      "id": "pilot-3cell",
-      "name": "Approved 3-cell pilot ($3.26): SRVC genuinely_red, RXL genuinely_red (cross-package import PROVEN), RXF compile_error which exposed the line-shift defect",
-      "status": "done",
-      "commit": "fccad1c"
-    },
-    {
-      "id": "diff-fix",
-      "name": "Differential made position-insensitive (multiset on file+code+message); RXF re-graded offline, 9 NEW -> 1 NEW; SRVC and RXL unchanged",
-      "status": "done",
-      "commit": "3c50958"
-    },
-    {
-      "id": "jestmatchers-research",
-      "name": "SETTLED: the cause is @types/jest-axe's triple-slash reference types=\"jest\", which pulls in @types/jest, whose expect returns JestMatchers<T> -- a type @testing-library/jest-dom/vitest never augments (it augments vitest's Assertion). Proven with tsc --explainFiles. The types-array premise this phase paused on is FALSIFIED: jest-dom's types DO load. Also verified the runner cannot fail on type errors at all (Analog v2.6.1 defaults disableTypeChecking true; radix passes no options), so nothing in the repo typechecks specs. Recorded in 21-ATC-ADOPTION.md.",
-      "status": "done"
-    },
-    {
-      "id": "rxf-verdict",
-      "name": "DECIDED: RXF's compile_error verdict STANDS. The diagnostic is the model's own and the gate is behaving as designed; no matcher allowlist, no baseline-keyed noise rule and no target-specific tolerance was written, because each would forge the measurement. The accepted consequence -- jest-dom matcher choice partly decides RXF grading -- is RECORDED as a residual in RUN-GATE rather than engineered away.",
-      "status": "done"
-    },
-    {
-      "id": "260726-uqn",
-      "name": "Adopted angular-typechecker 0.2.4 (npm, tracked devDependency) as the differential checker for RXF + RXL only; GRC and SRVC stay on tsc byte-identically. Per-target fail-closed checker selection, an atc JSON normalizer feeding the UNCHANGED position-insensitive multiset, the vacuous-differential guard extended to atc's own file-less synthesized faults, and TWO new canaries: canary-rdxf-template (a defect atc reports and tsc does not) and canary-rdxf-append (the first append-onto-a-dirty-file canary in the suite). Differential re-priced ~7.8 s -> ~19 s per radix grade.",
-      "status": "done"
-    },
-    {
-      "id": "260726-uqn",
-      "name": "Settled the JestMatchers mechanism (types-array premise FALSIFIED), proved the differential load-bearing by counterfactual, decided RXF compile_error STANDS, and adopted angular-typechecker for the radix cells only. Verifier 12/12; full battery exit 0 twice (395-405 s, 11 fabricated runDirs, 0 skips). Three radix canaries incl. the suite FIRST append-onto-a-dirty-file fixture.",
-      "status": "done",
-      "commit": "fc174c7,7ade70a,9794e90,ba69fe5"
-    },
-    {
-      "id": "withskill-pilot",
-      "name": "RXL with_skill pilot, 2 runs, $1.9286 (user-approved). D-04 ANSWERED: auto-trigger fired 2/2, corroborated four ways per run; FIRST with_skill firing ever on SRVC/RXF/RXL. Coach-don't-drive 3/3 PERFECT. Found RXL's D-06 verdict DESIGN-CONFOUNDED -> owner scoped RXL to discipline dims only.",
-      "status": "done",
-      "commit": "134e5b5"
-    }
+    { "id": "step2-canary", "name": "Required zero-spend canary battery: exit 0, ZERO SKIPs across 11 fabricated runDirs incl. the platform-conditional crux 9", "status": "done" },
+    { "id": "round-36", "name": "36 metered runs across GRC/SRVC/RXF/RXL, $29.04, all bases correctly pinned, no E2E_APPLY_BASE leak", "status": "done" },
+    { "id": "attribution-fix", "name": "Fixed conditional-modifier title attribution (test.skipIf(cond)('t')) + [classify:cond] canary; SRVC re-graded 7/9 -> 8/9", "status": "done", "commit": "e428d8a" },
+    { "id": "model-pin", "name": "Pinned all six eval-runner call sites to claude-opus-5 across three workspaces", "status": "done", "commit": "5a19ca5" },
+    { "id": "results", "name": "Recorded the round in EVAL-RESULTS.md with the two excluded cells and their pre-registered reasons", "status": "done", "commit": "c7656ce" },
+    { "id": "passive-active", "name": "Corrected the null's scope: passive content is null, but an ACTIVE forcing function flipped the axis on lz-refactor and shipped", "status": "done", "commit": "5aabd55" },
+    { "id": "tokens", "name": "Restored the token dimension dropped from the results table (+23% output tokens for with_skill)", "status": "done", "commit": "104ce34" },
+    { "id": "added-dims", "name": "Added classify-first + house-idiom dims; corrected the RXF framing twice (jest-dom is a 1-of-142 outlier, not the house idiom)", "status": "done", "commit": "b07d002" },
+    { "id": "opus5-probe", "name": "Opus 5 trigger probe: 3/3 fired, 3/3 genuinely_red, 0/3 production edits, $2.4410", "status": "done", "commit": "d9db719" },
+    { "id": "260728-1pj", "name": "Quick task: found the lz-red red-bar doctrine defect, settled it via 3 oracle consultations, specified a 7-item fix, REVERTED both draft attempts", "status": "done", "commit": "abd72dc" }
   ],
   "remaining_tasks": [
-    {
-      "id": "full-round",
-      "name": "GATED: 4 cells x 3 arms x k=3 = 36 runs, about $39 at the MEASURED $1.09/run (not the earlier $0.57 extrapolation). Needs fresh explicit approval.",
-      "status": "not_started"
-    },
-    {
-      "id": "close-21",
-      "name": "Post-round closure: /gsd-secure-phase 21, /gsd-validate-phase 21, /gsd-extract-learnings 21.",
-      "status": "not_started"
-    },
-    {
-      "id": "milestone",
-      "name": "/gsd-complete-milestone lz-tdd@0.0.3 (manual archival for the @-scoped version).",
-      "status": "not_started"
-    }
+    { "id": "followup-1-fix-spec", "name": "Implement the 7-item red-bar fix spec in .planning/quick/260728-1pj-build-the-lz-red-forcing-function-probe-/260728-1pj-FINDINGS.md section 6. Five files. Needs its own unbiased subagent review BEFORE acceptance, then /reload-plugins by the user.", "status": "not_started" },
+    { "id": "followup-2-seam", "name": "OWNER JUDGEMENT CALL: making lz-red author a compile-enabling stub moves lz-tpp's highest-priority ranked transformation ({} -> nil, transformations.md:65) across the seam. Surface it; do not decide it.", "status": "not_started" },
+    { "id": "followup-3-probe", "name": "The forcing-function probe: still unbuilt and unrun. Blocked on followup-1 -- do not bolt a forcing function onto a self-contradictory procedure. Strongest candidate is now sample-the-suite's-convention-by-COUNT.", "status": "not_started" },
+    { "id": "teardown", "name": "Remove the 3 throwaway worktrees (D:/.lz-red-round-kata, -srvx, -radix) and re-verify all borrowed repos pristine", "status": "not_started" },
+    { "id": "close-21", "name": "/gsd-secure-phase 21, /gsd-validate-phase 21, /gsd-extract-learnings 21 -- each reached BY its dedicated agent, never self-certified inline", "status": "not_started" },
+    { "id": "milestone", "name": "/gsd-complete-milestone lz-tdd@0.0.3 with MANUAL archival (gsd-sdk milestone.complete rejects the @-scoped non-vX.Y version)", "status": "not_started" }
   ],
   "blockers": [
-    {
-      "description": "The ~$39 four-cell metered round needs FRESH explicit approval naming the scope (eval-run-approval-gate). 4 cells x 3 arms x k=3 = 36 runs at the MEASURED ~$1.09/run. This is the ONLY outstanding item and it is NOT technical -- the instrument is green and the corpus is complete.",
-      "type": "human_action",
-      "workaround": "None needed. Recipes are in RUN-GATE Step 3a-3d. Read RUN-GATE Step 7 BEFORE tabulating: RXL is reported on discipline dimensions ONLY."
-    }
+    { "description": "No technical blocker. The round is complete and committed; the skill defect is specified but deliberately unapplied.", "type": "external", "workaround": "none needed" }
   ],
   "async_jobs": [],
   "human_actions_pending": [
-    {
-      "action": "Approve or decline the ~$39 four-cell round (36 runs).",
-      "context": "Everything technical is closed. D-04 is already answered by the pilot (2/2 fired), so the round now buys the k=3 correctness + judge dimensions across all four cells rather than the trigger question.",
-      "blocking": true
-    }
+    { "action": "/reload-plugins", "context": "ONLY needed once the 7-item red-bar fix actually ships. Nothing in plugins/lz-tdd changed this session, so it is NOT needed to resume.", "blocking": false },
+    { "action": "Decide the lz-red/lz-tpp seam question (followup-2)", "context": "Whether lz-red may author a compile-enabling stub, given that this moves lz-tpp's top-ranked transformation across the seam.", "blocking": false }
   ],
   "decisions": [
-    {
-      "decision": "radix-ng/primitives @ 4a7390a2 is the in-domain discriminator; ngx-layout permanently rejected.",
-      "rationale": "ngx-layout can only run its tests via a harness-supplied out-of-repo --runner-config, which is the declined arm-the-test-config route in another form. A developer cloning at that pin cannot run the tests, so any fix we supply measures the model in an environment no real user has. Closed with evidence: Vitest existed on its upstream main for only 8 commits and both endpoints measured broken.",
-      "phase": "21"
-    },
-    {
-      "decision": "Per-candidate prompts; NO single file-path prompt.",
-      "rationale": "A prompt admitting two answers makes the judge dimension unanswerable and destroys per-candidate attribution, even though the mechanical D-06 gate would pass either.",
-      "phase": "21"
-    },
-    {
-      "decision": "Vitest only; Jest and Karma deferred until a Vitest result exists.",
-      "rationale": "Owner decision. Later evidence showed Vitest was never the binding constraint anyway -- the leading Jest fallback (ngworker/spectacular) fails on MERIT: no declared-contract gap at all, and its committed false green produces GREEN rather than red.",
-      "phase": "21"
-    },
-    {
-      "decision": "Kept the differential typecheck on radix rather than dropping it or adding a matcher allowlist. RESOLVED 2026-07-26 -- the decision HELD and is no longer to be revisited.",
-      "rationale": "The JestMatchers research is DONE and it did NOT overturn the decision, contrary to the earlier 'revisit, the runtime-registration evidence points the other way' note now superseded. Two measurements settled it. (1) The differential is LOAD-BEARING: the real classify() on identical runner input gives compile_error/pass:false at 1 new error and genuinely_red/pass:TRUE at 0, so wrong_reason does not cover the type-broken canary and dropping the typecheck would open a false pass. (2) The runtime-registration argument cuts the other way once the mechanism is known -- the matchers are registered at runtime but land on JestMatchers<T>, a type jest-dom never augments, so the diagnostic is a genuine property of the program rather than a config oversight. Corrected data also stands: only 8 of the tsc-era 55 baseline errors were jest-dom. See 21-ATC-ADOPTION.md.",
-      "phase": "21"
-    },
-    {
-      "decision": "The eval measures DRIVE/APPLY mode.",
-      "rationale": "Owner. Apply is the only mode where coach-don't-drive is measurable at all; in recommend mode the model cannot drive to green by construction. RXF is PRIMARY because its one-token fix maximises drive temptation, and coach-don't-drive is where Phase-20 EVL-02 found lz-red's real unbiased-reviewer-confirmed edge.",
-      "phase": "21"
-    },
-    {
-      "decision": "Ran the full validated pipeline for the wiring; lighter paths for scoped single-mechanism changes.",
-      "rationale": "Every checker and review round this session found something execution would otherwise have paid for later.",
-      "phase": "21"
-    },
-    {
-      "decision": "angular-typechecker (atc) 0.2.4 is the differential checker for the RADIX cells ONLY; GRC and SRVC stay on tsc, byte-identically. RXF's compile_error verdict STANDS.",
-      "rationale": "tsc is STRUCTURALLY BLIND to Angular template diagnostics -- measured 0 against atc's 15 on the identical project and tsconfig. radix's own specs define inline misuse-host-component templates, so a produced test plausibly defines one too, and a template-broken produced test passed the differential CLEAN while still throwing an honest-looking assertion failure: the same false-pass class the counterfactual proved the differential exists to close, in a place tsc cannot see. Scoped to radix because GRC and SRVC are non-Angular and atc loads @angular/compiler-cli. typecheck.checker DEFAULTS to tsc so absent config means the historical behaviour, while every malformed form throws before the grading worktree exists -- an unknown checker has no knowable stronger fallback, so guessing could silently REDUCE the differential. The verdict stands because the diagnostic is the model's own and a matcher allowlist or target-specific tolerance would forge the measurement; the consequence is recorded as a residual instead. Accepted knowingly: atc resolves @angular/compiler-cli from its own tree rather than the target's, an open fidelity residual.",
-      "phase": "21"
-    },
-    {
-      "decision": "RXF's compile_error verdict STANDS; no matcher allowlist, noise rule or target tolerance.",
-      "rationale": "Owner, 2026-07-26. The accepted consequence -- that jest-dom matcher choice partly decides RXF grading -- is RECORDED as a RUN-GATE residual rather than engineered away. Root cause is a broken assertion-type environment in the target (@types/jest leaking via @types/jest-axe), not an instrument defect, and it reproduces identically under both tsc and atc (8 JestMatchers either way).",
-      "phase": "21"
-    },
-    {
-      "decision": "angular-typechecker (atc) is the differential checker for the radix cells ONLY; GRC and SRVC stay on tsc.",
-      "rationale": "tsc is structurally blind to Angular template diagnostics -- MEASURED same-session on the identical project and tsconfig: tsc 55 errors and ZERO Angular-coded, atc 80 diagnostics including 15 Angular. radix's own specs define inline misuse-host templates, so a template-broken produced test used to pass the differential clean while still throwing a plausible assertion failure. GRC and SRVC are non-Angular and atc loads @angular/compiler-cli, so it cannot serve them.",
-      "phase": "21"
-    },
-    {
-      "decision": "RXL is reported on the DISCIPLINE dimensions ONLY; its mechanical D-06 verdict is excluded from the headline.",
-      "rationale": "Owner, 2026-07-27, on three measured runs. The pass/fail split tracks WHICH INJECTION TOKEN the model imagined (invoke_skill picked the existing LOCALE_ID and passed; both with_skill runs picked the library-mirroring RDX_LOCALE, absent at the pin, and graded compile_error). Neither arm asserted the rendered output the cell's own discipline_traps require, so even the PASS is incidental. Left in the headline it invites a PLAUSIBLE BUT WRONG causal claim that auto-trigger produces worse RED. No gate change, no prompt change, no verdict reclassified.",
-      "phase": "21"
-    }
+    { "decision": "Report RXF as TWO numbers -- 9/9 behaviourally red, 0/9 under the differential -- and change nothing in the gate.", "rationale": "All 9 runs collected and failed on an attributed assertion; the runner masks type diagnostics and the repo has no typecheck target, so the gate failed them on a standard the target never applies. A precedence rule to fix it was TESTED against the negative control and REJECTED: canary-compile also records attributed_failures 1, so the rule would flip a control to pass. The only mechanical separator is a baseline-keyed rule, already ruled out. The fix is reporting, not the gate.", "phase": "21" },
+    { "decision": "RXL stays excluded from the correctness headline; its committed numbers stand.", "rationale": "Its only 2 passes are its only 2 production edits -- both created RDX_LOCALE and then asserted it. Blind judge 0/9 on both substance dims; no specimen rendered anything. Confirmed independently three ways.", "phase": "21" },
+    { "decision": "The gate is stricter than every owned source, and that is recorded as deliberate EVAL DESIGN, never as doctrinal fidelity.", "rationale": "No owned source requires the red to be an assertion failure. The gate does, because the eval exists to measure whether the model pinned the missing BEHAVIOUR. Honest labelling preserves both the numbers and the doctrine.", "phase": "21" },
+    { "decision": "Revert both draft red-bar fixes rather than ship a third attempt in a deep session.", "rationale": "Four consecutive proposals were killed by gates, none by inspection. The second review showed the diagnosis itself (the execution axis) was wrong for Vitest + TS, so a third attempt is a fresh start on a different line, not a finish. The defect has existed since Phase 18; one more day is not the risk. Shipping a wrong doctrine fix to a public skill is.", "phase": "21" },
+    { "decision": "Eval runners default to claude-opus-5 in all six call sites; historical result labels are NOT rewritten.", "rationale": "Owner directive. The no_skill arm means what a user gets WITHOUT the skill, and a user gets today's default. Historical EVAL-RESULTS / E2E-RESULTS model labels record what was measured and must stay.", "phase": "21" }
   ],
   "uncommitted_files": [],
-  "next_action": "PRESENT THE METERED GATE and WAIT. Nothing technical is blocking; do not start build work. The single outstanding item is the ~$39 four-cell round (4 cells x 3 arms x k=3 = 36 runs at the MEASURED ~$1.09/run), which needs FRESH explicit approval naming the scope per the eval-run-approval-gate. Recipes: RUN-GATE Step 3a (GRC, needs arming + E2E_APPLY_BASE exported), 3b (SRVC), 3c (RXF/RXL, MUST `unset E2E_APPLY_BASE` -- primitives-pin HAS a main branch so a leaked value grades the wrong commit silently), 3d (tabulate). Before tabulating, READ RUN-GATE Step 7: the headline is SUBSTANCE-ONLY, and RXL is reported on DISCIPLINE DIMENSIONS ONLY. D-04 is already answered (2/2 fired) so the round no longer needs to buy the trigger question. If the user declines the round, the phase can still be closed on the build + pilots: /gsd-secure-phase 21, /gsd-validate-phase 21, /gsd-extract-learnings 21, then /gsd-complete-milestone lz-tdd@0.0.3 (manual archival for the @-scoped version).",
-  "context_notes": "MEASURE, DO NOT REASON remains the dominant lesson, and it fired twice more this session. The handoff this session RESUMED from asserted the wrong root cause (the tsconfig `types` array); tsc --explainFiles falsified it. And the orchestrator wrongly framed tsconfig.spec.json as editor-only; the tagged Analog v2.6.1 source showed it IS the config the runner compiles with, just with semantic diagnostics masked. PILOTS EARN THEIR COST held again: the first with_skill run surfaced the design confound, and the second (bought deliberately to disambiguate) proved it systematic rather than variance -- $1.93 that prevented a plausible-but-wrong conclusion on the in-domain cell in a $39 round. THE CHECKER ROUND ALSO PAID: it found atc synthesizes its OWN file-less config faults (ATC90001/ATC90002) that isConfigLevelTscError's TS5xxx/6xxx gate can never match, which would cancel to newErrors:0 in both differential passes -- a clean verdict for a run that checked ZERO root names. Closed by treating any file-less atc diagnostic as config-level BY CONSTRUCTION. NOTE a possible narrower version of the same hole on the TSC path: the config-fault capture also surfaced TS18002 as file-less and likewise outside that gate. Not in scope; worth a look. OPERATIONAL: `.claude/skills/lz-red-workspace/node_modules` is GITIGNORED while its package.json/package-lock.json are tracked, so a fresh worktree (or a post-worktree main checkout) needs `npm install` there before the atc path resolves -- the grade fails CLOSED with an actionable message, which is how it was caught. `.gitignore:22` matches `.continue-here.md` at ANY depth, so the phase-level resume file is LOCAL-ONLY and invisible to worktree agents; the TRACKED resume point is .planning/.continue-here.md. Six borrowed repos are READ-ONLY and all verified clean: primitives-pin (THE EVAL SOURCE, detached 4a7390a2), h3js/srvx, the GildedRose kata, radix-ng/primitives (owner's), LayZeeDK/angular-typechecker, and analogjs/analog (restored to the owner's exact prior WIP after being read at tag v2.6.1 -- it carries an angular-typechecker tarball line in package.json plus a regenerated lockfile, which are THEIRS). Never shorten selfcheck-red.mjs to fit a timeout (~400 s now); a SKIP is not a pass. Never add an env var or flag that disables a guard for testing -- refused three times, correctly; prove discrimination with a dead-end copy on identical inputs."
+  "next_action": "Run /gsd-core:quick --full --auto to resolve the three follow-ups, in this order. (1) Implement the 7-item fix spec from .planning/quick/260728-1pj-build-the-lz-red-forcing-function-probe-/260728-1pj-FINDINGS.md section 6 -- READ THAT SECTION FIRST AND DO NOT RE-DERIVE IT; five files; mandatory unbiased subagent review BEFORE acceptance; then ask the user for /reload-plugins. (2) Surface the seam judgement call to the user rather than deciding it. (3) Only then scope the forcing-function probe, which stays metered-gated and needs fresh explicit approval naming the scope. Independently of the follow-ups, Phase 21 still needs teardown of the 3 throwaway worktrees, then /gsd-secure-phase 21, /gsd-validate-phase 21, /gsd-extract-learnings 21, then /gsd-complete-milestone lz-tdd@0.0.3 with manual archival.",
+  "context_notes": "MEASURE, DO NOT REASON fired repeatedly and expensively this session. Five of my own conclusions were overturned by measurement or by a gate, none by my own inspection: (1) I called the SRVC failures a model problem before reading added_test_titles -- they were an instrument false negative on the target's own test.skipIf idiom; (2) I called RXF structurally invalid before checking canary-rdxf-red, which proves a compiling route exists; (3) I said the models followed the house idiom on RXF -- jest-dom is a 1-of-142 outlier and the dominant compiling form sits in 90 of 142 files; (4) I flattened the lz-refactor history into 'five null probes' and omitted the sixth, which FLIPPED the axis and shipped; (5) four successive red-bar fixes died to gates. The pattern is always the same: inferring from adjacent evidence instead of running the direct check. ALSO: my throwaway analysis scripts were error-prone all session -- a require path, an ESM URL scheme, a double-escaped regex, two guessed field names, and twice a diff-extraction bug. Every one was caught by cross-checking against an independent signal, never by inspection, and the plus-lines-only extraction bug was caught ONLY because a judge verdict contradicted the mechanical gate. Treat a judge disagreeing with the gate as a signal to audit the harness, not the model. The unbiased reviewers were worth more than everything else combined: one recomputed all 36 runs and matched mechanical-red.json to the digit while overturning four of my conclusions, and one killed a doctrine edit by importing classify() and grading two stub shapes in about 30 seconds."
 }

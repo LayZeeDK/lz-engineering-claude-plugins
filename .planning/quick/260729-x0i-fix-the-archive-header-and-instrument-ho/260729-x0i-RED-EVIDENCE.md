@@ -175,6 +175,47 @@ The real slice is 32 lines post-fix where it measured 33 pre-fix, because the fi
 archived-record declaration. L12 asserts `-ge 20`, so the shape pin is unaffected; recorded so the
 change is not mistaken later for drift.
 
+## Task 2 needle baselines, re-measured immediately before the header edit
+
+For a presence-required claim the RED evidence is "phrase absent from the header, measured count 0" --
+a `file:line` is unsatisfiable for an absent phrase, so none was manufactured. Measured on the header
+slice (line 1 through the H1) at the post-Task-1 tree:
+
+```
+post-Task-1 header-slice needle baselines (each expect 0 -- the RED evidence for a presence claim):
+  N3                                 0
+  carve-out                          0
+  check-red-references               0
+  PLUGIN-WIDE-REFERENCE-RESEARCH     0
+  beck-tdd-by-example                0
+D3 false clause file-wide (expect 1, the positive control for its removal) 1
+body slice lines (must stay) 540
+body slice hash BEFORE 1c4e75835604d4111b02dde727c872e4
+header pipe rows 0
+```
+
+All five presence needles read 0 before the edit, so those legs were RED and could only go GREEN by the
+edit actually landing. The D3 false clause counted exactly 1, which direction-anchors its removal leg at
+1 -> 0. The body slice hash is recorded here so the byte-identity claim is checkable against a value
+captured BEFORE the edit rather than only against `git show HEAD`.
+
+## D2 truth leg, MEASURED -- the plugin-wide shape really is blocked today
+
+A probe file was planted at the canonical plugin-wide path and removed in the same chain:
+
+```
+OBSERVED EXIT: 1
+FAIL lines: 1
+  [FAIL] [lc9] no test-double taxonomy copy in the shipped tree -- 1 copy/copies: plugins\lz-tdd\references\test-double-taxonomy.md
+plugins/ porcelain after cleanup: 0
+```
+
+So the header's forward constraint is not a hypothetical: N3 blocks the exact path the header names, and
+the carve-out the header says a relocation needs is a real prerequisite. Recorded from the LIVE gate --
+`TAXONOMY_COPY_STEM` matched via `path.basename(file, path.extname(file))` over `pluginsAllFiles` -- and
+not from the research record's older snapshot of N3, which described a filename match over the markdown
+list only.
+
 ## What these legs do NOT prove
 
 - The pre-fix control and RED leg B are about the ragged gate's SCOPE. Neither says anything about the

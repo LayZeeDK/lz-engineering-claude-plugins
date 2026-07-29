@@ -1,8 +1,18 @@
 > ## INERT RECORD -- read this first
 >
 > This file is an INERT RECORD. It is not a deliverable, it is not accepted, and it is
-> **not an agent input**. No skill, agent or command reads it, and none may be wired to: it must not be
-> referenced from `oracle.md`, from `oracle-reviewer.md`, or from any `SKILL.md`.
+> **not an agent input**. NOTHING OUTSIDE THE PLANNING TREE READS THIS PATH AT ALL -- no skill, agent or
+> command, and no development instrument either -- and none may be wired to it: it must not be referenced
+> from `oracle.md`, from `oracle-reviewer.md`, or from any `SKILL.md`.
+>
+> That claim was narrower until recently, and the gap is worth stating because it is the reason this
+> paragraph was rewritten. "No skill, agent or command reads it" was literally true while the development
+> battery `.claude/skills/lz-red-workspace/tools/check-red-references.mjs` hardcoded this exact path in
+> its ragged-table gate and FAILED CLOSED when it was unreadable -- so the sentence held only because a
+> checker is not a skill, an agent or a command. quick-260729-x0i removed that dependency, which is what
+> makes the stronger claim above true rather than merely defensible. Checkable in one command:
+> `rg -c -F '.planning/research' .claude/skills/lz-red-workspace/tools/check-red-references.mjs`
+> returns no match.
 >
 > It shipped as a bundled reference in three lz-tdd skills -- lz-red, lz-tpp and lz-refactor -- and
 > quick-260729-lc9 removed it from all three, because this material is used at development time only.
@@ -24,9 +34,28 @@
 > that no longer exists; those are corrected below where they were outright false, but read them as
 > history either way.
 >
-> **Forward constraint.** If a future milestone needs this material inside the plugin, it goes in as ONE
-> plugin-wide shared reference, never as byte-identical per-skill copies. That constraint is recorded,
-> not investigated: no mechanism for a shared reference has been designed, spiked or proven here.
+> **Forward constraint, and it is BLOCKED today.** If a future milestone needs this material inside the
+> plugin, it goes in as ONE plugin-wide shared reference, never as byte-identical per-skill copies. Guard
+> N3 in `.claude/skills/lz-red-workspace/tools/check-red-references.mjs` currently forbids exactly that
+> shape: it matches the basename STEM `test-double-taxonomy` over EVERY file under `plugins/` regardless
+> of extension, with no carve-out for a canonical location, and its own comment scopes the material to
+> lz-red only. MEASURED, not inferred -- a probe file at the canonical plugin-wide path
+> `plugins/lz-tdd/references/test-double-taxonomy.md` makes the battery exit 1 with
+> `[FAIL] [lc9] no test-double taxonomy copy in the shipped tree`. So a relocation REQUIRES an explicit
+> N3 carve-out, phrased as "at most one, at the canonical path" rather than "no file with this stem", and
+> the ownership question (lz-red-only versus genuinely shared) has to be answered before that carve-out
+> is justified. Stated from the live gate: a research note in this repo quotes an older, laxer N3 that
+> matched a filename over the markdown list, so read the code and not that snapshot.
+>
+> **The shared-reference mechanism is VERIFIED, not undesigned.** An earlier revision of this header
+> claimed no mechanism had been designed, spiked or proven. That was false in two independent ways.
+> `.planning/quick/260729-lc9-scope-the-test-double-taxonomy-to-lz-red/PLUGIN-WIDE-REFERENCE-RESEARCH.md`
+> carries a VERIFIED V1-V7 table read out of the shipped `claude.exe` 2.1.220 bundle, and
+> `plugins/lz-tdd/references/beck-tdd-by-example.md` is already in production use as a plugin-wide
+> reference via the R100 relocation. D-10 ("do not investigate the mechanism") was discharged by
+> owner-authorized research, so correcting this is not a re-opening of a locked decision. What is still
+> undecided is whether this material should move at all: per D-12 lz-red ships NO test-double reference
+> on purpose, and that absence is the baseline arm of a pending A/B, not a regression to patch.
 
 # Test-double and stand-in taxonomy across authors
 

@@ -151,11 +151,30 @@ export const kanbanEssayNamedInRow = (text) => {
   return ok();
 };
 
+// [lc9] Replaces the principle-backing.md half of the N7 attribution gate, whose needle was a BARE
+// file-wide `includes("Fowler's label")` under a label naming a SUBJECT (the mockist label) and an
+// ATTRIBUTION RELATION that five words matched anywhere could not constrain. The attribution lives in
+// this row's SOURCE cell, and this file already had the row machinery, so the gate now uses it: the row
+// could be emptied of the attribution while a Sources bullet or a prose cross-link kept the old needle
+// green. Aggravating in the original, and the reason this is a row guard rather than a tighter regex --
+// the module's own header condemns exactly this shape.
+export const mockistCounterpointRowAttributed = (text) =>
+  rowCellGuard({
+    rows: backingRows(text),
+    predicate: (r) => /Mockist counterpoint/i.test(r[BACKING.Recommendation]),
+    description: "the mockist counterpoint backing row",
+    column: BACKING.Source,
+    columnName: "Source",
+    cellRe: /Fowler's label/i,
+    expectation: "attribute the school name to Fowler",
+  });
+
 export const ROW_SCOPED_GUARDS = {
   failureVsErrorRowBacked,
   seamRowBacked,
   threeLawsRowBacked,
   kanbanEssayNamedInRow,
+  mockistCounterpointRowAttributed,
 };
 
 // The superseded file-scoped needles, replicated here EXACTLY as the checker evaluated them
@@ -170,6 +189,9 @@ export const OLD_NEEDLES = {
   seamRowBacked: fileScoped(/seam|handoff/i),
   threeLawsRowBacked: fileScoped(/three laws/i),
   kanbanEssayNamedInRow: fileScoped(/TDD is Kanban for Code/),
+  // [lc9] The N7 attribution needle as the checker evaluated it: a bare file-wide substring test, with
+  // nothing tying it to the mockist subject or to the row that carries the attribution.
+  mockistCounterpointRowAttributed: fileScoped(/Fowler's label/),
 };
 
 // The SIXTY-FOUR retired labels AS EMITTED. The checker composes `<filename>: <label>` inside the FILES

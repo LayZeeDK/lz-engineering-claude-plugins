@@ -169,6 +169,9 @@ const BACKING_LINES = [
   "A build failure is a legitimate red, and that failure is not an assertion mismatch.",
   "Beck's owned surface for that step is the essay TDD is Kanban for Code.",
   "Seams and characterization are handled in another leaf, and four owned sources name it.",
+  // [lc9] The DECOY for the attribution guard: prose can carry the attribution phrase while the ROW that
+  // is supposed to state it goes bare. This is what kept the old file-wide `includes` needle green.
+  "The school name is Fowler's label, a fact a prose line can state without the row saying it.",
   "",
   "| Recommendation | Source | Access tier |",
   "| --- | --- | --- |",
@@ -176,6 +179,7 @@ const BACKING_LINES = [
   "| [Fail for the right reason: the failure-versus-error boundary](vitest-typescript-mechanics.md) | Martin Fowler, Refactoring 2nd Edition Ch. 4 -- a failure is an assertion mismatch | Owned; oracle-verified against the clean-room source. |",
   "| [Fail for the right reason: clear the compile error, then run and fail](vitest-typescript-mechanics.md) | Kent Beck, TDD is Kanban for Code (essay) | Owned; oracle-verified against the clean-room source. |",
   "| [Classify-first and the forward lz-tpp handoff](three-laws-and-test-selection.md) | lz-red orchestration | Unowned; high-confidence core only (no-oracle). |",
+  "| [Mockist counterpoint, stated fairly](anti-patterns.md) | Steve Freeman and Nat Pryce, Growing Object-Oriented Software, Guided by Tests -- the school name is Fowler's label for the position, not one these authors gave themselves | Unowned; high-confidence core only (no-oracle). |",
 ];
 
 const TAXONOMY = TAXONOMY_LINES.join("\n");
@@ -252,7 +256,7 @@ console.log("");
 
 console.log("lib/pipe-table.mjs -- parseRows");
 check("taxonomy fixture parses to 15 data rows", parseRows(TAXONOMY, 9, "Author").length, 15);
-check("backing fixture parses to 4 data rows", parseRows(BACKING, 3, "Recommendation").length, 4);
+check("backing fixture parses to 5 data rows", parseRows(BACKING, 3, "Recommendation").length, 5);
 check("header row is dropped BY VALUE, not by position", parseRows(TAXONOMY, 9, "Author")[0][0], "Kent Beck");
 check("a width mismatch SKIPS the row rather than guessing", parseRows(TAXONOMY, 3, "Author").length, 0);
 check("empty text parses to zero rows, no crash", parseRows("", 9, "Author").length, 0);
@@ -384,6 +388,20 @@ check("kanbanEssayNamedInRow: OLD file-scoped needle PASSES that same evasion", 
 check("kanbanEssayNamedInRow: row citing the BOOK instead of the essay -> FAIL", verdict(ROW_SCOPED_GUARDS.kanbanEssayNamedInRow(KANBAN_BOOK_EVASION)), false);
 check("kanbanEssayNamedInRow: empty text -> FAIL (anti-vacuity)", verdict(ROW_SCOPED_GUARDS.kanbanEssayNamedInRow("")), false);
 
+// -- 5. mockistCounterpointRowAttributed. Evasion: strip the attribution from the ROW's Source cell while
+// a prose line still carries the phrase, which is exactly what kept the old bare file-wide `includes`
+// needle green under a label naming the mockist subject AND an attribution relation.
+const MOCKIST_ROW_EVASION = mutate(
+  BACKING,
+  "Guided by Tests -- the school name is Fowler's label for the position, not one these authors gave themselves",
+  "Guided by Tests"
+);
+
+check("mockistCounterpointRowAttributed: pristine row attributes the label to Fowler -> PASS", verdict(ROW_SCOPED_GUARDS.mockistCounterpointRowAttributed(BACKING)), true);
+check("mockistCounterpointRowAttributed: EVASION (row's Source cell stripped, prose still says it) -> FAIL", verdict(ROW_SCOPED_GUARDS.mockistCounterpointRowAttributed(MOCKIST_ROW_EVASION)), false);
+check("mockistCounterpointRowAttributed: OLD file-scoped needle PASSES that same evasion", OLD_NEEDLES.mockistCounterpointRowAttributed(MOCKIST_ROW_EVASION), true);
+check("mockistCounterpointRowAttributed: empty text -> FAIL (anti-vacuity)", verdict(ROW_SCOPED_GUARDS.mockistCounterpointRowAttributed("")), false);
+
 // -- exactly-one-row rule: a DUPLICATED row must FAIL as loudly as a missing one, or the guard silently
 // asserts about whichever copy it happened to find first.
 //
@@ -407,9 +425,15 @@ console.log("");
 
 console.log("lib/row-guards.mjs -- export roster (a count alone cannot see a renamed or swapped guard)");
 check(
-  "ROW_SCOPED_GUARDS exports exactly the four named row-scoped guards",
+  "ROW_SCOPED_GUARDS exports exactly the five named row-scoped guards",
   Object.keys(ROW_SCOPED_GUARDS).sort(),
-  ["failureVsErrorRowBacked", "kanbanEssayNamedInRow", "seamRowBacked", "threeLawsRowBacked"]
+  [
+    "failureVsErrorRowBacked",
+    "kanbanEssayNamedInRow",
+    "mockistCounterpointRowAttributed",
+    "seamRowBacked",
+    "threeLawsRowBacked",
+  ]
 );
 check(
   "OLD_NEEDLES carries one superseded needle per row-scoped guard",

@@ -169,7 +169,11 @@ const FILES = [
       { label: "should-naming primary convention", re: /\bshould\b/i },
       { label: "behavior-oriented naming", re: /behavior/i },
       { label: "Osherove three-part alternative", re: /osherove|three-part/i },
-      { label: "match the house naming stance", re: /match.*(house|stance)/i },
+      // [lc9] The label claimed the NAMING stance while the needle was a generic word pair -- "match"
+      // plus either "house" or "stance" anywhere on a line. It now requires the SECTION HEADING that
+      // carries the guidance, and the label is retitled to the scope the heading actually has: the file
+      // says "codebase's naming stance", not "house".
+      { label: "match-the-codebase naming stance section", re: /^#+\s+match\b.*naming stance/i },
     ],
     deferral: null,
   },
@@ -213,7 +217,19 @@ const FILES = [
       // [lc9] N4. The outgoing-command example records a call and inspects it afterwards, which is a
       // Test Spy. A Mock Object is reserved for a double that CARRIES THE EXPECTATION ITSELF, so the
       // example must name the artifact it actually demonstrates.
-      { label: "[lc9] Test Spy named for the record-then-inspect double", re: /test spy/i },
+      //
+      // The needle carries the label's SECOND half too. A bare /test spy/i satisfied the label with the
+      // two words appearing anywhere, so the "for the record-then-inspect double" clause -- the whole
+      // reason the rename happened -- was unenforced, and a mention with the semantics stripped would
+      // have passed. Now the recording behaviour must appear WITH the name. Whole-text with a bounded
+      // window rather than per-line, because the pairing wraps at both live sites and a per-line needle
+      // over a wrapped phrase can never match: the `later phase` guard on anti-patterns.md already had
+      // to be narrowed for exactly that reason.
+      {
+        label: "[lc9] Test Spy named for the record-then-inspect double",
+        re: /test spy\b[\s\S]{0,80}record/i,
+        wholeText: true,
+      },
     ],
     deferral: null,
     // [lc9] N5. See N6 on functional-core.md for why the label word is wrong.
@@ -295,7 +311,11 @@ const FILES = [
     topics: [
       { label: "owned/oracle-verified tier", re: /oracle-verified/i },
       { label: "no-oracle tier", re: /no-oracle/i },
-      { label: ">= 1 recommendation link", re: /\]\([^)]+\.md/ },
+      // [lc9] SCOPED TO THE COLUMN THE LABEL NAMES. The old needle /\]\([^)]+\.md/ matched ANY markdown
+      // link anywhere in the file -- a Sources bullet or a prose cross-link satisfied a label that says
+      // "recommendation". Anchoring to a row's FIRST cell is what makes it a Recommendation-column link,
+      // since Recommendation is column 0 of this table.
+      { label: ">= 1 recommendation link", re: /^\|\s*\[[^\]]+\]\([^)]+\.md/ },
       { label: "named Phase-17 source (Khorikov)", re: /Khorikov/i },
       // [2ig] FIVE file-scoped topics REMOVED here, each REPLACED by a row-scoped guard in the
       // post-loop [2ig] block below. Every one of them named a specific table ROW in its own label
@@ -323,7 +343,10 @@ const FILES = [
     topics: [
       { label: "classify-first", re: /classify/i },
       { label: "Three Laws spine", re: /three laws|law 1|law 2|law 3/i },
-      { label: "stance routing step", re: /route|routing/i },
+      // [lc9] The label claims a procedure STEP; the needle was a bare word, satisfied by any mention of
+      // routing anywhere in the router. It now requires a NUMBERED step that routes the stance, which is
+      // what "stance routing step" asserts.
+      { label: "stance routing step", re: /^\d+\.\s.*\broute\b.*\bstance\b/i },
       { label: "house test idiom", re: /house .*idiom|test idiom|idiom/i },
       { label: "natural-language override", re: /override|plain language|stance preference/i },
       { label: "fail for the right reason", re: /right reason|AssertionError/ },
@@ -507,8 +530,9 @@ if (fs.existsSync(principleBackingPath)) {
 // standalone post-loop block (the D-05 / SEAM-02 idiom) because it reads a whole tree plus paths
 // outside the lz-red references dir.
 //
-// Scope: every .md under the lz-red references tree, PLUS the two SIBLING reference trees (lz-tpp and
-// lz-refactor), plus the three shipped SKILL.md routers. NOTHING is excluded.
+// Scope: EVERY .md under plugins/, straight from the shared shipped-tree walk. NOTHING is excluded, and
+// nothing is hand-listed -- which is the point, because a hand-listed scope drifts from the label the
+// moment a shipped file is added outside it.
 //
 // [lc9] The per-basename exclusion is DELETED, not narrowed to a vacuous one-element filter, and the
 // deletion is SELF-ENFORCING: if that document is ever re-added to a shipped reference tree, this gate
@@ -522,11 +546,15 @@ if (fs.existsSync(principleBackingPath)) {
 // stale claim in the instrument's OWN OUTPUT, which is the same class this task exists to close,
 // pointed at the gate rather than at the prose.
 //
-// [2ig] The two sibling trees are the WIDENING half of a two-part fix. The claim that the hard rule
-// was machine-enforced was false for two thirds of the shipped surface while this gate walked only ONE
-// of the three reference trees. Widening alone is not enough -- this gate lives in the lz-red
-// development workspace, OUTSIDE the plugin, and is not shipped, so no installed copy carries it
-// however wide the scope. MEASURED at widening time: ZERO new hits across both added trees.
+// [2ig] The sibling trees were the WIDENING half of a two-part fix. The claim that the hard rule was
+// machine-enforced was false for two thirds of the shipped surface while this gate walked only ONE of the
+// three reference trees. Widening alone is not enough -- this gate lives in the lz-red development
+// workspace, OUTSIDE the plugin, and is not shipped, so no installed copy carries it however wide the
+// scope. MEASURED at widening time: ZERO new hits across both added trees.
+//
+// [lc9] Widened again, to the whole walk, and MEASURED: ZERO new hits from the one file that was missing.
+// The gate still only READS the sibling trees; it requires no content there, which is what keeps it
+// compatible with lz-tpp and lz-refactor being out of scope for this milestone.
 //
 // Allowlist is exactly two forms and nothing else: an IMMEDIATELY PRECEDING canonical side
 // qualifier, and the meta-mention form that quotes the word as a word. The capitalised bare form is
@@ -565,30 +593,39 @@ const collectFiles = (dir) => {
 
 const collectMarkdown = (dir) => collectFiles(dir).filter((file) => file.endsWith(".md"));
 
-// [2ig] All THREE reference trees now, not just lz-red's.
-const SIBLING_REFERENCE_TREES = ["lz-red", "lz-tpp", "lz-refactor"].map((skill) =>
-  path.join(repoRoot, "plugins", "lz-tdd", "skills", skill, "references")
-);
-const bareQualifierHits = [];
-const referenceTreeFiles = [];
+// THE ONE WALK of the shipped tree, declared here because FOUR gates below consume it (G17, N1, N2, N3).
+// A MISSING or unreadable tree is recorded as an error string and pushed as a HIT by every consumer,
+// never filtered away: an existsSync FILTER would silently narrow the scope and hand each gate a vacuous
+// pass, which is the whole defect this arrangement exists to close.
+const PLUGINS_DIR = path.join(repoRoot, "plugins");
+let pluginsAllFiles = [];
+let pluginsMarkdown = [];
+let pluginsWalkError = "";
 
-// A MISSING or unreadable tree is recorded as a hit, never filtered away: an existsSync FILTER would
-// silently narrow the scope back down and hand this gate a vacuous pass -- which is the whole defect
-// the widening exists to close.
-for (const dir of SIBLING_REFERENCE_TREES) {
-  try {
-    referenceTreeFiles.push(...collectMarkdown(dir));
-  } catch (err) {
-    bareQualifierHits.push(`${path.relative(repoRoot, dir)}: TREE UNREADABLE (${err.code ?? err.message})`);
-  }
+try {
+  // ONE walk, two views: the markdown subset for the qualifier, shape and link gates, the full list for
+  // the no-copy gate, which must see any extension.
+  pluginsAllFiles = collectFiles(PLUGINS_DIR);
+  pluginsMarkdown = pluginsAllFiles.filter((file) => file.endsWith(".md"));
+} catch (err) {
+  pluginsWalkError = `${path.relative(repoRoot, PLUGINS_DIR)}: TREE UNREADABLE (${err.code ?? err.message})`;
 }
 
-const bareQualifierTargets = [
-  ...referenceTreeFiles,
-  ...["lz-red", "lz-refactor", "lz-tpp"].map((skill) =>
-    path.join(repoRoot, "plugins", "lz-tdd", "skills", skill, "SKILL.md")
-  ),
-];
+// [lc9] G17's targets are now THE SHIPPED-TREE WALK ITSELF, so the label's "in the shipped tree" is true
+// as written. The hand-listed set (three references/ trees plus three SKILL.md routers) missed exactly one
+// shipped markdown file, plugins/lz-tdd/README.md -- clean at measurement time, so latent rather than an
+// active false green, but a label must not claim more than its needle covers. The true walk was already
+// being computed a few lines below for the other gates; it is simply reused.
+const bareQualifierHits = pluginsWalkError === "" ? [] : [pluginsWalkError];
+const bareQualifierTargets = pluginsMarkdown;
+
+// ANTI-VACUITY. The per-tree try/catch this replaces was G17's only protection against scanning nothing;
+// a readable-but-EMPTY tree would still hand an absence gate a permanent pass, since a document with no
+// text has no bare word in it. Asserting the scan's nonzero magnitude every run is strictly better than
+// recording a file count in this comment, where it would go stale.
+if (bareQualifierTargets.length === 0) {
+  bareQualifierHits.push("NO FILE WAS SCANNED, so this gate checked nothing");
+}
 
 for (const file of bareQualifierTargets) {
   const shown = path.relative(repoRoot, file);
@@ -624,32 +661,20 @@ report(
 );
 
 // ===============================================================================================
-// [lc9] FIVE post-loop gates. Three walk the whole shipped tree (N1 table shape, N2 link resolution,
-// N3 no taxonomy copy), reusing the collectMarkdown helper above rather than adding a second directory
-// walker; two are cross-file content gates (N7 attribution, N8 the inline rule in lz-tpp).
+// [lc9] FOUR post-loop gates over the shipped tree (G17 bare qualifier above, N1 table shape, N2 link
+// resolution, N3 no taxonomy copy), all consuming the ONE walk declared above rather than adding a
+// second directory walker; plus one cross-file content gate (N7 attribution).
 //
 // GENERAL RULE FOR EVERY COMMENT BELOW: a number that a later commit in this same task set will change
 // is a defect, not documentation. Write the invariant -- a zero, a direction, a reason -- or write
 // nothing and let a guard derive it. The census totals for this tree move the moment the taxonomy
 // copies are deleted, so none of them is recorded here.
 //
-// All three tree gates share ONE walk and ONE error record. A walk failure is recorded as a HIT for
-// every gate that consumes it, never filtered away: an empty file list would otherwise hand each gate a
-// vacuous pass, which is exactly the guard-that-cannot-fail class this file's own header condemns.
+// Every tree gate shares ONE walk and ONE error record. A walk failure is recorded as a HIT for every
+// gate that consumes it, never filtered away: an empty file list would otherwise hand each gate a
+// vacuous pass, which is exactly the guard-that-cannot-fail class this file's own header condemns. Each
+// gate also carries its own seen-count leg, so a readable-but-empty tree cannot pass either.
 // ===============================================================================================
-const PLUGINS_DIR = path.join(repoRoot, "plugins");
-let pluginsAllFiles = [];
-let pluginsMarkdown = [];
-let pluginsWalkError = "";
-
-try {
-  // ONE walk, two views: the markdown subset for the shape and link gates, the full list for the no-copy
-  // gate, which must see any extension.
-  pluginsAllFiles = collectFiles(PLUGINS_DIR);
-  pluginsMarkdown = pluginsAllFiles.filter((file) => file.endsWith(".md"));
-} catch (err) {
-  pluginsWalkError = `${path.relative(repoRoot, PLUGINS_DIR)}: TREE UNREADABLE (${err.code ?? err.message})`;
-}
 
 // [lc9] N1 TABLE SHAPE GATE. The GENERAL form of the mutation the narrow row-count repairs kept
 // chasing: deleting a data cell TOGETHER WITH its pipe leaves a row that renders short in GFM and that
@@ -807,20 +832,40 @@ report(
 // than its NAMERS. The label is Fowler's own contribution, and the counterpoint POSITION stays sourced
 // where it already is. ONE report over TWO files, because it is one claim restated in a dependent --
 // the same reasoning the owned-source count guard records for its own two-file shape.
+//
+// [lc9] BOTH halves are now scoped to what the LABEL claims. The needle was a bare file-wide
+// `includes("Fowler's label")`: it enforced "at both sites" (two files) and NOTHING ELSE in the label --
+// not the mockist SUBJECT, not the ATTRIBUTION RELATION. anti-patterns.md carries FOUR mockist mentions
+// and ONE attribution, so the gate could not tell whether the attribution was attached to the right one
+// and stayed green if it moved to an unrelated sentence while every mockist mention went bare.
+//   - anti-patterns.md: the attribution must appear WITH its subject, within a bounded window. Whole-text
+//     rather than per-line, because the live site wraps.
+//   - principle-backing.md: the attribution lives in a TABLE ROW's Source cell, and this file already had
+//     `backingRows` + `rowCellGuard` for that table, so the gate uses the row machinery rather than
+//     inventing a second mechanism. See lib/row-guards.mjs.
+// Still ONE report, so the emitted-check count is unchanged.
+const readOrEmpty = (file) => (fs.existsSync(file) ? fs.readFileSync(file, "utf8") : "");
+const backingText = readOrEmpty(principleBackingPath);
+
 const FOWLER_LABEL_LABEL = "[lc9] mockist label attributed to Fowler at both sites";
-const FOWLER_LABEL_NEEDLE = "Fowler's label";
+const MOCKIST_ATTRIBUTION_RE = /mockist[\s\S]{0,80}Fowler's label/i;
 const fowlerLabelHits = [];
+const antiPatternsPath = path.join(REFERENCES, "anti-patterns.md");
 
-for (const name of ["anti-patterns.md", "principle-backing.md"]) {
-  const file = path.join(REFERENCES, name);
-
-  try {
-    if (!fs.readFileSync(file, "utf8").includes(FOWLER_LABEL_NEEDLE)) {
-      fowlerLabelHits.push(`${name}: attribution phrase absent`);
-    }
-  } catch (err) {
-    fowlerLabelHits.push(`${name}: UNREADABLE (${err.code ?? err.message})`);
+try {
+  if (!MOCKIST_ATTRIBUTION_RE.test(fs.readFileSync(antiPatternsPath, "utf8"))) {
+    fowlerLabelHits.push("anti-patterns.md: no site ties the attribution to the mockist school");
   }
+} catch (err) {
+  fowlerLabelHits.push(`anti-patterns.md: UNREADABLE (${err.code ?? err.message})`);
+}
+
+// A MISSING principle-backing.md yields "" here, and the row guard FAILS on "" -- proven by the
+// anti-vacuity control in the selftest -- so this half fails closed without an existsSync branch.
+const mockistRowGuard = ROW_SCOPED_GUARDS.mockistCounterpointRowAttributed(backingText);
+
+if (!mockistRowGuard.ok) {
+  fowlerLabelHits.push(`principle-backing.md: ${mockistRowGuard.why}`);
 }
 
 report(
@@ -847,8 +892,9 @@ report(
 // tools/row-guards.selftest.mjs. That is DELIBERATELY unlike the existsSync-gated D-05 and SEAM-02
 // blocks above, which emit NOTHING at all if their file vanishes (a fully silent vacuous pass that the
 // roster gate exists partly to catch).
-const readOrEmpty = (file) => (fs.existsSync(file) ? fs.readFileSync(file, "utf8") : "");
-const backingText = readOrEmpty(principleBackingPath);
+//
+// `readOrEmpty` and `backingText` are declared ABOVE the N7 gate, because N7 consumes a row-scoped guard
+// too. Only the declarations moved -- no report call did, so the emission order is unchanged.
 
 // [lc9] FOUR row-scoped guards, down from seven plus nine count guards. The two guards keyed on rows of
 // the departed document, and the guard asserting the backing row that LINKED to it, are RETIRED BY NAME

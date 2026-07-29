@@ -30,7 +30,7 @@
 // approved public contact -- and no forbidden value is written even as a search needle, because the
 // needle IS the leak. ASCII only.
 import assert from "node:assert/strict";
-import { parseRows } from "./lib/pipe-table.mjs";
+import { parseRows, scanTables, findLinkTargets } from "./lib/pipe-table.mjs";
 import { ROW_SCOPED_GUARDS, COUNT_GUARDS, OLD_NEEDLES, RETIRED_LABELS } from "./lib/row-guards.mjs";
 
 // ---------------------------------------------------------------------------------------------
@@ -167,6 +167,20 @@ const BACKING_LINES = [
 const TAXONOMY = TAXONOMY_LINES.join("\n");
 const BACKING = BACKING_LINES.join("\n");
 
+// [lc9] Table-SHAPE and LINK fixtures. Tiny and self-contained on purpose: each isolates exactly one
+// mutation or one link kind, so a failure names the property rather than a whole document. Line numbers
+// in the expected offender string are ONE-BASED and count from the first line of the fixture.
+const WELL_FORMED_TABLE = ["| a | b | c |", "| --- | --- | --- |", "| 1 | 2 | 3 |"].join("\n");
+// A data cell deleted TOGETHER WITH its pipe. Renders short in GFM; parseRows SKIPS it silently.
+const RAGGED_TABLE = ["| a | b | c |", "| --- | --- | --- |", "| 1 | 2 |"].join("\n");
+// The same cell BLANKED but its pipe KEPT. Right width, and it renders identically to the row above.
+const BLANKED_CELL_TABLE = ["| a | b | c |", "| --- | --- | --- |", "| 1 | 2 |  |"].join("\n");
+const FENCED_RAGGED_TABLE = ["```", "| a | b | c |", "| --- | --- | --- |", "| 1 |", "```"].join("\n");
+const TWO_TABLES = ["| a | b | c |", "| --- | --- | --- |", "| 1 | 2 | 3 |", "", "| p | q |", "| --- | --- |", "| 4 | 5 |"].join("\n");
+// A row whose FIRST cell contains an escaped pipe, so the row is two cells wide and not three.
+const ESCAPED_PIPE_TABLE = ["| a | b |", "| --- | --- |", "| 1 \\| 2 | 3 |"].join("\n");
+const FENCED_LINK = ["```md", "see [there](sibling.md).", "```"].join("\n");
+
 // Replace the FIRST occurrence, and assert the replacement actually happened -- a fixture mutation
 // that silently no-ops would turn a FAIL assertion into a false pass on unmodified text.
 const mutate = (text, from, to) => {
@@ -220,6 +234,59 @@ check("backing fixture parses to 5 data rows", parseRows(BACKING, 3, "Recommenda
 check("header row is dropped BY VALUE, not by position", parseRows(TAXONOMY, 9, "Author")[0][0], "Kent Beck");
 check("a width mismatch SKIPS the row rather than guessing", parseRows(TAXONOMY, 3, "Author").length, 0);
 check("empty text parses to zero rows, no crash", parseRows("", 9, "Author").length, 0);
+// [lc9] A backslash-escaped pipe is cell CONTENT, not a boundary. A bare split on "|" counts it as a
+// boundary and reports this well-formed row as the wrong width, at which point parseRows SKIPS it and
+// every row-scoped guard over that table silently stops seeing it.
+check("a row containing an escaped pipe parses to the intended width", parseRows(ESCAPED_PIPE_TABLE, 2, "a").length, 1);
+console.log("");
+
+// ---------------------------------------------------------------------------------------------
+// [lc9] pipe-table.mjs -- scanTables. This fixture set is guard N1's ONLY falsifiability proof: the
+// gate is invariant-GREEN against the shipped tree (0 ragged rows measured), so no baseline failure is
+// available for it and manufacturing one would mean corrupting a shipped document. These cases are the
+// proof instead.
+// ---------------------------------------------------------------------------------------------
+
+console.log("lib/pipe-table.mjs -- scanTables");
+check("scanTables: a well-formed three-column table -> no offender", scanTables(WELL_FORMED_TABLE), { tables: 1, offenders: [] });
+// THE case the gate exists for: a cell deleted TOGETHER WITH its pipe. The offender names the table's
+// start line, the number of ragged rows, and each ragged row's own line and width, so a failure is
+// actionable rather than a bare count.
+check(
+  "scanTables: a data cell deleted WITH its pipe -> exactly one offender naming the table and the row",
+  scanTables(RAGGED_TABLE).offenders,
+  ["table at line 1: header is 3 wide, but 1 row(s) differ -- line 3 is 2"]
+);
+// The MIRROR mutation, and it is deliberately NOT this gate's job: blanking the cell while keeping the
+// pipe leaves the row the right width, and the two mutations render identically in GFM. An empty-cell
+// guard owns that one.
+check("scanTables: a cell BLANKED with its pipe KEPT -> no offender, that is a different gate", scanTables(BLANKED_CELL_TABLE).offenders, []);
+check("scanTables: a ragged-looking table inside a fence is not a table at all", scanTables(FENCED_RAGGED_TABLE), { tables: 0, offenders: [] });
+check("scanTables: two tables of different widths are two tables, not one ragged one", scanTables(TWO_TABLES), { tables: 2, offenders: [] });
+// ANTI-VACUITY, and this is why the anti-vacuity control lives on the TABLE COUNT in the checker rather
+// than here: "no ragged tables" is TRUE of an empty document, so this pure function cannot fail on
+// empty text. Only a caller that also asserts it saw a table can catch a scan that read nothing.
+check("scanTables: empty text -> zero tables and no offender, so the caller must assert the count", scanTables(""), { tables: 0, offenders: [] });
+console.log("");
+
+// ---------------------------------------------------------------------------------------------
+// [lc9] pipe-table.mjs -- findLinkTargets. Classification is pure and disk-free ON PURPOSE, so it is
+// fixture-testable; only a `relative` target can be a dead link on disk, and the caller resolves it.
+// ---------------------------------------------------------------------------------------------
+
+console.log("lib/pipe-table.mjs -- findLinkTargets");
+check("findLinkTargets: a same-document fragment is an anchor", findLinkTargets("see [there](#a-heading).").map((t) => t.kind), ["anchor"]);
+check("findLinkTargets: a URI scheme is a scheme", findLinkTargets("see [there](https://example.invalid/x).").map((t) => t.kind), ["scheme"]);
+check("findLinkTargets: a root-relative path is absolute", findLinkTargets("see [there](/docs/x.md).").map((t) => t.kind), ["absolute"]);
+check("findLinkTargets: a bare sibling path is relative", findLinkTargets("see [there](sibling.md).").map((t) => t.kind), ["relative"]);
+// The fragment split is REQUIRED of the caller, not of this function: it reports the raw target, and a
+// caller resolving `sibling.md#a-heading` as a path would report every catalog link dead.
+check(
+  "findLinkTargets: a file-plus-fragment target is relative and keeps its fragment in raw",
+  findLinkTargets("see [there](sibling.md#a-heading).").map((t) => `${t.kind}:${t.raw}`),
+  ["relative:sibling.md#a-heading"]
+);
+check("findLinkTargets: a link inside a fence is not a link site", findLinkTargets(FENCED_LINK), []);
 console.log("");
 
 // ---------------------------------------------------------------------------------------------

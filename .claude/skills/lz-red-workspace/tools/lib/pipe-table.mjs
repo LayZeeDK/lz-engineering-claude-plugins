@@ -1,15 +1,19 @@
-// quick-260729-2ig ROW PARSER. One exported pure function over a GitHub pipe table, node builtins
-// only, no deps -- deliberately mirroring lib/provenance-honesty.mjs (which stays byte-unchanged).
+// quick-260729-2ig ROW PARSER, widened by quick-260729-lc9. THREE exported pure functions over a
+// GitHub pipe table and the inline links around it -- parseRows, scanTables, findLinkTargets -- plus
+// ONE shared cell splitter behind all of them. Node builtins only, no deps, deliberately mirroring
+// lib/provenance-honesty.mjs (which stays byte-unchanged).
 //
 // WHY a parser at all: six guards in check-red-references.mjs named a specific table row in their own
 // LABEL while matching anywhere in the file, so the row could be deleted outright and the guard still
 // reported PASS -- the worst of them had FIVE decoy prose lines. Row-scoping needs cells, and cells
 // need a parse. See lib/row-guards.mjs for the guards themselves.
 //
-// This is NOT a Markdown parser and must never become one. It handles exactly the shape both target
-// documents actually use, and FAILS CLOSED on anything else: a row whose cell count does not match is
-// SKIPPED rather than guessed at, and row-guards.mjs turns "row not found" into a loud FAIL via its
-// exactly-one-row rule. A skipped row can therefore never pass silently.
+// WHY THE SPLIT IS SHARED (quick-260729-lc9). `parseRows` SKIPS a row whose width does not match, and
+// `scanTables` FAILS a row whose width does not match its header. If the two disagreed about how wide a
+// row is, the shape guard would report clean while the parser silently dropped the row -- the
+// delimiter-evasion class this module exists to close, reintroduced between its own two consumers. So
+// there is exactly ONE splitter, `splitCells`, and both call it. It is aware of a backslash-escaped
+// pipe, which a bare `line.split("|")` miscounts as a cell boundary.
 //
 // MEASURED against both targets at authoring time (2026-07-29), which is what makes the narrow shape
 // safe TODAY:
@@ -22,10 +26,101 @@
 // the data rows of BOTH. That is wanted: every guard over that file asks about a row, not about which
 // of the two tables holds it.
 //
+// This is NOT a Markdown parser and must never become one. It handles exactly the shape these
+// documents actually use, and FAILS CLOSED on anything else: a row whose cell count does not match is
+// SKIPPED rather than guessed at, and row-guards.mjs turns "row not found" into a loud FAIL via its
+// exactly-one-row rule. A skipped row can therefore never pass silently.
+//
+// `scanTables` and `findLinkTargets` are the two general scanners added by quick-260729-lc9. Both are
+// pure and disk-free so their classification is fixture-testable, and both are FENCE-AWARE: a fenced
+// line is neither a table row nor a link site, and it closes any table that was open. Neither can
+// report a problem on empty text -- "no ragged tables" and "no links" are both true of an empty
+// document -- so each caller in check-red-references.mjs carries its own anti-vacuity leg on the count
+// of things it actually saw.
+//
 // Exported for the self-test in tools/row-guards.selftest.mjs.
 
 // A separator cell: three or more dashes, optionally colon-aligned on either side.
 const SEPARATOR_CELL_RE = /^:?-{3,}:?$/;
+
+// A fence open or close: up to three leading spaces, then three or more backticks or tildes. The
+// CHARACTER has to match for a fence to close, so a tilde fence inside a backtick fence does not end it.
+const FENCE_RE = /^\s{0,3}(`{3,}|~{3,})/;
+
+// One inline link. The target excludes whitespace and `)`, and an optional quoted title is consumed so
+// it never lands in the captured target.
+const LINK_RE = /\[[^\]]*\]\(([^)\s]+)(?:\s+"[^"]*")?\)/g;
+
+/**
+ * THE one cell splitter. Trimmed cells of a pipe-table line, with the two empty ends produced by the
+ * leading and trailing pipe already dropped.
+ *
+ * A backslash-escaped pipe is part of its cell, not a boundary: `a \| b` is ONE cell. `line.split("|")`
+ * counts it as two, which reports a well-formed row as ragged.
+ *
+ * @param {string} line a single line that starts with `|`
+ * @returns {string[]}  trimmed cells, in order
+ */
+const splitCells = (line) => {
+  const parts = [];
+  let current = "";
+
+  for (let index = 0; index < line.length; index++) {
+    const char = line[index];
+
+    if (char === "\\" && index + 1 < line.length) {
+      // Keep the escape AND the character it escapes -- consuming the pair is what stops an escaped
+      // pipe being read as a boundary.
+      current += char + line[index + 1];
+      index++;
+      continue;
+    }
+
+    if (char === "|") {
+      parts.push(current);
+      current = "";
+      continue;
+    }
+
+    current += char;
+  }
+
+  parts.push(current);
+
+  return parts.slice(1, -1).map((cell) => cell.trim());
+};
+
+/**
+ * Walk every line once, tracking fence state, and hand each line to a visitor.
+ *
+ * The visitor receives the line, its ONE-BASED number, and whether the line is fenced -- true for a
+ * fence delimiter itself as well as for the lines between delimiters. An unterminated fence leaves
+ * every following line fenced, which fails closed: content is skipped rather than mis-scanned.
+ *
+ * @param {string} text
+ * @param {(line: string, lineNumber: number, fenced: boolean) => void} visit
+ */
+const scanLines = (text, visit) => {
+  let fenceChar = null;
+
+  text.split(/\r?\n/).forEach((line, index) => {
+    const fence = FENCE_RE.exec(line);
+
+    if (!fence) {
+      visit(line, index + 1, fenceChar !== null);
+
+      return;
+    }
+
+    if (fenceChar === null) {
+      fenceChar = fence[1][0];
+    } else if (fence[1][0] === fenceChar) {
+      fenceChar = null;
+    }
+
+    visit(line, index + 1, true);
+  });
+};
 
 /**
  * Data rows of a GitHub pipe table, as arrays of trimmed cell strings.
@@ -43,8 +138,7 @@ export function parseRows(text, columnCount, headerFirstCell) {
       continue;
     }
 
-    // Drop the two empty ends produced by the leading and trailing pipe.
-    const cells = line.split("|").slice(1, -1).map((cell) => cell.trim());
+    const cells = splitCells(line);
 
     // Width mismatch: SKIP. Never guess at which cell is missing -- the caller's exactly-one-row
     // rule reports the resulting absence as a failure, so this fails closed.
@@ -67,3 +161,111 @@ export function parseRows(text, columnCount, headerFirstCell) {
 
   return rows;
 }
+
+/**
+ * Every pipe table in a document, checked for a RAGGED row -- one whose cell count differs from the
+ * count set by the first pipe row of its run.
+ *
+ * A run of consecutive pipe-leading lines is one table. Any other line closes it, including a fenced
+ * one. The FIRST row of a run sets the width; the separator row is not special, since a well-formed
+ * table's separator is the same width as its header.
+ *
+ * This is the general form of the mutation the narrow row-count repairs kept chasing: deleting a data
+ * cell TOGETHER WITH its pipe leaves a row that renders as short in GFM and that `parseRows` silently
+ * SKIPS. Deleting only the cell CONTENT and keeping the pipe is a different mutation -- the row stays
+ * the right width and the two render identically -- so it belongs to an empty-cell guard, not here.
+ *
+ * @param {string} text
+ * @returns {{ tables: number, offenders: string[] }} the number of tables SEEN, and one offender
+ *   string per table carrying at least one ragged row. The table count is what lets a caller assert it
+ *   scanned something: this function cannot report an offender on empty text.
+ */
+export function scanTables(text) {
+  const offenders = [];
+  let tables = 0;
+  let open = null;
+
+  const closeTable = () => {
+    if (open !== null && open.ragged.length > 0) {
+      const detail = open.ragged.map(({ line, width }) => `line ${line} is ${width}`).join(", ");
+
+      offenders.push(
+        `table at line ${open.headerLine}: header is ${open.width} wide, but ${open.ragged.length} row(s) differ -- ${detail}`
+      );
+    }
+
+    open = null;
+  };
+
+  scanLines(text, (line, lineNumber, fenced) => {
+    if (fenced || !line.startsWith("|")) {
+      closeTable();
+
+      return;
+    }
+
+    const width = splitCells(line).length;
+
+    if (open === null) {
+      tables++;
+      open = { headerLine: lineNumber, width, ragged: [] };
+
+      return;
+    }
+
+    if (width !== open.width) {
+      open.ragged.push({ line: lineNumber, width });
+    }
+  });
+
+  closeTable();
+
+  return { tables, offenders };
+}
+
+/**
+ * Every inline link target in a document, classified. Pure and disk-free ON PURPOSE: the
+ * classification is the part worth a fixture, and resolving a path against a real tree is the caller's
+ * job.
+ *
+ * Kinds: `anchor` for a same-document fragment, `scheme` for anything carrying a URI scheme,
+ * `absolute` for a root-relative path, `relative` for everything else. Only `relative` is resolvable
+ * against a directory, so only `relative` can be a dead link on disk.
+ *
+ * @param {string} text
+ * @returns {{ line: number, raw: string, kind: string }[]} one entry per link, in document order
+ */
+export function findLinkTargets(text) {
+  const targets = [];
+
+  scanLines(text, (line, lineNumber, fenced) => {
+    if (fenced) {
+      return;
+    }
+
+    LINK_RE.lastIndex = 0;
+    let match;
+
+    while ((match = LINK_RE.exec(line)) !== null) {
+      targets.push({ line: lineNumber, raw: match[1], kind: linkKind(match[1]) });
+    }
+  });
+
+  return targets;
+}
+
+const linkKind = (raw) => {
+  if (raw.startsWith("#")) {
+    return "anchor";
+  }
+
+  if (/^[a-z][a-z0-9+.-]*:/i.test(raw)) {
+    return "scheme";
+  }
+
+  if (raw.startsWith("/")) {
+    return "absolute";
+  }
+
+  return "relative";
+};

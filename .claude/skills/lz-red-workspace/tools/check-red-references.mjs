@@ -87,6 +87,7 @@ import { fileURLToPath } from "node:url";
 import { SCAFFOLD_RES } from "./lib/scaffold-phrases.mjs";
 import { findBookCitedAsOwned } from "./lib/provenance-honesty.mjs";
 import { ROW_SCOPED_GUARDS, COUNT_GUARDS, RETIRED_LABELS } from "./lib/row-guards.mjs";
+import { scanTables, findLinkTargets } from "./lib/pipe-table.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 // tools -> lz-red-workspace -> skills -> .claude -> repo root
@@ -197,6 +198,11 @@ const FILES = [
       { label: "no doubles in the core", re: /no (test )?doubles?/i },
     ],
     deferral: null,
+    // [lc9] N6. The label word `Mock rule` heads bullets whose own bodies say "double", which is the
+    // umbrella term. A Mock Object is one specific kind of double -- the kind that carries the
+    // expectation itself -- so labelling a no-double rule after it names the wrong artifact. Same needle
+    // as N5 on message-matrix.md; the two files are swept together and each is reported on its own file.
+    absent: { label: "[lc9] no Mock rule label", re: /Mock rule/i },
   },
   {
     name: "testing-stance/message-matrix.md",
@@ -207,8 +213,14 @@ const FILES = [
       { label: "outgoing command", re: /outgoing command/i },
       { label: "outgoing query", re: /outgoing query/i },
       { label: "expect-to-send warranted double", re: /expect[ -]to[ -]send|expect to send/i },
+      // [lc9] N4. The outgoing-command example records a call and inspects it afterwards, which is a
+      // Test Spy. A Mock Object is reserved for a double that CARRIES THE EXPECTATION ITSELF, so the
+      // example must name the artifact it actually demonstrates.
+      { label: "[lc9] Test Spy named for the record-then-inspect double", re: /test spy/i },
     ],
     deferral: null,
+    // [lc9] N5. See N6 on functional-core.md for why the label word is wrong.
+    absent: { label: "[lc9] no Mock rule label", re: /Mock rule/i },
   },
   {
     name: "testing-stance/seams-and-legacy.md",
@@ -326,6 +338,20 @@ const FILES = [
       { label: "[j9m] valid but blunter red", re: /blunter/i },
       { label: "[j9m] prerequisite to clear", re: /prerequisite/i },
       { label: "[j9m] characterization carve-out", re: /characterization/i },
+      // [lc9] N9. The side-qualification rule must live IN the coach procedure, not in an appendix. The
+      // needle is REGION-SCOPED for exactly that reason: it requires the phrase to occur BEFORE the
+      // `## Reference material` heading, which is the stable key that closes the `## Coach decision
+      // procedure` slice. A file-wide needle would be satisfied by an appendix placement, which is the
+      // placement this guard's own label says is wrong -- the "needle outlives its subject" class.
+      //
+      // This needle spans a newline, so it is the one topic in this file that opts into the whole-text
+      // matcher above. Measured through the real evaluator, three ways: absent -> FAIL, rule in the
+      // coach procedure -> PASS, rule ONLY in the appendix -> FAIL.
+      {
+        label: "[lc9] side-qualification rule inline in the coach procedure",
+        re: /which side they mean[\s\S]*?\n## Reference material/i,
+        wholeText: true,
+      },
     ],
     // [wev] G14 and G15 are the entry's first SEMANTIC guards on the worked example. The entry
     // already carried an absent guard (the stale-marker one below); what it lacked was any guard on
@@ -548,8 +574,19 @@ for (const spec of FILES) {
   const text = fs.readFileSync(filePath, "utf8");
   const lines = text.split(/\r?\n/);
 
+  // [lc9] The `topics` matcher is PER LINE, because `lines` has already had every newline stripped by
+  // the split above. A needle containing a newline can therefore never match any element of `lines` --
+  // it is structurally unmatchable, RED even when the content is right. Guard N9 needs a REGION-scoped
+  // needle (a phrase that must occur BEFORE a named heading), which is the first multi-line needle this
+  // mechanism has ever carried, so the mechanism has to admit one.
+  //
+  // The opt-in is per entry and STRICTLY ADDITIVE: a topic that does not set it keeps the per-line path
+  // byte-for-byte. It is set on N9 ALONE and must stay that way -- a blanket flip to whole-text would
+  // loosen every one of the ~100 pre-existing per-line topics, since a multi-token needle would start
+  // matching across a line break. The `absent` matcher below is per-line for the same reason and is
+  // deliberately NOT given the same opt-in; no `absent` guard here carries a multi-line needle.
   for (const topic of spec.topics) {
-    const hit = lines.some((line) => topic.re.test(line));
+    const hit = topic.wholeText ? topic.re.test(text) : lines.some((line) => topic.re.test(line));
     report(hit, `${spec.name}: ${topic.label}`, hit ? "" : "topic token absent");
   }
 
@@ -767,6 +804,203 @@ report(
   bareQualifierHits.length === 0 ? "" : `${bareQualifierHits.length} bare use(s): ${bareQualifierHits.join("; ")}`
 );
 
+// ===============================================================================================
+// [lc9] FIVE post-loop gates. Three walk the whole shipped tree (N1 table shape, N2 link resolution,
+// N3 no taxonomy copy), reusing the collectMarkdown helper above rather than adding a second directory
+// walker; two are cross-file content gates (N7 attribution, N8 the inline rule in lz-tpp).
+//
+// GENERAL RULE FOR EVERY COMMENT BELOW: a number that a later commit in this same task set will change
+// is a defect, not documentation. Write the invariant -- a zero, a direction, a reason -- or write
+// nothing and let a guard derive it. The census totals for this tree move the moment the taxonomy
+// copies are deleted, so none of them is recorded here.
+//
+// All three tree gates share ONE walk and ONE error record. A walk failure is recorded as a HIT for
+// every gate that consumes it, never filtered away: an empty file list would otherwise hand each gate a
+// vacuous pass, which is exactly the guard-that-cannot-fail class this file's own header condemns.
+// ===============================================================================================
+const PLUGINS_DIR = path.join(repoRoot, "plugins");
+let pluginsMarkdown = [];
+let pluginsWalkError = "";
+
+try {
+  pluginsMarkdown = collectMarkdown(PLUGINS_DIR);
+} catch (err) {
+  pluginsWalkError = `${path.relative(repoRoot, PLUGINS_DIR)}: TREE UNREADABLE (${err.code ?? err.message})`;
+}
+
+// [lc9] N1 TABLE SHAPE GATE. The GENERAL form of the mutation the narrow row-count repairs kept
+// chasing: deleting a data cell TOGETHER WITH its pipe leaves a row that renders short in GFM and that
+// parseRows silently SKIPS, so every row-scoped guard over that table quietly stops seeing the row.
+// scanTables compares every row's cell count against the count its table's first row set.
+//
+// MEASURED at authoring time: 0 ragged rows across the shipped tree, so this gate is INVARIANT-GREEN
+// from the start and its falsifiability proof is the fixture set in tools/row-guards.selftest.mjs --
+// including the pipe-deletion case that must return exactly one offender -- not a baseline failure.
+//
+// ANTI-VACUITY, and it is load-bearing rather than defensive noise: scanTables is a pure function that
+// CANNOT report an offender on empty text, because "no ragged tables" is true of an empty document. So a
+// mistyped path would yield 0 files -> 0 offenders -> a permanent PASS. The gate therefore also FAILS
+// when it saw no table at all, which is also how the nonzero magnitude of the scan gets asserted every
+// run -- strictly better than writing a table count into this comment, where it would go stale.
+const RAGGED_TABLE_LABEL = "[lc9] no ragged pipe table";
+const raggedHits = pluginsWalkError === "" ? [] : [pluginsWalkError];
+let tablesSeen = 0;
+
+for (const file of pluginsMarkdown) {
+  const shown = path.relative(repoRoot, file);
+  let shapeText;
+
+  try {
+    shapeText = fs.readFileSync(file, "utf8");
+  } catch (err) {
+    raggedHits.push(`${shown}: UNREADABLE (${err.code ?? err.message})`);
+    continue;
+  }
+
+  const { tables, offenders } = scanTables(shapeText);
+
+  tablesSeen += tables;
+  offenders.forEach((offender) => raggedHits.push(`${shown}: ${offender}`));
+}
+
+if (tablesSeen === 0) {
+  raggedHits.push("NO TABLE WAS SCANNED, so this gate checked nothing");
+}
+
+report(
+  raggedHits.length === 0,
+  RAGGED_TABLE_LABEL,
+  raggedHits.length === 0 ? "" : `${raggedHits.length} problem(s): ${raggedHits.join("; ")}`
+);
+
+// [lc9] N2 RELATIVE-LINK RESOLUTION GATE. A dead relative link is a whole failure class this battery
+// did not carry at all, and removing a shipped reference creates several at once. Only a `relative`
+// target is resolvable against a directory, so anchors, scheme URLs and root-absolute paths are skipped
+// by KIND rather than by an allowlist.
+//
+// An allowlist was MEASURED unnecessary rather than forgotten, and only the ZEROES are recorded here
+// because they are the load-bearing facts and they are invariant across the deletion: 0 external-scheme
+// links, 0 absolute links, 0 reference-style link definitions, 0 links inside code fences. Those four
+// zeroes are the whole reason no allowlist is needed. The link, file and anchor TOTALS are deliberately
+// NOT written down -- every one of them moves when the taxonomy copies go.
+//
+// The fragment split is REQUIRED, not optional: the lz-refactor catalogs carry file-plus-fragment
+// links, and resolving `foo.md#bar` as a path would report every one of them dead.
+//
+// ANTI-VACUITY: FAIL when no link was seen at all, for the same reason as N1 -- a document with no links
+// has no dead links, so a mistyped path passes forever otherwise.
+const LINK_RESOLVES_LABEL = "[lc9] every relative markdown link resolves";
+const deadLinkHits = pluginsWalkError === "" ? [] : [pluginsWalkError];
+let linksSeen = 0;
+
+for (const file of pluginsMarkdown) {
+  const shown = path.relative(repoRoot, file);
+  let linkText;
+
+  try {
+    linkText = fs.readFileSync(file, "utf8");
+  } catch (err) {
+    deadLinkHits.push(`${shown}: UNREADABLE (${err.code ?? err.message})`);
+    continue;
+  }
+
+  for (const target of findLinkTargets(linkText)) {
+    linksSeen++;
+
+    if (target.kind !== "relative") {
+      continue;
+    }
+
+    const [filePart] = target.raw.split("#");
+
+    if (filePart === "") {
+      continue;
+    }
+
+    if (!fs.existsSync(path.resolve(path.dirname(file), filePart))) {
+      deadLinkHits.push(`${shown}:${target.line} -> ${target.raw}`);
+    }
+  }
+}
+
+if (linksSeen === 0) {
+  deadLinkHits.push("NO LINK WAS SEEN, so this gate checked nothing");
+}
+
+report(
+  deadLinkHits.length === 0,
+  LINK_RESOLVES_LABEL,
+  deadLinkHits.length === 0 ? "" : `${deadLinkHits.length} unresolved: ${deadLinkHits.join("; ")}`
+);
+
+// [lc9] N3 NO-COPY GATE. The owner constraint is that this material is used by lz-red only and must
+// never ship again as byte-identical per-skill copies. That constraint was violated ONCE ALREADY and
+// survived three consecutive acceptance reviews, for exactly one reason: nothing checked it. Prose
+// cannot enforce a constraint; this gate can. FAILS BY NAME on every copy it finds.
+const TAXONOMY_COPY_FILENAME = "test-double-taxonomy.md";
+const TAXONOMY_COPY_LABEL = "[lc9] no test-double taxonomy copy in the shipped tree";
+const taxonomyCopyHits = pluginsWalkError === "" ? [] : [pluginsWalkError];
+
+for (const file of pluginsMarkdown) {
+  if (path.basename(file) === TAXONOMY_COPY_FILENAME) {
+    taxonomyCopyHits.push(path.relative(repoRoot, file));
+  }
+}
+
+report(
+  taxonomyCopyHits.length === 0,
+  TAXONOMY_COPY_LABEL,
+  taxonomyCopyHits.length === 0 ? "" : `${taxonomyCopyHits.length} copy/copies: ${taxonomyCopyHits.join("; ")}`
+);
+
+// [lc9] N7 ATTRIBUTION GATE. Read strictly, the current clause names the school's PROPONENTS rather
+// than its NAMERS. The label is Fowler's own contribution, and the counterpoint POSITION stays sourced
+// where it already is. ONE report over TWO files, because it is one claim restated in a dependent --
+// the same reasoning the owned-source count guard records for its own two-file shape.
+const FOWLER_LABEL_LABEL = "[lc9] mockist label attributed to Fowler at both sites";
+const FOWLER_LABEL_NEEDLE = "Fowler's label";
+const fowlerLabelHits = [];
+
+for (const name of ["anti-patterns.md", "principle-backing.md"]) {
+  const file = path.join(REFERENCES, name);
+
+  try {
+    if (!fs.readFileSync(file, "utf8").includes(FOWLER_LABEL_NEEDLE)) {
+      fowlerLabelHits.push(`${name}: attribution phrase absent`);
+    }
+  } catch (err) {
+    fowlerLabelHits.push(`${name}: UNREADABLE (${err.code ?? err.message})`);
+  }
+}
+
+report(
+  fowlerLabelHits.length === 0,
+  FOWLER_LABEL_LABEL,
+  fowlerLabelHits.length === 0 ? "" : fowlerLabelHits.join("; ")
+);
+
+// [lc9] N8 INLINE-RULE PRESENCE GATE on the shipped lz-tpp router. G17 above is an ABSENCE gate, so
+// DELETING the side-qualification rule outright satisfies it -- absence of a bare word is exactly what
+// deleting the rule produces. This makes the rule's PRESENCE mandatory in the skill that fills the
+// empty production symbol, which is the skill whose whole subject is the contested artifact. Measured:
+// that tree's only occurrences of the contested word, and of either side qualifier, are the two lines
+// this rule owns, so nothing else in it would keep the rule alive.
+const LZ_TPP_RULE_LABEL = "[lc9] lz-tpp/SKILL.md carries the side-qualification rule inline";
+const SIDE_QUALIFICATION_NEEDLE = "which side they mean";
+let lzTppRuleDetail = "";
+
+try {
+  const lzTppRuleText = fs.readFileSync(lzTppSkillPath, "utf8");
+
+  if (!lzTppRuleText.includes(SIDE_QUALIFICATION_NEEDLE)) {
+    lzTppRuleDetail = "the side-qualification phrase is absent from the shipped lz-tpp router";
+  }
+} catch (err) {
+  lzTppRuleDetail = `lz-tpp/SKILL.md UNREADABLE (${err.code ?? err.message})`;
+}
+
+report(lzTppRuleDetail === "", LZ_TPP_RULE_LABEL, lzTppRuleDetail);
+
 // [2ig] ROW-SCOPED and COUNT guards, from lib/row-guards.mjs. Post-loop because they need PARSED CELLS
 // rather than a line match, and because two of them read across files. Each returns `{ ok, why }` and
 // maps onto exactly ONE report call, so the roster arithmetic below stays legible.
@@ -922,7 +1156,18 @@ if (taxonomyText === "") {
 // leaves the count unchanged. Only the selftest evasion proofs cover that. A bare count is also blind to
 // a SHORT SWAP that happens to balance, which is why the label-set assertions below exist and why
 // tools/row-guards.selftest.mjs asserts the exported guard NAME set independently.
-const EXPECTED_CHECKS = 174;
+// [lc9] +9, so 183. Nine guards, added INSTRUMENT-FIRST -- before any content or any deletion -- so each
+// one's ability to fail is demonstrated against the unmodified tree rather than asserted afterwards:
+//
+//   174 ([gap] baseline) + 9 ([lc9] additions) = 183
+//
+// Four are FILES-entry guards (one topic and one absent guard on message-matrix.md, one absent guard on
+// functional-core.md, one region-scoped topic on the SKILL.md router) and five are post-loop blocks
+// (table shape, relative-link resolution, no taxonomy copy, the mockist attribution across two files,
+// the inline rule on the shipped lz-tpp router). Eight of the nine are RED against the unmodified tree
+// and the ninth is invariant-GREEN with a fixture proof; the per-guard evidence is recorded in
+// 260729-lc9-RED-BASELINE.md.
+const EXPECTED_CHECKS = 183;
 const ROSTER_LABEL = "[2ig] roster integrity: exact emitted-check count";
 
 // Every label the [2ig] and [gap] rounds ADD, composed exactly as emitted (`<filename>: <label>` inside
@@ -951,6 +1196,18 @@ const NEW_LABELS = [
   // cannot see one half being dropped while something else is added.
   `${TAXONOMY_BASENAME}: [gap] no chronology or seniority token`,
   CHRONOLOGY_LABEL,
+  // [lc9] The nine additions, composed EXACTLY as emitted. The FILES loop emits `<entry name>: <label>`,
+  // so the two testing-stance labels carry that path segment; a post-loop label is verbatim. Four of
+  // them are referenced through their own constants so a rename cannot desynchronise the roster.
+  "testing-stance/message-matrix.md: [lc9] Test Spy named for the record-then-inspect double",
+  "testing-stance/message-matrix.md: [lc9] no Mock rule label",
+  "testing-stance/functional-core.md: [lc9] no Mock rule label",
+  "SKILL.md: [lc9] side-qualification rule inline in the coach procedure",
+  RAGGED_TABLE_LABEL,
+  LINK_RESOLVES_LABEL,
+  TAXONOMY_COPY_LABEL,
+  FOWLER_LABEL_LABEL,
+  LZ_TPP_RULE_LABEL,
 ];
 
 const emittedBeforeRoster = emitted;

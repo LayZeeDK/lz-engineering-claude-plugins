@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-07-29T05:05:00.000Z",
+  "timestamp": "2026-07-29T08:30:00.000Z",
   "phase": "21",
   "phase_name": "applied-red-eval-real-oss-repos",
   "phase_dir": ".planning/phases/21-applied-red-eval-in-real-oss-repos-multi-dimensional-3-arm-i",
@@ -11,9 +11,9 @@
   "plan": 0,
   "task": 0,
   "total_tasks": 0,
-  "status": "in_progress",
+  "status": "awaiting_owner_decision",
   "autonomous": true,
-  "summary": "RUNNING UNATTENDED (owner offline, cannot be raised). Quick task 260729-2ig is remediating the test-double taxonomy merged as 1d1474b, which a THREE-reviewer acceptance gate rejected. CONTEXT.md and RESEARCH.md are written; the planner is dispatched. An oracle consult during discussion FALSIFIED a claim the document makes at nine measured sites -- it attributes a five-member framing to Meszaros that the book never states, while the book explicitly states FOUR. Separately, a search capability was granted to the oracle agent, reviewed by two agents, found NOT SAFE, and REVERTED; the reason is recorded in commit ef1837f so it is not retried.",
+  "summary": "THE FIX LOOP IS STOPPED, AWAITING AN OWNER DECISION. Quick task 260729-2ig is MERGED at 177a92d with the battery green at 175/175, and NOT ACCEPTED: its acceptance gate returned ACCEPT WITH FIXES (2 blocking, 15 important) plus TRUSTWORTHY WITH GAPS on the instrument. Three consecutive rounds have now failed this gate, and each round FIX introduced a fresh instance of the class it repaired -- a claim falsified by the document own table, three times over. The loop was stopped deliberately rather than run a fourth round unattended, because hand-patching is the demonstrated source of the next instance. Unpushed, untagged, unreleased -- nothing reaches a user. All worktrees torn down, tree clean.",
   "live_worktree": null,
   "completed_this_session": [
     {
@@ -69,56 +69,49 @@
   ],
   "remaining_tasks": [
     {
-      "id": "plan-check",
-      "name": "Plan-checker loop, max 2 iterations (quick-full)",
+      "id": "owner-decision-verdict-guard",
+      "name": "DECIDE: fix content blocker 2 by editing the verdict, or build a guard that DERIVES survey verdicts from the parsed table. RECOMMENDED: the guard. It closes the class permanently rather than patching its third instance, and it is the same move that made this round count guards the ones the auditor rated SOUND. The parts exist -- lib/pipe-table.mjs parses rows, lib/row-guards.mjs holds pure guards with a fixture selftest.",
+      "status": "blocked_on_owner"
+    },
+    {
+      "id": "owner-decision-deleted-rule",
+      "name": "DECIDE: whether to re-open the hard rule this round DELETED that was guarding a live defect. It forbade wording about what an author does or does not name; the clause went and the unhedged claim it would have caught survived, and that claim is the sole basis for a NOT-authority ruling. Traceable to the split ruling made on the orchestrator framing, so it is the owner call.",
+      "status": "blocked_on_owner"
+    },
+    {
+      "id": "instrument-repair-1",
+      "name": "Assert the parsed row count against the raw pipe-line count. ONE LINE. Closes the trivially-evadable new guard AND the ~21 rows that go invisible when a cell pipe is deleted. Worth doing regardless of the content decision.",
       "status": "not_started"
     },
     {
-      "id": "execute",
-      "name": "Executor in an isolated worktree. FIRST TASK IS THE INSTRUMENT: prove every new/changed guard fails at baseline, and additionally prove each STRENGTHENED guard catches the specific evasion the OLD guard passed",
+      "id": "instrument-repair-2-5",
+      "name": "Flatten the six wrap-evadable absent needles; section-scope the two file-global count derivations; add the ancestry-stem count pin for the lineage hole (a working fix was measured: 5/5 caught, zero false-fails); add fixtures for the two chronology guards plus an extra-stated-site assertion.",
       "status": "not_started"
     },
     {
-      "id": "merge-teardown",
-      "name": "Merge by EXACT branch name; delete reparse points link-only BEFORE removing the worktree; remove by exact path, THEN delete the branch",
-      "status": "not_started"
-    },
-    {
-      "id": "acceptance-review",
-      "name": "THE GATE. At least two independent reviewers, at least one wholly unprimed. Brief from merge commit or a THREE-dot diff, NEVER two-dot across a merge boundary",
-      "status": "not_started"
-    },
-    {
-      "id": "state-rows",
-      "name": "STATE.md Quick Tasks Completed rows for 260728-j9m, 260728-wev AND 260729-2ig",
+      "id": "content-blocker-1",
+      "name": "Name the right Beck surface in the row. A qualifier the document marks NOT OPTIONAL points at sources that do not carry it; the dependents already name it correctly, which is how it surfaced.",
       "status": "not_started"
     },
     {
       "id": "close-21",
-      "name": "/gsd-secure-phase 21, /gsd-validate-phase 21, /gsd-extract-learnings 21 -- each BY its dedicated agent, never self-certified inline",
-      "status": "not_started"
+      "name": "/gsd-secure-phase 21, /gsd-validate-phase 21, /gsd-extract-learnings 21 -- each BY its dedicated agent, never self-certified inline. Blocked until the taxonomy is accepted.",
+      "status": "blocked"
     },
     {
       "id": "milestone",
-      "name": "/gsd-complete-milestone lz-tdd@0.0.3 with MANUAL archival (the SDK rejects the @-scoped non-vX.Y version)",
-      "status": "not_started"
+      "name": "/gsd-complete-milestone lz-tdd@0.0.3 with MANUAL archival. Blocked until the taxonomy is accepted.",
+      "status": "blocked"
     }
   ],
   "blockers": [
     {
-      "description": "The taxonomy merged as 1d1474b is NOT ACCEPTED. Three reviewers rejected it and 260729-2ig is the remediation.",
-      "type": "external",
-      "workaround": "Complete 2ig, then run its own acceptance review. Do not treat a green battery as acceptance -- that is how this document shipped defective twice."
+      "description": "The taxonomy is merged and battery-green but NOT ACCEPTED for the third consecutive round.",
+      "type": "decision",
+      "workaround": "Do not patch content unattended -- that is the demonstrated source of each new defect instance. Build the verdict-derivation guard instead, and take the one-line instrument repair regardless."
     }
   ],
-  "async_jobs": [
-    {
-      "id": "executor",
-      "name": "gsd-core:gsd-executor running 260729-2ig in worktree agent-a6a27a7c7fc624bf3 (LIVE, pid 14116 holds the lock)",
-      "status": "running",
-      "expected_base": "8edbe0c"
-    }
-  ],
+  "async_jobs": [],
   "plan_check_history": {
     "cap": "The quick-full workflow caps plan-checker revisions at 2, then offers force-proceed or abort.",
     "iteration_1": "4 BLOCKER, 5 IMPORTANT, 6 MINOR. Two blockers were DEMONSTRATED by running the plan's own automated verify blocks verbatim against an unmodified tree -- both exited 0 with the task entirely undone. A third ordered the executor to delete its own core deliverable: the plan demanded every new guard FAIL at baseline, but 15 of ~34 correctly PASS because their subject is already right in the live text. That contradiction traces to MY brief, which demanded both a universal baseline FAIL and an evasion-fixture proof; the fix names two proof kinds instead. The fourth predicted a false FAIL in count guards, whose site pins the plan's own edits delete -- the previous round's deadlock reproduced in the one mechanism the both-directions audit does not inspect.",
@@ -191,13 +184,11 @@
   "uncommitted_files": [
     ".planning/quick/260729-2ig-remediate-the-test-double-taxonomy-after/ (CONTEXT.md, RESEARCH.md -- untracked; the quick workflow commits artifacts at its final step)"
   ],
-  "next_action": "Await the planner, then run the plan-checker loop (max 2 iterations), then dispatch the executor in an isolated worktree with the instrument-first discipline. The acceptance review after execution is the gate, NOT the battery.",
+  "next_action": "Present the two owner decisions. Do NOT start a fourth content-patch round without one. The one-line instrument repair (assert parsed row count vs raw pipe-line count) is safe to take independently and closes a whole class.",
   "context_notes": "PROCESS LESSONS THAT KEEP PAYING. Instrument-first with proven-red guards caught the previous executor's own author reproducing banned phrasing verbatim. Reviewers briefed from scratch keep finding what primed ones miss -- the wholly unprimed reviewer found the most this round, including two blocking defects neither other reviewer saw. And an oracle that REFUSES to certify what it did not read is worth more than one that answers: this round's consult overturned the premise it was given, and separately corrected me when I briefed it with a self-contradiction that did not exist (I had matched on the SITE rather than on the WORD -- the document was right and I was wrong). MY OWN ERRORS THIS SESSION, all caught: I claimed a frontmatter tools pattern would scope Bash to one command (it is advisory, and rg can exec arbitrary programs anyway, so the claim was wrong twice); I recommended -c/-l as the low-leak search forms when they are the compilation dump; I wrote an absence rule telling the agent to name the unread remainder with no firewall qualifier, introducing a compilation-leak vector into the very section warning about overclaiming; I relayed a -uu gotcha from the global instructions that is false, then verified it properly only when asked; and earlier I raised a false alarm that live checker topics survived when a crude grep simply could not tell a positive topic from an absent guard. The pattern in every case: a control or claim that reports success without verifying the thing it names.",
-  "orphan_worktree_to_clean": {
-    "path": ".claude/worktrees/agent-a2a44d8b2e1c58f74",
-    "branch": "worktree-agent-a2a44d8b2e1c58f74",
-    "state": "ORPHAN from a pre-crash executor dispatch. Unlocked, zero commits ahead of 8edbe0c, zero uncommitted files, no instrument files written. Nothing to salvage.",
-    "why_deferred": "Deliberately NOT removed while the live executor writes in a sibling worktree -- git worktree remove touches .git/worktrees/ and the risk, however small, is not worth taking mid-execution.",
-    "how": "Remove by EXACT path during the post-execution teardown, never a blanket loop. Delete any reparse points link-only FIRST and verify their targets file counts are unchanged, then remove the worktree by path, THEN delete the branch (git branch -d refuses while checked out)."
+  "verdict": {
+    "content": "ACCEPT WITH FIXES -- 2 BLOCKING, 15 IMPORTANT, 10 MINOR. Reviewer wholly unprimed.",
+    "instrument": "TRUSTWORTHY WITH GAPS -- one NEW guard trivially evadable; two author claims refuted by measurement; all four self-reported holes confirmed.",
+    "full_findings": ".planning/quick/260729-2ig-remediate-the-test-double-taxonomy-after/260729-2ig-ACCEPTANCE-REVIEW.md"
   }
 }

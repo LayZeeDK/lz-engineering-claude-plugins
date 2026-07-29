@@ -1,11 +1,42 @@
+> ## INERT RECORD -- read this first
+>
+> This file is an INERT RECORD. It is not a deliverable, it is not accepted, and it is
+> **not an agent input**. No skill, agent or command reads it, and none may be wired to: it must not be
+> referenced from `oracle.md`, from `oracle-reviewer.md`, or from any `SKILL.md`.
+>
+> It shipped as a bundled reference in three lz-tdd skills -- lz-red, lz-tpp and lz-refactor -- and
+> quick-260729-lc9 removed it from all three, because this material is used at development time only.
+> Nothing under `plugins/` points at it any more.
+>
+> **Why it is kept at all.** The per-author map is the useful part: it records which author uses which
+> test-double term, on which side of the substitution line, and which source to cite for each. Its job
+> is to help a HUMAN, or an orchestrator framing a question for the oracle, understand where the
+> oracle's sources actually disagree. It is not an authority a coach quotes.
+>
+> **It failed three consecutive acceptance gates.** Round three's independent unprimed review returned
+> ACCEPT WITH FIXES at 2 BLOCKING, 15 IMPORTANT and 10 MINOR findings. That review is at
+> `.planning/quick/260729-2ig-remediate-the-test-double-taxonomy-after/260729-2ig-ACCEPTANCE-REVIEW.md`.
+>
+> **What remains OPEN, stated rather than implied.** The IMPORTANT and MINOR findings are not all
+> closed. Every absence claim in this document rests on a degraded scan, and nobody has verified a
+> whole-book negative, because the oracle agent has no search tool -- it reads what it is pointed at.
+> And any statement here about how this document was distributed, gated or enforced describes a state
+> that no longer exists; those are corrected below where they were outright false, but read them as
+> history either way.
+>
+> **Forward constraint.** If a future milestone needs this material inside the plugin, it goes in as ONE
+> plugin-wide shared reference, never as byte-identical per-skill copies. That constraint is recorded,
+> not investigated: no mechanism for a shared reference has been designed, spiked or proven here.
+
 # Test-double and stand-in taxonomy across authors
 
 Scope: the cross-author vocabulary map for the artifacts a developer substitutes, leaves empty, or
 stands up in place of something real -- both the ones that replace a COLLABORATOR of the code under
 test and the ones that stand in for the code's own unwritten implementation. It exists because the
 words collide: the same term is assigned to opposite sides of that line by sources this project owns.
-This document settles what to CALL things and which author to cite for each cell. It carries no
-test-selection, structuring, or stance guidance of its own.
+This document RECORDS which author uses which term for each cell, and which source to cite for it. It
+carries no test-selection, structuring, or stance guidance of its own, and it settles nothing: where
+owned sources disagree, the disagreement is reported as inherited.
 
 > Mixed-provenance reference, and the mixing is the point: TIERS ARE PER ROW. This document maps
 > twelve sources whose access tiers differ, and several of whom disagree with each other; no single
@@ -52,11 +83,16 @@ inside a real production class and yet stands in for a collaborator, so under th
 fits neither value while this document claims to place every artifact it lists.
 
 **HARD RULE ON EMPTINESS: this document never asserts that a cell is empty.** It states only what
-POPULATES each cell. There is no scoped form of the prohibition that satisfies it: a claim that
+POPULATES each cell -- never anything about the literature at large, and NEVER about what some author
+does or does not name. There is no scoped form of the prohibition that satisfies it: a claim that
 nothing in some named set populates a cell is still an emptiness assertion, and an earlier revision of
 this rule carved out exactly that form in order to license its own wording. The claim that started
 this document's own correction was an emptiness assertion that the table on this page falsified, so
 the doctrine is stated here rather than merely obeyed.
+
+That last clause was struck from an earlier revision and is reinstated deliberately, because the claim
+it exists to catch is still in this document -- see the production-side authority bullet in section 2,
+which is now scoped to what was actually read rather than asserted over a whole body of work.
 
 Crossing the three axes gives eight cells. The list below is a CENSUS OF WHAT ROWS POPULATE rather
 than a tour of all eight, so a cell with no bullet carries no claim in either direction. Rows typed
@@ -78,8 +114,10 @@ than a tour of all eight, so a cell with no bullet carries no claim in either di
   `classical`, Beck's `impostor` and `mocking`, 99 Bottles' `Fake`, and Bernhardt's
   double-versus-value distinction.
 
-No eight-cell matrix diagram is drawn here on purpose. This page is read mid-cycle, and a list is
-cheaper to scan than a grid.
+No eight-cell matrix diagram is drawn here. A census list states only what rows populate, where a grid
+invites reading an empty box as a claim -- which section 1's hard rule forbids. The earlier
+justification for the list was that this page is read mid-cycle; it is not read mid-cycle by anyone now,
+and it never was routed to from a coach procedure.
 
 ## 2. The authority rule: authority is per cell
 
@@ -103,10 +141,14 @@ footnotes.
   a term common in the TDD community; early mock-objects literature conflating the canned-answer
   double with the expectation-bearing one; and a third book using his dummy term for his fake term.
   Section 3's headline is HIS finding before it is this document's, and it is credited to him there.
-- He is NOT the authority for the PRODUCTION side. He does not name that artifact, and he has already
-  spent both of the obvious words on something else: `placeholder` and bare `Stub` are BOTH registered
-  aliases of his `Dummy Object`, which is collaborator side. On the one cell that most needed a name
-  from him, the words were already committed elsewhere.
+- He is NOT the authority for the PRODUCTION side. SCOPED CLAIM, and the scope is the whole warrant for
+  this ruling: across the parts of his material that were read end to end for this document, he names no
+  artifact in that cell. That is NOT a claim about his complete works -- nobody here has verified a
+  whole-book negative, and the hard rule in section 1 forbids stating one -- and the reading was a
+  degraded scan besides. What IS solid, and what the ruling actually rests on, is positive: he has
+  already spent both of the obvious words on something else, since `placeholder` and bare `Stub` are
+  BOTH registered aliases of his `Dummy Object`, which is collaborator side. On the one cell that most
+  needed a name from him, the words were already committed elsewhere.
 - He is NOT the authority on what counts as a valid red. His outcome vocabulary has no slot for a test
   that never ran -- all three of his outcome definitions start from the test having been run, so a
   compile failure falls outside his scheme entirely. He IS citable for the narrower and useful point
@@ -168,10 +210,10 @@ precisely why authority has to be settled per cell rather than by rank.
 
 ## 3. The headline finding, credited to Meszaros: bare stub is unusable
 
-This is the reason the document exists, and the finding is Meszaros' before it is this document's: his
-own cross-reference notes record the contested term being used for an empty implementation of a
+This was the reason the document was written, and the finding is Meszaros' before it is this document's:
+his own cross-reference notes record the contested term being used for an empty implementation of a
 method on the production side, and separately record a remote-procedure-call use of the same word,
-included expressly because the word is common in the TDD community (section 2). What this page adds is
+included expressly because the word is common in the TDD community (section 2). What this page added was
 the measurement across twelve sources, not the observation.
 
 Owned, oracle-verified sources assign `stub` to OPPOSITE cells, so the bare word carries no
@@ -208,11 +250,15 @@ internally consistent, and these three are not:
 Consequence for the coach, and it is a hard rule: **never use bare `stub` unqualified.** Say
 production-side stub or collaborator-side stub, or use a term that is not contested. When a developer
 says `stub`, establish which side they mean before answering rather than assuming the side lz-red
-happens to prefer. A gate in the lz-red DEVELOPMENT WORKSPACE checks that rule across all three
-skills' reference trees and all three routers, exempting the three copies of this document because here
-the word is the subject matter. That gate is NOT SHIPPED -- it lives outside the plugin, so no installed
-copy carries it however wide its scope, and the rule reaches a reader as a rule rather than as something
-enforced on them.
+happens to prefer.
+
+HISTORY, past tense on purpose: while this document shipped, a gate in the lz-red DEVELOPMENT WORKSPACE
+checked that rule across all three skills' reference trees and all three routers, and it EXEMPTED the
+three copies of this file, because here the word is the subject matter. There are no longer three
+copies, and the exemption was deleted with them -- so that gate now covers the whole shipped tree with
+nothing carved out, and it would fire on this document if it were ever added back. The gate was never
+SHIPPED and still is not: it lives outside the plugin, so no installed copy carries it however wide its
+scope, and the rule reaches a reader as a rule rather than as something enforced on them.
 
 ## 4. The per-author table
 
@@ -281,13 +327,15 @@ INVERTS him. Cite Cooper for the over-mocking argument, never as a taxonomy.
 **Two live conflicts, presented rather than resolved.** Where owned sources genuinely disagree, this
 document names the disagreement as INHERITED instead of quietly picking a winner:
 
-- Clean Code versus Beck on whether a build failure is a valid red. Both are owned -- Beck by the
-  report and essays cited in his rows above -- and Clean Code Ch. 9 states within the Second Law
-  itself that failing to compile counts as failing. They disagree. TWO QUALIFIERS TRAVEL WITH THE BECK
-  SIDE AND ARE NOT OPTIONAL: the claim is GATED on a red test already existing, and it is only
-  ONE POSITION AMONG SEVERAL that he himself calls contradictory. Both are stated in full on the
-  row that backs it in [principle-backing.md](principle-backing.md); never present the kanban cycle
-  as his settled doctrine.
+- Clean Code versus Beck on whether a build failure is a valid red. Both are owned -- Beck by the essay
+  TDD is Kanban for Code, which is the surface that actually carries this position, and NOT by the
+  report and essays cited in his rows in the table below, none of which states it -- and Clean Code
+  Ch. 9 states within the Second Law itself that failing to compile counts as failing. They disagree.
+  TWO QUALIFIERS TRAVEL WITH THE BECK SIDE AND ARE NOT OPTIONAL: the claim is GATED on a red test
+  already existing, and it is only ONE POSITION AMONG SEVERAL that he himself calls contradictory.
+  Never present the kanban cycle as his settled doctrine. Both qualifiers are stated in full on the
+  backing row for this conflict, at
+  `plugins/lz-tdd/skills/lz-red/references/principle-backing.md`, which names the same essay.
 - Beck versus Meszaros on which side `stub` names -- section 3.
 
 The first of those has a direct consequence for lz-red: its own step-2 versus step-5 contradiction was

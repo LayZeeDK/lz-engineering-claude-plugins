@@ -293,6 +293,20 @@ repo has a recorded lesson about fence-blind scanners mangling headings.
 
 Scope the guard to the shipped tree AND the `.planning/` copy.
 
+> SUPERSEDED 2026-07-30 by OD-X0I-1, quick task `260729-x0i`. The instruction on the line ABOVE is
+> preserved verbatim as a record of what was locked at the time; it is **not a live instruction** and
+> must not be acted on. REASON: scoping the guard to the archived `.planning/` copy made a shipped-skill gate
+> fail CLOSED on a planning artifact that a milestone close relocates. Both halves of that are measured,
+> not predicted -- with the archived copy moved aside the pre-fix battery exited 1 with
+> `[FAIL] [lc9] no ragged pipe table -- 1 problem(s): .planning\research\test-double-taxonomy.md:
+> UNREADABLE (ENOENT)`, and `.planning/milestones/lz-tdd@0.0.1-research/` already exists on disk as the
+> relocation precedent. The same three reasons were ALREADY recorded in `check-red-references.mjs` at the
+> retirement note above `TWO_IG_GUARDS`, which this instruction contradicted -- the gate's own source
+> argued against pointing shipped-skill guards at that archive while its code did exactly that.
+> The ragged-table gate now walks the shipped tree ONLY; the archive left its SCOPE rather than being
+> conditionally skipped. Trail forward: `.planning/quick/260729-x0i-fix-the-archive-header-and-instrument-ho/260729-x0i-PLAN.md`
+> and `260729-x0i-RED-EVIDENCE.md` in that same directory.
+
 </specifics>
 
 <canonical_refs>

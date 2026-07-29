@@ -102,6 +102,29 @@ Deferred to a later lz-tdd release. Tracked, not in this roadmap.
   cross-skill "rules are heuristics, not law" coach voice has an owned source too (Rules). NOTE: none
   of the 21 surveyed Metz talks is a source for the GREEN / Transformation Priority Premise step
   (lz-tpp) -- all were checked and none carries TPP content.
+- **FUT-ROSTER-TYPO**: the `RETIRED_LABELS` roster in `check-red-references.mjs` is blind to a TYPO in a
+  retired label. A mistyped entry is absent from the emitted label set for exactly the same reason a
+  correctly-retired label is, so the leg passes either way and the roster cannot tell a typo from a
+  retirement. Open BY DESIGN, not an oversight. COST of closing it: cross-version label CAPTURE --
+  comparing the emitted label set against a prior commit's -- which is a different instrument from a
+  hand-maintained roster, not an edit to the roster.
+- **FUT-ROSTER-LITERALS**: 8 of the 13 `NEW_LABELS` entries are constant-derived and therefore
+  rename-blind. A constant on both sides of a comparison asserts nothing: the emission site pushes the
+  same constant the roster lists, so a rename moves both sides together and the leg stays green. Only the
+  `[wev G17]` entry is a string literal, and it is the only one that can catch a rename (MEASURED: with
+  G17's label value changed the battery exits 0 before that entry and 1 after). COST of closing it: one
+  rename proof per converted entry, 8 in total.
+- **FUT-TAXONOMY-SHARED**: relocate the archived test-double taxonomy into the plugin as ONE plugin-wide
+  shared reference at `plugins/lz-tdd/references/`, cited as INLINE CODE with the plugin-root variable and
+  never as a Markdown link (guard N2 classifies a relative target and would correctly fail a link).
+  CONTINGENT on the D-12 A/B showing lift; if it shows none, the archive stays where it is and this entry
+  closes as DECLINED. It is NOT approved for shipping, and its absence today is the A/B's baseline arm
+  rather than an oversight. COST of closing it: an explicit N3 carve-out, because N3 fails on the basename
+  stem over every file under `plugins/` with no carve-out for a canonical location (MEASURED: a probe file
+  at that exact path fails N3 by name), so the carve-out must be "at most one, at the canonical path" and
+  the lz-red-only-versus-shared ownership question has to be answered first. The mechanism itself is
+  VERIFIED, not speculative -- V1-V7 in `PLUGIN-WIDE-REFERENCE-RESEARCH.md`, with the pattern already in
+  production at `plugins/lz-tdd/references/beck-tdd-by-example.md`.
 
 ## Out of Scope
 

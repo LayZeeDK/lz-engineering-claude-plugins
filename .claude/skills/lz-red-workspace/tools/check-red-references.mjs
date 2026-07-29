@@ -567,11 +567,10 @@ const SIDE_QUALIFIED_RE = /(production|collaborator)-side\s+$/i;
 const META_MENTION_RE = /\bthe word\s+[`'"]?$/i;
 const BARE_QUALIFIER_LABEL = "[wev G17] no bare unqualified contested word in the shipped tree";
 
-// [lc9] EVERY file, at any depth. Split out from collectMarkdown so ONE walk can serve both a
-// markdown-only consumer and the no-copy gate, which must not be blind to an extension: `collectMarkdown`
-// filtered on `.md`, so a taxonomy copy re-added as `.markdown` or `.txt` was invisible to a gate whose
-// label says "no copy", unqualified. No second directory walker is introduced -- the .md list is derived
-// from this one.
+// [lc9] EVERY file, at any depth. This walk used to filter on `.md`, so a taxonomy copy re-added as
+// `.markdown` or `.txt` was invisible to a gate whose label says "no copy", unqualified. It now returns
+// every file and the `.md` list is DERIVED from it at the single call site below, so ONE walk serves both
+// the markdown-only consumers and the no-copy gate, and no second directory walker exists to drift.
 const collectFiles = (dir) => {
   const found = [];
 
@@ -591,7 +590,6 @@ const collectFiles = (dir) => {
   return found;
 };
 
-const collectMarkdown = (dir) => collectFiles(dir).filter((file) => file.endsWith(".md"));
 
 // THE ONE WALK of the shipped tree, declared here because FOUR gates below consume it (G17, N1, N2, N3).
 // A MISSING or unreadable tree is recorded as an error string and pushed as a HIT by every consumer,

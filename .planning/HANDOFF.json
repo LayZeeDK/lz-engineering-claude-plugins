@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-07-29T03:40:00.000Z",
+  "timestamp": "2026-07-29T05:05:00.000Z",
   "phase": "21",
   "phase_name": "applied-red-eval-real-oss-repos",
   "phase_dir": ".planning/phases/21-applied-red-eval-in-real-oss-repos-multi-dimensional-3-arm-i",
@@ -16,31 +16,108 @@
   "summary": "RUNNING UNATTENDED (owner offline, cannot be raised). Quick task 260729-2ig is remediating the test-double taxonomy merged as 1d1474b, which a THREE-reviewer acceptance gate rejected. CONTEXT.md and RESEARCH.md are written; the planner is dispatched. An oracle consult during discussion FALSIFIED a claim the document makes at nine measured sites -- it attributes a five-member framing to Meszaros that the book never states, while the book explicitly states FOUR. Separately, a search capability was granted to the oracle agent, reviewed by two agents, found NOT SAFE, and REVERTED; the reason is recorded in commit ef1837f so it is not retried.",
   "live_worktree": null,
   "completed_this_session": [
-    {"id": "wev-teardown", "name": "Worktree torn down after merge 1d1474b. Two reparse points deleted link-only FIRST, one of which pointed OUTSIDE the worktree into the main checkout -- had git recursed it would have destroyed 6525 files. Target verified 6525 files at all three checkpoints", "commit": "707dbda"},
-    {"id": "wev-post-merge-verify", "name": "Battery re-verified in the MAIN checkout, not just the worktree: exit 0, 146 PASS / 0 FAIL; three taxonomy copies byte-identical; grade-red.mjs unchanged", "status": "done"},
-    {"id": "acceptance-gate-3-reviewers", "name": "THE GATE RAN. Two content reviewers (one wholly unprimed) plus one instrument auditor. Verdicts: DO NOT ACCEPT, DO NOT ACCEPT, TRUSTWORTHY WITH GAPS. Four blocking content defects, ten important, seven minor; nine of seventeen guards weak with two reproducing the very defect the previous round existed to fix", "status": "done"},
-    {"id": "throwaway-teardown", "name": "All FOUR Phase-21 throwaways removed from D: (the handoff recorded three; .lz-red-grade-tmp was a fourth). They were linked WORKTREES of three borrowed OSS repos, so removal went through each parent by exact path -- rm -rf would have left stale registrations. All three borrowed repos verified pristine: zero uncommitted, no stray branches, single worktree each. Eval artifacts archived to scratchpad first, including an UNTRACKED spec an empty git diff had hidden", "status": "done"},
-    {"id": "oracle-search-reverted", "name": "Granted the oracle a scoped search capability; two reviewers found it NOT SAFE; reverted. Decisive finding: rg --pre and rg --hostname-bin each execute an arbitrary program and both match an rg prefix, so NO prefix rule can make search read-only -- and the pattern is advisory anyway (verified by probe: an agent with identical syntax ran five unrelated commands including a file-creating redirection)", "status": "done"},
-    {"id": "oracle-corrections", "name": "Both oracle agents corrected WITHOUT any capability change (still Read, Glob): absence-claim doctrine (scope what you certify, name the remainder under the firewall, token-absence is not concept-absence, carry the hedge into structured output), and match-on-substance-not-wording for the reviewer. Subagent-reviewed, three findings applied", "commit": "ef1837f"},
-    {"id": "global-claude-md-rg-fix", "name": "Corrected the rg note in the global CLAUDE.md (local config, no git, never pushed). It was wrong twice: ignore rules apply to TRAVERSAL not to an explicitly named root, so the example never needed -uu; and the -uu/-uuu split was misdescribed. Added the traps that DO make a zero untrustworthy (exit 2 looks like absence, line-oriented misses on wrapped/hyphenated text, regex-by-default, curly quotes) plus the rg --pre security fact. All verified first-hand in a controlled lab, not relayed", "status": "done"},
-    {"id": "2ig-discussion", "name": "CONTEXT.md written: owner's SPLIT ruling on superstructure (repair two load-bearing arguments, cut two that only defend the design), five auto-resolved gray areas, one deliberate DEFERRAL, the enumerate-the-five ruling, and the consult results that amended it", "status": "done"},
-    {"id": "2ig-research", "name": "RESEARCH.md written (525 lines, all measured). Found the row-parsing machinery already exists in tools/lib/provenance-honesty.mjs; that SIX guards have the row-scoped defect not two; that four of five stated totals derive cleanly but one does not; and that the checker cannot be imported, so the evasion harness must be a pure function plus committed fixtures", "status": "done"},
-    {"id": "2ig-oracle-consult", "name": "Consult on the five-member framing. Result overturned the premise -- see decisions", "status": "done"}
+    {
+      "id": "wev-teardown",
+      "name": "Worktree torn down after merge 1d1474b. Two reparse points deleted link-only FIRST, one of which pointed OUTSIDE the worktree into the main checkout -- had git recursed it would have destroyed 6525 files. Target verified 6525 files at all three checkpoints",
+      "commit": "707dbda"
+    },
+    {
+      "id": "wev-post-merge-verify",
+      "name": "Battery re-verified in the MAIN checkout, not just the worktree: exit 0, 146 PASS / 0 FAIL; three taxonomy copies byte-identical; grade-red.mjs unchanged",
+      "status": "done"
+    },
+    {
+      "id": "acceptance-gate-3-reviewers",
+      "name": "THE GATE RAN. Two content reviewers (one wholly unprimed) plus one instrument auditor. Verdicts: DO NOT ACCEPT, DO NOT ACCEPT, TRUSTWORTHY WITH GAPS. Four blocking content defects, ten important, seven minor; nine of seventeen guards weak with two reproducing the very defect the previous round existed to fix",
+      "status": "done"
+    },
+    {
+      "id": "throwaway-teardown",
+      "name": "All FOUR Phase-21 throwaways removed from D: (the handoff recorded three; .lz-red-grade-tmp was a fourth). They were linked WORKTREES of three borrowed OSS repos, so removal went through each parent by exact path -- rm -rf would have left stale registrations. All three borrowed repos verified pristine: zero uncommitted, no stray branches, single worktree each. Eval artifacts archived to scratchpad first, including an UNTRACKED spec an empty git diff had hidden",
+      "status": "done"
+    },
+    {
+      "id": "oracle-search-reverted",
+      "name": "Granted the oracle a scoped search capability; two reviewers found it NOT SAFE; reverted. Decisive finding: rg --pre and rg --hostname-bin each execute an arbitrary program and both match an rg prefix, so NO prefix rule can make search read-only -- and the pattern is advisory anyway (verified by probe: an agent with identical syntax ran five unrelated commands including a file-creating redirection)",
+      "status": "done"
+    },
+    {
+      "id": "oracle-corrections",
+      "name": "Both oracle agents corrected WITHOUT any capability change (still Read, Glob): absence-claim doctrine (scope what you certify, name the remainder under the firewall, token-absence is not concept-absence, carry the hedge into structured output), and match-on-substance-not-wording for the reviewer. Subagent-reviewed, three findings applied",
+      "commit": "ef1837f"
+    },
+    {
+      "id": "global-claude-md-rg-fix",
+      "name": "Corrected the rg note in the global CLAUDE.md (local config, no git, never pushed). It was wrong twice: ignore rules apply to TRAVERSAL not to an explicitly named root, so the example never needed -uu; and the -uu/-uuu split was misdescribed. Added the traps that DO make a zero untrustworthy (exit 2 looks like absence, line-oriented misses on wrapped/hyphenated text, regex-by-default, curly quotes) plus the rg --pre security fact. All verified first-hand in a controlled lab, not relayed",
+      "status": "done"
+    },
+    {
+      "id": "2ig-discussion",
+      "name": "CONTEXT.md written: owner's SPLIT ruling on superstructure (repair two load-bearing arguments, cut two that only defend the design), five auto-resolved gray areas, one deliberate DEFERRAL, the enumerate-the-five ruling, and the consult results that amended it",
+      "status": "done"
+    },
+    {
+      "id": "2ig-research",
+      "name": "RESEARCH.md written (525 lines, all measured). Found the row-parsing machinery already exists in tools/lib/provenance-honesty.mjs; that SIX guards have the row-scoped defect not two; that four of five stated totals derive cleanly but one does not; and that the checker cannot be imported, so the evasion harness must be a pure function plus committed fixtures",
+      "status": "done"
+    },
+    {
+      "id": "2ig-oracle-consult",
+      "name": "Consult on the five-member framing. Result overturned the premise -- see decisions",
+      "status": "done"
+    }
   ],
   "remaining_tasks": [
-    {"id": "plan-check", "name": "Plan-checker loop, max 2 iterations (quick-full)", "status": "not_started"},
-    {"id": "execute", "name": "Executor in an isolated worktree. FIRST TASK IS THE INSTRUMENT: prove every new/changed guard fails at baseline, and additionally prove each STRENGTHENED guard catches the specific evasion the OLD guard passed", "status": "not_started"},
-    {"id": "merge-teardown", "name": "Merge by EXACT branch name; delete reparse points link-only BEFORE removing the worktree; remove by exact path, THEN delete the branch", "status": "not_started"},
-    {"id": "acceptance-review", "name": "THE GATE. At least two independent reviewers, at least one wholly unprimed. Brief from merge commit or a THREE-dot diff, NEVER two-dot across a merge boundary", "status": "not_started"},
-    {"id": "state-rows", "name": "STATE.md Quick Tasks Completed rows for 260728-j9m, 260728-wev AND 260729-2ig", "status": "not_started"},
-    {"id": "close-21", "name": "/gsd-secure-phase 21, /gsd-validate-phase 21, /gsd-extract-learnings 21 -- each BY its dedicated agent, never self-certified inline", "status": "not_started"},
-    {"id": "milestone", "name": "/gsd-complete-milestone lz-tdd@0.0.3 with MANUAL archival (the SDK rejects the @-scoped non-vX.Y version)", "status": "not_started"}
+    {
+      "id": "plan-check",
+      "name": "Plan-checker loop, max 2 iterations (quick-full)",
+      "status": "not_started"
+    },
+    {
+      "id": "execute",
+      "name": "Executor in an isolated worktree. FIRST TASK IS THE INSTRUMENT: prove every new/changed guard fails at baseline, and additionally prove each STRENGTHENED guard catches the specific evasion the OLD guard passed",
+      "status": "not_started"
+    },
+    {
+      "id": "merge-teardown",
+      "name": "Merge by EXACT branch name; delete reparse points link-only BEFORE removing the worktree; remove by exact path, THEN delete the branch",
+      "status": "not_started"
+    },
+    {
+      "id": "acceptance-review",
+      "name": "THE GATE. At least two independent reviewers, at least one wholly unprimed. Brief from merge commit or a THREE-dot diff, NEVER two-dot across a merge boundary",
+      "status": "not_started"
+    },
+    {
+      "id": "state-rows",
+      "name": "STATE.md Quick Tasks Completed rows for 260728-j9m, 260728-wev AND 260729-2ig",
+      "status": "not_started"
+    },
+    {
+      "id": "close-21",
+      "name": "/gsd-secure-phase 21, /gsd-validate-phase 21, /gsd-extract-learnings 21 -- each BY its dedicated agent, never self-certified inline",
+      "status": "not_started"
+    },
+    {
+      "id": "milestone",
+      "name": "/gsd-complete-milestone lz-tdd@0.0.3 with MANUAL archival (the SDK rejects the @-scoped non-vX.Y version)",
+      "status": "not_started"
+    }
   ],
   "blockers": [
-    {"description": "The taxonomy merged as 1d1474b is NOT ACCEPTED. Three reviewers rejected it and 260729-2ig is the remediation.", "type": "external", "workaround": "Complete 2ig, then run its own acceptance review. Do not treat a green battery as acceptance -- that is how this document shipped defective twice."}
+    {
+      "description": "The taxonomy merged as 1d1474b is NOT ACCEPTED. Three reviewers rejected it and 260729-2ig is the remediation.",
+      "type": "external",
+      "workaround": "Complete 2ig, then run its own acceptance review. Do not treat a green battery as acceptance -- that is how this document shipped defective twice."
+    }
   ],
   "async_jobs": [
-    {"id": "planner-revision-3", "name": "gsd-core:gsd-planner applying the THIRD revision to 260729-2ig-PLAN.md", "status": "running"}
+    {
+      "id": "executor",
+      "name": "gsd-core:gsd-executor running 260729-2ig in worktree agent-a6a27a7c7fc624bf3 (LIVE, pid 14116 holds the lock)",
+      "status": "running",
+      "expected_base": "8edbe0c"
+    }
   ],
   "plan_check_history": {
     "cap": "The quick-full workflow caps plan-checker revisions at 2, then offers force-proceed or abort.",
@@ -51,25 +128,76 @@
     "what_the_checks_confirmed_good": "The substantive work landed correctly each time. The B4 pins match measurement exactly; all six invariant row-scoped guards genuinely pass at baseline and the one that should fail does; the 172 roster prediction independently re-derives; the hygiene probes cover both new files' directories and encode no forbidden value; and both judgment calls the planner self-flagged were independently adjudicated SOUND with reasoning, including confirmation that the deletion does not decide the DEFERRED axis question."
   },
   "human_actions_pending": [
-    {"action": "Decide whether to promote any Usenet mbox into .oracle/ before reclaiming 1.7 GB of scratchpad", "context": "The mbox is the ONLY copy of the 862,001 messages the selective conversion did not cover.", "blocking": false},
-    {"action": "Rule on provenance of two staged items", "context": "One PDF carries an institutional-library watermark; one archive.org copy appears to be an un-darkened user upload.", "blocking": false},
-    {"action": "Consider whether a whole-book token sweep belongs in the harness", "context": "Absence questions cannot be certified book-wide by the oracle (Read/Glob only, no search) nor by the orchestrator (firewalled from the store). A deterministic harness sweep is the only path, and the sibling agent's contract already assigns deterministic checks to the harness.", "blocking": false}
+    {
+      "action": "Decide whether to promote any Usenet mbox into .oracle/ before reclaiming 1.7 GB of scratchpad",
+      "context": "The mbox is the ONLY copy of the 862,001 messages the selective conversion did not cover.",
+      "blocking": false
+    },
+    {
+      "action": "Rule on provenance of two staged items",
+      "context": "One PDF carries an institutional-library watermark; one archive.org copy appears to be an un-darkened user upload.",
+      "blocking": false
+    },
+    {
+      "action": "Consider whether a whole-book token sweep belongs in the harness",
+      "context": "Absence questions cannot be certified book-wide by the oracle (Read/Glob only, no search) nor by the orchestrator (firewalled from the store). A deterministic harness sweep is the only path, and the sibling agent's contract already assigns deterministic checks to the harness.",
+      "blocking": false
+    }
   ],
   "decisions": [
-    {"decision": "SPLIT ruling on argumentative superstructure: repair the two load-bearing arguments, delete the two that only defend the design.", "rationale": "Owner-locked. The governing line: argumentation that tells a coach WHAT IT MAY NOT CITE is operational and stays; argumentation that DEFENDS THE DESIGN belongs in CONTEXT.md. Repair the citability rule (split naming-citation from meaning-citation so the recommendation satisfies it) and the ambiguity finding (weaken a falsified universal to a survey). Cut the degree-of-freedom proof and the deliberate-negative intent claim, keeping the owner-verified blank-column fact.", "phase": "quick-260729-2ig"},
-    {"decision": "Both cuts are PURE deletions -- no carry-forward rider needed.", "rationale": "Measured during discussion: both cut passages restate, with weaker warrant, claims a later section already carries WITH chapter citations. One of them also misdescribes what that section currently contains, which is a separate defect. The uncited copy is the one that drifted -- it grew an intent inference and a chronology the cited original never needed. General lesson: when one claim lives in two registers, the uncited copy drifts.", "phase": "quick-260729-2ig"},
-    {"decision": "The five-member framing is an ATTRIBUTION ERROR at nine measured sites, not merely an underivable count.", "rationale": "Oracle consult, CONFIRMED by end-to-end reads of five parts: the book NEVER states five and explicitly states FOUR in prose, because its rundown folds two members into one bullet. Five is a reading of the hierarchy figure only; counting from the catalog's variations run yields six or nine instead. So the count is attributed to the figure rather than to the author as his framing, the numeral is kept because the figure supports it, and the caveat that his prose says four is ADDED -- that caveat is exactly the what-you-may-not-cite content this document should carry. Same defect class as the fabricated mapping this remediation exists to remove, repeated nine times.", "phase": "quick-260729-2ig"},
-    {"decision": "The mis-levelling is ONE CELL, not a table restructure.", "rationale": "The consult reported four table rows are non-members (an umbrella and three variations), which sounded like it needed a level column or a table split -- trap-quadrant, since it would ripple through every cell bullet, every derived count and the guard work. MEASUREMENT showed the document's convention is to state the relationship in the defining-property cell and it already does so for THREE of the four. Only one row lacks it. Fix that cell; change no table structure. Also measured: the other families the consult warned might be flattened have ZERO rows and ZERO mentions, and the alias collision it flagged is not live here.", "phase": "quick-260729-2ig"},
-    {"decision": "No search capability for either oracle agent; a sweep is the driver's or harness's job.", "rationale": "Reviewed NOT SAFE. rg --pre and rg --hostname-bin each run an arbitrary program and both match an rg prefix, so no prefix rule can preserve read-only; the frontmatter pattern is advisory regardless. Granting it would move writes-nothing from a tool-layer guarantee to a promise, in the one agent trusted to hold copyrighted text and whose own threat model anticipates injected instructions inside that text. Two further reasons: the low-leak forms recommended (-c/-l) are precisely a compilation dump, since store filenames are numbered descriptive slugs that together render the table of contents; and the sibling gate requires negatives confirmed by complete read, so sweep-certified absences would stall its converge-to-clean loop. The sibling's own contract already assigns deterministic checks to the harness.", "phase": "quick-260729-2ig"}
+    {
+      "decision": "SPLIT ruling on argumentative superstructure: repair the two load-bearing arguments, delete the two that only defend the design.",
+      "rationale": "Owner-locked. The governing line: argumentation that tells a coach WHAT IT MAY NOT CITE is operational and stays; argumentation that DEFENDS THE DESIGN belongs in CONTEXT.md. Repair the citability rule (split naming-citation from meaning-citation so the recommendation satisfies it) and the ambiguity finding (weaken a falsified universal to a survey). Cut the degree-of-freedom proof and the deliberate-negative intent claim, keeping the owner-verified blank-column fact.",
+      "phase": "quick-260729-2ig"
+    },
+    {
+      "decision": "Both cuts are PURE deletions -- no carry-forward rider needed.",
+      "rationale": "Measured during discussion: both cut passages restate, with weaker warrant, claims a later section already carries WITH chapter citations. One of them also misdescribes what that section currently contains, which is a separate defect. The uncited copy is the one that drifted -- it grew an intent inference and a chronology the cited original never needed. General lesson: when one claim lives in two registers, the uncited copy drifts.",
+      "phase": "quick-260729-2ig"
+    },
+    {
+      "decision": "The five-member framing is an ATTRIBUTION ERROR at nine measured sites, not merely an underivable count.",
+      "rationale": "Oracle consult, CONFIRMED by end-to-end reads of five parts: the book NEVER states five and explicitly states FOUR in prose, because its rundown folds two members into one bullet. Five is a reading of the hierarchy figure only; counting from the catalog's variations run yields six or nine instead. So the count is attributed to the figure rather than to the author as his framing, the numeral is kept because the figure supports it, and the caveat that his prose says four is ADDED -- that caveat is exactly the what-you-may-not-cite content this document should carry. Same defect class as the fabricated mapping this remediation exists to remove, repeated nine times.",
+      "phase": "quick-260729-2ig"
+    },
+    {
+      "decision": "The mis-levelling is ONE CELL, not a table restructure.",
+      "rationale": "The consult reported four table rows are non-members (an umbrella and three variations), which sounded like it needed a level column or a table split -- trap-quadrant, since it would ripple through every cell bullet, every derived count and the guard work. MEASUREMENT showed the document's convention is to state the relationship in the defining-property cell and it already does so for THREE of the four. Only one row lacks it. Fix that cell; change no table structure. Also measured: the other families the consult warned might be flattened have ZERO rows and ZERO mentions, and the alias collision it flagged is not live here.",
+      "phase": "quick-260729-2ig"
+    },
+    {
+      "decision": "No search capability for either oracle agent; a sweep is the driver's or harness's job.",
+      "rationale": "Reviewed NOT SAFE. rg --pre and rg --hostname-bin each run an arbitrary program and both match an rg prefix, so no prefix rule can preserve read-only; the frontmatter pattern is advisory regardless. Granting it would move writes-nothing from a tool-layer guarantee to a promise, in the one agent trusted to hold copyrighted text and whose own threat model anticipates injected instructions inside that text. Two further reasons: the low-leak forms recommended (-c/-l) are precisely a compilation dump, since store filenames are numbered descriptive slugs that together render the table of contents; and the sibling gate requires negatives confirmed by complete read, so sweep-certified absences would stall its converge-to-clean loop. The sibling's own contract already assigns deterministic checks to the harness.",
+      "phase": "quick-260729-2ig"
+    }
   ],
   "unresolved_cannot_be_raised": [
-    {"item": "The numeral-absence claim cannot be certified book-wide this round.", "detail": "The consult's negative is correctly scoped to the parts it read end to end; it declined to sweep the remainder and rightly called a whole-book token sweep a harness job. The oracle has no search tool and the orchestrator is firewalled from the store, so neither can close it. Does NOT block the fix: the figure is the basis for the numeral regardless of any unread chapter, and the prose demonstrably states four. Recorded at the scope actually swept.", "trap_quadrant": false},
-    {"item": "The axis-2 classification of two terms deliberately left out of the table.", "detail": "HIGH impact (would add rows and move cell populations) and NOT high confidence (contested on the merits -- the unprimed reviewer holds both contradict the axis definition). Trap quadrant, so NOT auto-decided. Safe default taken instead: do not add rows; they remain caveats in a later section where they are already cited, which needs no ruling.", "trap_quadrant": true},
-    {"item": "Two conversion defects in the store touch the five-member question.", "detail": "The appendix role-summary table came through garbled at character level and one bullet of the narrative chapter's rundown is an un-transcribed scanned image. Any claim resting on that appendix should carry the degraded-scan treatment the document already has a mechanism for.", "trap_quadrant": false}
+    {
+      "item": "The numeral-absence claim cannot be certified book-wide this round.",
+      "detail": "The consult's negative is correctly scoped to the parts it read end to end; it declined to sweep the remainder and rightly called a whole-book token sweep a harness job. The oracle has no search tool and the orchestrator is firewalled from the store, so neither can close it. Does NOT block the fix: the figure is the basis for the numeral regardless of any unread chapter, and the prose demonstrably states four. Recorded at the scope actually swept.",
+      "trap_quadrant": false
+    },
+    {
+      "item": "The axis-2 classification of two terms deliberately left out of the table.",
+      "detail": "HIGH impact (would add rows and move cell populations) and NOT high confidence (contested on the merits -- the unprimed reviewer holds both contradict the axis definition). Trap quadrant, so NOT auto-decided. Safe default taken instead: do not add rows; they remain caveats in a later section where they are already cited, which needs no ruling.",
+      "trap_quadrant": true
+    },
+    {
+      "item": "Two conversion defects in the store touch the five-member question.",
+      "detail": "The appendix role-summary table came through garbled at character level and one bullet of the narrative chapter's rundown is an un-transcribed scanned image. Any claim resting on that appendix should carry the degraded-scan treatment the document already has a mechanism for.",
+      "trap_quadrant": false
+    }
   ],
   "uncommitted_files": [
     ".planning/quick/260729-2ig-remediate-the-test-double-taxonomy-after/ (CONTEXT.md, RESEARCH.md -- untracked; the quick workflow commits artifacts at its final step)"
   ],
   "next_action": "Await the planner, then run the plan-checker loop (max 2 iterations), then dispatch the executor in an isolated worktree with the instrument-first discipline. The acceptance review after execution is the gate, NOT the battery.",
-  "context_notes": "PROCESS LESSONS THAT KEEP PAYING. Instrument-first with proven-red guards caught the previous executor's own author reproducing banned phrasing verbatim. Reviewers briefed from scratch keep finding what primed ones miss -- the wholly unprimed reviewer found the most this round, including two blocking defects neither other reviewer saw. And an oracle that REFUSES to certify what it did not read is worth more than one that answers: this round's consult overturned the premise it was given, and separately corrected me when I briefed it with a self-contradiction that did not exist (I had matched on the SITE rather than on the WORD -- the document was right and I was wrong). MY OWN ERRORS THIS SESSION, all caught: I claimed a frontmatter tools pattern would scope Bash to one command (it is advisory, and rg can exec arbitrary programs anyway, so the claim was wrong twice); I recommended -c/-l as the low-leak search forms when they are the compilation dump; I wrote an absence rule telling the agent to name the unread remainder with no firewall qualifier, introducing a compilation-leak vector into the very section warning about overclaiming; I relayed a -uu gotcha from the global instructions that is false, then verified it properly only when asked; and earlier I raised a false alarm that live checker topics survived when a crude grep simply could not tell a positive topic from an absent guard. The pattern in every case: a control or claim that reports success without verifying the thing it names."
+  "context_notes": "PROCESS LESSONS THAT KEEP PAYING. Instrument-first with proven-red guards caught the previous executor's own author reproducing banned phrasing verbatim. Reviewers briefed from scratch keep finding what primed ones miss -- the wholly unprimed reviewer found the most this round, including two blocking defects neither other reviewer saw. And an oracle that REFUSES to certify what it did not read is worth more than one that answers: this round's consult overturned the premise it was given, and separately corrected me when I briefed it with a self-contradiction that did not exist (I had matched on the SITE rather than on the WORD -- the document was right and I was wrong). MY OWN ERRORS THIS SESSION, all caught: I claimed a frontmatter tools pattern would scope Bash to one command (it is advisory, and rg can exec arbitrary programs anyway, so the claim was wrong twice); I recommended -c/-l as the low-leak search forms when they are the compilation dump; I wrote an absence rule telling the agent to name the unread remainder with no firewall qualifier, introducing a compilation-leak vector into the very section warning about overclaiming; I relayed a -uu gotcha from the global instructions that is false, then verified it properly only when asked; and earlier I raised a false alarm that live checker topics survived when a crude grep simply could not tell a positive topic from an absent guard. The pattern in every case: a control or claim that reports success without verifying the thing it names.",
+  "orphan_worktree_to_clean": {
+    "path": ".claude/worktrees/agent-a2a44d8b2e1c58f74",
+    "branch": "worktree-agent-a2a44d8b2e1c58f74",
+    "state": "ORPHAN from a pre-crash executor dispatch. Unlocked, zero commits ahead of 8edbe0c, zero uncommitted files, no instrument files written. Nothing to salvage.",
+    "why_deferred": "Deliberately NOT removed while the live executor writes in a sibling worktree -- git worktree remove touches .git/worktrees/ and the risk, however small, is not worth taking mid-execution.",
+    "how": "Remove by EXACT path during the post-execution teardown, never a blanket loop. Delete any reparse points link-only FIRST and verify their targets file counts are unchanged, then remove the worktree by path, THEN delete the branch (git branch -d refuses while checked out)."
+  }
 }

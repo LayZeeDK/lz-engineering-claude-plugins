@@ -93,7 +93,11 @@ the rest (a consumer detects an error entry by the absence of `verdict`). Do not
 1. **Alignment.** Account for EVERY in-scope source item (mechanics step / candidate / recognition
    cue / principle-claim) with an own-words label + status: `matched` | `drifted` (present but
    selector/condition/procedure/safe-order changed) | `source-only` (a DROP vs SCOPE) | `draft-only`
-   (an ADDITION). Confirm negatives by reading. Assert `source-only`/`drifted` at >=70% sure; route a
+   (an ADDITION). Confirm negatives by reading. **Match on SUBSTANCE, never on wording:** a `source-only`
+   DROP asserted because the draft lacks the source's PHRASING -- when it in fact carries the same step,
+   cue or claim in different words -- is a false defect, and it sends the driver to "fix" a draft that was
+   already faithful. The converse also holds: shared wording is not a match if the substance drifted.
+   Judge what the item DOES, not how either text says it. Assert `source-only`/`drifted` at >=70% sure; route a
    40-70% suspicion to `ambiguities`; below 40% you hold no real suspicion (leaving it `matched` is
    not a soft-pass -- but never downgrade a suspicion you DO hold). If a large item set means a full
    ordered listing would mirror the source's selection/order, summarize only `matched` items as

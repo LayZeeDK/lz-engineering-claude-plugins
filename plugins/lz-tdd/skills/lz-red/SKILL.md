@@ -155,6 +155,8 @@ not caution.
   assertions): [references/vitest-typescript-mechanics.md](references/vitest-typescript-mechanics.md)
 - Source-to-recommendation backing and owned/unowned access tiers:
   [references/principle-backing.md](references/principle-backing.md)
+- The red-green-refactor loop this skill's red step opens, and who owns which rule in it (plugin-wide
+  reference, shared with lz-refactor): `${CLAUDE_PLUGIN_ROOT}/references/beck-tdd-by-example.md`
 - Adaptive testing-stance router -- navigation index (detection signals + route table); open a
   leaf to act: [references/testing-stance/README.md](references/testing-stance/README.md)
   - Functional core, imperative shell (Bernhardt):

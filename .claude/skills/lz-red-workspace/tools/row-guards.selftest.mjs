@@ -39,10 +39,22 @@ import { ROW_SCOPED_GUARDS, OLD_NEEDLES, RETIRED_LABELS } from "./lib/row-guards
 // a missed backslash.
 // ---------------------------------------------------------------------------------------------
 
-// [lc9] SYNTHETIC FIXTURE, and KEPT deliberately. It is not a copy of any shipped or archived document
-// -- every line here was written for this file -- and it is the ONLY fixture exercising parseRows's
-// header-dropped-BY-VALUE and width-mismatch-SKIPS cases. Deleting it because the document it once
-// resembled left the tree would silently remove those two proofs.
+// [lc9] PARSER FIXTURE, and KEPT deliberately: it is the ONLY fixture exercising parseRows's
+// header-dropped-BY-VALUE and width-mismatch-SKIPS cases. Deleting it because the document it mirrors
+// left the shipped tree would silently remove those two proofs.
+//
+// It deliberately MIRRORS REAL ROW SHAPES from the archived record rather than inventing them, because
+// realistic row shapes are the whole point of a parser fixture -- a nine-column table with backticked
+// terms, two header rows' worth of structure, and long prose cells is what actually broke naive
+// splitting. About nine structural lines of 25+ chars are therefore VERBATIM from that record (the two
+// axis lead-ins, a section heading, the header and separator rows, three Meszaros rows, one tier
+// fragment). An earlier version of this comment claimed "every line here was written for this file",
+// which was false -- the same defect class this workspace's instruments exist to catch, pointed at a
+// fixture instead of at prose.
+//
+// No copyright exposure: the archived record is the owner's own clean-room material. And the property
+// that actually matters is untouched -- the fixture is IN MEMORY and this file reads nothing from disk,
+// so no shipped or archived document can redden the selftest.
 const TAXONOMY_LINES = [
   "# Fixture taxonomy",
   "",
@@ -379,10 +391,11 @@ check("kanbanEssayNamedInRow: empty text -> FAIL (anti-vacuity)", verdict(ROW_SC
 // is the anti-vacuity SPINE shared by every row-scoped guard in the module -- so losing its proof would
 // have quietly removed the only evidence that a duplicated row fails at all. It now duplicates a
 // SURVIVING guard's target row, which exercises exactly the same shared code path.
-const DUPLICATED_THREE_LAWS = BACKING.replace(
-  /^(\| \[Three Laws of TDD spine\].*)$/m,
-  "$1\n$1"
-);
+//
+// Built with `mutate`, not a bare `.replace`: a silently no-op mutation here would leave PRISTINE text
+// under a check that expects FAIL, and while that still fails loudly it does so by accident rather than
+// by design. `mutate` asserts the replacement applied, so the protection is deliberate.
+const DUPLICATED_THREE_LAWS = mutate(BACKING, /^(\| \[Three Laws of TDD spine\].*)$/m, "$1\n$1");
 
 check("oneRow: a DUPLICATED target row -> FAIL (exactly one, or fail)", verdict(ROW_SCOPED_GUARDS.threeLawsRowBacked(DUPLICATED_THREE_LAWS)), false);
 console.log("");
@@ -412,8 +425,22 @@ check("RETIRED_LABELS carries exactly sixty-four composed labels", RETIRED_LABEL
 // string the checker actually emits, and that hazard is live precisely because of those odd shapes.
 //
 // All three properties in ONE check, so a single PASS line proves all three: every entry non-empty, the
-// list duplicate-free, and every entry carrying either a `.md` filename or a bracketed tag prefix. A
-// bare `label` value from FILES has neither, so it can never slip in.
+// list duplicate-free, and every entry carrying either a `.md` filename or a bracketed tag prefix.
+//
+// WHAT THIS ACTUALLY GUARANTEES, stated precisely because an earlier version of this comment overclaimed
+// ("a bare `label` value from FILES has neither, so it can never slip in" -- false). Nearly every FILES
+// label opens with a bracketed tag, which `/^\[[^\]]+\] /` ACCEPTS. MEASURED against the departed entry's
+// own bare labels, the exact population the 58 retirements were transcribed from: 43 of 43 accepted, 0
+// rejected. So the shape leg catches exactly one shape -- a bare label with NEITHER a bracketed tag NOR a
+// `.md`, which is the two no-prefix Phase-18 originals -- and nothing else.
+//
+// The non-empty and duplicate-free legs are the ones that bite generally, and both are falsifiable
+// (an appended blank entry and an appended duplicate each flip this check to false).
+//
+// The real protection against a mistranscribed retirement is NOT this predicate: the roster gate is
+// vacuous on a typo by construction, since a mistyped retired label is trivially "not emitted". It is
+// that the 58 were transcribed from a CAPTURED RUN of the pre-change battery and then verified 58/58
+// exact against that captured label array. Keep that provenance in mind before trusting this leg.
 check(
   "RETIRED_LABELS are non-empty, duplicate-free, and each carries a filename or a bracketed tag",
   RETIRED_LABELS.every((label) => label.trim() !== "" && (label.includes(".md") || /^\[[^\]]+\] /.test(label))) &&

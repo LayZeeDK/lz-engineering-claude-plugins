@@ -689,17 +689,17 @@ report(
 // when it saw no table at all, which is also how the nonzero magnitude of the scan gets asserted every
 // run -- strictly better than writing a table count into this comment, where it would go stale.
 //
-// [lc9] SCOPE: the shipped tree PLUS the ONE archived planning copy of the departed document. That
-// copy is a frozen inert record, so this is a hygiene floor rather than a regression surface -- but it
-// still carries pipe tables, and a ragged row there is the same defect. The path is listed as one extra
-// target alongside the tree walk and FAILS CLOSED if it is unreadable. Kept TEXTUALLY SEPARATE from
-// G17's scope on purpose: the two gates walk different trees and must not share a constant.
+// [lc9] SCOPE: THE SHIPPED TREE ONLY, via the ONE walk above. The departed document's archived copy in
+// the planning tree is deliberately NOT a target of this gate. The three reasons are already recorded at
+// the retirement note above the TWO_IG_GUARDS roster below, and mirrored in lib/row-guards.mjs; they are
+// CITED here rather than restated, because two copies of one rationale drift -- and this gate having
+// pointed at that copy while the note argued against it was exactly that drift. Kept TEXTUALLY SEPARATE
+// from G17's scope on purpose: the two gates walk different trees and must not share a constant.
 const RAGGED_TABLE_LABEL = "[lc9] no ragged pipe table";
-const ARCHIVED_RECORD = path.join(repoRoot, ".planning/research/test-double-taxonomy.md");
 const raggedHits = pluginsWalkError === "" ? [] : [pluginsWalkError];
 let tablesSeen = 0;
 
-for (const file of [...pluginsMarkdown, ARCHIVED_RECORD]) {
+for (const file of pluginsMarkdown) {
   const shown = path.relative(repoRoot, file);
   let shapeText;
 

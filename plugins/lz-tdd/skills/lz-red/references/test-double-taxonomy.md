@@ -49,26 +49,18 @@ Axis three, LIFETIME:
 **Why where-it-lives and what-it-stands-in-for are separate questions.** Collapsing them into one
 production-versus-collaborator column mis-places real artifacts. Bernhardt's IO substitute lives
 inside a real production class and yet stands in for a collaborator, so under the collapsed naming it
-fits neither value while this document claims to place every artifact it lists. The test for a genuine
-degree of freedom rather than a redundant description is whether every combination is occupied, and
-all four combinations of the first and second axes are populated by owned sources: Beck's
-production-side artifact is production and own; the Gang of Four's Proxy and Bernhardt's IO substitute
-are production and collaborator; Meszaros' five kinds are test and collaborator; his Subclassed Test
-Double and Self Shunt are test and own.
-
-That last combination also settles a question section 6 used to carry as an EXCEPTION for want of
-anywhere to put it: the code under test CAN be its own double, and the scheme has a place for it.
-What survives in section 6 is only the narrow citable rule about which part must not be doubled.
+fits neither value while this document claims to place every artifact it lists.
 
 **HARD RULE ON EMPTINESS: this document never asserts that a cell is empty.** It states only what
-POPULATES each cell, and where nothing does, the wording is that no source in this set populates it --
-a statement about the twelve sources mapped here, never about the literature at large and never about
-what some author does or does not name. The claim that started this document's own correction was an
-emptiness assertion that the table on this page falsified, so the doctrine is stated here rather than
-merely obeyed.
+POPULATES each cell. There is no scoped form of the prohibition that satisfies it: a claim that
+nothing in some named set populates a cell is still an emptiness assertion, and an earlier revision of
+this rule carved out exactly that form in order to license its own wording. The claim that started
+this document's own correction was an emptiness assertion that the table on this page falsified, so
+the doctrine is stated here rather than merely obeyed.
 
-Crossing the three axes gives eight cells. Rows typed `Either` on lifetime sit in both lifetime cells
-of their side pair, and are listed once below.
+Crossing the three axes gives eight cells. The list below is a CENSUS OF WHAT ROWS POPULATE rather
+than a tour of all eight, so a cell with no bullet carries no claim in either direction. Rows typed
+`Either` on lifetime sit in both lifetime cells of their side pair, and are listed once below.
 
 - **Production / own / transitional.** Beck's `stub`; Metz's `shim` and `empty method`; 99 Bottles'
   `empty class`; Kerievsky's `skeleton`. Six rows in the table land here. This is the cell section 5
@@ -78,9 +70,6 @@ of their side pair, and are listed once below.
 - **Production / collaborator / transitional.** 99 Bottles' `shim`, in its defaultable-argument sense.
 - **Production / collaborator / permanent.** The Gang of Four's Proxy, Adapter and `NullIterator`;
   Bernhardt's IO substitute.
-- **Test / own / transitional.** No source in this set populates it. The test-side self-substitutions
-  that are mapped here are suite fixtures rather than steps toward something else.
-- **Test / own / permanent.** Meszaros' Subclassed Test Double and Self Shunt.
 - **Test / collaborator / transitional.** Meszaros' `Temporary Test Stub`; 99 Bottles' `shim` also
   reads this way if the argument is read as test-facing.
 - **Test / collaborator / permanent.** Meszaros' `Dummy Object` and `Fake Object`; Metz's `stub`; and
@@ -102,7 +91,8 @@ part of it and is explicitly out of frame for the rest, and the limits below are
 footnotes.
 
 - Meszaros IS the reference frame for the COLLABORATOR-SIDE term set, and only for that. He coined the
-  umbrella term and the five kinds under it; Fowler credits him rather than claiming them, and 99
+  umbrella term, and the five kinds beneath it are what the substitute-object catalog chapter's
+  HIERARCHY FIGURE shows as its DIRECT SUBTYPES; Fowler credits him rather than claiming them, and 99
   Bottles credits him with standardising the scheme. So for what separates a Test Spy from a Mock
   Object, cite MESZAROS. Citing a Fowler taxonomy for that split is the common error, and it is wrong.
 - **He is also the CORROBORATING AUTHORITY for the collision this document exists to record**, and
@@ -122,17 +112,43 @@ footnotes.
   compile failure falls outside his scheme entirely. He IS citable for the narrower and useful point
   that an error is a legitimate, equally severe red that should not be converted into a failure.
 - He is NOT the authority on Beck's usage, and the reason is structural rather than evaluative: his
-  terminology cross-reference records no Beck equivalent for any of his five kinds (section 6). He
+  terminology cross-reference records no Beck equivalent for any of the five kinds (section 6). He
   never mapped Beck, so nothing he wrote can be used to interpret Beck.
 - The contested second word of the coinage candidates now has a FOURTH claimant as a substitution
   term, so nothing in this document is grounded on that word (section 5).
+
+**Which five, and what the number rests on.** The count is a reading of the substitute-object catalog
+chapter's HIERARCHY FIGURE, which draws exactly five DIRECT SUBTYPES under the root. It is NOT his own
+framing, and a coach citing him for a set of five is citing something he does not state. His own
+prose states four, because the narrative chapter's rundown folds Test Stub and Test Spy into a single
+bullet and presents the spy as a more capable stub. The catalog chapter says only several major
+flavors and the figure caption says several kinds. Counting from the catalog's Variations run instead
+yields six or nine, so the figure is the only coherent basis for a number at all. Each name below
+carries its own row in section 4.
+
+- `Test Stub`
+- `Test Spy`
+- `Mock Object`
+- `Fake Object`
+- `Dummy Object`
+
+SCOPE OF THAT NEGATIVE, because an unhedged absence claim is exactly what this document forbids
+elsewhere. The parts READ END TO END are the opening overview, the dependency-isolation narrative
+chapter, the substitute-object catalog chapter, the value-patterns catalog chapter, and the terminology
+appendix; across those, no numeral for this set appears other than the four. The remaining chapters and
+appendixes were NOT read for the numeral, so the claim is scoped to what was checked rather than
+asserted for the book entire -- a whole-book token sweep is a deterministic job for a harness, not for
+a reader. The scoping costs nothing: the figure is the basis for the number regardless of what an
+unread chapter says, and the prose demonstrably states four. Two conversion defects in the clean-room
+store also touch this question, so the degraded-scan caveat in section 6 governs any claim resting on
+them -- the terminology appendix's role-summary table came through garbled at character level, and one
+bullet of the narrative chapter's rundown is an un-transcribed scanned image.
 
 **Two INDEPENDENT VOCABULARIES that collided on one word.** This matters for exactly one reason: it
 stops Beck's production-side usage being presented as an ERROR against Meszaros' scheme, given that
 section 3's thesis is that the two collide. Meszaros' terminology cross-reference leaves the BECK
 COLUMN BLANK IN EVERY ROW. He lists Beck's 2002 book as a source and records no equivalent term for
-any of his five kinds, and because he filled in eight other source columns that blank is a DELIBERATE
-NEGATIVE rather than an oversight; owner-verified against the print book. Beck's collaborator-side
+any of the five kinds; owner-verified against the print book. Beck's collaborator-side
 vocabulary POSTDATES that 2007 book -- one term in an August 2008 essay, the other in a January 2022
 essay, both owned and both carrying rows in the table below. So neither author is citing the other and
 neither is deviating from the other. Beck's production-side usage is not an error against a scheme
@@ -164,8 +180,15 @@ information.
 - Production side: Kent Beck uses it consistently for a real production symbol that does not do its
   job yet, across a 1994 report and four later essays. Clean Code Ch. 7 -- the chapter guest-authored
   by Michael Feathers -- uses it the same way.
-- Test side: Sandi Metz, 99 Bottles of OOP, Clean Code Ch. 17 and Ch. 10, Ian Cooper, Gary Bernhardt,
-  Fowler's web articles, and Meszaros all use it for a test-side substitute.
+- Test side: Sandi Metz, 99 Bottles of OOP, Clean Code Ch. 17 and Ch. 10, Fowler's web articles, and
+  Meszaros all use it for a test-side substitute.
+
+Cooper and Bernhardt are deliberately NOT in that second list, though both use the word test-side.
+Which side a term names is a TAXONOMY claim, and each of them is scoped out of taxonomy use by his own
+tier: Cooper's row reads owned as a talk but NOT citable as a taxonomy, and Bernhardt's is verified for
+the double-versus-value point ONLY. Using a source as evidence for something its own tier excludes is
+the failure this document exists to prevent, so they are removed from the evidence rather than annotated
+inside it. Both keep their table rows, their Sources entries and their own caveats.
 
 That is a genuine COLLISION between owned sources, not a misreading of one of them.
 
@@ -185,15 +208,25 @@ internally consistent, and these three are not:
 Consequence for the coach, and it is a hard rule: **never use bare `stub` unqualified.** Say
 production-side stub or collaborator-side stub, or use a term that is not contested. When a developer
 says `stub`, establish which side they mean before answering rather than assuming the side lz-red
-happens to prefer. Outside this document that rule is machine-enforced, and this document is exempt
-from the gate because the word is its subject matter.
+happens to prefer. A gate in the lz-red DEVELOPMENT WORKSPACE checks that rule across all three
+skills' reference trees and all three routers, exempting the three copies of this document because here
+the word is the subject matter. That gate is NOT SHIPPED -- it lives outside the plugin, so no installed
+copy carries it however wide its scope, and the rule reaches a reader as a rule rather than as something
+enforced on them.
 
 ## 4. The per-author table
 
 Every row carries its OWN citability tier. A tier NEVER propagates to a neighbouring row and is never
 inherited from a block of rows or from the Sources section. `Defines or uses` separates a source that
-DEFINES a term from one that merely uses it in passing -- a distinction that matters because only the
-first kind can be cited for what the term means. The one row that places no artifact at all carries an
+DEFINES a term from one that merely uses it in passing, and the distinction cuts by WHAT IS BEING
+CITED. For what an author CALLS the artifact -- a NAMING CITATION -- a `Uses` row suffices, because
+using a word consistently for a thing is itself the evidence that the author names it that way. For
+what the term MEANS -- a MEANING CITATION -- a `Defines` row is REQUIRED, and no quantity of `Uses`
+rows substitutes for one. That second requirement is not softened here: it is the discipline that would
+have caught the fabricated attribution an earlier revision of this page carried. Section 5's claim
+about which owned sources NAME the production-side transitional artifact is a naming citation and rests
+entirely on `Uses` rows, which is precisely what the split licenses; nothing in this document cites a
+`Uses` row for a meaning. The one row that places no artifact at all carries an
 explicit not-applicable value in both side columns rather than a blank, so an empty cell is never left
 to be read as a claim.
 
@@ -213,7 +246,7 @@ to be read as a claim.
 | Metz and Owen | `shim` | Production | A collaborator | Transitional | A temporary DEFAULTABLE ARGUMENT -- not an empty definition, so NOT what Metz's talks mean by the word | Uses | 99 Bottles of OOP, JavaScript Edition | Owned; oracle-verified against the clean-room source |
 | Gary Bernhardt | double versus value | Test | A collaborator | Either | The distinction between a substituted object and a value handed to a function. His criterion for the value side is TWO numbered properties -- it is a function, values in and values out with nothing stashed mutably, AND it has no dependencies -- and he explicitly REJECTS simplicity as the reason | Uses; and in this delivery the count of substitutes is framed as a BENEFIT of isolated testing, since the pain of standing up ten of them reveals a bad design, not as an argument against substitutes | Boundaries, PyCon 2013 delivery | Owned; oracle-verified against the clean-room source, for the double-versus-value point ONLY. Exempt from the transcript qualifier; see the version qualifier in the closing tier note |
 | Gary Bernhardt | IO substitute | Production | A collaborator | Permanent | A substitute for the outside world that sits inside a real production class rather than in the test, pushing effects to the edge so the centre stays a function | Uses | Functional-core screencast | Owned; oracle-verified against the clean-room source. Exempt from the transcript qualifier |
-| Martin Fowler (web) | `test double`, the five kinds, `SUT` | Test | A collaborator | Either | The umbrella term, its five kinds, and the code-under-test abbreviation | Relays; credits Meszaros | Fowler's web articles | Cite as Meszaros, via Fowler; unowned relay (no-oracle) |
+| Martin Fowler (web) | `test double`, the five kinds, `SUT` | Test | A collaborator | Either | The umbrella term, the five kinds the hierarchy figure shows, and the code-under-test abbreviation | Relays; credits Meszaros | Fowler's web articles | Cite as Meszaros, via Fowler; unowned relay (no-oracle) |
 | Martin Fowler (web) | state versus behaviour verification | Test | A collaborator | Either | Whether a test checks resulting state or the messages that were sent | Defines; his OWN contribution | Fowler's web articles | Unowned; high-confidence core only (no-oracle) |
 | Martin Fowler (web) | `classicist` and `mockist` | Test | A collaborator | Either | The two schools named for how readily they reach for a substitute | Defines; his OWN contribution | Fowler's web articles | Unowned; high-confidence core only (no-oracle) |
 | Martin Fowler (Refactoring 2e) | `failure` versus `error` | Not applicable | Not applicable | Permanent | A failure is an assertion mismatch; an error is an exception raised in an earlier phase. This row names an outcome distinction, not a substituted artifact | Defines | Refactoring, 2nd Edition, Ch. 4 | Owned; oracle-verified against the clean-room source |
@@ -227,7 +260,7 @@ to be read as a claim.
 | Gerard Meszaros | `Fake Object` | Test | A collaborator | Permanent | A working lightweight implementation substituted for a real one that is too costly to use | Defines | xUnit Test Patterns | Owned; oracle-verified against the clean-room source |
 | Gerard Meszaros | `Responder` | Test | A collaborator | Either | A Variation of Test Stub that returns a valid canned answer | Defines | xUnit Test Patterns, Ch. 23 | Owned; oracle-verified against the clean-room source |
 | Gerard Meszaros | `Saboteur` | Test | A collaborator | Either | A Variation of Test Stub that injects a fault; see the polarity caveat below | Defines | xUnit Test Patterns, Ch. 23 | Owned; oracle-verified against the clean-room source |
-| Gerard Meszaros | `Temporary Test Stub` | Test | A collaborator | Transitional | THE NEAREST MISS, and a reader will reach for it. He ties it to outside-in TDD, describes it as an empty shell with hardcoded returns, and says the shells EVOLVE INTO the real classes. It passes on destiny and fails only on where it lives: his shell stands in for a collaborator not yet available, not for the symbol's own unwritten implementation | Defines | xUnit Test Patterns | Owned; oracle-verified against the clean-room source |
+| Gerard Meszaros | `Temporary Test Stub` | Test | A collaborator | Transitional | A Variation of Test Stub, discriminated on a LIFECYCLE axis rather than on the input-kind axis that separates Responder from Saboteur. THE NEAREST MISS, and a reader will reach for it. He ties it to outside-in TDD, describes it as an empty shell with hardcoded returns, and says the shells EVOLVE INTO the real classes. It passes on destiny and fails only on where it lives: his shell stands in for a collaborator not yet available, not for the symbol's own unwritten implementation | Defines | xUnit Test Patterns | Owned; oracle-verified against the clean-room source |
 | Gang of Four | `Proxy`, alias `Surrogate` | Production | A collaborator | Permanent | An object taking the place of another so that access to it can be governed. Variants: `remote proxy`, `virtual proxy`, `protection proxy`, `smart reference` (also `smart pointers`); Coplien's `Ambassador` is credited for the remote kind | Defines | Design Patterns (1994) | Owned; production-side ancestor only |
 | Gang of Four | `Adapter`, alias `Wrapper` | Production | A collaborator | Permanent | Converts one interface into the one a client already expects. The book draws the timing contrast itself: an adapter makes things work AFTER the fact, a bridge before | Defines | Design Patterns (1994) | Owned; production-side ancestor only |
 | Gang of Four | Template Method `hook` | Production | Own implementation | Permanent | A default a subclass MAY extend, frequently doing nothing by default. PERMANENT, not transitional: the stated design goal is to minimise what a subclass must override | Defines | Design Patterns (1994) | Owned; production-side ancestor only |
@@ -250,7 +283,11 @@ document names the disagreement as INHERITED instead of quietly picking a winner
 
 - Clean Code versus Beck on whether a build failure is a valid red. Both are owned -- Beck by the
   report and essays cited in his rows above -- and Clean Code Ch. 9 states within the Second Law
-  itself that failing to compile counts as failing. They disagree.
+  itself that failing to compile counts as failing. They disagree. TWO QUALIFIERS TRAVEL WITH THE BECK
+  SIDE AND ARE NOT OPTIONAL: the claim is GATED on a red test already existing, and it is only
+  ONE POSITION AMONG SEVERAL that he himself calls contradictory. Both are stated in full on the
+  row that backs it in [principle-backing.md](principle-backing.md); never present the kanban cycle
+  as his settled doctrine.
 - Beck versus Meszaros on which side `stub` names -- section 3.
 
 The first of those has a direct consequence for lz-red: its own step-2 versus step-5 contradiction was
@@ -272,37 +309,53 @@ already prescribes. No new term is invented here, and none is needed.
 cell. An earlier revision of this page asserted that the cell was unnamed and coined a term on that
 basis; the assertion was false against the table on this same page, and the coinage is withdrawn.
 
-**The true and stronger finding is that no UNAMBIGUOUS name exists.** Every available name reuses a
-word that some other owned source has already committed to a different cell. That is a claim about
-ambiguity, not about absence, and it is what the list below evidences.
+**The true and stronger finding is that no name is both UNAMBIGUOUS and general.** A candidate
+COLLIDES when the word itself is committed to more than one cell of the three-axis grid by the owned
+sources mapped here. That is a claim about ambiguity rather than about absence, and it is checkable
+against the table above. Ten candidates are surveyed below and five of them collide. The other five
+fail for a stated reason that is NOT ambiguity, and the last of those collides with nothing whatever
+-- which is why the UNIVERSAL form of this finding, carried by an earlier revision of this page, was
+false and is withdrawn.
 
-Checked, and each fails for a stated reason -- read the list as the evidence for ambiguity rather than
-as a justification for inventing anything:
+Each bullet states its verdict and then its reason. Read the list as the evidence for the finding
+rather than as a justification for inventing anything:
 
-- `placeholder` -- contested from BOTH sides. Meszaros registers it as an alias of `Dummy Object`,
-  which is collaborator side, so reusing it inverts the side axis; and it has been contested since
-  1994, when the Gang of Four used it production-side in Proxy's intent sentence. That book formally
-  registers only `Surrogate` as Proxy's also-known-as and never elevates `placeholder` to an alias, so
-  the claim here is contested usage, not a second registration. Two claimants, opposite sides.
-- bare `stub` -- the collision this whole document exists to record. Correct once qualified by side,
-  which is why the qualified form is the recommendation above.
-- `shim` -- Metz's talks use it production-side, but 99 Bottles uses it for a temporary defaultable
-  argument, so the word is already split between the two owned Metz sources.
-- `empty method` -- accurate for what the artifact looks like and wrong about what happens next in
-  some of its uses, since the same phrase also names a body that STAYS empty. 99 Bottles' chapter-2
-  sense IS this artifact, so the word is split within a single work rather than simply unsuitable.
-- `pass-through interface` -- Beck's, production-side, but it denotes delegation rather than absence.
-- `Walking Skeleton` -- a whole-system end-to-end scaffold, not a single symbol.
-- `impostor` -- Beck's, but test-side.
-- bare `skeleton` -- Kerievsky's, owned and the closest of any candidate, but his denotes a
+- `placeholder` -- COLLIDES. Contested from BOTH sides. Meszaros registers it as an alias of
+  `Dummy Object`, which is collaborator side, so reusing it inverts the side axis; and it has been
+  contested since 1994, when the Gang of Four used it production-side in Proxy's intent sentence. That
+  book formally registers only `Surrogate` as Proxy's also-known-as and never elevates `placeholder` to
+  an alias, so the claim here is contested usage, not a second registration. Two claimants, opposite
+  sides.
+- bare `stub` -- COLLIDES. The collision this whole document exists to record. Correct once qualified
+  by side, which is why the qualified form is the recommendation above.
+- `shim` -- COLLIDES, across the second axis. Metz's talks use it production-side for the symbol's own
+  unwritten implementation, but 99 Bottles uses it for a temporary defaultable argument, so the word is
+  already split between the two owned Metz sources.
+- `empty method` -- COLLIDES, on the LIFETIME axis rather than the side axis. Accurate for what the
+  artifact looks like and wrong about what happens next in some of its uses, since the same phrase also
+  names a body that STAYS empty. 99 Bottles' chapter-2 sense IS this artifact, so the word is split
+  within a single work rather than simply unsuitable.
+- bare `skeleton` -- COLLIDES. Kerievsky's, owned and the closest of any candidate, but his denotes a
   transitional class-EXTRACTION step. As a SUBSTITUTION TERM this word now has four claimants --
   Kerievsky's extraction step, Clean Code Ch. 14's artifact, the Gang of Four's Template Method
   algorithm outline, and the generated far end of a remote procedure call -- so nothing is grounded on
   it in that sense. The claim is scoped to substitution terms deliberately: the word also has settled
   in-house structural senses that are not in contention here.
-- the Gang of Four stand-in family, `surrogate` and `representative` and `stand-in` -- production-side,
-  but each denotes one object taking another's PLACE while both exist. None of them denotes a symbol
-  that has no implementation yet.
+- `pass-through interface` -- NO COLLISION. Beck's, production-side, and committed to one cell only. It
+  fails on MEANING instead: it denotes delegation rather than absence.
+- `Walking Skeleton` -- NO COLLISION. It carries a single sense and fails on SCOPE: a whole-system
+  end-to-end scaffold, not one symbol.
+- `impostor` -- NO COLLISION. Beck's, and committed to one cell only. It fails because that cell is the
+  test side, not because the word is contested.
+- the Gang of Four stand-in family, `surrogate` and `representative` and `stand-in` -- NO COLLISION.
+  Production-side and one cell each, but each denotes one object taking another's PLACE while both
+  exist. None of them denotes a symbol that has no implementation yet.
+- `empty class` -- NO COLLISION, and it is the candidate that falsifies any universal form of this
+  finding. 99 Bottles commits it to THIS cell and no owned source mapped here commits it to another, so
+  it is listed rather than quietly scoped out; omitting the one counterexample would be special
+  pleading. It is not the recommendation only because it names a CLASS, so it does not reach a
+  method-level or function-level stand-in, and the artifact this section names occurs at all three
+  granularities.
 
 ## 6. Caveats that change a citation
 
@@ -337,11 +390,38 @@ about a book, they are the difference between a correct citation and a wrong one
   `Self Shunt`'s aliases. Neither is a closed list, so an absence from either proves nothing.
 - **The cross-reference tables are a DEGRADED SCAN.** Per-column assignments are consistent-with
   rather than confirmed, with no exception. Treat them as corroboration, never as the sole warrant.
-- **`stub` is ABSENT from the 1994 Gang of Four book entirely** -- every sense, checked across the
-  index, glossary, bibliography, footnotes, both appendices and all chapters. Its only `skeleton` is
-  the Template Method algorithm outline, which is a different idea; citing that as an ancestor of the
-  stub sense is a MISREAD, and it is the specific trap a reader will fall into when looking for the
+- **`stub` is ABSENT, in every sense, from every part of the 1994 Gang of Four book that has been
+  swept -- and the sweep is not the whole book.** SWEPT COMPLETE: the Proxy pattern in full including
+  its remote-variant discussion; the Template Method pattern in full; all THREE appendices -- the
+  glossary is one of them, carrying a letter designation exactly as the notation guide and the
+  foundation-classes section do; the bibliography; the collected notes; the index; the front-matter
+  pattern summaries; the unnumbered interstitial section that introduces the catalog between two
+  chapters; and the inside-back-cover notation summary. NOT SWEPT: the introduction, case-study and
+  conclusion chapters; the creational chapter; the structural chapter apart from Proxy; and the
+  behavioral chapter apart from Template Method. An earlier revision of this page asserted the absence
+  for the book ENTIRE, and enumerated the parts it had checked in a way that under-counted the
+  appendices, implied the glossary was not one of them, and missed the whole front matter, the catalog
+  interstitial and the inside-back-cover summary. The scoped claim is the honest end state here rather
+  than a compromise: this document's own qualifier 2 says an absence claim should be hedged to what was
+  actually checked.
+- **The one SENSE that book gives `skeleton` is the Template Method algorithm outline** -- a fixed
+  outline of an algorithm with steps left to subclasses, carrying no testing connotation at all. That is
+  a SENSE and not an occurrence: there are three occurrences of it, one of them in the front-matter
+  quick reference that gives a one-line intent for each pattern. Citing it as an ancestor of the stub
+  sense is a MISREAD, and it is the specific trap a reader will fall into when looking for the
   production-side pedigree.
+- **A POSITIVE finding, and it is stronger warrant than the absence.** The remote-variant material in
+  that book describes the role of standing in for an object across an ADDRESS SPACE three separate
+  times -- a local representative for an object that lives elsewhere, the marshaling responsibility, and
+  the encode-and-forward round trip -- entirely in functional vocabulary, and never once reaches for the
+  contested word. A source that articulates the CONCEPT and still does not use the WORD is better
+  evidence than a bare absence, and it positively covers the one site a reader would challenge.
+- **The real near-miss trap in that book is the do-nothing HOOK, not a word.** A hook whose default body
+  is empty and which exists to be overridden LOOKS like the production-side transitional artifact, and
+  that is where a reader will actually go wrong -- more reliably than on any vocabulary resemblance.
+  Carry the book's own distinction: a hook a subclass MAY override is not an operation it MUST. The
+  Template Method hook row above types that artifact PERMANENT on the stated goal of minimising what a
+  subclass must override, which is exactly why it is a near miss rather than a match.
 - **The do-nothing-object misattribution is HALF true.** That book supplies the named instance
   `NullIterator` -- iteration-specific, appearing in three places, with exactly the
   no-special-case-branch payoff -- but NOT a general pattern. It is an implementation note inside
@@ -384,8 +464,8 @@ about a book, they are the difference between a correct citation and a wrong one
   states the mock-versus-stub split in either, and that negative needs no hedge. Owned;
   oracle-verified against the clean-room source, and EXEMPT from the transcript qualifier below.
 - Martin Fowler, web articles -- state-versus-behaviour verification and the classicist and mockist
-  naming are his own; the umbrella term, the five kinds and `SUT` are Meszaros' and are cited here as
-  Meszaros, via Fowler. Unowned; high-confidence core only (no-oracle).
+  naming are his own; the umbrella term, the five kinds the hierarchy figure shows, and `SUT` are
+  Meszaros' and are cited here as Meszaros, via Fowler. Unowned; high-confidence core only (no-oracle).
 - Martin Fowler, Refactoring, 2nd Edition, Ch. 4 -- the `failure` versus `error` boundary. Owned;
   oracle-verified against the clean-room source. The BOOK carries ZERO test-double vocabulary; readers
   routinely assume the taxonomy is in it, and it is not.
@@ -393,7 +473,8 @@ about a book, they are the difference between a correct citation and a wrong one
   and his `classical` is a false friend for Fowler's `classicist`. Subject to the transcript qualifier.
 - Joshua Kerievsky, Refactoring to Patterns, Ch. 10 -- `skeleton` as a transitional production-side
   step, used in passing rather than defined. Owned; oracle-verified against the clean-room source.
-- Gerard Meszaros, xUnit Test Patterns -- the `Test Double` umbrella, the five kinds, the Variations of
+- Gerard Meszaros, xUnit Test Patterns -- the `Test Double` umbrella, the five kinds the hierarchy
+  figure shows, the Variations of
   Test Stub, the terminology cross-reference whose blank Beck column section 2 rests on, and the smell
   vocabulary the caveats above correct. Owned; oracle-verified against the clean-room source, with the
   degraded-scan limit noted in section 6.

@@ -74,6 +74,7 @@ import { createHash } from "node:crypto";
 import { fileURLToPath } from "node:url";
 import { SCAFFOLD_RES } from "./lib/scaffold-phrases.mjs";
 import { findBookCitedAsOwned } from "./lib/provenance-honesty.mjs";
+import { ROW_SCOPED_GUARDS, COUNT_GUARDS, RETIRED_LABELS } from "./lib/row-guards.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 // tools -> lz-red-workspace -> skills -> .claude -> repo root
@@ -275,22 +276,19 @@ const FILES = [
       { label: "no-oracle tier", re: /no-oracle/i },
       { label: ">= 1 recommendation link", re: /\]\([^)]+\.md/ },
       { label: "named Phase-17 source (Khorikov)", re: /Khorikov/i },
-      // Phase-18 slice (filled this phase; LAW / SEAM backing rows + access tiers).
-      { label: "Three Laws backing row", re: /three laws/i },
-      { label: "lz-tpp seam backing row", re: /seam|handoff/i },
-      // DEL-5 fix (5): the new taxonomy reference is backed like every other recommendation.
-      { label: "[j9m] test-double taxonomy backing row", re: /test-double-taxonomy\.md/ },
-      // DEL-7e: the retagged criterion rests on the failure-versus-error boundary (Fowler), which the
-      // superseded Clean Code Ch. 9 row could not carry -- that chapter contradicts the criterion.
-      { label: "[j9m] failure-vs-error boundary row", re: /failure|error boundary/i },
-      // [wev] G16: the title of the owned Beck essay that establishes the kanban-cycle surface. This
-      // gates the one fix in the revision that closes a SHIPPED self-contradiction -- the same file
-      // asserting both that the owned surface was NOT established and that Beck is one of four owned
-      // sources citing it. An untiered provenance claim slipping through unnoticed is the exact
-      // defect class the revision exists to correct, so it gets a machine lock rather than trust.
-      // The essay TITLE, never the book title: the D-05 honesty gate below fails any row whose
-      // Source cites the book with a tier beginning `Owned`.
-      { label: "[wev G16] kanban-cycle essay named as the owned surface", re: /TDD is Kanban for Code/i },
+      // [2ig] FIVE file-scoped topics REMOVED here, each REPLACED by a row-scoped guard in the
+      // post-loop [2ig] block below. Every one of them named a specific table ROW in its own label
+      // while its needle matched anywhere in the file, so the row could be deleted outright and the
+      // guard still reported PASS. Measured decoy counts, worst first:
+      //   `lz-tpp seam backing row` (/seam|handoff/i)                 -> 6 decoy prose lines
+      //   `[j9m] failure-vs-error boundary row` (/failure|error .../i) -> 5 decoy prose lines
+      //   `[j9m] test-double taxonomy backing row`                    -> 1 decoy prose cross-link
+      //   `Three Laws backing row` (/three laws/i)                    -> 1 decoy section lead-in
+      //   `[wev G16] kanban-cycle essay ...`                           -> 1 decoy prose bullet
+      // Their replacements assert the ROW's own cell (and, for the seam row, the CANONICAL tier string
+      // rather than a bare non-empty tier, which on this table could never fail). Removal-and-
+      // replacement pairings are recorded in 260729-2ig-RED-BASELINE.md so no guard was silently
+      // dropped, and the six retired labels are asserted ABSENT by the roster gate.
     ],
     absent: { label: "no stale deferral marker", re: /Phase 18/i },
   },
@@ -366,9 +364,10 @@ const FILES = [
       // G7: the never-assert-an-empty-cell doctrine must be STATED, not merely obeyed, so the guard
       // stays falsifiable even when every cell happens to be populated.
       { label: "[wev G7] never-assert-an-empty-cell doctrine stated", re: /\bnever asserts\b/i },
-      // G8: citing the Boundaries talk without a delivery IS the defect -- the two deliveries differ
-      // on exactly the point the row asserts, so findings cannot transfer between them.
-      { label: "[wev G8] Bernhardt row names a specific delivery", re: /\b(PyCon|SCNA)\b/i },
+      // [2ig] The SIXTH file-scoped topic removed here: `[wev G8] Bernhardt row names a specific
+      // delivery` (/\b(PyCon|SCNA)\b/i). TWO Sources bullets name a delivery, so the ROW's delivery
+      // name could be stripped with the guard still green. Replaced by `bernhardtDeliveryNamed` in the
+      // post-loop [2ig] block, which asserts the ROW's own Source cell.
       // G9: the compound adjective for the version qualifier in the closing tier block.
       { label: "[wev G9] tier assertions are version-bound", re: /version-bound/i },
       // G10: what an automatic transcript can garble -- the medium qualifier and its absence-claim
@@ -379,6 +378,34 @@ const FILES = [
       // -- so the needle is the two-word phrase for two vocabularies that collided without either
       // author citing the other.
       { label: "[wev G13] independent vocabularies, no seniority claim", re: /independent vocabularies/i },
+      // [2ig] TEN positive topics, one per content addition this task makes, so each is RED until
+      // authored. MEASURED: every needle below has ZERO occurrences in the pre-edit document, which is
+      // what makes them RED-at-baseline rather than decoration.
+      // The count attributed to the FIGURE instead of to the author as his own framing -- the defect
+      // class this remediation exists to remove, repeated at nine sites.
+      { label: "[2ig] five-kind count attributed to the hierarchy figure", re: /hierarchy figure/i },
+      // The caveat a coach needs most: his PROSE states four, by folding two members into one bullet.
+      { label: "[2ig] prose states four by folding two members", re: /prose states four/i },
+      // The enumeration itself is machine-checked by `fiveKindsEnumerated` below; this topic gates the
+      // sentence that says WHAT the five are a reading of.
+      { label: "[2ig] the five kinds enumerated as direct subtypes", re: /direct subtypes/i },
+      // The Defines-or-uses repair: a NAMING citation and a MEANING citation are different asks.
+      { label: "[2ig] naming citation versus meaning citation", re: /naming citation/i },
+      // The one mis-levelled cell. The ROW-scoped assertion is `temporaryTestStubStatesRelationship`;
+      // this topic gates the AXIS nuance that makes the relationship informative.
+      { label: "[2ig] Temporary Test Stub relationship on the lifecycle axis", re: /lifecycle axis/i },
+      // Both absence claims must name the scope actually swept AND the unread remainder.
+      { label: "[2ig] contested-word absence hedged to the swept scope", re: /not swept/i },
+      { label: "[2ig] numeral absence hedged to the parts read end to end", re: /read end to end/i },
+      // The POSITIVE finding, which is stronger evidence than the bare absence: a source that
+      // articulates the CONCEPT and still never reaches for the word.
+      { label: "[2ig] positive remote-variant finding across an address space", re: /address space/i },
+      // The redirected near-miss warning. HOOK, never METHOD: `[wev G11]` is a live absent guard on the
+      // do-nothing-METHOD phrasing, a term measured to occur nowhere in the corpus, so writing this
+      // passage with the wrong noun trips that guard and reintroduces the phrasing it exists to keep out.
+      { label: "[2ig] do-nothing hook is the real near-miss trap", re: /do-nothing hook/i },
+      // The qualifier the dependent marks NON-OPTIONAL and the taxonomy currently drops.
+      { label: "[2ig] non-optional kanban qualifier carried", re: /one position among several/i },
     ],
     // [wev] The taxonomy entry carried NO absent guard at all before this task -- only positive
     // topics, which is how a self-falsifying claim, a fabricated mapping and a relative
@@ -407,6 +434,35 @@ const FILES = [
       // deliberately does not catch the legitimate new phrasing about all four COMBINATIONS of the
       // first and second axes; combinations are not cells.
       { label: "[wev G12] no superseded two-axis or four-cell wording", re: /two[ -]axes|four cells/i },
+      // [2ig] SIX absent guards, one per banned wording. All six are RED-at-baseline; if one already
+      // passes, its needle is wrong. Every needle below was VERIFIED single-line-matchable against the
+      // CURRENT wrap, because `absent` guards run through the per-line loop and cannot use the
+      // whitespace-flattening that lib/row-guards.mjs mandates for its own multi-word needles. That
+      // hazard is live and already bit this checker once (see the narrowing comment on the
+      // anti-patterns guard). The deliberate-negative needle is the sharp case: the phrase DELIBERATE
+      // NEGATIVE itself WRAPS across two lines, so no needle over that phrase could ever match, and the
+      // needle is instead the inference's discriminating tail, which sits wholly on one line.
+      //
+      // The set-scoped emptiness form, at the hard rule's own legalising clause AND at the bullet using
+      // it. The previous round rewrote the rule to BLESS a scoped wording; that is not a fix, so the
+      // rule must state the prohibition and carry no clause legalising a scoped form.
+      { label: "[2ig] no set-scoped emptiness assertion", re: /no source in this set populates/i },
+      // The INTENT inference that a blank column is deliberate rather than an oversight. The blank-column
+      // FACT stays; only the inference goes.
+      { label: "[2ig] no deliberate-negative intent inference", re: /rather than an oversight/i },
+      // The universal quantifier over candidate names, falsified by a non-colliding candidate.
+      { label: "[2ig] no every-available-name universal quantifier", re: /Every available name/i },
+      // The POSSESSIVE five-kinds attribution. SCOPE, stated honestly: this needle catches the four
+      // possessive-determiner occurrences (`his`, `its`, and the explicit-name possessive), which are the
+      // unambiguous violations. The five NON-possessive occurrences are covered instead by the pinned
+      // site count in `fiveKindsEnumerated` and by the figure-attribution topic above -- NOT by this
+      // needle. It deliberately does NOT catch the figure-attributed replacement, which keeps the numeral.
+      { label: "[2ig] no possessive five-kinds attribution", re: /((\bhis|\bits)\s+|Meszaros'\s+)five kinds\b/i },
+      // The two-appendix count. That book has THREE appendices, and naming one of them separately in the
+      // same breath implies it is not an appendix.
+      { label: "[2ig] no two-appendix count", re: /both appendices/i },
+      // The only-OCCURRENCE phrasing. It is the only SENSE; there are three occurrences of it.
+      { label: "[2ig] no only-occurrence skeleton phrasing", re: /only `skeleton`/i },
     ],
     deferral: null,
   },
@@ -425,11 +481,19 @@ const TS_FENCE_RE = /```(ts|typescript)\b/;
 const NON_IGNORE_TS_FENCE_RE = /^\s{0,3}```(ts|typescript)\s*$/m;
 
 let failures = 0;
+// [2ig] Roster instrumentation. `emitted` and `emittedLabels` are maintained INSIDE the single report()
+// funnel, so every check -- loop, post-loop block, or future addition -- is counted and named without
+// any call site having to remember to. The roster gate below reads them.
+let emitted = 0;
+const emittedLabels = [];
 
 const report = (ok, label, detail) => {
   if (!ok) {
     failures++;
   }
+
+  emitted++;
+  emittedLabels.push(label);
 
   console.log(`  [${ok ? "PASS" : "FAIL"}] ${label}${detail ? " -- " + detail : ""}`);
 };
@@ -573,9 +637,17 @@ if (missingCopies.length > 0) {
 // under review. A standalone post-loop block (the D-05 / SEAM-02 / byte-identity idiom) because it
 // reads a whole tree plus paths outside the lz-red references dir.
 //
-// Scope: every .md under the lz-red references tree, plus the three shipped SKILL.md routers. All
-// three TAXONOMY COPIES are EXCLUDED -- there the word is the document's own subject matter and
-// appears twenty-seven times per copy by design.
+// Scope: every .md under the lz-red references tree, PLUS the two SIBLING reference trees (lz-tpp and
+// lz-refactor), plus the three shipped SKILL.md routers. All three TAXONOMY COPIES are EXCLUDED --
+// there the word is the document's own subject matter and appears many times per copy by design.
+//
+// [2ig] The two sibling trees are the WIDENING half of a two-part fix. The taxonomy claimed the hard
+// rule was machine-enforced outside itself while this gate walked only ONE of the three reference
+// trees, so the claim was false for two thirds of the shipped surface. Widening alone is not enough --
+// this gate lives in the lz-red development workspace, OUTSIDE the plugin, and is not shipped, so no
+// installed copy carries it however wide the scope. The taxonomy's own wording is narrowed to say that;
+// shipping either half alone leaves the claim false. MEASURED at widening time: ZERO new hits across
+// both added trees, and the taxonomy-basename exclusion already covers their copies.
 //
 // Allowlist is exactly two forms and nothing else: an IMMEDIATELY PRECEDING canonical side
 // qualifier, and the meta-mention form that quotes the word as a word. The capitalised bare form is
@@ -608,13 +680,30 @@ const collectMarkdown = (dir) => {
   return found;
 };
 
+// [2ig] All THREE reference trees now, not just lz-red's.
+const SIBLING_REFERENCE_TREES = ["lz-red", "lz-tpp", "lz-refactor"].map((skill) =>
+  path.join(repoRoot, "plugins", "lz-tdd", "skills", skill, "references")
+);
+const bareQualifierHits = [];
+const referenceTreeFiles = [];
+
+// A MISSING or unreadable tree is recorded as a hit, never filtered away: an existsSync FILTER would
+// silently narrow the scope back down and hand this gate a vacuous pass -- which is the whole defect
+// the widening exists to close.
+for (const dir of SIBLING_REFERENCE_TREES) {
+  try {
+    referenceTreeFiles.push(...collectMarkdown(dir));
+  } catch (err) {
+    bareQualifierHits.push(`${path.relative(repoRoot, dir)}: TREE UNREADABLE (${err.code ?? err.message})`);
+  }
+}
+
 const bareQualifierTargets = [
-  ...collectMarkdown(REFERENCES).filter((file) => path.basename(file) !== TAXONOMY_BASENAME),
+  ...referenceTreeFiles.filter((file) => path.basename(file) !== TAXONOMY_BASENAME),
   ...["lz-red", "lz-refactor", "lz-tpp"].map((skill) =>
     path.join(repoRoot, "plugins", "lz-tdd", "skills", skill, "SKILL.md")
   ),
 ];
-const bareQualifierHits = [];
 
 for (const file of bareQualifierTargets) {
   const shown = path.relative(repoRoot, file);
@@ -648,6 +737,170 @@ report(
   BARE_QUALIFIER_LABEL,
   bareQualifierHits.length === 0 ? "" : `${bareQualifierHits.length} bare use(s): ${bareQualifierHits.join("; ")}`
 );
+
+// [2ig] ROW-SCOPED and COUNT guards, from lib/row-guards.mjs. Post-loop because they need PARSED CELLS
+// rather than a line match, and because two of them read across files. Each returns `{ ok, why }` and
+// maps onto exactly ONE report call, so the roster arithmetic below stays legible.
+//
+// A MISSING file yields "" here, and EVERY guard FAILS on "" -- proven by the anti-vacuity control in
+// tools/row-guards.selftest.mjs. That is DELIBERATELY unlike the existsSync-gated D-05 and SEAM-02
+// blocks above, which emit NOTHING at all if their file vanishes (a fully silent vacuous pass that the
+// roster gate exists partly to catch).
+const readOrEmpty = (file) => (fs.existsSync(file) ? fs.readFileSync(file, "utf8") : "");
+const taxonomyText = readOrEmpty(path.join(REFERENCES, TAXONOMY_BASENAME));
+const backingText = readOrEmpty(principleBackingPath);
+
+const TWO_IG_GUARDS = [
+  // Seven ROW-SCOPED guards. Six replace a file-scoped needle removed from FILES above; the Temporary
+  // Test Stub one is net-new. Each keys on a FULL row name, never a bare word that could collide.
+  {
+    label: `${TAXONOMY_BASENAME}: [2ig] Bernhardt row names a specific delivery`,
+    run: () => ROW_SCOPED_GUARDS.bernhardtDeliveryNamed(taxonomyText),
+  },
+  {
+    label: `${TAXONOMY_BASENAME}: [2ig] Temporary Test Stub row states its relationship`,
+    run: () => ROW_SCOPED_GUARDS.temporaryTestStubStatesRelationship(taxonomyText),
+  },
+  {
+    label: "principle-backing.md: [2ig] failure-versus-error boundary ROW backed",
+    run: () => ROW_SCOPED_GUARDS.failureVsErrorRowBacked(backingText),
+  },
+  {
+    label: "principle-backing.md: [2ig] classify-first seam ROW backed with the canonical tier",
+    run: () => ROW_SCOPED_GUARDS.seamRowBacked(backingText),
+  },
+  {
+    label: "principle-backing.md: [2ig] test-double taxonomy ROW backed",
+    run: () => ROW_SCOPED_GUARDS.taxonomyRowBacked(backingText),
+  },
+  {
+    label: "principle-backing.md: [2ig] Three Laws spine ROW backed",
+    run: () => ROW_SCOPED_GUARDS.threeLawsRowBacked(backingText),
+  },
+  {
+    label: "principle-backing.md: [2ig] kanban-cycle essay named IN THE ROW",
+    run: () => ROW_SCOPED_GUARDS.kanbanEssayNamedInRow(backingText),
+  },
+  // Nine COUNT guards. Each derives its total from an authoritative list on the page (or from the axes)
+  // and asserts BOTH the stated number WORD and the number of SITES stating it. The site count is the
+  // load-bearing half: without it, DELETING a stated total passes silently.
+  {
+    label: `${TAXONOMY_BASENAME}: [2ig] mapped-source count re-derived`,
+    run: () => COUNT_GUARDS.twelveSources(taxonomyText),
+  },
+  {
+    label: `${TAXONOMY_BASENAME}: [2ig] cell count re-derived from the axes`,
+    run: () => COUNT_GUARDS.eightCellsFromAxes(taxonomyText),
+  },
+  {
+    label: `${TAXONOMY_BASENAME}: [2ig] axis count re-derived`,
+    run: () => COUNT_GUARDS.threeAxes(taxonomyText),
+  },
+  {
+    label: `${TAXONOMY_BASENAME}: [2ig] cell row count re-derived`,
+    run: () => COUNT_GUARDS.sixRowsInCell(taxonomyText),
+  },
+  // ONE report even though it scans BOTH files: the count is restated in the dependent's taxonomy row,
+  // so both sites belong to one claim. Emitting one report per file would make the measured total 173.
+  {
+    label: "[2ig] owned-source count re-derived across both files",
+    run: () => COUNT_GUARDS.fourOwnedSourcesName(taxonomyText, backingText),
+  },
+  {
+    label: `${TAXONOMY_BASENAME}: [2ig] kinds count re-derived from the enumeration`,
+    run: () => COUNT_GUARDS.fiveKindsEnumerated(taxonomyText),
+  },
+  {
+    label: `${TAXONOMY_BASENAME}: [2ig] closing-qualifier count re-derived`,
+    run: () => COUNT_GUARDS.threeFurtherQualifiers(taxonomyText),
+  },
+  {
+    label: `${TAXONOMY_BASENAME}: [2ig] ambiguity survey counts re-derived`,
+    run: () => COUNT_GUARDS.ambiguitySurveyCount(taxonomyText),
+  },
+  {
+    label: `${TAXONOMY_BASENAME}: [2ig] no empty data cell in the per-author table`,
+    run: () => COUNT_GUARDS.noEmptyDataCell(taxonomyText),
+  },
+];
+
+for (const guard of TWO_IG_GUARDS) {
+  const { ok: guardOk, why } = guard.run();
+
+  report(guardOk, guard.label, guardOk ? "" : why);
+}
+
+// [2ig] ROSTER INTEGRITY. The LAST report, and it snapshots the count BEFORE its own emission so the
+// literal below equals the guard total and the arithmetic stays legible.
+//
+// EXPECTED_CHECKS is a HAND-MAINTAINED LITERAL, PREDICTED from the guard inventory in advance, never set
+// from a post-hoc measurement. Deriving it by summing topics plus flags would be WRONG ON PURPOSE:
+// deleting a guard would lower BOTH sides, making the gate unable to fail. A tolerance band would be
+// just as wrong -- six removals against five additions lands inside any band. The prediction:
+//
+//   146 (baseline) - 6 (superseded file-scoped topics) + 7 (row-scoped) + 9 (count) + 6 (absent)
+//   + 10 (positive topics) = 172
+//
+// Note the row-scoped swap is NOT net-zero: seven in for six out is +1. Only the six-for-six sub-swap
+// cancels. If the measured count is not exactly 172, a guard was dropped or duplicated -- FIND WHICH
+// before changing the literal.
+//
+// WHAT THIS GATE CATCHES that nothing else does: a deleted `topics` or `absent` entry; `topics: []`
+// (the loop emits nothing) and `absent: []` (truthy, so the presence check does not save you); and an
+// existsSync-gated post-loop block that silently emits nothing -- the D-05 honesty gate and the SEAM-02
+// block both do exactly that today if their file vanishes, a fully silent vacuous pass.
+//
+// WHAT IT DOES NOT CATCH, and nobody may mistake this gate for sufficient: a guard WEAKENED IN PLACE
+// leaves the count unchanged. Only the selftest evasion proofs cover that. A bare count is also blind to
+// a SHORT SWAP that happens to balance, which is why the label-set assertions below exist and why
+// tools/row-guards.selftest.mjs asserts the exported guard NAME set independently.
+const EXPECTED_CHECKS = 172;
+const ROSTER_LABEL = "[2ig] roster integrity: exact emitted-check count";
+
+// Every label this task ADDS, composed exactly as emitted (`<filename>: <label>` inside the FILES loop,
+// verbatim for a post-loop block). Hand-maintained alongside EXPECTED_CHECKS for the same reason: a
+// short swap that balances the count still fails here. The roster label itself is absent from this list
+// -- it has not been emitted yet at the moment it is checked.
+const NEW_LABELS = [
+  `${TAXONOMY_BASENAME}: [2ig] five-kind count attributed to the hierarchy figure`,
+  `${TAXONOMY_BASENAME}: [2ig] prose states four by folding two members`,
+  `${TAXONOMY_BASENAME}: [2ig] the five kinds enumerated as direct subtypes`,
+  `${TAXONOMY_BASENAME}: [2ig] naming citation versus meaning citation`,
+  `${TAXONOMY_BASENAME}: [2ig] Temporary Test Stub relationship on the lifecycle axis`,
+  `${TAXONOMY_BASENAME}: [2ig] contested-word absence hedged to the swept scope`,
+  `${TAXONOMY_BASENAME}: [2ig] numeral absence hedged to the parts read end to end`,
+  `${TAXONOMY_BASENAME}: [2ig] positive remote-variant finding across an address space`,
+  `${TAXONOMY_BASENAME}: [2ig] do-nothing hook is the real near-miss trap`,
+  `${TAXONOMY_BASENAME}: [2ig] non-optional kanban qualifier carried`,
+  `${TAXONOMY_BASENAME}: [2ig] no set-scoped emptiness assertion`,
+  `${TAXONOMY_BASENAME}: [2ig] no deliberate-negative intent inference`,
+  `${TAXONOMY_BASENAME}: [2ig] no every-available-name universal quantifier`,
+  `${TAXONOMY_BASENAME}: [2ig] no possessive five-kinds attribution`,
+  `${TAXONOMY_BASENAME}: [2ig] no two-appendix count`,
+  `${TAXONOMY_BASENAME}: [2ig] no only-occurrence skeleton phrasing`,
+  ...TWO_IG_GUARDS.map((guard) => guard.label),
+];
+
+const emittedBeforeRoster = emitted;
+const missingNewLabels = NEW_LABELS.filter((label) => !emittedLabels.includes(label));
+const survivingRetiredLabels = RETIRED_LABELS.filter((label) => emittedLabels.includes(label));
+const rosterOk =
+  emittedBeforeRoster === EXPECTED_CHECKS &&
+  missingNewLabels.length === 0 &&
+  survivingRetiredLabels.length === 0;
+const rosterDetail = [
+  emittedBeforeRoster === EXPECTED_CHECKS
+    ? `${emittedBeforeRoster} checks, equal to the PREDICTED literal`
+    : `emitted ${emittedBeforeRoster}, PREDICTED ${EXPECTED_CHECKS} -- a guard was dropped or duplicated`,
+  missingNewLabels.length === 0
+    ? `all ${NEW_LABELS.length} new labels present`
+    : `MISSING new label(s): ${missingNewLabels.join("; ")}`,
+  survivingRetiredLabels.length === 0
+    ? `none of the ${RETIRED_LABELS.length} retired labels survive`
+    : `RETIRED label(s) still emitted: ${survivingRetiredLabels.join("; ")}`,
+].join("; ");
+
+report(rosterOk, ROSTER_LABEL, rosterDetail);
 
 console.log("");
 

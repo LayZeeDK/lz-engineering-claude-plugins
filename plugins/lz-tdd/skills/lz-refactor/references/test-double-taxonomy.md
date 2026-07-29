@@ -148,11 +148,11 @@ bullet of the narrative chapter's rundown is an un-transcribed scanned image.
 stops Beck's production-side usage being presented as an ERROR against Meszaros' scheme, given that
 section 3's thesis is that the two collide. Meszaros' terminology cross-reference leaves the BECK
 COLUMN BLANK IN EVERY ROW. He lists Beck's 2002 book as a source and records no equivalent term for
-any of the five kinds; owner-verified against the print book. Beck's collaborator-side
-vocabulary POSTDATES that 2007 book -- one term in an August 2008 essay, the other in a January 2022
-essay, both owned and both carrying rows in the table below. So neither author is citing the other and
-neither is deviating from the other. Beck's production-side usage is not an error against a scheme
-that never claimed him.
+any of the five kinds; owner-verified against the print book. THE INDEPENDENCE IN THAT HEADLINE IS
+ONE-DIRECTIONAL, and the blank column is the whole of its warrant: Meszaros never mapped Beck, so
+his scheme never claimed Beck's usage. This document claims nothing about the other direction and
+does not need to -- one direction carries the conclusion. Beck's production-side usage is not an
+error against a scheme that never claimed him.
 
 This document deliberately does NOT assert an etymology for the specific word `stub`. A descent from
 remote-procedure-call stubs is a plausible story with no owned basis, so it is not claimed here, and

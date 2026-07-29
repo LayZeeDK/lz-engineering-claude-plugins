@@ -20,8 +20,21 @@ The loop runs in three short beats, repeated once per small behavior:
 - Refactor: with the bar green and a safety net in place, improve the internal structure and remove
   the duplication the quick green step introduced, holding observable behavior fixed.
 
-The discipline is that structure only ever changes while the bar is green, never while chasing a
-failing test.
+The discipline that structure only ever changes while the bar is green is FOWLER's, not Beck's -- it is
+citable to Refactoring, 2nd Edition Ch. 4, where refactoring is defined as running under a green bar.
+It was previously attributed to Beck here, which overstated him. Do not overstate it in the other
+direction either: in the essay TDD is Kanban for Code, Beck's five-step cycle places a preparatory
+refactoring BEFORE green -- after the step that adds production stand-ins so the test compiles and
+fails, and before the step that changes logic to pass it -- so the green-bar rule is Fowler's
+discipline rather than an absolute both authors share. PER-CLAIM TIER, upgrading THIS CLAIM ONLY from
+the file-global tier above: Owned; oracle-verified against the clean-room source. Two qualifiers travel
+with it. It is gated on a red test existing, since he states that changes to logic and to structure
+are not begun until a test is failing. And it is one position among several that Beck himself calls
+contradictory -- TDD is Not Hill Climbing states the opposite rule, that with a red test the only
+permitted move is making it pass and refactoring becomes available once all tests pass; Canon TDD has
+no prepare-to-implement step at all; and asked directly how tidy-first ordering coexists with
+refactor-last, he answers that the two contradict each other and judgment is required. Cite it as that
+one position, never as his settled doctrine.
 
 ## The two rules
 
@@ -64,3 +77,10 @@ here.
 - Beck, Test-Driven Development by Example. Unowned; high-confidence core only, no-oracle. There is
   no owned copy to verify against, so correctness rests on tight core scope, skill-reviewer review, and
   DST-04 hygiene (original prose; only technique NAMES kept verbatim).
+- Martin Fowler, Refactoring, 2nd Edition, Ch. 4 -- the green-bar discipline (structure changes only
+  while the bar is green), re-attributed here from Beck. Owned; oracle-verified against the clean-room
+  source. Beck's kanban cycle is noted alongside it as the exception that keeps the claim from being
+  overstated in the other direction; its owned surface is the essay TDD is Kanban for Code, carrying a
+  per-claim owned tier in the body above rather than this file's global tier. That cycle is one
+  position among several Beck himself calls contradictory, and it is gated on a red test existing, so
+  it must not be cited as his settled rule.

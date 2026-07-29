@@ -1,208 +1,160 @@
 {
   "version": "1.0",
-  "timestamp": "2026-07-29T12:10:16.858Z",
-  "pending_clarification": {
-    "state": "Four options were presented; the owner asked to CLARIFY rather than answer, then paused. NO decision has been made and no direction is locked.",
-    "questions_open": [
-      "Is the collision thesis part of the DELIVERABLE or is it scaffolding? This one answer decides between option 1 (cut the argumentation) and option 2 (guard it). If the finding itself is meant to be argued, option 1 guts the point rather than trimming it.",
-      "Does a coach actually read the prose sections, or only the map? If the prose never loads in a real coaching turn its defects are near-harmless and option 3 strengthens considerably.",
-      "Is there any external commitment on lz-tdd@0.0.3 -- a release note, anyone waiting? That changes how much iteration is affordable.",
-      "Does the taxonomy earn its place in practice? Three review rounds establish whether it is CORRECT and say nothing about whether it is USEFUL. Only the owner knows."
-    ],
-    "corrections_i_volunteered_do_not_lose": [
-      "326 unpushed commits is NOT time pressure -- it is the whole feature branch, mostly earlier-phase eval work, not taxonomy churn.",
-      "MY CLAIM THAT THE IMPORTANT-TIER FINDINGS WOULD LARGELY DISSOLVE UNDER OPTION 1 IS UNVERIFIED. I inferred it from how they cluster on absence and attribution claims, not from measurement. MEASURE it before the owner weighs option 1 on it.",
-      "I never verified whether phase 21's other work would pass its three audits independently, so the milestone option 'ship without the taxonomy' may not actually be available. Check before re-offering it."
-    ]
-  },
+  "timestamp": "2026-07-29T15:02:47.708Z",
+  "context": "quick-task",
+  "quick_task": "260729-lc9",
+  "quick_task_dir": ".planning/quick/260729-lc9-scope-the-test-double-taxonomy-to-lz-red",
+  "supersedes_quick_task": "260729-2ig",
+  "supersedes_note": "The prior handoff's four open questions are ALL ANSWERED and its four-option decision is CLOSED. The owner ruled: the map is a development-time artifact, not a runtime coach reference; the taxonomy is lz-red-only with byte-identical copies retired permanently. That reframed the problem and opened this task instead of a fourth content-patch round. Two of the prior handoff's self-flagged unverified claims were measured this session and BOTH came out against the earlier inference -- see context_notes.",
   "phase": "21",
   "phase_name": "applied-red-eval-real-oss-repos",
   "phase_dir": ".planning/phases/21-applied-red-eval-in-real-oss-repos-multi-dimensional-3-arm-i",
-  "context": "quick-task",
-  "quick_task": "260729-2ig",
-  "quick_task_dir": ".planning/quick/260729-2ig-remediate-the-test-double-taxonomy-after",
-  "supersedes_quick_task": "260728-wev",
-  "plan": 0,
+  "plan": 1,
   "task": 0,
-  "total_tasks": 0,
-  "status": "awaiting_owner_decision",
-  "autonomous": true,
-  "summary": "THE FIX LOOP IS STOPPED, AWAITING AN OWNER DECISION. Quick task 260729-2ig is MERGED at 177a92d with the battery green at 175/175, and NOT ACCEPTED: its acceptance gate returned ACCEPT WITH FIXES (2 blocking, 15 important) plus TRUSTWORTHY WITH GAPS on the instrument. Three consecutive rounds have now failed this gate, and each round FIX introduced a fresh instance of the class it repaired -- a claim falsified by the document own table, three times over. The loop was stopped deliberately rather than run a fourth round unattended, because hand-patching is the demonstrated source of the next instance. Unpushed, untagged, unreleased -- nothing reaches a user. All worktrees torn down, tree clean.",
+  "total_tasks": 4,
+  "status": "paused",
+  "autonomous": false,
+  "summary": "PAUSED DELIBERATELY, BEFORE EXECUTION, at the owner's instruction. Quick task 260729-lc9 resolves the owner's eight steps: scope the test-double taxonomy to lz-red only, move the cross-author map to .planning/ as an inert record, delete all three shipped copies, fix content blocker C-B1, harden the instrument with a general table-shape guard and a link-resolution guard, retire 58 taxonomy-coupled checks, and record the no-copies-ever-again forward constraint. CONTEXT.md, RESEARCH.md, PLAN.md and PLAN-CHECK.md are written. The plan-checker returned ISSUES FOUND -- 2 BLOCKER, 5 IMPORTANT, 6 MINOR -- with observed exit codes as evidence. NO EXECUTOR HAS RUN. Nothing under plugins/ or .claude/ has been modified. The tree is clean apart from this task's own planning artifacts, which this WIP commit stages.",
   "live_worktree": null,
   "completed_this_session": [
     {
-      "id": "wev-teardown",
-      "name": "Worktree torn down after merge 1d1474b. Two reparse points deleted link-only FIRST, one of which pointed OUTSIDE the worktree into the main checkout -- had git recursed it would have destroyed 6525 files. Target verified 6525 files at all three checkpoints",
-      "commit": "707dbda"
-    },
-    {
-      "id": "wev-post-merge-verify",
-      "name": "Battery re-verified in the MAIN checkout, not just the worktree: exit 0, 146 PASS / 0 FAIL; three taxonomy copies byte-identical; grade-red.mjs unchanged",
+      "id": "consultation",
+      "name": "Six-agent panel the owner requested -- three advisors (skill architecture, ubiquitous language, instrument engineering) and three critics (scope/YAGNI, correctness, and one wholly unprimed derivation from the owner's verbatim words with no proposal shown). All six returned and drove every decision below.",
       "status": "done"
     },
     {
-      "id": "acceptance-gate-3-reviewers",
-      "name": "THE GATE RAN. Two content reviewers (one wholly unprimed) plus one instrument auditor. Verdicts: DO NOT ACCEPT, DO NOT ACCEPT, TRUSTWORTHY WITH GAPS. Four blocking content defects, ten important, seven minor; nine of seventeen guards weak with two reproducing the very defect the previous round existed to fix",
+      "id": "owner-decisions",
+      "name": "Owner ruled on four questions: runtime artifact = 'distinguish, but PROVE IT FIRST'; the map = inert record, never an agent input; 'ubiquitous taxonomy' = the NARROW reading plus the real correctness errors; fix C-B1 now regardless. Separately: no byte-identical copies ever again, with a plugin-wide shared reference as the future shape, and no investigation of that mechanism now.",
       "status": "done"
     },
     {
-      "id": "throwaway-teardown",
-      "name": "All FOUR Phase-21 throwaways removed from D: (the handoff recorded three; .lz-red-grade-tmp was a fourth). They were linked WORKTREES of three borrowed OSS repos, so removal went through each parent by exact path -- rm -rf would have left stale registrations. All three borrowed repos verified pristine: zero uncommitted, no stray branches, single worktree each. Eval artifacts archived to scratchpad first, including an UNTRACKED spec an empty git diff had hidden",
+      "id": "context",
+      "name": "CONTEXT.md written with 12 locked decisions, then DIFFED AGAINST THE ORIGINAL BRIEF before dispatch -- the control the prior round lacked. The diff caught one omission: D-12, the prove-it-first ruling and its consequence that lz-red DELIBERATELY ships no test-double reference after this task. Without it a verifier would read that absence as a regression and patch it, destroying the baseline arm of the future A/B.",
       "status": "done"
     },
     {
-      "id": "oracle-search-reverted",
-      "name": "Granted the oracle a scoped search capability; two reviewers found it NOT SAFE; reverted. Decisive finding: rg --pre and rg --hostname-bin each execute an arbitrary program and both match an rg prefix, so NO prefix rule can make search read-only -- and the pattern is advisory anyway (verified by probe: an agent with identical syntax ran five unrelated commands including a file-creating redirection)",
+      "id": "research",
+      "name": "RESEARCH.md written after one spend-limit kill and a transcript resume. Found two BLOCKING sweep sites CONTEXT had not named (taxonomy :7 'This document settles...' and :81 'This page is read mid-cycle'), a SECOND three-copies rationale site at check-red-references.mjs:632-637 whose 'no plugin-root shared dir' clause is now false, and corrected a false premise in my own brief -- .planning/research/ does NOT survive milestone close. All independently re-verified by me.",
       "status": "done"
     },
     {
-      "id": "oracle-corrections",
-      "name": "Both oracle agents corrected WITHOUT any capability change (still Read, Glob): absence-claim doctrine (scope what you certify, name the remainder under the firewall, token-absence is not concept-absence, carry the hedge into structured output), and match-on-substance-not-wording for the reviewer. Subagent-reviewed, three findings applied",
-      "commit": "ef1837f"
-    },
-    {
-      "id": "global-claude-md-rg-fix",
-      "name": "Corrected the rg note in the global CLAUDE.md (local config, no git, never pushed). It was wrong twice: ignore rules apply to TRAVERSAL not to an explicitly named root, so the example never needed -uu; and the -uu/-uuu split was misdescribed. Added the traps that DO make a zero untrustworthy (exit 2 looks like absence, line-oriented misses on wrapped/hyphenated text, regex-by-default, curly quotes) plus the rg --pre security fact. All verified first-hand in a controlled lab, not relayed",
+      "id": "plan",
+      "name": "PLAN.md written after a second spend-limit kill and a resume. 726 lines, 4 tasks, 4 atomic commits. Both ordering hazards resolved: the link guard is built before the deletion that would destroy its RED baseline, and 'verbatim move' is defined as copied-without-rewriting so the move precedes the edits. Found that .planning/research/STACK.md has 3 escaped-pipe rows, so scanTables and parseRows must share ONE splitter or the guard passes while the parser skips the row.",
       "status": "done"
     },
     {
-      "id": "2ig-discussion",
-      "name": "CONTEXT.md written: owner's SPLIT ruling on superstructure (repair two load-bearing arguments, cut two that only defend the design), five auto-resolved gray areas, one deliberate DEFERRAL, the enumerate-the-five ruling, and the consult results that amended it",
-      "status": "done"
-    },
-    {
-      "id": "2ig-research",
-      "name": "RESEARCH.md written (525 lines, all measured). Found the row-parsing machinery already exists in tools/lib/provenance-honesty.mjs; that SIX guards have the row-scoped defect not two; that four of five stated totals derive cleanly but one does not; and that the checker cannot be imported, so the evasion harness must be a pure function plus committed fixtures",
-      "status": "done"
-    },
-    {
-      "id": "2ig-oracle-consult",
-      "name": "Consult on the five-member framing. Result overturned the premise -- see decisions",
+      "id": "plan-check",
+      "name": "Plan-checker iteration 1 RAN and returned ISSUES FOUND. It ran all four verify blocks verbatim against the unmodified tree and reported observed exit codes rather than readings, reproduced the 58-label retirement arithmetic independently, and re-measured the link and table baselines. Findings persisted to 260729-lc9-PLAN-CHECK.md.",
       "status": "done"
     }
   ],
   "remaining_tasks": [
     {
-      "id": "owner-decision-verdict-guard",
-      "name": "DECIDE: fix content blocker 2 by editing the verdict, or build a guard that DERIVES survey verdicts from the parsed table. RECOMMENDED: the guard. It closes the class permanently rather than patching its third instance, and it is the same move that made this round count guards the ones the auditor rated SOUND. The parts exist -- lib/pipe-table.mjs parses rows, lib/row-guards.mjs holds pure guards with a fixture selftest.",
+      "id": "decide-revision",
+      "name": "OWNER DECISION: run plan-checker revision iteration 2, hand-fix the blockers, or abort. The workflow caps revisions at 2 and one is used. Both blockers are mechanical and their exact fixes are already written in PLAN-CHECK.md -- neither is a design question.",
       "status": "blocked_on_owner"
     },
     {
-      "id": "owner-decision-deleted-rule",
-      "name": "DECIDE: whether to re-open the hard rule this round DELETED that was guarding a live defect. It forbade wording about what an author does or does not name; the clause went and the unhedged claim it would have caught survived, and that claim is the sole basis for a NOT-authority ruling. Traceable to the split ruling made on the orchestrator framing, so it is the owner call.",
-      "status": "blocked_on_owner"
-    },
-    {
-      "id": "instrument-repair-1",
-      "name": "Assert the parsed row count against the raw pipe-line count. ONE LINE. Closes the trivially-evadable new guard AND the ~21 rows that go invisible when a cell pipe is deleted. Worth doing regardless of the content decision.",
+      "id": "fix-blocker-1",
+      "name": "BLOCKER-1: Task 4's verify chain has NO leg for C-B1, which is step 1 of the eight and locked by D-07. An executor could skip that section entirely and still exit 0. No retired guard covers it either -- all taxonomy guards are gone by Task 3. Two-leg fix written verbatim in PLAN-CHECK.md.",
       "status": "not_started"
     },
     {
-      "id": "instrument-repair-2-5",
-      "name": "Flatten the six wrap-evadable absent needles; section-scope the two file-global count derivations; add the ancestry-stem count pin for the lineage hole (a working fix was measured: 5/5 caught, zero false-fails); add fixtures for the two chronology guards plus an extra-stated-site assertion.",
+      "id": "fix-blocker-2",
+      "name": "BLOCKER-2: the H4 blast radius is measurably wrong. The plan names nine sites for a phrase that occurs on five lines in four files, and four of the cited lines carry no form of the phrase at all. The two verify pins cover 3 of the 9 named non-target sites, and the plan itself calls those pins the ONLY protection against the over-wide-rename hazard. Secondary wrong count stated twice: five expect-to-send sites, not six.",
       "status": "not_started"
     },
     {
-      "id": "content-blocker-1",
-      "name": "Name the right Beck surface in the row. A qualifier the document marks NOT OPTIONAL points at sources that do not carry it; the dependents already name it correctly, which is how it surfaced.",
+      "id": "fix-important",
+      "name": "5 IMPORTANT: existence-only test -f on RED-BASELINE.md (touch satisfies it); an unsatisfiable file:line demand for four presence-required guards; a hygiene leg that is fail-open (exits 0 on an absent subject, proven by control) and narrower than its stated threat; Task 1 writing tree-dependent numbers Task 3 falsifies without sweeping them; N9's label overclaiming its needle.",
       "status": "not_started"
+    },
+    {
+      "id": "fix-minor",
+      "name": "6 MINOR, one of which matters more than its tier: no task owns committing the planning artifacts, yet Task 4's final leg requires git status --porcelain empty.",
+      "status": "not_started"
+    },
+    {
+      "id": "execute",
+      "name": "Execute the 4 tasks with a worktree-isolated executor. Zero spend. worktree.baseRef is confirmed set to 'head', so the worktree inherits this branch rather than origin/main -- load-bearing, since HEAD is 327 commits ahead of origin.",
+      "status": "blocked"
+    },
+    {
+      "id": "orchestrator-gates",
+      "name": "Two gates the executor CANNOT run because it has no Agent tool: an unprimed content review of the archive header and the three replacement router sentences, and an instrument audit confirming each of the 58 retired label strings matches what the pre-change run actually emitted. Both recorded in the plan's <orchestrator_followup>.",
+      "status": "blocked"
     },
     {
       "id": "close-21",
-      "name": "/gsd-secure-phase 21, /gsd-validate-phase 21, /gsd-extract-learnings 21 -- each BY its dedicated agent, never self-certified inline. Blocked until the taxonomy is accepted.",
+      "name": "/gsd-secure-phase 21, /gsd-validate-phase 21, /gsd-extract-learnings 21 -- each BY its dedicated agent, never self-certified inline.",
       "status": "blocked"
     },
     {
       "id": "milestone",
-      "name": "/gsd-complete-milestone lz-tdd@0.0.3 with MANUAL archival. Blocked until the taxonomy is accepted.",
+      "name": "/gsd-complete-milestone lz-tdd@0.0.3 with MANUAL archival. Still independently blocked by the EVL-03 metered run, which the owner did NOT descope when offered.",
       "status": "blocked"
     }
   ],
   "blockers": [
     {
-      "description": "The taxonomy is merged and battery-green but NOT ACCEPTED for the third consecutive round.",
-      "type": "decision",
-      "workaround": "Do not patch content unattended -- that is the demonstrated source of each new defect instance. Build the verdict-derivation guard instead, and take the one-line instrument repair regardless."
+      "description": "Plan-checker iteration 1 returned 2 BLOCKER, 5 IMPORTANT, 6 MINOR. Execution is gated on clearing at least the two blockers.",
+      "type": "technical",
+      "workaround": "Both are mechanical with exact fixes already written down. This is not the content-defect loop that stopped the prior three rounds -- it is a first-iteration plan check behaving as designed."
+    },
+    {
+      "description": "Two API spend limits were hit this session -- an org monthly limit and a session limit -- each killing a subagent mid-run.",
+      "type": "external",
+      "workaround": "Both agents were resumed from transcript via SendMessage with zero loss. Standing mitigation now in use: instruct long-running agents to write their output file EARLY and update it incrementally, so a kill loses nothing. This worked -- the planner's file was already on disk when it was killed."
     }
   ],
   "async_jobs": [],
-  "plan_check_history": {
-    "cap": "The quick-full workflow caps plan-checker revisions at 2, then offers force-proceed or abort.",
-    "iteration_1": "4 BLOCKER, 5 IMPORTANT, 6 MINOR. Two blockers were DEMONSTRATED by running the plan's own automated verify blocks verbatim against an unmodified tree -- both exited 0 with the task entirely undone. A third ordered the executor to delete its own core deliverable: the plan demanded every new guard FAIL at baseline, but 15 of ~34 correctly PASS because their subject is already right in the live text. That contradiction traces to MY brief, which demanded both a universal baseline FAIL and an evasion-fixture proof; the fix names two proof kinds instead. The fourth predicted a false FAIL in count guards, whose site pins the plan's own edits delete -- the previous round's deadlock reproduced in the one mechanism the both-directions audit does not inspect.",
-    "iteration_2": "3 BLOCKER, 4 IMPORTANT, 3 MINOR. TWO OF THE THREE WERE INTRODUCED BY THE REVISION, which is the standing hazard of fix-everything-at-once passes: a collision between the fixes for two different blockers, a pair of pins the plan cannot set in the only task permitted to write them, and a newly-added retired-label assertion that is vacuous because the plan cites two label strings that do not exist and never states that emitted labels are composed with the filename. That last one is a guard that cannot fail, added by the fix for the finding about guards that cannot fail.",
-    "iteration_3_authorised": "EXCEEDS THE CAP, DELIBERATELY. Owner offline and cannot be asked, so the workflow's force-proceed-or-abort choice fell to me. Rejected force-proceed because it would hand an executor a guard that cannot fail -- precisely the failure class this round exists to close, and the checker explicitly warned against it. Rejected abort because every remaining item is mechanical, with its fix and verbatim evidence already supplied, and none is a design question. Scoped the revision to be MINIMAL and named every section, because two of three blockers this round came from a broad pass.",
-    "loop_control": "To stop this becoming an unbounded loop, the third revision is gated BY THE ORCHESTRATOR on mechanical criteria rather than by a fourth checker agent: verify the six retired label strings match a live emitted run verbatim, verify the twelveSources classification moved to RED-at-baseline, verify no pin remains that cannot be set in Task 1, verify the roster label text is stated once in Task 1 and matches both greps, and re-run both automated verify blocks against the unmodified tree to confirm they still fail. If those hold, execute. If a fourth round of blockers appears, STOP and hand back rather than execute a plan that failed its gate three times.",
-    "what_the_checks_confirmed_good": "The substantive work landed correctly each time. The B4 pins match measurement exactly; all six invariant row-scoped guards genuinely pass at baseline and the one that should fail does; the 172 roster prediction independently re-derives; the hygiene probes cover both new files' directories and encode no forbidden value; and both judgment calls the planner self-flagged were independently adjudicated SOUND with reasoning, including confirmation that the deletion does not decide the DEFERRED axis question."
-  },
   "human_actions_pending": [
     {
-      "action": "Decide whether to promote any Usenet mbox into .oracle/ before reclaiming 1.7 GB of scratchpad",
-      "context": "The mbox is the ONLY copy of the 862,001 messages the selective conversion did not cover.",
+      "action": "Decide how to clear the two plan-checker blockers -- revision iteration 2, hand-fix, or abort",
+      "context": "One of two permitted revisions is used. Both blockers are mechanical with exact fixes written down.",
+      "blocking": true
+    },
+    {
+      "action": "Approve or descope the EVL-03 ~$39 three-arm metered run",
+      "context": "Pending since 2026-07-27. Independently blocks the milestone; the taxonomy work is not what is holding it. Offered this session and NOT selected.",
       "blocking": false
     },
     {
-      "action": "Rule on provenance of two staged items",
-      "context": "One PDF carries an institutional-library watermark; one archive.org copy appears to be an un-darkened user upload.",
-      "blocking": false
-    },
-    {
-      "action": "Consider whether a whole-book token sweep belongs in the harness",
-      "context": "Absence questions cannot be certified book-wide by the oracle (Read/Glob only, no search) nor by the orchestrator (firewalled from the store). A deterministic harness sweep is the only path, and the sibling agent's contract already assigns deterministic checks to the harness.",
+      "action": "Approve the D-12 A/B metered run once the taxonomy work lands",
+      "context": "Owner ruled 'distinguish, but prove it first'. The runtime artifact gets authored, then A/B'd against the no-artifact baseline, shipping only on measured lift. Explicitly out of scope for 260729-lc9.",
       "blocking": false
     }
   ],
   "decisions": [
     {
-      "decision": "SPLIT ruling on argumentative superstructure: repair the two load-bearing arguments, delete the two that only defend the design.",
-      "rationale": "Owner-locked. The governing line: argumentation that tells a coach WHAT IT MAY NOT CITE is operational and stays; argumentation that DEFENDS THE DESIGN belongs in CONTEXT.md. Repair the citability rule (split naming-citation from meaning-citation so the recommendation satisfies it) and the ambiguity finding (weaken a falsified universal to a survey). Cut the degree-of-freedom proof and the deliberate-negative intent claim, keeping the owner-verified blank-column fact.",
-      "phase": "quick-260729-2ig"
+      "decision": "The taxonomy is lz-red-only, and byte-identical copies are retired permanently; the future shape is a plugin-wide shared reference.",
+      "rationale": "Owner, twice. The three-copy layout was engineered on purpose and documented as design intent in the checker at :35-37 AND again at :632-637, so both comment sites must be replaced with the forward constraint rather than merely deleted. The second site additionally asserts 'no plugin-root shared dir', which the owner says is false.",
+      "phase": "quick-260729-lc9"
     },
     {
-      "decision": "Both cuts are PURE deletions -- no carry-forward rider needed.",
-      "rationale": "Measured during discussion: both cut passages restate, with weaker warrant, claims a later section already carries WITH chapter citations. One of them also misdescribes what that section currently contains, which is a separate defect. The uncited copy is the one that drifted -- it grew an intent inference and a chronology the cited original never needed. General lesson: when one claim lives in two registers, the uncited copy drifts.",
-      "phase": "quick-260729-2ig"
+      "decision": "The cross-author map becomes an INERT RECORD in .planning/, never wired into any agent's input contract.",
+      "rationale": "Owner chose it, clarifying the map is for communicating with and understanding the oracle's sources -- a human and orchestrator navigation aid. Measured: nothing routes it to either oracle agent today and both are tools: Read, Glob, so wiring it in would be a NEW data path, not a preserved one. A critic argued that path is the most dangerous element on the table, feeding prior oracle conclusions back as authoritative input where no gate reaches.",
+      "phase": "quick-260729-lc9"
     },
     {
-      "decision": "The five-member framing is an ATTRIBUTION ERROR at nine measured sites, not merely an underivable count.",
-      "rationale": "Oracle consult, CONFIRMED by end-to-end reads of five parts: the book NEVER states five and explicitly states FOUR in prose, because its rundown folds two members into one bullet. Five is a reading of the hierarchy figure only; counting from the catalog's variations run yields six or nine instead. So the count is attributed to the figure rather than to the author as his framing, the numeral is kept because the figure supports it, and the caveat that his prose says four is ADDED -- that caveat is exactly the what-you-may-not-cite content this document should carry. Same defect class as the fabricated mapping this remediation exists to remove, repeated nine times.",
-      "phase": "quick-260729-2ig"
+      "decision": "'Use our ubiquitous taxonomy everywhere' resolves to the NARROW reading plus three real correctness fixes. Settle no new vocabulary; add no vocabulary guards.",
+      "rationale": "Owner chose it after measurement resolved a direct contradiction between two consultants. The taxonomy settles exactly ONE usage rule -- never bare stub -- already enforced with zero violations. Section 2 is a CITATION rule, not a vocabulary rule. The broad reading would have been new authoring of the class rejected four times.",
+      "phase": "quick-260729-lc9"
     },
     {
-      "decision": "The mis-levelling is ONE CELL, not a table restructure.",
-      "rationale": "The consult reported four table rows are non-members (an umbrella and three variations), which sounded like it needed a level column or a table split -- trap-quadrant, since it would ripple through every cell bullet, every derived count and the guard work. MEASUREMENT showed the document's convention is to state the relationship in the defining-property cell and it already does so for THREE of the four. Only one row lacks it. Fix that cell; change no table structure. Also measured: the other families the consult warned might be flattened have ZERO rows and ZERO mentions, and the alias collision it flagged is not live here.",
-      "phase": "quick-260729-2ig"
+      "decision": "A general markdown table-shape guard replaces the narrow row-count repair.",
+      "rationale": "Owner proposed it. Measured: the narrow repair protects one table in a file that step 5 removes from the shipped tree, while the general guard covers 31 tables and 405 rows and drops the narrow form's single-table-shape assumption. Evasion proof verified -- the two mutations render identically in GFM and neither guard alone catches both.",
+      "phase": "quick-260729-lc9"
     },
     {
-      "decision": "No search capability for either oracle agent; a sweep is the driver's or harness's job.",
-      "rationale": "Reviewed NOT SAFE. rg --pre and rg --hostname-bin each run an arbitrary program and both match an rg prefix, so no prefix rule can preserve read-only; the frontmatter pattern is advisory regardless. Granting it would move writes-nothing from a tool-layer guarantee to a promise, in the one agent trusted to hold copyrighted text and whose own threat model anticipates injected instructions inside that text. Two further reasons: the low-leak forms recommended (-c/-l) are precisely a compilation dump, since store filenames are numbered descriptive slugs that together render the table of contents; and the sibling gate requires negatives confirmed by complete read, so sweep-certified absences would stall its converge-to-clean loop. The sibling's own contract already assigns deterministic checks to the harness.",
-      "phase": "quick-260729-2ig"
-    }
-  ],
-  "unresolved_cannot_be_raised": [
-    {
-      "item": "The numeral-absence claim cannot be certified book-wide this round.",
-      "detail": "The consult's negative is correctly scoped to the parts it read end to end; it declined to sweep the remainder and rightly called a whole-book token sweep a harness job. The oracle has no search tool and the orchestrator is firewalled from the store, so neither can close it. Does NOT block the fix: the figure is the basis for the numeral regardless of any unread chapter, and the prose demonstrably states four. Recorded at the scope actually swept.",
-      "trap_quadrant": false
-    },
-    {
-      "item": "The axis-2 classification of two terms deliberately left out of the table.",
-      "detail": "HIGH impact (would add rows and move cell populations) and NOT high confidence (contested on the merits -- the unprimed reviewer holds both contradict the axis definition). Trap quadrant, so NOT auto-decided. Safe default taken instead: do not add rows; they remain caveats in a later section where they are already cited, which needs no ruling.",
-      "trap_quadrant": true
-    },
-    {
-      "item": "Two conversion defects in the store touch the five-member question.",
-      "detail": "The appendix role-summary table came through garbled at character level and one bullet of the narrative chapter's rundown is an un-transcribed scanned image. Any claim resting on that appendix should carry the degraded-scan treatment the document already has a mechanism for.",
-      "trap_quadrant": false
+      "decision": "PAUSE before execution rather than entering the revision loop unattended.",
+      "rationale": "Owner instruction, and consistent with the standing rule from the prior round: do not run fix rounds unattended, because hand-patching is the demonstrated source of each new defect instance.",
+      "phase": "quick-260729-lc9"
     }
   ],
   "uncommitted_files": [
-    ".planning/quick/260729-2ig-remediate-the-test-double-taxonomy-after/ (CONTEXT.md, RESEARCH.md -- untracked; the quick workflow commits artifacts at its final step)"
+    ".planning/quick/260729-lc9-scope-the-test-double-taxonomy-to-lz-red/ (CONTEXT.md, RESEARCH.md, PLAN.md, PLAN-CHECK.md -- staged by this WIP commit)"
   ],
-  "next_action": "Present the two owner decisions. Do NOT start a fourth content-patch round without one. The one-line instrument repair (assert parsed row count vs raw pipe-line count) is safe to take independently and closes a whole class.",
-  "context_notes": "PROCESS LESSONS THAT KEEP PAYING. Instrument-first with proven-red guards caught the previous executor's own author reproducing banned phrasing verbatim. Reviewers briefed from scratch keep finding what primed ones miss -- the wholly unprimed reviewer found the most this round, including two blocking defects neither other reviewer saw. And an oracle that REFUSES to certify what it did not read is worth more than one that answers: this round's consult overturned the premise it was given, and separately corrected me when I briefed it with a self-contradiction that did not exist (I had matched on the SITE rather than on the WORD -- the document was right and I was wrong). MY OWN ERRORS THIS SESSION, all caught: I claimed a frontmatter tools pattern would scope Bash to one command (it is advisory, and rg can exec arbitrary programs anyway, so the claim was wrong twice); I recommended -c/-l as the low-leak search forms when they are the compilation dump; I wrote an absence rule telling the agent to name the unread remainder with no firewall qualifier, introducing a compilation-leak vector into the very section warning about overclaiming; I relayed a -uu gotcha from the global instructions that is false, then verified it properly only when asked; and earlier I raised a false alarm that live checker topics survived when a crude grep simply could not tell a positive topic from an absent guard. The pattern in every case: a control or claim that reports success without verifying the thing it names.",
-  "verdict": {
-    "content": "ACCEPT WITH FIXES -- 2 BLOCKING, 15 IMPORTANT, 10 MINOR. Reviewer wholly unprimed.",
-    "instrument": "TRUSTWORTHY WITH GAPS -- one NEW guard trivially evadable; two author claims refuted by measurement; all four self-reported holes confirmed.",
-    "full_findings": ".planning/quick/260729-2ig-remediate-the-test-double-taxonomy-after/260729-2ig-ACCEPTANCE-REVIEW.md"
-  }
+  "next_action": "Read 260729-lc9-PLAN-CHECK.md. Decide between revision iteration 2, a hand-fix of the two blockers, or abort. Do NOT execute until BLOCKER-1 and BLOCKER-2 are closed -- BLOCKER-1 means an executor can skip the owner's step 1 entirely and still exit 0.",
+  "context_notes": "TWO PRIOR-HANDOFF UNVERIFIED CLAIMS WERE MEASURED THIS SESSION AND BOTH CAME OUT AGAINST THE EARLIER INFERENCE. First, 'the important-tier findings would largely dissolve under option 1' -- measured, only 1 of the 9 named findings sits in the cut region; 8 survive. Second, 'ship the milestone without the taxonomy' -- not available, but for an unrelated reason: EVL-03 is pending on a metered run and 21-SECURITY.md and 21-LEARNINGS.md do not exist. WHAT WENT RIGHT, worth repeating. The brief-versus-authority diff caught a real omission before dispatch, which is exactly the failure that cost the prior round. The unprimed critic, given only the owner's verbatim words and no proposal, independently produced a plan close to the primed advisor's and separately flagged the two clauses most likely to be misread -- both flags held, and it also detected a gap in its own brief unprompted. The plan-checker reported OBSERVED EXIT CODES rather than readings of commands, and that is how BLOCKER-1 surfaced. MY OWN ERRORS THIS SESSION, all caught: I asserted the taxonomy prose 'loads in every real coaching turn' from the link alone, and measurement showed the coach decision procedure never routes to it; I relayed a consultant's mockist mis-citation claim at full strength when the evidence supported only PLAUSIBLE; and my escaped-pipe check used shell escaping that degenerated and matched all 141 lines of a file, which I caught only because the sample rows made no sense. The pattern in all three is the one this whole task is about -- a check that reports a result without verifying the thing it names."
 }

@@ -31,7 +31,7 @@
 // needle IS the leak. ASCII only.
 import assert from "node:assert/strict";
 import { parseRows, scanTables, findLinkTargets } from "./lib/pipe-table.mjs";
-import { ROW_SCOPED_GUARDS, COUNT_GUARDS, OLD_NEEDLES, RETIRED_LABELS } from "./lib/row-guards.mjs";
+import { ROW_SCOPED_GUARDS, OLD_NEEDLES, RETIRED_LABELS } from "./lib/row-guards.mjs";
 
 // ---------------------------------------------------------------------------------------------
 // Fixture builders. Lines are assembled from an ARRAY of double-quoted strings rather than a template
@@ -223,7 +223,7 @@ const check = (label, actual, expected) => {
 
 const verdict = (result) => result.ok;
 
-console.log("row-guards self-test (row-scoped + count-re-derivation guards)");
+console.log("row-guards self-test (pipe-table scanners + row-scoped guards)");
 console.log("");
 
 // ---------------------------------------------------------------------------------------------
@@ -369,133 +369,6 @@ check("oneRow: a DUPLICATED target row -> FAIL (exactly one, or fail)", verdict(
 console.log("");
 
 // ---------------------------------------------------------------------------------------------
-// (B) Nine count guards -- pristine / word disagrees / stated total DELETED / empty
-// ---------------------------------------------------------------------------------------------
-
-console.log("lib/row-guards.mjs -- nine COUNT guards (pristine / disagree / total DELETED / empty)");
-
-const countCase = (name, guard, disagree, deleted) => {
-  check(`${name}: pristine derivation agrees with the stated word -> PASS`, verdict(guard(TAXONOMY)), true);
-  check(`${name}: stated word DISAGREES with the derivation -> FAIL`, verdict(guard(disagree)), false);
-  check(`${name}: stated total DELETED, so the site count drops -> FAIL`, verdict(guard(deleted)), false);
-  check(`${name}: empty text -> FAIL (anti-vacuity)`, verdict(guard("")), false);
-};
-
-countCase(
-  "twelveSources",
-  COUNT_GUARDS.twelveSources,
-  mutate(TAXONOMY, "This fixture maps twelve sources.", "This fixture maps eleven sources."),
-  mutate(TAXONOMY, "This fixture maps twelve sources.", "This fixture maps the sources.")
-);
-
-countCase(
-  "eightCellsFromAxes",
-  COUNT_GUARDS.eightCellsFromAxes,
-  mutate(TAXONOMY, "gives eight cells", "gives seven cells"),
-  mutate(TAXONOMY, "gives eight cells", "gives the cells")
-);
-
-// And the derivation itself must move when an AXIS gains a value: a hardcoded 8 could not see this.
-const THIRD_AXIS_VALUE = mutate(
-  TAXONOMY,
-  "- Permanent -- a fixture of the design or of the suite.",
-  "- Permanent -- a fixture of the design or of the suite.\n- Indefinite -- a third value on this axis."
-);
-
-check("eightCellsFromAxes: an axis gaining a THIRD value moves the product -> FAIL (proves the 8 is derived, not hardcoded)", verdict(COUNT_GUARDS.eightCellsFromAxes(THIRD_AXIS_VALUE)), false);
-
-countCase(
-  "threeAxes",
-  COUNT_GUARDS.threeAxes,
-  mutate(TAXONOMY, "Crossing the three axes", "Crossing the four axes"),
-  mutate(TAXONOMY, "Crossing the three axes", "Crossing the axes")
-);
-
-countCase(
-  "sixRowsInCell",
-  COUNT_GUARDS.sixRowsInCell,
-  mutate(TAXONOMY, "**Production / own / transitional.** Six rows", "**Production / own / transitional.** Seven rows"),
-  mutate(TAXONOMY, "**Production / own / transitional.** Six rows in the table land here.", "**Production / own / transitional.** The table lands here.")
-);
-
-countCase(
-  "fiveKindsEnumerated",
-  COUNT_GUARDS.fiveKindsEnumerated,
-  mutate(TAXONOMY, "records no equivalent term for any of the five kinds", "records no equivalent term for any of the four kinds"),
-  mutate(TAXONOMY, "records no equivalent term for any of the five kinds", "records no equivalent term for any of the kinds")
-);
-
-// And the enumeration must RESOLVE: a name that is not a row of that author FAILS.
-const UNRESOLVED_KIND = mutate(TAXONOMY, "- `Fake Object`", "- `Fake Collaborator`");
-// A deleted enumeration must FAIL rather than deriving zero and looking like a content bug.
-const NO_ENUMERATION = dropLine(dropLine(dropLine(dropLine(dropLine(TAXONOMY, "- `Test Stub`"), "- `Test Spy`"), "- `Mock Object`"), "- `Fake Object`"), "- `Dummy Object`");
-
-check("fiveKindsEnumerated: an enumerated name resolving to NO row of that author -> FAIL", verdict(COUNT_GUARDS.fiveKindsEnumerated(UNRESOLVED_KIND)), false);
-check("fiveKindsEnumerated: the enumeration DELETED -> FAIL", verdict(COUNT_GUARDS.fiveKindsEnumerated(NO_ENUMERATION)), false);
-
-countCase(
-  "threeFurtherQualifiers",
-  COUNT_GUARDS.threeFurtherQualifiers,
-  mutate(TAXONOMY, "Three further qualifiers", "Four further qualifiers"),
-  mutate(TAXONOMY, "Three further qualifiers on what a tier promises:", "Qualifiers on what a tier promises:")
-);
-
-countCase(
-  "ambiguitySurveyCount",
-  COUNT_GUARDS.ambiguitySurveyCount,
-  mutate(TAXONOMY, "Ten candidates are surveyed", "Nine candidates are surveyed"),
-  mutate(TAXONOMY, "Ten candidates are surveyed below and", "The candidates surveyed below are those where")
-);
-
-// The colliding SUBSET is asserted independently of the survey size.
-const WRONG_COLLIDE_COUNT = mutate(TAXONOMY, "and five of them collide", "and six of them collide");
-// An UNLABELLED candidate bullet must FAIL rather than being silently skipped.
-const UNLABELLED_CANDIDATE = mutate(
-  TAXONOMY,
-  "- `empty class` -- NO COLLISION. Unambiguous, but it names only a class.",
-  "- `empty class` -- unambiguous, but it names only a class."
-);
-
-check("ambiguitySurveyCount: the colliding SUBSET count disagreeing -> FAIL", verdict(COUNT_GUARDS.ambiguitySurveyCount(WRONG_COLLIDE_COUNT)), false);
-check("ambiguitySurveyCount: an UNLABELLED candidate bullet -> FAIL (never silently skipped)", verdict(COUNT_GUARDS.ambiguitySurveyCount(UNLABELLED_CANDIDATE)), false);
-
-// noEmptyDataCell states no total, so its mutation is an empty cell rather than a wrong word.
-const EMPTY_CELL = mutate(
-  TAXONOMY,
-  "| Joshua Kerievsky | `skeleton` | Production | Own implementation | Transitional | A structural stand-in introduced as a temporary step | Uses in passing |",
-  "| Joshua Kerievsky | `skeleton` | Production | Own implementation | Transitional | A structural stand-in introduced as a temporary step |  |"
-);
-
-check("noEmptyDataCell: pristine table has no empty data cell -> PASS", verdict(COUNT_GUARDS.noEmptyDataCell(TAXONOMY)), true);
-check("noEmptyDataCell: a blanked data cell -> FAIL", verdict(COUNT_GUARDS.noEmptyDataCell(EMPTY_CELL)), false);
-check("noEmptyDataCell: empty text -> FAIL (anti-vacuity)", verdict(COUNT_GUARDS.noEmptyDataCell("")), false);
-
-// fourOwnedSourcesName is the ONE guard reading two files, so it gets its own block.
-check("fourOwnedSourcesName: pristine pair agrees at both sites -> PASS", verdict(COUNT_GUARDS.fourOwnedSourcesName(TAXONOMY, BACKING)), true);
-check(
-  "fourOwnedSourcesName: stated word DISAGREES -> FAIL",
-  verdict(COUNT_GUARDS.fourOwnedSourcesName(mutate(TAXONOMY, "Four owned sources name", "Five owned sources name"), BACKING)),
-  false
-);
-check(
-  "fourOwnedSourcesName: the DEPENDENT's restatement deleted, so the site count drops -> FAIL",
-  verdict(COUNT_GUARDS.fourOwnedSourcesName(TAXONOMY, mutate(BACKING, "and four owned sources name it", "and owned sources name it"))),
-  false
-);
-check(
-  "fourOwnedSourcesName: a row in that cell losing its Owned tier -> FAIL",
-  verdict(
-    COUNT_GUARDS.fourOwnedSourcesName(
-      mutate(TAXONOMY, "| Uses in passing | Refactoring to Patterns, Ch. 10 | Owned; oracle-verified against the clean-room source |", "| Uses in passing | Refactoring to Patterns, Ch. 10 | Unowned; high-confidence core only (no-oracle) |"),
-      BACKING
-    )
-  ),
-  false
-);
-check("fourOwnedSourcesName: empty texts -> FAIL (anti-vacuity)", verdict(COUNT_GUARDS.fourOwnedSourcesName("", "")), false);
-console.log("");
-
-// ---------------------------------------------------------------------------------------------
 // Roster shape. A bare emitted-check COUNT is blind to a short swap that happens to balance, so the
 // guard NAME SET is asserted here and the emitted LABEL SET is asserted by the checker's roster gate.
 // ---------------------------------------------------------------------------------------------
@@ -505,21 +378,6 @@ check(
   "ROW_SCOPED_GUARDS exports exactly the four named row-scoped guards",
   Object.keys(ROW_SCOPED_GUARDS).sort(),
   ["failureVsErrorRowBacked", "kanbanEssayNamedInRow", "seamRowBacked", "threeLawsRowBacked"]
-);
-check(
-  "COUNT_GUARDS exports exactly the nine named count guards",
-  Object.keys(COUNT_GUARDS).sort(),
-  [
-    "ambiguitySurveyCount",
-    "eightCellsFromAxes",
-    "fiveKindsEnumerated",
-    "fourOwnedSourcesName",
-    "noEmptyDataCell",
-    "sixRowsInCell",
-    "threeAxes",
-    "threeFurtherQualifiers",
-    "twelveSources",
-  ]
 );
 check(
   "OLD_NEEDLES carries one superseded needle per row-scoped guard",

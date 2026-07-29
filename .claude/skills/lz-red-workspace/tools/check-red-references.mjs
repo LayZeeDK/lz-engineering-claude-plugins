@@ -59,6 +59,18 @@
 //     bare-qualifier gate. The taxonomy label constant below belongs to the sha256 byte-identity
 //     gate, NOT to any coinage gate, and was deliberately left alone.
 //
+// Extended again by the 260729-2ig GAP CLOSURE, TWO checks, both purely additive. The [2ig] round was
+// required to ban chronology / seniority / ordering constructions and to build the guard forbidding
+// them; the requirement was missing from that round's CONTEXT.md, so neither happened and the battery
+// went 173/173 GREEN over a surviving one. The ban is split across TWO mechanisms because its needles
+// come in two shapes:
+//   - `[gap] no chronology or seniority token` -- an `absent` entry on the taxonomy carrying the
+//     SINGLE-TOKEN stems. Per line, which is safe here precisely because a stem cannot wrap.
+//   - `[gap] no chronology or seniority phrase (wrap-proof)` -- a post-loop block carrying the four
+//     MULTI-WORD constructions against whitespace-flattened text, because no per-line needle over them
+//     can match once the phrase wraps, and none narrows to a single token without false-failing live
+//     prose. EXPECTED_CHECKS moves 172 -> 174; see the arithmetic note there.
+//
 // RED against the current placeholder / un-filled Phase-18 slices BY DESIGN -- this is the
 // instrument-first Wave-0 Nyquist baseline, NOT a failure. The tsc extractor is GREEN-on-empty (it
 // compiles whatever fences exist), so it cannot be the content-completeness signal; THIS checker is.
@@ -463,6 +475,23 @@ const FILES = [
       { label: "[2ig] no two-appendix count", re: /both appendices/i },
       // The only-OCCURRENCE phrasing. It is the only SENSE; there are three occurrences of it.
       { label: "[2ig] no only-occurrence skeleton phrasing", re: /only `skeleton`/i },
+      // [gap] The CHRONOLOGY / SENIORITY ban, which the [2ig] round was required to enforce and did
+      // not: the banned construction survived AND no guard existed to forbid it, so the battery went
+      // 173/173 GREEN over it. The standing rule admits no form of chronology, seniority or ordering
+      // between two authors' usages.
+      //
+      // SINGLE-TOKEN STEMS ONLY, and that is a MECHANISM constraint rather than a preference. `absent`
+      // guards run through the per-line loop, so a multi-word needle is defeated by a wrap at the
+      // ~100-column margin -- the hazard recorded on the anti-patterns guard above, and again on the
+      // [2ig] set. A stem cannot wrap. The four MULTI-WORD constructions therefore live in the [gap]
+      // post-loop block, which flattens whitespace first.
+      //
+      // `lineage` is DELIBERATELY NOT a needle, and the omission is reported rather than silent: this
+      // document's own **Lineage.** block names which authors lz-red's DOCTRINE descends from, which is
+      // a statement about doctrinal ancestry and not a temporal or seniority relation between two
+      // authors' usages. Adding the needle would false-fail prose that must stay, so it is narrowed out
+      // instead (measured: two legitimate occurrences).
+      { label: "[gap] no chronology or seniority token", re: /postdat|predat|antedat|seniorit/i },
     ],
     deferral: null,
   },
@@ -830,6 +859,38 @@ for (const guard of TWO_IG_GUARDS) {
   report(guardOk, guard.label, guardOk ? "" : why);
 }
 
+// [gap] CHRONOLOGY PHRASE GATE -- the WRAP-PROOF half of the ban whose single-token half sits in the
+// taxonomy's `absent` set above. These four constructions each establish a temporal or precedence
+// relation in MORE THAN ONE WORD, and not one of them can be narrowed to a single token without
+// false-failing legitimate prose: `precedence` alone is a live domain word here (the section-2
+// Precedence block, plus a pinned no-declared-precedence topic), while `vocabulary` and `first` are far
+// too common. So the per-line `absent` set cannot express them -- a wrap at the ~100-column margin
+// defeats any multi-word needle there. They run against WHITESPACE-FLATTENED text instead, which is the
+// FLATTEN BEFORE MATCHING invariant lib/row-guards.mjs already states for its own multi-word needles.
+// A standalone post-loop block on the G17 precedent: G17 is likewise a prose-absence gate the per-file
+// loop cannot express.
+//
+// SCOPED TO THE lz-red COPY ALONE, and that is sufficient rather than lazy: the sha256 byte-identity
+// gate above already forces all three copies equal, so a banned phrase cannot survive in a sibling copy
+// while this one is clean.
+//
+// The EMPTY-TEXT leg is an anti-vacuity control, not defensive noise: `readOrEmpty` yields "" for a
+// missing file, and an absence gate over "" would report PASS forever -- the wev R1 defect class.
+const CHRONOLOGY_PHRASES = [/came\s+first/i, /older\s+vocabulary/i, /earlier\s+vocabulary/i, /takes\s+precedence/i];
+const CHRONOLOGY_LABEL = `${TAXONOMY_BASENAME}: [gap] no chronology or seniority phrase (wrap-proof)`;
+const flatTaxonomy = taxonomyText.replace(/\s+/g, " ");
+const chronologyHits = CHRONOLOGY_PHRASES.filter((re) => re.test(flatTaxonomy)).map((re) => String(re));
+
+if (taxonomyText === "") {
+  report(false, CHRONOLOGY_LABEL, "the taxonomy read as EMPTY, so this gate checked nothing");
+} else {
+  report(
+    chronologyHits.length === 0,
+    CHRONOLOGY_LABEL,
+    chronologyHits.length === 0 ? "" : `banned construction still present (matches ${chronologyHits.join(", ")})`
+  );
+}
+
 // [2ig] ROSTER INTEGRITY. The LAST report, and it snapshots the count BEFORE its own emission so the
 // literal below equals the guard total and the arithmetic stays legible.
 //
@@ -845,6 +906,13 @@ for (const guard of TWO_IG_GUARDS) {
 // cancels. If the measured count is not exactly 172, a guard was dropped or duplicated -- FIND WHICH
 // before changing the literal.
 //
+// [gap] +2, so 174. The chronology ban is TWO checks because its needles come in two shapes and each
+// shape needs a different mechanism: one `absent` entry for the single-token stems (per line, and a stem
+// cannot wrap) plus one post-loop block for the four multi-word constructions (whitespace-flattened,
+// because a per-line needle over them can never match once the phrase wraps). Leaving this literal at
+// 172 would fail the whole battery on the roster gate rather than on the guard that found something,
+// which is the wrong signal.
+//
 // WHAT THIS GATE CATCHES that nothing else does: a deleted `topics` or `absent` entry; `topics: []`
 // (the loop emits nothing) and `absent: []` (truthy, so the presence check does not save you); and an
 // existsSync-gated post-loop block that silently emits nothing -- the D-05 honesty gate and the SEAM-02
@@ -854,13 +922,13 @@ for (const guard of TWO_IG_GUARDS) {
 // leaves the count unchanged. Only the selftest evasion proofs cover that. A bare count is also blind to
 // a SHORT SWAP that happens to balance, which is why the label-set assertions below exist and why
 // tools/row-guards.selftest.mjs asserts the exported guard NAME set independently.
-const EXPECTED_CHECKS = 172;
+const EXPECTED_CHECKS = 174;
 const ROSTER_LABEL = "[2ig] roster integrity: exact emitted-check count";
 
-// Every label this task ADDS, composed exactly as emitted (`<filename>: <label>` inside the FILES loop,
-// verbatim for a post-loop block). Hand-maintained alongside EXPECTED_CHECKS for the same reason: a
-// short swap that balances the count still fails here. The roster label itself is absent from this list
-// -- it has not been emitted yet at the moment it is checked.
+// Every label the [2ig] and [gap] rounds ADD, composed exactly as emitted (`<filename>: <label>` inside
+// the FILES loop, verbatim for a post-loop block). Hand-maintained alongside EXPECTED_CHECKS for the same
+// reason: a short swap that balances the count still fails here. The roster label itself is absent from
+// this list -- it has not been emitted yet at the moment it is checked.
 const NEW_LABELS = [
   `${TAXONOMY_BASENAME}: [2ig] five-kind count attributed to the hierarchy figure`,
   `${TAXONOMY_BASENAME}: [2ig] prose states four by folding two members`,
@@ -879,6 +947,10 @@ const NEW_LABELS = [
   `${TAXONOMY_BASENAME}: [2ig] no two-appendix count`,
   `${TAXONOMY_BASENAME}: [2ig] no only-occurrence skeleton phrasing`,
   ...TWO_IG_GUARDS.map((guard) => guard.label),
+  // [gap] The two halves of the chronology ban. Both listed BY NAME, not just counted: the count alone
+  // cannot see one half being dropped while something else is added.
+  `${TAXONOMY_BASENAME}: [gap] no chronology or seniority token`,
+  CHRONOLOGY_LABEL,
 ];
 
 const emittedBeforeRoster = emitted;

@@ -39,9 +39,9 @@ index when the detection signal is value-in / value-out code with no mocking.
   refactoring style there is -- it couples to nothing but inputs and the returned value, so it
   survives any internal reshaping that keeps the result the same.
 
-## Mock rule: no doubles in the core
+## Double rule: no doubles in the core
 
-- Mock rule: the core needs no test doubles. Purity removes the reason to mock, so a double here
+- Double rule: the core needs no test doubles. Purity removes the reason to mock, so a double here
   only couples the test to a shape the refactor is free to change. Keep a thin band of integration
   tests for the shell at the boundary instead.
 - When-to-use: whenever you are tempted to mock a dependency of the core -- that temptation usually

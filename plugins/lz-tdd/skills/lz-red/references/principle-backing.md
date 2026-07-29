@@ -49,7 +49,7 @@ Each backing row carries:
 | [Keep test doubles honest (double drift)](anti-patterns.md) | Sandi Metz, The Design of Tests (talk) | Owned; oracle-verified against the clean-room source. |
 | [Listen to the tests (test pain is design feedback)](anti-patterns.md) | Sandi Metz, The Design of Tests (talk) | Owned; oracle-verified against the clean-room source. |
 | [Implementation-detail brittleness](anti-patterns.md) | Vladimir Khorikov, Unit Testing: Principles, Practices, and Patterns | Unowned; high-confidence core only (no-oracle). |
-| [Mockist counterpoint, stated fairly](anti-patterns.md) | Steve Freeman and Nat Pryce, Growing Object-Oriented Software, Guided by Tests | Unowned; high-confidence core only (no-oracle). |
+| [Mockist counterpoint, stated fairly](anti-patterns.md) | Steve Freeman and Nat Pryce, Growing Object-Oriented Software, Guided by Tests -- the school name is Fowler's label for the position, not one these authors gave themselves | Unowned; high-confidence core only (no-oracle). |
 | [Test Desiderata tradeoff lens](anti-patterns.md) | Kent Beck, Test Desiderata (essay + video series); Sandi Metz, The Design of Tests, corroborates the over-testing cost | Owned; oracle-verified against the clean-room source. |
 | [Vitest mechanics mapped to RED concepts](vitest-typescript-mechanics.md) | Vitest 4.x documentation | Unowned; high-confidence core only (no-oracle). |
 

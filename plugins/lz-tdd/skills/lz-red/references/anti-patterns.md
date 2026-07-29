@@ -120,8 +120,9 @@ one of two ways:
   seam and pin the current behavior with a characterization test before you change anything. See
   [testing-stance/seams-and-legacy.md](testing-stance/seams-and-legacy.md).
 
-Counterpoint (GOOS, stated fairly): the mockist, or London, school -- Steve Freeman and Nat Pryce
-in Growing Object-Oriented Software, Guided by Tests -- also listens to the tests, but reads the
+Counterpoint (GOOS, stated fairly): the mockist, or London, school -- Fowler's label for the
+position, not a name its proponents gave themselves -- is Steve Freeman and Nat Pryce
+in Growing Object-Oriented Software, Guided by Tests. It also listens to the tests, but reads the
 same friction as pressure to discover the right roles and protocols between objects, and uses mocks
 at those boundaries as a design tool to drive the object relationships out. It is a coherent
 position, not a strawman. This coach keeps the classicist, value-based default -- assert observable

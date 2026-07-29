@@ -35,7 +35,7 @@ query/command split.
   value.
 - Assert rule: exercise the object through that message and assert the value it returns. The return
   value is the whole observable behavior of a query, so it is the whole of the test.
-- Mock rule: no double. A query hands back a value you can assert directly, so there is nothing to
+- Double rule: no double. A query hands back a value you can assert directly, so there is nothing to
   stand in for.
 
 ## Incoming command: assert the public side effect
@@ -44,7 +44,7 @@ query/command split.
   state.
 - Assert rule: run the command, then assert the direct public side effect -- the state change a
   caller can see afterwards through the object's own public surface, never a private field.
-- Mock rule: no double. The effect is observable through the public interface, so a test reads it
+- Double rule: no double. The effect is observable through the public interface, so a test reads it
   back rather than mocking it.
 
 ## Outgoing command: expect the message was sent
@@ -54,8 +54,10 @@ query/command split.
 - Assert rule: assert that the object sent that message -- an expect-to-send check against a double
   standing in for the collaborator. Sending the command IS the behavior under test, and it has no
   return value to read, so the interaction is what you pin.
-- Mock rule: this is the ONE cell that warrants a double. Use it only for a genuine outgoing command
-  at the object's boundary, and assert what was sent, not how.
+- Double rule: this is the ONE cell that warrants a double, and the double is a Test Spy -- it records
+  the call so the test can inspect it afterwards, where a Mock Object carries the expectation itself and
+  fails on the spot. Use it only for a genuine outgoing command at the object's boundary, and assert
+  what was sent, not how.
 
 ## Outgoing query and self-messages: do not test
 
@@ -64,7 +66,7 @@ query/command split.
 - Assert rule: assert nothing. An outgoing query is the collaborator's own incoming query -- test it
   there. A self-message is a private step on the way to a public result -- it is covered by the
   public query or command that drives it.
-- Mock rule: no double. Standing in for an outgoing query only couples the test to how this object
+- Double rule: no double. Standing in for an outgoing query only couples the test to how this object
   happens to use its collaborator, and pinning a self-message freezes an implementation detail the
   refactor step is free to change.
 
@@ -134,7 +136,8 @@ describe('Gate', () => {
     const gate = new Gate(notify);
     // Act: an incoming command that fans out an outgoing command.
     gate.openGate();
-    // Assert the outgoing command was sent -- expect-to-send, the one warranted double.
+    // Assert the outgoing command was sent -- expect-to-send against a Test Spy, which recorded the
+    // call so this line can inspect it. A Mock Object would have carried the expectation itself.
     expect(notify).toHaveBeenCalledWith('opened');
   });
 });

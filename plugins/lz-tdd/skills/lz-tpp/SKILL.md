@@ -89,8 +89,6 @@ mandatory.
   [references/fibonacci-worked-example.md](references/fibonacci-worked-example.md)
 - Paired functional/imperative TypeScript plus TCO-safe recursion guidance:
   [references/typescript-and-tco.md](references/typescript-and-tco.md)
-- What to call a production symbol that has no implementation yet, while picking the transformation
-  that fills it. The taxonomy names it a production-side stub, always qualified by side, and places it
-  on three axes -- where it lives, what it stands in for, and how long it lives. Read it before using
-  the word stub, which owned sources assign to opposite sides:
-  [references/test-double-taxonomy.md](references/test-double-taxonomy.md)
+- A production symbol with no implementation yet is a production-side stub. Always qualify it by side,
+  because owned sources assign the bare word to opposite sides; when a developer says it unqualified,
+  establish which side they mean before answering.

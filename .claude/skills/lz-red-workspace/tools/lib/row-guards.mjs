@@ -74,7 +74,7 @@ const taxonomyRows = (text) => parseRows(text, TAXONOMY_COLUMNS, TAXONOMY_HEADER
 const backingRows = (text) => parseRows(text, BACKING_COLUMNS, BACKING_HEADER);
 
 // ---------------------------------------------------------------------------------------------
-// (A) Seven ROW-SCOPED guards
+// (A) Four ROW-SCOPED guards, all over principle-backing.md
 // ---------------------------------------------------------------------------------------------
 
 // Shared shape: resolve exactly one row by its FULL name, then assert one named cell.
@@ -92,34 +92,10 @@ const rowCellGuard = ({ rows, predicate, description, column, columnName, cellRe
   return ok();
 };
 
-// Replaces the file-scoped `[wev G8]`, which two Sources bullets kept PASSing with the row's delivery
-// name stripped. The two Boundaries deliveries differ on exactly the point this row asserts, so a
-// finding cannot transfer between them -- naming one is the whole content of the guard.
-export const bernhardtDeliveryNamed = (text) =>
-  rowCellGuard({
-    rows: taxonomyRows(text),
-    predicate: (r) => r[TAX.Author] === "Gary Bernhardt" && r[TAX.Term] === "double versus value",
-    description: "the Gary Bernhardt double-versus-value row",
-    column: TAX.Source,
-    columnName: "Source",
-    cellRe: /\b(PyCon|SCNA)\b/,
-    expectation: "name a specific delivery",
-  });
-
-// NET-NEW. The document's convention is to state a non-member row's relationship to its parent in the
-// defining-property cell, and three of the four non-member rows already do. This row did not.
-// The needle MUST be row-scoped even though it is new: two OTHER rows (Responder, Saboteur) already
-// carry the same phrase, so a file-scoped form is satisfied by them and can never fail.
-export const temporaryTestStubStatesRelationship = (text) =>
-  rowCellGuard({
-    rows: taxonomyRows(text),
-    predicate: (r) => r[TAX.Author] === "Gerard Meszaros" && r[TAX.Term] === "`Temporary Test Stub`",
-    description: "the Gerard Meszaros Temporary Test Stub row",
-    column: TAX.DefiningProperty,
-    columnName: "Defining property",
-    cellRe: /Variation of Test Stub/i,
-    expectation: "state its relationship to Test Stub",
-  });
+// [lc9] The two guards keyed on rows of the development-time vocabulary map are RETIRED, by name, in
+// RETIRED_LABELS below. They are not retargeted at the archived copy: a frozen record has no regression
+// surface, so a guard over it could only fail on a deliberate archive edit -- the guard-that-cannot-fail
+// class in a new costume.
 
 // Replaces `[j9m] failure-vs-error boundary row`, whose needle /failure|error boundary/i was satisfied
 // by FIVE prose lines -- the bare word "failure" appears throughout the retagging discussion.
@@ -148,17 +124,9 @@ export const seamRowBacked = (text) =>
     expectation: "match the canonical no-oracle tier string",
   });
 
-// Replaces `[j9m] test-double taxonomy backing row`, which a prose cross-link kept PASSing.
-export const taxonomyRowBacked = (text) =>
-  rowCellGuard({
-    rows: backingRows(text),
-    predicate: (r) => /^\[Test-double taxonomy\]/.test(r[BACKING.Recommendation]),
-    description: "the Test-double taxonomy backing row",
-    column: BACKING.Recommendation,
-    columnName: "Recommendation",
-    cellRe: /\(test-double-taxonomy\.md\)/,
-    expectation: "link to the taxonomy",
-  });
+// [lc9] The guard asserting the backing row that LINKED to the vocabulary map is RETIRED too, because
+// the row it asserted about is DELETED -- the whole row described a document no longer in the tree. A
+// guard whose subject is gone must retire, not retarget.
 
 // Replaces `Three Laws backing row` (a Phase-18 original, NO bracket prefix), which the section
 // lead-in kept PASSing.
@@ -205,36 +173,46 @@ export const kanbanEssayNamedInRow = (text) => {
 };
 
 export const ROW_SCOPED_GUARDS = {
-  bernhardtDeliveryNamed,
-  temporaryTestStubStatesRelationship,
   failureVsErrorRowBacked,
   seamRowBacked,
-  taxonomyRowBacked,
   threeLawsRowBacked,
   kanbanEssayNamedInRow,
 };
 
-// The SIX superseded file-scoped needles, replicated here EXACTLY as the checker evaluated them
+// The superseded file-scoped needles, replicated here EXACTLY as the checker evaluated them
 // (per line, over the whole file). They exist for one purpose: the selftest asserts each one PASSES on
 // the same evasion fixture its replacement FAILS, so the "catches an evasion the old guard passed"
-// evidence is COMMITTED rather than thrown away in a scratchpad. The seventh entry is the hypothetical
-// file-scoped form of the net-new guard, which its two sibling Variation rows would have satisfied.
+// evidence is COMMITTED rather than thrown away in a scratchpad. One entry per surviving row-scoped
+// guard, and the selftest asserts that parity so the two sets cannot drift apart.
 const fileScoped = (re) => (text) => text.split(/\r?\n/).some((line) => re.test(line));
 
 export const OLD_NEEDLES = {
-  bernhardtDeliveryNamed: fileScoped(/\b(PyCon|SCNA)\b/),
-  temporaryTestStubStatesRelationship: fileScoped(/Variation of Test Stub/i),
   failureVsErrorRowBacked: fileScoped(/failure|error boundary/i),
   seamRowBacked: fileScoped(/seam|handoff/i),
-  taxonomyRowBacked: fileScoped(/test-double-taxonomy\.md/),
   threeLawsRowBacked: fileScoped(/three laws/i),
   kanbanEssayNamedInRow: fileScoped(/TDD is Kanban for Code/),
 };
 
-// The six retired labels AS EMITTED. The checker composes `<filename>: <label>`, so these are the
-// strings the roster gate's retired-label assertion must look for -- NOT the bare `label` values in
-// FILES. Two carry NO bracket prefix; they are Phase-18 originals, and adding a prefix that does not
-// exist would make the assertion vacuously true.
+// The SIXTY-FOUR retired labels AS EMITTED. The checker composes `<filename>: <label>` inside the FILES
+// loop and emits a post-loop label verbatim, so these are the strings the roster gate's retired-label
+// assertion must look for -- NOT the bare `label` values in FILES. Getting the composition wrong makes
+// the assertion VACUOUSLY TRUE: a mistyped retired label is trivially "not emitted", so the roster gate
+// is blind to a transcription error by construction, which is why these were transcribed from a CAPTURED
+// RUN of the pre-change battery rather than from the source or from memory.
+//
+// SHAPES VARY, and three of them are the likely transcription errors:
+//   * two Phase-18 originals carry NO bracket prefix at all;
+//   * the auto-generated scaffold label puts its bracket prefix FIRST, before the filename;
+//   * the byte-identity label has NO colon after the filename;
+//   * the owned-source count label has no filename prefix at all, because it reported across two files.
+// Adding a prefix that does not exist, or normalising a shape, would make that entry unmatchable.
+//
+// [lc9] +58. The six above are the [2ig] round's. The 58 below are the whole surface that read the
+// development-time vocabulary map, retired when that document left the shipped tree: its FILES entry
+// (29 topics + 14 absent guards + 1 auto scaffold check), the sha256 byte-identity gate, its two
+// row-scoped guards, the backing row that LINKED to it, the nine count guards, and the chronology phrase
+// gate. Recording them BY NAME is what separates a deliberate retirement from an accidental drop --
+// without this list the two are the same green run.
 export const RETIRED_LABELS = [
   "principle-backing.md: Three Laws backing row",
   "principle-backing.md: lz-tpp seam backing row",
@@ -242,6 +220,64 @@ export const RETIRED_LABELS = [
   "principle-backing.md: [j9m] failure-vs-error boundary row",
   "principle-backing.md: [wev G16] kanban-cycle essay named as the owned surface",
   "test-double-taxonomy.md: [wev G8] Bernhardt row names a specific delivery",
+  "test-double-taxonomy.md: [j9m] table of contents",
+  "test-double-taxonomy.md: [j9m] lifetime axis",
+  "test-double-taxonomy.md: [j9m] bare-stub collision headline",
+  "test-double-taxonomy.md: [j9m] defines-vs-uses column",
+  "test-double-taxonomy.md: [j9m] Self Shunt disclosure model",
+  "test-double-taxonomy.md: [j9m] Saboteur polarity caveat",
+  "test-double-taxonomy.md: [j9m] Overspecified Software citation",
+  "test-double-taxonomy.md: [j9m] Cooper false-friend caveat",
+  "test-double-taxonomy.md: [j9m] degraded-scan confidence caveat",
+  "test-double-taxonomy.md: [j9m] appendices not exhaustive",
+  "test-double-taxonomy.md: [j9m] authority is per cell",
+  "test-double-taxonomy.md: [j9m] Meszaros scoped as a reference frame, not the spine",
+  "test-double-taxonomy.md: [j9m] inherited disagreement named",
+  "test-double-taxonomy.md: [j9m] no declared precedence for the TDD content sources",
+  "test-double-taxonomy.md: [wev G6] three-axis count named",
+  "test-double-taxonomy.md: [wev G7] never-assert-an-empty-cell doctrine stated",
+  "test-double-taxonomy.md: [wev G9] tier assertions are version-bound",
+  "test-double-taxonomy.md: [wev G10] transcript mistranscription named",
+  "test-double-taxonomy.md: [wev G13] independent vocabularies, no seniority claim",
+  "test-double-taxonomy.md: [2ig] five-kind count attributed to the hierarchy figure",
+  "test-double-taxonomy.md: [2ig] prose states four by folding two members",
+  "test-double-taxonomy.md: [2ig] the five kinds enumerated as direct subtypes",
+  "test-double-taxonomy.md: [2ig] naming citation versus meaning citation",
+  "test-double-taxonomy.md: [2ig] Temporary Test Stub relationship on the lifecycle axis",
+  "test-double-taxonomy.md: [2ig] contested-word absence hedged to the swept scope",
+  "test-double-taxonomy.md: [2ig] numeral absence hedged to the parts read end to end",
+  "test-double-taxonomy.md: [2ig] positive remote-variant finding across an address space",
+  "test-double-taxonomy.md: [2ig] do-nothing hook is the real near-miss trap",
+  "test-double-taxonomy.md: [2ig] non-optional kanban qualifier carried",
+  "[j9m] test-double-taxonomy.md: no scaffold phrase",
+  "test-double-taxonomy.md: [wev G1] no invented term",
+  "test-double-taxonomy.md: [wev G2] no empty-cell assertion",
+  "test-double-taxonomy.md: [wev G3] no skill-relative self-reference",
+  "test-double-taxonomy.md: [wev G4] no unaudited-mapping caveat",
+  "test-double-taxonomy.md: [wev G5] no degraded-scan carve-out",
+  "test-double-taxonomy.md: [wev G11] no non-occurring Metz term",
+  "test-double-taxonomy.md: [wev G12] no superseded two-axis or four-cell wording",
+  "test-double-taxonomy.md: [2ig] no set-scoped emptiness assertion",
+  "test-double-taxonomy.md: [2ig] no deliberate-negative intent inference",
+  "test-double-taxonomy.md: [2ig] no every-available-name universal quantifier",
+  "test-double-taxonomy.md: [2ig] no possessive five-kinds attribution",
+  "test-double-taxonomy.md: [2ig] no two-appendix count",
+  "test-double-taxonomy.md: [2ig] no only-occurrence skeleton phrasing",
+  "test-double-taxonomy.md: [gap] no chronology or seniority token",
+  "[j9m] test-double-taxonomy.md byte-identical across all three skills",
+  "test-double-taxonomy.md: [2ig] Bernhardt row names a specific delivery",
+  "test-double-taxonomy.md: [2ig] Temporary Test Stub row states its relationship",
+  "principle-backing.md: [2ig] test-double taxonomy ROW backed",
+  "test-double-taxonomy.md: [2ig] mapped-source count re-derived",
+  "test-double-taxonomy.md: [2ig] cell count re-derived from the axes",
+  "test-double-taxonomy.md: [2ig] axis count re-derived",
+  "test-double-taxonomy.md: [2ig] cell row count re-derived",
+  "[2ig] owned-source count re-derived across both files",
+  "test-double-taxonomy.md: [2ig] kinds count re-derived from the enumeration",
+  "test-double-taxonomy.md: [2ig] closing-qualifier count re-derived",
+  "test-double-taxonomy.md: [2ig] ambiguity survey counts re-derived",
+  "test-double-taxonomy.md: [2ig] no empty data cell in the per-author table",
+  "test-double-taxonomy.md: [gap] no chronology or seniority phrase (wrap-proof)",
 ];
 
 // ---------------------------------------------------------------------------------------------

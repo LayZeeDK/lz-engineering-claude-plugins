@@ -68,7 +68,6 @@ high-confidence core only.
 | [Fail for the right reason: the Vitest-specific mapping](vitest-typescript-mechanics.md) | lz-red's own measurement on the pinned toolchain | Unowned; high-confidence core only (no-oracle). |
 | [Classify-first and the forward lz-tpp handoff](three-laws-and-test-selection.md) | lz-red orchestration | Unowned; high-confidence core only (no-oracle). |
 | [Reverse lz-tpp -> lz-red pointer](../../lz-tpp/SKILL.md) | lz-red orchestration | Unowned; high-confidence core only (no-oracle). |
-| [Test-double taxonomy](test-double-taxonomy.md) | Twelve sources, mapped per row inside the linked document | PER SOURCE -- no single tier applies. Tiers vary by row inside that table, from owned and oracle-verified to no-oracle. No term is coined there: the production-side transitional artifact is named a production-side stub, always qualified by side, and four owned sources name it. Read the row, not this cell. |
 
 ### Why the fail-for-the-right-reason backing was retagged
 
@@ -95,8 +94,6 @@ contradiction was therefore a FAITHFUL TRANSCRIPTION of that disagreement: two o
 followed accurately in two different places, and their conflict travelled with them. It was not
 carelessness. The fix NAMES the disagreement and scopes each side to the question it actually answers,
 rather than silently picking a winner and presenting the result as though one source had been misread.
-The same inherited conflict is recorded from the vocabulary side in
-[test-double-taxonomy.md](test-double-taxonomy.md).
 
 ## Sources
 

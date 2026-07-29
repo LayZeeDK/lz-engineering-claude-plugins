@@ -98,6 +98,10 @@ reference leaf that carries the detail; do not restate a leaf's content here.
    the green step, and that is lz-tpp's job, not this skill's. Because a not-implemented throw now
    counts as a valid red, lz-red no longer has to author a wrong-value production-side stub to reach
    one, which shrinks the pressure on this seam without settling who owns that production-side stub.
+   Always qualify that contested word by side: a production-side stub is the symbol's own unwritten
+   implementation, while a collaborator-side stub stands in for something else entirely. Owned sources
+   assign the bare word to opposite sides, so when a developer uses it unqualified, establish
+   which side they mean before answering.
 
 The RED path end to end (Vitest + TypeScript). Classify (step 1): this is new behavior, so the next
 failing test is lz-red's. Pick the starter case (step 2) and shape it arrange-act-assert (step 4),
@@ -151,12 +155,6 @@ not caution.
   assertions): [references/vitest-typescript-mechanics.md](references/vitest-typescript-mechanics.md)
 - Source-to-recommendation backing and owned/unowned access tiers:
   [references/principle-backing.md](references/principle-backing.md)
-- What to call the thing you substitute, and which author to cite for it, when deciding what to stand
-  in for while writing the failing test. It places every artifact on three axes -- where it lives, what
-  it stands in for, and how long it lives -- and settles the naming rule: a production-side stub,
-  always qualified by side. Read it before using the word stub, which owned sources assign to opposite
-  sides:
-  [references/test-double-taxonomy.md](references/test-double-taxonomy.md)
 - Adaptive testing-stance router -- navigation index (detection signals + route table); open a
   leaf to act: [references/testing-stance/README.md](references/testing-stance/README.md)
   - Functional core, imperative shell (Bernhardt):

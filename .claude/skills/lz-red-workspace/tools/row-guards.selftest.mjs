@@ -5,7 +5,7 @@
 // framework is introduced. IN-MEMORY FIXTURES ONLY; this file never reads a shipped document.
 //   node .claude/skills/lz-red-workspace/tools/row-guards.selftest.mjs
 //
-// CONTRACT. Fourteen of the guards in row-guards.mjs correctly PASS against the live text, because
+// CONTRACT. Every guard in row-guards.mjs correctly PASSES against the live text, because
 // their subject is ALREADY right and their job is to stop a REGRESSION. A baseline FAIL is therefore
 // neither available nor meaningful for them, and manufacturing one would mean contorting a needle or
 // deleting the very content this round exists to add. THIS FIXTURE SET IS THEIR PROOF INSTEAD:
@@ -39,6 +39,10 @@ import { ROW_SCOPED_GUARDS, COUNT_GUARDS, OLD_NEEDLES, RETIRED_LABELS } from "./
 // a missed backslash.
 // ---------------------------------------------------------------------------------------------
 
+// [lc9] SYNTHETIC FIXTURE, and KEPT deliberately. It is not a copy of any shipped or archived document
+// -- every line here was written for this file -- and it is the ONLY fixture exercising parseRows's
+// header-dropped-BY-VALUE and width-mismatch-SKIPS cases. Deleting it because the document it once
+// resembled left the tree would silently remove those two proofs.
 const TAXONOMY_LINES = [
   "# Fixture taxonomy",
   "",
@@ -151,7 +155,6 @@ const BACKING_LINES = [
   "",
   "The Three Laws of TDD spine and the classify-first seam and handoff are backed here.",
   "A build failure is a legitimate red, and that failure is not an assertion mismatch.",
-  "The same inherited conflict is recorded in [test-double-taxonomy.md](test-double-taxonomy.md).",
   "Beck's owned surface for that step is the essay TDD is Kanban for Code.",
   "Seams and characterization are handled in another leaf, and four owned sources name it.",
   "",
@@ -161,7 +164,6 @@ const BACKING_LINES = [
   "| [Fail for the right reason: the failure-versus-error boundary](vitest-typescript-mechanics.md) | Martin Fowler, Refactoring 2nd Edition Ch. 4 -- a failure is an assertion mismatch | Owned; oracle-verified against the clean-room source. |",
   "| [Fail for the right reason: clear the compile error, then run and fail](vitest-typescript-mechanics.md) | Kent Beck, TDD is Kanban for Code (essay) | Owned; oracle-verified against the clean-room source. |",
   "| [Classify-first and the forward lz-tpp handoff](three-laws-and-test-selection.md) | lz-red orchestration | Unowned; high-confidence core only (no-oracle). |",
-  "| [Test-double taxonomy](test-double-taxonomy.md) | Twelve sources, mapped per row | PER SOURCE -- no single tier applies. |",
 ];
 
 const TAXONOMY = TAXONOMY_LINES.join("\n");
@@ -230,7 +232,7 @@ console.log("");
 
 console.log("lib/pipe-table.mjs -- parseRows");
 check("taxonomy fixture parses to 15 data rows", parseRows(TAXONOMY, 9, "Author").length, 15);
-check("backing fixture parses to 5 data rows", parseRows(BACKING, 3, "Recommendation").length, 5);
+check("backing fixture parses to 4 data rows", parseRows(BACKING, 3, "Recommendation").length, 4);
 check("header row is dropped BY VALUE, not by position", parseRows(TAXONOMY, 9, "Author")[0][0], "Kent Beck");
 check("a width mismatch SKIPS the row rather than guessing", parseRows(TAXONOMY, 3, "Author").length, 0);
 check("empty text parses to zero rows, no crash", parseRows("", 9, "Author").length, 0);
@@ -290,38 +292,16 @@ check("findLinkTargets: a link inside a fence is not a link site", findLinkTarge
 console.log("");
 
 // ---------------------------------------------------------------------------------------------
-// (A) Seven row-scoped guards -- four assertions each
+// (A) Four row-scoped guards -- four assertions each
 // ---------------------------------------------------------------------------------------------
 
-console.log("lib/row-guards.mjs -- seven ROW-SCOPED guards (pristine / evasion / old needle / empty)");
+console.log("lib/row-guards.mjs -- four ROW-SCOPED guards (pristine / evasion / old needle / empty)");
 
-// -- 1. bernhardtDeliveryNamed. BRIEF-MANDATED EVASION (a): strip the delivery name from the ROW while
-// a Sources bullet still names a delivery, which is exactly how the old file-scoped needle stayed green.
-const BERNHARDT_EVASION = mutate(
-  mutate(TAXONOMY, "| Uses | Boundaries, PyCon 2013 delivery |", "| Uses | Boundaries |"),
-  "- Source bullet one.",
-  "- Gary Bernhardt -- the double-versus-value distinction from Boundaries, PyCon 2013."
-);
+// [lc9] The two fixture blocks for the guards keyed on rows of the development-time vocabulary map are
+// deleted with their guards. Their evidence is not lost: the retired LABELS are recorded by name in
+// RETIRED_LABELS, which the checker's roster gate asserts are no longer emitted.
 
-check("bernhardtDeliveryNamed: pristine row names a delivery -> PASS", verdict(ROW_SCOPED_GUARDS.bernhardtDeliveryNamed(TAXONOMY)), true);
-check("bernhardtDeliveryNamed: EVASION (delivery stripped from the ROW, Sources bullet still names one) -> FAIL", verdict(ROW_SCOPED_GUARDS.bernhardtDeliveryNamed(BERNHARDT_EVASION)), false);
-check("bernhardtDeliveryNamed: OLD file-scoped needle PASSES that same evasion", OLD_NEEDLES.bernhardtDeliveryNamed(BERNHARDT_EVASION), true);
-check("bernhardtDeliveryNamed: empty text -> FAIL (anti-vacuity)", verdict(ROW_SCOPED_GUARDS.bernhardtDeliveryNamed("")), false);
-
-// -- 2. temporaryTestStubStatesRelationship. NET-NEW, but still row-scoped by necessity: the Responder
-// and Saboteur rows carry the same phrase, so a file-scoped form is satisfied by them and cannot fail.
-const TEMP_STUB_EVASION = mutate(
-  TAXONOMY,
-  "A Variation of Test Stub discriminated on a LIFECYCLE axis rather than an input-kind axis; an empty shell that evolves into the real class",
-  "An empty shell with hardcoded returns that evolves into the real class"
-);
-
-check("temporaryTestStubStatesRelationship: pristine cell states the relationship -> PASS", verdict(ROW_SCOPED_GUARDS.temporaryTestStubStatesRelationship(TAXONOMY)), true);
-check("temporaryTestStubStatesRelationship: EVASION (relationship stripped from the ROW, two sibling rows still carry the phrase) -> FAIL", verdict(ROW_SCOPED_GUARDS.temporaryTestStubStatesRelationship(TEMP_STUB_EVASION)), false);
-check("temporaryTestStubStatesRelationship: a FILE-SCOPED needle PASSES that same evasion (why row-scoping is required)", OLD_NEEDLES.temporaryTestStubStatesRelationship(TEMP_STUB_EVASION), true);
-check("temporaryTestStubStatesRelationship: empty text -> FAIL (anti-vacuity)", verdict(ROW_SCOPED_GUARDS.temporaryTestStubStatesRelationship("")), false);
-
-// -- 3. failureVsErrorRowBacked. Evasion: delete the ROW; five prose lines carrying the bare word
+// -- 1. failureVsErrorRowBacked. Evasion: delete the ROW; five prose lines carrying the bare word
 // "failure" kept the old needle green.
 const FAILURE_ROW_EVASION = dropLine(BACKING, "the failure-versus-error boundary");
 
@@ -330,7 +310,7 @@ check("failureVsErrorRowBacked: EVASION (row deleted, prose still says failure) 
 check("failureVsErrorRowBacked: OLD file-scoped needle PASSES that same evasion", OLD_NEEDLES.failureVsErrorRowBacked(FAILURE_ROW_EVASION), true);
 check("failureVsErrorRowBacked: empty text -> FAIL (anti-vacuity)", verdict(ROW_SCOPED_GUARDS.failureVsErrorRowBacked("")), false);
 
-// -- 4. seamRowBacked. Evasion: delete the ROW; six prose lines carrying "seam" or "handoff" kept the
+// -- 2. seamRowBacked. Evasion: delete the ROW; six prose lines carrying "seam" or "handoff" kept the
 // old needle green. The tier assertion is the canonical STRING, not a bare non-empty check.
 const SEAM_ROW_EVASION = dropLine(BACKING, "Classify-first and the forward lz-tpp handoff");
 const SEAM_TIER_MUTATION = mutate(
@@ -345,15 +325,7 @@ check("seamRowBacked: OLD file-scoped needle PASSES that same evasion", OLD_NEED
 check("seamRowBacked: a NON-EMPTY but wrong tier -> FAIL (a bare non-empty check could not catch this)", verdict(ROW_SCOPED_GUARDS.seamRowBacked(SEAM_TIER_MUTATION)), false);
 check("seamRowBacked: empty text -> FAIL (anti-vacuity)", verdict(ROW_SCOPED_GUARDS.seamRowBacked("")), false);
 
-// -- 5. taxonomyRowBacked. Evasion: delete the ROW; the prose cross-link kept the old needle green.
-const TAXONOMY_ROW_EVASION = dropLine(BACKING, "| [Test-double taxonomy]");
-
-check("taxonomyRowBacked: pristine row links the taxonomy -> PASS", verdict(ROW_SCOPED_GUARDS.taxonomyRowBacked(BACKING)), true);
-check("taxonomyRowBacked: EVASION (row deleted, prose cross-link survives) -> FAIL", verdict(ROW_SCOPED_GUARDS.taxonomyRowBacked(TAXONOMY_ROW_EVASION)), false);
-check("taxonomyRowBacked: OLD file-scoped needle PASSES that same evasion", OLD_NEEDLES.taxonomyRowBacked(TAXONOMY_ROW_EVASION), true);
-check("taxonomyRowBacked: empty text -> FAIL (anti-vacuity)", verdict(ROW_SCOPED_GUARDS.taxonomyRowBacked("")), false);
-
-// -- 6. threeLawsRowBacked. Evasion: delete the ROW; the section lead-in kept the old needle green.
+// -- 3. threeLawsRowBacked. Evasion: delete the ROW; the section lead-in kept the old needle green.
 const THREE_LAWS_ROW_EVASION = dropLine(BACKING, "| [Three Laws of TDD spine]");
 
 check("threeLawsRowBacked: pristine row names Robert C. Martin -> PASS", verdict(ROW_SCOPED_GUARDS.threeLawsRowBacked(BACKING)), true);
@@ -361,7 +333,7 @@ check("threeLawsRowBacked: EVASION (row deleted, section lead-in survives) -> FA
 check("threeLawsRowBacked: OLD file-scoped needle PASSES that same evasion", OLD_NEEDLES.threeLawsRowBacked(THREE_LAWS_ROW_EVASION), true);
 check("threeLawsRowBacked: empty text -> FAIL (anti-vacuity)", verdict(ROW_SCOPED_GUARDS.threeLawsRowBacked("")), false);
 
-// -- 7. kanbanEssayNamedInRow. BRIEF-MANDATED EVASION (b): revert the ROW's Source cell to the chapter
+// -- 4. kanbanEssayNamedInRow. BRIEF-MANDATED EVASION (b): revert the ROW's Source cell to the chapter
 // the same file says CONTRADICTS the criterion, while a prose bullet still names the essay.
 const KANBAN_EVASION = mutate(
   BACKING,
@@ -383,12 +355,17 @@ check("kanbanEssayNamedInRow: empty text -> FAIL (anti-vacuity)", verdict(ROW_SC
 
 // -- exactly-one-row rule: a DUPLICATED row must FAIL as loudly as a missing one, or the guard silently
 // asserts about whichever copy it happened to find first.
-const DUPLICATED_BERNHARDT = TAXONOMY.replace(
-  /^(\| Gary Bernhardt \| double versus value .*)$/m,
+//
+// [lc9] RETARGETED, not deleted. This case previously keyed on a guard retired in this task, and `oneRow`
+// is the anti-vacuity SPINE shared by every row-scoped guard in the module -- so losing its proof would
+// have quietly removed the only evidence that a duplicated row fails at all. It now duplicates a
+// SURVIVING guard's target row, which exercises exactly the same shared code path.
+const DUPLICATED_THREE_LAWS = BACKING.replace(
+  /^(\| \[Three Laws of TDD spine\].*)$/m,
   "$1\n$1"
 );
 
-check("oneRow: a DUPLICATED target row -> FAIL (exactly one, or fail)", verdict(ROW_SCOPED_GUARDS.bernhardtDeliveryNamed(DUPLICATED_BERNHARDT)), false);
+check("oneRow: a DUPLICATED target row -> FAIL (exactly one, or fail)", verdict(ROW_SCOPED_GUARDS.threeLawsRowBacked(DUPLICATED_THREE_LAWS)), false);
 console.log("");
 
 // ---------------------------------------------------------------------------------------------
@@ -525,17 +502,9 @@ console.log("");
 
 console.log("lib/row-guards.mjs -- export roster (a count alone cannot see a renamed or swapped guard)");
 check(
-  "ROW_SCOPED_GUARDS exports exactly the seven named row-scoped guards",
+  "ROW_SCOPED_GUARDS exports exactly the four named row-scoped guards",
   Object.keys(ROW_SCOPED_GUARDS).sort(),
-  [
-    "bernhardtDeliveryNamed",
-    "failureVsErrorRowBacked",
-    "kanbanEssayNamedInRow",
-    "seamRowBacked",
-    "taxonomyRowBacked",
-    "temporaryTestStubStatesRelationship",
-    "threeLawsRowBacked",
-  ]
+  ["failureVsErrorRowBacked", "kanbanEssayNamedInRow", "seamRowBacked", "threeLawsRowBacked"]
 );
 check(
   "COUNT_GUARDS exports exactly the nine named count guards",
@@ -557,10 +526,21 @@ check(
   Object.keys(OLD_NEEDLES).sort(),
   Object.keys(ROW_SCOPED_GUARDS).sort()
 );
-check("RETIRED_LABELS carries exactly six composed labels", RETIRED_LABELS.length, 6);
+check("RETIRED_LABELS carries exactly sixty-four composed labels", RETIRED_LABELS.length, 64);
+// [lc9] REPLACES the `/^[a-z-]+\.md: /` shape assertion, which FAILS on four of the 58 added retirements
+// -- the auto-generated scaffold label puts its bracket prefix FIRST, the byte-identity label has no
+// colon after the filename, the owned-source label has no filename prefix at all, and a
+// `testing-stance/` path label carries a slash. Deleting the assertion instead of replacing it was NOT
+// an option: its purpose is catching a BARE label value copied out of FILES instead of the composed
+// string the checker actually emits, and that hazard is live precisely because of those odd shapes.
+//
+// All three properties in ONE check, so a single PASS line proves all three: every entry non-empty, the
+// list duplicate-free, and every entry carrying either a `.md` filename or a bracketed tag prefix. A
+// bare `label` value from FILES has neither, so it can never slip in.
 check(
-  "RETIRED_LABELS are COMPOSED strings (filename prefix), not bare label values",
-  RETIRED_LABELS.every((label) => /^[a-z-]+\.md: /.test(label)),
+  "RETIRED_LABELS are non-empty, duplicate-free, and each carries a filename or a bracketed tag",
+  RETIRED_LABELS.every((label) => label.trim() !== "" && (label.includes(".md") || /^\[[^\]]+\] /.test(label))) &&
+    new Set(RETIRED_LABELS).size === RETIRED_LABELS.length,
   true
 );
 

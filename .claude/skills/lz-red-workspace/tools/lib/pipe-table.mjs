@@ -15,16 +15,24 @@
 // there is exactly ONE splitter, `splitCells`, and both call it. It is aware of a backslash-escaped
 // pipe, which a bare `line.split("|")` miscounts as a cell boundary.
 //
-// MEASURED against both targets at authoring time (2026-07-29), which is what makes the narrow shape
+// SCOPE. `parseRows` has exactly ONE cell-level target left: principle-backing.md. The second target it
+// was originally measured against was the test-double vocabulary map, which quick-260729-lc9 removed
+// from the shipped tree entirely -- so that document's census is deleted here rather than carried under
+// a new heading, because a measurement of a file this module no longer reads is a stale claim by
+// construction. The general rule, which every comment in this workspace's instruments follows: state
+// the invariant, not a number a later change can falsify.
+//
+// MEASURED against that one target at authoring time (2026-07-29), which is what makes the narrow shape
 // safe TODAY:
-//   test-double-taxonomy.md -- 36 lines start with `|`, every one splits to exactly 11 parts
-//     (9 columns), 1 separator row, 1 header row, 34 data rows, 0 empty data cells, 0 escaped pipes,
-//     0 pipes inside code spans.
 //   principle-backing.md    -- 37 lines start with `|`, every one splits to exactly 5 parts
 //     (3 columns), 2 separator rows, 2 header rows, 33 data rows, 0 empty data cells.
 // The two principle-backing tables share a column count and a header first cell, so ONE call returns
 // the data rows of BOTH. That is wanted: every guard over that file asks about a row, not about which
 // of the two tables holds it.
+//
+// `scanTables` and `findLinkTargets`, by contrast, are GENERAL over any tree a caller hands them, so
+// they carry no per-file measurement at all and none may be added: their callers assert what they SAW
+// each run, via an anti-vacuity leg on a seen-count, which is a live assertion where a comment is not.
 //
 // This is NOT a Markdown parser and must never become one. It handles exactly the shape these
 // documents actually use, and FAILS CLOSED on anything else: a row whose cell count does not match is

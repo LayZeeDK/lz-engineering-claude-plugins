@@ -17,26 +17,25 @@
 // FLIPPED to positive content topics + an `absent: /Phase 18/i` no-stale-marker guard; every
 // Phase-16/17 topic is kept as the regression floor.
 //
-// TWELVE FILES entries as of quick-260728-j9m: the eleven above plus test-double-taxonomy.md, the
-// cross-author test-double vocabulary map. That entry sets requireFence: false on purpose -- the
-// taxonomy is prose and pipe tables only, so it never enters the tsc extractor's fence gate and the
-// lz-red tree's fence count is unchanged by it.
+// ELEVEN FILES entries as of quick-260729-lc9. A twelfth was added by quick-260728-j9m for the
+// cross-author test-double vocabulary map and is now REMOVED, together with the sha256 byte-identity
+// gate that policed its three per-skill copies: that material is scoped to development-time reference
+// only, so it no longer ships in any skill and the shipped tree carries no copy of it.
 //
-// Additions in quick-260728-j9m, every one PURELY ADDITIVE (no pre-existing topic, flag or gate was
-// weakened, loosened or removed):
-//   - `absent` now accepts EITHER a single guard object (as before) or an ARRAY of them, so one file
-//     can carry several no-stale-text guards. The DEL-7 contradiction sweep needs three of them.
-//   - An OPTIONAL per-entry `scaffoldExempt` array filters SCAFFOLD_RES for that entry only. It is
-//     set on the taxonomy entry ALONE, to /\bplaceholder\b/i, because that word is a REGISTERED
-//     ALIAS in the source taxonomy this document maps -- a domain term there, not a draft marker.
-//     Same precedent as lib/scaffold-phrases.mjs keeping TODO uppercase-only so a `todos` domain
-//     example never false-fails. The shared phrase list is deliberately NOT edited: the lz-refactor
-//     battery imports it too, and this exemption must not reach any other file.
-//   - A post-loop sha256 BYTE-IDENTITY gate: test-double-taxonomy.md ships as three copies (lz-red,
-//     lz-tpp, lz-refactor), one per skill because a bundled reference is scoped to its own skill
-//     directory. Duplication is safe only while the copies cannot drift, so the digests must agree.
-//   - Every gate added by that task carries a leading `[j9m] ` in its LABEL, so the new RED baseline
-//     is mechanically separable from the eleven pre-existing surfaces. No pre-existing label changed.
+// THE FORWARD CONSTRAINT, recorded here because it is the reason the gate was deleted rather than
+// narrowed: if a future milestone needs this material inside the plugin, it goes in as ONE plugin-wide
+// shared reference, never as byte-identical per-skill copies. Narrowing the digest gate to a single copy
+// would have made its predicate vacuous on a one-element array -- the guard-that-cannot-fail class this
+// file's own header condemns -- so it is deleted outright. Guard N3 below now enforces the absence
+// positively, which is what makes the constraint machine-checked instead of prose-checked.
+//
+// Surviving additions from quick-260728-j9m, both still PURELY ADDITIVE:
+//   - `absent` accepts EITHER a single guard object or an ARRAY of them, so one file can carry several
+//     no-stale-text guards, each independently reported under its own label.
+//   - An OPTIONAL per-entry `scaffoldExempt` array filters SCAFFOLD_RES for that entry only, for a file
+//     where one of those words is a genuine domain term rather than a draft marker. No entry sets it
+//     today; the shared phrase list in lib/scaffold-phrases.mjs stays untouched, because the
+//     lz-refactor battery imports it too and an exemption must never reach another file.
 //
 // Revised in quick-260728-wev, again extended IN PLACE (no sibling checker). That task's acceptance
 // gate found the instrument itself defective, so the instrument was fixed FIRST and every new guard
@@ -52,12 +51,11 @@
 //     produces a false FAIL. Its sole occurrence was the opening line of the seniority block the
 //     revision deletes, so it would have flipped PASS to FAIL and blocked the phase. Both are the
 //     same coupling bug -- a positive topic silently depending on prose another change may move.
-//   - G1-G5, G11, G12 are taxonomy `absent` guards; G6-G10 and G13 taxonomy positive topics; G14 and
-//     G15 net-new SEMANTIC guards on the lz-red SKILL.md worked example (the entry already had an
-//     absent guard -- what it lacked was any guard on the example, which is why stale contradicting
-//     text passed at 12/12); G16 a principle-backing.md positive topic; G17 a net-new post-loop
-//     bare-qualifier gate. The taxonomy label constant below belongs to the sha256 byte-identity
-//     gate, NOT to any coinage gate, and was deliberately left alone.
+//   - G1-G5, G11, G12 and G6-G10, G13 all read the vocabulary map and RETIRED with it in
+//     quick-260729-lc9; G14 and G15 net-new SEMANTIC guards on the lz-red SKILL.md worked example (the
+//     entry already had an absent guard -- what it lacked was any guard on the example, which is why
+//     stale contradicting text passed at 12/12); G16 a principle-backing.md positive topic; G17 a
+//     net-new post-loop bare-qualifier gate, which SURVIVES with a widened scope and a renamed label.
 //
 // Extended again by the 260729-2ig GAP CLOSURE, TWO checks, both purely additive. The [2ig] round was
 // required to ban chronology / seniority / ordering constructions and to build the guard forbidding
@@ -82,11 +80,10 @@
 //   node .claude/skills/lz-red-workspace/tools/check-red-references.mjs
 import fs from "node:fs";
 import path from "node:path";
-import { createHash } from "node:crypto";
 import { fileURLToPath } from "node:url";
 import { SCAFFOLD_RES } from "./lib/scaffold-phrases.mjs";
 import { findBookCitedAsOwned } from "./lib/provenance-honesty.mjs";
-import { ROW_SCOPED_GUARDS, COUNT_GUARDS, RETIRED_LABELS } from "./lib/row-guards.mjs";
+import { ROW_SCOPED_GUARDS, RETIRED_LABELS } from "./lib/row-guards.mjs";
 import { scanTables, findLinkTargets } from "./lib/pipe-table.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -369,158 +366,6 @@ const FILES = [
       { label: "[wev G15] worked-example body is not the identity return", re: /^\s*return total;\s*$/ },
     ],
   },
-  {
-    // NET-NEW (quick-260728-j9m): the cross-author test-double vocabulary map, shipped as three
-    // byte-identical copies (the digests are gated post-loop). requireFence is FALSE by house rule --
-    // this document is prose and pipe tables only, so it never enters the tsc extractor's fence gate.
-    // scaffoldExempt carries the ONE narrow exemption: /\bplaceholder\b/i is a registered alias in the
-    // source taxonomy this document maps, so here it is a domain term the document MUST name, not a
-    // draft marker. The exemption is scoped to this entry and lib/scaffold-phrases.mjs is untouched.
-    name: "test-double-taxonomy.md",
-    requireFence: false,
-    labelPrefix: "[j9m] ",
-    scaffoldExempt: [/\bplaceholder\b/i],
-    topics: [
-      { label: "[j9m] table of contents", re: /table of contents/i },
-      { label: "[j9m] lifetime axis", re: /lifetime/i },
-      { label: "[j9m] bare-stub collision headline", re: /collision/i },
-      { label: "[j9m] defines-vs-uses column", re: /\bdefines\b/i },
-      { label: "[j9m] Self Shunt disclosure model", re: /self shunt/i },
-      { label: "[j9m] Saboteur polarity caveat", re: /saboteur/i },
-      { label: "[j9m] Overspecified Software citation", re: /overspecified software/i },
-      { label: "[j9m] Cooper false-friend caveat", re: /false friend/i },
-      { label: "[j9m] degraded-scan confidence caveat", re: /degraded scan/i },
-      { label: "[j9m] appendices not exhaustive", re: /not exhaustive/i },
-      { label: "[j9m] authority is per cell", re: /per cell|per-cell/i },
-      { label: "[j9m] Meszaros scoped as a reference frame, not the spine", re: /reference frame/i },
-      { label: "[j9m] inherited disagreement named", re: /inherited/i },
-      { label: "[j9m] no declared precedence for the TDD content sources", re: /no declared precedence/i },
-      // [wev] Positive topics G6-G10 and G13. Each is a CONTRACT on the revised document's wording,
-      // and each FAILED at baseline because the target wording did not exist yet.
-      // G6: the axis count as a word plus the word axes, which the section-1 heading must carry.
-      { label: "[wev G6] three-axis count named", re: /three axes/i },
-      // G7: the never-assert-an-empty-cell doctrine must be STATED, not merely obeyed, so the guard
-      // stays falsifiable even when every cell happens to be populated.
-      { label: "[wev G7] never-assert-an-empty-cell doctrine stated", re: /\bnever asserts\b/i },
-      // [2ig] The SIXTH file-scoped topic removed here: `[wev G8] Bernhardt row names a specific
-      // delivery` (/\b(PyCon|SCNA)\b/i). TWO Sources bullets name a delivery, so the ROW's delivery
-      // name could be stripped with the guard still green. Replaced by `bernhardtDeliveryNamed` in the
-      // post-loop [2ig] block, which asserts the ROW's own Source cell.
-      // G9: the compound adjective for the version qualifier in the closing tier block.
-      { label: "[wev G9] tier assertions are version-bound", re: /version-bound/i },
-      // G10: what an automatic transcript can garble -- the medium qualifier and its absence-claim
-      // corollary both turn on it.
-      { label: "[wev G10] transcript mistranscription named", re: /mistranscri/i },
-      // G13: the INDEPENDENCE claim that replaces the deleted seniority argument. The bare word
-      // `independent` is VACUOUS as a needle -- the document already says twelve independent sources
-      // -- so the needle is the two-word phrase for two vocabularies that collided without either
-      // author citing the other.
-      { label: "[wev G13] independent vocabularies, no seniority claim", re: /independent vocabularies/i },
-      // [2ig] TEN positive topics, one per content addition this task makes, so each is RED until
-      // authored. MEASURED: every needle below has ZERO occurrences in the pre-edit document, which is
-      // what makes them RED-at-baseline rather than decoration.
-      // The count attributed to the FIGURE instead of to the author as his own framing -- the defect
-      // class this remediation exists to remove, repeated at nine sites.
-      { label: "[2ig] five-kind count attributed to the hierarchy figure", re: /hierarchy figure/i },
-      // The caveat a coach needs most: his PROSE states four, by folding two members into one bullet.
-      { label: "[2ig] prose states four by folding two members", re: /prose states four/i },
-      // The enumeration itself is machine-checked by `fiveKindsEnumerated` below; this topic gates the
-      // sentence that says WHAT the five are a reading of.
-      { label: "[2ig] the five kinds enumerated as direct subtypes", re: /direct subtypes/i },
-      // The Defines-or-uses repair: a NAMING citation and a MEANING citation are different asks.
-      { label: "[2ig] naming citation versus meaning citation", re: /naming citation/i },
-      // The one mis-levelled cell. The ROW-scoped assertion is `temporaryTestStubStatesRelationship`;
-      // this topic gates the AXIS nuance that makes the relationship informative.
-      { label: "[2ig] Temporary Test Stub relationship on the lifecycle axis", re: /lifecycle axis/i },
-      // Both absence claims must name the scope actually swept AND the unread remainder.
-      { label: "[2ig] contested-word absence hedged to the swept scope", re: /not swept/i },
-      { label: "[2ig] numeral absence hedged to the parts read end to end", re: /read end to end/i },
-      // The POSITIVE finding, which is stronger evidence than the bare absence: a source that
-      // articulates the CONCEPT and still never reaches for the word.
-      { label: "[2ig] positive remote-variant finding across an address space", re: /address space/i },
-      // The redirected near-miss warning. HOOK, never METHOD: `[wev G11]` is a live absent guard on the
-      // do-nothing-METHOD phrasing, a term measured to occur nowhere in the corpus, so writing this
-      // passage with the wrong noun trips that guard and reintroduces the phrasing it exists to keep out.
-      { label: "[2ig] do-nothing hook is the real near-miss trap", re: /do-nothing hook/i },
-      // The qualifier the dependent marks NON-OPTIONAL and the taxonomy currently drops.
-      { label: "[2ig] non-optional kanban qualifier carried", re: /one position among several/i },
-    ],
-    // [wev] The taxonomy entry carried NO absent guard at all before this task -- only positive
-    // topics, which is how a self-falsifying claim, a fabricated mapping and a relative
-    // self-reference all shipped at full GREEN. G1-G5, G11 and G12 close that.
-    absent: [
-      // G1: the invented two-word term. Removed, not softened.
-      { label: "[wev G1] no invented term", re: /signature skeleton/i },
-      // G2: the self-falsifying claim that a cell is named by no author, which the document's own
-      // table falsified with five populated rows.
-      { label: "[wev G2] no empty-cell assertion", re: /no author names/i },
-      // G3: skill-relative self-reference. This machine-enforces the byte-identity rule: the file is
-      // byte-identical across three skills, so a relative reference resolves differently in each
-      // copy. Explicit naming of a specific skill stays legal; only the relative form is banned.
-      { label: "[wev G3] no skill-relative self-reference", re: /\bthis skill\b/i },
-      // G4: the word describing the fabricated mapping's audit status. There is no mapping to audit.
-      { label: "[wev G4] no unaudited-mapping caveat", re: /\bunaudited\b/i },
-      // G5: the carve-out that exempted one cell from the degraded-scan caveat -- precisely the
-      // fabricated cell, so the carve-out inverted the actual reliability.
-      { label: "[wev G5] no degraded-scan carve-out", re: /other than the Beck cell/i },
-      // G11: the Metz term that occurs nowhere in the twenty-one-file corpus.
-      { label: "[wev G11] no non-occurring Metz term", re: /do-nothing method/i },
-      // G12: the SUPERSEDED two-axis wording, one needle over both the axis-count phrase and the
-      // four-cell phrase. LOAD-BEARING: topics are file-scoped and match anywhere, so G6 alone is
-      // satisfied by the new prose appearing while the old heading, the old anchor and the four-cell
-      // sentence all still stand -- a document asserting BOTH axis counts, at full GREEN. The needle
-      // deliberately does not catch the legitimate new phrasing about all four COMBINATIONS of the
-      // first and second axes; combinations are not cells.
-      { label: "[wev G12] no superseded two-axis or four-cell wording", re: /two[ -]axes|four cells/i },
-      // [2ig] SIX absent guards, one per banned wording. All six are RED-at-baseline; if one already
-      // passes, its needle is wrong. Every needle below was VERIFIED single-line-matchable against the
-      // CURRENT wrap, because `absent` guards run through the per-line loop and cannot use the
-      // whitespace-flattening that lib/row-guards.mjs mandates for its own multi-word needles. That
-      // hazard is live and already bit this checker once (see the narrowing comment on the
-      // anti-patterns guard). The deliberate-negative needle is the sharp case: the phrase DELIBERATE
-      // NEGATIVE itself WRAPS across two lines, so no needle over that phrase could ever match, and the
-      // needle is instead the inference's discriminating tail, which sits wholly on one line.
-      //
-      // The set-scoped emptiness form, at the hard rule's own legalising clause AND at the bullet using
-      // it. The previous round rewrote the rule to BLESS a scoped wording; that is not a fix, so the
-      // rule must state the prohibition and carry no clause legalising a scoped form.
-      { label: "[2ig] no set-scoped emptiness assertion", re: /no source in this set populates/i },
-      // The INTENT inference that a blank column is deliberate rather than an oversight. The blank-column
-      // FACT stays; only the inference goes.
-      { label: "[2ig] no deliberate-negative intent inference", re: /rather than an oversight/i },
-      // The universal quantifier over candidate names, falsified by a non-colliding candidate.
-      { label: "[2ig] no every-available-name universal quantifier", re: /Every available name/i },
-      // The POSSESSIVE five-kinds attribution. SCOPE, stated honestly: this needle catches the four
-      // possessive-determiner occurrences (`his`, `its`, and the explicit-name possessive), which are the
-      // unambiguous violations. The five NON-possessive occurrences are covered instead by the pinned
-      // site count in `fiveKindsEnumerated` and by the figure-attribution topic above -- NOT by this
-      // needle. It deliberately does NOT catch the figure-attributed replacement, which keeps the numeral.
-      { label: "[2ig] no possessive five-kinds attribution", re: /((\bhis|\bits)\s+|Meszaros'\s+)five kinds\b/i },
-      // The two-appendix count. That book has THREE appendices, and naming one of them separately in the
-      // same breath implies it is not an appendix.
-      { label: "[2ig] no two-appendix count", re: /both appendices/i },
-      // The only-OCCURRENCE phrasing. It is the only SENSE; there are three occurrences of it.
-      { label: "[2ig] no only-occurrence skeleton phrasing", re: /only `skeleton`/i },
-      // [gap] The CHRONOLOGY / SENIORITY ban, which the [2ig] round was required to enforce and did
-      // not: the banned construction survived AND no guard existed to forbid it, so the battery went
-      // 173/173 GREEN over it. The standing rule admits no form of chronology, seniority or ordering
-      // between two authors' usages.
-      //
-      // SINGLE-TOKEN STEMS ONLY, and that is a MECHANISM constraint rather than a preference. `absent`
-      // guards run through the per-line loop, so a multi-word needle is defeated by a wrap at the
-      // ~100-column margin -- the hazard recorded on the anti-patterns guard above, and again on the
-      // [2ig] set. A stem cannot wrap. The four MULTI-WORD constructions therefore live in the [gap]
-      // post-loop block, which flattens whitespace first.
-      //
-      // `lineage` is DELIBERATELY NOT a needle, and the omission is reported rather than silent: this
-      // document's own **Lineage.** block names which authors lz-red's DOCTRINE descends from, which is
-      // a statement about doctrinal ancestry and not a temporal or seniority relation between two
-      // authors' usages. Adding the needle would false-fail prose that must stay, so it is narrowed out
-      // instead (measured: two legitimate occurrences).
-      { label: "[gap] no chronology or seniority token", re: /postdat|predat|antedat|seniorit/i },
-    ],
-    deferral: null,
-  },
 ];
 
 // File-level assertion (per-file via requireFence): at least one tsc-strict TypeScript fence
@@ -666,54 +511,32 @@ if (fs.existsSync(lzTppSkillPath)) {
   );
 }
 
-// [j9m] Byte-identity gate. test-double-taxonomy.md ships as THREE copies -- one per skill -- because
-// a bundled reference is scoped to its own skill directory: no cross-skill ../ path, no symlink, and
-// no plugin-root shared dir. That duplication is only safe while the copies cannot silently diverge,
-// so sha256 must agree across all three. A standalone post-loop block (the D-05 honesty-gate and
-// SEAM-02 idiom) because it reads paths OUTSIDE the lz-red references tree. FAILs loud and BY NAME on
-// a missing copy rather than passing vacuously on the two that happen to exist.
-const TAXONOMY_LABEL = "[j9m] test-double-taxonomy.md byte-identical across all three skills";
-const taxonomyCopies = ["lz-red", "lz-tpp", "lz-refactor"].map((skill) => ({
-  skill,
-  file: path.join(repoRoot, "plugins", "lz-tdd", "skills", skill, "references", "test-double-taxonomy.md"),
-}));
-const missingCopies = taxonomyCopies.filter(({ file }) => !fs.existsSync(file));
-
-if (missingCopies.length > 0) {
-  report(false, TAXONOMY_LABEL, `copy MISSING for: ${missingCopies.map(({ skill }) => skill).join(", ")}`);
-} else {
-  const digests = taxonomyCopies.map(({ skill, file }) => ({
-    skill,
-    digest: createHash("sha256").update(fs.readFileSync(file)).digest("hex"),
-  }));
-  const identical = digests.every(({ digest }) => digest === digests[0].digest);
-
-  report(
-    identical,
-    TAXONOMY_LABEL,
-    identical
-      ? `sha256 ${digests[0].digest.slice(0, 12)} in all three`
-      : `digests DIVERGED -- ${digests.map(({ skill, digest }) => `${skill}=${digest.slice(0, 12)}`).join(", ")}`
-  );
-}
-
-// [wev] G17 BARE-QUALIFIER GATE. The taxonomy's own hard rule -- never use the contested word
-// unqualified, say production-side or collaborator-side -- was enforced by NOTHING, so a regression
-// was silent, and three of the six violations live at baseline were introduced by the very merge
-// under review. A standalone post-loop block (the D-05 / SEAM-02 / byte-identity idiom) because it
-// reads a whole tree plus paths outside the lz-red references dir.
+// [wev] G17 BARE-QUALIFIER GATE. The hard rule -- never use the contested word unqualified, say
+// production-side or collaborator-side -- was enforced by NOTHING, so a regression was silent, and
+// three of the six violations live at baseline were introduced by the very merge under review. A
+// standalone post-loop block (the D-05 / SEAM-02 idiom) because it reads a whole tree plus paths
+// outside the lz-red references dir.
 //
 // Scope: every .md under the lz-red references tree, PLUS the two SIBLING reference trees (lz-tpp and
-// lz-refactor), plus the three shipped SKILL.md routers. All three TAXONOMY COPIES are EXCLUDED --
-// there the word is the document's own subject matter and appears many times per copy by design.
+// lz-refactor), plus the three shipped SKILL.md routers. NOTHING is excluded.
 //
-// [2ig] The two sibling trees are the WIDENING half of a two-part fix. The taxonomy claimed the hard
-// rule was machine-enforced outside itself while this gate walked only ONE of the three reference
-// trees, so the claim was false for two thirds of the shipped surface. Widening alone is not enough --
-// this gate lives in the lz-red development workspace, OUTSIDE the plugin, and is not shipped, so no
-// installed copy carries it however wide the scope. The taxonomy's own wording is narrowed to say that;
-// shipping either half alone leaves the claim false. MEASURED at widening time: ZERO new hits across
-// both added trees, and the taxonomy-basename exclusion already covers their copies.
+// [lc9] The per-basename exclusion is DELETED, not narrowed to a vacuous one-element filter, and the
+// deletion is SELF-ENFORCING: if that document is ever re-added to a shipped reference tree, this gate
+// now fires loudly on it, because the word is its subject matter and occurs many times in it. That is
+// the correct outcome under the owner constraint. Keeping a filter with nothing left to filter would
+// preserve the retired mechanism's shape, which is exactly what the constraint forbids. Measured: the
+// walked file count is unchanged by the deletion -- this gate never scanned those copies.
+//
+// [lc9] The LABEL is renamed with the scope it now has. It previously said "outside the taxonomy",
+// which after that document leaves the tree names something there is nothing to be outside OF -- a
+// stale claim in the instrument's OWN OUTPUT, which is the same class this task exists to close,
+// pointed at the gate rather than at the prose.
+//
+// [2ig] The two sibling trees are the WIDENING half of a two-part fix. The claim that the hard rule
+// was machine-enforced was false for two thirds of the shipped surface while this gate walked only ONE
+// of the three reference trees. Widening alone is not enough -- this gate lives in the lz-red
+// development workspace, OUTSIDE the plugin, and is not shipped, so no installed copy carries it
+// however wide the scope. MEASURED at widening time: ZERO new hits across both added trees.
 //
 // Allowlist is exactly two forms and nothing else: an IMMEDIATELY PRECEDING canonical side
 // qualifier, and the meta-mention form that quotes the word as a word. The capitalised bare form is
@@ -724,8 +547,7 @@ if (missingCopies.length > 0) {
 const BARE_WORD_RE = /\b(stub|stubs|stubbed|stubbing)\b/gi;
 const SIDE_QUALIFIED_RE = /(production|collaborator)-side\s+$/i;
 const META_MENTION_RE = /\bthe word\s+[`'"]?$/i;
-const BARE_QUALIFIER_LABEL = "[wev G17] no bare unqualified contested word outside the taxonomy";
-const TAXONOMY_BASENAME = "test-double-taxonomy.md";
+const BARE_QUALIFIER_LABEL = "[wev G17] no bare unqualified contested word in the shipped tree";
 
 const collectMarkdown = (dir) => {
   const found = [];
@@ -765,7 +587,7 @@ for (const dir of SIBLING_REFERENCE_TREES) {
 }
 
 const bareQualifierTargets = [
-  ...referenceTreeFiles.filter((file) => path.basename(file) !== TAXONOMY_BASENAME),
+  ...referenceTreeFiles,
   ...["lz-red", "lz-refactor", "lz-tpp"].map((skill) =>
     path.join(repoRoot, "plugins", "lz-tdd", "skills", skill, "SKILL.md")
   ),
@@ -842,11 +664,18 @@ try {
 // mistyped path would yield 0 files -> 0 offenders -> a permanent PASS. The gate therefore also FAILS
 // when it saw no table at all, which is also how the nonzero magnitude of the scan gets asserted every
 // run -- strictly better than writing a table count into this comment, where it would go stale.
+//
+// [lc9] SCOPE: the shipped tree PLUS the ONE archived planning copy of the departed document. That
+// copy is a frozen inert record, so this is a hygiene floor rather than a regression surface -- but it
+// still carries pipe tables, and a ragged row there is the same defect. The path is listed as one extra
+// target alongside the tree walk and FAILS CLOSED if it is unreadable. Kept TEXTUALLY SEPARATE from
+// G17's scope on purpose: the two gates walk different trees and must not share a constant.
 const RAGGED_TABLE_LABEL = "[lc9] no ragged pipe table";
+const ARCHIVED_RECORD = path.join(repoRoot, ".planning/research/test-double-taxonomy.md");
 const raggedHits = pluginsWalkError === "" ? [] : [pluginsWalkError];
 let tablesSeen = 0;
 
-for (const file of pluginsMarkdown) {
+for (const file of [...pluginsMarkdown, ARCHIVED_RECORD]) {
   const shown = path.relative(repoRoot, file);
   let shapeText;
 
@@ -1010,20 +839,17 @@ report(lzTppRuleDetail === "", LZ_TPP_RULE_LABEL, lzTppRuleDetail);
 // blocks above, which emit NOTHING at all if their file vanishes (a fully silent vacuous pass that the
 // roster gate exists partly to catch).
 const readOrEmpty = (file) => (fs.existsSync(file) ? fs.readFileSync(file, "utf8") : "");
-const taxonomyText = readOrEmpty(path.join(REFERENCES, TAXONOMY_BASENAME));
 const backingText = readOrEmpty(principleBackingPath);
 
+// [lc9] FOUR row-scoped guards, down from seven plus nine count guards. The two guards keyed on rows of
+// the departed document, and the guard asserting the backing row that LINKED to it, are RETIRED BY NAME
+// in RETIRED_LABELS -- not retargeted at the archived copy. Retargeting was rejected for three reasons,
+// recorded so the choice is not silently re-opened: a frozen archive has no regression surface, so a
+// guard on it can only fail on a deliberate archive edit (the guard-that-cannot-fail class in a new
+// costume); pointing shipped-skill checks at a planning artifact lets a planning-doc edit redden the
+// skill gate, which is the wrong direction of coupling; and no .planning/ subdirectory survives a
+// milestone close, so every retargeted guard would break at the next one.
 const TWO_IG_GUARDS = [
-  // Seven ROW-SCOPED guards. Six replace a file-scoped needle removed from FILES above; the Temporary
-  // Test Stub one is net-new. Each keys on a FULL row name, never a bare word that could collide.
-  {
-    label: `${TAXONOMY_BASENAME}: [2ig] Bernhardt row names a specific delivery`,
-    run: () => ROW_SCOPED_GUARDS.bernhardtDeliveryNamed(taxonomyText),
-  },
-  {
-    label: `${TAXONOMY_BASENAME}: [2ig] Temporary Test Stub row states its relationship`,
-    run: () => ROW_SCOPED_GUARDS.temporaryTestStubStatesRelationship(taxonomyText),
-  },
   {
     label: "principle-backing.md: [2ig] failure-versus-error boundary ROW backed",
     run: () => ROW_SCOPED_GUARDS.failureVsErrorRowBacked(backingText),
@@ -1033,10 +859,6 @@ const TWO_IG_GUARDS = [
     run: () => ROW_SCOPED_GUARDS.seamRowBacked(backingText),
   },
   {
-    label: "principle-backing.md: [2ig] test-double taxonomy ROW backed",
-    run: () => ROW_SCOPED_GUARDS.taxonomyRowBacked(backingText),
-  },
-  {
     label: "principle-backing.md: [2ig] Three Laws spine ROW backed",
     run: () => ROW_SCOPED_GUARDS.threeLawsRowBacked(backingText),
   },
@@ -1044,85 +866,12 @@ const TWO_IG_GUARDS = [
     label: "principle-backing.md: [2ig] kanban-cycle essay named IN THE ROW",
     run: () => ROW_SCOPED_GUARDS.kanbanEssayNamedInRow(backingText),
   },
-  // Nine COUNT guards. Each derives its total from an authoritative list on the page (or from the axes)
-  // and asserts BOTH the stated number WORD and the number of SITES stating it. The site count is the
-  // load-bearing half: without it, DELETING a stated total passes silently.
-  {
-    label: `${TAXONOMY_BASENAME}: [2ig] mapped-source count re-derived`,
-    run: () => COUNT_GUARDS.twelveSources(taxonomyText),
-  },
-  {
-    label: `${TAXONOMY_BASENAME}: [2ig] cell count re-derived from the axes`,
-    run: () => COUNT_GUARDS.eightCellsFromAxes(taxonomyText),
-  },
-  {
-    label: `${TAXONOMY_BASENAME}: [2ig] axis count re-derived`,
-    run: () => COUNT_GUARDS.threeAxes(taxonomyText),
-  },
-  {
-    label: `${TAXONOMY_BASENAME}: [2ig] cell row count re-derived`,
-    run: () => COUNT_GUARDS.sixRowsInCell(taxonomyText),
-  },
-  // ONE report even though it scans BOTH files: the count is restated in the dependent's taxonomy row,
-  // so both sites belong to one claim. Emitting one report per file would make the measured total 173.
-  {
-    label: "[2ig] owned-source count re-derived across both files",
-    run: () => COUNT_GUARDS.fourOwnedSourcesName(taxonomyText, backingText),
-  },
-  {
-    label: `${TAXONOMY_BASENAME}: [2ig] kinds count re-derived from the enumeration`,
-    run: () => COUNT_GUARDS.fiveKindsEnumerated(taxonomyText),
-  },
-  {
-    label: `${TAXONOMY_BASENAME}: [2ig] closing-qualifier count re-derived`,
-    run: () => COUNT_GUARDS.threeFurtherQualifiers(taxonomyText),
-  },
-  {
-    label: `${TAXONOMY_BASENAME}: [2ig] ambiguity survey counts re-derived`,
-    run: () => COUNT_GUARDS.ambiguitySurveyCount(taxonomyText),
-  },
-  {
-    label: `${TAXONOMY_BASENAME}: [2ig] no empty data cell in the per-author table`,
-    run: () => COUNT_GUARDS.noEmptyDataCell(taxonomyText),
-  },
 ];
 
 for (const guard of TWO_IG_GUARDS) {
   const { ok: guardOk, why } = guard.run();
 
   report(guardOk, guard.label, guardOk ? "" : why);
-}
-
-// [gap] CHRONOLOGY PHRASE GATE -- the WRAP-PROOF half of the ban whose single-token half sits in the
-// taxonomy's `absent` set above. These four constructions each establish a temporal or precedence
-// relation in MORE THAN ONE WORD, and not one of them can be narrowed to a single token without
-// false-failing legitimate prose: `precedence` alone is a live domain word here (the section-2
-// Precedence block, plus a pinned no-declared-precedence topic), while `vocabulary` and `first` are far
-// too common. So the per-line `absent` set cannot express them -- a wrap at the ~100-column margin
-// defeats any multi-word needle there. They run against WHITESPACE-FLATTENED text instead, which is the
-// FLATTEN BEFORE MATCHING invariant lib/row-guards.mjs already states for its own multi-word needles.
-// A standalone post-loop block on the G17 precedent: G17 is likewise a prose-absence gate the per-file
-// loop cannot express.
-//
-// SCOPED TO THE lz-red COPY ALONE, and that is sufficient rather than lazy: the sha256 byte-identity
-// gate above already forces all three copies equal, so a banned phrase cannot survive in a sibling copy
-// while this one is clean.
-//
-// The EMPTY-TEXT leg is an anti-vacuity control, not defensive noise: `readOrEmpty` yields "" for a
-// missing file, and an absence gate over "" would report PASS forever -- the wev R1 defect class.
-const CHRONOLOGY_PHRASES = [/came\s+first/i, /older\s+vocabulary/i, /earlier\s+vocabulary/i, /takes\s+precedence/i];
-const CHRONOLOGY_LABEL = `${TAXONOMY_BASENAME}: [gap] no chronology or seniority phrase (wrap-proof)`;
-const flatTaxonomy = taxonomyText.replace(/\s+/g, " ");
-const chronologyHits = CHRONOLOGY_PHRASES.filter((re) => re.test(flatTaxonomy)).map((re) => String(re));
-
-if (taxonomyText === "") {
-  report(false, CHRONOLOGY_LABEL, "the taxonomy read as EMPTY, so this gate checked nothing");
-} else {
-  report(
-    chronologyHits.length === 0,
-    CHRONOLOGY_LABEL,
-    chronologyHits.length === 0 ? "" : `banned construction still present (matches ${chronologyHits.join(", ")})`
-  );
 }
 
 // [2ig] ROSTER INTEGRITY. The LAST report, and it snapshots the count BEFORE its own emission so the
@@ -1156,46 +905,34 @@ if (taxonomyText === "") {
 // leaves the count unchanged. Only the selftest evasion proofs cover that. A bare count is also blind to
 // a SHORT SWAP that happens to balance, which is why the label-set assertions below exist and why
 // tools/row-guards.selftest.mjs asserts the exported guard NAME set independently.
-// [lc9] +9, so 183. Nine guards, added INSTRUMENT-FIRST -- before any content or any deletion -- so each
-// one's ability to fail is demonstrated against the unmodified tree rather than asserted afterwards:
+// [lc9] +9 additions and -58 RETIREMENTS, so 125:
 //
-//   174 ([gap] baseline) + 9 ([lc9] additions) = 183
+//   174 ([gap] baseline) + 9 ([lc9] additions) - 58 (retirements) = 125
 //
-// Four are FILES-entry guards (one topic and one absent guard on message-matrix.md, one absent guard on
-// functional-core.md, one region-scoped topic on the SKILL.md router) and five are post-loop blocks
-// (table shape, relative-link resolution, no taxonomy copy, the mockist attribution across two files,
-// the inline rule on the shipped lz-tpp router). Eight of the nine are RED against the unmodified tree
-// and the ninth is invariant-GREEN with a fixture proof; the per-guard evidence is recorded in
-// 260729-lc9-RED-BASELINE.md.
-const EXPECTED_CHECKS = 183;
+// The nine additions were made INSTRUMENT-FIRST, before any content edit and before the deletion, so
+// each one's ability to fail was demonstrated against the unmodified tree rather than asserted
+// afterwards; the per-guard evidence is in 260729-lc9-RED-BASELINE.md. Four are FILES-entry guards and
+// five are post-loop blocks.
+//
+// The 58 retirements are the whole surface that read the departed document: its FILES entry (29 topics
+// + 14 absent guards + 1 auto scaffold check = 44), the sha256 byte-identity gate, its two row-scoped
+// guards, the backing row that LINKED to it, the nine count guards, and the chronology phrase gate.
+// Every one is recorded BY NAME in RETIRED_LABELS, so the roster gate can tell a deliberate retirement
+// from an accidental drop -- without that list the two are the same green run.
+const EXPECTED_CHECKS = 125;
 const ROSTER_LABEL = "[2ig] roster integrity: exact emitted-check count";
 
-// Every label the [2ig] and [gap] rounds ADD, composed exactly as emitted (`<filename>: <label>` inside
-// the FILES loop, verbatim for a post-loop block). Hand-maintained alongside EXPECTED_CHECKS for the same
-// reason: a short swap that balances the count still fails here. The roster label itself is absent from
-// this list -- it has not been emitted yet at the moment it is checked.
+// Every label the surviving [2ig] round and the [lc9] round ADD, composed exactly as emitted
+// (`<filename>: <label>` inside the FILES loop, verbatim for a post-loop block). Hand-maintained
+// alongside EXPECTED_CHECKS for the same reason: a short swap that balances the count still fails here.
+// The roster label itself is absent from this list -- it has not been emitted yet at the moment it is
+// checked.
+//
+// [lc9] PRUNED to the survivors: the four remaining row-scoped guard labels plus the nine [lc9]
+// additions = 13. Every label removed from here is now recorded in RETIRED_LABELS instead, which is what
+// turns a retirement into an assertion rather than an absence.
 const NEW_LABELS = [
-  `${TAXONOMY_BASENAME}: [2ig] five-kind count attributed to the hierarchy figure`,
-  `${TAXONOMY_BASENAME}: [2ig] prose states four by folding two members`,
-  `${TAXONOMY_BASENAME}: [2ig] the five kinds enumerated as direct subtypes`,
-  `${TAXONOMY_BASENAME}: [2ig] naming citation versus meaning citation`,
-  `${TAXONOMY_BASENAME}: [2ig] Temporary Test Stub relationship on the lifecycle axis`,
-  `${TAXONOMY_BASENAME}: [2ig] contested-word absence hedged to the swept scope`,
-  `${TAXONOMY_BASENAME}: [2ig] numeral absence hedged to the parts read end to end`,
-  `${TAXONOMY_BASENAME}: [2ig] positive remote-variant finding across an address space`,
-  `${TAXONOMY_BASENAME}: [2ig] do-nothing hook is the real near-miss trap`,
-  `${TAXONOMY_BASENAME}: [2ig] non-optional kanban qualifier carried`,
-  `${TAXONOMY_BASENAME}: [2ig] no set-scoped emptiness assertion`,
-  `${TAXONOMY_BASENAME}: [2ig] no deliberate-negative intent inference`,
-  `${TAXONOMY_BASENAME}: [2ig] no every-available-name universal quantifier`,
-  `${TAXONOMY_BASENAME}: [2ig] no possessive five-kinds attribution`,
-  `${TAXONOMY_BASENAME}: [2ig] no two-appendix count`,
-  `${TAXONOMY_BASENAME}: [2ig] no only-occurrence skeleton phrasing`,
   ...TWO_IG_GUARDS.map((guard) => guard.label),
-  // [gap] The two halves of the chronology ban. Both listed BY NAME, not just counted: the count alone
-  // cannot see one half being dropped while something else is added.
-  `${TAXONOMY_BASENAME}: [gap] no chronology or seniority token`,
-  CHRONOLOGY_LABEL,
   // [lc9] The nine additions, composed EXACTLY as emitted. The FILES loop emits `<entry name>: <label>`,
   // so the two testing-stance labels carry that path segment; a post-loop label is verbatim. Four of
   // them are referenced through their own constants so a rename cannot desynchronise the roster.
@@ -1234,7 +971,7 @@ report(rosterOk, ROSTER_LABEL, rosterDetail);
 console.log("");
 
 if (failures === 0) {
-  console.log(`SUMMARY: RED-REFS GREEN -- ${filesPresent}/${FILES.length} lz-red surfaces authored (SKILL.md coach procedure + SEL/STR/NAME/ASRT/RTR/VIT/ANTI references + the test-double taxonomy) with topics + required ts fences + cross-links, no scaffold leak, no stale Phase-18 markers, the red criterion consistent across every surface that restates it, taxonomy byte-identical in all three skills, SEAM-02 lz-tpp reverse pointers present, D-05 honesty gate holds`);
+  console.log(`SUMMARY: RED-REFS GREEN -- ${filesPresent}/${FILES.length} lz-red surfaces authored (SKILL.md coach procedure + SEL/STR/NAME/ASRT/RTR/VIT/ANTI references) with topics + required ts fences + cross-links, no scaffold leak, no stale Phase-18 markers, the red criterion consistent across every surface that restates it, no ragged pipe table and no dead relative link anywhere in the shipped tree, no per-skill copy of the development-time vocabulary map, SEAM-02 lz-tpp reverse pointers present, D-05 honesty gate holds`);
   process.exit(0);
 }
 

@@ -539,24 +539,31 @@ const SIDE_QUALIFIED_RE = /(production|collaborator)-side\s+$/i;
 const META_MENTION_RE = /\bthe word\s+[`'"]?$/i;
 const BARE_QUALIFIER_LABEL = "[wev G17] no bare unqualified contested word in the shipped tree";
 
-const collectMarkdown = (dir) => {
+// [lc9] EVERY file, at any depth. Split out from collectMarkdown so ONE walk can serve both a
+// markdown-only consumer and the no-copy gate, which must not be blind to an extension: `collectMarkdown`
+// filtered on `.md`, so a taxonomy copy re-added as `.markdown` or `.txt` was invisible to a gate whose
+// label says "no copy", unqualified. No second directory walker is introduced -- the .md list is derived
+// from this one.
+const collectFiles = (dir) => {
   const found = [];
 
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
     const full = path.join(dir, entry.name);
 
     if (entry.isDirectory()) {
-      found.push(...collectMarkdown(full));
+      found.push(...collectFiles(full));
       continue;
     }
 
-    if (entry.isFile() && entry.name.endsWith(".md")) {
+    if (entry.isFile()) {
       found.push(full);
     }
   }
 
   return found;
 };
+
+const collectMarkdown = (dir) => collectFiles(dir).filter((file) => file.endsWith(".md"));
 
 // [2ig] All THREE reference trees now, not just lz-red's.
 const SIBLING_REFERENCE_TREES = ["lz-red", "lz-tpp", "lz-refactor"].map((skill) =>
@@ -631,11 +638,15 @@ report(
 // vacuous pass, which is exactly the guard-that-cannot-fail class this file's own header condemns.
 // ===============================================================================================
 const PLUGINS_DIR = path.join(repoRoot, "plugins");
+let pluginsAllFiles = [];
 let pluginsMarkdown = [];
 let pluginsWalkError = "";
 
 try {
-  pluginsMarkdown = collectMarkdown(PLUGINS_DIR);
+  // ONE walk, two views: the markdown subset for the shape and link gates, the full list for the no-copy
+  // gate, which must see any extension.
+  pluginsAllFiles = collectFiles(PLUGINS_DIR);
+  pluginsMarkdown = pluginsAllFiles.filter((file) => file.endsWith(".md"));
 } catch (err) {
   pluginsWalkError = `${path.relative(repoRoot, PLUGINS_DIR)}: TREE UNREADABLE (${err.code ?? err.message})`;
 }
@@ -770,12 +781,18 @@ report(
 // never ship again as byte-identical per-skill copies. That constraint was violated ONCE ALREADY and
 // survived three consecutive acceptance reviews, for exactly one reason: nothing checked it. Prose
 // cannot enforce a constraint; this gate can. FAILS BY NAME on every copy it finds.
-const TAXONOMY_COPY_FILENAME = "test-double-taxonomy.md";
+//
+// [lc9] Matched on the basename STEM over EVERY file, not on `test-double-taxonomy.md` over the markdown
+// list. The label says "no copy" unqualified, and an extension is not a constraint: a copy re-added as
+// `.markdown`, `.txt` or anything else satisfied the old needle while violating the rule the label states.
+// MEASURED: a `.txt` copy planted under plugins/ passed this gate before the change and FAILS by name
+// after it. The rule got STRICTER -- no carve-out was added and nothing was scoped away.
+const TAXONOMY_COPY_STEM = "test-double-taxonomy";
 const TAXONOMY_COPY_LABEL = "[lc9] no test-double taxonomy copy in the shipped tree";
 const taxonomyCopyHits = pluginsWalkError === "" ? [] : [pluginsWalkError];
 
-for (const file of pluginsMarkdown) {
-  if (path.basename(file) === TAXONOMY_COPY_FILENAME) {
+for (const file of pluginsAllFiles) {
+  if (path.basename(file, path.extname(file)) === TAXONOMY_COPY_STEM) {
     taxonomyCopyHits.push(path.relative(repoRoot, file));
   }
 }
@@ -927,14 +944,30 @@ const ROSTER_LABEL = "[2ig] roster integrity: exact emitted-check count";
 // The roster label itself is absent from this list -- it has not been emitted yet at the moment it is
 // checked.
 //
-// [lc9] PRUNED to the survivors: the four remaining row-scoped guard labels plus the nine [lc9]
-// additions = 13. Every label removed from here is now recorded in RETIRED_LABELS instead, which is what
-// turns a retirement into an assertion rather than an absence.
+// [lc9] PRUNED to the survivors, and the composition is spelled out because it moved twice: the FOUR
+// remaining row-scoped guard labels, plus the EIGHT surviving [lc9] additions (the ninth was the N8
+// presence gate, removed with SEAM-02 by the 0.0.3 scope revert), plus the G17 label = 13. Every label
+// removed from here is now recorded in RETIRED_LABELS instead, which is what turns a retirement into an
+// assertion rather than an absence.
+//
+// G17's label is listed as a STRING LITERAL, deliberately NOT as the BARE_QUALIFIER_LABEL constant, and
+// this is the one entry in the list that can catch a RENAME. A guard rename was invisible to all THREE
+// roster legs -- the count nets to zero, the new label is absent from this list, and the old label is
+// absent from RETIRED_LABELS -- which is how 59 labels vanished against 58 rostered. Listing the CONSTANT
+// would not have closed it: the emission site pushes that same constant, so a rename moves both sides
+// together and the leg stays green, a guard that cannot fail. Only a literal makes the rename an
+// assertion. MEASURED: with G17's label value changed, the battery exits 0 before this entry and 1 after.
+//
+// Recorded so the true extent is not lost: 8 of these 13 entries are still rename-BLIND for exactly that
+// reason -- the four `TWO_IG_GUARDS.map(...)` labels are derived from the guard objects that also carry
+// them to the report call, and four more are referenced through their own constants below. Converting
+// them needs one rename proof each and is out of scope here.
 const NEW_LABELS = [
   ...TWO_IG_GUARDS.map((guard) => guard.label),
-  // [lc9] The nine additions, composed EXACTLY as emitted. The FILES loop emits `<entry name>: <label>`,
-  // so the two testing-stance labels carry that path segment; a post-loop label is verbatim. Four of
-  // them are referenced through their own constants so a rename cannot desynchronise the roster.
+  "[wev G17] no bare unqualified contested word in the shipped tree",
+  // [lc9] The eight surviving additions, composed EXACTLY as emitted. The FILES loop emits
+  // `<entry name>: <label>`, so the two testing-stance labels carry that path segment; a post-loop label
+  // is verbatim.
   "testing-stance/message-matrix.md: [lc9] Test Spy named for the record-then-inspect double",
   "testing-stance/message-matrix.md: [lc9] no Mock rule label",
   "testing-stance/functional-core.md: [lc9] no Mock rule label",

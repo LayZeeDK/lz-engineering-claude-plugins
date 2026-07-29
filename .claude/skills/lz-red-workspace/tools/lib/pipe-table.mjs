@@ -39,6 +39,10 @@
 // SKIPPED rather than guessed at, and row-guards.mjs turns "row not found" into a loud FAIL via its
 // exactly-one-row rule. A skipped row can therefore never pass silently.
 //
+// "The shape these documents use" now includes a GFM-legal INDENTED row (up to three leading spaces),
+// which both scanners RECOGNISE rather than skip -- see TABLE_ROW_RE. That gap was the one exception to
+// the paragraph above: an unrecognised table is skipped SILENTLY, and no seen-count can catch it.
+//
 // `scanTables` and `findLinkTargets` are the two general scanners added by quick-260729-lc9. Both are
 // pure and disk-free so their classification is fixture-testable, and both are FENCE-AWARE: a fenced
 // line is neither a table row nor a link site, and it closes any table that was open. Neither can
@@ -50,6 +54,17 @@
 
 // A separator cell: three or more dashes, optionally colon-aligned on either side.
 const SEPARATOR_CELL_RE = /^:?-{3,}:?$/;
+
+// THE one row recognizer, shared for the same reason as the one cell splitter below (quick-260729-lc9).
+// GFM allows up to THREE leading spaces on a table row; at four it is an indented code block and not a
+// row at all, which is why the bound is exact rather than `\s*`.
+//
+// A bare `line.startsWith("|")` missed every indented table, and the failure mode was SKIP-SILENTLY: an
+// indented ragged row was invisible to scanTables, and a seen-count anti-vacuity leg cannot detect a
+// table it never recognised as one. That is the single direction this module's own header rules out, so
+// recognition is fixed rather than the skip made loud. Both consumers test THIS constant, so they cannot
+// drift apart about what counts as a row.
+const TABLE_ROW_RE = /^ {0,3}\|/;
 
 // A fence open or close: up to three leading spaces, then three or more backticks or tildes. The
 // CHARACTER has to match for a fence to close, so a tilde fence inside a backtick fence does not end it.
@@ -142,7 +157,7 @@ export function parseRows(text, columnCount, headerFirstCell) {
   const rows = [];
 
   for (const line of text.split(/\r?\n/)) {
-    if (!line.startsWith("|")) {
+    if (!TABLE_ROW_RE.test(line)) {
       continue;
     }
 
@@ -206,7 +221,7 @@ export function scanTables(text) {
   };
 
   scanLines(text, (line, lineNumber, fenced) => {
-    if (fenced || !line.startsWith("|")) {
+    if (fenced || !TABLE_ROW_RE.test(line)) {
       closeTable();
 
       return;

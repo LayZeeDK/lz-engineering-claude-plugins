@@ -181,6 +181,14 @@ const FENCED_RAGGED_TABLE = ["```", "| a | b | c |", "| --- | --- | --- |", "| 1
 const TWO_TABLES = ["| a | b | c |", "| --- | --- | --- |", "| 1 | 2 | 3 |", "", "| p | q |", "| --- | --- |", "| 4 | 5 |"].join("\n");
 // A row whose FIRST cell contains an escaped pipe, so the row is two cells wide and not three.
 const ESCAPED_PIPE_TABLE = ["| a | b |", "| --- | --- |", "| 1 \\| 2 | 3 |"].join("\n");
+// [lc9] GFM allows up to THREE leading spaces on a table row. An indented table was not recognised as a
+// table at all, so a ragged row inside one was SKIPPED SILENTLY -- and a seen-count anti-vacuity leg
+// cannot detect a table it never recognised. Skip-silently is the one direction the module's own header
+// rules out, so recognition is fixed rather than the skip made loud.
+const INDENTED_RAGGED_TABLE = ["  | a | b | c |", "  | --- | --- | --- |", "  | 1 | 2 |"].join("\n");
+const INDENTED_WELL_FORMED_TABLE = ["   | a | b | c |", "   | --- | --- | --- |", "   | 1 | 2 | 3 |"].join("\n");
+// FOUR leading spaces is an indented CODE BLOCK in CommonMark, not a table row, and must stay unseen.
+const OVER_INDENTED_TABLE = ["    | a | b | c |", "    | --- | --- | --- |", "    | 1 | 2 |"].join("\n");
 const FENCED_LINK = ["```md", "see [there](sibling.md).", "```"].join("\n");
 
 // Replace the FIRST occurrence, and assert the replacement actually happened -- a fixture mutation
@@ -264,6 +272,17 @@ check(
 // guard owns that one.
 check("scanTables: a cell BLANKED with its pipe KEPT -> no offender, that is a different gate", scanTables(BLANKED_CELL_TABLE).offenders, []);
 check("scanTables: a ragged-looking table inside a fence is not a table at all", scanTables(FENCED_RAGGED_TABLE), { tables: 0, offenders: [] });
+// [lc9] The indented cases. GFM permits up to three leading spaces, so an indented table IS a table and
+// its ragged row must be reported; at four spaces it is an indented code block and must stay unseen. The
+// boundary is asserted from both sides so widening the recognizer cannot drift into code blocks.
+check(
+  "scanTables: an INDENTED ragged table is seen and reported, not skipped silently",
+  scanTables(INDENTED_RAGGED_TABLE).offenders,
+  ["table at line 1: header is 3 wide, but 1 row(s) differ -- line 3 is 2"]
+);
+check("scanTables: an indented well-formed table is one table with no offender", scanTables(INDENTED_WELL_FORMED_TABLE), { tables: 1, offenders: [] });
+check("scanTables: FOUR leading spaces is a code block, not a table", scanTables(OVER_INDENTED_TABLE), { tables: 0, offenders: [] });
+check("parseRows: an indented row is a row", parseRows(INDENTED_WELL_FORMED_TABLE, 3, "a").length, 1);
 check("scanTables: two tables of different widths are two tables, not one ragged one", scanTables(TWO_TABLES), { tables: 2, offenders: [] });
 // ANTI-VACUITY, and this is why the anti-vacuity control lives on the TABLE COUNT in the checker rather
 // than here: "no ragged tables" is TRUE of an empty document, so this pure function cannot fail on

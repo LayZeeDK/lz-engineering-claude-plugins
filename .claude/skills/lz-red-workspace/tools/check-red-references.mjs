@@ -493,23 +493,13 @@ if (fs.existsSync(principleBackingPath)) {
   );
 }
 
-// SEAM-02 (D-09): the reverse pointers in the SHIPPED lz-tpp skill. The red-green-refactor seam is
-// fully wired only when lz-tpp/SKILL.md points BACK at BOTH siblings -- lz-red (the red step) AND
-// lz-refactor (the refactor step), added in one edit. Reads a path OUTSIDE the lz-red references
-// tree, so it is a standalone post-loop block (mirrors the D-05 honesty-gate idiom). RED now: the
-// shipped lz-tpp skill carries no cross-skill pointer section yet.
-const lzTppSkillPath = path.join(repoRoot, "plugins", "lz-tdd", "skills", "lz-tpp", "SKILL.md");
-
-if (fs.existsSync(lzTppSkillPath)) {
-  const lzTppText = fs.readFileSync(lzTppSkillPath, "utf8");
-  const bothPointers = /lz-red/.test(lzTppText) && /lz-refactor/.test(lzTppText);
-
-  report(
-    bothPointers,
-    "lz-tpp/SKILL.md: SEAM-02 reverse pointers (lz-red AND lz-refactor)",
-    bothPointers ? "" : "lz-tpp skill missing one or both reverse pointers"
-  );
-}
+// [SCOPE 0.0.3] SEAM-02 reverse-pointer guard REMOVED, and the lz-tpp path constant with it. The guard
+// MANDATED cross-skill pointer content inside plugins/lz-tdd/skills/lz-tpp/SKILL.md -- an ALREADY
+// SHIPPED skill that the 0.0.3 lz-red milestone must not modify. That file has been reverted to its
+// lz-tdd@0.0.2 state, so a guard requiring the 0.0.3 content is enforcing an out-of-scope change and
+// cannot stay. This instrument may READ another skill's files, but it must not REQUIRE content this
+// milestone is not allowed to put there. Reinstating the seam belongs to a later milestone that
+// legitimately owns lz-tpp. Do NOT re-add it here.
 
 // [wev] G17 BARE-QUALIFIER GATE. The hard rule -- never use the contested word unqualified, say
 // production-side or collaborator-side -- was enforced by NOTHING, so a regression was silent, and
@@ -808,27 +798,15 @@ report(
   fowlerLabelHits.length === 0 ? "" : fowlerLabelHits.join("; ")
 );
 
-// [lc9] N8 INLINE-RULE PRESENCE GATE on the shipped lz-tpp router. G17 above is an ABSENCE gate, so
-// DELETING the side-qualification rule outright satisfies it -- absence of a bare word is exactly what
-// deleting the rule produces. This makes the rule's PRESENCE mandatory in the skill that fills the
-// empty production symbol, which is the skill whose whole subject is the contested artifact. Measured:
-// that tree's only occurrences of the contested word, and of either side qualifier, are the two lines
-// this rule owns, so nothing else in it would keep the rule alive.
-const LZ_TPP_RULE_LABEL = "[lc9] lz-tpp/SKILL.md carries the side-qualification rule inline";
-const SIDE_QUALIFICATION_NEEDLE = "which side they mean";
-let lzTppRuleDetail = "";
-
-try {
-  const lzTppRuleText = fs.readFileSync(lzTppSkillPath, "utf8");
-
-  if (!lzTppRuleText.includes(SIDE_QUALIFICATION_NEEDLE)) {
-    lzTppRuleDetail = "the side-qualification phrase is absent from the shipped lz-tpp router";
-  }
-} catch (err) {
-  lzTppRuleDetail = `lz-tpp/SKILL.md UNREADABLE (${err.code ?? err.message})`;
-}
-
-report(lzTppRuleDetail === "", LZ_TPP_RULE_LABEL, lzTppRuleDetail);
+// [SCOPE 0.0.3] N8 inline-rule PRESENCE gate REMOVED, for the same reason as SEAM-02 above: it
+// mandated the side-qualification rule inside the ALREADY SHIPPED lz-tpp router, which the 0.0.3
+// milestone must not modify. What is LOST is real and worth stating plainly, because G17 is an ABSENCE
+// gate: deleting the rule outright still satisfies G17, since absence of a bare contested word is
+// exactly what deleting the rule produces. So the shipped tree is protected against the bare word
+// REAPPEARING, but nothing now requires lz-tpp to CARRY the rule. That is the correct trade while
+// lz-tpp is out of scope -- the alternative is enforcing content this milestone is forbidden to write.
+// The rule belongs with the shared reference once the cross-author material is relocated to a
+// plugin-wide reference. Do NOT re-add a presence mandate on another skill's file here.
 
 // [2ig] ROW-SCOPED and COUNT guards, from lib/row-guards.mjs. Post-loop because they need PARSED CELLS
 // rather than a line match, and because two of them read across files. Each returns `{ ok, why }` and
@@ -898,16 +876,23 @@ for (const guard of TWO_IG_GUARDS) {
 //
 // WHAT THIS GATE CATCHES that nothing else does: a deleted `topics` or `absent` entry; `topics: []`
 // (the loop emits nothing) and `absent: []` (truthy, so the presence check does not save you); and an
-// existsSync-gated post-loop block that silently emits nothing -- the D-05 honesty gate and the SEAM-02
-// block both do exactly that today if their file vanishes, a fully silent vacuous pass.
+// existsSync-gated post-loop block that silently emits nothing -- the D-05 honesty gate does exactly
+// that today if its file vanishes, a fully silent vacuous pass. (The SEAM-02 block shared this shape
+// and has since been removed as out of scope; see the scope note above.)
 //
 // WHAT IT DOES NOT CATCH, and nobody may mistake this gate for sufficient: a guard WEAKENED IN PLACE
 // leaves the count unchanged. Only the selftest evasion proofs cover that. A bare count is also blind to
 // a SHORT SWAP that happens to balance, which is why the label-set assertions below exist and why
 // tools/row-guards.selftest.mjs asserts the exported guard NAME set independently.
-// [lc9] +9 additions and -58 RETIREMENTS, so 125:
+// [lc9] +9 additions and -58 RETIREMENTS, then -2 for the 0.0.3 SCOPE REVERT, so 123:
 //
-//   174 ([gap] baseline) + 9 ([lc9] additions) - 58 (retirements) = 125
+//   174 ([gap] baseline) + 9 ([lc9] additions) - 58 (retirements) - 2 (scope) = 123
+//
+// The 2 scope removals are SEAM-02 and the [lc9] N8 presence gate. Both MANDATED content inside the
+// already-shipped lz-tpp skill, which the 0.0.3 lz-red milestone must not modify; that file was
+// reverted to lz-tdd@0.0.2, so both guards were enforcing an out-of-scope change. See the scope notes
+// at each removal site. Neither is in RETIRED_LABELS: that roster records the taxonomy retirements of
+// this task, and mixing a scope removal into it would blur two different reasons for a guard's absence.
 //
 // The nine additions were made INSTRUMENT-FIRST, before any content edit and before the deletion, so
 // each one's ability to fail was demonstrated against the unmodified tree rather than asserted
@@ -919,7 +904,7 @@ for (const guard of TWO_IG_GUARDS) {
 // guards, the backing row that LINKED to it, the nine count guards, and the chronology phrase gate.
 // Every one is recorded BY NAME in RETIRED_LABELS, so the roster gate can tell a deliberate retirement
 // from an accidental drop -- without that list the two are the same green run.
-const EXPECTED_CHECKS = 125;
+const EXPECTED_CHECKS = 123;
 const ROSTER_LABEL = "[2ig] roster integrity: exact emitted-check count";
 
 // Every label the surviving [2ig] round and the [lc9] round ADD, composed exactly as emitted
@@ -944,7 +929,6 @@ const NEW_LABELS = [
   LINK_RESOLVES_LABEL,
   TAXONOMY_COPY_LABEL,
   FOWLER_LABEL_LABEL,
-  LZ_TPP_RULE_LABEL,
 ];
 
 const emittedBeforeRoster = emitted;

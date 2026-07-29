@@ -706,11 +706,23 @@ report(
 // The fragment split is REQUIRED, not optional: the lz-refactor catalogs carry file-plus-fragment
 // links, and resolving `foo.md#bar` as a path would report every one of them dead.
 //
-// ANTI-VACUITY: FAIL when no link was seen at all, for the same reason as N1 -- a document with no links
-// has no dead links, so a mistyped path passes forever otherwise.
-const LINK_RESOLVES_LABEL = "[lc9] every relative markdown link resolves";
+// ANTI-VACUITY: FAIL when no link was RESOLVED at all, for the same reason as N1 -- a document with no
+// links has no dead links, so a mistyped path passes forever otherwise.
+//
+// The counter counts RESOLVED RELATIVE targets, NOT every link kind, and that distinction is the whole
+// point of an anti-vacuity leg: it has to count the thing the gate ACTS ON, exactly as N1's `tablesSeen`
+// counts the tables scanTables actually saw. Counting every kind was a live defect -- a tree of only
+// anchors and scheme URLs, or a regression that stopped `linkKind` returning "relative", left the count
+// positive and the gate GREEN having resolved nothing. MEASURED against an all-anchor fixture tree
+// through the real gate: PASS before this fix, RED after.
+//
+// The KIND CLASSIFICATION is deliberately untouched. A target that is not an anchor, a `scheme:` or
+// root-absolute IS relative and IS existsSync-checked -- which is why a plugin-wide shared reference is
+// cited as INLINE CODE carrying a plugin-root variable path and never as a Markdown link: as a link it
+// would classify relative and fail here, correctly.
+const LINK_RESOLVES_LABEL = "[lc9] every relative markdown link in the shipped tree resolves";
 const deadLinkHits = pluginsWalkError === "" ? [] : [pluginsWalkError];
-let linksSeen = 0;
+let relativeLinksResolved = 0;
 
 for (const file of pluginsMarkdown) {
   const shown = path.relative(repoRoot, file);
@@ -724,8 +736,6 @@ for (const file of pluginsMarkdown) {
   }
 
   for (const target of findLinkTargets(linkText)) {
-    linksSeen++;
-
     if (target.kind !== "relative") {
       continue;
     }
@@ -736,14 +746,18 @@ for (const file of pluginsMarkdown) {
       continue;
     }
 
+    // Counted HERE, after both skips, so the count equals the number of targets this gate actually
+    // resolved against the disk. Incrementing before the kind filter counted work the gate never did.
+    relativeLinksResolved++;
+
     if (!fs.existsSync(path.resolve(path.dirname(file), filePart))) {
       deadLinkHits.push(`${shown}:${target.line} -> ${target.raw}`);
     }
   }
 }
 
-if (linksSeen === 0) {
-  deadLinkHits.push("NO LINK WAS SEEN, so this gate checked nothing");
+if (relativeLinksResolved === 0) {
+  deadLinkHits.push("NO RELATIVE LINK WAS RESOLVED, so this gate checked nothing");
 }
 
 report(
@@ -955,7 +969,7 @@ report(rosterOk, ROSTER_LABEL, rosterDetail);
 console.log("");
 
 if (failures === 0) {
-  console.log(`SUMMARY: RED-REFS GREEN -- ${filesPresent}/${FILES.length} lz-red surfaces authored (SKILL.md coach procedure + SEL/STR/NAME/ASRT/RTR/VIT/ANTI references) with topics + required ts fences + cross-links, no scaffold leak, no stale Phase-18 markers, the red criterion consistent across every surface that restates it, no ragged pipe table and no dead relative link anywhere in the shipped tree, no per-skill copy of the development-time vocabulary map, SEAM-02 lz-tpp reverse pointers present, D-05 honesty gate holds`);
+  console.log(`SUMMARY: RED-REFS GREEN -- ${filesPresent}/${FILES.length} lz-red surfaces authored (SKILL.md coach procedure + SEL/STR/NAME/ASRT/RTR/VIT/ANTI references) with topics + required ts fences + cross-links, no scaffold leak, no stale Phase-18 markers, the red criterion consistent across every surface that restates it, no ragged pipe table and no dead relative link anywhere in the shipped tree, no per-skill copy of the development-time vocabulary map, D-05 honesty gate holds`);
   process.exit(0);
 }
 

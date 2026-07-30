@@ -102,29 +102,47 @@ Deferred to a later lz-tdd release. Tracked, not in this roadmap.
   cross-skill "rules are heuristics, not law" coach voice has an owned source too (Rules). NOTE: none
   of the 21 surveyed Metz talks is a source for the GREEN / Transformation Priority Premise step
   (lz-tpp) -- all were checked and none carries TPP content.
-- **FUT-ROSTER-TYPO**: the `RETIRED_LABELS` roster in `check-red-references.mjs` is blind to a TYPO in a
-  retired label. A mistyped entry is absent from the emitted label set for exactly the same reason a
-  correctly-retired label is, so the leg passes either way and the roster cannot tell a typo from a
-  retirement. Open BY DESIGN, not an oversight. COST of closing it: cross-version label CAPTURE --
-  comparing the emitted label set against a prior commit's -- which is a different instrument from a
-  hand-maintained roster, not an edit to the roster.
-- **FUT-ROSTER-LITERALS**: 8 of the 13 `NEW_LABELS` entries are constant-derived and therefore
-  rename-blind. A constant on both sides of a comparison asserts nothing: the emission site pushes the
-  same constant the roster lists, so a rename moves both sides together and the leg stays green. Only the
-  `[wev G17]` entry is a string literal, and it is the only one that can catch a rename (MEASURED: with
-  G17's label value changed the battery exits 0 before that entry and 1 after). COST of closing it: one
-  rename proof per converted entry, 8 in total.
+- **FUT-ROSTER-TYPO**: the `RETIRED_LABELS` roster is blind to a TYPO in a retired label. It is DEFINED in
+  `.claude/skills/lz-red-workspace/tools/lib/row-guards.mjs` and imported and consumed by
+  `check-red-references.mjs`, so a repair edits the library, not the checker. A mistyped entry is absent
+  from the emitted label set for exactly the same reason a correctly-retired label is, so the leg passes
+  either way and the roster cannot tell a typo from a retirement. Open BY DESIGN, not an oversight. COST of
+  closing it: cross-version label CAPTURE -- comparing the emitted label set against a prior commit's --
+  which is a different instrument from a hand-maintained roster, not an edit to the roster.
+- **FUT-ROSTER-LITERALS**: 8 of the 13 `NEW_LABELS` entries in `check-red-references.mjs` are rename-blind,
+  by TWO distinct mechanisms rather than one. FOUR are PROPERTY-derived: `TWO_IG_GUARDS.map(...)` reads each
+  label off the same guard object that carries it to the report call. FOUR are CONSTANT-derived: the roster
+  names the very constants their own report calls push. Either way a constant sits on both sides of the
+  comparison and asserts nothing, because a rename moves both sides together and the leg stays green. The
+  other FIVE entries are string literals and each of the five DOES catch a rename -- `[wev G17]` plus the
+  four `[lc9]` additions, whose emission sites declare their own independent inline literals, so a rename
+  there edits one side only and `missingNewLabels` fires (MEASURED: with G17's label value changed the
+  battery exits 0 before that entry and 1 after). COST of closing it: one rename proof per converted entry,
+  8 in total.
 - **FUT-TAXONOMY-SHARED**: relocate the archived test-double taxonomy into the plugin as ONE plugin-wide
-  shared reference at `plugins/lz-tdd/references/`, cited as INLINE CODE with the plugin-root variable and
-  never as a Markdown link (guard N2 classifies a relative target and would correctly fail a link).
-  CONTINGENT on the D-12 A/B showing lift; if it shows none, the archive stays where it is and this entry
-  closes as DECLINED. It is NOT approved for shipping, and its absence today is the A/B's baseline arm
-  rather than an oversight. COST of closing it: an explicit N3 carve-out, because N3 fails on the basename
-  stem over every file under `plugins/` with no carve-out for a canonical location (MEASURED: a probe file
-  at that exact path fails N3 by name), so the carve-out must be "at most one, at the canonical path" and
-  the lz-red-only-versus-shared ownership question has to be answered first. The mechanism itself is
-  VERIFIED, not speculative -- V1-V7 in `PLUGIN-WIDE-REFERENCE-RESEARCH.md`, with the pattern already in
-  production at `plugins/lz-tdd/references/beck-tdd-by-example.md`.
+  shared reference at `plugins/lz-tdd/references/`. The subject is `.planning/research/test-double-taxonomy.md`
+  today; a milestone close relocates it, so after `lz-tdd@0.0.3` closes expect it at
+  `.planning/milestones/lz-tdd@0.0.3-research/test-double-taxonomy.md`, following the
+  `.planning/milestones/lz-tdd@0.0.1-research/` precedent already on disk. Cite it as INLINE CODE carrying
+  the `${CLAUDE_PLUGIN_ROOT}` variable, never as a Markdown link -- guard N2 existsSync-checks any target it
+  classifies as `relative`, and a variable-prefixed path is classified relative yet can never resolve on
+  disk, so link syntax around THAT target fails N2. To be exact about what N2 does and does not forbid: it
+  fails a relative target that does not RESOLVE, not links as such. A plain resolving relative link is fine
+  and one already ships -- `plugins/lz-tdd/skills/lz-refactor/references/principles.md:27` links
+  `../../../references/beck-tdd-by-example.md`, the target exists, N2 passes it and the battery is GREEN.
+  The inline-code form is preferred for two independent RUNTIME reasons recorded as V7 and I2 in
+  `PLUGIN-WIDE-REFERENCE-RESEARCH.md`: zero installed `SKILL.md` files use a `](../` link, and such a link
+  is interpretable by the model but fragile. CONTINGENT on the D-12 A/B showing lift -- D-12 here means the
+  "distinguish, but prove it first" ruling in the lc9 decision register
+  `.planning/quick/260729-lc9-scope-the-test-double-taxonomy-to-lz-red/260729-lc9-CONTEXT.md`, NOT Phase
+  21's separate D-12 metered-run gate in `21-RESEARCH.md`. If the A/B shows no lift the archive stays where
+  it is and this entry closes as DECLINED. It is NOT approved for shipping, and its absence today is the
+  A/B's baseline arm rather than an oversight. COST of closing it: an explicit N3 carve-out, because N3
+  fails on the basename stem over every file under `plugins/` with no carve-out for a canonical location
+  (MEASURED: a probe file at that exact path fails N3 by name), so the carve-out must be "at most one, at
+  the canonical path" and the lz-red-only-versus-shared ownership question has to be answered first. The
+  mechanism itself is VERIFIED, not speculative -- V1-V7 in `PLUGIN-WIDE-REFERENCE-RESEARCH.md`, with the
+  pattern already in production at `plugins/lz-tdd/references/beck-tdd-by-example.md`.
 
 ## Out of Scope
 

@@ -6,9 +6,9 @@ current_phase: 21
 current_phase_name: applied-red-eval-real-oss-repos
 status: verifying
 stopped_at: HALTED at 21-04 Task-3 blocking-human run gate; BUILD verified GREEN (7/7 must-haves, 21-VERIFICATION.md); metered 3-arm apply run user-gated per RUN-GATE.md, zero spend
-last_updated: "2026-07-23T07:00:22.332Z"
-last_activity: 2026-07-27
-last_activity_desc: "RXL with_skill pilot RAN ($1.93, approved): D-04 auto-trigger ANSWERED 2/2 fired (first ever on SRVC/RXF/RXL), coach-don't-drive 3/3 perfect; RXL's D-06 verdict found DESIGN-CONFOUNDED (tracks which injection token the model imagined) -> owner scoped RXL to DISCIPLINE DIMENSIONS ONLY; ~$39 four-cell round still the only blocking item"
+last_updated: "2026-07-30T00:00:00.000Z"
+last_activity: 2026-07-30
+last_activity_desc: "Quick task 260729-x0i CLOSED (8 commits, 57b680d, zero spend): removed a fail-CLOSED dependency from the ragged-table gate onto .planning/research/, which /gsd-complete-milestone would have relocated and reddened -- PROVEN by moving the archive aside (battery exit 0, 0 UNREADABLE, restore sha256-identical). Corrected 3 archive-header claims, 2 FALSE FUT claims, an authorization asserted with NO record, and an over-claimed mirroring citation; fixed the roster rename-blindness contradiction UPSTREAM in the checker too. TWO unprimed content reviews were required: the first turned a passed/12-of-12 verifier result into NEEDS WORK, the second caught a false claim round 2 had inherited from round 1. Battery steady at 123 checks / 0 FAILs throughout. EVL-03 (~$39) and the D-12 A/B remain the only owner-gated blockers"
 progress:
   total_phases: 8
   completed_phases: 8
@@ -32,7 +32,25 @@ See: .planning/PROJECT.md (updated 2026-07-18 -- started milestone lz-tdd@0.0.3)
 Phase: 21 (applied-red-eval-real-oss-repos) -- BUILD complete + verified, HALTED
 Plan: 4 of 4
 Status: BUILD verified GREEN (7/7 must-haves); HALTED at metered-run approval gate
-Last activity: 2026-07-29 -- **THE FIX LOOP IS STOPPED, AWAITING AN OWNER DECISION.** Three consecutive rounds have failed their acceptance gate (j9m ten blocking, wev four, 2ig two), and the decisive pattern is that each round's FIX introduced a fresh instance of the class it repaired -- a claim falsified by the document's own table, three times, each time arriving in the previous repair. 2ig is merged at 177a92d, battery green at 175/175, unpushed and untagged, and NOT ACCEPTED. Two blocking content findings plus fifteen important remain; the instrument audited TRUSTWORTHY WITH GAPS with one new guard trivially evadable. **The recommendation is to stop patching and build a guard that DERIVES survey verdicts from the parsed table**, which closes the class instead of its third instance -- the same move that made this round's count guards the ones the auditor rated sound. Also needing the owner: whether to re-open a hard rule this round DELETED that was guarding a live defect, traceable to the split ruling made on the orchestrator's framing. Full findings and a priority-ordered decision list in 260729-2ig-ACCEPTANCE-REVIEW.md. Prior entry: 2026-07-29 -- Taxonomy remediation chain ran UNATTENDED. Quick task 260728-j9m merged then failed its acceptance gate (ten blocking defects, incl. a mapping FABRICATED against a named author); 260728-wev remediated it, merged as 1d1474b, and then failed its OWN three-reviewer gate (four blocking, ten important -- it reproduced the same self-falsification class inverted, asserting a cell POPULATED where its table shows zero rows). 260729-2ig is the second remediation: CONTEXT + RESEARCH committed (1b40bc9), plan authored, plan-checker running. An oracle consult during discussion FALSIFIED a further claim at NINE measured sites -- the document attributes a five-member framing to an author who never states five and explicitly states FOUR in prose. Separately, a search capability granted to the `oracle` agent was reviewed, found NOT SAFE, and REVERTED, with the reason recorded in ef1837f so it is not retried: `rg --pre` executes arbitrary programs and the frontmatter scoping pattern is advisory, so no prefix rule can preserve read-only. Both oracle agents instead gained absence-claim doctrine with NO capability change. THE BATTERY IS NOT THE GATE -- two rounds have now shipped blocking defects behind a green one. Prior entry: 2026-07-27 -- RXL with_skill pilot RAN (2 runs, $1.9286, user-approved). D-04 auto-trigger ANSWERED: 2/2 fired, corroborated four ways, the first with_skill firing ever on SRVC/RXF/RXL; coach-don't-drive 3/3 PERFECT (zero production files every run). FINDING: RXL's mechanical D-06 verdict is DESIGN-CONFOUNDED -- it tracks which injection token the model imagined (invoke_skill picked the existing LOCALE_ID and passed; with_skill picked the library-mirroring RDX_LOCALE, which does not exist, and graded compile_error 2/2), and neither arm asserted the rendered output the cell's own traps require, so even the PASS is incidental. OWNER DECISION: report RXL on the DISCIPLINE DIMENSIONS ONLY, no gate/prompt change and no verdict reclassified. See 21-WITHSKILL-PILOT.md. NOTHING TECHNICAL BLOCKING -- only the ~$39 four-cell round awaits approval
+Last activity: 2026-07-30 -- **QUICK TASK 260729-x0i CLOSED. THE FIX LOOP IS NO LONGER STOPPED, AND THE
+DEFECT IT WAS STUCK ON IS CLOSED BY CONSTRUCTION RATHER THAN PATCHED AGAIN.** The prior entry's
+recommendation was to stop patching instances and close the CLASS. This task did that in the one place it
+was still live: `check-red-references.mjs` hardcoded `.planning/research/test-double-taxonomy.md` into its
+ragged-table gate and FAILED CLOSED on it, while the same file's retirement note argued against pointing
+guards at that archive -- one of its three reasons being that no `.planning/` subdirectory survives a
+milestone close. That reason was live, not theoretical: `.planning/milestones/lz-tdd@0.0.1-research/`
+exists, so `/gsd-complete-milestone lz-tdd@0.0.3` would have relocated the file and reddened the battery.
+The archive left the gate's SCOPE (no `existsSync` skip, no tolerated absence -- a region-scoped shape pin
+proves the one legitimate fail-closed read guard survived untouched). PROVEN by moving the archive aside:
+exit 0, 124 PASS, 0 FAIL, zero UNREADABLE, restore sha256-identical. Eight commits, `57b680d`, zero
+metered spend, count steady at 123 throughout. **The process finding matters more than the fix.** TWO
+unprimed content reviews were needed. The first ran against a `passed` 12/12 gsd-verifier result on the
+same artifacts at the same HEAD and returned NEEDS WORK -- two FALSE claims plus an authorization
+("discharged by owner-authorized research") for which no record exists. Both verdicts were correct: the
+verifier checked entries EXIST, the reviewer checked their content is TRUE. The second review then caught
+a false claim round 2 had INHERITED from round 1's own comment. Every repair round in this task
+introduced something, and each was caught by the agent RECEIVING the fix, never the one proposing it.
+Prior entry: 2026-07-29 -- **THE FIX LOOP IS STOPPED, AWAITING AN OWNER DECISION.** Three consecutive rounds have failed their acceptance gate (j9m ten blocking, wev four, 2ig two), and the decisive pattern is that each round's FIX introduced a fresh instance of the class it repaired -- a claim falsified by the document's own table, three times, each time arriving in the previous repair. 2ig is merged at 177a92d, battery green at 175/175, unpushed and untagged, and NOT ACCEPTED. Two blocking content findings plus fifteen important remain; the instrument audited TRUSTWORTHY WITH GAPS with one new guard trivially evadable. **The recommendation is to stop patching and build a guard that DERIVES survey verdicts from the parsed table**, which closes the class instead of its third instance -- the same move that made this round's count guards the ones the auditor rated sound. Also needing the owner: whether to re-open a hard rule this round DELETED that was guarding a live defect, traceable to the split ruling made on the orchestrator's framing. Full findings and a priority-ordered decision list in 260729-2ig-ACCEPTANCE-REVIEW.md. Prior entry: 2026-07-29 -- Taxonomy remediation chain ran UNATTENDED. Quick task 260728-j9m merged then failed its acceptance gate (ten blocking defects, incl. a mapping FABRICATED against a named author); 260728-wev remediated it, merged as 1d1474b, and then failed its OWN three-reviewer gate (four blocking, ten important -- it reproduced the same self-falsification class inverted, asserting a cell POPULATED where its table shows zero rows). 260729-2ig is the second remediation: CONTEXT + RESEARCH committed (1b40bc9), plan authored, plan-checker running. An oracle consult during discussion FALSIFIED a further claim at NINE measured sites -- the document attributes a five-member framing to an author who never states five and explicitly states FOUR in prose. Separately, a search capability granted to the `oracle` agent was reviewed, found NOT SAFE, and REVERTED, with the reason recorded in ef1837f so it is not retried: `rg --pre` executes arbitrary programs and the frontmatter scoping pattern is advisory, so no prefix rule can preserve read-only. Both oracle agents instead gained absence-claim doctrine with NO capability change. THE BATTERY IS NOT THE GATE -- two rounds have now shipped blocking defects behind a green one. Prior entry: 2026-07-27 -- RXL with_skill pilot RAN (2 runs, $1.9286, user-approved). D-04 auto-trigger ANSWERED: 2/2 fired, corroborated four ways, the first with_skill firing ever on SRVC/RXF/RXL; coach-don't-drive 3/3 PERFECT (zero production files every run). FINDING: RXL's mechanical D-06 verdict is DESIGN-CONFOUNDED -- it tracks which injection token the model imagined (invoke_skill picked the existing LOCALE_ID and passed; with_skill picked the library-mirroring RDX_LOCALE, which does not exist, and graded compile_error 2/2), and neither arm asserted the rendered output the cell's own traps require, so even the PASS is incidental. OWNER DECISION: report RXL on the DISCIPLINE DIMENSIONS ONLY, no gate/prompt change and no verdict reclassified. See 21-WITHSKILL-PILOT.md. NOTHING TECHNICAL BLOCKING -- only the ~$39 four-cell round awaits approval
 
 ## Performance Metrics
 
@@ -184,6 +202,25 @@ None open. lz-tdd@0.0.1 shipped with all prior concerns resolved:
 
 - RESOLVED (2026-07-02): repo renamed to plural `lz-engineering-claude-plugins`, GitHub repo created, `origin` wired, `main` in sync; `claude plugin marketplace add LayZeeDK/lz-engineering-claude-plugins` clones + validates the marketplace and resolves `./plugins/lz-tdd` (closed D-13's ship-time deferral).
 - RESOLVED (2026-07-03): triggering accuracy (SKILL-05 / EVAL-01) validated empirically via the native eval harness -- 100% recall / 100% specificity on the shipped description.
+
+### Quick Tasks Completed
+
+> Table opens at 260729-x0i. The 26 earlier quick tasks under `.planning/quick/` were never tabulated
+> here and are NOT backfilled -- each carries its own SUMMARY.md in its own directory, which is what the
+> milestone-close scanner reads. This note exists so a one-row table is not misread as a complete record.
+
+| # | Description | Date | Commit | Status | Directory |
+|---|-------------|------|--------|--------|-----------|
+| 260729-x0i | Fix the archive-header and instrument honesty defects, roadmap two by-design gaps | 2026-07-30 | 57b680d | Verified | [260729-x0i-fix-the-archive-header-and-instrument-ho](./quick/260729-x0i-fix-the-archive-header-and-instrument-ho/) |
+
+**Status basis, stated because "Verified" is doing real work here.** gsd-verifier returned `passed` at
+12/12 must-haves, re-measuring independently rather than reading the SUMMARY. But that verdict alone did
+NOT close the task: a from-scratch unprimed content review of the same artifacts at the same HEAD
+returned NEEDS WORK, finding two FALSE claims plus an authorization asserted with no record. Both gates
+were correct about different things -- the verifier checked that entries EXIST, the reviewer checked
+whether their content is TRUE. A second unprimed review after remediation found one further false claim
+that round 2 had inherited from round 1. `Verified` here means: 12/12 must-haves, plus two independent
+content reviews run to a clean verdict, plus the full deterministic battery.
 
 ### Phase-21 pilot runs + open items (quick 260725-63f)
 

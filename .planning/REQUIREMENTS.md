@@ -130,9 +130,11 @@ Deferred to a later lz-tdd release. Tracked, not in this roadmap.
   fails a relative target that does not RESOLVE, not links as such. A plain resolving relative link is fine
   and one already ships -- `plugins/lz-tdd/skills/lz-refactor/references/principles.md:27` links
   `../../../references/beck-tdd-by-example.md`, the target exists, N2 passes it and the battery is GREEN.
-  The inline-code form is preferred for two independent RUNTIME reasons recorded as V7 and I2 in
-  `PLUGIN-WIDE-REFERENCE-RESEARCH.md`: zero installed `SKILL.md` files use a `](../` link, and such a link
-  is interpretable by the model but fragile. CONTINGENT on the D-12 A/B showing lift -- D-12 here means the
+  The inline-code form is preferred for two reasons recorded in `PLUGIN-WIDE-REFERENCE-RESEARCH.md`, and
+  they carry DIFFERENT evidential weight: V7 is VERIFIED by disk observation -- zero installed `SKILL.md`
+  files use a `](../` link; I2 is INFERRED at MEDIUM confidence -- such a link is judged interpretable by
+  the model but fragile, and I2's own rationale concedes `../../` is resolvable in principle. Do not read
+  the pair as two measured facts. CONTINGENT on the D-12 A/B showing lift -- D-12 here means the
   "distinguish, but prove it first" ruling in the lc9 decision register
   `.planning/quick/260729-lc9-scope-the-test-double-taxonomy-to-lz-red/260729-lc9-CONTEXT.md`, NOT Phase
   21's separate D-12 metered-run gate in `21-RESEARCH.md`. If the A/B shows no lift the archive stays where

@@ -228,10 +228,11 @@ be left standing.
   > REJECTED. OUTCOME: no guard retargets at the archived copy. Every guard that read the departed document
   > retires BY NAME in `RETIRED_LABELS`, and the one gate that HAD been pointed at the archived copy -- the
   > ragged-table gate -- was rescoped to the shipped tree, the archive leaving its scope entirely rather
-  > than being conditionally skipped. The three reasons retargeting was rejected are recorded at the
-  > retirement note above `TWO_IG_GUARDS` in `check-red-references.mjs` and mirrored in
-  > `lib/row-guards.mjs`; the third of them -- no `.planning/` subdirectory survives a milestone close -- is
-  > what turned the retarget into a measured defect. See the fuller annotation under the superseded
+  > than being conditionally skipped. All three reasons retargeting was rejected are recorded at the
+  > retirement note above `TWO_IG_GUARDS` in `check-red-references.mjs`, and ONLY there;
+  > `lib/row-guards.mjs` mirrors just the first of them. The third -- no `.planning/` subdirectory survives
+  > a milestone close -- is what turned the retarget into a measured defect, and it is in the checker note
+  > alone, so read it there. See the fuller annotation under the superseded
   > `<specifics>` instruction later in this file, which names the same decision and carries the RED
   > measurement.
 

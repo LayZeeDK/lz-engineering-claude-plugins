@@ -690,10 +690,12 @@ report(
 // run -- strictly better than writing a table count into this comment, where it would go stale.
 //
 // [lc9] SCOPE: THE SHIPPED TREE ONLY, via the ONE walk above. The departed document's archived copy in
-// the planning tree is deliberately NOT a target of this gate. The three reasons are already recorded at
-// the retirement note above the TWO_IG_GUARDS roster below, and mirrored in lib/row-guards.mjs; they are
-// CITED here rather than restated, because two copies of one rationale drift -- and this gate having
-// pointed at that copy while the note argued against it was exactly that drift. Kept TEXTUALLY SEPARATE
+// the planning tree is deliberately NOT a target of this gate. All THREE reasons are recorded at the
+// retirement note above the TWO_IG_GUARDS roster below, and ONLY THERE; lib/row-guards.mjs mirrors just
+// the first of them (the guard-that-cannot-fail argument) -- MEASURED, `coupling` and `milestone` both
+// count 0 in that file against `surface` at 4 as the positive control. They are CITED here rather than
+// restated, because two copies of one rationale drift -- and this gate having pointed at that copy while
+// the note argued against it was exactly that drift. Kept TEXTUALLY SEPARATE
 // from G17's scope on purpose: the two gates walk different trees and must not share a constant.
 const RAGGED_TABLE_LABEL = "[lc9] no ragged pipe table";
 const raggedHits = pluginsWalkError === "" ? [] : [pluginsWalkError];

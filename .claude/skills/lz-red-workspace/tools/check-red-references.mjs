@@ -994,18 +994,28 @@ const ROSTER_LABEL = "[2ig] roster integrity: exact emitted-check count";
 // removed from here is now recorded in RETIRED_LABELS instead, which is what turns a retirement into an
 // assertion rather than an absence.
 //
-// G17's label is listed as a STRING LITERAL, deliberately NOT as the BARE_QUALIFIER_LABEL constant, and
-// this is the one entry in the list that can catch a RENAME. A guard rename was invisible to all THREE
+// FIVE of these 13 entries are STRING LITERALS, and every one of the five can catch a RENAME: G17's label
+// plus the four [lc9] additions. What makes a literal an assertion is that the roster's copy of the text is
+// INDEPENDENT of the emission site's. G17's site pushes the BARE_QUALIFIER_LABEL constant while this list
+// spells the same text out; each [lc9] site declares its own inline literal, which this list restates
+// (prefixed with the FILES entry name for the three emitted inside that loop). Either shape means a rename
+// edits ONE side only, so missingNewLabels fires. Listing a CONSTANT closes nothing: the emission site
+// pushes the same constant this list would name, so a rename moves both sides together and the leg stays
+// green -- a guard that cannot fail. That blind spot is why a guard rename was once invisible to all THREE
 // roster legs -- the count nets to zero, the new label is absent from this list, and the old label is
-// absent from RETIRED_LABELS -- which is how 59 labels vanished against 58 rostered. Listing the CONSTANT
-// would not have closed it: the emission site pushes that same constant, so a rename moves both sides
-// together and the leg stays green, a guard that cannot fail. Only a literal makes the rename an
-// assertion. MEASURED: with G17's label value changed, the battery exits 0 before this entry and 1 after.
+// absent from RETIRED_LABELS -- which is how 59 labels vanished against 58 rostered.
+// MEASURED on BOTH literal shapes, because "five catch a rename" is a claim about the [lc9] entries too and
+// the G17 proof does not cover them. G17: with its label value changed, the battery exits 0 before this
+// entry and 1 after. An [lc9] entry: with the side-qualification guard's own emission-site literal renamed,
+// the battery exits 1 and the roster reports `123 checks, equal to the PREDICTED literal; MISSING new
+// label(s): SKILL.md: [lc9] side-qualification rule inline in the coach procedure` -- the COUNT leg is blind
+// to a rename, exactly as described, and the LITERAL is what fires.
 //
-// Recorded so the true extent is not lost: 8 of these 13 entries are still rename-BLIND for exactly that
-// reason -- the four `TWO_IG_GUARDS.map(...)` labels are derived from the guard objects that also carry
-// them to the report call, and four more are referenced through their own constants below. Converting
-// them needs one rename proof each and is out of scope here.
+// Recorded so the true extent is not lost: the remaining 8 of these 13 entries are rename-BLIND, by TWO
+// distinct mechanisms that a single count would flatten. FOUR are PROPERTY-derived -- `TWO_IG_GUARDS.map(...)`
+// reads each label off the same guard object that carries it to the report call. FOUR more are
+// CONSTANT-derived, listed below through the very constants their own report calls push. Converting them
+// needs one rename proof each and is out of scope here.
 const NEW_LABELS = [
   ...TWO_IG_GUARDS.map((guard) => guard.label),
   "[wev G17] no bare unqualified contested word in the shipped tree",

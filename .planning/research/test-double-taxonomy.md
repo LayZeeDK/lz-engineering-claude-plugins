@@ -3,16 +3,27 @@
 > This file is an INERT RECORD. It is not a deliverable, it is not accepted, and it is
 > **not an agent input**. NOTHING OUTSIDE THE PLANNING TREE READS THIS PATH AT ALL -- no skill, agent or
 > command, and no development instrument either -- and none may be wired to it: it must not be referenced
-> from `oracle.md`, from `oracle-reviewer.md`, or from any `SKILL.md`.
+> from `oracle.md`, from `oracle-reviewer.md`, or from any `SKILL.md`. The claim is specifically about
+> WIRING: no artifact outside the planning tree points at this path, so nothing loads it automatically or
+> fails when it moves. A human, or an orchestrator, opening it ad hoc is a different thing and is the use
+> the "why it is kept at all" note below describes.
 >
 > That claim was narrower until recently, and the gap is worth stating because it is the reason this
 > paragraph was rewritten. "No skill, agent or command reads it" was literally true while the development
 > battery `.claude/skills/lz-red-workspace/tools/check-red-references.mjs` hardcoded this exact path in
 > its ragged-table gate and FAILED CLOSED when it was unreadable -- so the sentence held only because a
 > checker is not a skill, an agent or a command. quick-260729-x0i removed that dependency, which is what
-> makes the stronger claim above true rather than merely defensible. Checkable in one command:
-> `rg -c -F '.planning/research' .claude/skills/lz-red-workspace/tools/check-red-references.mjs`
-> returns no match.
+> makes the stronger claim above true rather than merely defensible.
+>
+> Checkable, over the whole CLASS the sentence claims rather than over one file:
+> `rg -uu -l -F 'research/test-double-taxonomy' . -g '!.planning/**'` returns no match (exit 1). An earlier
+> revision offered a needle scoped to `check-red-references.mjs` alone, which could not see the class --
+> another development instrument in this repo, `.claude/skills/lz-refactor-workspace/tools/check-functional.mjs`,
+> hardcodes a `.planning/research/...` path of its own, so one-file coverage proves nothing about the rest.
+> POSITIVE CONTROL, and it is not optional: run the same needle WITHOUT the `-g` exclusion and it returns
+> hits, every one of them inside `.planning/`. `-uu` is load-bearing -- both `.claude/` and `.planning/` are
+> dot-prefixed, ripgrep skips hidden directories by default, and the bare sweep returns ZERO for text that
+> demonstrably exists. A zero from the unflagged command is a false all-clear, not an absence.
 >
 > It shipped as a bundled reference in three lz-tdd skills -- lz-red, lz-tpp and lz-refactor -- and
 > quick-260729-lc9 removed it from all three, because this material is used at development time only.
@@ -40,22 +51,40 @@
 > shape: it matches the basename STEM `test-double-taxonomy` over EVERY file under `plugins/` regardless
 > of extension, with no carve-out for a canonical location, and its own comment scopes the material to
 > lz-red only. MEASURED, not inferred -- a probe file at the canonical plugin-wide path
-> `plugins/lz-tdd/references/test-double-taxonomy.md` makes the battery exit 1 with
-> `[FAIL] [lc9] no test-double taxonomy copy in the shipped tree`. So a relocation REQUIRES an explicit
-> N3 carve-out, phrased as "at most one, at the canonical path" rather than "no file with this stem", and
-> the ownership question (lz-red-only versus genuinely shared) has to be answered before that carve-out
-> is justified. Stated from the live gate: a research note in this repo quotes an older, laxer N3 that
-> matched a filename over the markdown list, so read the code and not that snapshot.
+> `plugins/lz-tdd/references/test-double-taxonomy.md` makes the battery exit 1 on the label
+> `[lc9] no test-double taxonomy copy in the shipped tree`. The emitted line is not just that label: the
+> reporter appends the detail, so it reads `[FAIL] [lc9] no test-double taxonomy copy in the shipped tree
+> -- 1 copy/copies: <the probe's repo-relative path>` (separator style follows the platform). So a
+> relocation REQUIRES an explicit N3 carve-out, phrased as "at most one, at the canonical path" rather than
+> "no file with this stem", and the ownership question (lz-red-only versus genuinely shared) has to be
+> answered before that carve-out is justified. Stated from the live gate: the research note named three
+> lines below, `PLUGIN-WIDE-REFERENCE-RESEARCH.md`, quotes an older, laxer N3 at its B2 entry -- a
+> `test-double-taxonomy.md` FILENAME match over the markdown list -- so read the code and not that snapshot.
 >
 > **The shared-reference mechanism is VERIFIED, not undesigned.** An earlier revision of this header
 > claimed no mechanism had been designed, spiked or proven. That was false in two independent ways.
 > `.planning/quick/260729-lc9-scope-the-test-double-taxonomy-to-lz-red/PLUGIN-WIDE-REFERENCE-RESEARCH.md`
-> carries a VERIFIED V1-V7 table read out of the shipped `claude.exe` 2.1.220 bundle, and
-> `plugins/lz-tdd/references/beck-tdd-by-example.md` is already in production use as a plugin-wide
-> reference via the R100 relocation. D-10 ("do not investigate the mechanism") was discharged by
-> owner-authorized research, so correcting this is not a re-opening of a locked decision. What is still
-> undecided is whether this material should move at all: per D-12 lz-red ships NO test-double reference
-> on purpose, and that absence is the baseline arm of a pending A/B, not a regression to patch.
+> carries a VERIFIED V1-V7 table, and `plugins/lz-tdd/references/beck-tdd-by-example.md` is already in
+> production use as a plugin-wide reference via the R100 relocation. Be exact about that table's
+> provenance, because its own heading is "read out of the shipped Claude Code 2.1.220 binary, OR observed
+> on disk" and the two halves are not equally strong: V1-V4 are decompiled-bundle reads of
+> `getPromptForCommand`, while V5, V6 and V7 are DISK observations -- the installed plugin cache, an
+> installed `lz-advisor` 2.0.0, and an `rg` sweep over the plugin cache. Only the first four came out of
+> the binary.
+>
+> On the standing of D-10 ("Do not investigate the shared-reference mechanism"), which is the decision
+> register's own title for it: no record of an owner authorization to research the mechanism exists --
+> swept for case-insensitively across the lc9 quick directory, `.planning/.continue-here.md` and
+> `.planning/HANDOFF.json` with a positive control, and the only nearby ruling is "the one authorized
+> relocation", which authorizes MOVING the Beck reference. So D-10 was never overridden and this paragraph
+> does not claim it was. The warrant is narrower and does not need one: the mechanism was verified as a
+> BYPRODUCT of that owner-authorized relocation -- `.planning/.continue-here.md:21`, commit `23c8ee2`
+> moving the reference and `cafb16e` recording what the move established, in that order. Correcting a false
+> claim in this header against a fact already on record is therefore not the investigation D-10 closed.
+>
+> What is still undecided is whether this material should move at all: per D-12 lz-red ships NO
+> test-double reference on purpose, and that absence is the baseline arm of a pending A/B, not a regression
+> to patch.
 
 # Test-double and stand-in taxonomy across authors
 

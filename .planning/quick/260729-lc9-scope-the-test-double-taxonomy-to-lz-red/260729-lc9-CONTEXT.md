@@ -223,6 +223,18 @@ be left standing.
 - Implementation shape of the table-shape guard (which `lib/` module, fixture layout).
 - Which of the ~14 retained guards retarget to the `.planning/` copy versus retire.
 
+  > SETTLED 2026-07-30 by OD-X0I-1, quick task `260729-x0i`. The bullet above is preserved verbatim as a
+  > record of what was open at the time; it is **no longer discretionary** and the retarget option is
+  > REJECTED. OUTCOME: no guard retargets at the archived copy. Every guard that read the departed document
+  > retires BY NAME in `RETIRED_LABELS`, and the one gate that HAD been pointed at the archived copy -- the
+  > ragged-table gate -- was rescoped to the shipped tree, the archive leaving its scope entirely rather
+  > than being conditionally skipped. The three reasons retargeting was rejected are recorded at the
+  > retirement note above `TWO_IG_GUARDS` in `check-red-references.mjs` and mirrored in
+  > `lib/row-guards.mjs`; the third of them -- no `.planning/` subdirectory survives a milestone close -- is
+  > what turned the retarget into a measured defect. See the fuller annotation under the superseded
+  > `<specifics>` instruction later in this file, which names the same decision and carries the RED
+  > measurement.
+
 </decisions>
 
 <specifics>

@@ -61,6 +61,17 @@ const CODE_REVIEW_COMMAND = '/mattpocock-skills:code-review';
 // reason: it starts with a recursive delete.
 const TREATMENT_DIR = process.env.LZ_TREATMENT_DIR || path.join(REPO_ROOT, 'out', 'lz-tdd-treatment');
 
+// The D-12 FORCING plugin tree on the invoke_forcing arm: the same generated copy of plugins/lz-tdd,
+// but carrying an always-active enumerate-then-decide step in lz-red's SKILL.md and NO reference
+// artifact. Built by the SAME script, which hardcodes this path too.
+//
+// invoke_treatment and invoke_forcing are TWO LEVERS against ONE baseline (invoke_skill), not two
+// spellings of one experiment: passive reference content is 0-for-5 on this repo's output axis,
+// while the single probe that ever moved it was an active forcing step. Keeping them as separate
+// arms is what makes a null on either one interpretable. The build script refuses to put taxonomy
+// content in the forcing tree, so the arms cannot silently collapse into each other.
+const FORCING_DIR = process.env.LZ_FORCING_DIR || path.join(REPO_ROOT, 'out', 'lz-tdd-forcing');
+
 // A suite is a directory with suite.json + prompts/ + targets.json; results land under it.
 // --suite <dir> selects it (default: this runner's own dir = the nx suite). Scanned from argv here,
 // before parseArgs, so the module-level config can derive from it.
@@ -180,8 +191,8 @@ function parseArgs(argv) {
     throw new Error(`--mode must be recommend|apply, got ${args.mode}`);
   }
 
-  if (!['with_skill', 'no_skill', 'invoke_skill', 'invoke_treatment', 'code_review', 'both', 'all'].includes(args.arm)) {
-    throw new Error(`--arm must be with_skill|no_skill|invoke_skill|invoke_treatment|code_review|both|all, got ${args.arm}`);
+  if (!['with_skill', 'no_skill', 'invoke_skill', 'invoke_treatment', 'invoke_forcing', 'code_review', 'both', 'all'].includes(args.arm)) {
+    throw new Error(`--arm must be with_skill|no_skill|invoke_skill|invoke_treatment|invoke_forcing|code_review|both|all, got ${args.arm}`);
   }
 
   // code_review's fixed point is the synthetic empty-root SHA; without --synthetic-base there is none.
@@ -251,12 +262,13 @@ function composePrompt(promptEntry, mode, arm) {
 
   const body = fs.readFileSync(path.join(PROMPTS_DIR, promptEntry.file), 'utf8').trim();
 
-  if (arm === 'invoke_skill' || arm === 'invoke_treatment') {
+  if (arm === 'invoke_skill' || arm === 'invoke_treatment' || arm === 'invoke_forcing') {
     // Force skill activation via its slash command; the preamble + body become the skill's input.
     // (Read-only in recommend mode is still enforced by --disallowedTools, not the text.)
     //
-    // invoke_treatment composes IDENTICALLY to invoke_skill on purpose: that makes invoke_skill its
-    // baseline and isolates a single variable, the presence of the artifact in the plugin tree.
+    // invoke_treatment and invoke_forcing compose IDENTICALLY to invoke_skill on purpose: that makes
+    // invoke_skill the common baseline for both and isolates a single variable per arm, the content
+    // of the plugin tree named by --plugin-dir.
     return `${SKILL_COMMAND} ${PREAMBLE[mode]}${body}`;
   }
 
@@ -291,6 +303,8 @@ function buildCmd(fullPrompt, arm, mode) {
     cmd.push('--plugin-dir', PLUGIN_DIR);
   } else if (arm === 'invoke_treatment') {
     cmd.push('--plugin-dir', TREATMENT_DIR);
+  } else if (arm === 'invoke_forcing') {
+    cmd.push('--plugin-dir', FORCING_DIR);
   } else if (arm === 'code_review') {
     cmd.push('--plugin-dir', MATTPOCOCK_DIR);
   }

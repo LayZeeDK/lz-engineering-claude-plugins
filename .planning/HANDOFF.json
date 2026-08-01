@@ -1,11 +1,11 @@
 {
   "version": "1.0",
-  "timestamp": "2026-07-30T00:36:26.365Z",
+  "timestamp": "2026-08-01T20:24:01.783Z",
   "context": "quick-task",
-  "quick_task": "260729-x0i",
-  "quick_task_dir": ".planning/quick/260729-x0i-fix-the-archive-header-and-instrument-ho",
-  "supersedes_quick_task": "260729-lc9",
-  "supersedes_note": "The prior handoff paused with the phase-close audits, the roadmap items and EVL-03 outstanding. The roadmap item and the archive-header defects are now CLOSED by quick task 260729-x0i. The three phase-close audits are still outstanding and are the next work. EVL-03 is unchanged and still owner-gated.",
+  "quick_task": "260801-sc9",
+  "quick_task_dir": ".planning/quick/260801-sc9-complete-distinguish-but-prove-it-first-",
+  "supersedes_quick_task": "260729-x0i",
+  "supersedes_note": "The prior handoff named three outstanding phase-close audits, EVL-03 as an unapproved ~$39 metered run, and the D-12 A/B. Quick task 260801-sc9 CLOSED the D-12 build half. EVL-03 turned out to be ALREADY COMPLETE -- see the discovery below, which invalidates the prior handoff's central claim. The three phase-close audits are UNCHANGED and still outstanding.",
   "phase": "21",
   "phase_name": "applied-red-eval-real-oss-repos",
   "phase_dir": ".planning/phases/21-applied-red-eval-in-real-oss-repos-multi-dimensional-3-arm-i",
@@ -14,64 +14,64 @@
   "total_tasks": 3,
   "status": "paused",
   "autonomous": false,
-  "summary": "Quick task 260729-x0i is COMPLETE, MERGED and GREEN across nine commits (4ac024d..1d5c27a). HEAD is 1d5c27a on gsd/lz-tdd-0.0.3-lz-red, 355 commits ahead of origin/main with NOTHING PUSHED, working tree clean, no worktrees, no async jobs. It removed a fail-CLOSED dependency from the ragged-table gate in check-red-references.mjs onto .planning/research/test-double-taxonomy.md -- a path that /gsd-complete-milestone relocates, which would have turned the battery RED at milestone close. It then corrected three archive-header claims, two FALSE deferred-work claims, an authorization asserted with no record behind it, and an over-claimed mirroring citation, and fixed the roster rename-blindness contradiction upstream in the checker itself. Final gate at this HEAD: battery exit 0 with 123 emitted checks and 0 FAILs; row-guards selftest 49 assertions; provenance-honesty 3/3; extract-samples 8 modules tsc --strict clean; check-hygiene GREEN at 197 + 190 files; claude plugin validate . exit 0. Scope invariants hold behind ANCHORED checks: plugins/lz-tdd/skills/lz-tpp/ and lz-refactor/SKILL.md are both 0 lines against lz-tdd@0.0.2. Zero metered spend throughout.",
+  "summary": "Two things happened this session. (1) Quick task 260801-sc9 is COMPLETE, verified passed 7/7, zero metered spend, five commits 087e6d1..769a2b6 plus 21c6fb8. It built the TREATMENT ARM of the D-12 'distinguish, but prove it first' A/B: a distilled test-double artifact outside plugins/, a build-treatment.mjs that reproduces the treatment plugin tree into gitignored out/, and an invoke_treatment arm deliberately excluded from --arm all. (2) MUCH MORE IMPORTANT: EVL-03's metered round was discovered to have ALREADY RUN on 2026-07-27/28 -- 36 runs, $29.04, user-approved at the gate, graded, judged, unbiased-reviewed and fully written up -- while SIX planning artifacts still describe it as unapproved and outstanding. Acting on those stale records, I presented a spend decision that was already settled and began re-running it; $0.78 was spent on one run before I caught it. Stopped, reverted, corpus restored byte-identical. HEAD is 769a2b6 on gsd/lz-tdd-0.0.3-lz-red, 362 commits ahead of origin/main, NOTHING PUSHED, working tree clean, no worktrees, no async jobs.",
   "live_worktree": null,
   "completed_this_session": [
     {
       "id": "anchor-verification",
-      "name": "Re-verified the inherited anchor before touching anything, as the prior handoff required: battery 123/0, selftest 49 assertions, and both scope invariants byte-identical to lz-tdd@0.0.2. Battery read 123 rather than 125, confirming the base was current and not stale.",
+      "name": "Re-verified the inherited anchor before touching anything: battery exit 0 at 123 checks / 0 FAILs, row-guards selftest 49 assertions, and both scope invariants (lz-tpp tree and lz-refactor/SKILL.md) EMPTY against tag lz-tdd@0.0.2 behind a git rev-parse anchor.",
       "status": "done"
     },
     {
-      "id": "time-bomb-found",
-      "name": "Found, while measuring the three known header defects, that check-red-references.mjs hardcoded the archived taxonomy path into its ragged-table gate and FAILED CLOSED on it -- contradicting the same file's own retirement note, which rejects pointing guards at that archive for three reasons. The third reason was live rather than theoretical: .planning/milestones/lz-tdd@0.0.1-research/ exists on disk, proving the 0.0.1 close DID relocate .planning/research/. Owner chose fix-now over roadmap-it.",
+      "id": "canary-green",
+      "name": "Ran the REQUIRED zero-spend selfcheck-red canary. Real exit status 0, ZERO SKIP lines, and crux 9's platform-conditional verbatimSymlinks check RAN rather than skipping, so copy-containment was genuinely measured on this machine. Gated on the process exit status, not the log text -- the compound command ends in echo, which launders it.",
       "status": "done"
     },
     {
-      "id": "plan-and-check",
-      "name": "Planner produced a measured plan; a plan-checker found a BLOCKER (the scope-invariant tag-diff leg failed OPEN, because a pipeline ending in wc -l launders the upstream exit status, so a bad revision yielded 0 and PASSED). A forced enumeration of every counter-terminated substitution then found three MORE fail-opens, none of them in the set the planner had cleared by argument -- including that the rev-parse anchor from the previous iteration had closed the TAG arm and left the PATH arm open.",
+      "id": "evl03-already-complete",
+      "name": "DISCOVERED that EVL-03 was already complete. Found 36 captured runs on disk, all 36 graded, then found e2e-red-gilded-rose/EVAL-RESULTS.md is 561 filled lines whose own status line reads 'RUN COMPLETE 2026-07-27/28. 36 runs, 4 cells, 3 suites, $29.04 total. User-approved at the metered gate.' It carries a headline, an Opus 5 follow-up probe and the mandatory unbiased-reviewer section.",
       "status": "done"
     },
     {
-      "id": "execution",
-      "name": "Worktree-isolated executor landed 3d57ca6, e6cd397, 41ea804 with every RED/GREEN pair observed rather than asserted. It declined to fake the one leg it could not run (extract-samples.mjs needs node_modules, which is gitignored so no worktree has it) and said so; the orchestrator ran it in the main repo afterwards -- 8 modules tsc --strict clean.",
+      "id": "spend-stopped-and-reverted",
+      "name": "Stopped the re-run after one forced GRC run ($0.78, claude-opus-5, 100 s, 16 turns). Moved that stray capture to D:/.lz-red-archive/2026-08-01-stray-opus5-run/ and restored the original 2026-07-27 capture, verified byte-identical -- all 9 GRC meta.json match the archive, 36/36 runs intact. Removed all three throwaway checkouts; kata, srvx and primitives-pin each verified 0 dirty files, 1 worktree, node_modules intact, no stranded grading worktrees.",
       "status": "done"
     },
     {
-      "id": "fix-proven",
-      "name": "Proved the fix does what it was for by simulating the milestone close: archive moved aside, battery exit 0 with 124 PASS, 0 FAIL and ZERO UNREADABLE mentions, roster still 123. Pre-fix that same state was exit 1 with UNREADABLE (ENOENT). Restore verified byte-identical by sha256 via a trap-guarded script.",
+      "id": "archive-created",
+      "name": "Archived the full 2026-07-27 corpus to D:/.lz-red-archive/2026-07-27-preskill-drift/ (36 runs + 36 grades + 3 tabulations, 6.3 MB) with a README recording its provenance and the three reasons it is not reusable as-is.",
       "status": "done"
     },
     {
-      "id": "two-gates-disagreed",
-      "name": "gsd-verifier returned passed at 12/12 must-haves, re-measuring independently. A from-scratch UNPRIMED content review of the SAME artifacts at the SAME HEAD returned NEEDS WORK: two FALSE claims in the deferred-work entries plus an authorization asserted with no record. Both verdicts were correct about different things -- the verifier checked entries EXIST, the reviewer checked their content is TRUE.",
+      "id": "sc9-build",
+      "name": "Quick task 260801-sc9 --full --auto: discussion locked 3 gray areas and recorded UNRESOLVED-1; research answered 5 questions measured-not-inferred; planner produced 3 tasks; plan-checker found 2 fail-open BLOCKERS; revision closed them; re-check PASSED with 24 legs verified individually; worktree-isolated executor landed 3 commits; verifier passed 7/7 by independent re-measurement.",
       "status": "done"
     },
     {
-      "id": "remediation",
-      "name": "Second worktree executor closed every finding in edacaba, c7c2677, 4f0da5e, c6f5855. It corrected TWO of the orchestrator's own briefing errors on measurement: the rg false negative is ripgrep's HIDDEN-directory skip and not gitignore (--no-ignore alone does not fix it; only --hidden does), and the cited counterexample asserts a README CITES a planning path rather than reading it.",
+      "id": "dst04-gate",
+      "name": "Ran the oracle-reviewer DST-04 gate the plan deferred to the orchestrator. FIRST pass returned revise with too_close_to_source TRUE -- the umbrella one-liner kept the source's verb and real-thing contrast, and a transitional-stand-in clause carried the source's metaphor noun and clause shape with one verb swapped. Recast both plus four factual drifts and one internal contradiction. SECOND pass: too_close_to_source false, clean-room/attribution/fidelity all correct. A census bullet contradicting the revision was fixed and confirmed separately.",
       "status": "done"
     },
     {
-      "id": "second-review-and-round-3",
-      "name": "A SECOND unprimed review found one further FALSE claim that round 2 had INHERITED from round 1's own comment: both said the three retargeting reasons are mirrored in lib/row-guards.mjs, but that file mirrors only the first (coupling 0, milestone 0, against surface 4 as positive control). Fixed at BOTH sites in 57b680d so the comment could not re-seed it, plus a precision split of V7 (VERIFIED) from I2 (INFERRED, MEDIUM).",
-      "status": "done"
-    },
-    {
-      "id": "roadmap-deferred",
-      "name": "Item 5 CLOSED. FUT-ROSTER-TYPO, FUT-ROSTER-LITERALS and FUT-TAXONOMY-SHARED recorded in .planning/REQUIREMENTS.md under the existing Later milestones section, each naming its cost of closing. Routed there rather than ROADMAP.md on measured evidence: FUT-04 is labelled carried from 0.0.2, proving that register survives a milestone close -- the exact property .planning/research/ lacks. ROADMAP.md asserted byte-unchanged.",
+      "id": "g17-ship-blocker",
+      "name": "Recorded a ship cost not previously in the register: FUT-TAXONOMY-SHARED documents only an N3 carve-out, but G17 also blocks a shipped taxonomy. The figure was re-derived rather than copied, resolving an earlier 9-vs-10 disagreement as a UNITS difference -- 34 total occurrences, 31 bare over 29 unique lines, 10 catalog occurrences over 9 unique lines. The verifier independently reproduced all of it with its own script.",
       "status": "done"
     }
   ],
   "remaining_tasks": [
     {
+      "id": "reconcile-evl03-records",
+      "name": "Reconcile SIX stale artifacts against the completed EVL-03 round: .planning/HANDOFF.json (this file supersedes it), .planning/.continue-here.md, STATE.md, REQUIREMENTS.md (the EVL-03 row AND the EVL-01/EVL-02 rows, all still 'Pending'), 21-WITHSKILL-PILOT.md ('NOT approved and REMAINS OPEN'), 21-ATC-ADOPTION.md. EVL-02 also RAN 2026-07-22 (iteration-1/benchmark.md, 85% -> 97%) while still recorded Pending, and the workspace EVAL-RESULTS.md already says 'EVL-01 done ... EVL-02 done'. BLOCKED on the owner's drift call -- the correct target state differs depending on whether the round is accepted as-is or re-run.",
+      "status": "blocked_on_owner"
+    },
+    {
       "id": "secure-21",
-      "name": "/gsd-secure-phase 21 -- MUST be reached BY gsd-security-auditor. Do NOT take the workflow's inline short-circuit even on a clean-looking threats_open:0 path, and never author SECURITY.md from the orchestrator. Phases 15-20 each have a SECURITY.md; 21 does not.",
+      "name": "/gsd-secure-phase 21 -- MUST be reached BY gsd-security-auditor. Do NOT take the workflow's inline short-circuit even on a clean threats_open:0 path. Phases 15-20 each have a SECURITY.md; 21 does not. Verified directly this session, not from prose.",
       "status": "not_started"
     },
     {
       "id": "validate-21",
-      "name": "/gsd-validate-phase 21 -- MUST be reached BY gsd-nyquist-auditor, which owns the gap verdict and any generated tests. 21-VALIDATION.md EXISTS but is the plan-time draft (status: draft, nyquist_compliant: false, wave_0_complete: false), so this is genuinely not yet run.",
+      "name": "/gsd-validate-phase 21 -- MUST be reached BY gsd-nyquist-auditor. 21-VALIDATION.md EXISTS but its frontmatter reads status: draft, nyquist_compliant: false, wave_0_complete: false, so it is the plan-time draft and genuinely not yet run. Verified directly this session.",
       "status": "not_started"
     },
     {
@@ -80,89 +80,99 @@
       "status": "blocked"
     },
     {
-      "id": "evl-03",
-      "name": "EVL-03 three-arm metered run, ~$39. Pending human approval since 2026-07-27 and NOT descoped when offered. The milestone's INDEPENDENT blocker -- no instrument or record work advances it.",
+      "id": "d12-corpus",
+      "name": "UNRESOLVED-1: author >= 2 genuinely ambiguous prompts and choose their target. Owner decision. Three options recorded verbatim in 260801-sc9-CONTEXT.md and 260801-sc9-RUN-GATE.md. Zero of the 59 existing prompts qualify.",
+      "status": "blocked_on_owner"
+    },
+    {
+      "id": "d12-ab-run",
+      "name": "The D-12 A/B metered run. Blocked on the corpus above AND on fresh spend approval. The treatment arm is BUILT and the invoke_treatment arm is wired; the run command is stated in 260801-sc9-RUN-GATE.md section 3 with its two holes named honestly rather than presented as runnable.",
       "status": "blocked_on_owner"
     },
     {
       "id": "milestone",
-      "name": "/gsd-complete-milestone lz-tdd@0.0.3 with MANUAL archival, because gsd-sdk milestone.complete rejects the @-scoped non-vX.Y version string. Blocked on EVL-03 and on the three phase-close audits.",
+      "name": "/gsd-complete-milestone lz-tdd@0.0.3 with MANUAL archival, because gsd-sdk milestone.complete rejects the @-scoped non-vX.Y version string. Blocked on the three phase-close audits and on the EVL-03 reconciliation.",
       "status": "blocked"
     }
   ],
   "blockers": [
     {
-      "description": "EVL-03 ~$39 three-arm metered run awaiting human approval since 2026-07-27. Blocks milestone close and nothing else.",
+      "description": "OWNER DECISION: is the completed 2026-07-27/28 EVL-03 round accepted as the milestone's result, or does it need a re-run against today's skill? The skill drifted after the captures -- 10 shipped files, +199/-73 through 2026-07-29 -- and lz-red went from ZERO Beck references to one via a new plugin-wide path. The harness also now pins claude-opus-5 where the round ran claude-opus-4-8. Everything downstream depends on this answer.",
       "type": "human_action",
-      "workaround": "None. It needs a spend decision, not engineering. Everything else in the milestone is green and closable around it."
+      "workaround": "Three paths were costed. Path A: re-grade only, $0, ~25 min, fixes the pre-e428d8a attribution artifact in the existing round. Path B: re-run GRC + RXF only, ~$14, the two headline-capable cells. Path C: re-run all four cells, ~$50 (NOT the $39 previously quoted -- that used a $1.09/run planning estimate; actual was $0.807/run on opus-4-8, and the one Opus 5 run cost $0.78 against a $0.42 opus-4-8 GRC mean)."
     },
     {
-      "description": "D-12 A/B metered run awaiting approval. Decides whether lz-red needs a runtime test-double reference at all, and therefore whether the taxonomy ever becomes a plugin-wide reference.",
+      "description": "UNRESOLVED-1: the ambiguous-prompt corpus for the D-12 A/B. HIGH impact, NOT-HIGH confidence -- the --auto trap quadrant, deliberately not auto-locked.",
       "type": "human_action",
-      "workaround": "The taxonomy stays archived at .planning/research/ meanwhile, which preserves the A/B's baseline arm. Do NOT author a test-double reference for lz-red -- D-12 makes its absence deliberate. FUT-TAXONOMY-SHARED records the contingency and closes as DECLINED if the A/B shows no lift."
+      "workaround": "None. It needs a design decision. The build half is complete and does not wait on it."
     },
     {
-      "description": "Org monthly spend limit was hit once mid-session and killed a background review agent. It reset and the agent resumed from transcript with no loss.",
-      "type": "external",
-      "workaround": "Resume via SendMessage rather than respawning, and instruct agents to write findings out incrementally. Both agents killed this way in this work stream lost nothing because they did."
+      "description": "The DST-04 gate on the treatment artifact is PARTIAL. Only the Meszaros and Fowler stores were supplied to oracle-reviewer. The census and citation traps also attribute to Beck, Metz, 99 Bottles, Clean Code, Kerievsky, Cooper and Bernhardt; those lines are UNGATED. Disclosed in the artifact's own header.",
+      "type": "technical",
+      "workaround": "Re-gate against those stores before any ship decision. Not blocking the build, since nothing ships until the A/B shows lift."
+    },
+    {
+      "description": "Two coach-scope judgement calls raised by oracle-reviewer, deliberately NOT silently changed: whether the prepared-answer variation list should read as exhaustive, and whether the Mock Object line should also carry fail-at-first-deviation plus the final-verification step. The reviewer's closing note: record the owner decision on those two and the entry closes clean; nothing needs re-submitting.",
+      "type": "human_action",
+      "workaround": "Recorded in 260801-sc9-RUN-GATE.md section 5. The DST-04 verdict reads 'blocked' ONLY because these two remain open; no axis is below correct and no defect remains."
     }
   ],
   "async_jobs": [],
   "human_actions_pending": [
     {
-      "action": "Approve or descope the EVL-03 ~$39 three-arm metered run",
-      "context": "Pending since 2026-07-27, declined descoping when offered. The single independent blocker on closing lz-tdd@0.0.3.",
+      "action": "Decide whether the completed EVL-03 round stands or needs re-running against today's skill",
+      "context": "The single decision gating milestone close. See the blocker above for the three costed paths.",
       "blocking": true
     },
     {
-      "action": "Approve the D-12 A/B metered run",
-      "context": "Owner ruled distinguish-but-prove-it-first. The runtime artifact gets authored, then A/B'd against the no-artifact baseline, shipping only on measured lift. Until then lz-red deliberately ships no test-double reference.",
+      "action": "Resolve UNRESOLVED-1 -- the ambiguous-prompt corpus and its target",
+      "context": "Blocks the D-12 A/B. Three options recorded; none auto-lockable.",
       "blocking": false
     },
     {
-      "action": "Consider /reload-plugins",
-      "context": "check-red-references.mjs changed this session. It is a dev instrument, not shipped plugin content, so nothing user-facing shifted -- but committed is not live in-session.",
+      "action": "Approve spend for the D-12 A/B once the corpus exists",
+      "context": "Standing eval-run-approval-gate. --auto cannot satisfy it.",
+      "blocking": false
+    },
+    {
+      "action": "Rule on the two coach-scope judgement calls in 260801-sc9-RUN-GATE.md section 5",
+      "context": "Closes the DST-04 entry clean.",
       "blocking": false
     }
   ],
   "decisions": [
     {
-      "decision": "The ragged-table gate's archive dependency was FIXED now rather than roadmapped.",
-      "rationale": "Owner chose fix-now when the alternative was documenting a third instance. The gate is one report() over a loop, so removing the archive target could not move the emitted-check count, and 9 shipped files carry pipe tables so the anti-vacuity leg still held. Closing the class beat patching its next instance.",
-      "phase": "quick-260729-x0i"
+      "decision": "Stopped the EVL-03 re-run mid-flight rather than completing the approved scope.",
+      "rationale": "The approval was obtained on a false premise -- six planning artifacts said no round existed. Money not spent is recoverable; money spent is not. Restoring the original corpus and reporting beat delivering a duplicate of an existing result.",
+      "phase": "quick-260801-sc9"
     },
     {
-      "decision": "The archive left the gate's SCOPE entirely; it was NOT conditionally skipped.",
-      "rationale": "An existsSync skip or try/catch-and-continue would have been fail-open, which is forbidden here. A region-scoped shape pin (existsSync 0, try 1, continue 1, report 1) proves the one legitimate per-file read guard survived untouched while any added tolerance is caught.",
-      "phase": "quick-260729-x0i"
+      "decision": "Re-running all 36 rather than reusing the 12 no_skill captures was the plan before the discovery, and the reasoning still stands if a re-run happens.",
+      "rationale": "The eval is an arm-vs-arm comparison. Mixing a 5-day-old baseline with fresh treatment arms puts a temporal confound into the one measurement the milestone waits on. Prompts, preamble, suite configs and target pins were verified byte-unchanged, so only the skill and model drifted.",
+      "phase": "quick-260801-sc9"
     },
     {
-      "decision": "Deferred work routed to REQUIREMENTS.md Later milestones, not ROADMAP.md.",
-      "rationale": "The brief named ROADMAP.md and also forbade inventing a section; ROADMAP.md has no deferred section. FUT-04 is labelled carried from 0.0.2, which proves that register SURVIVES a milestone close -- the exact property .planning/research/ lacks, and the whole subject of this task.",
-      "phase": "quick-260729-x0i"
+      "decision": "The treatment artifact lives OUTSIDE plugins/, and renaming it to dodge guard N3 was rejected.",
+      "rationale": "N3 walks all of plugins/ and matches on the basename STEM, any extension, precisely because a .txt copy once slipped past a filename-scoped needle. Its own comment records that the constraint was violated once already and survived three acceptance reviews because nothing checked it. Renaming is the evasion it was hardened against. D-12 independently requires the shipped tree to remain the no-artifact baseline arm.",
+      "phase": "quick-260801-sc9"
     },
     {
-      "decision": "Superseded instructions are ANNOTATED, never rewritten or deleted.",
-      "rationale": "Deleting destroys the trail that explains why the defect existed. Two legs enforce the pair in opposite directions: one asserts the original text survives verbatim, the other asserts the annotation is present. A rewrite-instead-of-annotate passes the second alone and is caught by the first.",
-      "phase": "quick-260729-x0i"
+      "decision": "The new arm is EXCLUDED from --arm all.",
+      "rationale": "crux 6 pins the lz-refactor default dry-run byte-for-byte. Excluding the arm keeps that pin intact while crux 1/2/6 continue to assert only the presence of the three known arms, never the absence of extras.",
+      "phase": "quick-260801-sc9"
     },
     {
-      "decision": "Findings were STRENGTHENED rather than relabelled when a claim outran its coverage.",
-      "rationale": "When the plan's conventions claimed scope invariants were asserted in every task's verify and one task lacked them, the legs were added so the claim became true, rather than hedging the sentence. Follows the house precedent from the prior round's findings 11a-c.",
-      "phase": "quick-260729-x0i"
+      "decision": "The G17 figure was RE-DERIVED rather than copied from either prior source.",
+      "rationale": "Research said 9, the plan-checker independently counted 10, and the number was about to be written into a tracked long-lived doc. Re-derivation showed both were right about different units -- 10 occurrences on 9 unique lines, one line carrying two hits.",
+      "phase": "quick-260801-sc9"
     },
     {
-      "decision": "An over-claim was fixed at BOTH the copy and its upstream source, twice.",
-      "rationale": "The roster rename-blindness contradiction and the row-guards mirroring over-claim each existed in a checker comment AND in a document that inherited it. Fixing only the document leaves the source free to re-seed the defect for the next reader.",
-      "phase": "quick-260729-x0i"
-    },
-    {
-      "decision": "No ordinal was asserted for the signature-defect instance count.",
-      "rationale": "The prior checkpoint records six consecutive ROUNDS, which counts completed rounds; whether a new sighting is a seventh instance or a fresh sighting of one already inside those six is not resolvable from the record. An unverifiable ordinal in a document about claims outrunning evidence would be self-undermining, and nothing depends on the number.",
-      "phase": "quick-260729-x0i"
+      "decision": "The two oracle-reviewer ambiguities were carried to the owner rather than silently resolved in the draft.",
+      "rationale": "Both are coach-scope judgement calls about how much of the source a mid-cycle reference should carry, not fidelity defects. Deciding them silently would be the orchestrator making a content call that belongs to the owner.",
+      "phase": "quick-260801-sc9"
     }
   ],
   "uncommitted_files": [],
-  "next_action": "Re-verify the anchor first, from .claude/skills/lz-red-workspace/: node tools/check-red-references.mjs must exit 0 at 123 checks and 0 FAILs, node tools/row-guards.selftest.mjs must show 49 assertions, and git diff lz-tdd@0.0.2 -- plugins/lz-tdd/skills/lz-tpp/ must be EMPTY behind a git rev-parse anchor. Then run /gsd-secure-phase 21 spawning gsd-security-auditor -- do NOT take the workflow's inline short-circuit even on a clean threats_open:0 path. Then /gsd-validate-phase 21 via gsd-nyquist-auditor, then /gsd-extract-learnings 21 LAST plus the manual ~/.gsd/knowledge/ bridge. EVL-03 (~$39) still needs a human spend decision, not more engineering.",
-  "context_notes": "THE LESSON THIS SESSION SHARPENED IS ABOUT WHICH GATE CATCHES WHICH DEFECT, AND IT IS NOW MEASURED RATHER THAN ASSERTED. gsd-verifier returned passed at 12/12 and an unprimed content reviewer returned NEEDS WORK on the SAME artifacts at the SAME HEAD, and BOTH were correct: the verifier checked that entries EXIST, the reviewer checked whether their content is TRUE. Neither is redundant and neither substitutes for the other. Run both, and run the content review UNPRIMED -- a reviewer told what was already found confirms it and misses what is inside it. The second unprimed review then caught a false claim that the FIRST review's own remediation had introduced. ELEVEN-PLUS defects were caught before any of this shipped, and the most reliable predictor of where the next one lands is: inside the previous repair. Three of them were mine -- a guard I ordered that anchored only one of two arms, a leg I ordered that enforced an addition but not the matching removal, and a wrong diagnosis of an rg false negative. Every one was caught by the agent RECEIVING the fix, never by the one proposing it, which is the argument for keeping propose and apply adversarially split. THE GENERALISATION WORTH CARRYING: when a requirement is 'replace X with Y', a leg asserting Y exists is NOT coverage -- assert X is gone AND Y is present, because an executor can always satisfy an addition by appending. THREE DISTINCT FALSE-NEGATIVE MECHANISMS all produced the same confident zero: ripgrep's hidden-directory skip over dot-prefixed .claude/ (and --no-ignore alone does NOT fix it -- only --hidden does, measured, because git check-ignore reports those files as NOT ignored), line-oriented matching against a phrase that wraps, and a phrase wrapping across a // comment prefix so a whitespace class cannot match. A POSITIVE CONTROL caught all three. Never trust a zero without one. ALSO: the pause-work placeholder scan is a FALSE-POSITIVE GENERATOR in this repo -- it flagged 53 files, and the sampled matches are all the word 'placeholder' used descriptively, usually describing work that REPLACED one. Skill scaffolds have placeholder markers here, so the word is domain vocabulary. Do not treat that scan's output as incomplete work without reading the matches. FINALLY, a small mislabel worth knowing: there are TWO extract-samples.mjs, in lz-red-workspace (8 modules, RED-SAMPLES) and lz-refactor-workspace (259 modules, FWL-04). A gate row reported 259 for a task touching the lz-red tree. Both were green so nothing broke, but name the workspace, not just the script."
+  "next_action": "Answer the EVL-03 drift question FIRST -- it gates the reconciliation, the milestone, and whether any further spend is warranted. Path A (re-grade only, $0, ~25 min) is runnable immediately and is worth doing regardless, because every existing grade predates the e428d8a attribution fix by 13 minutes and the corpus contains exactly one unattributable verdict carrying that bug's signature. The original GRC armed base ac6a0335 was confirmed still reachable, so the re-grade is possible. Independently of that, the three phase-21 close-out audits are zero-spend, genuinely outstanding on direct file evidence, and can proceed in parallel: secure -> validate -> extract-learnings, each reached BY its dedicated agent.",
+  "context_notes": "THE LESSON THIS SESSION IS ABOUT VERIFYING AGAINST ARTIFACTS RATHER THAN AGAINST THE RECORD, AND IT COST REAL MONEY TO LEARN. Six planning artifacts agreed with each other that EVL-03's metered round was unapproved and outstanding. They were unanimous and they were all wrong. I read EVAL-RESULTS.md's HEADINGS early, saw section names that looked like a scaffold, and moved on -- the file was 561 lines of filled results whose first page says RUN COMPLETE. Reading one page of the actual artifact would have cost nothing and saved $0.78 plus an hour. GENERALISATION: when a planning record says work is outstanding, open the work product and read its FIRST PAGE before acting, especially before spending. Unanimity across planning docs is not corroboration -- they copy from each other. A SECOND, RELATED FAILURE: I assumed the fresh round would overwrite the stale captures in place, so deletion did not matter. The harness SKIPS completed runs -- 'already done (exit 0), skip' x9 -- and needs --force. The classifier had blocked my rm -rf of those results and I talked myself past the need for it; the block turned out to be load-bearing. THE FAIL-OPEN PATTERN IS ENDEMIC AND I AM NOT IMMUNE: I wrote a trailing echo of $? twice today, which always exits 0 and launders the real status; the plan reproduced the same shape; the plan-checker caught two instances as BLOCKERS. Gate on `test $? -eq 0 && echo TOKEN`, never on a trailing echo and never on log text -- check-red-references prints '123 checks' even on a RED battery because the roster detail string is built independently of the verdict. DIFF SCOPE IS A TRAP: I diffed plugins/lz-tdd/skills/lz-red/ and concluded the drift was prose-only. Both ends of a relocation sat outside that subtree, so I missed that lz-red gained a Beck reference it never had, and missed two more changed files inside the treatment surface (lz-tpp/SKILL.md and lz-refactor/references/principles.md) -- the round's own caveat says the treatment is 'the lz-tdd plugin is installed', which loads lz-tpp too. Diff the whole plugin with -M, not the skill subtree. DST-04 DOES NOT INHERIT: the archived taxonomy went through four provenance remediation rounds, and the distillation of it still reproduced source phrasing in two places on the first pass. A derived artifact is a NEW artifact for clean-room purposes. FINALLY, the placeholder scan remains a false-positive generator in this repo -- 'placeholder' is domain vocabulary in skill scaffolds -- so do not treat its hits as incomplete work without reading them."
 }

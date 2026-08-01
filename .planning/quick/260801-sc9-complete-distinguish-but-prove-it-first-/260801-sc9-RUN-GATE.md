@@ -119,11 +119,35 @@ honest instrument; the phrase set is a confound wearing a determinism costume.
 
 ## 5. The two gates that remain, and who owns each
 
-1. **The `oracle-reviewer` DST-04 gate on the distilled artifact.** ORCHESTRATOR-driven -- the
-   executor has no Agent tool, so it cannot spawn `oracle-reviewer` itself. The distilled form is a
-   NEW artifact for DST-04 purposes and does not inherit the archived source's four remediation
-   rounds. This gate is a precondition of the SHIP, not of the build recorded here; nothing built in
-   this task ships.
+1. **The `oracle-reviewer` DST-04 gate on the distilled artifact -- RUN 2026-08-01, PARTIAL.**
+   ORCHESTRATOR-driven, as predicted: the executor has no Agent tool. The distilled form is a NEW
+   artifact for DST-04 purposes and did NOT inherit the archived source's four remediation rounds --
+   the first pass proved that, returning `revise` with `too_close_to_source: true`.
+
+   FIRST PASS found two spots reproducing source expression: the umbrella one-liner (it kept the
+   source's verb and its real-thing contrast) and a clause about the transitional stand-in (the
+   source's metaphor noun and clause shape, one verb swapped). Both are the standing near-verbatim
+   trap for canonical one-line definitions. It also found four factual drifts and one internal
+   contradiction.
+
+   SECOND PASS, after revision: `too_close_to_source: false`; `dst04_clean_room`,
+   `attribution_correctness` and `factual_fidelity` all `correct`. One self-consistency directive
+   remained (a census bullet contradicting the revised text), applied and confirmed separately.
+
+   STILL PARTIAL, and this is the live ship precondition: only the Meszaros and Fowler stores were
+   supplied. The census and citation traps also attribute to Beck, Metz, 99 Bottles, Clean Code,
+   Kerievsky, Cooper and Bernhardt. Those lines are UNGATED -- neither confirmed nor refuted -- and
+   are disclosed as such in the artifact's own header. Re-gate them against their own stores before
+   any ship decision.
+
+   TWO OWNER-DECISION ITEMS raised by the reviewer, deliberately NOT silently changed in the draft
+   because both are coach-scope judgement calls rather than fidelity defects:
+   - The prepared-answer variation count reads as exhaustive; the source names further variations of
+     that same pattern, one of which the draft now cites elsewhere. Decide whether the coach wants the
+     full set or the two that carry the polarity lesson.
+   - The `Mock Object` line frames failure only as a demanded call never arriving. The source also
+     stresses failing at the first deviation, and a final-verification step the test must trigger.
+     Decide whether that thinning is acceptable for a mid-cycle coach reference.
 2. **A fresh spend approval for the metered A/B.** Required by the standing eval-run-approval-gate,
    which `--auto` cannot satisfy. A separate orchestrator-driven step. This task does not sit waiting
    on it: the build is complete and the task is closed at this gate.

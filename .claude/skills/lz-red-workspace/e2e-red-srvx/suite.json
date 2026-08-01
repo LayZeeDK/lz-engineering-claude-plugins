@@ -12,6 +12,9 @@
   },
   "preamble_note": "BYTE-IDENTICAL to every other RED suite's apply preamble, and selfcheck-red crux 2 asserts that across suites. The shared lz-refactor default ends '...run the affected tests to confirm nothing broke', which argues against the behavior a RED eval measures -- the produced test is REQUIRED to fail.",
   "prompts": [
-    { "id": "r1", "file": "r1-next-test.md", "target": "SRVC", "code": true }
-  ]
+    { "id": "r1", "file": "r1-next-test.md", "target": "SRVC", "code": true },
+    { "id": "a1", "file": "a1-stub-the-correlation-id.md", "target": "AMB1", "code": true },
+    { "id": "a2", "file": "a2-stub-the-logger-output.md", "target": "AMB2", "code": true }
+  ],
+  "d12_cell_note": "a1 + a2 are the D-12 AMBIGUITY CELL, added 2026-08-02. Both carry the contested word BARE and UNQUALIFIED and their correct answers land on OPPOSITE sides of the production/test line, so the discriminator is the EXISTING changed_production_files field rather than any new grader: a1 correct is NON-EMPTY, a2 correct is EMPTY. They ride in this suite rather than a new one because a second suite claiming a cell key is what walkAllSuites throws on, and because sharing SRVC's repo, pin, runner and typecheck means the SRVC canaries already prove the plumbing. They do NOT reuse SRVC's dropped-header defect -- that cell is measured saturated (9 archived runs, no arm fabricated a double), so building on it again would measure nothing. Read targets.json AMB1/AMB2 for the measured red shapes and for the ceiling caveats BEFORE spending a round: the shipped lz-red SKILL.md already carries the qualify-by-side rule and a worked production-side-stub example, which bounds what the invoke_treatment arm can add."
 }

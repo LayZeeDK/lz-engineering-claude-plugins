@@ -1,0 +1,1 @@
+`src/log.ts` writes nothing at all for a request whose handler throws, so the only requests missing from the access log are the ones worth reading. Real stdout is in the way of seeing what it writes. Stub that and add the failing test under `test/`.

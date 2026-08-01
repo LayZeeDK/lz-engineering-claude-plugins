@@ -47,6 +47,20 @@ const MATTPOCOCK_DIR =
   path.join(os.homedir(), '.claude', 'plugins', 'cache', 'mattpocock', 'mattpocock-skills', '1.2.0');
 const CODE_REVIEW_COMMAND = '/mattpocock-skills:code-review';
 
+// The D-12 TREATMENT plugin tree on the invoke_treatment arm: a generated copy of plugins/lz-tdd
+// carrying the test-double artifact plus the one citation line that reaches it. Built on demand by
+// .claude/skills/lz-red-workspace/treatment/build-treatment.mjs, which hardcodes this same path.
+// KEEP THE TWO IN SYNC -- if they drift, the arm loads a stale or absent tree and the run silently
+// degrades into a second invoke_skill baseline.
+//
+// The env override is safe HERE and only here, because this const is only ever READ as a
+// --plugin-dir value. PLUGIN_DIR must NOT gain one: selfcheck-red.mjs crux 1/2 hard-assert that
+// with_skill and invoke_skill resolve to plugins/lz-tdd for every suite, prompt and mode, and its
+// dry runs spawn with inherited environment, so an exported override would redden the selfcheck
+// from the operator's own shell. The build script's destination is hardcoded for the opposite
+// reason: it starts with a recursive delete.
+const TREATMENT_DIR = process.env.LZ_TREATMENT_DIR || path.join(REPO_ROOT, 'out', 'lz-tdd-treatment');
+
 // A suite is a directory with suite.json + prompts/ + targets.json; results land under it.
 // --suite <dir> selects it (default: this runner's own dir = the nx suite). Scanned from argv here,
 // before parseArgs, so the module-level config can derive from it.
@@ -166,8 +180,8 @@ function parseArgs(argv) {
     throw new Error(`--mode must be recommend|apply, got ${args.mode}`);
   }
 
-  if (!['with_skill', 'no_skill', 'invoke_skill', 'code_review', 'both', 'all'].includes(args.arm)) {
-    throw new Error(`--arm must be with_skill|no_skill|invoke_skill|code_review|both|all, got ${args.arm}`);
+  if (!['with_skill', 'no_skill', 'invoke_skill', 'invoke_treatment', 'code_review', 'both', 'all'].includes(args.arm)) {
+    throw new Error(`--arm must be with_skill|no_skill|invoke_skill|invoke_treatment|code_review|both|all, got ${args.arm}`);
   }
 
   // code_review's fixed point is the synthetic empty-root SHA; without --synthetic-base there is none.
@@ -237,9 +251,12 @@ function composePrompt(promptEntry, mode, arm) {
 
   const body = fs.readFileSync(path.join(PROMPTS_DIR, promptEntry.file), 'utf8').trim();
 
-  if (arm === 'invoke_skill') {
+  if (arm === 'invoke_skill' || arm === 'invoke_treatment') {
     // Force skill activation via its slash command; the preamble + body become the skill's input.
     // (Read-only in recommend mode is still enforced by --disallowedTools, not the text.)
+    //
+    // invoke_treatment composes IDENTICALLY to invoke_skill on purpose: that makes invoke_skill its
+    // baseline and isolates a single variable, the presence of the artifact in the plugin tree.
     return `${SKILL_COMMAND} ${PREAMBLE[mode]}${body}`;
   }
 
@@ -272,6 +289,8 @@ function buildCmd(fullPrompt, arm, mode) {
 
   if (arm === 'with_skill' || arm === 'invoke_skill') {
     cmd.push('--plugin-dir', PLUGIN_DIR);
+  } else if (arm === 'invoke_treatment') {
+    cmd.push('--plugin-dir', TREATMENT_DIR);
   } else if (arm === 'code_review') {
     cmd.push('--plugin-dir', MATTPOCOCK_DIR);
   }

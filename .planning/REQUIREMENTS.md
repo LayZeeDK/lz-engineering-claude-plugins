@@ -142,7 +142,20 @@ Deferred to a later lz-tdd release. Tracked, not in this roadmap.
   A/B's baseline arm rather than an oversight. COST of closing it: an explicit N3 carve-out, because N3
   fails on the basename stem over every file under `plugins/` with no carve-out for a canonical location
   (MEASURED: a probe file at that exact path fails N3 by name), so the carve-out must be "at most one, at
-  the canonical path" and the lz-red-only-versus-shared ownership question has to be answered first. The
+  the canonical path" and the lz-red-only-versus-shared ownership question has to be answered first. A
+  G17 CARVE-OUT IS REQUIRED IN ADDITION, which this entry previously did not record: G17 fails any bare,
+  unqualified use of the contested word across every markdown file under `plugins/`, excusing a hit only
+  when it is immediately preceded by a canonical side qualifier or by the meta-mention form
+  (`check-red-references.mjs:565-567`). MEASURED this session, by mirroring G17's own needle and BOTH
+  allowlist forms against the subject `.planning/research/test-double-taxonomy.md` at commit `4f0da5e`:
+  34 total OCCURRENCES of the four inflections; 31 BARE OCCURRENCES of them, spread over 29 unique lines;
+  and the formal Meszaros catalog-name set -- exactly `Test Stub` and `Temporary Test Stub`, matched
+  case-sensitively with the longer name deduplicated from the shorter one's substring hits -- accounting
+  for 10 OCCURRENCES on 9 UNIQUE LINES. The unit is labelled on every figure deliberately, because the
+  unit is where two earlier counts of that last figure diverged: 9 and 10 are BOTH right, for unique
+  lines and for occurrences respectively, and an unlabelled count is what produced the disagreement.
+  D-06 forbids rewording those catalog names, so a taxonomy artifact CANNOT be made G17-clean while they
+  stay verbatim -- the ship needs a G17 carve-out IN ADDITION to the N3 carve-out, not just the N3 one. The
   mechanism itself is VERIFIED, not speculative -- V1-V7 in `PLUGIN-WIDE-REFERENCE-RESEARCH.md`, with the
   pattern already in production at `plugins/lz-tdd/references/beck-tdd-by-example.md`.
 

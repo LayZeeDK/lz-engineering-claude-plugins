@@ -47,7 +47,7 @@ Requirements for milestone lz-tdd@0.0.3. Each maps to a roadmap phase. Grounded 
 ### TypeScript and Vitest mechanics (VIT)
 
 - [x] **VIT-01**: Vitest mechanics mapped to RED concepts -- `it.todo` (test list), `test.each` (triangulation), `vi.*` doubles with restraint, watch mode as the feedback loop -- pinned to Vitest 4.x and tsc --strict-clean.
-- [ ] **VIT-02**: TypeScript + Vitest examples throughout `SKILL.md` and the references, paired with the language-agnostic principles, all tsc --strict-clean.
+- [x] **VIT-02**: TypeScript + Vitest examples throughout `SKILL.md` and the references, paired with the language-agnostic principles, all tsc --strict-clean. (DELIVERED ACROSS TWO PHASES BY DESIGN, and each clause was independently verified by its own `gsd-verifier` pass. **Phase 17** owned the "throughout the references" clause -- VERIFIED (references scope), every extracted fence `tsc --strict` clean. **Phase 18** owned the "throughout `SKILL.md`" clause, deferred to it because the SKILL.md body is the coach procedure's -- VERIFIED via the worked `applyDiscount` example (a compiling stub returning the untouched total, so it fails at runtime with an AssertionError rather than a missing symbol). Current shipped state, re-measured 2026-08-02: `extract-samples.mjs` extracts 8 modules, all `tsc --strict --noEmit` clean, 0 skipped, and the gate runs in the battery so it cannot silently rot. `anti-patterns.md` and `principle-backing.md` are deliberately prose-only -- exempting nav/prose-only surfaces was a reasoned call to avoid false-RED-ing them, not an unmet portion of the requirement. RECONCILED 2026-08-02; see the drift notice below for why this row survived stale for so long.)
 
 ### lz-tpp seam (SEAM)
 
@@ -199,7 +199,7 @@ Which phases cover which requirements. Populated during roadmap creation.
 | RTR-02 | Phase 18 | Complete |
 | RTR-03 | Phase 17 | Complete |
 | VIT-01 | Phase 17 | Complete |
-| VIT-02 | Phase 17 | Pending |
+| VIT-02 | Phase 17 + 18 (split by design) | Complete (references clause verified in 17, SKILL.md clause verified in 18; 8 modules tsc --strict clean) |
 | SEAM-01 | Phase 18 | Complete |
 | SEAM-02 | Phase 18 | Complete |
 | ANTI-01 | Phase 17 | Complete |
@@ -236,6 +236,35 @@ Which phases cover which requirements. Populated during roadmap creation.
 > than three mistakes.** A status field that is only ever written by the step that DEFERS it
 > will never be cleared by the step that RESOLVES it. Build-then-halt needs a matching
 > reconcile-on-completion action, or every gated requirement decays into a false "Pending".
+>
+> **ROOT CAUSE, traced 2026-08-02: VIT-02 was the first domino, and its wrong PHASE is what
+> hid it.** VIT-02 was split across two phases by design -- Phase 17 owned the "references"
+> clause, Phase 18 the "SKILL.md" clause -- and BOTH were independently VERIFIED by their own
+> `gsd-verifier` pass. `17-VERIFICATION.md` stated that this file "marks VIT-02 -> Phase 18";
+> it never did. `18-VERIFICATION.md` then flagged the row explicitly as "a known-stale
+> traceability row to reconcile at phase closure" and named the five sibling requirements that
+> should flip with it. That sweep RAN and flipped five of six -- LAW-01, LAW-02, RTR-02,
+> SEAM-01, SEAM-02 are all `[x]` -- and missed VIT-02, because the sweep was scoped to Phase-18
+> rows and VIT-02's row still pointed at Phase 17. **A wrong phase attribution made a
+> requirement invisible to the very fix that named it.** Phase 19 then spotted it, correctly
+> ruled it out of scope, and no one owned the follow-up.
+>
+> **How it then touched EVL-01/EVL-02, stated precisely rather than dramatically.** At Phase
+> 20's close, `gsd-tools query phase.complete 20` auto-flipped EVL-01/EVL-02 to `[x]`/Complete
+> despite the plans' `requirements_completed: []`. The orchestrator reverted them to Pending
+> and cited VIT-02 in support: "VIT-02 was already Pending, so a mixed Complete/Pending state
+> is a supported precedent." **That revert was CORRECT on its own merits** -- the empirical
+> runs genuinely had not happened yet (EVL-01 ran later that same day, EVL-02 the next). So
+> VIT-02 did not CAUSE the EVL drift, and this notice should not claim it did. What it shows
+> is subtler and worth more: a stale "Pending" was reached for as evidence about what a
+> correct state looks like, by someone who had not checked whether it was true. The EVL rows
+> then became false the following day, when the runs landed and nothing re-flipped them.
+>
+> **Two durable rules follow.** First, when reconciling a status, CHECK THE PHASE ATTRIBUTION
+> TOO: a row filed under the wrong phase survives every phase-scoped sweep, which is exactly
+> how VIT-02 outlived the fix that named it. Second, never cite an existing "Pending" as
+> precedent without verifying it -- an unverified status is not evidence, and reusing one
+> launders a bookkeeping miss into a reasoned position.
 
 *Requirements defined: 2026-07-18*
 *Last updated: 2026-08-02 -- ALL THREE EVL requirements reconciled from a false "Pending". EVL-01 -> Complete with a documented shortfall (run 2026-07-21; 92% recall against a self-set 100% target, closed on an independent held-out A/B; the headline predates the shipped D-09 widen). EVL-02 -> Complete, modest and honestly bounded (run 2026-07-22; substance-only Pass@1 0.97 vs 0.87, edge concentrated in 2 of 10 scenarios, the full-run figure vocabulary-inflated and context-only). EVL-03 reconciled to Complete (metered round 2026-07-27/28, 36 runs, $29.05; all 36 captures re-graded 2026-08-02 under the current grader with zero verdict changes, confirming the published numbers are grader-regime-invariant). Prior: 2026-07-22 -- EVL-03 formalized at Phase 21 plan time (D-14): an APPLY-based, 3-arm, multi-dimensional RED eval decomposed into EVL-03.1..EVL-03.7 (BUILD/RUN split) mapping the 5 Phase-21 ROADMAP success criteria, in the EVL-01/EVL-02 "build complete; empirical run gated" closure shape. Coverage 27 -> 28. Prior: 2026-07-21 after Phase 20 completion (25/27 Complete; EVL-01 + EVL-02 Pending build-then-halt per D-11; VIT-02 also Pending, carried).*

@@ -68,6 +68,23 @@ EVAL-RESULTS.md documents the reciprocal spot-check as `run_eval` against lz-tpp
 **Context:** For a build-then-halt / gated-measurement phase this over-claims delivery. Always inspect the REQUIREMENTS.md diff after phase.complete and revert any requirement whose empirical closure is still gated. VIT-02 was already Pending, so a mixed Complete/Pending state is a supported precedent.
 **Source:** 20-execute-phase orchestration (phase.complete diff)
 
+> **ADDENDUM 2026-08-02 -- the lesson above is sound; its supporting citation was not.**
+> The revert itself was CORRECT: EVL-01's and EVL-02's empirical runs had not happened at
+> phase.complete time (they ran 2026-07-21 and 2026-07-22 respectively), so Pending was the
+> honest state that day. But the VIT-02 citation was false -- VIT-02's content had already
+> landed in 18-05 and been VERIFIED by two separate `gsd-verifier` passes; its row was stale,
+> not a deliberate mixed state, and `18-VERIFICATION.md` had explicitly flagged it as "a
+> known-stale traceability row to reconcile at phase closure". It survived because its
+> traceability row pointed at Phase 17 while the reconciliation sweep was scoped to Phase 18.
+>
+> So an unverified "Pending" was reached for as evidence of what a correct state looks like.
+> Keep the lesson (inspect the phase.complete diff; do not let tooling over-claim a gated
+> requirement) and drop the citation. **Never cite an existing status as precedent without
+> verifying it is true** -- doing so launders a bookkeeping miss into a reasoned position.
+>
+> All three EVL rows plus VIT-02 were reconciled 2026-08-02; see the drift notice in
+> `REQUIREMENTS.md`.
+
 ### GSD tooling injects a non-ASCII em-dash into STATE.md
 Both the 20-03 executor and the orchestrator's phase.complete run left a U+2014 em-dash in STATE.md's activity line, violating the ASCII-only rule.
 

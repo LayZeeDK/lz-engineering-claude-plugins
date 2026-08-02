@@ -45,8 +45,8 @@
   "remaining_tasks": [
     {
       "id": "secure-17.1",
-      "status": "in_progress",
-      "name": "IN FLIGHT AT HANDOFF: gsd-security-auditor for phase 17.1 -- the ONLY phase with no SECURITY.md, found while checking milestone readiness. Its single PLAN carries a threat_model (5 threats, all low; T-17.1-SC is disposition ACCEPT, so verify the no-installs PREMISE rather than hunting for a control). If the result was not consumed, RE-RUN the agent. Do NOT author the artifact from the register alone and do NOT take the workflow inline short-circuit."
+      "status": "done",
+      "name": "DONE (commit 27d69b5). gsd-security-auditor returned SECURED 5/5, threats_open 0 for phase 17.1 -- the only phase that had no SECURITY.md, found while checking milestone readiness. T-17.1-SC accepted with its no-installs PREMISE independently verified (logged as AR-17.1-SC). All eight phases now carry SECURITY + VALIDATION + LEARNINGS + VERIFICATION."
     },
     {
       "id": "audit-milestone",

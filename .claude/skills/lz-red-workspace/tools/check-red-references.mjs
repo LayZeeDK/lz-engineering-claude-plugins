@@ -499,6 +499,31 @@ for (const spec of FILES) {
   }
 }
 
+// SEAM-02 (D-09): the reverse pointers in the SHIPPED lz-tpp skill. The red-green-refactor seam is
+// fully wired only when lz-tpp/SKILL.md points BACK at BOTH siblings -- lz-red (the red step) AND
+// lz-refactor (the refactor step), added in one edit. Reads a path OUTSIDE the lz-red references
+// tree, so it is a standalone post-loop block (mirrors the D-05 honesty-gate idiom).
+//
+// RESTORED after the [lc9] 0.0.3 scope revert removed it. That revert was correct on its own terms
+// -- it enforced "0.0.3 must not modify already-shipped skills" -- but the owner has since reversed
+// that scope call for SEAM-02 specifically, so the requirement is live again and needs its guard
+// back. Without this block the pointer can be removed a second time and the battery stays green,
+// which is exactly how the requirement went stale-Complete the first time. The sibling [lc9] N8
+// presence gate is deliberately NOT restored: it mandated test-double-taxonomy content in lz-tpp,
+// and that taxonomy remains descoped to .planning/.
+const lzTppSkillPath = path.join(repoRoot, "plugins", "lz-tdd", "skills", "lz-tpp", "SKILL.md");
+
+if (fs.existsSync(lzTppSkillPath)) {
+  const lzTppText = fs.readFileSync(lzTppSkillPath, "utf8");
+  const bothPointers = /lz-red/.test(lzTppText) && /lz-refactor/.test(lzTppText);
+
+  report(
+    bothPointers,
+    "lz-tpp/SKILL.md: SEAM-02 reverse pointers (lz-red AND lz-refactor)",
+    bothPointers ? "" : "lz-tpp skill missing one or both reverse pointers"
+  );
+}
+
 // Phase-17.1 D-05 honesty gate: no principle-backing.md row may be tagged "Owned;
 // oracle-verified ..." while its Source cell still cites Kent Beck, Test-Driven Development by
 // Example (Access: book, summary-only, never gateable -- 17.1-CONTEXT.md D-05). Generic over the
@@ -953,23 +978,33 @@ for (const guard of TWO_IG_GUARDS) {
 //
 // WHAT THIS GATE CATCHES that nothing else does: a deleted `topics` or `absent` entry; `topics: []`
 // (the loop emits nothing) and `absent: []` (truthy, so the presence check does not save you); and an
-// existsSync-gated post-loop block that silently emits nothing -- the D-05 honesty gate does exactly
-// that today if its file vanishes, a fully silent vacuous pass. (The SEAM-02 block shared this shape
-// and has since been removed as out of scope; see the scope note above.)
+// existsSync-gated post-loop block that silently emits nothing -- the D-05 honesty gate and the
+// restored SEAM-02 block both do exactly that today if their file vanishes, a fully silent vacuous
+// pass.
 //
 // WHAT IT DOES NOT CATCH, and nobody may mistake this gate for sufficient: a guard WEAKENED IN PLACE
 // leaves the count unchanged. Only the selftest evasion proofs cover that. A bare count is also blind to
 // a SHORT SWAP that happens to balance, which is why the label-set assertions below exist and why
 // tools/row-guards.selftest.mjs asserts the exported guard NAME set independently.
-// [lc9] +9 additions and -58 RETIREMENTS, then -2 for the 0.0.3 SCOPE REVERT, so 123:
+// [lc9] +9 additions and -58 RETIREMENTS, then -2 for the 0.0.3 SCOPE REVERT, then +1 for the
+// SEAM-02 RESTORE, so 124:
 //
-//   174 ([gap] baseline) + 9 ([lc9] additions) - 58 (retirements) - 2 (scope) = 123
+//   174 ([gap] baseline) + 9 ([lc9] additions) - 58 (retirements) - 2 (scope) + 1 (SEAM-02) = 124
 //
-// The 2 scope removals are SEAM-02 and the [lc9] N8 presence gate. Both MANDATED content inside the
-// already-shipped lz-tpp skill, which the 0.0.3 lz-red milestone must not modify; that file was
-// reverted to lz-tdd@0.0.2, so both guards were enforcing an out-of-scope change. See the scope notes
-// at each removal site. Neither is in RETIRED_LABELS: that roster records the taxonomy retirements of
-// this task, and mixing a scope removal into it would blur two different reasons for a guard's absence.
+// The 2 scope removals were SEAM-02 and the [lc9] N8 presence gate. Both MANDATED content inside the
+// already-shipped lz-tpp skill, which the 0.0.3 lz-red milestone was held not to modify; that file was
+// reverted to lz-tdd@0.0.2, so both guards were enforcing an out-of-scope change at the time.
+//
+// SEAM-02 has since been RESTORED by owner decision -- the milestone audit found the requirement was
+// still marked Complete in REQUIREMENTS.md and asserted as shipped in CHANGELOG.md while the pointer
+// was absent, and the owner elected to re-land the pointer rather than descope the requirement. So the
+// scope subtraction stands at -2 (it records what [lc9] did) and the restore is a separate +1 term
+// rather than an edit to that figure, which keeps each decision legible on its own line.
+//
+// The N8 presence gate stays removed: it mandated test-double-taxonomy content, and that taxonomy is
+// still descoped to .planning/. Neither is in RETIRED_LABELS: that roster records the taxonomy
+// retirements of this task, and mixing a scope removal into it would blur two different reasons for a
+// guard's absence.
 //
 // The nine additions were made INSTRUMENT-FIRST, before any content edit and before the deletion, so
 // each one's ability to fail was demonstrated against the unmodified tree rather than asserted
@@ -981,7 +1016,7 @@ for (const guard of TWO_IG_GUARDS) {
 // guards, the backing row that LINKED to it, the nine count guards, and the chronology phrase gate.
 // Every one is recorded BY NAME in RETIRED_LABELS, so the roster gate can tell a deliberate retirement
 // from an accidental drop -- without that list the two are the same green run.
-const EXPECTED_CHECKS = 123;
+const EXPECTED_CHECKS = 124;
 const ROSTER_LABEL = "[2ig] roster integrity: exact emitted-check count";
 
 // Every label the surviving [2ig] round and the [lc9] round ADD, composed exactly as emitted
@@ -1058,7 +1093,7 @@ report(rosterOk, ROSTER_LABEL, rosterDetail);
 console.log("");
 
 if (failures === 0) {
-  console.log(`SUMMARY: RED-REFS GREEN -- ${filesPresent}/${FILES.length} lz-red surfaces authored (SKILL.md coach procedure + SEL/STR/NAME/ASRT/RTR/VIT/ANTI references) with topics + required ts fences + cross-links, no scaffold leak, no stale Phase-18 markers, the red criterion consistent across every surface that restates it, no ragged pipe table and no dead relative link anywhere in the shipped tree, no per-skill copy of the development-time vocabulary map, D-05 honesty gate holds`);
+  console.log(`SUMMARY: RED-REFS GREEN -- ${filesPresent}/${FILES.length} lz-red surfaces authored (SKILL.md coach procedure + SEL/STR/NAME/ASRT/RTR/VIT/ANTI references) with topics + required ts fences + cross-links, no scaffold leak, no stale Phase-18 markers, the red criterion consistent across every surface that restates it, no ragged pipe table and no dead relative link anywhere in the shipped tree, no per-skill copy of the development-time vocabulary map, SEAM-02 lz-tpp reverse pointers present, D-05 honesty gate holds`);
   process.exit(0);
 }
 

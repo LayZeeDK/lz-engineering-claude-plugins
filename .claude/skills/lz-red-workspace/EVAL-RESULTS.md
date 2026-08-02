@@ -21,9 +21,14 @@ Skill under test: `plugins/lz-tdd/skills/lz-red`. Milestone lz-tdd@0.0.3.
 - **Throttle-robust measurement:** prefer the canary-gated chunk runners; a chunk is trusted ONLY
   when its appended positive canary fired (`trigger_rate >= 0.5`), proving a non-throttled window.
 
-**Status: EVL-01 RUN 2026-07-21 (user-approved; forward + reciprocal only).** EVL-02 behavior and its
-Pass@k tables remain intentionally blank -- the user approved EVL-01 and paused before the heavy EVL-02
-fan-out. EVL-01 headline: forward recall 11/12 = 92% (query-level; run-level Pass@1 0.96), forward
+**Status: EVL-01 RUN 2026-07-21, EVL-02 RUN 2026-07-22 -- both user-approved, both complete.**
+See the STATUS section at the end of this file for the full picture, and the EVL-02 sections
+below for its numbers. (CORRECTED 2026-08-02: this preamble previously read "EVL-02 behavior
+and its Pass@k tables remain intentionally blank -- the user approved EVL-01 and paused before
+the heavy EVL-02 fan-out." That was true when written and went stale the next day when EVL-02
+ran; it was never updated, so the top of this file stated the OPPOSITE of its own body and
+STATUS section for over a week. A reader who stopped at the preamble got the wrong answer.)
+EVL-01 headline: forward recall 11/12 = 92% (query-level; run-level Pass@1 0.96), forward
 specificity 12/12 = 100%, reciprocal lz-tpp 12/12 quiet, reciprocal lz-refactor 12/12 quiet. Every one
 of the 7 forward chunks was canary-validated (the appended positive fired 3/3 in each), so no result
 rests on a throttled window. One recall miss sits below the 100% D-08 bar: T9 (house-idiom /

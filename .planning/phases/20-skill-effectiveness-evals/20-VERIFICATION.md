@@ -18,6 +18,22 @@ re_verification: null
 
 # Phase 20: Skill-Effectiveness Evals Verification Report
 
+> **ADDENDUM 2026-08-02 -- forward pointer only; nothing below is edited.**
+>
+> This report was accurate when written and is left intact as the point-in-time record. Its
+> statements that the empirical runs were gated/pending, and that `REQUIREMENTS.md`
+> "correctly shows Pending -- this is the honest, intentional state", were TRUE at the time.
+>
+> What happened next: EVL-01's empirical run landed 2026-07-21 (forward recall 92%,
+> specificity 100%, both siblings 100% quiet), the conditional D-09 widen was applied and
+> validated on a held-out set, and EVL-02's behavior benchmark ran 2026-07-22 (60 coach
+> subagents + 10 judges + a from-scratch unbiased reviewer). Both are recorded in
+> `.claude/skills/lz-red-workspace/EVAL-RESULTS.md`, and both requirements were reconciled to
+> Complete -- with their bounds documented -- in `REQUIREMENTS.md` on 2026-08-02.
+>
+> So the "Pending" this report endorses is no longer the honest state; it became stale the day
+> after this report was written. Read the living status in `REQUIREMENTS.md`, not this report.
+
 **Phase Goal:** The shipped lz-red skill is empirically validated -- it triggers on RED intent (including the three-way cross-skill boundary) and coaches the right RED move versus an unaided baseline.
 **Verified:** 2026-07-21T09:02:50Z
 **Status:** passed

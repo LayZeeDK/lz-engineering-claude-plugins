@@ -836,7 +836,7 @@ function checkClassifier() {
 
   console.log(
     '  [crux 5] classifier OK (genuinely_red + false_green re-assert; a borrowed failure stays false_green and ' +
-      'an unmatched one unattributable; grade-red --selfcheck covers all 8 classes)',
+      'an unmatched one unattributable; grade-red --selfcheck covers all 9 classes)',
   );
 }
 

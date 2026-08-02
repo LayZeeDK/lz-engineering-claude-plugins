@@ -1,11 +1,11 @@
 {
   "version": "1.0",
-  "timestamp": "2026-08-01T20:24:01.783Z",
+  "timestamp": "2026-08-02T13:31:49.879Z",
   "context": "quick-task",
-  "quick_task": "260801-sc9",
-  "quick_task_dir": ".planning/quick/260801-sc9-complete-distinguish-but-prove-it-first-",
-  "supersedes_quick_task": "260729-x0i",
-  "supersedes_note": "The prior handoff named three outstanding phase-close audits, EVL-03 as an unapproved ~$39 metered run, and the D-12 A/B. Quick task 260801-sc9 CLOSED the D-12 build half. EVL-03 turned out to be ALREADY COMPLETE -- see the discovery below, which invalidates the prior handoff's central claim. The three phase-close audits are UNCHANGED and still outstanding.",
+  "quick_task": "260802-j03",
+  "quick_task_dir": ".planning/quick/260802-j03-fix-six-methodological-defects-in-the-d-",
+  "supersedes_quick_task": "260801-sc9",
+  "supersedes_note": "Two quick tasks completed since that handoff: 260801-w8b built the D-12 ambiguity cell and ran the first three-arm round, and 260802-j03 repaired the seven defects that round exposed. The three phase-21 close-out audits named in the prior handoff are UNCHANGED and still outstanding.",
   "phase": "21",
   "phase_name": "applied-red-eval-real-oss-repos",
   "phase_dir": ".planning/phases/21-applied-red-eval-in-real-oss-repos-multi-dimensional-3-arm-i",
@@ -14,165 +14,142 @@
   "total_tasks": 3,
   "status": "paused",
   "autonomous": false,
-  "summary": "Two things happened this session. (1) Quick task 260801-sc9 is COMPLETE, verified passed 7/7, zero metered spend, five commits 087e6d1..769a2b6 plus 21c6fb8. It built the TREATMENT ARM of the D-12 'distinguish, but prove it first' A/B: a distilled test-double artifact outside plugins/, a build-treatment.mjs that reproduces the treatment plugin tree into gitignored out/, and an invoke_treatment arm deliberately excluded from --arm all. (2) MUCH MORE IMPORTANT: EVL-03's metered round was discovered to have ALREADY RUN on 2026-07-27/28 -- 36 runs, $29.04, user-approved at the gate, graded, judged, unbiased-reviewed and fully written up -- while SIX planning artifacts still describe it as unapproved and outstanding. Acting on those stale records, I presented a spend decision that was already settled and began re-running it; $0.78 was spent on one run before I caught it. Stopped, reverted, corpus restored byte-identical. HEAD is 769a2b6 on gsd/lz-tdd-0.0.3-lz-red, 362 commits ahead of origin/main, NOTHING PUSHED, working tree clean, no worktrees, no async jobs.",
+  "summary": "Quick task 260802-j03 is COMPLETE, verified 10/10, five commits 3b75da0..f75a989, zero metered spend on the build. It repaired the D-12 A/B instrument after the first round (260801-w8b, 18 runs, $16.36) proved uninterpretable. PAUSED MID-PILOT: the pre-registered 3-run gate was launched and STOPPED after run-1. HEAD is f75a989 on gsd/lz-tdd-0.0.3-lz-red, 372 commits ahead of origin/main, NOTHING PUSHED, working tree clean apart from one untracked leftover directory.",
   "live_worktree": null,
   "completed_this_session": [
     {
-      "id": "anchor-verification",
-      "name": "Re-verified the inherited anchor before touching anything: battery exit 0 at 123 checks / 0 FAILs, row-guards selftest 49 assertions, and both scope invariants (lz-tpp tree and lz-refactor/SKILL.md) EMPTY against tag lz-tdd@0.0.2 behind a git rev-parse anchor.",
+      "id": "d12-round-1",
+      "name": "Built the D-12 ambiguity cell (targets AMB1/AMB2, prompts a1/a2 on the vendored srvx repo) and ran the first three-arm round: 18 runs, $16.36, all arms exit 0, zero empty diffs. Every dimension tied -- side-correctness 6/6 per arm, blind judge 18/18 on both substance dims, oracle-reviewer 18/18 on RED authenticity, differential typecheck clean throughout.",
       "status": "done"
     },
     {
-      "id": "canary-green",
-      "name": "Ran the REQUIRED zero-spend selfcheck-red canary. Real exit status 0, ZERO SKIP lines, and crux 9's platform-conditional verbatimSymlinks check RAN rather than skipping, so copy-containment was genuinely measured on this machine. Gated on the process exit status, not the log text -- the compound command ends in echo, which launders it.",
+      "id": "unbiased-audit-overturned-it",
+      "name": "The mandatory unbiased audit overturned the reading, and it was right. THE TREATMENT WAS NEVER DELIVERED: zero taxonomy reads across all six treatment transcripts, verified by me independently with a passing positive control. A null from an unadministered treatment says nothing. It also found the prompts were referentially unambiguous and the forcing arm's 4/6 was a grading artifact.",
       "status": "done"
     },
     {
-      "id": "evl03-already-complete",
-      "name": "DISCOVERED that EVL-03 was already complete. Found 36 captured runs on disk, all 36 graded, then found e2e-red-gilded-rose/EVAL-RESULTS.md is 561 filled lines whose own status line reads 'RUN COMPLETE 2026-07-27/28. 36 runs, 4 cells, 3 suites, $29.04 total. User-approved at the metered gate.' It carries a headline, an Opus 5 follow-up probe and the mandatory unbiased-reviewer section.",
+      "id": "seven-fixes",
+      "name": "Quick task 260802-j03 landed all seven fixes: D-01 a new --arm d12 token so arms interleave (--arm all byte-unchanged, crux 6 pin intact); D-02 per-run pristine record, fail-closed; D-03 a1's absence assertion cut, a2 EXEMPT; D-04 taxonomy INLINED so the dose is guaranteed; D-05 a blunt_red class that PASSES without loosening the gate; D-06 k=5 behind a blocking pilot gate; D-07 lever tripwire re-keyed on lever identity.",
       "status": "done"
     },
     {
-      "id": "spend-stopped-and-reverted",
-      "name": "Stopped the re-run after one forced GRC run ($0.78, claude-opus-5, 100 s, 16 turns). Moved that stray capture to D:/.lz-red-archive/2026-08-01-stray-opus5-run/ and restored the original 2026-07-27 capture, verified byte-identical -- all 9 GRC meta.json match the archive, 36/36 runs intact. Removed all three throwaway checkouts; kata, srvx and primitives-pin each verified 0 dirty files, 1 worktree, node_modules intact, no stranded grading worktrees.",
+      "id": "risks-measured-not-asserted",
+      "name": "Three flagged risks were measured rather than asserted. The blunt fixture returned blunt_red and the executor measured WHY the old rule missed it (vitest emits no code frame for this shape). The dead-end-copy canary genuinely DISAGREES on identical inputs. The re-keyed lever tripwire was deliberately POISONED to confirm it still fires -- a passing build proves nothing.",
       "status": "done"
     },
     {
-      "id": "archive-created",
-      "name": "Archived the full 2026-07-27 corpus to D:/.lz-red-archive/2026-07-27-preskill-drift/ (36 runs + 36 grades + 3 tabulations, 6.3 MB) with a README recording its provenance and the three reasons it is not reusable as-is.",
-      "status": "done"
-    },
-    {
-      "id": "sc9-build",
-      "name": "Quick task 260801-sc9 --full --auto: discussion locked 3 gray areas and recorded UNRESOLVED-1; research answered 5 questions measured-not-inferred; planner produced 3 tasks; plan-checker found 2 fail-open BLOCKERS; revision closed them; re-check PASSED with 24 legs verified individually; worktree-isolated executor landed 3 commits; verifier passed 7/7 by independent re-measurement.",
-      "status": "done"
-    },
-    {
-      "id": "dst04-gate",
-      "name": "Ran the oracle-reviewer DST-04 gate the plan deferred to the orchestrator. FIRST pass returned revise with too_close_to_source TRUE -- the umbrella one-liner kept the source's verb and real-thing contrast, and a transitional-stand-in clause carried the source's metaphor noun and clause shape with one verb swapped. Recast both plus four factual drifts and one internal contradiction. SECOND pass: too_close_to_source false, clean-room/attribution/fidelity all correct. A census bullet contradicting the revision was fixed and confirmed separately.",
-      "status": "done"
-    },
-    {
-      "id": "g17-ship-blocker",
-      "name": "Recorded a ship cost not previously in the register: FUT-TAXONOMY-SHARED documents only an N3 carve-out, but G17 also blocks a shipped taxonomy. The figure was re-derived rather than copied, resolving an earlier 9-vs-10 disagreement as a UNITS difference -- 34 total occurrences, 31 bare over 29 unique lines, 10 catalog occurrences over 9 unique lines. The verifier independently reproduced all of it with its own script.",
-      "status": "done"
+      "id": "pilot-launched-and-stopped",
+      "name": "The pre-registered pilot was launched and STOPPED after run-1 at the owner's pause. One run of three completed (~$1.24 spent).",
+      "status": "partial"
     }
   ],
   "remaining_tasks": [
     {
-      "id": "reconcile-evl03-records",
-      "name": "Reconcile SIX stale artifacts against the completed EVL-03 round: .planning/HANDOFF.json (this file supersedes it), .planning/.continue-here.md, STATE.md, REQUIREMENTS.md (the EVL-03 row AND the EVL-01/EVL-02 rows, all still 'Pending'), 21-WITHSKILL-PILOT.md ('NOT approved and REMAINS OPEN'), 21-ATC-ADOPTION.md. EVL-02 also RAN 2026-07-22 (iteration-1/benchmark.md, 85% -> 97%) while still recorded Pending, and the workspace EVAL-RESULTS.md already says 'EVL-01 done ... EVL-02 done'. BLOCKED on the owner's drift call -- the correct target state differs depending on whether the round is accepted as-is or re-run.",
-      "status": "blocked_on_owner"
+      "id": "repair-mixed-results-tree",
+      "name": "FIRST ACTION ON RESUME. The pilot left a MIXED tree at results/apply/invoke_skill/a1/. run-1 carries a FRESH capture (meta 2026-08-02 15:29) with a STALE grade (red-grade.json 01:28, produced for the round-1 capture that run-1 replaced). runs 2 and 3 still carry ROUND-1 captures and round-1 grades. Do NOT read any of it as pilot data until repaired. The clean round-1 corpus is archived at D:/.lz-red-archive/2026-08-01-d12-round-1/ (27 runs, 27 grades).",
+      "status": "not_started"
+    },
+    {
+      "id": "finish-pilot",
+      "name": "Complete the pre-registered pilot: 3 gradeable runs of the revised a1 on the invoke_skill arm. --force is REQUIRED or the harness skips completed runs. Then grade all three and apply the rule VERBATIM as committed -- do not reinterpret it after seeing the numbers.",
+      "status": "not_started"
+    },
+    {
+      "id": "apply-pilot-rule",
+      "name": "N = gradeable pilot runs whose changed_production_files is NON-EMPTY, out of 3. N=3 means CEILING HELD -- STOP, do not buy the round, report the ceiling as the finding, keep FUT-TAXONOMY-SHARED OPEN. N=0/1/2 means CEILING MOVED -- buy the k=5 round, 3 arms x 2 prompts = 30 runs, ~$27. Void runs (no red-grade.json) are neither hit nor miss; re-run that index, cap 2 void re-runs, read the gate on 3 grades never 2.",
+      "status": "not_started"
     },
     {
       "id": "secure-21",
-      "name": "/gsd-secure-phase 21 -- MUST be reached BY gsd-security-auditor. Do NOT take the workflow's inline short-circuit even on a clean threats_open:0 path. Phases 15-20 each have a SECURITY.md; 21 does not. Verified directly this session, not from prose.",
+      "name": "/gsd-secure-phase 21 -- MUST be reached BY gsd-security-auditor. Phases 15-20 each have a SECURITY.md; 21 does not. Verified directly, not from prose.",
       "status": "not_started"
     },
     {
       "id": "validate-21",
-      "name": "/gsd-validate-phase 21 -- MUST be reached BY gsd-nyquist-auditor. 21-VALIDATION.md EXISTS but its frontmatter reads status: draft, nyquist_compliant: false, wave_0_complete: false, so it is the plan-time draft and genuinely not yet run. Verified directly this session.",
+      "name": "/gsd-validate-phase 21 -- MUST be reached BY gsd-nyquist-auditor. 21-VALIDATION.md frontmatter reads status: draft, nyquist_compliant: false.",
       "status": "not_started"
     },
     {
       "id": "extract-learnings-21",
-      "name": "/gsd-extract-learnings 21 -- run LAST, after secure and validate are both clean, then bridge to ~/.gsd/knowledge/ by hand. features.global_learnings is true but learnings.copy is a silent no-op without a top-level temp .planning/LEARNINGS.md, which must be built, copied and deleted as ONE uninterrupted sequence and never committed.",
+      "name": "/gsd-extract-learnings 21 LAST, then the manual ~/.gsd/knowledge/ bridge (learnings.copy is a silent no-op without a top-level temp .planning/LEARNINGS.md; build, copy and delete as ONE uninterrupted sequence, never commit it).",
       "status": "blocked"
     },
     {
-      "id": "d12-corpus",
-      "name": "UNRESOLVED-1: author >= 2 genuinely ambiguous prompts and choose their target. Owner decision. Three options recorded verbatim in 260801-sc9-CONTEXT.md and 260801-sc9-RUN-GATE.md. Zero of the 59 existing prompts qualify.",
-      "status": "blocked_on_owner"
-    },
-    {
-      "id": "d12-ab-run",
-      "name": "The D-12 A/B metered run. Blocked on the corpus above AND on fresh spend approval. The treatment arm is BUILT and the invoke_treatment arm is wired; the run command is stated in 260801-sc9-RUN-GATE.md section 3 with its two holes named honestly rather than presented as runnable.",
+      "id": "reconcile-evl03-records",
+      "name": "Six artifacts still describe EVL-03's metered round as outstanding when it RAN COMPLETE 2026-07-27/28 ($29.04, fully written up). Blocked on the owner's drift call.",
       "status": "blocked_on_owner"
     },
     {
       "id": "milestone",
-      "name": "/gsd-complete-milestone lz-tdd@0.0.3 with MANUAL archival, because gsd-sdk milestone.complete rejects the @-scoped non-vX.Y version string. Blocked on the three phase-close audits and on the EVL-03 reconciliation.",
+      "name": "/gsd-complete-milestone lz-tdd@0.0.3 with MANUAL archival -- gsd-sdk milestone.complete rejects the @-scoped non-vX.Y version string.",
       "status": "blocked"
     }
   ],
   "blockers": [
     {
-      "description": "OWNER DECISION: is the completed 2026-07-27/28 EVL-03 round accepted as the milestone's result, or does it need a re-run against today's skill? The skill drifted after the captures -- 10 shipped files, +199/-73 through 2026-07-29 -- and lz-red went from ZERO Beck references to one via a new plugin-wide path. The harness also now pins claude-opus-5 where the round ran claude-opus-4-8. Everything downstream depends on this answer.",
-      "type": "human_action",
-      "workaround": "Three paths were costed. Path A: re-grade only, $0, ~25 min, fixes the pre-e428d8a attribution artifact in the existing round. Path B: re-run GRC + RXF only, ~$14, the two headline-capable cells. Path C: re-run all four cells, ~$50 (NOT the $39 previously quoted -- that used a $1.09/run planning estimate; actual was $0.807/run on opus-4-8, and the one Opus 5 run cost $0.78 against a $0.42 opus-4-8 GRC mean)."
-    },
-    {
-      "description": "UNRESOLVED-1: the ambiguous-prompt corpus for the D-12 A/B. HIGH impact, NOT-HIGH confidence -- the --auto trap quadrant, deliberately not auto-locked.",
-      "type": "human_action",
-      "workaround": "None. It needs a design decision. The build half is complete and does not wait on it."
-    },
-    {
-      "description": "The DST-04 gate on the treatment artifact is PARTIAL. Only the Meszaros and Fowler stores were supplied to oracle-reviewer. The census and citation traps also attribute to Beck, Metz, 99 Bottles, Clean Code, Kerievsky, Cooper and Bernhardt; those lines are UNGATED. Disclosed in the artifact's own header.",
+      "description": "MIXED RESULTS TREE at results/apply/invoke_skill/a1/ -- one fresh capture with a stale grade, two round-1 captures. Reading it as pilot data would produce a wrong N and a wrong GO/NO-GO.",
       "type": "technical",
-      "workaround": "Re-gate against those stores before any ship decision. Not blocking the build, since nothing ships until the A/B shows lift."
+      "workaround": "Re-run all three with --force, re-grade all three, and confirm every meta.json AND every red-grade.json carries a post-resume timestamp before computing N. Round-1 is safely archived."
     },
     {
-      "description": "Two coach-scope judgement calls raised by oracle-reviewer, deliberately NOT silently changed: whether the prepared-answer variation list should read as exhaustive, and whether the Mock Object line should also carry fail-at-first-deviation plus the final-verification step. The reviewer's closing note: record the owner decision on those two and the entry closes clean; nothing needs re-submitting.",
+      "description": "The pilot gate itself is blocking on the ~$27 round. It exists because the prior discriminator was correct 18 of 18 -- a CEILING, not a tie -- and nothing in a 30-run round is observable until the baseline comes off it.",
+      "type": "technical",
+      "workaround": "None, and none wanted. ~$3.71 is the right price to learn whether $27 can measure anything."
+    },
+    {
+      "description": "ARM-LENGTH CONFOUND, measured and declared rather than fixed: baseline 167 lines, forcing 174, treatment 282. Guaranteeing the dose costs length parity.",
+      "type": "technical",
+      "workaround": "Cannot be fixed -- you cannot guarantee the dose and hold length constant at once. Any treatment effect must be reported as confounded with length and position."
+    },
+    {
+      "description": "EVL-03 drift decision still owner-gated. Three paths costed: A re-grade only ($0, ~25 min), B GRC+RXF (~$14), C all four cells (~$50).",
       "type": "human_action",
-      "workaround": "Recorded in 260801-sc9-RUN-GATE.md section 5. The DST-04 verdict reads 'blocked' ONLY because these two remain open; no axis is below correct and no defect remains."
+      "workaround": "Path A is worthwhile regardless and independent of the D-12 work."
     }
   ],
   "async_jobs": [],
   "human_actions_pending": [
     {
-      "action": "Decide whether the completed EVL-03 round stands or needs re-running against today's skill",
-      "context": "The single decision gating milestone close. See the blocker above for the three costed paths.",
+      "action": "None to start the pilot -- spend is already approved and the rule is pre-registered",
+      "context": "Resume can proceed autonomously through the pilot and, if the gate opens, the round.",
+      "blocking": false
+    },
+    {
+      "action": "Decide whether the completed EVL-03 round stands or needs re-running",
+      "context": "Independent of D-12. Gates the milestone close.",
       "blocking": true
-    },
-    {
-      "action": "Resolve UNRESOLVED-1 -- the ambiguous-prompt corpus and its target",
-      "context": "Blocks the D-12 A/B. Three options recorded; none auto-lockable.",
-      "blocking": false
-    },
-    {
-      "action": "Approve spend for the D-12 A/B once the corpus exists",
-      "context": "Standing eval-run-approval-gate. --auto cannot satisfy it.",
-      "blocking": false
-    },
-    {
-      "action": "Rule on the two coach-scope judgement calls in 260801-sc9-RUN-GATE.md section 5",
-      "context": "Closes the DST-04 entry clean.",
-      "blocking": false
     }
   ],
   "decisions": [
     {
-      "decision": "Stopped the EVL-03 re-run mid-flight rather than completing the approved scope.",
-      "rationale": "The approval was obtained on a false premise -- six planning artifacts said no round existed. Money not spent is recoverable; money spent is not. Restoring the original corpus and reporting beat delivering a duplicate of an existing result.",
-      "phase": "quick-260801-sc9"
+      "decision": "a2 is EXEMPT from the antecedent cut.",
+      "rationale": "Its resolving clause is the only thing introducing a collaborator. Removing it would point 'Stub that' at src/log.ts -- the WRONG answer -- so the cut would invert the ground truth rather than create ambiguity. a2 also has no headroom: its correct signature is EMPTY and the corpus base rate is already 42/44 empty.",
+      "phase": "quick-260802-j03"
     },
     {
-      "decision": "Re-running all 36 rather than reusing the 12 no_skill captures was the plan before the discovery, and the reasoning still stands if a re-run happens.",
-      "rationale": "The eval is an arm-vs-arm comparison. Mixing a 5-day-old baseline with fresh treatment arms puts a temporal confound into the one measurement the milestone waits on. Prompts, preamble, suite configs and target pins were verified byte-unchanged, so only the skill and model drifted.",
-      "phase": "quick-260801-sc9"
+      "decision": "The taxonomy is INLINED into the treatment SKILL.md rather than pointed at by the forcing step.",
+      "rationale": "Inlining preserves lever separation, which is the whole reason the round has three arms. Pointing the forcing step at the reference would fuse the two levers and make a positive result unattributable. It changes the question arm 2 answers -- from 'does the reference get used and help' to 'does the content help WHEN GUARANTEED PRESENT' -- which is the question D-12 actually asks.",
+      "phase": "quick-260802-j03"
     },
     {
-      "decision": "The treatment artifact lives OUTSIDE plugins/, and renaming it to dodge guard N3 was rejected.",
-      "rationale": "N3 walks all of plugins/ and matches on the basename STEM, any extension, precisely because a .txt copy once slipped past a filename-scoped needle. Its own comment records that the constraint was violated once already and survived three acceptance reviews because nothing checked it. Renaming is the evasion it was hardened against. D-12 independently requires the shipped tree to remain the no-artifact baseline arm.",
-      "phase": "quick-260801-sc9"
+      "decision": "blunt_red was added as a new verdict class AND verdictPass() was widened in the same edit.",
+      "rationale": "A new class without the widening is cosmetic and leaves the defect intact. RUNTIME_RE stays a hard first veto over the whole message, both conditions are required, and the phrase is read from the message head only -- so recognising the deliberate blunt red does not loosen the gate.",
+      "phase": "quick-260802-j03"
     },
     {
-      "decision": "The new arm is EXCLUDED from --arm all.",
-      "rationale": "crux 6 pins the lz-refactor default dry-run byte-for-byte. Excluding the arm keeps that pin intact while crux 1/2/6 continue to assert only the presence of the three known arms, never the absence of extras.",
-      "phase": "quick-260801-sc9"
+      "decision": "The lever tripwire was RE-KEYED on lever identity, never deleted.",
+      "rationale": "Inlining removes the field the old tripwire was keyed on, so it would have fired spuriously. Deleting it would remove a guard that exists to catch the taxonomy leaking into the wrong tree -- the same class of mistake N3 was hardened against.",
+      "phase": "quick-260802-j03"
     },
     {
-      "decision": "The G17 figure was RE-DERIVED rather than copied from either prior source.",
-      "rationale": "Research said 9, the plan-checker independently counted 10, and the number was about to be written into a tracked long-lived doc. Re-derivation showed both were right about different units -- 10 occurrences on 9 unique lines, one line carrying two hits.",
-      "phase": "quick-260801-sc9"
-    },
-    {
-      "decision": "The two oracle-reviewer ambiguities were carried to the owner rather than silently resolved in the draft.",
-      "rationale": "Both are coach-scope judgement calls about how much of the source a mid-cycle reference should carry, not fidelity defects. Deciding them silently would be the orchestrator making a content call that belongs to the owner.",
-      "phase": "quick-260801-sc9"
+      "decision": "The pilot rule was pre-registered numerically in PLAN.md and committed BEFORE the pilot ran.",
+      "rationale": "A decision rule authored after seeing the numbers is not a decision rule. It is also mirrored into targets.json AMB1 where the operator reads it, and the plan deliberately avoided a third copy that could drift.",
+      "phase": "quick-260802-j03"
     }
   ],
-  "uncommitted_files": [],
-  "next_action": "Answer the EVL-03 drift question FIRST -- it gates the reconciliation, the milestone, and whether any further spend is warranted. Path A (re-grade only, $0, ~25 min) is runnable immediately and is worth doing regardless, because every existing grade predates the e428d8a attribution fix by 13 minutes and the corpus contains exactly one unattributable verdict carrying that bug's signature. The original GRC armed base ac6a0335 was confirmed still reachable, so the re-grade is possible. Independently of that, the three phase-21 close-out audits are zero-spend, genuinely outstanding on direct file evidence, and can proceed in parallel: secure -> validate -> extract-learnings, each reached BY its dedicated agent.",
-  "context_notes": "THE LESSON THIS SESSION IS ABOUT VERIFYING AGAINST ARTIFACTS RATHER THAN AGAINST THE RECORD, AND IT COST REAL MONEY TO LEARN. Six planning artifacts agreed with each other that EVL-03's metered round was unapproved and outstanding. They were unanimous and they were all wrong. I read EVAL-RESULTS.md's HEADINGS early, saw section names that looked like a scaffold, and moved on -- the file was 561 lines of filled results whose first page says RUN COMPLETE. Reading one page of the actual artifact would have cost nothing and saved $0.78 plus an hour. GENERALISATION: when a planning record says work is outstanding, open the work product and read its FIRST PAGE before acting, especially before spending. Unanimity across planning docs is not corroboration -- they copy from each other. A SECOND, RELATED FAILURE: I assumed the fresh round would overwrite the stale captures in place, so deletion did not matter. The harness SKIPS completed runs -- 'already done (exit 0), skip' x9 -- and needs --force. The classifier had blocked my rm -rf of those results and I talked myself past the need for it; the block turned out to be load-bearing. THE FAIL-OPEN PATTERN IS ENDEMIC AND I AM NOT IMMUNE: I wrote a trailing echo of $? twice today, which always exits 0 and launders the real status; the plan reproduced the same shape; the plan-checker caught two instances as BLOCKERS. Gate on `test $? -eq 0 && echo TOKEN`, never on a trailing echo and never on log text -- check-red-references prints '123 checks' even on a RED battery because the roster detail string is built independently of the verdict. DIFF SCOPE IS A TRAP: I diffed plugins/lz-tdd/skills/lz-red/ and concluded the drift was prose-only. Both ends of a relocation sat outside that subtree, so I missed that lz-red gained a Beck reference it never had, and missed two more changed files inside the treatment surface (lz-tpp/SKILL.md and lz-refactor/references/principles.md) -- the round's own caveat says the treatment is 'the lz-tdd plugin is installed', which loads lz-tpp too. Diff the whole plugin with -M, not the skill subtree. DST-04 DOES NOT INHERIT: the archived taxonomy went through four provenance remediation rounds, and the distillation of it still reproduced source phrasing in two places on the first pass. A derived artifact is a NEW artifact for clean-room purposes. FINALLY, the placeholder scan remains a false-positive generator in this repo -- 'placeholder' is domain vocabulary in skill scaffolds -- so do not treat its hits as incomplete work without reading them."
+  "uncommitted_files": [
+    ".claude/skills/lz-red-workspace/probe-d12-ambiguity/ (untracked Option C leftover; archived at D:/.lz-red-archive/2026-08-01-optionC-abandoned/, safe to delete)"
+  ],
+  "next_action": "Repair the mixed results tree FIRST, then finish the pilot. Concretely: re-run all three pilot runs with --force (`node .claude/skills/lz-refactor-workspace/e2e-nx/run-e2e.mjs --suite .claude/skills/lz-red-workspace/e2e-red-srvx --mode apply --cwd D:/.lz-red-throwaway/srvx-d12 --arm invoke_skill --prompt a1 --runs 3 --force`), re-grade all three, assert every meta AND every grade carries a post-resume timestamp, then compute N and apply the committed rule verbatim. The three phase-21 close-out audits are zero-spend, independent of all this, and can run in parallel.",
+  "context_notes": "THE LESSON OF THIS SESSION IS THAT A TIE IS NOT A NULL UNTIL YOU PROVE THE TREATMENT WAS DELIVERED. The first D-12 round tied on six dimensions and I reported it as an answer. The unbiased audit then showed the treatment arm never opened the taxonomy in any of its six runs -- the dose was zero -- so the round measured retrieval, not content, and could support no conclusion at all. I verified that myself afterwards with a positive control, and my first attempt at verifying it was itself wrong: I grepped the results directory and got zero hits for BOTH the taxonomy and the control, which is an inconclusive check, not a confirming one. The transcripts live in outputs/transcript.stream.jsonl and that is where the grep belongs. ALWAYS PAIR A ZERO WITH A POSITIVE CONTROL, and when the control also reads zero, fix the check before believing either number. THE SECOND LESSON IS ABOUT MANIPULATION CHECKS THAT ARE ALREADY IN THE DATA. The forcing arm was instructed to declare settled-or-unsettled with a reason, and it answered SETTLED 6 of 6, naming the reason both times: 'Stub it' and 'Stub that' carry antecedents that resolve one clause earlier, so the prompts were lexically ambiguous but referentially unambiguous. That was a built-in manipulation check reporting its own failure and I read straight past it. When an arm is instructed to report its reasoning, READ THAT FIELD BEFORE READING THE OUTCOME. THIRD, on grading: a verdict can be wrong in a way that looks like a result. The forcing arm's 4/6 was not worse work -- a not-implemented throw matches neither ASSERTION_RE nor RUNTIME_RE, so it failed by FAIL-CLOSED DEFAULT while the grader's stated reason claimed a runtime error was detected. Nothing detected anything. The skill under test explicitly endorses that form at SKILL.md:89, so the gate was failing the arm for obedience. Check a verdict's stated reason against the code path that produced it before attributing it to an arm. FOURTH, a process note that keeps paying: the pipeline caught what I missed at every stage. Research overturned two of my own locked rationales (the interleave already existed; a2 cannot take the cut). The planner corrected my pilot budget from measurement, $3.71 not $2.70, because the quoted $0.91/run is an all-cell mean and a1 is the expensive prompt. The plan-checker re-derived those costs to the cent rather than trusting the prose. Do not skip these gates to save time -- every one of them changed the work. FINALLY, unchanged from before and still true: gate on `test $? -eq 0 && echo TOKEN`, never a trailing echo of $?, and never on log text -- check-red-references prints '123 checks' even when RED."
 }

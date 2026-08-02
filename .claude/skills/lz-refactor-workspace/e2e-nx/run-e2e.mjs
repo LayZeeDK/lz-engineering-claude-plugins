@@ -191,8 +191,10 @@ function parseArgs(argv) {
     throw new Error(`--mode must be recommend|apply, got ${args.mode}`);
   }
 
-  if (!['with_skill', 'no_skill', 'invoke_skill', 'invoke_treatment', 'invoke_forcing', 'code_review', 'both', 'all'].includes(args.arm)) {
-    throw new Error(`--arm must be with_skill|no_skill|invoke_skill|invoke_treatment|invoke_forcing|code_review|both|all, got ${args.arm}`);
+  if (!['with_skill', 'no_skill', 'invoke_skill', 'invoke_treatment', 'invoke_forcing', 'code_review', 'both', 'all', 'd12'].includes(args.arm)) {
+    throw new Error(
+      `--arm must be with_skill|no_skill|invoke_skill|invoke_treatment|invoke_forcing|code_review|both|all|d12, got ${args.arm}`,
+    );
   }
 
   // code_review's fixed point is the synthetic empty-root SHA; without --synthetic-base there is none.
@@ -650,6 +652,9 @@ function runOne(claude, promptEntry, arm, mode, cwd, runIdx, force) {
   const rawDir = path.join(outDir, 'outputs'); // gitignored (**/outputs/)
   fs.mkdirSync(rawDir, { recursive: true });
 
+  // D-02. Null outside apply mode, where there is no reset to attest to.
+  let pristine = null;
+
   if (mode === 'apply') {
     // Safety: `git reset --hard` here would destroy work if cwd were on a real branch. Refuse to run
     // on a protected branch -- apply must run on a throwaway branch (see README).
@@ -679,6 +684,38 @@ function runOne(claude, promptEntry, arm, mode, cwd, runIdx, force) {
     // mustSucceed (I1): abort loudly rather than silently stacking edits across k runs.
     git(cwd, ['reset', '--hard', APPLY_BASE], { mustSucceed: true });
     git(cwd, ['clean', '-fd'], { mustSucceed: true });
+
+    // D-02: RECORD the evidence, not just perform the reset. All 18 runs of the 2026-08-01 D-12
+    // round shared one throwaway tree and left no per-run pristine assertion behind, so the audit
+    // could not confirm isolation held -- absence of evidence, not evidence of a failure. Captured
+    // AFTER the clean and BEFORE the spawn, and carried in the run's own meta.json rather than a
+    // sidecar so it cannot drift away from the run it describes.
+    //
+    // SCOPE LIMIT, and the write-up must carry it: `clean -fd` has no `-x`, so IGNORED content
+    // (node_modules/, dist/) persists across runs by design and by necessity -- a fresh worktree per
+    // run is explicitly declined, srvx being ~170 MB plus an install. This record therefore proves
+    // the TRACKED tree was pristine, NOT that the environment was fully isolated. That is the
+    // honest claim.
+    //
+    // Non-vacuous and false-positive-free on this target: measured 2026-08-02, the srvx checkout at
+    // the pin reports a 0-line porcelain with node_modules/ and dist/ both present as ignored
+    // artifacts.
+    const pristineHead = (git(cwd, ['rev-parse', 'HEAD'], { mustSucceed: true }).stdout || '').trim();
+    const pristineBase = (git(cwd, ['rev-parse', APPLY_BASE], { mustSucceed: true }).stdout || '').trim();
+    const porcelain = (git(cwd, ['status', '--porcelain'], { mustSucceed: true }).stdout || '')
+      .split('\n')
+      .filter((l) => l.trim() !== '');
+    pristine = { head: pristineHead, base: pristineBase, porcelain_lines: porcelain.length, ok: porcelain.length === 0 };
+
+    // Fail closed, same idiom as the two refusals above: continuing past an unpristine tree spends
+    // real money on a run nobody can interpret afterwards.
+    if (!pristine.ok) {
+      throw new Error(
+        `apply mode refuses to spend in ${cwd}: the tracked tree is NOT pristine after reset --hard ` +
+          `${APPLY_BASE} + clean -fd -- git status --porcelain reports ${porcelain.length} line(s):\n  ` +
+          `${porcelain.slice(0, 10).join('\n  ')}`,
+      );
+    }
   }
 
   const env = { ...process.env };
@@ -784,7 +821,16 @@ function runOne(claude, promptEntry, arm, mode, cwd, runIdx, force) {
     tpp_hits: tppHits,
     skills_invoked: skillsInvoked,
     exit_code: res.status,
+    // D-01. meta.json carried elapsed_ms but no start timestamp, so the only after-the-fact
+    // reconstruction available was the file's mtime -- which is the run's END. With a multi-arm
+    // invocation the arms interleave by run index, and started_at is what makes that VERIFIABLE
+    // rather than asserted. Derived from the `started` value the elapsed math already computes; a
+    // second clock reading would be a second thing to be wrong.
+    started_at: new Date(started).toISOString(),
     elapsed_ms: elapsedMs,
+    // D-02. The per-run isolation record; null outside apply mode. See the capture site above for
+    // the scope limit (tracked tree only -- clean -fd has no -x).
+    pristine,
     answer_chars: (finalText || '').length,
     // D-07 token/cost/tool meta. total_cost_usd + model_usage are the headline (roll up sub-agents);
     // input/output_tokens are main-context-only.
@@ -966,12 +1012,23 @@ function main() {
     }
   }
 
+  // Arm aliases. The main loop below is ALREADY `for k { for prompt { for arm } }`, so a multi-arm
+  // list interleaves the arms BY RUN INDEX natively -- one invocation, no shell loop. What
+  // serialised the 2026-08-01 D-12 round is that `all` expands to the LEGACY trio, so the operator
+  // had to invoke once per arm and each arm then occupied its own contiguous block of wall clock.
+  // Arm was perfectly confounded with time-of-run.
+  //
+  // `d12` is a NEW token rather than an edit to an existing one, and that is deliberate: selfcheck
+  // crux 6 pins the nx `--arm all` dry-run byte-for-byte, so adding a token keeps that guarantee
+  // structural instead of merely tested. `both` and `all` are byte-unchanged.
   const arms =
     args.arm === 'both'
       ? ['with_skill', 'no_skill']
       : args.arm === 'all'
         ? ['with_skill', 'no_skill', 'invoke_skill']
-        : [args.arm];
+        : args.arm === 'd12'
+          ? ['invoke_skill', 'invoke_treatment', 'invoke_forcing']
+          : [args.arm];
   const cwd = args.cwd || REPO;
   const suiteCtx = { repo: REPO, applyBase: APPLY_BASE, targetsById: TARGET_BY_ID, protectedBranches: PROTECTED_BRANCHES };
 

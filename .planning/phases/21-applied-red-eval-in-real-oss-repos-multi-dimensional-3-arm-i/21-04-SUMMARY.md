@@ -72,6 +72,22 @@ status: complete
 
 # Phase 21 Plan 04: RED Apply RUN-GATE + BUILD Closure Summary
 
+> **ADDENDUM 2026-08-02 -- forward pointer only; nothing below is edited.**
+>
+> Everything in this summary was TRUE WHEN WRITTEN and is left intact as the point-in-time
+> record of what this plan did. In particular, "the metered run is user-gated and RAN NONE
+> of the sessions" and "EVL-03 stays Pending" were accurate statements about THIS plan's
+> execution.
+>
+> What happened afterwards: the gated metered run WAS approved and RAN on 2026-07-27/28 --
+> 36 runs, $29.05, across GRC/RXF/RXL/SRVC -- and is written up in
+> `.claude/skills/lz-red-workspace/e2e-red-gilded-rose/EVAL-RESULTS.md`. EVL-03 was
+> reconciled to Complete in `REQUIREMENTS.md` on 2026-08-02, and all 36 captures were
+> re-graded under the current grader with zero verdict changes.
+>
+> This note exists so a reader does not conclude from the text below that the round never
+> happened. Read the living status in `REQUIREMENTS.md`, not a closed plan's summary.
+
 **Closed the BUILD of the applied-RED instrument: proved the whole thing GREEN offline (the four
 `--selfcheck` gates + the three separate workspace scripts + `claude plugin validate .` all exit 0,
 zero claude spend), attested the borrowed Gilded Rose kata git root is pristine and `plugins/lz-tdd`

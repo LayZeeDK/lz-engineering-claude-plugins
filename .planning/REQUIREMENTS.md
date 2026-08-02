@@ -69,7 +69,7 @@ Requirements for milestone lz-tdd@0.0.3. Each maps to a roadmap phase. Grounded 
 
 - [ ] **EVL-01**: A trigger eval -- lz-red fires on RED-phase prompts and stays quiet on near-misses -- INCLUDING a cross-skill trigger eval proving the three-way boundary (lz-red vs lz-tpp vs lz-refactor) holds. (Phase 20 BUILT + deterministically verified the trigger harness/data; the empirical recall/specificity + reciprocal run is user-gated per D-11 -- Pending until run.)
 - [ ] **EVL-02**: A RED-behavior eval -- the coach recommends the correct next-test / assertion move (right selection, structure, and assertion target) versus an unaided baseline, as in the 0.0.1 / 0.0.2 evals. (Phase 20 BUILT + deterministically verified the grader + scenarios; the empirical with-skill-vs-baseline benchmark is user-gated per D-11 -- Pending until run.)
-- [ ] **EVL-03**: An APPLY-based, 3-arm, multi-dimensional RED eval -- short human prompts drive the next failing test in >= 1 real OSS TypeScript repo across no_skill / with_skill / invoke_skill arms; the produced test file/diff is graded on a correctness GATE (tsc --strict differential clean AND genuinely red for the right reason) plus lift dims (wall-clock, tokens, tools, output quality, book/source authenticity via oracle-reviewer, idioms, house style, TDD RED practices), with Pass@k/Pass^k + >= 1 unbiased reviewer and a substance-only headline. (Phase 21 BUILT + deterministically verified the instrument/harness/grader/selfcheck this phase; the empirical metered run is user-gated per D-11 -- Pending until run.)
+- [x] **EVL-03**: An APPLY-based, 3-arm, multi-dimensional RED eval -- short human prompts drive the next failing test in >= 1 real OSS TypeScript repo across no_skill / with_skill / invoke_skill arms; the produced test file/diff is graded on a correctness GATE (tsc --strict differential clean AND genuinely red for the right reason) plus lift dims (wall-clock, tokens, tools, output quality, book/source authenticity via oracle-reviewer, idioms, house style, TDD RED practices), with Pass@k/Pass^k + >= 1 unbiased reviewer and a substance-only headline. (Phase 21 BUILT + deterministically verified the instrument/harness/grader/selfcheck. The empirical metered run RAN 2026-07-27/28 on fresh approval -- 36 runs, $29.05, across GRC/RXF/RXL/SRVC -- and is written up in `.claude/skills/lz-red-workspace/e2e-red-gilded-rose/EVAL-RESULTS.md` with a substance-only headline, Pass@k/Pass^k per cell, mechanical + blind-judge lift dims, and the mandatory unbiased reviewer. RECONCILED 2026-08-02: this line previously still read "Pending until run" months after the round completed. All 36 captures were re-graded on 2026-08-02 under the CURRENT grader -- which had since gained a `blunt_red` class and a widened `verdictPass()` -- with ZERO verdict changes, so the published numbers are grader-regime-invariant and stand as written. COMPLETE.)
   - **EVL-03.1** (BUILD, maps SC1): A RED apply suite exists (suite.json + prompts/ + targets.json) whose short human prompt is byte-identical across arms except the target path, and whose bodies never name the expected test/assertion (non-leading). Proven by the selfcheck-red composition crux + a prompt-parity assertion.
   - **EVL-03.2** (BUILD, maps SC2): The harness composes all THREE own-skill arms correctly -- no_skill (no --plugin-dir), with_skill (--plugin-dir plugins/lz-tdd, natural prompt), invoke_skill (natural prompt prefixed with /lz-tdd:lz-red). Proven by selfcheck-red dry-run argv assertions.
   - **EVL-03.3** (BUILD, maps SC3): The produced-test correctness GATE (D-06) classifies a run as {genuinely_red / false_green / compile_error / collection_error / no_tests / drove_to_green} and passes ONLY genuinely_red (tsc --strict differential-clean AND assertion-failure on current code). Proven by grade-red --selfcheck over fixture test-pairs (zero spend, fixtures pristine).
@@ -209,7 +209,7 @@ Which phases cover which requirements. Populated during roadmap creation.
 | DST-03 | Phase 19 | Complete |
 | EVL-01 | Phase 20 | Pending (build complete; empirical run gated) |
 | EVL-02 | Phase 20 | Pending (build complete; empirical run gated) |
-| EVL-03 | Phase 21 | Pending (build complete; empirical run gated) |
+| EVL-03 | Phase 21 | Complete (run 2026-07-27/28, 36 runs, $29.05; re-graded 2026-08-02, 0 verdict changes) |
 
 **Coverage:**
 
@@ -218,5 +218,16 @@ Which phases cover which requirements. Populated during roadmap creation.
 - Unmapped: 0
 
 ---
+
+> **DRIFT NOTICE, 2026-08-02.** EVL-03 was reconciled today from "Pending (build complete;
+> empirical run gated)" to Complete. Its metered round had run on 2026-07-27/28 and been
+> fully written up, while this file continued to describe it as outstanding -- a status
+> field that went stale because nothing updates it when a gated run finally happens.
+>
+> **EVL-01 and EVL-02 still carry the identical "Pending (build complete; empirical run
+> gated)" phrasing and were NOT re-verified in that pass.** They may or may not carry the
+> same drift; the EVL-03 reconciliation is not evidence either way. Verify each against its
+> own results write-up before trusting its row, and do not assume the fix generalized.
+
 *Requirements defined: 2026-07-18*
-*Last updated: 2026-07-22 -- EVL-03 formalized at Phase 21 plan time (D-14): an APPLY-based, 3-arm, multi-dimensional RED eval decomposed into EVL-03.1..EVL-03.7 (BUILD/RUN split) mapping the 5 Phase-21 ROADMAP success criteria, in the EVL-01/EVL-02 "build complete; empirical run gated" closure shape. Coverage 27 -> 28. Prior: 2026-07-21 after Phase 20 completion (25/27 Complete; EVL-01 + EVL-02 Pending build-then-halt per D-11; VIT-02 also Pending, carried).*
+*Last updated: 2026-08-02 -- EVL-03 reconciled to Complete (metered round 2026-07-27/28, 36 runs, $29.05; all 36 captures re-graded 2026-08-02 under the current grader with zero verdict changes, confirming the published numbers are grader-regime-invariant). Prior: 2026-07-22 -- EVL-03 formalized at Phase 21 plan time (D-14): an APPLY-based, 3-arm, multi-dimensional RED eval decomposed into EVL-03.1..EVL-03.7 (BUILD/RUN split) mapping the 5 Phase-21 ROADMAP success criteria, in the EVL-01/EVL-02 "build complete; empirical run gated" closure shape. Coverage 27 -> 28. Prior: 2026-07-21 after Phase 20 completion (25/27 Complete; EVL-01 + EVL-02 Pending build-then-halt per D-11; VIT-02 also Pending, carried).*

@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 // Regenerate the D-12 NON-BASELINE plugin trees from tracked inputs. TWO of them, one per lever:
 //
-//   out/lz-tdd-treatment -- the PASSIVE lever. Shipped lz-tdd plus the test-double taxonomy
-//                           reference, cited from lz-red's SKILL.md. Drives --arm invoke_treatment.
+//   out/lz-tdd-treatment -- the PASSIVE lever. Shipped lz-tdd with the test-double taxonomy composed
+//                           INLINE into lz-red's SKILL.md body. Drives --arm invoke_treatment.
 //   out/lz-tdd-forcing   -- the ACTIVE lever. Shipped lz-tdd plus an always-active
 //                           enumerate-then-decide step in lz-red's SKILL.md, and DELIBERATELY NO
 //                           reference artifact. Drives --arm invoke_forcing.
@@ -46,16 +46,76 @@ const ARTIFACT_REL = path.join('references', ARTIFACT_NAME);
 const MANIFEST_REL = path.join('.claude-plugin', 'plugin.json');
 
 // ---------------------------------------------------------------------------------------------
-// Variant 1: the PASSIVE lever. Cite the artifact from the reference list.
+// Variant 1: the PASSIVE lever. Compose the taxonomy INTO the SKILL.md body.
 // ---------------------------------------------------------------------------------------------
-// Single-quoted strings, never template literals: the plugin-root variable must survive into the
-// generated markdown verbatim rather than being substituted away at build time by Node.
-const CITATION_ANCHOR = '`${CLAUDE_PLUGIN_ROOT}/references/beck-tdd-by-example.md`';
-const CITATION = '`${CLAUDE_PLUGIN_ROOT}/references/' + ARTIFACT_NAME + '`';
-const CITATION_LINES = [
-  '- Cross-author test-double vocabulary, and which side of the line each term names (plugin-wide',
-  '  reference, shared with lz-refactor): ' + CITATION,
-];
+// WHY INLINE rather than cited (D-04, 2026-08-02). The prior round shipped the artifact into
+// references/ and cited it from the reference LIST at the end of the file. ZERO of six treatment
+// runs opened it -- verified by transcript grep with a passing positive control -- so the treatment
+// DOSE was zero and the arm measured RETRIEVAL rather than content. Inlining puts the content in the
+// MAIN BODY, which is guaranteed loaded, and that is the entire purpose.
+//
+// WHY NOT point the FORCING step at the artifact instead, which would also guarantee delivery: it
+// would fuse the two levers into one arm. Arm 2 must stay purely passive content and arm 3 purely
+// the active step, or a positive result is unattributable. Lever separation is the reason the round
+// has three arms at all.
+//
+// PLACEMENT: immediately BEFORE the reference-material heading. That lands the content right after
+// the numbered procedure and the worked RED example, where the qualify-by-side rule sets it up, and
+// it needs only ONE anchor, which is all this builder supports. Inserting earlier would push the
+// worked example and the coach-don't-drive paragraph ~110 lines down, which is strictly worse.
+//
+// KNOWN CONFOUND, unavoidable and therefore declared rather than fixed: the three arms are no longer
+// matched on SKILL.md length (MEASURED 2026-08-02: baseline 167 lines, forcing 174, treatment 282 --
+// the treatment body is 69% longer than the baseline, on every run). Any measured
+// treatment effect is confounded with length and position, and treatment-versus-forcing is not a
+// clean two-lever comparison on length either. The dose cannot be guaranteed and the length held
+// constant at the same time.
+const TAXONOMY_ANCHOR = '## Reference material';
+// NOT the artifact's own H1 reworded -- a heading that CONTAINED the H1 string would defeat the
+// header-strip assertion below, which is the thing standing between a dev-time notice and a
+// SKILL.md.
+const TAXONOMY_HEADING = '## Which side of the line a term names';
+// Occurs exactly ONCE in the artifact and ZERO times in the shipped SKILL.md, so the builder's
+// existing marker-count assertion stays meaningful after the substitution.
+const TAXONOMY_MARKER = 'HARD RULE ON EMPTINESS';
+
+// The artifact body, dev-time header stripped, ready to splice.
+//
+// The artifact opens with an H1 plus two workspace-meta paragraphs -- a not-approved-for-shipping
+// notice and a gating-status note. Those must never enter a SKILL.md: they would tell the model
+// under test that it is inside an experiment. The slice is anchored on the artifact's FIRST `## `
+// heading rather than on a line count, because a positional slice mis-slices silently the moment the
+// header is reworded. The TRACKED artifact keeps its header; only this generated copy is stripped.
+function taxonomyBodyLines() {
+  if (!fs.existsSync(ARTIFACT_SRC)) {
+    fail(`treatment: taxonomy artifact missing: ${ARTIFACT_SRC}`);
+  }
+
+  const lines = fs.readFileSync(ARTIFACT_SRC, 'utf8').split(/\r?\n/);
+  const h1 = lines[0];
+  const firstHeadingAt = lines.findIndex((l) => l.startsWith('## '));
+
+  if (firstHeadingAt < 0) {
+    fail(`treatment: ${ARTIFACT_NAME} carries no '## ' heading, so the dev-time header cannot be sliced off deterministically`);
+  }
+
+  const body = lines.slice(firstHeadingAt);
+
+  if (!body[0].startsWith('## ')) {
+    fail(`treatment: the sliced block does not begin at a '## ' heading (got ${JSON.stringify(body[0])})`);
+  }
+
+  if (body.some((l) => l === h1)) {
+    fail(`treatment: the artifact's H1 ${JSON.stringify(h1)} survived the header strip; a dev-time notice must never reach a SKILL.md`);
+  }
+
+  if (!body.some((l) => l.includes(TAXONOMY_MARKER))) {
+    fail(`treatment: the sliced block does not carry the marker ${JSON.stringify(TAXONOMY_MARKER)}, so the marker-count assertion would be vacuous`);
+  }
+
+  // A trailing blank separates the inlined section from the reference-material heading it precedes.
+  return [TAXONOMY_HEADING, '', ...body, ''];
+}
 
 // ---------------------------------------------------------------------------------------------
 // Variant 2: the ACTIVE lever. An always-active enumerate-then-decide step.
@@ -100,22 +160,31 @@ const TAXONOMY_TOKENS = [
   'production-side', 'collaborator-side', 'census',
 ];
 
+// activeLever is the EXPLICIT lever-identity field the two lever-separation guards key on. It used
+// to be inferred from `!variant.artifactSrc`, which was a sound proxy only while the PASSIVE lever
+// was the one shipping a file. D-04 removes that file, which INVERTS the proxy: the smuggle tripwire
+// would then run against the treatment block -- which is nothing but taxonomy content -- and the
+// build would fail loudly, blaming the ACTIVE lever. Keying on identity rather than on a side effect
+// keeps both guards live. Neither may be deleted: the tripwire is what catches the taxonomy leaking
+// into the arm that must not have it, which is the class of mistake guard N3 was hardened against.
 const VARIANTS = [
   {
     id: 'treatment',
     outName: 'lz-tdd-treatment',
-    lever: 'PASSIVE (reference artifact)',
-    artifactSrc: ARTIFACT_SRC,
-    anchor: CITATION_ANCHOR,
-    position: 'after',
-    lines: CITATION_LINES,
-    marker: CITATION,
-    expectedDeltas: [`added   ${ARTIFACT_REL}`, `edited  ${SKILL_REL}`],
+    lever: 'PASSIVE (taxonomy content, inlined into the SKILL.md body)',
+    activeLever: false,
+    artifactSrc: null,
+    anchor: TAXONOMY_ANCHOR,
+    position: 'before',
+    lines: taxonomyBodyLines(),
+    marker: TAXONOMY_MARKER,
+    expectedDeltas: [`edited  ${SKILL_REL}`],
   },
   {
     id: 'forcing',
     outName: 'lz-tdd-forcing',
     lever: 'ACTIVE (always-active enumerate-then-decide step)',
+    activeLever: true,
     artifactSrc: null,
     anchor: FORCING_ANCHOR,
     position: 'before',
@@ -187,9 +256,12 @@ function buildVariant(variant) {
     fail(`${variant.id}: artifact missing: ${variant.artifactSrc}`);
   }
 
-  // Lever separation, asserted on the INPUT before the tree exists: only the passive variant may
-  // carry taxonomy content into its insertion.
-  if (!variant.artifactSrc) {
+  // Lever separation, asserted on the INPUT before the tree exists: only the PASSIVE variant may
+  // carry taxonomy content into its insertion. Keyed on the explicit lever identity, NOT on
+  // `!variant.artifactSrc` -- that proxy inverted the moment the passive lever stopped shipping a
+  // file (D-04/D-07), and inverted it would accuse the active lever of smuggling the very content
+  // the passive lever exists to supply.
+  if (variant.activeLever) {
     const block = variant.lines.join('\n');
     const smuggled = TAXONOMY_TOKENS.filter((t) => new RegExp(t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i').test(block));
 
@@ -286,10 +358,11 @@ function buildVariant(variant) {
     );
   }
 
-  // Lever separation, asserted on the OUTPUT tree: the active arm must carry no copy of the
+  // Lever separation, asserted on the OUTPUT tree: the ACTIVE arm must carry no copy of the
   // artifact anywhere, under any name. The delta check above already implies it; this states it
-  // directly so the guarantee does not rest on reading a delta list.
-  if (!variant.artifactSrc) {
+  // directly so the guarantee does not rest on reading a delta list. Same re-keying as the input
+  // guard above, for the same reason.
+  if (variant.activeLever) {
     const copies = [...after.keys()].filter((rel) => rel.toLowerCase().includes('test-double-taxonomy'));
 
     if (copies.length) {

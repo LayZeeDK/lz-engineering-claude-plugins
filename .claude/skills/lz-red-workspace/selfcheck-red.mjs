@@ -9,8 +9,14 @@
 //   1. COMPOSITION   -- the RED suite composes all 3 own-skill arms: no_skill (no --plugin-dir),
 //      with_skill (--plugin-dir plugins/lz-tdd, natural prompt), invoke_skill (-p prefixed
 //      /lz-tdd:lz-red ). (recommend mode needs no --cwd; arm plumbing is mode-independent.)
+//      It ALSO drives `--arm d12`, because `--arm all` expands to the LEGACY trio only and the two
+//      D-12 lever arms (invoke_treatment / invoke_forcing, added by quick 260802-j03) are reachable
+//      only through that second token -- so without this they compose entirely unasserted.
 //   2. PROMPT-PARITY -- no_skill and with_skill -p are byte-identical; invoke_skill -p is exactly
 //      with_skill -p + the leading "/lz-tdd:lz-red " (the D-02 non-leading, byte-identical prompt).
+//      Parity extends to the D-12 arms: each one's argv is byte-identical to the invoke_skill
+//      baseline EXCEPT the --plugin-dir value, and the three trees are three DISTINCT paths (a
+//      drifted, absent or env-overridden tree turns a lever into a second baseline, silently).
 //      Also, in APPLY mode: the RED suite's own preamble override reaches composition, keeps the
 //      typecheck + never-commit constraints, makes no stay-green claim (the shared lz-refactor
 //      default does, which argues against the very behavior a RED eval measures), stays
@@ -142,11 +148,13 @@ function readJson(p) {
 
 // ---- dry-run helpers (zero spend) ------------------------------------------------------------
 
-// Spawn `node run-e2e.mjs --dry-run <extra>` and return its stdout.
-function dryRun(extraArgs) {
+// Spawn `node run-e2e.mjs --dry-run <extra>` and return its stdout. `env` overlays process.env for
+// the child only (the D-12 negative control needs one documented override; everything else inherits).
+function dryRun(extraArgs, env) {
   const r = spawnSync(process.execPath, [RUN_E2E, '--dry-run', ...extraArgs], {
     cwd: HERE,
     encoding: 'utf8',
+    env: env ? { ...process.env, ...env } : process.env,
   });
 
   if (r.status !== 0) {
@@ -199,6 +207,93 @@ function flagValue(argv, flag) {
   const i = argv.indexOf(flag);
 
   return i >= 0 ? argv[i + 1] : undefined;
+}
+
+// Drop the --plugin-dir flag AND its value, so two arms can be compared on everything else.
+function withoutPluginDir(argv) {
+  const i = argv.indexOf('--plugin-dir');
+
+  return i < 0 ? argv.slice() : [...argv.slice(0, i), ...argv.slice(i + 2)];
+}
+
+// The plugin tree under test. The D-12 lever arms must NOT resolve here -- that is what makes them
+// levers rather than extra baselines.
+const PLUGIN_UNDER_TEST = resolve(HERE, '..', '..', '..', 'plugins', 'lz-tdd');
+
+// Path-form-INSENSITIVE identity. A raw string compare read as clean when LZ_FORCING_DIR was set to
+// a forward-slash spelling of plugins/lz-tdd -- a fully collapsed lever the rule waved through, and
+// the exact mistake an operator makes, since both lever paths come from hand-typed env overrides.
+// realpath is deliberately NOT used (crux 9 owns that): out/ is generated on demand and gitignored,
+// so the lever trees need not exist for their COMPOSITION to be asserted.
+function samePath(a, b) {
+  const norm = (p) => (process.platform === 'win32' ? resolve(String(p)).toLowerCase() : resolve(String(p)));
+
+  return norm(a) === norm(b);
+}
+
+// The D-12 arm rule (EVL-03.1 / .2 for the two arms `--arm all` cannot reach).
+//
+// invoke_treatment and invoke_forcing are ONE variable each against the invoke_skill baseline: the
+// CONTENT of the tree named by --plugin-dir. Everything else -- prompt bytes, model, effort,
+// disallowedTools, permission mode -- must be identical, or the comparison measures the harness
+// instead of the lever. And all three trees must be distinct paths: run-e2e.mjs's own comment warns
+// that a drifted or absent tree makes the arm "silently degrade into a second invoke_skill
+// baseline", and both tree paths accept an env override, so this can break without a code change.
+//
+// PURE, and it RETURNS problems rather than exiting, so the same rule can be driven in BOTH
+// directions -- a positive-only assertion would keep passing if the rule were unreachable, which is
+// exactly the shape of the failure it guards.
+export function d12ArmDrift(arms, baselineArgv) {
+  const problems = [];
+  const expected = ['invoke_forcing', 'invoke_skill', 'invoke_treatment'];
+  const got = Object.keys(arms).sort();
+
+  if (got.join(',') !== expected.join(',')) {
+    problems.push(`--arm d12 composed ${JSON.stringify(got)}, expected ${JSON.stringify(expected)}`);
+
+    return problems;
+  }
+
+  const base = JSON.stringify(withoutPluginDir(baselineArgv));
+  const dirs = new Map();
+
+  for (const name of expected) {
+    if (JSON.stringify(withoutPluginDir(arms[name])) !== base) {
+      problems.push(
+        `${name} argv differs from the invoke_skill baseline OUTSIDE --plugin-dir (prompt bytes, model, ` +
+          `effort or tool policy drifted): ${JSON.stringify(arms[name])}`,
+      );
+    }
+
+    const dir = flagValue(arms[name], '--plugin-dir') || '';
+
+    if (!dir) {
+      problems.push(`${name} composes no --plugin-dir, so it runs without any plugin tree`);
+
+      continue;
+    }
+
+    dirs.set(name, dir);
+  }
+
+  if (!dirs.has('invoke_skill') || !samePath(dirs.get('invoke_skill'), PLUGIN_UNDER_TEST)) {
+    problems.push(`invoke_skill --plugin-dir is not the plugin under test: ${JSON.stringify(dirs.get('invoke_skill'))}`);
+  }
+
+  for (const name of ['invoke_treatment', 'invoke_forcing']) {
+    if (dirs.has(name) && samePath(dirs.get(name), PLUGIN_UNDER_TEST)) {
+      problems.push(`${name} --plugin-dir IS plugins/lz-tdd, so the lever is a second invoke_skill baseline`);
+    }
+  }
+
+  if (dirs.has('invoke_treatment') && dirs.has('invoke_forcing') && samePath(dirs.get('invoke_treatment'), dirs.get('invoke_forcing'))) {
+    problems.push(
+      `invoke_treatment and invoke_forcing name the SAME --plugin-dir (${JSON.stringify(dirs.get('invoke_forcing'))}), ` +
+        'so the two levers collapse into one',
+    );
+  }
+
+  return problems;
 }
 
 // ---- crux 1 + 2: composition + prompt-parity (EVERY RED suite, every prompt, both modes) -------
@@ -378,7 +473,66 @@ function checkComposedPrompt(suiteDir, suite, target, promptEntry, mode) {
     );
   }
 
+  // The D-12 lever arms, for this same (suite, prompt, mode) triple. `--arm all` above expands to
+  // the legacy trio, so this second token is the ONLY way invoke_treatment / invoke_forcing reach
+  // composition -- and the baseline they are measured against is the invoke_skill argv the `all`
+  // run just produced, which pins BOTH that the arm token itself changes nothing and that the two
+  // levers carry byte-identical prompts.
+  const d12Extra = ['--suite', suiteDir, '--mode', mode, '--arm', 'd12', '--prompt', promptEntry.id];
+
+  if (mode === 'apply') {
+    d12Extra.push('--cwd', HERE);
+  }
+
+  const d12Drift = d12ArmDrift(armMap(dryRun(d12Extra)), arms.invoke_skill);
+
+  if (d12Drift.length) {
+    fail(`[crux 1+2] ${label}: --arm d12 drifted from the invoke_skill baseline:\n  - ${d12Drift.join('\n  - ')}`);
+  }
+
   return wsPrompt;
+}
+
+// Non-vacuity for the D-12 rule, run ONCE. Point the treatment tree at plugins/lz-tdd through the
+// documented env override and require the SAME rule to catch it. Without this, the clean results
+// above would keep passing if d12ArmDrift were unreachable or compared the wrong field -- and "the
+// lever quietly became a second baseline" is precisely what it exists to catch.
+function checkD12CollapseIsCaught(suiteDir, promptEntry) {
+  const collapsed = armMap(
+    dryRun(['--suite', suiteDir, '--mode', 'recommend', '--arm', 'd12', '--prompt', promptEntry.id], {
+      LZ_TREATMENT_DIR: PLUGIN_UNDER_TEST,
+    }),
+  );
+  const drift = d12ArmDrift(collapsed, collapsed.invoke_skill);
+
+  if (!drift.some((p) => p.startsWith('invoke_treatment --plugin-dir IS plugins/lz-tdd'))) {
+    fail(
+      `[crux 1+2] a COLLAPSED invoke_treatment (--plugin-dir forced to plugins/lz-tdd) was NOT caught ` +
+        `(got ${JSON.stringify(drift)}). The D-12 arm rule is unreachable, so the clean results above prove nothing`,
+    );
+  }
+
+  // The PARITY half, driven the other way too. The real arms are byte-equal by construction, so a
+  // comparison wired to the wrong field would print OK forever; flip one argv token OUTSIDE
+  // --plugin-dir and require it to be reported.
+  const tampered = { ...collapsed, invoke_forcing: [...collapsed.invoke_forcing] };
+  const pIdx = tampered.invoke_forcing.indexOf('-p');
+
+  if (pIdx < 0) {
+    fail('[crux 1+2] the d12 invoke_forcing argv carries no -p, so the parity rule cannot be driven negatively');
+  }
+
+  tampered.invoke_forcing[pIdx + 1] = `${tampered.invoke_forcing[pIdx + 1]} TAMPERED`;
+
+  if (!d12ArmDrift(tampered, collapsed.invoke_skill).some((p) => p.startsWith('invoke_forcing argv differs'))) {
+    fail('[crux 1+2] a TAMPERED invoke_forcing prompt was NOT reported, so the D-12 argv-parity comparison is vacuous');
+  }
+
+  console.log(
+    '  [crux 1+2] D-12 arms OK (--arm d12 composes invoke_skill + invoke_treatment + invoke_forcing; each argv is ' +
+      'byte-identical to the invoke_skill baseline except --plugin-dir; the three trees are distinct; and both ' +
+      'directions bite -- a treatment tree forced onto plugins/lz-tdd and a tampered forcing prompt are BOTH caught)',
+  );
 }
 
 function checkCompositionAndParity() {
@@ -390,6 +544,7 @@ function checkCompositionAndParity() {
 
   const preambles = [];
   let prompts = 0;
+  let d12Probe = null;
 
   for (const suiteDir of suiteDirs) {
     const suite = readJson(join(suiteDir, 'suite.json'));
@@ -415,9 +570,16 @@ function checkCompositionAndParity() {
       checkComposedPrompt(suiteDir, suite, target, promptEntry, 'recommend');
       const applyPrompt = checkComposedPrompt(suiteDir, suite, target, promptEntry, 'apply');
       checkRedApplyPreamble(suite, declared, applyPrompt);
+      d12Probe = d12Probe || { suiteDir, promptEntry };
       prompts++;
     }
   }
+
+  if (!d12Probe) {
+    fail('[crux 1+2] no RED prompt was composed, so the D-12 arm rule was never exercised');
+  }
+
+  checkD12CollapseIsCaught(d12Probe.suiteDir, d12Probe.promptEntry);
 
   // EVERY RED suite must declare the SAME apply preamble bytes. A per-suite override is how the
   // RED preamble exists at all, so nothing structural stops two suites drifting apart -- and two

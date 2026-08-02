@@ -4,11 +4,41 @@ milestone_name: lz-red Skill (RED phase)
 audited: 2026-08-02
 audited_head: 0ae7909
 status: gaps_found
+resolved_after_audit:
+  - id: "SEAM-02"
+    resolved_at: 2026-08-03
+    commit: 50fb4ba
+    how: >
+      Owner elected to RE-LAND rather than descope. The cross-skill pointer section is back in
+      plugins/lz-tdd/skills/lz-tpp/SKILL.md (+10/-0, additive-only), and the SEAM-02 guard that
+      fc2f94b removed is restored in check-red-references.mjs (EXPECTED_CHECKS 123 -> 124), so the
+      requirement cannot silently regress a third time. Guard mutation-tested: exit 1 with the
+      pointers stripped, exit 0 with them present.
+
+      NOT a verbatim restore. An unbiased from-scratch reviewer caught a routing defect in the
+      original 51f76c2 text that had never been reviewed on its merits -- fc2f94b reverted that
+      commit for SCOPE, not correctness, so the defect rode along untouched and a verbatim restore
+      would have re-shipped it. The old wording routed on a negative catch-all ("with no failing
+      test in hand yet -> lz-red") whose condition strictly contained the cleanup branch, so every
+      cleanup-on-green request mis-routed to lz-red; it also swallowed lz-tpp's own Reference mode,
+      defined as an explicit invocation "with no test to coach". Both branches now key on intent
+      rather than test state, stated positively and scoped to coach mode. Reviewer re-gated: ACCEPT.
+    requirement_status_now: satisfied
+  - id: "DST-01"
+    resolved_at: 2026-08-03
+    commit: 50fb4ba
+    how: >
+      The CHANGELOG.md:33-35 claim that lz-tpp gained a reverse pointer became TRUE again with the
+      re-land; no edit was required. Same for REQUIREMENTS.md's [x] SEAM-02 and Complete row. This
+      is a property of restoring rather than descoping -- the descope path would have needed edits
+      to both files.
+    requirement_status_now: satisfied
+status_if_reaudited: "passed on requirements (28/28); INT-02 remains open (dev-only stale instrument path)"
 scores:
-  requirements: 26/28
+  requirements: 26/28   # 28/28 after 50fb4ba; see resolved_after_audit
   phases: 8/8
-  integration: "2 BLOCKERs (SEAM-02 reverted-but-still-claimed; lz-refactor-workspace battery exit 1 on a stale path)"
-  flows: 2/3
+  integration: "2 BLOCKERs at audit time; INT-01 closed by 50fb4ba, INT-02 still open"
+  flows: 2/3            # 3/3 after 50fb4ba
   nyquist: 8/8 compliant
 gaps:
   requirements:
@@ -102,6 +132,22 @@ process_findings:
     when written. The milestone has no mechanism that re-checks closed requirements against
     later quick-task commits, which is why an 8-for-8 phase-verification record coexists with
     two real blockers.
+  - >
+    ADDED 2026-08-03, surfaced while closing SEAM-02 and worth more than the fix itself.
+    RESTORING A REVERTED COMMIT VERBATIM CARRIES FORWARD WHATEVER WAS WRONG WITH IT, and a revert
+    made for SCOPE leaves the reverted content's CORRECTNESS unexamined. 51f76c2 shipped a routing
+    paragraph with a branch-subsumption defect; it passed Phase 18's own unbiased review; fc2f94b
+    then reverted it for being out of scope, which said nothing about whether it was right. When
+    the owner reversed that scope call, the natural move -- re-apply the reverted diff -- would
+    have silently re-shipped the defect, and every gate would have gone green, because the guard
+    only asserts the two sibling names appear SOMEWHERE in the file. The defect was caught only
+    because the re-land was put through a fresh from-scratch review rather than treated as a
+    mechanical restore. DURABLE RULE: review a restore as new work, never as a revert-of-a-revert.
+  - >
+    RELATED GUARD-PRECISION NOTE (reviewer, 2026-08-03): the restored SEAM-02 guard greps for the
+    substrings `lz-red` and `lz-refactor` anywhere in lz-tpp/SKILL.md. It proves the pointer EXISTS;
+    it cannot see whether the routing rule is CORRECT, nor whether the seam is wired into the coach
+    procedure. Do not read a green SEAM-02 check as evidence about the paragraph's content.
 nyquist:
   compliant_phases: [15, 16, 17, "17.1", 18, 19, 20, 21]
   partial_phases: []
@@ -117,7 +163,23 @@ security:
 
 **Audited:** 2026-08-02 at HEAD `0ae7909`
 **Scope:** Phases 15, 16, 17, 17.1, 18, 19, 20, 21 (8 phases, 27 plans)
-**Status:** `gaps_found` -- 26/28 requirements satisfied; 1 unsatisfied, 1 partial
+**Status at audit time:** `gaps_found` -- 26/28 requirements satisfied; 1 unsatisfied, 1 partial
+
+> **UPDATE 2026-08-03 -- two of the three gaps are CLOSED; the body below is the point-in-time
+> record and is left intact.** The owner elected to re-land the SEAM-02 reverse pointer rather than
+> descope it (commit `50fb4ba`). That closed SEAM-02 (unsatisfied -> satisfied), DST-01 (partial ->
+> satisfied, with no CHANGELOG edit needed since the claim became true again), INT-01, and FLOW-01.
+> Requirements now stand at **28/28** and the full red-green-refactor loop is wired in both
+> directions.
+>
+> The re-land was NOT verbatim. An unbiased reviewer caught a routing defect in the original Phase-18
+> text -- a negative catch-all branch that mis-routed every cleanup-on-green request to lz-red and
+> swallowed lz-tpp's own Reference mode. That defect shipped in `51f76c2`, passed Phase 18's own
+> unbiased review, and survived `fc2f94b` because that revert was for SCOPE rather than correctness,
+> so the paragraph had never been reviewed on its merits. See the process finding below.
+>
+> **INT-02 (the stale `check-backing.mjs` path) remains OPEN.** It is dev-only and does not affect
+> the shipped product.
 
 ## Verdict in one paragraph
 
@@ -310,30 +372,45 @@ the dedicated `gsd-security-auditor` rather than the workflow's inline short-cir
 9/9 threats with two runtime-probed rather than read. No open threat at or above the blocking
 severity anywhere in the milestone.
 
+## Deferred by owner decision -- coach-procedure wiring (open, non-blocking)
+
+Surfaced by the reviewer during the SEAM-02 re-land and NOT actioned, because it would modify
+pre-existing lines in an already-shipped skill:
+
+Both siblings wire their seam section into **step 1 of the coach procedure** --
+`lz-red/SKILL.md:57-61` and `lz-refactor/SKILL.md:45-48` each say "Classify the request against
+the ... seam(s) ... See '<section>' above; do not restate it." `lz-tpp/SKILL.md`'s step 1 still
+handles only green-vs-refactor and never names lz-red, so lz-tpp implements half the house pattern.
+
+**Prose-only is weaker, not inert** -- the reviewer checked this specifically rather than assuming.
+SKILL.md's body loads wholesale on invocation (progressive disclosure gates `references/`, not
+sections), the seam paragraph sits at line 38 ahead of the procedure at line 52, and step 1 opens
+with a precondition ("Exactly one new failing (red) test, all prior tests green, and the code
+compiles") that a no-failing-test request cannot satisfy -- so step 1 FAILS CLOSED and the prose
+four sections up supplies the destination. Wiring it would upgrade "fails closed, then very likely
+recovers via the prose" to "fails closed and names the destination."
+
+If a non-additive edit to a shipped skill is ever acceptable, this is the one to make. Note the
+SEAM-02 guard cannot detect its presence either way.
+
 ## Recommended closure path
 
 All three gaps are documentation-or-tooling reconciliation against two known commits. None
 requires re-executing phase work, and none touches the lz-red skill content.
 
-1. **Decide SEAM-02's disposition** (this is the only real decision, and it is yours). The lc9
-   revert's reasoning -- do not modify already-shipped skills inside a milestone scoped to a new
-   one -- is sound. Two coherent resolutions:
-   - **Accept the revert:** flip SEAM-02 to Deferred/Descoped in REQUIREMENTS.md with the lc9
-     rationale, move it to Future Requirements (it is the same item the 0.0.2 audit already
-     carried as "fold a reverse link into the next lz-tpp touch"), and fix the CHANGELOG line.
-   - **Restore the pointer:** re-apply the 51f76c2 section, accepting that 0.0.3 does touch a
-     shipped sibling. It was already unbiased-subagent-reviewed and oracle-gated at confidence
-     93, so re-landing is cheap -- but it reopens the scope question lc9 deliberately closed,
-     and it needs `/reload-plugins`.
-2. **Fix CHANGELOG.md:33-35 regardless of which path you pick.** A published changelog asserting
-   a feature that does not ship is the sharpest edge in this audit.
-3. **One-line fix to `check-backing.mjs`:** point it at `plugins/lz-tdd/references/` or add the
-   `existsSync` guard its sibling already has, and re-green the lz-refactor battery.
-4. **Housekeeping, non-blocking:** add a forward-pointer addendum to 21-VERIFICATION.md (mirror
-   the one 20-VERIFICATION.md already carries); refresh STATE.md's `status`/`stopped_at`;
-   correct ROADMAP.md line 7 and line 198.
-
-Items 1-3 are gap closure. Item 4 is bookkeeping and can ride along with the same commit.
+1. ~~**Decide SEAM-02's disposition.**~~ **DONE 2026-08-03** -- owner chose to re-land. Commit
+   `50fb4ba`. Requirement satisfied; guard restored so it cannot regress silently again.
+2. ~~**Fix CHANGELOG.md:33-35.**~~ **DONE by consequence** -- the claim became true again with the
+   re-land, so no edit was needed. Had the descope path been chosen, this edit would have been
+   mandatory.
+3. **STILL OPEN -- one-line fix to `check-backing.mjs`:** point it at `plugins/lz-tdd/references/`
+   or add the `existsSync` guard its sibling `check-crossrefs.mjs` already has, and re-green the
+   lz-refactor battery. Dev-only; does not affect the shipped product.
+4. **STILL OPEN -- housekeeping, non-blocking:** add a forward-pointer addendum to
+   21-VERIFICATION.md (mirror the one 20-VERIFICATION.md already carries); refresh STATE.md's
+   `status`/`stopped_at`; correct ROADMAP.md line 7 and line 198.
+5. **Human action, pending:** run `/reload-plugins` so the re-landed lz-tpp pointer goes live in
+   this session. Committed is not loaded.
 
 ---
 

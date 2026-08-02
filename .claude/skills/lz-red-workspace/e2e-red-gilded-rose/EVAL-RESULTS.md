@@ -391,9 +391,79 @@ only the Response's own cookie), applied a minimal staged-cookie merge, re-ran (
 reverted and verified the tree clean. That is empirical red-to-green diagnostic power for 9/9, not
 plausibility.
 
-`oracle-reviewer` book-authenticity: NOT RUN. RESEARCH A5 predicted low discriminating power for a
-test artifact versus a named refactoring, and with correctness and design both at parity there is no
-signal for it to separate. Recorded as deliberately skipped, not as a null result.
+### `oracle-reviewer` book/source authenticity -- RUN 2026-08-02 (owner-commissioned). NULL.
+
+Previously recorded as NOT RUN on the RESEARCH A5 prediction of low discriminating power. The owner
+elected to measure it rather than accept the argument. All 36 captured produced tests were graded
+against the owned RED sources (Clean Code Ch.9 F.I.R.S.T. and one-concept-per-test; the 99 Bottles
+test-driving chapter; Beck's test-desiderata essays plus the series framing) by four independent
+`oracle-reviewer` agents, one per cell, nine blinded specimens each, arms interleaved and unlabeled in
+a sha256-keyed order. Zero metered `claude -p` spend -- the captures were already on disk. DST-04 held:
+each agent read the sources in its own isolated context and only own-words verdicts crossed back.
+
+**The prediction was right. There is no authenticity lift, and the baseline is nominally ahead.**
+
+| arm | n | authentic | partial | inauthentic | Pass@1 | Pass@3 | Pass@5 | Pass^3 |
+|---|---|---|---|---|---|---|---|---|
+| `no_skill` | 12 | 7 | 5 | 0 | 0.58 | 0.95 | 1.00 | 0.16 |
+| `with_skill` | 12 | 6 | 6 | 0 | 0.50 | 0.91 | 0.99 | 0.09 |
+| `invoke_skill` | 12 | 5 | 6 | 1 | 0.42 | 0.84 | 0.97 | 0.05 |
+
+`pass` = verdict `authentic` (the strict reading). Per cell, authentic-of-3: GRC 2/3/2, SRVC 2/1/0,
+RXF 1/0/0, RXL 2/2/3 for `no_skill`/`with_skill`/`invoke_skill`.
+
+**Read this as a tie, NOT as a reverse effect.** The arms differ by two specimens out of twelve, and the
+ordering is produced by single-specimen craft calls (assertion scope; failure-path teardown) that the
+graders themselves flagged as re-derivable either way. One SRVC grader showed its own split swinging
+from 3/6 to 7/2 to 1/8 on the choice of a single secondary tie-breaker. The same discipline this
+document applies to the blind judge's lone dim-1 miss applies here: at this n a two-specimen gap is
+noise. On the looser not-inauthentic reading the arms are 1.00 / 1.00 / 0.92 -- flat.
+
+**All four graders independently reported the axis has little or no discriminating power on this
+corpus**, without being told that was the prior expectation. Their reasons converge: the task funnels
+nearly every answer into the same design, so there is no variance to read. RXF is 7 of 9 specimens the
+same test with cosmetic variation; RXL collapsed to a single design across all 9.
+
+**One genuine corroboration, and it is the most useful thing this pass produced.** The single
+`inauthentic` verdict in 36 is `GRC/invoke_skill/run-1` -- the same capture the blind judge independently
+scored as its only dim-1 miss. Two graders, different agents, different rubrics, one told nothing of the
+other, converged on the same run. The authenticity grader's reason is sharper than the judge's: that
+test fabricates its red by asserting a value known to be false against behavior the code already
+implements, and states its plan as adopting whatever the implementation emits -- inverting the direction
+of authority the sources insist on. That is a real defect, it sits on a skill-bearing arm, and n=1 means
+it says nothing about the arm.
+
+**Authenticity does not track the mechanical gate.** Cross-tabulated, 5 `compile_error` captures still
+graded authentic in design while 8 `genuinely_red` captures graded only partial. The axis measures
+something real and separate from correctness -- it just does not separate the arms.
+
+**RXL: independently confirmed unwinnable-by-target, not badly designed.** Asked to distinguish the two,
+the RXL grader concluded the nine are competent tests aimed at the only file the prompt allowed, in a
+cell where that file cannot fail for the reported reason -- the config provider already exposes the
+configured locale, so the defect lives downstream in the calendar. It noted the tell: badly designed
+tests here would show loose matchers, shared-state order dependence, or expected values recomputed from
+production logic, and almost none of that appears. This corroborates the mechanical 0/9 from the design
+side. Also: **the substring hazard never fired on any RXL specimen** -- all nine assert exact equality on
+a locale identifier and none asserts on rendered month text, so the hazard has zero discriminating power
+here, and its absence is not evidence of good month-name assertion judgment.
+
+**A corpus defect was introduced, caught, and corrected mid-pass -- disclosed because the first
+numbers are gone, not merely revised.** The first extraction pulled only `+` lines from each diff,
+which is the exact defect recorded above as having invalidated the first two judge corpora. It made
+modified tests read as though they never invoke anything and reference unbound names, and the GRC
+grader duly failed four specimens for an unbound identifier -- the same cell, the same count, the same
+symptom as the original bug. Those numbers (GRC 4 authentic of 9) are DISCARDED, not averaged. The
+corrected corpus uses the documented path: materialize each touched file at the recorded `apply_base`
+via `git show`, let `git apply` produce the post-edit file, read the produced test out of the result.
+36/36 applied, 0 failures, and all 9 GRC specimens then contained the invoking call the first corpus
+had dropped. GRC moved 4 -> 7 authentic on re-grade; the other three cells were regraded on the same
+corrected corpus rather than carried over. The lesson the earlier entry drew held a second time: a
+grader disagreeing with the mechanical gate is a signal to audit the harness first.
+
+**Caveats.** The authentic/partial boundary is a judgment each grader drew and documented; treat the
+strict column as low-resolution. Graders did not execute the suites, so a few verdicts rest on reasoning
+about what passes against current code rather than on a run. No grader was given the arm labels, the
+prior expectation, or any other cell's findings.
 
 ### Judge-corpus history -- a defect worth recording
 

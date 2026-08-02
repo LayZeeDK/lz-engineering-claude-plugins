@@ -50,7 +50,15 @@ probe" below.** The pin has since been moved to `claude-opus-5` in all six call 
 - **Arms:** `no_skill` (no `--plugin-dir`), `with_skill` (`--plugin-dir plugins/lz-tdd` + natural
   prompt), `invoke_skill` (natural prompt force-prefixed `/lz-tdd:lz-red `). The
   `mattpocock-skills:tdd` competitor arm remains DEFERRED (D-05); not in this fan-out.
-- **Cost:** $29.04 / 36 = $0.807 mean. Per cell: GRC $3.81, SRVC $12.16, RXF $3.87, RXL $9.20.
+- **Cost:** $29.04 / 36 = $0.807 mean. Per cell: GRC $3.81, SRVC $12.16, RXF $5.63, RXL $7.44.
+  (CORRECTED 2026-08-02. The RXF/RXL split as first published read $3.87 / $9.20 -- $1.76 misallocated
+  from RXF to RXL. Recomputed by summing `total_cost_usd` over the 36 pinned captures: the pin is the
+  canonical `results/` tree, the three own-skill arms, targets r1/r2, which is exactly 36 and excludes
+  the `results-pilots-*` / `results-probe-260728-opus5` trees and the later D-12 `a1`/`a2` +
+  `invoke_forcing`/`invoke_treatment` captures that now share the tree. GRC $3.8124, SRVC $12.1553,
+  RXF $5.6299, RXL $7.4406, total $29.0382. The pair sum, the two other cells, the round total and the
+  arm-level mechanical table were all correct as published -- only this one per-cell split was wrong,
+  so no headline, verdict or Pass@k figure is affected.)
 
 **Arm comparability was independently verified and is CLEAN.** `prompt_used` is byte-identical between
 `no_skill` and `with_skill` in all four cells (SHA-matched); `invoke_skill` differs by exactly the

@@ -94,10 +94,14 @@ function toRun(meta, grade) {
     forced: meta.skill_forced === true,
     modelUsage: meta.model_usage || {},
     // The D-06 gate, read as the single boolean grade-red already decided. This deliberately does
-    // NOT enumerate the verdict classes: `pass` is true for genuinely_red and false for every other
-    // class, so adding one (2026-07-25 added an 8th, `unattributable`, when the gate started
-    // requiring the failure to belong to a test the diff ADDED) needs no change here. A copy of the
-    // class list in this file would be a second place to forget to update.
+    // NOT enumerate the verdict classes: `pass` is true for the PASSING classes -- genuinely_red and
+    // blunt_red -- and false for every other one, and which classes those are is grade-red's
+    // verdictPass() to decide, not this file's. Adding a class needs no change here: 2026-07-25
+    // added an 8th, `unattributable`, when the gate started requiring the failure to belong to a
+    // test the diff ADDED, and 2026-08-02 added a 9th, `blunt_red`, when it stopped scoring a
+    // deliberate not-implemented placeholder as a failure -- and that one also widened verdictPass(),
+    // which is precisely the change a copy of the class list in this file would have silently
+    // contradicted. A second place to forget to update is the thing being avoided.
     pass: grade.pass === true,
   };
 }

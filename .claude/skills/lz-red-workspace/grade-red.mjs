@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// grade-red.mjs -- the D-06 RED correctness GATE + 7-class classifier (+ offline --selfcheck).
+// grade-red.mjs -- the D-06 RED correctness GATE + 9-class classifier (+ offline --selfcheck).
 //
 // This is the ONE hard gate of the Phase-21 applied-RED eval (D-06). For a captured run it applies
 // the produced test to a FRESH git worktree at applyBase -- created on the TARGET REPO'S OWN VOLUME
@@ -8,7 +8,9 @@
 // source), runs the TARGET's own test runner with a machine-readable JSON reporter, and classifies
 // the produced test into exactly one of:
 //
-//   genuinely_red   typecheck-clean AND >=1 ASSERTION failure in a test THE DIFF ADDED (the ONLY pass)
+//   genuinely_red   typecheck-clean AND >=1 ASSERTION failure in a test THE DIFF ADDED (a pass)
+//   blunt_red       typecheck-clean AND the ADDED test's failure is a DELIBERATE not-implemented
+//                   throw from a file the diff itself added or modified (also a pass)
 //   false_green     the tests the diff added all pass; the diff changed only test files
 //   drove_to_green  the tests the diff added all pass because the diff changed PRODUCTION code
 //   compile_error   the produced test introduces NEW strict typecheck errors
@@ -17,7 +19,13 @@
 //   wrong_reason    an ADDED test's failure is a runtime/type error masquerading as an assertion
 //   unattributable  something in the file failed, but no failure belongs to a test the diff ADDED
 //
-// pass == (verdict === 'genuinely_red'). Everything else is reported, not passed (D-06).
+// pass == (verdict === 'genuinely_red' || verdict === 'blunt_red'). Everything else is reported,
+// not passed (D-06). The two passing classes are kept APART rather than merged because the skill
+// under test ranks an AssertionError as the sharpest form of RED and a not-implemented throw as a
+// valid but blunter one -- an eval must not erase the distinction its subject teaches. Widening
+// pass to cover blunt_red creates a TWO-REGIME corpus: grades archived before 2026-08-02 were
+// computed under the old single-class rule. History is deliberately NOT re-graded; the number that
+// carries downstream is a changed_production_files count, which a verdict-class change cannot move.
 //
 // The differential's CHECKER is PER TARGET (resolveTypecheck). It DEFAULTS to `tsc --noEmit
 // --strict`, which is what every pre-existing target keeps; a target may select `atc`
@@ -55,7 +63,7 @@
 // were empirically pinned 2026-07-22 against vitest 4.1.10 by the fixtures selfcheck (RESEARCH A1).
 //
 // Usage:
-//   node grade-red.mjs --selfcheck                 # offline, zero spend; proves all 7 classes
+//   node grade-red.mjs --selfcheck                 # offline, zero spend; proves all 9 classes
 //   node grade-red.mjs --run <runDir> [--suite D]  # grade one captured run; writes <runDir>/red-grade.json
 
 import fs from 'node:fs';
@@ -67,9 +75,10 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 
-// The 8 D-06 classes. pass is true for genuinely_red only.
+// The 9 D-06 classes. pass is true for genuinely_red and blunt_red -- see verdictPass().
 export const VERDICTS = [
   'genuinely_red',
+  'blunt_red',
   'false_green',
   'drove_to_green',
   'compile_error',
@@ -87,6 +96,18 @@ const ASSERTION_RE =
 // e.g. "TypeError: (0 , __vite_ssr_import_1__.compute) is not a function" [pinned 2026-07-22].
 const RUNTIME_RE =
   /is not a function|is not defined|is not iterable|is not a constructor|cannot find|cannot read propert|referenceerror|syntaxerror/i;
+// A DELIBERATE not-implemented placeholder's message shape (half of the blunt_red predicate -- see
+// isDeliberateBluntRed, which is the only caller and which reads this against the message HEAD
+// only). Captured verbatim from the D-12 round: "Error: correlationIdMiddleware is not implemented".
+//
+// `\bnot` cannot match inside "cannot" (no boundary between `can` and `not`), which is the point.
+// The third alternative is REQUIRED rather than redundant: in `NotImplementedError` the trailing
+// `\b` of the first alternative fails because the next character is `E`. Getting that wrong fails
+// CLOSED (a missed blunt red), never open.
+//
+// Bare `TODO` and `not supported` are deliberately ABSENT. `TODO` is far too loose, and a "not
+// supported" message is a legitimate runtime rejection rather than a deliberate placeholder.
+const NOT_IMPLEMENTED_RE = /\bnot[\s_-]*(?:yet[\s_-]*)?implemented\b|\bunimplemented\b|\bnotimplementederror\b/i;
 // A "suite loaded but declared no tests" message. Disambiguates no_tests from collection_error --
 // the two share an identical vitest JSON shape (numTotalTests 0, status failed, empty
 // assertionResults) EXCEPT this suite-level message.
@@ -751,6 +772,72 @@ export function resolveArmCwd(worktree, gitRoot, repo) {
 
 // ---- the pure classifier (shared by the real gate and --selfcheck) ---------------------------
 
+// Is this attributed failure a DELIBERATE production-side placeholder (blunt_red) rather than an
+// accidental runtime error (wrong_reason)? BOTH conditions are required, and they read DIFFERENT
+// SLICES of the same string:
+//
+//   1. FRAME 0 -- the throw site -- names a file the model's own diff ADDED or MODIFIED.
+//   2. The MESSAGE HEAD, and only the head, carries a not-implemented phrase.
+//
+// Condition 1 is the load-bearing one because frame 0 is RUNNER-ATTESTED: the model cannot make V8
+// name a file it did not execute in. Measured 2026-08-02 across three captured D-12 runs -- a
+// production throw puts frame 0 in src/, while an ordinary AssertionError puts it in the spec -- so
+// the discrimination is empirical rather than argued, and an ordinary assertion cannot satisfy it.
+//
+// Condition 2 is HEAD-ONLY on purpose. Run over the whole blob, a model writes `// not implemented`
+// in its own spec, the runner echoes that source in a code frame, and the model self-certifies its
+// own verdict. That is not hypothetical -- it is the measured 2026-07-25 hole documented above
+// NO_TESTS_RE, where `it('says no tests found when empty')` alone flipped a collection_error into a
+// no_tests. stripCodeFrame() closes the code-frame half (its split pattern is two-or-more spaces
+// then `>` or a digit, while a stack frame's first non-space character is a letter, so it drops the
+// source echo and KEEPS the frames -- exactly what this predicate needs); head-only slicing closes
+// the half stripCodeFrame does not, since a stack frame's FUNCTION NAME is also model-authored.
+//
+// RESIDUAL, stated rather than engineered away: a message carrying no `at ` frame at all -- a
+// custom Error with its stack stripped, or a runner reporting message-only -- cannot have its
+// origin established, so it fails CLOSED to wrong_reason. Some genuine blunt reds will still be
+// mis-scored. That is the correct direction.
+//
+// The direction of the path test is deliberately INVERTED: absolute frame paths are never mapped to
+// repo-relative ones. One stack carries three path forms (bare drive, parenthesised named frame,
+// ESM URL), meta.worktree is persisted backslashed, and os.tmpdir() can hand back the 8.3 short form
+// on this machine (see resolveGradeTmpDir). assertSafeDiffPaths already REJECTS any diff path that
+// is absolute or contains a backslash, so every `p` here is relative and forward-slashed, and
+// backslash-to-slash on the frame is the only normalization required. classify() therefore keeps its
+// three-argument pure signature and its 15 call sites.
+function isDeliberateBluntRed(message, diffPatch) {
+  const m = String(message == null ? '' : message);
+
+  // Hard veto, FIRST, over the WHOLE message -- deliberately the tighter of the two options. An
+  // accidental TypeError whose text happens to contain the phrase must never reach the rest.
+  if (RUNTIME_RE.test(m)) {
+    return false;
+  }
+
+  const stripped = stripCodeFrame(m);
+  const at = stripped.search(/\n\s+at\s/);
+
+  if (at < 0) {
+    return false;
+  }
+
+  // Condition 2: the head is everything BEFORE the first stack frame.
+  if (!NOT_IMPLEMENTED_RE.test(stripped.slice(0, at))) {
+    return false;
+  }
+
+  // Condition 1: frame 0 is the first frame line, and nothing else.
+  const frame0 = stripped.slice(at + 1).split('\n')[0].replace(/\\/g, '/');
+
+  // A library's own not-implemented throw (jsdom's "Not implemented: navigation", an ORM's
+  // abstract-method guard) is the main false-positive route, and this is what kills it.
+  if (frame0.includes('/node_modules/')) {
+    return false;
+  }
+
+  return changedProductionFiles(diffPatch).some((p) => p && frame0.includes(`/${p}:`));
+}
+
 // tscResult: { newErrors: number }. runnerJson: the Jest-compatible runner report (vitest
 // --reporter=json / jest --json). diffPatch: the produced test's unified diff (splits the all-green
 // case). Returns exactly one VERDICTS entry. Throws (fail closed) on garbled input rather than
@@ -822,21 +909,43 @@ export function classify(tscResult, runnerJson, diffPatch) {
     return 'unattributable';
   }
 
-  // >= 1 ADDED test failed. genuinely_red ONLY if EVERY added-test failure is an assertion error,
-  // not a runtime/type error masquerading as a failure (wrong_reason). Fail closed toward
-  // wrong_reason. Pre-existing failures are excluded on purpose: a broken placeholder already in
-  // the file must not turn the model's genuine assertion failure into wrong_reason either.
+  // >= 1 ADDED test failed. A pass ONLY if EVERY added-test failure is a legitimate RED: an
+  // assertion error (genuinely_red, the sharpest form) or a deliberate not-implemented placeholder
+  // in a file the diff itself touched (blunt_red, a valid but blunter one). Anything else is a
+  // runtime/type error masquerading as a failure. Fail closed toward wrong_reason. Pre-existing
+  // failures are excluded on purpose: a broken placeholder already in the file must not turn the
+  // model's genuine assertion failure into wrong_reason either.
+  //
+  // The assertion test is BYTE-IDENTICAL to the pre-2026-08-02 rule and is still evaluated first, so
+  // the blunt-red path runs ONLY where the old rule already said no. That makes the change provably
+  // one-directional: no input that graded genuinely_red before can grade anything else now.
+  let sawBluntRed = false;
+
   const rightReason = attributedFailed.every((a) => {
     const m = (Array.isArray(a.failureMessages) ? a.failureMessages : []).join('\n');
 
-    return ASSERTION_RE.test(m) && !RUNTIME_RE.test(m);
+    if (ASSERTION_RE.test(m) && !RUNTIME_RE.test(m)) {
+      return true;
+    }
+
+    const blunt = isDeliberateBluntRed(m, diffPatch);
+    sawBluntRed = sawBluntRed || blunt;
+
+    return blunt;
   });
 
-  return rightReason ? 'genuinely_red' : 'wrong_reason';
+  if (!rightReason) {
+    return 'wrong_reason';
+  }
+
+  // A run carrying even ONE blunt red is reported as blunt_red. That keeps the count of runs the
+  // 2026-08-02 widening MOVED exact: a mixed run (one assertion failure plus one not-implemented
+  // throw) graded wrong_reason under the old every(), so it moved too.
+  return sawBluntRed ? 'blunt_red' : 'genuinely_red';
 }
 
 export function verdictPass(verdict) {
-  return verdict === 'genuinely_red';
+  return verdict === 'genuinely_red' || verdict === 'blunt_red';
 }
 
 // ---- shared process helpers ------------------------------------------------------------------
@@ -1158,6 +1267,12 @@ function whyFor(verdict, tscResult, addedTitles) {
   switch (verdict) {
     case 'genuinely_red':
       return 'tsc --strict clean; >=1 assertion failure in a test the diff ADDED (correct RED)';
+    case 'blunt_red':
+      return (
+        'tsc --strict clean; the ADDED test fails on a DELIBERATE not-implemented placeholder in a ' +
+        'file the diff itself added or modified (frame 0 names it) -- a valid but blunter RED than ' +
+        'an assertion failure, and a pass'
+      );
     case 'false_green':
       return 'the tests the diff added all pass on current code and the diff changed only test files (not red)';
     case 'drove_to_green':
@@ -2567,7 +2682,7 @@ export function gradeRun({ runDir, suiteDir }) {
   }
 }
 
-// ---- offline selfcheck (zero spend; proves all 8 D-06 classes) --------------------------------
+// ---- offline selfcheck (zero spend; proves all 9 D-06 classes) --------------------------------
 
 function fail(msg) {
   console.error(`grade-red --selfcheck: FAIL -- ${msg}`);
@@ -2645,13 +2760,41 @@ function classifyPreAttribution(runnerJson) {
   return rightReason ? 'genuinely_red' : 'wrong_reason';
 }
 
+// The rightReason rule as it stood BEFORE blunt-red recognition: the every() over attributedFailed
+// with the ASSERTION_RE / RUNTIME_RE test and nothing else, mapped to the two verdicts that rule
+// could produce. attributedFailed is computed with the SAME module-local attributedAssertions the
+// live classifier uses, so the discrimination proof below runs two REAL rules on IDENTICAL inputs.
+// Dead-end copy, same contract as the four above: nothing else calls it, and it must never be wired
+// back into the gate.
+function classifyPreBluntRed(runnerJson, diffPatch) {
+  const suite = Array.isArray(runnerJson.testResults) ? runnerJson.testResults[0] : undefined;
+  const asserts = suite && Array.isArray(suite.assertionResults) ? suite.assertionResults : [];
+  const attributedFailed = attributedAssertions(asserts, diffPatch).filter((a) => a && a.status === 'failed');
+
+  const rightReason = attributedFailed.every((a) => {
+    const m = (Array.isArray(a.failureMessages) ? a.failureMessages : []).join('\n');
+
+    return ASSERTION_RE.test(m) && !RUNTIME_RE.test(m);
+  });
+
+  return rightReason ? 'genuinely_red' : 'wrong_reason';
+}
+
 function runSelfcheck() {
-  // Seven runnable fixture pairs. Six are one-per-class; `borrowed` is the ANTI-REGRESSION fixture
+  // Eight runnable fixture pairs. Seven are one-per-class; `borrowed` is the ANTI-REGRESSION fixture
   // for the attribution hole -- a diff that APPENDS a passing test to a spec that already contains
   // a permanently failing one. Proves the A1 runner-JSON shape against the pinned vitest before any
   // metered run.
+  //
+  // `blunt` is the EMPIRICAL pin for blunt_red: it proves that vitest 4.1.10 really does emit the
+  // message-plus-stack shape isDeliberateBluntRed reads, rather than the canary asserting it against
+  // a synthetic payload alone. MEASURED 2026-08-02 against the pinned runner, before the predicate
+  // existed: this fixture graded wrong_reason -- the D-05 defect, reproduced on runnable code. Its
+  // failureMessages carry NO code frame at all (only the message plus ten `at ` frames), so
+  // ASSERTION_RE does not match and the pre-change rule fell through to its fail-closed default.
   const table = [
     ['red', 'genuinely_red'],
+    ['blunt', 'blunt_red'],
     ['green', 'false_green'],
     ['compile', 'compile_error'],
     ['collect', 'collection_error'],
@@ -2941,6 +3084,207 @@ function runSelfcheck() {
   console.log(
     '  [classify:cond] conditional modifiers OK (a `test.skipIf(cond)` title attributes -> genuinely_red; ' +
       'an unrelated title stays unattributable; a string CONDITION is never read as the title)',
+  );
+
+  // ---- blunt_red: the 9th class + the DISCRIMINATION proof against the pre-blunt-red rule ------
+  //
+  // Five cases, each run through BOTH the live classifier and classifyPreBluntRed on IDENTICAL
+  // inputs. Case (a) is the discrimination -- the two rules MUST disagree, or the proof is not
+  // exercising the defect. Cases (b) through (e) prove the gate did not LOOSEN: on every one of
+  // them the two rules must AGREE on wrong_reason.
+  //
+  // Case (a)'s failure message is the one the D-12 round actually produced, from invoke_forcing /
+  // a1 / run-1 (2026-08-01) -- one of the two runs the defect cost. It is inlined as a literal
+  // rather than read from results/, which is gitignored: a canary that needs an untracked artifact
+  // is a canary that silently stops running. The archived excerpt continued into vitest-runner
+  // frames that are not reproduced here because nothing reads them; frame 0 and frame 1 are what
+  // the predicate and the contrast turn on.
+  const bluntTitle = 'adds an x-correlation-id header to the response';
+  const bluntSecondTitle = 'reuses an incoming correlation id';
+  const capturedBluntMessage = [
+    'Error: correlationIdMiddleware is not implemented',
+    '    at D:/.lz-red-grade-tmp/red-wt-AMB1-35800-1785626871778/src/correlation-id.ts:10:9',
+    '    at D:/.lz-red-grade-tmp/red-wt-AMB1-35800-1785626871778/test/correlation-id.test.ts:15:28',
+  ].join('\n');
+
+  // The diff the model staged alongside it, reduced to the two facts the classifier reads: it ADDS
+  // the production file frame 0 names, and it ADDS a test whose it() call and title literal sit on
+  // ONE source line (attribution is line-scoped by design).
+  const bluntDiffFor = (titles) =>
+    [
+      'diff --git a/src/correlation-id.ts b/src/correlation-id.ts',
+      'new file mode 100644',
+      '--- /dev/null',
+      '+++ b/src/correlation-id.ts',
+      '@@ -0,0 +1,3 @@',
+      '+export function correlationIdMiddleware(): never {',
+      '+  throw new Error("correlationIdMiddleware is not implemented");',
+      '+}',
+      'diff --git a/test/correlation-id.test.ts b/test/correlation-id.test.ts',
+      'new file mode 100644',
+      '--- /dev/null',
+      `+++ b/test/correlation-id.test.ts`,
+      `@@ -0,0 +1,${titles.length} @@`,
+      ...titles.map((t) => `+  it("${t}", () => { correlationIdMiddleware(); });`),
+      '',
+    ].join('\n');
+
+  const bluntDiff = bluntDiffFor([bluntTitle]);
+  const failingRunner = (entries) => ({
+    testResults: [
+      {
+        status: 'failed',
+        assertionResults: entries.map(([title, message]) => ({ title, status: 'failed', failureMessages: [message] })),
+      },
+    ],
+  });
+
+  // (b) The head carries BOTH a runtime token and the phrase, and frame 0 IS in the added
+  // production file -- so condition 1 holds and only the RUNTIME_RE veto stands between this and a
+  // pass.
+  const bluntRuntimeMessage = [
+    'TypeError: correlationIdMiddleware is not implemented -- res.setHeader is not a function',
+    '    at D:/.lz-red-grade-tmp/red-wt/src/correlation-id.ts:10:9',
+    '    at D:/.lz-red-grade-tmp/red-wt/test/correlation-id.test.ts:15:28',
+  ].join('\n');
+  // (c) A LIBRARY's own not-implemented throw. The diff still adds a production file, so the
+  // production list is NON-empty and condition 1 binds non-vacuously.
+  const libraryNotImplementedMessage = [
+    'Error: Not implemented: navigation (except hash changes)',
+    '    at D:/.lz-red-grade-tmp/red-wt/node_modules/jsdom/lib/jsdom/browser/Window.js:9:1',
+    '    at D:/.lz-red-grade-tmp/red-wt/test/correlation-id.test.ts:15:28',
+  ].join('\n');
+  // (d1) The phrase appears ONLY in the runner's CODE FRAME echo of the model's own spec. This is
+  // the measured self-certification route; stripCodeFrame is what closes it.
+  const codeFrameEchoMessage = [
+    'Error: cache warm-up failed',
+    '    at D:/.lz-red-grade-tmp/red-wt/src/correlation-id.ts:10:9',
+    '    at D:/.lz-red-grade-tmp/red-wt/test/correlation-id.test.ts:15:28',
+    '     14 |   // not implemented yet -- model-authored source the runner echoed back',
+    '   > 15 |   correlationIdMiddleware();',
+    '      |   ^',
+  ].join('\n');
+  // (d2) The phrase appears ONLY inside a stack-frame FUNCTION NAME, which stripCodeFrame does NOT
+  // remove and which is still model-authored. Head-only slicing is what closes this half.
+  const frameNameOnlyMessage = [
+    'Error: cache warm-up failed',
+    '    at Object.notImplemented (D:/.lz-red-grade-tmp/red-wt/src/correlation-id.ts:10:9)',
+    '    at D:/.lz-red-grade-tmp/red-wt/test/correlation-id.test.ts:15:28',
+  ].join('\n');
+
+  // Non-vacuity for (d1) and (d2): a predicate reading the WHOLE blob would find the phrase in both.
+  // Only the slicing keeps them out, so if these ever stop matching, those two cases have rotted
+  // into decoration and prove nothing.
+  for (const [id, message] of [['d1', codeFrameEchoMessage], ['d2', frameNameOnlyMessage]]) {
+    if (!NOT_IMPLEMENTED_RE.test(message)) {
+      fail(
+        `[classify:blunt ${id}] the not-implemented phrase is absent from the WHOLE message, so this case no ` +
+          'longer exercises the slicing it exists to prove',
+      );
+    }
+  }
+
+  const bluntCases = [
+    {
+      id: 'a',
+      what: 'the CAPTURED blunt red (frame 0 in the added production file, not-implemented head)',
+      runner: failingRunner([[bluntTitle, capturedBluntMessage]]),
+      diff: bluntDiff,
+      want: 'blunt_red',
+      wantBefore: 'wrong_reason',
+    },
+    {
+      id: 'b',
+      what: 'a runtime token AND the phrase in the head, frame 0 in the same added production file',
+      runner: failingRunner([[bluntTitle, bluntRuntimeMessage]]),
+      diff: bluntDiff,
+      want: 'wrong_reason',
+      wantBefore: 'wrong_reason',
+    },
+    {
+      id: 'c',
+      what: "a LIBRARY's own not-implemented throw (frame 0 under node_modules), production list non-empty",
+      runner: failingRunner([[bluntTitle, libraryNotImplementedMessage]]),
+      diff: bluntDiff,
+      want: 'wrong_reason',
+      wantBefore: 'wrong_reason',
+    },
+    {
+      id: 'd1',
+      what: "the phrase ONLY in the runner's code-frame echo of the model's spec",
+      runner: failingRunner([[bluntTitle, codeFrameEchoMessage]]),
+      diff: bluntDiff,
+      want: 'wrong_reason',
+      wantBefore: 'wrong_reason',
+    },
+    {
+      id: 'd2',
+      what: 'the phrase ONLY inside a stack-frame FUNCTION NAME',
+      runner: failingRunner([[bluntTitle, frameNameOnlyMessage]]),
+      diff: bluntDiff,
+      want: 'wrong_reason',
+      wantBefore: 'wrong_reason',
+    },
+    {
+      id: 'e',
+      what: 'two attributed failures: one blunt red PLUS one genuine TypeError',
+      runner: failingRunner([
+        [bluntTitle, capturedBluntMessage],
+        [bluntSecondTitle, 'TypeError: req.headers.set is not a function\n    at D:/.lz-red-grade-tmp/red-wt/src/correlation-id.ts:12:3'],
+      ]),
+      diff: bluntDiffFor([bluntTitle, bluntSecondTitle]),
+      want: 'wrong_reason',
+      wantBefore: 'wrong_reason',
+    },
+  ];
+
+  for (const c of bluntCases) {
+    const now = classify({ newErrors: 0 }, c.runner, c.diff);
+    const before = classifyPreBluntRed(c.runner, c.diff);
+
+    if (now !== c.want) {
+      fail(`[classify:blunt ${c.id}] ${c.what}: the new rule classified '${now}', expected '${c.want}'`);
+    }
+
+    if (before !== c.wantBefore) {
+      fail(`[classify:blunt ${c.id}] ${c.what}: the pre-change rule classified '${before}', expected '${c.wantBefore}'`);
+    }
+
+    // (a) must DISAGREE -- that is the whole proof. Everything else must AGREE, which is the proof
+    // that the gate got no looser.
+    if (c.id === 'a' && now === before) {
+      fail(
+        `[classify:blunt a] both rules classified the captured blunt-red shape '${now}' -- the discrimination ` +
+          'proof is not exercising the defect it claims to close',
+      );
+    }
+
+    if (c.id !== 'a' && now !== before) {
+      fail(
+        `[classify:blunt ${c.id}] the two rules DISAGREED ('${now}' vs '${before}') on a case that exists to ` +
+          'prove the gate did not loosen',
+      );
+    }
+
+    console.log(`  [classify:blunt ${c.id}] ${c.what} -> ${now} (pre-change rule: ${before}) OK`);
+  }
+
+  // The class is worthless without the pass rule. Adding blunt_red WITHOUT widening verdictPass()
+  // is a cosmetic rename that leaves the D-05 defect fully intact, wearing a better label.
+  if (!verdictPass('blunt_red') || !verdictPass('genuinely_red') || verdictPass('wrong_reason')) {
+    fail(
+      '[classify:blunt] verdictPass() must be true for BOTH genuinely_red and blunt_red and false for ' +
+        'wrong_reason -- a new verdict class without a widened pass rule is a cosmetic fix',
+    );
+  }
+
+  if (!VERDICTS.includes('blunt_red')) {
+    fail('[classify:blunt] blunt_red is missing from VERDICTS');
+  }
+
+  console.log(
+    '  [classify:blunt] the 9th class OK -- the captured shape moves wrong_reason -> blunt_red (pass=true) while ' +
+      'the runtime veto, the node_modules exclusion, both self-certification routes and every() all still bind',
   );
 
   // ---- the three per-target config mechanisms, asserted PURELY ---------------------------------
@@ -3613,10 +3957,10 @@ function runSelfcheck() {
   console.log('  [fail-closed] empty diff + null/empty runner JSON throw OK');
 
   console.log(
-    'grade-red --selfcheck: OK -- all EIGHT D-06 classes proven offline ' +
-      '(genuinely_red / false_green / drove_to_green / compile_error / collection_error / no_tests / wrong_reason / ' +
-      'unattributable), plus RED attribution and its discrimination against the pre-fix rule; ' +
-      'zero spend, fixtures pristine.',
+    'grade-red --selfcheck: OK -- all NINE D-06 classes proven offline ' +
+      '(genuinely_red / blunt_red / false_green / drove_to_green / compile_error / collection_error / no_tests / ' +
+      'wrong_reason / unattributable), plus RED attribution and blunt-red recognition, each with its ' +
+      'discrimination against the pre-fix rule; zero spend, fixtures pristine.',
   );
   process.exit(0);
 }

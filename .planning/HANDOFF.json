@@ -1,132 +1,174 @@
 {
   "version": "1.0",
-  "timestamp": "2026-08-02T21:00:00.000Z",
-  "context": "milestone-close-prep",
-  "supersedes_quick_task": "260802-j03",
-  "supersedes_note": "The pilot that handoff was paused mid-way through has RUN and RESOLVED (N=3, ceiling held, round NOT bought). All three phase-21 close-out audits named there are now DONE, and the EVL-03 drift the owner had to rule on is reconciled.",
-  "phase": "21",
-  "phase_name": "applied-red-eval-real-oss-repos",
-  "phase_dir": ".planning/phases/21-applied-red-eval-in-real-oss-repos-multi-dimensional-3-arm-i",
-  "status": "phase_21_fully_closed_milestone_pending_owner",
+  "timestamp": "2026-08-03T12:17:54.610Z",
+  "context": "phase-22-execution-not-yet-started",
+  "supersedes_handoff": "2026-08-02 milestone-close-prep (phase 21)",
+  "supersedes_note": "Every item in the phase-21 handoff is resolved: 17.1-SECURITY landed, the milestone audit ran, and /gsd-core:ship lz-tdd@0.0.3 opened PR #3. PR #3 is now deliberately HELD for phase 22.",
+  "phase": "22",
+  "phase_name": "three-way-classifier-correctness-lz-refactor-lz-red",
+  "phase_dir": ".planning/phases/22-three-way-classifier-correctness-lz-refactor-lz-red",
+  "plan": 1,
+  "task": 1,
+  "total_tasks": 20,
+  "status": "paused",
   "autonomous": false,
-  "summary": "Phase 21 is fully closed: SECURITY (9/9, threats_open 0), VALIDATION (nyquist_compliant true after correcting the map), LEARNINGS (32 items bridged to the global store). The D-12 pilot returned N=3 of 3 -> CEILING HELD, so the ~$27 round was NOT bought ($4.11 spent). EVL-03 reconciled Pending -> Complete after re-grading all 36 captures with zero verdict changes. Working tree clean; nothing pushed.",
+  "paused_before": "execute-phase wave 1 dispatch (owner interrupted by design, so a fresh session carries the execution)",
+  "summary": "Phase 22 is fully PLANNED and independently verified; ZERO plans executed. 7 plans across 5 waves, plan-checker returned VERIFICATION PASSED on re-check after a targeted revision closed all three of its first-pass warnings. Requirements coverage 5/5 (CLS-01..CLS-05), decision coverage 26/26. Working tree clean apart from the ephemeral .planning/config.json chain flag. Nothing pushed.",
   "completed_this_session": [
     {
-      "id": "mixed-tree-repaired",
+      "id": "discuss-22",
       "status": "done",
-      "name": "Verified the round-1 archive intact FIRST, cleared three stale grades, recorded a resume boundary BEFORE re-running, re-ran all three with --force, and asserted fail-closed that every meta started_at AND every grade mtime postdates the boundary before computing N."
+      "commit": "d0a8b03",
+      "name": "discuss-phase 22 (--analyze --auto --chain). FOUR decisions were escalated to the owner rather than auto-locked, per the --auto trap-quadrant rule (high impact + not-high confidence). 22-CONTEXT.md (D-01..D-19) + 22-DISCUSSION-LOG.md + ROADMAP SC8 and scope amendments."
     },
     {
-      "id": "pilot-resolved",
+      "id": "research-22",
       "status": "done",
-      "name": "N = 3 of 3, zero void runs, $4.11. CEILING HELD under the rule as committed. D-03 did not move the baseline; the discriminator stands at 21 of 21 and the baseline arm alone is 6/6 on a1 across both prompt versions. Recorded as NOT-TESTED, never null."
+      "commit": "de101bf",
+      "name": "gsd-phase-researcher: 22-RESEARCH.md, 1588 lines, FOUR findings that changed the plan (six classifier surfaces not three; a measured hygiene hole exactly where variants B/C write; the e2e-red-* naming trap; only 3 of the 8 traced requests recoverable)."
     },
     {
-      "id": "secure-21",
+      "id": "validation-and-amendments",
       "status": "done",
-      "name": "gsd-security-auditor: SECURED 9/9, threats_open 0. T-21-SC closed by a recorded legitimacy-gate PASS per target. Two threats runtime-probed rather than read."
+      "commit": "17173c2",
+      "name": "22-VALIDATION.md authored from the research's Validation Architecture, and the research findings folded back into 22-CONTEXT.md as D-20..D-26 so the locked-decision file is not silently contradicted."
     },
     {
-      "id": "validate-21",
+      "id": "patterns-22",
       "status": "done",
-      "name": "gsd-nyquist-auditor: PARTIAL, found a real gap (d12 arms never parity-asserted; 2 of 5 own-skill arms), closed it in test code. Its first fix failed its own mutation test. nyquist_compliant set only AFTER moving two never-built rows to Manual-Only and correcting a false latency claim."
+      "commit": "3bf4d3b",
+      "name": "gsd-pattern-mapper: 22-PATTERNS.md, 27 files classified, 26 with analogs, plus a 14-row 'Misleading Analogs -- do NOT copy blindly' table. It also corrected three of the research's claims by direct measurement."
     },
     {
-      "id": "evl03-reconciled",
+      "id": "plans-22",
       "status": "done",
-      "name": "Owner chose Path A. All 36 captures re-graded under the current grader: ZERO verdict changes, so the numbers are grader-regime-invariant. EVL-03 Pending -> Complete. Historical SUMMARYs left intact with a forward-pointer addendum."
+      "commit": "2dcc1af",
+      "name": "gsd-planner: 7 plans across 5 waves, zero files_modified overlap within any wave."
     },
     {
-      "id": "learnings-21",
+      "id": "check-and-revise",
       "status": "done",
-      "name": "Extracted LAST in the sequence (after secure + validate) and bridged 32 item sections to the global store as one uninterrupted build-copy-rm; the temp file was never staged."
+      "commit": "4a0e084",
+      "name": "gsd-plan-checker pass 1: 0 BLOCKER / 3 WARNING. Targeted revision closed all three (the self-naming rule being the load-bearing one). Scoped re-check: VERIFICATION PASSED, no regression."
+    },
+    {
+      "id": "gates-and-commit",
+      "status": "done",
+      "commit": "ff562fb",
+      "name": "Requirements coverage 5/5, decision coverage 26/26, roadmap wave annotation (idempotent no-op -- the planner had already written it), plans + STATE + ROADMAP committed."
+    },
+    {
+      "id": "begin-phase-and-repair",
+      "status": "done",
+      "commit": "ccf2c80",
+      "name": "state.begin-phase, then a hand repair of the corruption it caused (em dashes into an ASCII-only repo; first-line-only replacement of two multi-line body fields, orphaning both tails)."
     }
   ],
   "remaining_tasks": [
     {
-      "id": "secure-17.1",
-      "status": "done",
-      "name": "DONE (commit 27d69b5). gsd-security-auditor returned SECURED 5/5, threats_open 0 for phase 17.1 -- the only phase that had no SECURITY.md, found while checking milestone readiness. T-17.1-SC accepted with its no-installs PREMISE independently verified (logged as AR-17.1-SC). All eight phases now carry SECURITY + VALIDATION + LEARNINGS + VERIFICATION."
-    },
-    {
-      "id": "audit-milestone",
+      "id": "wave-1",
       "status": "not_started",
-      "name": "/gsd-audit-milestone lz-tdd@0.0.3, and COMMIT the audit -- the commit is part of the command, not a follow-up the user must ask for."
+      "parallel": true,
+      "name": "Wave 1 (10 distinct files): 22-01 authors check-rgr-routing.mjs + routing-parse.mjs + an 8-mutation selftest and asserts them RED against today's tree; 22-02 widens check-hygiene.mjs to plugins/lz-tdd/references/ and README.md, AUTHORS the missing file-count assertion (there is none today), widens the second e2e-red- glob in check-evals.mjs, and writes CLS-01..CLS-05 into REQUIREMENTS.md."
     },
     {
-      "id": "complete-milestone",
+      "id": "wave-2",
       "status": "not_started",
-      "name": "/gsd-complete-milestone lz-tdd@0.0.3 with MANUAL archival -- gsd-sdk milestone.complete rejects the @-scoped non-vX.Y version string. Follow the 0.0.2 precedent."
+      "parallel": true,
+      "name": "Wave 2: 22-03 rewrites all three SKILL.md classifiers in ONE plan under ONE executor (at-most-one is a cross-file property, so three parallel authors would make it a hope rather than a guarantee); 22-05 authors the e2e-rgr-routing suite, the 9-case RECONSTRUCTED corpus, and 11 files total."
     },
     {
-      "id": "tag-and-release",
-      "status": "blocked_on_owner",
-      "name": "Tag + GitHub Release. OUTWARD-FACING and hard to retract -- confirm with the owner before publishing."
+      "id": "wave-3",
+      "status": "not_started",
+      "name": "Wave 3: 22-04 fixes the two surfaces the research found -- the three-laws leaf's own three-way classifier and beck-tdd-by-example.md's two-way, skill-relative, test-state-keyed seam."
     },
     {
-      "id": "push",
-      "status": "blocked_on_owner",
-      "name": "Nothing has been pushed; the branch is ~380 commits ahead of origin/main."
+      "id": "wave-4",
+      "status": "not_started",
+      "name": "Wave 4: 22-06 builds the variant builder, the destination grader with fixtures and --selfcheck, and the run-e2e.mjs arm addition. Dry-run only."
+    },
+    {
+      "id": "wave-5",
+      "status": "not_started",
+      "autonomous": false,
+      "name": "Wave 5: 22-07 phase gate (full battery + claude plugin validate . + widened hygiene proven non-vacuous), ROUTING-AB-RESULTS.md scaffold with every figure blank, and the blocking-human HALT before any metered run."
+    },
+    {
+      "id": "post-execution",
+      "status": "not_started",
+      "name": "Orchestrator-owned, after verification passes: verify_phase_goal via gsd-verifier, the D-18/SC7 fresh acceptance review of all edited shipped files with >= 1 from-scratch UNPRIMED reviewer, the D-26 unprimed review of the beck seam repair, then /gsd-secure-phase 22, /gsd-validate-phase 22, and /gsd-extract-learnings 22 LAST plus the global-learnings bridge."
     }
   ],
   "blockers": [
     {
       "type": "technical",
-      "description": "The D-12 cell is at a STRUCTURAL ceiling -- the baseline arm loads a skill containing both the decision rule and a worked example whose answer IS the cell answer.",
-      "workaround": "None by rewording. A new cell where the baseline is not already correct is the only way to measure a taxonomy effect. Do NOT re-pilot a reworded a1."
+      "description": "STATE.md state verbs corrupt the file. Fired THREE times this session. state.record-session reformatted a quoted scalar. state.planned-phase reported \"updated\": [] yet still stripped a quote AND reverted last_activity_desc to a superseded Phase-21 string. state.begin-phase injected U+2014 em dashes into an ASCII-only public repo AND replaced only the FIRST line of two multi-line body fields, orphaning both tails mid-sentence.",
+      "workaround": "Snapshot STATE.md to the scratchpad, run the verb ONCE, diff against the snapshot, repair by hand. Never re-run a state verb to 'check' state. Verify with: LC_ALL=C rg -c -N '[^\\x00-\\x7F]' .planning/STATE.md -- exit 1 means zero matches means ASCII clean."
     },
     {
       "type": "technical",
-      "description": "ARM-LENGTH CONFOUND, measured and declared rather than fixed: baseline 167 lines, forcing 174, treatment 282.",
-      "workaround": "Unfixable -- you cannot guarantee the dose and hold length constant at once. Report any treatment effect as confounded with length and position."
+      "description": "rg -h is HELP in ripgrep, not --no-filename as in grep. Two commands this session silently dumped the help text instead of matching, and one then produced a meaningless line count from that help output.",
+      "workaround": "Use rg -I (or --no-filename). Do not assume grep flag parity."
     },
     {
-      "type": "technical",
-      "description": "EVL-01 and EVL-02 carry the same stale Pending phrasing EVL-03 did, and were NOT re-verified.",
-      "workaround": "Verify each against its own results write-up. The EVL-03 fix is not evidence they generalized."
+      "type": "external",
+      "description": "PR #3 is held for this phase, and closing the phase does NOT by itself unblock it (D-24). The placement decision needs the owner-approved metered A/B run, which is outside the phase.",
+      "workaround": "None needed -- this is the recorded intent, not a defect. Do not write a must_have that only a metered run can satisfy."
     }
   ],
   "async_jobs": [],
   "human_actions_pending": [
     {
-      "action": "Approve the milestone close for lz-tdd@0.0.3",
+      "action": "Approve or decline the two metered eval rounds when Wave 5 HALTs",
       "blocking": true,
-      "context": "All 8 phases carry VERIFICATION + VALIDATION + LEARNINGS, and SECURITY once 17.1 lands. The EVL-03 drift that blocked the close is resolved."
+      "context": "The 3-arm placement A/B (CLS-05) and the EVL-01 reciprocal trigger regression forced by the description edits (D-06). Both are BUILT and presented in this phase but never executed (D-14 / eval-run-approval-gate)."
     },
     {
-      "action": "Approve tagging and publishing a GitHub Release",
-      "blocking": true,
-      "context": "Outward-facing and hard to retract. Not to be self-approved."
+      "action": "Run /reload-plugins after the description edits land",
+      "blocking": false,
+      "context": "D-19. Committed is not live, and no trigger measurement is believable until the plugin tree reloads. Claude cannot run this."
     }
   ],
   "decisions": [
     {
-      "phase": "2026-08-02",
-      "decision": "Applied the pre-registered pilot rule verbatim and did NOT buy the round.",
-      "rationale": "N=3 is the rule's explicit CEILING HELD branch. A decision rule reinterpreted after seeing the numbers is not a decision rule. The verdict distribution (2 genuinely_red + 1 blunt_red) is recorded second and is explicitly not the gate."
+      "phase": "22",
+      "decision": "Placement of the routing content is decided EMPIRICALLY by a 3-arm A/B eval, not by argument.",
+      "rationale": "Owner directive after two clarification rounds. Arms: (A) inline only, (B) shared table plus inline rationale, (C) shared table replacing the narrative sections. The owner explicitly rejected settling it by reasoning."
     },
     {
-      "phase": "2026-08-02",
-      "decision": "Recorded the outcome in a NEW targets.json pilot_result field instead of editing ceiling_note.",
-      "rationale": "pilot_decision_rule forbids editing itself after the pilot runs; adding a sibling field preserves the audit trail byte-for-byte. Both protected fields were verified identical to HEAD by parse-and-compare."
+      "phase": "22",
+      "decision": "FOLD the A/B into Phase 22 -- author three variants, measure, ship the winner.",
+      "rationale": "Owner chose one edit to the shipped bodies on measured grounds over the split option (ship inline now, migrate later). Accepted cost, stated before the choice: the PR #3 hold extends for the full cycle."
     },
     {
-      "phase": "2026-08-02",
-      "decision": "Reached both close-out verdicts BY the dedicated agents, refusing the workflows' inline short-circuits.",
-      "rationale": "Both short-circuits would have passed cleanly -- and the nyquist auditor then found a real coverage gap the short-circuit would have missed entirely. Self-certification is not an audit."
+      "phase": "22",
+      "decision": "Pre-registered null tiebreak is variant C.",
+      "rationale": "Owner choice, one step beyond the recommendation, on future-/lz-tdd-entrypoint grounds. The disclosed risk was accepted, not overlooked: C moves the EVL-02-measured classify-first rationale behind a lazy read, so the tiebreak applies only on a MEASURED tie, and a tie on routing correctness does not prove parity on coaching-quality dims."
     },
     {
-      "phase": "2026-08-02",
-      "decision": "Corrected the living status records but did NOT rewrite historical SUMMARYs.",
-      "rationale": "A SUMMARY is a point-in-time record; 21-04 was true when written. Editing it to tidy a status field would falsify history. A clearly marked forward-pointer addendum carries the new information instead."
+      "phase": "22",
+      "decision": "description frontmatter IS in scope, making the EVL-01 reciprocal trigger round mandatory rather than conditional.",
+      "rationale": "Owner chose literal SC5 satisfaction over the zero-spend body-only option, after being shown that it puts the eval-validated auto-trigger -- the one lever this project has measured to work -- back in play."
     },
     {
-      "phase": "2026-08-02",
-      "decision": "Reconciled EVL-03 only, and flagged EVL-01/EVL-02 as unverified rather than sweeping them along.",
-      "rationale": "They were not re-verified in that pass. Fixing one row is not evidence about the others, and silently widening scope would have manufactured confidence."
+      "phase": "22",
+      "decision": "A TRIGGER eval cannot discriminate the three placement arms; the instrument is a body/behavior eval.",
+      "rationale": "The arms carry byte-identical description frontmatter by construction, so all three would score identically. Correction issued during discussion and accepted as D-11."
+    },
+    {
+      "phase": "22",
+      "decision": "Scope is all THREE shipped skills and SIX classifier surfaces, not the two skills in the phase title.",
+      "rationale": "SC2 and SC3 name lz-tpp explicitly (D-05). Research then found two further surfaces (D-20): the three-laws leaf carries its own three-way classify with the same catch-all and is read by coach step 2, and beck-tdd-by-example.md's seam is two-way, skill-relative, and test-state-keyed -- in the very file D-08 names as the shared-table precedent."
+    },
+    {
+      "phase": "22",
+      "decision": "Variant A is the TRACKED tree; no variant is formally selected inside Phase 22.",
+      "rationale": "D-09 (measure then ship) and D-14 (no metered command inside the phase) force this together. Variant A needs no generated copy and is the composition anchor selfcheck-red.mjs already asserts. Recorded as D-24 so 'no variant shipped' is never later read as an incomplete phase."
     }
   ],
-  "uncommitted_files": [],
-  "next_action": "Consume the in-flight 17.1 security audit (re-run it if its result was lost), write and commit 17.1-SECURITY.md from the agent verdict, then /gsd-audit-milestone lz-tdd@0.0.3 and commit the audit. The milestone close, the tag, the Release and the push are all owner-gated.",
-  "context_notes": "THE HEADLINE IS THAT A PRE-REGISTERED $4.11 PILOT KILLED A $27 ROUND, AND THAT IS A WIN, NOT A DISAPPOINTMENT. The cell is at a structural ceiling: the baseline arm loads a skill that already contains the answer, so nothing can be measured there. The discipline that made it usable was committing the decision rule BEFORE the pilot ran, then applying it without reinterpretation once N was visible. SECOND, THE AUDITS EARNED THEIR KEEP. Both workflows offered an inline short-circuit that would have passed phase 21 cleanly; both were refused per the never-self-certify rule, and the nyquist auditor then found that 2 of 5 own-skill arms had never been parity-asserted -- the phase requirement said 'all THREE arms', so the letter passed while the intent failed after the instrument grew. Requirements pin a number; instruments grow. THIRD, THE AUDITOR'S FIX FAILED ITS OWN MUTATION TEST BEFORE IT PASSED, which is exactly why it is trustworthy. A green check that has never been shown to fail is not evidence -- drive every important assertion in both directions. FOURTH, A RED RESULT WAS MY OWN FAULT AND I NEARLY MISREAD IT: a battery failed on the leftover-worktree canary because I had killed a duplicate run mid-crux and its teardown never ran. Diagnose a failure to its cause before doubting the thing under test. I also wrote a fail-open check this session (test $? placed after an echo, which always passes) -- that is a recurrence in this project, so treat exit-status gating as muscle memory, not a rule to recall. FIFTH, ON RECORD-KEEPING: a status field only ever written by the step that DEFERS it will never be cleared by the step that RESOLVES it. That is why EVL-03 sat 'Pending' for a week after its round completed. Build-then-halt needs a matching reconcile-on-completion action. And when reconciling, correct LIVING records and leave HISTORY alone."
+  "uncommitted_files": [
+    ".planning/config.json"
+  ],
+  "next_action": "Run /gsd-core:execute-phase 22 --auto in a fresh session. It starts at Wave 1 (22-01 + 22-02 in parallel, worktree isolation). Re-capture EXPECTED_BASE=$(git rev-parse HEAD) at dispatch time -- ccf2c80 from the paused session goes stale the moment this WIP handoff commit lands -- and create a fresh WAVE_WORKTREE_MANIFEST; the paused session's temp manifest was removed unused.",
+  "context_notes": "NOTHING WAS EXECUTED. The wave-1 Agent dispatch was interrupted by the owner before it ran, by design, so a fresh session could carry the execution with a clean context budget. State is provably clean, checked rather than assumed: `git worktree list` shows only the main checkout, there are zero worktree-agent-* branches, zero SUMMARY.md files in the phase dir, and the only dirty file is .planning/config.json (the ephemeral workflow._auto_chain_active flag, which by standing rule never enters a phase commit). WORKTREE ISOLATION IS SAFE HERE AND WAS VERIFIED: worktree.baseRef is \"head\" in ~/.claude/settings.json and `query worktree.base-check` returns shouldDegrade:false with reason baseref-head, so agent worktrees fork from local HEAD rather than origin/HEAD even though the branch is 410 commits ahead of main. Config for the run: branching_strategy \"none\" (stay on gsd/lz-tdd-0.0.3-lz-red), executor_model opus, verifier_model sonnet, parallelization true, commit_docs true, no .gitmodules so every plan keeps worktree isolation. TWO 'placeholder' HITS IN THE PHASE DOCS ARE LEGITIMATE AND MUST NOT BE 'FIXED': 22-07-PLAN.md REQUIRES every figure in ROUTING-AB-RESULTS.md to remain a blank placeholder until the owner-approved run (that is the D-24 honesty requirement, asserted mechanically), and 22-RESEARCH.md's hits are about ${CLAUDE_PLUGIN_ROOT} placeholder substitution. THE METHODOLOGICAL HEADLINE OF THE PLANNING PASS IS THAT THE ESCALATIONS PAID FOR THEMSELVES. Four gray areas sat in the --auto trap quadrant (high impact, not-high confidence) and were escalated instead of auto-locked; the owner overrode the recommendation on two of them, and one of those overrides -- deciding placement by measurement rather than argument -- is what turned a design opinion into a testable question. The research pass then falsified a premise of one owner decision (variant C's 'one normative artifact' claim, undermined by a stale contradicting copy in the same directory) and that was folded back into CONTEXT as D-20 rather than left as a silent contradiction. SECOND, THE PLAN-CHECKER'S ONE LOAD-BEARING WARNING WAS ABOUT A PARSER'S DUMBNESS: the new gate matches literal skill slugs and has no self-reference resolution, but every self-owning branch in the shipped text today says 'this skill' -- so an executor preserving house phrasing would author content its own gate could never take GREEN. The fix was to state the self-naming rule in the authoring tasks and keep the parser dumb, because dumb is what keeps it mutation-sensitive."
 }

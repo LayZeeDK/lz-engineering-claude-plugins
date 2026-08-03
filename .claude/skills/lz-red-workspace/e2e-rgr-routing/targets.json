@@ -1,0 +1,18 @@
+{
+  "focus": "Request-classification destination over the nine-case red-green-refactor routing corpus",
+  "rationale": "The D-08 placement A/B. Three plugin trees carrying the SAME routing content in three PLACEMENTS -- A inline only, B a shared table plus inline rationale, C a shared table replacing the per-skill narrative sections -- are toggled via --plugin-dir off one byte-identical prompt. The metric is routing correctness per request: does the loaded skill name the correct owner (D-12).",
+  "corpus_source": "tools/rgr-cases.json",
+  "corpus_source_note": "ONE SOURCE, TWO CONSUMERS. tools/check-rgr-routing.mjs reads matchTokens + expectedOwner + expectedSecondHop; this suite's prompts/<id>-<slug>.md are DERIVED from the same file's `request` field, one prompt per case with ids matching exactly. The derivation is asserted by selfcheck-routing.mjs rather than trusted, because a divergence between the guard's corpus and the eval's prompts is a SILENT MEASUREMENT ERROR, not a cosmetic one: the guard would certify a branch set against one wording while the eval measured a model against another, and both would read GREEN. That is why there is one corpus file rather than two. Read the corpus for provenance too: its own `provenance` header declares which cases are RECONSTRUCTED rather than recovered (three verbatim quoted requests survive in the 260803-53q record, a fourth is derivable from ROADMAP SC1, and the rest were authored from the defect descriptions). Provenance is stated THERE and cited here rather than restated in nine places (D-23).",
+  "targets": [
+    {
+      "id": "RGR",
+      "code_target": false,
+      "code_target_note": "This suite has NO code target and deliberately declares no `file`. The graded artifact is the answer prose's named DESTINATION -- a closed label out of the three shipped skill names, a none label, or D-02's ordered two-hop pair -- never a diff, and recommend mode hard-blocks Edit/Write/MultiEdit/NotebookEdit/Bash so no diff can exist. Omitting `file` is fail-loud on purpose: --synthetic-base and apply mode both need one and will throw naming this target rather than quietly building a meaningless equal-input baseline for a suite that has no input to equalize.",
+      "graded_artifact": "results/recommend/<arm>/<case-id>/run-N/answer.md, graded by grade-routing.mjs",
+      "expected_labels": "Per case, from the corpus: expectedOwner (one of the three shipped skill names, or NONE for the declared residual) plus expectedSecondHop, which is non-null for exactly one case -- the corpus's only ordered two-hop.",
+      "why_this_file_exists": "run-e2e.mjs reads targets.json UNCONDITIONALLY at module load, before any flag is parsed, so a suite dir without it throws before --dry-run can even report what it would have composed. This file therefore ships even though the suite grades prose (RESEARCH Pitfall 8).",
+      "axis": "routing correctness (destination label), with the deterministic-vs-judge split and the shared-table READ RATE reported per arm alongside the pass rate",
+      "read_rate_note": "The read rate is not decoration. This repo has MEASURED zero-of-six retrieval on a cited reference, so a variant that scores well at a ZERO read rate was answered from the inline residue and its number says nothing about placement (Finding 3 / Pitfall 5). run-e2e.mjs records routing_table_read per run and grade-routing.mjs carries it into the grade so the two rates can be read together."
+    }
+  ]
+}

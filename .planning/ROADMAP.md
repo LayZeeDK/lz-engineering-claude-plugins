@@ -328,7 +328,8 @@ loop the milestone claims to complete actually closes.
 **Depends on**: Phase 18 (authored the lz-red coach procedure and the lz-tpp seam), quick task
 260803-53q (closed TD-02 and surfaced this)
 
-**Requirements**: CLS-01, CLS-02, CLS-03, CLS-04 (to be added to REQUIREMENTS.md during planning)
+**Requirements**: CLS-01, CLS-02, CLS-03, CLS-04, plus one new requirement for SC8's placement A/B
+(all to be added to REQUIREMENTS.md during planning)
 
 **Origin**: Raised by the unprimed acceptance reviewer on quick task 260803-53q, 2026-08-03. Full
 finding list and the orchestrator's pre-existing-vs-regression adjudication in
@@ -363,16 +364,35 @@ unit.
   6. **Guarded.** A checker gate holds the routing semantics, not merely token presence -- the
      TD-02 guard's measured ceiling (a renamed heading alone satisfies a bare `/lz-red/` needle)
      is closed for the new gates. Mutation-tested in both directions.
-  7. Both shipped skills pass a fresh acceptance review with at least one from-scratch unprimed
-     reviewer, and the full battery plus `claude plugin validate .` stay GREEN.
+  7. All shipped skills touched pass a fresh acceptance review with at least one from-scratch
+     unprimed reviewer, and the full battery plus `claude plugin validate .` stay GREEN.
+
+  8. **Placement decided empirically** (ADDED 2026-08-03 by owner decision at discuss time). The
+     routing content is authored in three placement variants -- (A) inline only, (B) shared
+     plugin-wide table plus inline classify-first rationale, (C) shared table replacing the three
+     per-skill narrative sections -- and A/B'd on routing correctness over the reviewer's eight
+     traced requests before one is shipped. A trigger eval cannot discriminate the arms (identical
+     `description` frontmatter by construction), so the instrument is an EVL-02-style body/behavior
+     eval with the arms toggled via `--plugin-dir`. Pre-registered null tiebreak: variant C. Metered
+     runs stay HALT-gated on explicit owner approval.
 
 **Also in scope** (cheap, same files, found by the same review): step 6's reference router omits
 `refactoring-without-tests.md` and `beck-tidy-first.md`; `lz-refactor/SKILL.md:81` names a section
 that does not exist.
 
-**Risk**: This edits two SHIPPED skills and changes triggering-adjacent prose. A trigger-eval round
-may be needed -- EVL-01's reciprocal sets exist and are the natural regression check. Treat any
-`description` frontmatter change as requiring one.
+**Scope amendments (2026-08-03, from `/gsd-core:discuss-phase 22`)**: the phase title names two
+skills but all THREE are edited -- SC2 and SC3 name `lz-tpp` explicitly and its catch-all is the
+collision half of the BLOCKER, so its classifier surfaces change too (minimally, classifier-only).
+`description` frontmatter is IN scope by owner decision, which makes the trigger-eval round
+mandatory rather than conditional. Folding SC8's A/B into this phase extends the deliberate PR #3
+hold by the full author-variants -> gated-run -> writeup cycle; the owner accepted that in exchange
+for editing the shipped bodies once, on measured grounds. Full rationale and the alternatives
+declined: `.planning/phases/22-three-way-classifier-correctness-lz-refactor-lz-red/22-CONTEXT.md`
+and `22-DISCUSSION-LOG.md`.
+
+**Risk**: This edits three SHIPPED skills and changes triggering-adjacent prose, including the
+`description` frontmatter. The EVL-01 reciprocal trigger round is therefore REQUIRED, not optional,
+as the regression check, and `/reload-plugins` must follow -- committed is not live.
 
 **Plans:** 0 plans
 

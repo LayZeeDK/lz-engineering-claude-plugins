@@ -1,0 +1,536 @@
+#!/usr/bin/env node
+// Self-test for lib/routing-parse.mjs, the parser behind check-rgr-routing.mjs (Phase 22, CLS-01 and
+// CLS-04). Plain node:assert, matching this workspace's existing style -- row-guards.selftest.mjs and
+// provenance-honesty.selftest.mjs are assert-based scripts, not a vitest suite, so no test framework
+// is introduced. IN-MEMORY FIXTURES ONLY; this file reads no document from disk at all, which is why
+// it stays GREEN while the real gate is deliberately RED against today's tree.
+//   node .claude/skills/lz-red-workspace/tools/check-rgr-routing.selftest.mjs
+//
+// CONTRACT. Four categories carried over from row-guards.selftest.mjs, plus a fifth this guard needs:
+//   1. PRISTINE   -> PASS. The parser accepts content in the target shape.
+//   2. EVASION    -> FAIL. The parser rejects each specific defect the gate exists to catch: a
+//                   re-introduced bare catch-all terminal, a deleted positive branch, a test-state
+//                   clause smuggled back into a routing condition, a RENAMED heading, and a vanished
+//                   file (surrogate: the empty string, which is what the fail-closed read yields).
+//   3. OLD NEEDLE -> PASSES the same evasion fixtures. A bare word-boundary skill-name presence test
+//                   goes GREEN on both the re-introduced catch-all AND the renamed heading. That is
+//                   the measured F-1 ceiling, and the evidence is COMMITTED here rather than thrown
+//                   away in a scratchpad.
+//   4. EMPTY / VACUOUS -> FAIL. An emptied corpus and an emptied surface list must both FAIL. A guard
+//                   that reports PASS with nothing to check cannot fail, and a guard that cannot fail
+//                   is worse than no guard.
+//   5. REWORDED-BUT-CORRECT -> PASS, and INCIDENTAL MENTION -> PASS. The two should-STAY-GREEN legs.
+//                   They are what separate this guard from a vocabulary proxy: rewording a correct
+//                   branch in different words while keeping the same ask-words must not break it, and
+//                   naming a sibling skill outside any branch must not satisfy it. This is the D-12
+//                   grader-trap lesson applied to the CHECKER itself.
+//
+// SCOPE, stated plainly. The exports under test are the PARSER's. The gate itself is a top-level
+// script by house convention -- it resolves paths, reports, and exits -- so it cannot be imported
+// without running it, and the two coverage predicates below (`covers` / `owns`) are therefore a
+// deliberate minimal restatement of the gate's own, kept identical in shape. The gate's end-to-end
+// wiring is evidenced separately, by its asserted-RED baseline against the tracked tree.
+//
+// No fixture, comment or label in this file contains any email-shaped token other than the project's
+// approved public contact -- and no forbidden value is written even as a search needle, because the
+// needle IS the leak. ASCII only.
+import assert from "node:assert/strict";
+import * as parser from "./lib/routing-parse.mjs";
+import {
+  RESIDUAL_MARKER_RE,
+  destinationsIn,
+  keysOnTestState,
+  parseRoutingBranches,
+} from "./lib/routing-parse.mjs";
+
+// ---------------------------------------------------------------------------------------------
+// Fixture builders. Lines are assembled from an ARRAY of double-quoted strings rather than a template
+// literal, so a fixture cannot be silently corrupted by a missed backslash and every line is
+// individually addressable by the mutation helpers below.
+// ---------------------------------------------------------------------------------------------
+
+// One synthetic coach document in the TARGET shape: positive disjoint lettered branches, one named
+// owner each, an ordered two-hop branch, and a terminal that claims NOTHING and says so. The mode
+// gate below it keys on the ask only. Both sections live in one document so the fixture also
+// exercises the stop-at-the-next-level-2-heading boundary.
+const PRISTINE_LINES = [
+  "# Fixture coach",
+  "",
+  "## Coach decision procedure",
+  "",
+  "1. Classify the request by what the developer is asking for. Take the first branch that matches:",
+  "   a. Asking what test to write next, how to shape or name a test, or whether a test is a good",
+  "      test -> the red step. That is lz-red.",
+  "   b. Asking to make a failing test pass, or to add a new behavior -> the red step FIRST, so that",
+  "      is lz-red, and once a red test is in play the green step is lz-tpp.",
+  "   c. Just finished making a test pass and asking what now, or asking to clean up or tidy code",
+  "      including a test file without changing what it does -> the refactor step. That is",
+  "      lz-refactor.",
+  "   d. None of the above: this is not a red-green-refactor-loop request. Say so and answer it",
+  "      directly; no skill in this loop owns it.",
+  "2. Recognize the smell. Read the fixture leaf; do not restate its content here.",
+  "",
+  "## Two modes",
+  "",
+  "- Coach mode: the request names code and asks which refactoring to apply. Present it via the",
+  "  coach decision procedure above.",
+  "- Reference mode: the request asks to explain a refactoring, a smell, or a principle. Answer from",
+  "  the fixture reference leaf; do not restate its content here.",
+  "",
+  "## Sources",
+  "",
+  "- Fixture source row, present so the section split has a level-2 heading to stop at.",
+];
+
+const PRISTINE = PRISTINE_LINES.join("\n");
+
+// Synthetic surface descriptors. Same seven fields as a real ROUTING_SURFACES entry, so the parser is
+// driven exactly as the gate drives it, but pointing at fixture text rather than a tracked file.
+const ROUTER = Object.freeze({
+  id: "fixture-router",
+  file: "fixture/coach.md",
+  heading: "Coach decision procedure",
+  kind: "router",
+  owner: "lz-refactor",
+  parseMode: "lettered",
+  variantScope: "all",
+});
+
+const MODE_GATE = Object.freeze({
+  id: "fixture-modes",
+  file: "fixture/coach.md",
+  heading: "Two modes",
+  kind: "mode-gate",
+  owner: "lz-refactor",
+  parseMode: "sentences",
+  variantScope: "all",
+});
+
+// Three synthetic corpus cases: one plain owner, one ORDERED two-hop, one declared residual.
+const FIXTURE_CASES = Object.freeze([
+  Object.freeze({
+    id: "f1",
+    expectedOwner: "lz-refactor",
+    expectedSecondHop: null,
+    matchTokens: Object.freeze(["finished", "test pass", "what now"]),
+  }),
+  Object.freeze({
+    id: "f2",
+    expectedOwner: "lz-red",
+    expectedSecondHop: "lz-tpp",
+    matchTokens: Object.freeze(["add a new behavior"]),
+  }),
+  Object.freeze({
+    id: "f3",
+    expectedOwner: "NONE",
+    expectedSecondHop: null,
+    matchTokens: Object.freeze(["argument parsing"]),
+  }),
+]);
+
+// ---------------------------------------------------------------------------------------------
+// Mutation helpers. A mutation that silently no-ops MUST throw rather than leave PRISTINE text under
+// a check that expects a FAIL -- while that still fails loudly, it does so by accident rather than by
+// design, and the accident is invisible in the report.
+// ---------------------------------------------------------------------------------------------
+
+const mutate = (text, from, to) => {
+  const next = text.replace(from, to);
+
+  assert.notEqual(next, text, `fixture mutation did not apply: ${from}`);
+
+  return next;
+};
+
+// Drop the whole line containing `marker` -- the branch-deletion evasion.
+const dropLine = (text, marker) => {
+  const lines = text.split("\n");
+  const kept = lines.filter((line) => !line.includes(marker));
+
+  assert.notEqual(kept.length, lines.length, `fixture line drop did not apply: ${marker}`);
+
+  return kept.join("\n");
+};
+
+// ---------------------------------------------------------------------------------------------
+// Assertion harness.
+// ---------------------------------------------------------------------------------------------
+
+let failures = 0;
+
+const check = (label, actual, expected) => {
+  try {
+    assert.deepEqual(actual, expected);
+    console.log(`  [PASS] ${label}`);
+  } catch (err) {
+    failures++;
+    console.log(
+      `  [FAIL] ${label} -- expected ${JSON.stringify(expected)}, got ${JSON.stringify(actual)}: ${err.message}`
+    );
+  }
+};
+
+// ---------------------------------------------------------------------------------------------
+// The gate's coverage predicates, minimally restated (see SCOPE in the header).
+// ---------------------------------------------------------------------------------------------
+
+const covers = (branch, kase) => {
+  const cond = branch.conditionText.toLowerCase();
+
+  return kase.matchTokens
+    .filter((t) => typeof t === "string" && t.trim() !== "")
+    .every((t) => cond.includes(t.toLowerCase()));
+};
+
+const owns = (branch, kase) => {
+  if (!covers(branch, kase)) {
+    return false;
+  }
+
+  if (kase.expectedSecondHop) {
+    return (
+      branch.destinations.length === 2 &&
+      branch.destinations[0] === kase.expectedOwner &&
+      branch.destinations[1] === kase.expectedSecondHop
+    );
+  }
+
+  return branch.destinations[0] === kase.expectedOwner;
+};
+
+const isDeclaredResidual = (branch) => branch.isResidual && branch.destinations.length === 0;
+
+const coveredBy = (branches, kase) =>
+  kase.expectedOwner === "NONE"
+    ? branches.some(isDeclaredResidual)
+    : branches.some((b) => owns(b, kase));
+
+// The two anti-vacuity floors the gate carries, restated the same way.
+const corpusFloorOk = (cases) =>
+  cases.length > 0 &&
+  cases.every(
+    (c) =>
+      Array.isArray(c.matchTokens) &&
+      c.matchTokens.filter((t) => typeof t === "string" && t.trim() !== "").length > 0
+  );
+
+const scanFloorOk = (surfaces, text) =>
+  surfaces.length > 0 && surfaces.every((s) => parseRoutingBranches(text, s).ok);
+
+// The OLD NEEDLE: the bare word-boundary skill-name presence test the shipped TD-02 guard uses. Kept
+// here as the committed measurement of what it cannot see.
+const oldNeedle = (text) => /\blz-red\b/.test(text);
+
+// ---------------------------------------------------------------------------------------------
+// Mutation 0 -- PRISTINE.
+// ---------------------------------------------------------------------------------------------
+console.log("mutation 0 -- PRISTINE target shape parses and satisfies every predicate");
+
+const pristineRouter = parseRoutingBranches(PRISTINE, ROUTER);
+const pristineModes = parseRoutingBranches(PRISTINE, MODE_GATE);
+
+check("PRISTINE router parses ok", pristineRouter.ok, true);
+check("PRISTINE router yields the four lettered branches", pristineRouter.branches.map((b) => b.branchId), ["1a", "1b", "1c", "1d"]);
+check(
+  "PRISTINE every branch either names a destination or IS the declared residual",
+  pristineRouter.branches.every((b) => b.destinations.length > 0 || isDeclaredResidual(b)),
+  true
+);
+check(
+  "PRISTINE no branch is a bare catch-all",
+  pristineRouter.branches.filter((b) => b.isBareCatchAll).map((b) => b.branchId),
+  []
+);
+check(
+  "PRISTINE no branch keys on test state",
+  pristineRouter.branches.filter((b) => b.keysOnTestState.length > 0).map((b) => b.branchId),
+  []
+);
+check("PRISTINE the two-hop branch destinations are the ORDERED pair", pristineRouter.branches[1].destinations, ["lz-red", "lz-tpp"]);
+check("PRISTINE the residual terminal claims nothing", pristineRouter.branches[3].destinations, []);
+check("PRISTINE the residual terminal carries the explicit no-owner marker", pristineRouter.branches[3].isResidual, true);
+check("PRISTINE mode gate parses ok", pristineModes.ok, true);
+check(
+  "PRISTINE mode gate keys on the ask only",
+  pristineModes.branches.filter((b) => b.keysOnTestState.length > 0).map((b) => b.branchId),
+  []
+);
+check(
+  "PRISTINE every corpus case is covered",
+  FIXTURE_CASES.filter((c) => !coveredBy(pristineRouter.branches, c)).map((c) => c.id),
+  []
+);
+
+console.log("");
+
+// ---------------------------------------------------------------------------------------------
+// Mutation 1 -- re-introduce a bare terminal (should FAIL).
+// ---------------------------------------------------------------------------------------------
+console.log("mutation 1 -- a re-introduced bare otherwise-is-this-skill terminal is caught");
+
+let m1 = mutate(
+  PRISTINE,
+  "   d. None of the above: this is not a red-green-refactor-loop request. Say so and answer it",
+  "   d. Otherwise the request stays here, and that is lz-refactor."
+);
+m1 = dropLine(m1, "no skill in this loop owns it");
+
+const m1Router = parseRoutingBranches(m1, ROUTER);
+
+check("mutation 1 still parses (the defect is in the branch, not the structure)", m1Router.ok, true);
+check(
+  "mutation 1 the terminal is flagged as a bare catch-all",
+  m1Router.branches.filter((b) => b.isBareCatchAll).map((b) => b.branchId),
+  ["1d"]
+);
+check("mutation 1 the terminal is NOT the declared residual", m1Router.branches[3].isResidual, false);
+check("mutation 1 the terminal names the surface's own owner", m1Router.branches[3].destinations, ["lz-refactor"]);
+
+console.log("");
+
+// ---------------------------------------------------------------------------------------------
+// Mutation 2 -- delete the positive post-green branch (should FAIL).
+// ---------------------------------------------------------------------------------------------
+console.log("mutation 2 -- deleting the positive post-green branch loses its corpus case");
+
+// All THREE of the branch's lines go, not just the one carrying the letter. Dropping the letter line
+// alone would orphan the continuation lines onto the PREVIOUS branch, which then inherits a third
+// destination and breaks the two-hop case -- a fixture artifact that would read as a guard defect.
+let m2 = dropLine(PRISTINE, "c. Just finished making a test pass");
+m2 = dropLine(m2, "including a test file without changing what it does");
+m2 = dropLine(m2, "      lz-refactor.");
+
+const m2Router = parseRoutingBranches(m2, ROUTER);
+
+check("mutation 2 still parses", m2Router.ok, true);
+check("mutation 2 the post-green case is no longer covered", coveredBy(m2Router.branches, FIXTURE_CASES[0]), false);
+check("mutation 2 the OTHER cases are untouched", [coveredBy(m2Router.branches, FIXTURE_CASES[1]), coveredBy(m2Router.branches, FIXTURE_CASES[2])], [true, true]);
+
+console.log("");
+
+// ---------------------------------------------------------------------------------------------
+// Mutation 3 -- a test-state clause smuggled back into a routing condition (should FAIL), with the
+// paired NEGATIVE control so the token set is proven in BOTH directions.
+// ---------------------------------------------------------------------------------------------
+console.log("mutation 3 -- a test-state clause in a routing condition is caught (both directions)");
+
+const m3 = mutate(
+  PRISTINE,
+  "   c. Just finished making a test pass and asking what now,",
+  "   c. The tests are green and you just finished making a test pass and asking what now,"
+);
+const m3Router = parseRoutingBranches(m3, ROUTER);
+const m3Offenders = m3Router.branches.filter((b) => b.keysOnTestState.length > 0);
+
+check("mutation 3 exactly the mutated branch keys on test state", m3Offenders.map((b) => b.branchId), ["1c"]);
+check("mutation 3 the matched token is NAMED so the report can attribute it", m3Offenders[0].keysOnTestState, ["tests are green"]);
+
+// POSITIVE control on the token set itself, using the live-shaped mode-gate phrasing D-03 names.
+check(
+  "test-state POSITIVE control -- a live-shaped tests-are-green mode gate matches",
+  keysOnTestState("Coach mode: the tests are green and the code has a smell, and the question is which refactoring to apply."),
+  ["tests are green", "has a smell"]
+);
+// NEGATIVE control: an ask-only condition must return nothing. Without this the token set could be
+// emptied, case-folded wrong, or wired to the wrong field and still look healthy.
+check(
+  "test-state NEGATIVE control -- an ask-only condition matches nothing",
+  keysOnTestState(pristineRouter.branches[0].conditionText),
+  []
+);
+check(
+  "test-state NEGATIVE control -- an emptied token list claims nothing",
+  keysOnTestState("the tests are green and the code has a smell", []),
+  []
+);
+check(
+  "test-state NEGATIVE control -- a blank token is dropped, not treated as a universal match",
+  keysOnTestState("an ask-only condition", ["", "   "]),
+  []
+);
+
+console.log("");
+
+// ---------------------------------------------------------------------------------------------
+// Mutation 4 -- rename the parsed heading (should FAIL). The structural closure of F-1.
+// ---------------------------------------------------------------------------------------------
+console.log("mutation 4 -- a RENAMED heading fails closed (the F-1 closure)");
+
+const m4 = mutate(PRISTINE, "## Coach decision procedure", "## Coach routing procedure");
+const m4Router = parseRoutingBranches(m4, ROUTER);
+
+check("mutation 4 the parse reports NOT ok", m4Router.ok, false);
+check("mutation 4 zero branches survive", m4Router.branches, []);
+check("mutation 4 the reason names the absent heading", /heading absent/.test(m4Router.why), true);
+
+console.log("");
+
+// ---------------------------------------------------------------------------------------------
+// Mutation 5 -- the vanished file (should FAIL). The empty string is the surrogate, because the
+// gate's fail-closed read yields exactly that on a read failure.
+// ---------------------------------------------------------------------------------------------
+console.log("mutation 5 -- a vanished surface file fails closed with one attributable reason");
+
+const m5Router = parseRoutingBranches("", ROUTER);
+
+check("mutation 5 the parse reports NOT ok", m5Router.ok, false);
+check("mutation 5 zero branches survive", m5Router.branches, []);
+check("mutation 5 the reason is attributable, not blank", m5Router.why.length > 0, true);
+check("mutation 5 the reason distinguishes an empty surface from a renamed heading", /empty/.test(m5Router.why), true);
+check("mutation 5 a null-ish surface text is handled the same way, never thrown on", parseRoutingBranches(null, ROUTER).ok, false);
+
+console.log("");
+
+// ---------------------------------------------------------------------------------------------
+// Mutation 6 -- an INCIDENTAL sibling mention outside any branch (should STAY GREEN).
+// ---------------------------------------------------------------------------------------------
+console.log("mutation 6 -- an incidental sibling mention outside any branch changes nothing");
+
+const m6 = mutate(
+  PRISTINE,
+  "- Fixture source row, present so the section split has a level-2 heading to stop at.",
+  "- Fixture source row; see also lz-tpp for the green step and lz-red for the red step."
+);
+const m6Router = parseRoutingBranches(m6, ROUTER);
+
+check("mutation 6 the branch set is byte-identical to PRISTINE", m6Router.branches, pristineRouter.branches);
+check(
+  "mutation 6 every corpus case is still covered",
+  FIXTURE_CASES.filter((c) => !coveredBy(m6Router.branches, c)).map((c) => c.id),
+  []
+);
+check(
+  "mutation 6 no bare catch-all appears",
+  m6Router.branches.filter((b) => b.isBareCatchAll).map((b) => b.branchId),
+  []
+);
+
+console.log("");
+
+// ---------------------------------------------------------------------------------------------
+// Mutation 7 -- REWORDED but correct, same ask-words (should STAY GREEN). The D-12 vocabulary-proxy
+// lesson applied to the checker itself.
+// ---------------------------------------------------------------------------------------------
+console.log("mutation 7 -- a reworded-but-correct branch keeps its case and its owner");
+
+const m7 = mutate(
+  PRISTINE,
+  "   c. Just finished making a test pass and asking what now, or asking to clean up or tidy code",
+  "   c. You have just finished making a test pass and are asking what now, or you want code tidied,"
+);
+const m7Router = parseRoutingBranches(m7, ROUTER);
+
+check("mutation 7 the wording really did change", m7Router.branches[2].conditionText === pristineRouter.branches[2].conditionText, false);
+check("mutation 7 the post-green case is still covered", coveredBy(m7Router.branches, FIXTURE_CASES[0]), true);
+check("mutation 7 the owner is unchanged", m7Router.branches[2].destinations, ["lz-refactor"]);
+check(
+  "mutation 7 no branch became a bare catch-all or a test-state key",
+  [
+    m7Router.branches.some((b) => b.isBareCatchAll),
+    m7Router.branches.some((b) => b.keysOnTestState.length > 0),
+  ],
+  [false, false]
+);
+
+console.log("");
+
+// ---------------------------------------------------------------------------------------------
+// Mutation 8 -- ANTI-VACUITY. An emptied corpus and an emptied surface list must both FAIL.
+// ---------------------------------------------------------------------------------------------
+console.log("mutation 8 -- anti-vacuity: an emptied corpus and an emptied surface list both FAIL");
+
+check("mutation 8 the corpus floor holds on the fixture corpus", corpusFloorOk(FIXTURE_CASES), true);
+check("mutation 8 an EMPTIED corpus fails the corpus floor", corpusFloorOk([]), false);
+check(
+  "mutation 8 a case with no usable matchTokens fails the corpus floor",
+  corpusFloorOk([{ id: "fx", expectedOwner: "lz-red", expectedSecondHop: null, matchTokens: ["  "] }]),
+  false
+);
+check("mutation 8 the scan floor holds on the fixture surfaces", scanFloorOk([ROUTER, MODE_GATE], PRISTINE), true);
+check("mutation 8 an EMPTIED surface list fails the scan floor", scanFloorOk([], PRISTINE), false);
+check("mutation 8 a surface whose text vanished fails the scan floor", scanFloorOk([ROUTER], ""), false);
+
+console.log("");
+
+// ---------------------------------------------------------------------------------------------
+// OLD NEEDLE -- the committed measurement of the ceiling this guard closes.
+// ---------------------------------------------------------------------------------------------
+console.log("OLD NEEDLE -- a bare skill-name presence test PASSES fixtures the new predicates FAIL");
+
+check("OLD NEEDLE goes GREEN on the re-introduced bare catch-all", oldNeedle(m1), true);
+check("NEW predicate goes RED on the same fixture", m1Router.branches.some((b) => b.isBareCatchAll), true);
+check("OLD NEEDLE goes GREEN on the RENAMED heading", oldNeedle(m4), true);
+check("NEW predicate goes RED on the same fixture", m4Router.ok, false);
+check("OLD NEEDLE cannot even see the deleted positive branch", oldNeedle(m2), true);
+check("NEW predicate loses that case", coveredBy(m2Router.branches, FIXTURE_CASES[0]), false);
+
+console.log("");
+
+// ---------------------------------------------------------------------------------------------
+// Boundary and affirmation legs on the destination extractor.
+// ---------------------------------------------------------------------------------------------
+console.log("destinationsIn -- boundaries, exclusion clauses, and the deliberate self-reference gap");
+
+check("a word-bounded slug is affirmed", destinationsIn("that is lz-refactor"), ["lz-refactor"]);
+check("a longer word is NOT a slug match", destinationsIn("that is lz-redux, not a skill"), []);
+check("an exclusion clause is not a destination", destinationsIn("Do NOT use lz-tpp for this."), []);
+check("order is first-affirmed-occurrence order", destinationsIn("hand to lz-red first, then lz-tpp"), ["lz-red", "lz-tpp"]);
+check(
+  "SELF-REFERENCE is deliberately NOT resolved (house form parses to zero destinations)",
+  [destinationsIn("continue here (the refactor step)"), destinationsIn("that is this skill's work")],
+  [[], []]
+);
+check(
+  "the residual marker requires BOTH halves, so a forgotten owner is not the residual",
+  [
+    RESIDUAL_MARKER_RE.test("this is not a red-green-refactor-loop request; no skill in this loop owns it"),
+    RESIDUAL_MARKER_RE.test("this is not a red-green-refactor-loop request"),
+    RESIDUAL_MARKER_RE.test("no skill in this loop owns it"),
+  ],
+  [true, false, false]
+);
+
+console.log("");
+
+// ---------------------------------------------------------------------------------------------
+// Export roster -- a COUNT alone cannot see a renamed or swapped export.
+// ---------------------------------------------------------------------------------------------
+console.log("lib/routing-parse.mjs -- export roster");
+
+check("routing-parse.mjs exports exactly the nine named helpers", Object.keys(parser).sort(), [
+  "CATCHALL_CONDITION_RE",
+  "RESIDUAL_MARKER_RE",
+  "ROUTING_SURFACES",
+  "TEST_STATE_TOKENS",
+  "destinationsIn",
+  "foldedDescription",
+  "keysOnTestState",
+  "matchesSkillName",
+  "parseRoutingBranches",
+]);
+check("ROUTING_SURFACES declares the eleven classifier surfaces", parser.ROUTING_SURFACES.length, 11);
+check(
+  "TEST_STATE_TOKENS carries no empty or whitespace-only entry",
+  parser.TEST_STATE_TOKENS.filter((t) => typeof t !== "string" || t.trim() === ""),
+  []
+);
+check(
+  "foldedDescription returns null rather than throwing when the key is absent",
+  parser.foldedDescription("---\nname: fixture\n---\n"),
+  null
+);
+check(
+  "matchesSkillName is boundary-anchored on both sides",
+  [parser.matchesSkillName("fixture:lz-red here", "lz-red"), parser.matchesSkillName("lz-redux here", "lz-red")],
+  [true, false]
+);
+
+console.log("");
+
+if (failures === 0) {
+  console.log("SUMMARY: rgr-routing self-test GREEN -- all assertions pass");
+  process.exit(0);
+}
+
+console.log(`SUMMARY: rgr-routing self-test RED -- ${failures} assertion(s) FAILED`);
+process.exit(1);

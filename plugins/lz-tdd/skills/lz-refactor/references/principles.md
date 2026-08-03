@@ -24,7 +24,7 @@ test pass is the add-function hat (lz-tpp's transformation step); the refactor s
 refactoring hat (this skill).
 
 For the TDD loop this seam sits inside (where the green step ends and the refactor step begins),
-see the Beck backing: [Test-Driven Development by Example](beck-tdd-by-example.md).
+see the Beck backing: [Test-Driven Development by Example](../../../references/beck-tdd-by-example.md).
 
 ## Why refactor
 

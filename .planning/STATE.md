@@ -1,41 +1,119 @@
 ---
 gsd_state_version: 1.0
-milestone: lz-tdd@0.0.2
-milestone_name: lz-refactor Skill (Fowler + Kerievsky)
-status: completed
-stopped_at: "2026-07-17: MILESTONE lz-tdd@0.0.2 CLOSED via /gsd-complete-milestone. Pre-close audit-open resolved 10 -> 0 open items; ROADMAP/REQUIREMENTS/audit archived to .planning/milestones/; REQUIREMENTS.md removed (fresh for next milestone); phases 6-14 archived to milestones/lz-tdd@0.0.2-phases/; git tag lz-tdd@0.0.2 cut. Pending: user /reload-plugins (loop-audit forcing-function 01208c8 + internal-ID strip 7ddf41b); /gsd-cleanup 01-05 (archive prior-milestone phase dirs). Next: /gsd-new-milestone."
-last_updated: "2026-07-17T00:00:00.000Z"
-last_activity: 2026-07-17
+milestone: lz-tdd@0.0.3
+milestone_name: lz-red Skill
+current_phase: 21
+current_phase_name: applied-red-eval-real-oss-repos
+status: complete
+stopped_at: "Resumed from HANDOFF.json mid-pilot and closed four things. (1) REPAIRED THE MIXED RESULTS TREE -- run-1 carried a fresh capture with a stale round-1 grade and runs 2-3 were round-1 captures; verified the round-1 archive intact (27/27) first, cleared the stale grades, recorded a resume boundary BEFORE re-running, re-ran all three with --force, and asserted fail-closed that every meta started_at AND every grade mtime postdates the boundary before computing anything. (2) FINISHED THE PILOT AND APPLIED THE PRE-REGISTERED RULE VERBATIM: N = 3 of 3 (all runs touched src/correlation-id.ts), zero void runs, $4.11 -> CEILING HELD -> the ~$27 k=5 round was NOT bought. D-03 (cutting a1's antecedent) did NOT move the baseline; the discriminator is now 21 of 21 correct and the baseline arm alone is 6/6 on a1 across BOTH prompt versions. Recorded as NOT-TESTED, never as a null: FUT-TAXONOMY-SHARED stays OPEN, status NOT-YET-TESTED. The ceiling is structural -- the shipped SKILL.md the baseline loads carries both the qualify-by-side rule and a worked example whose stub IS this cell's answer -- so measuring a taxonomy effect needs a NEW cell, not another rewording of a1. (3) PHASE 21 CLOSE-OUT AUDITS, both reached BY their dedicated agents rather than the workflows' inline short-circuits: gsd-security-auditor returned SECURED 9/9, threats_open 0, with T-21-SC (the only high) closed by a recorded legitimacy-gate PASS per nominated target and two threats probed at runtime (9/9 and 6/6 fail-closed paths) rather than read; gsd-nyquist-auditor returned PARTIAL and found a REAL gap -- selfcheck-red had zero references to invoke_treatment/invoke_forcing/d12, so 2 of 5 own-skill arms were never parity-asserted -- closed it in test code (+164/-2), and its FIRST fix failed its own mutation test (a forward-slash spelling of plugins/lz-tdd collapsed a lever past a raw string compare; fixed with path-insensitive samePath). nyquist_compliant was set only AFTER correcting the map: EVL-03.5's judge-input emission (never built) and EVL-03.7's scaffold (doc review) moved to Manual-Only, and the plan-time "latency < 60s" claim corrected as false (battery grew 363 -> 3152 lines, can exceed 600s). (4) EVL-03 DRIFT RECONCILED (owner chose Path A): all 36 captures of the 2026-07-27/28 round re-graded under the current grader, ZERO verdict changes -- the published numbers are grader-regime-invariant. EVL-03 moved Pending -> Complete in REQUIREMENTS.md. Historical SUMMARYs were NOT rewritten (they were true when written); 21-04-SUMMARY got a forward-pointer addendum instead. EVL-01/EVL-02 carry identical "Pending" phrasing but were NOT re-verified -- flagged in REQUIREMENTS.md, do not assume the fix generalized. PROCESS NOTE: a battery run came back RED and it was MY artifact -- I had killed a duplicate run mid-crux and its teardown stranded a grading worktree, which crux 7's canary correctly caught; removed it, confirmed the kata pristine, re-ran alone -> green. I also wrote a fail-open check this session (test $? after an echo) and caught it before trusting it."
+last_updated: "2026-08-03T08:57:36.087Z"
+last_activity: 2026-08-03
+last_activity_desc: "**MILESTONE SHIPPED.** `/gsd-core:ship lz-tdd@0.0.3` ran end-to-end."
 progress:
-  total_phases: 11
-  completed_phases: 11
-  total_plans: 55
-  completed_plans: 66
-  percent: 100
+  total_phases: 9
+  completed_phases: 8
+  total_plans: 27
+  completed_plans: 27
+  percent: 89
 ---
 
 # Project State
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-07-17 after the lz-tdd@0.0.2 milestone)
+See: .planning/PROJECT.md (updated 2026-07-18 -- started milestone lz-tdd@0.0.3)
 
-**Core value:** `lz-tpp` helps Claude choose the next code transformation by TPP priority during red-green-refactor TDD, and explains the premise on demand. lz-tdd@0.0.2 added `lz-refactor` to drive the refactor step.
-**Current focus:** Planning next milestone (lz-tdd@0.0.2 shipped + tagged 2026-07-17)
-**Milestone:** lz-tdd@0.0.2 (lz-refactor Skill) -- SHIPPED 2026-07-17 (audit passed; archived)
+**Core value:** `lz-tpp` helps Claude choose the next code transformation by TPP priority during red-green-refactor TDD, and explains the premise on demand. lz-tdd@0.0.2 added `lz-refactor` (refactor step); lz-tdd@0.0.3 adds `lz-red` (red step) to complete the loop.
+**Current focus:** Phase 21 -- applied-red-eval-real-oss-repos
+**Milestone:** lz-tdd@0.0.3 (lz-red Skill, RED phase) -- planning (started 2026-07-18)
 
 ## Current Position
 
-Phase: 14
-Plan: Not started
-Status: Milestone complete
-Last activity: 2026-07-17 - Quick task 260717-sbz: /simplify eval-harness cleanup -- 3 dead-code/no-op findings applied (3 atomic commits 9e1adf6..629e0dc, battery GREEN, verified 4/4)
+Phase: 21 (applied-red-eval-real-oss-repos) -- COMPLETE
+Plan: 4 of 4
+Status: Milestone lz-tdd@0.0.3 SHIPPED -- PR #3 open against main
+(https://github.com/LayZeeDK/lz-engineering-claude-plugins/pull/3). Phase 21 COMPLETE.
+Verification `passed` 8/8 on the third gsd-verifier pass, UAT 14/14, SECURITY threats_open 0,
+nyquist compliant. **Milestone lz-tdd@0.0.3 now stands at 8 of 9 phases: Phase 22 (three-way
+classifier correctness) was ADDED 2026-08-03 and PR #3 is deliberately HELD for it.** The ship
+preflight cleared and the PR is mergeable, but the milestone goal is "completing the RGR loop"
+and the unprimed reviewer on quick 260803-53q showed the loop's own classifier is not exhaustive
+-- the canonical post-green request falls through lz-refactor and lz-red's catch-all takes it.
+Pre-existing since lz-tdd@0.0.2, not a 0.0.3 regression, and the owner chose to fix the classifier
+as a unit rather than take the available two-line patch. Next: `/gsd-plan-phase 22`.
+Last activity: 2026-08-03 -- **MILESTONE SHIPPED.** `/gsd-core:ship lz-tdd@0.0.3` ran end-to-end.
+Preflight cleared on all five gates plus the public-repo one: verification `passed` on all 8
+phases, clean tree, feature branch, origin reachable, `gh` authenticated, and the capability
+registry's blocking `ship:pre` security gate satisfied by `threats_open: 0` in all 8
+`*-SECURITY.md`. A maintainer-scoped allowlist-inversion scan over all 381 non-merge commits
+found a single approved identity and zero email-shaped tokens in any commit message; the PR body
+was scanned the same way before publication (only hit was the `@` in a filename) and is
+ASCII-only. Branch was already at origin (`a20b700`), so the push was a no-op. PR #3 created:
+362 files, +84,869/-1,440, 395 commits, body auto-generated from ROADMAP/REQUIREMENTS/SUMMARY/
+VERIFICATION/SECURITY plus a TDD audit. That audit is honest about its own emptiness --
+`workflow.tdd_mode` is false, so no commit carries a `gate_status:` trailer and all 381
+normalize to `missing`; the 18 `test:`-anchored RED/GREEN pairings are tabled and the 363
+omitted commits are itemized by type rather than silently dropped. The PR body also corrects the
+milestone audit: its `status_if_reaudited` still reads "INT-02 remains open", which is stale --
+INT-02 closed at `ee50a74` and INT-01/SEAM-02 at `50fb4ba`, both after the 2026-08-02 audit.
+Owner chose SELF-REVIEW over skip/request. **The STATE.md tool defect fired again and was
+repaired by hand, as the standing note predicts:** `query state.update` clobbered the `status:`
+enum (`complete` -> a prose sentence), collapsed `prior_stopped_at` into `stopped_at`, deleted
+`last_activity_desc`, and replaced only the FIRST line of both multi-line body fields, orphaning
+two sentences mid-clause. Restored from a pre-call snapshot and edited by hand instead. Do not
+trust that verb on this file.
+Prior entry: 2026-08-03 -- **PHASE 21 CLOSED, AND THE LAST UNMEASURED SC3 LIFT DIMENSION WAS
+MEASURED RATHER THAN ARGUED. IT IS NULL.** The ship preflight blocked on 21-VERIFICATION.md being
+both `stale` (21-04-SUMMARY newer) and `human_needed`, so verify-work ran autonomously -- every one of
+the 14 UAT checkpoints discharged by RE-RUNNING the named command and recording its exit code, not by
+reading a SUMMARY's claim. Three gsd-verifier passes, each catching something real, none
+self-certified. (1) INT-02 closed, the last open milestone-audit blocker: `check-backing.mjs` pointed
+at a relocated Beck reference and its missing-file branch CONTINUES, so 8 PRIN-01 assertions were
+silently not running -- fixed with the `spec.dir ?? REFERENCES` shape the sibling checker already uses,
+NOT an existsSync guard, which would have made the gate permanently fail-open on exactly the
+assertions it exists to run; mutation-tested both directions. (2) The oracle-reviewer authenticity dim
+RAN on owner instruction (branch b, measure rather than accept the skip): 36 captured tests graded
+blind against the owned RED sources by four independent agents, zero metered spend, authentic-of-12
+7 `no_skill` / 6 `with_skill` / 5 `invoke_skill` -- recorded as a TIE, with the monotone-in-dose
+direction NAMED before being argued away. The corroboration is worth more than the numbers: the single
+inauthentic verdict in 36 is the same capture the blind judge independently flagged, and its defect is
+verbatim in the diff. (3) THE PROJECT'S SIGNATURE FAILURE MODE FIRED TWICE MORE, both times against
+me. I rebuilt the grading corpus by extracting only `+` lines -- the exact defect this document records
+as having invalidated the first two judge corpora -- and the GRC grader duly failed four specs for an
+unbound identifier: same cell, same count, same symptom. Discarded the round, rebuilt via `git show` at
+the recorded apply_base plus `git apply` (36/36). Then I carried the v1 cross-tab figures into the v2
+write-up, which the verifier caught by bounding them against on-disk data. Fix was not just the number:
+committed all 36 per-specimen rows so the axis is DERIVABLE, and that new standard caught its own first
+error (a note column off by one row) on its first pass. Prose-only recording is what let a stale number
+survive. Also corrected: the RXF/RXL per-cell cost split ($1.76 misallocated; pair sum was right), and
+the round total to $29.04 across four docs. Two GSD tool defects found and repaired by hand: `query
+phase.complete` wrote a U+2014 em dash into this ASCII-only public repo and replaced only the first
+line of this multi-line field, orphaning the previous entry mid-sentence.
+Prior entry: 2026-07-30 -- **QUICK TASK 260729-x0i CLOSED. THE FIX LOOP IS NO LONGER STOPPED, AND THE
+DEFECT IT WAS STUCK ON IS CLOSED BY CONSTRUCTION RATHER THAN PATCHED AGAIN.** The prior entry's
+recommendation was to stop patching instances and close the CLASS. This task did that in the one place it
+was still live: `check-red-references.mjs` hardcoded `.planning/research/test-double-taxonomy.md` into its
+ragged-table gate and FAILED CLOSED on it, while the same file's retirement note argued against pointing
+guards at that archive -- one of its three reasons being that no `.planning/` subdirectory survives a
+milestone close. That reason was live, not theoretical: `.planning/milestones/lz-tdd@0.0.1-research/`
+exists, so `/gsd-complete-milestone lz-tdd@0.0.3` would have relocated the file and reddened the battery.
+The archive left the gate's SCOPE (no `existsSync` skip, no tolerated absence -- a region-scoped shape pin
+proves the one legitimate fail-closed read guard survived untouched). PROVEN by moving the archive aside:
+exit 0, 124 PASS, 0 FAIL, zero UNREADABLE, restore sha256-identical. Eight commits, `57b680d`, zero
+metered spend, count steady at 123 throughout. **The process finding matters more than the fix.** TWO
+unprimed content reviews were needed. The first ran against a `passed` 12/12 gsd-verifier result on the
+same artifacts at the same HEAD and returned NEEDS WORK -- two FALSE claims plus an authorization
+("discharged by owner-authorized research") for which no record exists. Both verdicts were correct: the
+verifier checked entries EXIST, the reviewer checked their content is TRUE. The second review then caught
+a false claim round 2 had INHERITED from round 1's own comment. Every repair round in this task
+introduced something, and each was caught by the agent RECEIVING the fix, never the one proposing it.
+Prior entry: 2026-07-29 -- **THE FIX LOOP IS STOPPED, AWAITING AN OWNER DECISION.** Three consecutive rounds have failed their acceptance gate (j9m ten blocking, wev four, 2ig two), and the decisive pattern is that each round's FIX introduced a fresh instance of the class it repaired -- a claim falsified by the document's own table, three times, each time arriving in the previous repair. 2ig is merged at 177a92d, battery green at 175/175, unpushed and untagged, and NOT ACCEPTED. Two blocking content findings plus fifteen important remain; the instrument audited TRUSTWORTHY WITH GAPS with one new guard trivially evadable. **The recommendation is to stop patching and build a guard that DERIVES survey verdicts from the parsed table**, which closes the class instead of its third instance -- the same move that made this round's count guards the ones the auditor rated sound. Also needing the owner: whether to re-open a hard rule this round DELETED that was guarding a live defect, traceable to the split ruling made on the orchestrator's framing. Full findings and a priority-ordered decision list in 260729-2ig-ACCEPTANCE-REVIEW.md. Prior entry: 2026-07-29 -- Taxonomy remediation chain ran UNATTENDED. Quick task 260728-j9m merged then failed its acceptance gate (ten blocking defects, incl. a mapping FABRICATED against a named author); 260728-wev remediated it, merged as 1d1474b, and then failed its OWN three-reviewer gate (four blocking, ten important -- it reproduced the same self-falsification class inverted, asserting a cell POPULATED where its table shows zero rows). 260729-2ig is the second remediation: CONTEXT + RESEARCH committed (1b40bc9), plan authored, plan-checker running. An oracle consult during discussion FALSIFIED a further claim at NINE measured sites -- the document attributes a five-member framing to an author who never states five and explicitly states FOUR in prose. Separately, a search capability granted to the `oracle` agent was reviewed, found NOT SAFE, and REVERTED, with the reason recorded in ef1837f so it is not retried: `rg --pre` executes arbitrary programs and the frontmatter scoping pattern is advisory, so no prefix rule can preserve read-only. Both oracle agents instead gained absence-claim doctrine with NO capability change. THE BATTERY IS NOT THE GATE -- two rounds have now shipped blocking defects behind a green one. Prior entry: 2026-07-27 -- RXL with_skill pilot RAN (2 runs, $1.9286, user-approved). D-04 auto-trigger ANSWERED: 2/2 fired, corroborated four ways, the first with_skill firing ever on SRVC/RXF/RXL; coach-don't-drive 3/3 PERFECT (zero production files every run). FINDING: RXL's mechanical D-06 verdict is DESIGN-CONFOUNDED -- it tracks which injection token the model imagined (invoke_skill picked the existing LOCALE_ID and passed; with_skill picked the library-mirroring RDX_LOCALE, which does not exist, and graded compile_error 2/2), and neither arm asserted the rendered output the cell's own traps require, so even the PASS is incidental. OWNER DECISION: report RXL on the DISCIPLINE DIMENSIONS ONLY, no gate/prompt change and no verdict reclassified. See 21-WITHSKILL-PILOT.md. NOTHING TECHNICAL BLOCKING -- only the ~$39 four-cell round awaits approval
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 30 (lz-tdd@0.0.1)
+- Total plans completed: 51 (lz-tdd@0.0.1)
 - Average duration: - min
 - Total execution time: 0.0 hours
 
@@ -52,6 +130,13 @@ Last activity: 2026-07-17 - Quick task 260717-sbz: /simplify eval-harness cleanu
 | 08.2 | 6 | - | - |
 | 11 | 4 | - | - |
 | 14 | 5 | - | - |
+| 15 | 1 | - | - |
+| 16 | 3 | - | - |
+| 17.1 | 1 | - | - |
+| 18 | 6 | - | - |
+| 19 | 3 | - | - |
+| 20 | 3 | - | - |
+| 21 | 4 | - | - |
 
 **Recent Trend:**
 
@@ -72,6 +157,25 @@ Last activity: 2026-07-17 - Quick task 260717-sbz: /simplify eval-harness cleanu
 | Phase 11 P02 | ~8min | 2 tasks | 2 files |
 | Phase 11 P03 | ~15min | 2 tasks tasks | 1 file files |
 | Phase 12 P01 | 20min | 3 tasks | 8 files |
+| Phase 15 P01 | 8min | 3 tasks | 11 files |
+| Phase 16 P01 | ~6min | 2 tasks | 6 files |
+| Phase 17 P01 | ~10min | 2 tasks | 1 files |
+| Phase 17 P02 | ~15min | 2 tasks | 2 files |
+| Phase 17 P03 | ~8min | 3 tasks | 3 files |
+| Phase 17 P04 | 13min | 2 tasks | 2 files |
+| Phase 17 P05 | 2min | 1 tasks | 1 files |
+| Phase 17 P06 | 5min | 1 tasks | 0 files |
+| Phase 17.1 P01 | ~11min | 3 tasks | 4 files |
+| Phase 18 P02 | ~12min | 2 tasks | 2 files |
+| Phase 18 P04 | ~3min | 1 task | 1 file |
+| Phase 18 P05 | ~2min | 2 tasks | 1 file |
+| Phase 20 P01 | 11min | 3 tasks | 14 files |
+| Phase 20 P02 | 20min | 2 tasks | 2 files |
+| Phase 20 P03 | ~15min | 2 tasks | 1 files |
+| Phase 21 P01 | 7min | 3 tasks | 6 files |
+| Phase 21 P02 | 18min | 2 tasks | 11 files |
+| Phase 21 P03 | 15min | 3 tasks | 5 files |
+| Phase 21 P04 | 12min | 2 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -83,6 +187,8 @@ Last activity: 2026-07-17 - Quick task 260717-sbz: /simplify eval-harness cleanu
 - Phase 8 status reconciled 2026-07-07: ROADMAP showed stale "5/6 In Progress" but Phase 8 was CLOSED (6/6, verified/secured/validated, commits a58aa22/8b98aa0); KRV-01..04 flipped to Complete.
 - Phase 13 added 2026-07-14: lz-refactor vs base Opus eval: book authenticity & correctness -- book authenticity = grade the DRIVE/APPLY run OUTPUT (applied diffs / edited code the model produced, NOT coach/reference prose) against what the .oracle/ books prescribe, with_skill/invoke_skill vs no_skill. Corpus = single-target applies (nx p1-p4, kata gr1) AND per-package sweeps (nx p8 + @nx/* fleet p9-p13, kata gr3/gr4). Backfill reality (disk-verified 2026-07-15): single-target with_skill diffs ARE tracked -> backfill no_skill arm only; per-package SWEEP diffs are NOT persisted for either arm (quick-tasks kept only summary docs; repos restored pristine, outputs gitignored) -> re-run BOTH arms (biggest metered cell). Correctness = right named refactoring/layer + behavior-preserving diffs vs base. Grade via oracle (ground truth from book) / oracle-reviewer against .oracle/ (DST-04). Extends milestone lz-tdd@0.0.2 (which was otherwise complete + audit-pending).
 - Phase 12 added 2026-07-11: Autonomous multi-round refactoring for whole-package sweeps -- close the trigger + behavior gaps (confirmed 2026-07-11 e2e: natural sweep prompt does not auto-invoke lz-refactor; even force-invoked, coach stops-and-asks instead of driving rounds to completion) via research-informed trigger-opt + skill instruction/description changes, eval-verified in BOTH the Gilded Rose kata and nrwl/nx @nx/eslint-plugin.
+- Phase 17.1 inserted after Phase 17: Perform Phase 16 Beck follow up (URGENT)
+- Phase 22 added: Three-way classifier correctness (lz-refactor + lz-red) -- raised by the unprimed acceptance reviewer on quick 260803-53q; pre-existing since lz-tdd@0.0.2, not a 0.0.3 regression
 
 ### Decisions
 
@@ -118,6 +224,32 @@ Recent decisions affecting current work:
 - [Phase 14]: Phase 14 (14-01, Wave 0): extended run-e2e.mjs IN PLACE (D-06 "add the arm, do not rewrite") with (a) a `code_review` competitor arm -- its OWN tool profile (allow Bash + the Agent spawn tool, block Edit/Write/MultiEdit/NotebookEdit; the Bash asymmetry vs the lz-refactor arms is the D-04 tool-usage FINDING, not equalized) + `--plugin-dir` at the mattpocock 1.2.0 cache (os.homedir()-derived, MATTPOCOCK_DIR override), composing `/mattpocock-skills:code-review <ROOT_SHA>`; NOT in the both/all fan-outs; requires `--synthetic-base`. (b) `buildSyntheticBase` (D-02): empty-root ROOT -> target-only-tree TIP throwaway `review-<target>` branch built from applyBase (origin/23.0.x / main, NOT HEAD -- Pitfall 3), scoped to exactly the target path (Pitfall 2), kata `TypeScript/` root-relative prefix + armCwd = <worktree>/TypeScript (Pitfall 4), finally-style worktree/branch teardown (Pitfall 6); dry-run builds only the loose ROOT (repo stays clean). (c) D-07 token/cost/tool meta from the stream-json result event (usage/total_cost_usd/modelUsage/num_turns + tool_use-by-name histogram), added to meta.json keeping every existing field. New selfcheck-code-review.mjs gates all three cruxes offline zero-spend (composition; synthetic build/teardown+scope for BOTH nx T1 + kata G1; transcript parse) -- exits 0, borrowed repos left pristine. Module-main guard + exports so the selfcheck can import buildSyntheticBase/extractResult/git. No metered run (D-12 gate lives in 14-04). Commits b02a71e, 47ad17e, 629c25c.
 - [Phase 14]: Phase 14 (14-02): authored the three report-framed cr-* lz-refactor queries (D-08) -- one framing sentence each ("Review `<path>`. The tests are green. Surface the code smells you see and the named refactorings you would recommend for each. Do not edit anything."), byte-identical across all 3 targets except the path, read-only, naming no expected smell/refactoring/pattern (non-leading). Point at the EXACT single files code_review reviews as whole-file diffs: nx T1 `enforce-module-boundaries.ts` (cr-emb), nx T3/T4 `runtime-lint-utils.ts` (cr-rlu, both smells graded), kata G1 `app/gilded-rose.ts` (cr-gr). Bodies stay framing-only; the invoke_skill arm prepends `/lz-tdd:lz-refactor` at composePrompt time. Wired matching `suite.json.prompts` entries in both suites. Task 2 subagent review: >= 2 reviewers, >= 1 unbiased from-scratch, BOTH PASS, ZERO leading-language / read-only defects -> NO prompt edits (mitigates T-14-06). Two non-blocking notes forwarded to 14-05: (1) code_review whole-file scope parity already guaranteed by D-02's synthetic whole-file-diff base (14-01); (2) 14-RESULTS.md should state both arms were asked for named fixes so vocabulary-breadth reads as the intended D-04 finding. No metered run (D-12 gate lives in 14-04). Commit c0cf03d.
 - [Phase 14]: Phase 14 (14-03): built the zero-spend mechanical grading scaffolding. tabulate-mechanical.mjs walks the two phase-14 recommend trees, reads each meta.json + sibling answer.md, and emits per (cell, arm): token/cost (total_cost_usd + per-model model_usage headline that rolls up sub-agents; input/output_tokens main-context-only), merged tool_calls histogram + spelling-agnostic sub-agent spawn count (name set {task,agent}, ~2 code_review / 0 lz-refactor), distinct-named-refactoring lift via the reused word-bounded nameRe over FOWLER+KERIEVSKY (longest-match shadow-suppressed), and Pass@k/Pass^k on lift>0 (comb/passAtK/passHatK). nameRe + name arrays copied verbatim from grade-run.mjs, stats copied verbatim from run-e2e.mjs (neither importable: grade-run runs main() on import, run-e2e does not export the stats). Consumes the EXACT D-07 fields 14-01's extractResult emits; fail-closed (exit 1) on a garbled/keyless meta. --selfcheck asserts token totals, opus model-row cost, spawn count 2, lift 2, Pass@k against fixtures/{meta.sample.json,answer.sample.md} and exits 0 (one of the two 14-04 D-12 zero-spend gates). summary.template.json fixes the 7 D-04 dimensions (lift/token_usage/tool_usage MECHANICAL; output_quality/book_authenticity/over_under_engineering/idiom_pattern GRADED) x 2 arms (lz-refactor=invoke_skill, code_review) rollup with null passk placeholders + the ~139-vs-12 vocab-breadth headline on idiom_pattern + the D-02 whole-file-diff and D-03 Spec-skip caveats; GRADED blocks fill in 14-05 (DST-04). mechanical.json is a 14-05 output, NOT committed here. No metered run. Commits 12222cd, 2da90bf.
+- [Phase 15]: Phase 15 (15-01): lz-red skill scaffold shipped -- dual-mode-by-omission SKILL.md router (name+description only) + 10 progressive-disclosure reference stubs + one testing-stance navigation subdir (index + 3 leaves); claude plugin validate . exit 0, no manifest edit (skills auto-discovered).
+- [Phase 15]: Phase 15: SKILL.md kept lean at 80 lines (near lz-tpp 81; coach procedure is a labeled Phase-18 placeholder, not padded); v1 three-way-guarded description shipped verbatim (folded 1091 chars, positive RED trigger first + reciprocal lz-tpp/lz-refactor exclusions in the tail); empirical trigger tuning deferred to Phase 20 (D-08).
+- [Phase 15]: Phase 15: scope fences held -- plugin.json stays 0.0.2 (D-09), marketplace.json + lz-tpp untouched, no eval workspace or .oracle content (D-03); the 10 reference stubs carry thin content contracts only (each with a Populated-in-Phase marker), filled in Phases 16-18.
+- [Phase 16]: Phase 16 (16-01, Wave 0/1 instrument): stood up the dev-only lz-red-workspace instrument-first (D-11) -- copied the lz-refactor-workspace extractor recipe repointed at the flat lz-red references walk (extract-samples RED-SAMPLES vacuous GREEN on 0 fences today, D-10); authored check-red-references.mjs as the RED->GREEN content signal, asserted RED against the three Phase-15 stubs (exit 1 by design: 6 content checks FAIL -- 3x missing tsc-strict fence + 3x scaffold marker present; 3/3 refs present; Phase-17 ASRT + Phase-18 LAW/SEAM deferral guards PASS, D-04); extended check-hygiene.mjs additively to scan the lz-red tree on ASCII + work-email + no-verbatim (GREEN 198/191 files; allowlist/EMAIL_RE/QUOTE_THRESHOLD/scan-floor byte-unchanged, D-12). Dev deps typescript@6.0.3 + vitest@4.1.10 exact-pinned; blocking-human legitimacy checkpoint APPROVED (authorizes the 16-02 npm install); NO build dep in the shipped plugins/lz-tdd tree; claude plugin validate . exit 0. SEL-01/SEL-02/STR-01/STR-02/NAME-01 remain OPEN (close in 16-02 when the RED baseline turns GREEN). Commits 5b816d9, 5a67567.
+- [Phase 17]: Phase 17 (17-01, Wave 0/1 instrument): extended check-red-references.mjs in place (D-13, no sibling) from 3 to 10 FILES entries -- flipped the assertions slice (kept 5 STR tokens, added 5 ASRT tokens + 3 stance-leaf filename tokens, swapped the Phase-17 deferral for a Phase-18 F.I.R.S.T.-baseline deferral), added the six Phase-17 slices + the co-edited principle-backing entry, made the ts-fence assertion per-file via a requireFence flag, added the seams cross-link guard (refactoring-without-tests.md) + vitest cross-ref guards (anti-patterns.md, message-matrix.md) + Phase-18 co-edit deferral guards (D-15). RED baseline asserted across all three gates: content gate exit 1 by design (29 FAILs on unfilled stubs; three-laws + naming stay all-PASS, STR tokens intact), tsc extractor exit 0 (GREEN-on-empty over the 3 Phase-16 fences), check-hygiene exit 0. No shipped plugins/lz-tdd file touched; no dependency added. ASRT-01/02/03, RTR-01/03, VIT-01/02, ANTI-01/02 remain OPEN (close GREEN when Waves 2-3 turn the gate GREEN). Commit 10f8314.
+- [Phase 17]: Phase 17 (17-02, Wave 2): filled the assertions slice of test-structure-and-assertions.md -- the four pillars (Khorikov, no-oracle) with resistance-to-refactoring named the load-bearing pillar (assert observable behavior, not implementation), F.I.R.S.T. as the test-quality baseline (Clean Code Ch.9, owned; authored own-words BLIND, oracle-reviewer gate deferred to 17-06), and the output/state/communication selection rule linking the three stance leaves (functional-core.md / message-matrix.md / seams-and-legacy.md, the ASRT-02 spine). Populated principle-backing.md as a Recommendation|Source|Access-tier map across all RED docs with the canonical owned/no-oracle tier strings + a Phase-18 marker for the Three-Laws/seam rows. STR slice + Phase-18 F.I.R.S.T.-baseline marker intact; typecheck (4 fences) + hygiene GREEN; ASRT-01/02 closed. Commits 132dae0, a66b94f.
+- [Phase 17]: Phase 17 (17-03, Wave 2): authored the testing-stance navigation index + 2 no-oracle stance leaves -- nav-only README route table (3 detection-signal -> leaf rows, recognize-by + links only, mirrors smells.md), Bernhardt functional-core (Signal / output-based Assert / no-doubles Mock, scoped to value-in-value-out per Pitfall 3, one tsc-strict fence), Feathers seams-and-legacy (seam / characterization pins CURRENT behavior / sequencing, cross-linked to lz-refactor refactoring-without-tests.md NOT copied). Both leaves authored BLIND no-oracle (no .oracle/ read; no-verbatim scan the only DST-04 backstop). RTR-01 left Pending -- needs all 3 leaves and the owned Metz message-matrix.md leaf is Plan 17-04; marking it now would be a false-positive. ASRT-02 (already Complete) reinforced by the 2 per-leaf assert rules. SKILL.md untouched. typecheck (5 fences) + hygiene GREEN; check-red-references GREEN for all 3 files, overall still RED by design on sibling stubs. Commits 60ddee7, e7f79d7, abf407b.
+- [Phase ?]: Phase 17 (17-04, Wave 2): authored OWNED Metz message-matrix.md (query/command 6-cell origin x type matrix; outgoing command = the ONE warranted double / expect-to-send; incoming query -> assert return, incoming command -> assert public side effect, outgoing query + self-messages -> do not test; over-mocking firewall) own-words BLIND (no .oracle/ read; orchestrator oracle-reviewer gate in 17-06) + no-oracle vitest-typescript-mechanics.md (Vitest 4.x -> RED: it.todo / test.each / vi.* restraint / watch / fail-for-the-right-reason MECHANIC; cross-linked anti-patterns.md + message-matrix.md; brief ADV-01/ADV-02 forward-pointers, NO fast-check dep; Phase-18 LAW-02 marker intact). Both fences tsc --strict clean (7 modules). RTR-01 CLOSED (3 stance leaves + README authored); ASRT-03 + VIT-01 closed; VIT-02 left Pending (SKILL.md clause is Phase 18 per D-10 -- avoid false-positive); ASRT-02 reinforced. typecheck + hygiene GREEN; both file rows PASS, overall RED by design on anti-patterns.md (17-05). Commits 36c9d1d, 3c924ee.
+- [Phase 17]: Phase 17 (17-06, finalize gate): full deterministic battery GREEN on the merged tree -- content gate 10/10 references (82 checks PASS), extract-samples 7 modules tsc --strict clean, check-hygiene 198/191 files clean, and claude plugin validate . exit 0. All four Phase-18 co-edit deferral markers intact (D-15, co-edit boundary held). oracle-reviewer (3 owned surfaces: F.I.R.S.T./Metz matrix/Cooper) + skill-reviewer (>= 1 unbiased) DEFERRED to the orchestrator (executor has no Agent/Task tool), NOT skipped/self-certified; requirement closure (ASRT/RTR/VIT/ANTI) awaits those gates + gsd-verifier.
+- [Phase ?]: Phase 17.1 (17.1-01): blind provisional owned-source tier upgrade of the Beck RED selection/structure surfaces. Locked-eligible: running test list, one small step, and the starter case -> Canon TDD; triangulation -> First One, Then Many. Provisional (D-03/D-04): assert-first + evident test data -> Canon TDD, expected to revert to no-oracle at the orchestrator oracle-reviewer gate (primary source is a summary-only book). No owned Source cell cites the book; recommendation CONTENT unchanged; four provenance surfaces reconciled; full battery GREEN. Pending: orchestrator-driven oracle-reviewer gate + finalize revert/reconcile of provisional rows. SEL-01/SEL-02/STR-02/DST-03/DST-04 stay Complete (tier upgrade only).
+- [Phase 18]: Phase 18 (18-02, Wave 2 owned Three-Laws leaf): filled the ONE owned surface Phase 18 introduces -- the Three Laws of TDD spine + classify-first framing in three-laws-and-test-selection.md, authored BLIND clean-room (D-12; no .oracle/ read). Law 1 gates entry, Law 2 sizes the test (a not-yet-defined / non-compiling symbol counts as the failure), both tagged `(Robert C. Martin, owned; oracle-verified)` matching the existing Take-one-small-step row; Law 3 = the lz-tpp handoff tagged lz-red orchestration (no-oracle reframe, D-03). Added the classify-first red/green/refactor framing consistent with the SKILL.md "RED vs the green step" section (no SEL restatement). Added LAW-01 (Three Laws spine) + LAW-02 (fail for the right reason) owned rows and SEAM-01 (classify-first/forward handoff) + SEAM-02 (reverse lz-tpp->lz-red pointer) no-oracle rows to principle-backing.md in the exact three-column pipe shape with the canonical tier strings. Removed every /Phase 18/i deferral marker from both files; SEL slice + Phase-16/17 rows byte-stable (D-14). check-red-references.mjs: both files' topics + absent guards PASS + D-05 honesty gate PASS (overall still RED by design -- SKILL.md / test-structure / vitest / lz-tpp guards close in later waves); typecheck 7 modules + hygiene 198/191 GREEN. Owned surface QUEUED for the orchestrator oracle-reviewer gate at 18-06 (tier gate-decided per D-05; NOT run here). LAW-01/LAW-02/SEAM-01/SEAM-02 backing landed; requirement closure awaits the 18-06 gate + gsd-verifier. Commits cb14638, e5091c6.
+- [Phase 18]: Phase 18 (18-01, Wave 1 instrument): extended check-red-references.mjs + extract-samples.mjs in place (D-13) to the Phase-18 coach-procedure/SEAM-02 surface. NET-NEW absent no-stale-marker guard (D-14 inverse of deferral; needle /Phase 18/i, since LAW-0/SEAM-0 legitimately remain as LAW-01/SEAM-01 refs in filled content) + four flipped deferral guards (three-laws, test-structure, vitest, principle-backing), every Phase-16/17 topic kept as the regression floor. SKILL.md coverage via a per-entry dir base override (7 coach topics + requireNonIgnoreFence closing the TS_FENCE_RE ts-ignore gap + absent guard); a post-loop SEAM-02 block reading the shipped lz-tpp/SKILL.md for BOTH reverse pointers; the extractor walk prepends the lz-red SKILL.md fence. Phase-18 RED baseline asserted (content gate exit 1, 9 FAILs by design; tsc extractor 7 modules, hygiene 198/191, D-05 selftest 3/3, claude plugin validate all GREEN). No shipped plugins/lz-tdd file touched; provenance-honesty.mjs + selftest byte-intact. LAW-01/LAW-02/RTR-02/SEAM-01/SEAM-02/VIT-02 remain OPEN (close when later waves turn the gate GREEN). Commits dee8f2b, 23ba7aa, 8c3c039.
+- [Phase 18]: Phase 18 (18-05, Wave 3 lz-red coach procedure): replaced the Phase-18 placeholder in lz-red/SKILL.md with the real INLINE 6-step coach decision procedure (D-01/D-02) on the Three Laws spine -- (1) classify RED/GREEN/REFACTOR against the lz-tpp + lz-refactor seams (D-03/SEAM-01, reuses the existing RED-vs-green-step section); (2) Law 1 gates entry / Law 2 sizes the test / Law 3 is step 6 (D-04/LAW-01, links three-laws-and-test-selection.md); (3) detect the house test idiom -> route the stance via testing-stance/README.md, state the route, honor a natural-language override with no CLI flag (D-06/D-07/RTR-02); (4) structure + assert observable behavior (links test-structure-and-assertions.md); (5) fail-for-the-right-reason -- AssertionError, F.I.R.S.T. baseline, coach questions not runs the suite (D-08/LAW-02, links vitest-typescript-mechanics.md); (6) forward lz-tpp handoff (Law 3/SEAM-01). Plus the closing coach-by-default QUESTION-vs-COMMAND paragraph (D-14) and ONE VIT-02 tsc-strict Vitest worked example (D-11) -- an applyDiscount compiling stub that returns the untouched total, so the assertion fails at runtime with an AssertionError (not a missing symbol, not a ts-ignore fence); extracts as SKILL-1.ts. Every step links file-level to the leaves without restating them; all three Phase-18 deferral markers removed; SKILL.md 81 -> 147 lines (under ~200 target). Overall check-red-references FLIPPED GREEN (11/11 surfaces, exit 0); typecheck 8 modules tsc --strict clean (SKILL-1.ts compiled); check-hygiene 198/191 GREEN; claude plugin validate . exit 0; D-05 honesty gate holds. LAW-01/LAW-02/RTR-02/SEAM-01/VIT-02 backing landed; requirement closure awaits the 18-06 orchestrator skill-review + gsd-verifier. Commits 25c4c5c, 7f0e914.
+- [Phase 18]: Phase 18 (18-04, Wave 2 SEAM-02): closed the carried reverse-pointer tech-debt in the SHIPPED lz-tpp/SKILL.md -- added ONE additive "The green step vs the red step (lz-red) and the refactor step (lz-refactor)" section (heading + one short paragraph, +10 lines) after "## Transformations vs refactorings" (D-09, both pointers in ONE edit). Authored BLIND own-words from the green vantage, pointer-only: names lz-red (choosing/writing the next failing test) and lz-refactor (restructuring passing code) and tells the coach to classify first, WITHOUT restating either sibling's procedure; lz-red + lz-refactor NOT edited; every pre-existing lz-tpp section byte-stable. check-red-references SEAM-02 block flipped FAIL->PASS (both /lz-red/ and /lz-refactor/ present); overall gate still RED by design (closes when 18-05 authors the lz-red coach procedure). check-hygiene GREEN (198/191; lz-tpp is in the ASCII + work-email wideTargets but EXCLUDED from no-verbatim per D-12); claude plugin validate . exit 0. The D-10 >= 1-unbiased orchestrator review is QUEUED for 18-06 (executor has no Agent/Task tool); /reload-plugins is a Phase-19 human ship action. SEAM-02 backing landed; requirement closure awaits the 18-06 gate + gsd-verifier. Commit 51f76c2.
+- [Phase 20]: Phase 20 (20-01): vendored the native-fixed skill-creator-eval rig verbatim into lz-red-workspace (6 files byte-identical, merge-judge --selfcheck GREEN); light-edited both canary-gated runners to lz-red with the CANARY re-derived from a real positive (how should i structure this unit test); adapted check-evals.mjs to the three-way boundary (>=2 lz-tpp green-step AND >=2 lz-refactor refactor-step negatives + reciprocal-red.json all-false byte-consistent + email allowlist-inversion); authored trigger-eval.json (12+12), reciprocal-red.json, d07-chunks/negatives.json -> check-evals GREEN; added 3 lz-red gitignore lines (Pitfall 8). Build-only, no metered run (D-11). EVL-01 stays OPEN -- recall/specificity closes post gated run (20-03), per the 11-02 precedent.
+- [Phase ?]: Phase 20 (20-02): rewrote grade-run.mjs into the D-05-RUBRIC per-dimension RED hybrid grader -- kept the skill-agnostic skeleton byte-verbatim (verified vs the lz-refactor analog by diff), replaced the refactoring name+layer model with RED phrase-set matchers routed through the borrowed negation-aware occursAffirmed (renamed nameRe->phraseRe), and locked the LLM judge to exactly two dimensions (right-next-test, behavior-not-implementation; selfcheck enforces <=2 per scenario). Authored evals/evals.json with 10 leaf-grounded RED scenarios (ids 0-9, all four assertion stances + the required classify-first boundary, coach-behavior split QUESTION+COMMAND), count-aligned 1:1 with RUBRICS so grade-run --selfcheck flips GREEN. Build-only, no metered run (D-11); EVL-02 stays OPEN -- behavior measurement closes after the gated run (20-03), mirroring 20-01.
+- [Phase 20]: Phase 20 (20-03): finalized the eval build/run boundary -- scaffolded EVAL-RESULTS.md (three-measurement structure: EVL-01 forward recall/specificity, EVL-01 reciprocal RED spot-check vs lz-tpp + lz-refactor, EVL-02 with_skill-vs-baseline; Pass@k AND Pass^k tables k=1,3,5,total per eval and overall; run-config + saturation caveats; reserved >=1 unbiased-reviewer slot; ALL numbers blank), proved the full deterministic battery GREEN on the merged tree (check-evals + grade-run --selfcheck + merge-judge --selfcheck + check-red-references + extract-samples all exit 0), and presented the exact ready-to-run gated commands (EVL-01 forward canary-runners OR direct run_eval; EVL-01 reciprocal direct run_eval TWICE vs each sibling with the canary-not-used caveat; EVL-02 orchestrator fan-out then LLM judge then merge/verify/aggregate then >=1 unbiased reviewer) then HALTED. Nothing metered ran (D-11 HARD GATE). EVL-01/EVL-02 stay OPEN until the user-approved run + orchestrator gates.
+- [Phase 21]: Phase 21 (21-01): parameterized run-e2e.mjs tracked-skill set off SUITE.trackSkills (default lz-refactor+lz-tpp preserves the nx/gilded-rose suites byte-identically; RED suites track lz-red+lz-tpp). extractResult now emits a generic used_skills hit map while retaining usedRefactor/refactorHits/usedTpp/tpp_hits back-compat scalars (0 when a name is untracked); selfcheck-code-review 3/3 cruxes GREEN, no lz-refactor regression.
+- [Phase 21]: Phase 21 (21-01): authored the e2e-red-gilded-rose Conjured RED apply suite -- genuinely_red (existing-compiling-API + missing behavior), contamination HIGH (a correctness smoke anchor, NOT a discriminator), differential-tsc strict_scope_note (Item ctor untyped), non-leading byte-identical prompt naming app/gilded-rose.ts. The discriminating 2nd/3rd target is left steer-at-gate via a 7-point checklist in targets.json (D-01), not hard-locked.
+- [Phase 21]: Phase 21 (21-01): EVL-03 formalized in REQUIREMENTS.md as Pending (build complete; empirical run gated) with EVL-03.1..EVL-03.7 BUILD/RUN sub-criteria mapping the 5 Phase-21 ROADMAP success criteria; coverage 27 -> 28. NOT marked Complete -- mirrors the EVL-01/EVL-02 build-then-halt closure (D-14); the metered run is gated to 21-04.
+- [Phase ?]: Phase 21 (21-02): grade-red.mjs is the mechanical D-06 RED correctness gate -- differential tsc (NEW errors only, so the kata's untyped Item source does not sink the verdict) + the TARGET's own runner (read from suite/targets, not the workspace) + a 7-class classify() passing ONLY genuinely_red; drove_to_green is split from false_green by inspecting the diff for a production-file change (Pitfall 9); fails closed on empty/missing diff, garbled meta, or unparseable runner JSON.
+- [Phase ?]: Phase 21 (21-02): the vitest 4.1.10 --reporter=json shapes were empirically PINNED against six fixtures (RESEARCH A1) -- collection_error and no_tests share an identical JSON shape (numTotalTests 0, testResults[0].status failed, empty assertionResults), disambiguated ONLY on testResults[0].message (collect = load-time throw, notest = 'No test found in suite'); wrong_reason is a runtime TypeError in failureMessages, not an AssertionError.
+- [Phase ?]: Phase 21 (21-02): EVL-03 NOT marked Complete -- mirrors 21-01 build-then-halt (D-14); 21-02 closes the EVL-03.3 BUILD sub-criterion (the D-06 gate, offline-provable) with grade-red --selfcheck exit 0 proving all 7 classes zero-spend; empirical run gated to 21-04; NO dependency added to plugins/lz-tdd.
+- [Phase ?]: Phase 21 (21-04): closed the applied-RED BUILD -- the full offline battery is GREEN (grade-red/tabulate-mechanical-red/merge-judge --selfcheck + selfcheck-red + check-red-references + extract-samples + check-evals + claude plugin validate . all exit 0, zero spend), the kata git root is pristine, and plugins/lz-tdd is untouched. Wrote RUN-GATE.md (the gated 3-arm metered-run presentation) and HALTED at the Task-3 blocking-human run gate; NO metered claude -p ran (D-12 / eval-run-approval-gate).
+- [Phase ?]: Phase 21 (21-04): EVL-03 stays Pending (build complete; empirical run gated) -- requirements mark-complete deliberately skipped (mirrors 21-01/21-02/21-03); the metered 3-arm apply run + judge/oracle-reviewer/unbiased-reviewer gates close the RUN sub-criteria in a separate, freshly-approved orchestrator-driven step per RUN-GATE.md.
+- [Phase ?]: Phase 21 (21-04): RUN-GATE.md flags a REQUIRED runner-JSON shape-drift canary before the full spend -- grade-red --selfcheck pins vitest@4.1.10 while the metered gate shells into the kata's vitest@^0.28.5 / jest@^29.4.3; run one real grade-red --run against a captured kata run (or add a jest devDependency for jest --json offline) first. Mitigated by grade-red's fail-closed contract, so not a BUILD blocker.
 
 ### Pending Todos
 
@@ -129,6 +261,281 @@ None open. lz-tdd@0.0.1 shipped with all prior concerns resolved:
 
 - RESOLVED (2026-07-02): repo renamed to plural `lz-engineering-claude-plugins`, GitHub repo created, `origin` wired, `main` in sync; `claude plugin marketplace add LayZeeDK/lz-engineering-claude-plugins` clones + validates the marketplace and resolves `./plugins/lz-tdd` (closed D-13's ship-time deferral).
 - RESOLVED (2026-07-03): triggering accuracy (SKILL-05 / EVAL-01) validated empirically via the native eval harness -- 100% recall / 100% specificity on the shipped description.
+
+### Quick Tasks Completed
+
+> Table opens at 260729-x0i. The 26 earlier quick tasks under `.planning/quick/` were never tabulated
+> here and are NOT backfilled -- each carries its own SUMMARY.md in its own directory, which is what the
+> milestone-close scanner reads. This note exists so a one-row table is not misread as a complete record.
+
+| # | Description | Date | Commit | Status | Directory |
+|---|-------------|------|--------|--------|-----------|
+| 260729-x0i | Fix the archive-header and instrument honesty defects, roadmap two by-design gaps | 2026-07-30 | 57b680d | Verified | [260729-x0i-fix-the-archive-header-and-instrument-ho](./quick/260729-x0i-fix-the-archive-header-and-instrument-ho/) |
+| 260801-sc9 | Complete "distinguish, but prove it first" for the test double taxonomy for the lz-red skill (BUILD-THEN-HALT; treatment arm built, A/B still owner-gated) | 2026-08-01 | ac4008e | Verified | [260801-sc9-complete-distinguish-but-prove-it-first-](./quick/260801-sc9-complete-distinguish-but-prove-it-first-/) |
+| 260801-w8b | Build the D-12 Option A ambiguity cell and run the first three-arm round (18 runs, $16.36); the mandatory unbiased audit then overturned its reading -- the treatment was never delivered | 2026-08-01 | 3c0c99d | Verified | [260801-w8b-build-the-d-12-option-a-dedicated-apply-](./quick/260801-w8b-build-the-d-12-option-a-dedicated-apply-/) |
+| 260802-j03 | Fix seven methodological defects in the D-12 A/B (arm interleave, per-run pristine record, prompt antecedent, guaranteed treatment dose, blunt-red pass criterion, k, lever tripwire re-key) | 2026-08-02 | ef3ea2e | Verified | [260802-j03-fix-six-methodological-defects-in-the-d-](./quick/260802-j03-fix-six-methodological-defects-in-the-d-/) |
+| 260803-53q | Close TD-02: widen the lz-refactor seam to route back to lz-red on intent, plus a fail-closed regression guard. Contract met and verified; the unprimed gate then found the surrounding classifier is not exhaustive (pre-existing, routed to phase work) | 2026-08-03 | 6b7ac4f | Verified (contract) | [260803-53q-close-td-02-widen-the-lz-refactor-seam-s](./quick/260803-53q-close-td-02-widen-the-lz-refactor-seam-s/) |
+
+**Status basis, stated because "Verified" is doing real work here.** gsd-verifier returned `passed` at
+12/12 must-haves, re-measuring independently rather than reading the SUMMARY. But that verdict alone did
+NOT close the task: a from-scratch unprimed content review of the same artifacts at the same HEAD
+returned NEEDS WORK, finding two FALSE claims plus an authorization asserted with no record. Both gates
+were correct about different things -- the verifier checked that entries EXIST, the reviewer checked
+whether their content is TRUE. A second unprimed review after remediation found one further false claim
+that round 2 had inherited from round 1. `Verified` here means: 12/12 must-haves, plus two independent
+content reviews run to a clean verdict, plus the full deterministic battery.
+
+**`Verified (contract)` on 260803-53q is a DELIBERATELY narrower status, and the qualifier is load-bearing.**
+TD-02's own contract is closed and both reviewers confirm it: the `lz-refactor -> lz-red` hop now exists,
+routes on intent, and is held by a fail-closed guard that was mutation-proven in three directions
+(pointer stripped, target file deleted, restored byte-identical). What is NOT claimed is that
+`lz-refactor/SKILL.md` is correct as a whole. The unprimed reviewer -- given no contract and eight
+developer requests to trace -- found the surrounding classifier is not exhaustive: the canonical
+post-green request ("I just finished making a test pass. What now?") fires no branch, and lz-red's
+catch-all claims it, so the refactor step is skipped at the moment it exists for. That defect is
+PRE-EXISTING (verified by tracing the old text at `2ea7b2b` against the same scenarios; it has been
+public since lz-refactor shipped in lz-tdd@0.0.2) and this change introduced no regression. The owner
+declined the available two-line patch and routed the whole classifier to phase work instead, because the
+patch would have left the test-code ownership boundary and the cross-skill catch-all collision
+unresolved. Full record: `quick/260803-53q-close-td-02-widen-the-lz-refactor-seam-s/260803-53q-REVIEW.md`.
+
+### Phase-21 pilot runs + open items (quick 260725-63f)
+
+**PILOT RESULTS (3 metered runs, $1.67 total, all user-approved; GRC anchor, opus-4-8/high).**
+The instrument works end to end -- apply -> capture -> grade -> tabulate -- and the kata was left
+pristine after every run. Each pilot found a defect the offline battery structurally could not see:
+
+| # | Arm | Cost | Verdict | What it exposed |
+|---|-----|------|---------|-----------------|
+| 1 | invoke_skill | $0.54 | genuinely_red | Trigger detector blind to slash-command invocation; anti-RED apply preamble; missing gitignore |
+| 2 | with_skill | $0.51 | genuinely_red | Auto-trigger detection CONFIRMED working; D-06 false-PASS on borrowed failures |
+| 3 | with_skill | $0.62 | **false_green** | Attribution fix caught a LIVE false green on its first fresh sample |
+
+- **Auto-trigger MEASURED: 2/2 with_skill runs model-fired `lz-red`** on a natural prompt with no
+  slash prefix (`skills_model_fired {lz-red:1}`, `skill_forced false`, `Skill` in the tool
+  histogram). The D-04 trigger dimension works. `invoke_skill` reads `fired` 0.00 BY DESIGN (an
+  expanded slash command emits no `Skill` tool_use); its control value is `avail 1.00 + force 1.00`.
+
+- **Calibration for scoping the full round:** ~$0.57/run mean, 78-139 s, 8-17 turns. 1 target x
+  3 arms x k=3 is ~$4.90 and ~13 min serial -- a floor, not an estimate.
+
+- **with_skill Pass@1 = 0.50 (1/2).** The pre-fix instrument would have reported 1.00 -- a 2x
+  inflation on the headline correctness number. Do NOT read these n=2 numbers as a result; they are
+  instrument calibration.
+
+**RESOLVED (was: runtime write path).** The `node_modules` junction into the borrowed kata is GONE.
+The grading worktree now gets a PER-GRADE DISPOSABLE COPY (measured 2.5-2.8 s copy + 0.7 s remove on
+7610 files / 142.8 MB; a shared cache was rejected as a mutable tree every grade writes through).
+`resolveArmCwd()` also closed a second path found while probing: `path.relative(gitRoot, repo)` can
+escape when git's long Windows path and the 8.3 short `os.tmpdir()` path disagree on form, which
+would have put apply, the runner spawn AND teardown's recursive delete inside the borrowed repo.
+selfcheck-red crux 9 proves containment (pre-fix module BREACHES a throwaway stand-in; shipped code
+leaves it byte-intact). Residual, named in RUN-GATE.md: a spec can still write to an ABSOLUTE path --
+containing that needs a sandbox.
+
+- **CORPUS COMPLETE 2026-07-26 -- the instrument is BUILT and the metered round is now worth funding.**
+  Four cells across three suites: GRC (armed smoke anchor, contamination HIGH), SRVC (out-of-domain
+  control, contamination LOW), and RXF + RXL (in-domain drive discriminators, contamination MEDIUM).
+  Until radix landed, a tie across the corpus could not be distinguished from pass-at-ceiling; that
+  is no longer true. The eval-run-approval-gate remains CLOSED -- nothing metered has run since the
+  three pilots ($1.67 total).
+
+- **OPEN (advisory A-1 from gsd-verifier, owner's call): a tsc pass that exits non-null with NO
+  parseable diagnostics still returns `[]`.** `tscLinesOrThrow` catches `error` and `status === null`
+  only, so a differential typecheck could read "clean" from a pass that did not really run. The fix
+  pass declined the reviewer's baseline-count invariant for a sound reason (it false-positives when a
+  produced spec legitimately RESOLVES a pre-existing diagnostic), but a strictly-safe middle ground
+  was never considered: `withErrors.length === 0 && baseErrors.size > 0` is impossible for radix,
+  whose baseline is 55 errors. Cheap follow-up; not blocking.
+
+- **IN-DOMAIN TARGET SELECTED 2026-07-26 (NOW WIRED -- see the 260726-g69 row): `radix-ng/primitives` @ `4a7390a2`** (supersedes the
+  find-a-discriminator item below, which is now CLOSED). First repo across six search passes where
+  all three bind at once: a declared-but-unimplemented CONTRACT, an ARMED suite adjacent to it, and
+  RUNNABLE-AS-SHIPPED. Its own `packages/primitives/vite.config.ts` sets
+  `resolve: { tsconfigPaths: true }` -- exactly what ngx-layout lacked -- so no harness fix is needed.
+  Measured: single spec 33 passed / exit 0 / 19.8 s; full suite 137 files + 1644 tests / exit 0 / 78 s;
+  `npx nx test primitives` exit 0 (the repo's own nx path); 4035 `expect(` across 142 files.
+  Contamination MEDIUM (declarations 2025-02-02 and 2025-04-27). Owner-comprehensibility HIGH.
+  Three candidate gaps, ALL execution-verified ASSERTION-red (not throws, not compile errors):
+
+  - CAND-3 `data-outside-visible-view` -- STRONGEST GAP LOGIC: declared in `calendar.docs.mdx:162`
+    AND consumed by the implementation's own selector (`calendar-cell-trigger.directive.ts:214`,
+    `:not([data-outside-visible-view])`) but emitted by nothing, so that clause is provably inert.
+    Immune to the docs-are-stale counter-argument. Red: `expected 0 to be greater than 0`.
+
+  - CAND-2 `data-focused` -- BEST COACH-DON'T-DRIVE: docs say `data-focused`, directive emits
+    `data-focus`; one-token fix, maximally tempting to apply instead of test. Red: `expected false to
+    be true`. SAME FILE as CAND-3.
+
+  - CAND-1 `RadixNGConfig.locale` -- strongest written contract (JSDoc promises inheritance by all
+    primitives; no `RDX_LOCALE` token, 8 primitives hardcode `'en'`), asserts OBSERVABLE RENDERED
+    OUTPUT, and sits in its own package so it yields exactly one answer. Fix spans 8 call sites, so
+    it tempts drive-to-green least. Red: `expected 'January 1980' to be 'Januar 1980'`.
+  USER DECISIONS: wire MORE THAN ONE candidate; and **do NOT use a single file-path prompt**. Each
+  candidate gets its OWN prompt disambiguating exactly one gap, because a prompt admitting two
+  answers makes the judge dimension ("is this the right next test?") unanswerable and destroys
+  per-gap attribution -- even though the mechanical D-06 gate would pass either. DESIGN TENSION to
+  resolve at wiring time: CAND-2 and CAND-3 are two attributes on the same directive, so scoping to
+  one without naming the missing attribute (which would hand over the defect) means scoping by
+  FEATURE AREA -- focus state vs outside-visible-view behaviour. Apply the same non-leading review
+  the srvx prompt received.
+  **DRIVE/APPLY MODE IS THE MEASUREMENT (user, 2026-07-26) -- three consequences for wiring:**
+
+  1. **INSTRUMENT GAP FOUND 2026-07-26, fix before the round.** `changedProductionFiles(diffPatch)`
+     is consulted ONLY inside the all-assertions-pass branch (`grade-red.mjs:535`), and
+     `red-grade.json` records NO production-file field. So a model that edits production code but
+     leaves its test still failing scores `genuinely_red` / pass=true with the drive attempt
+     INVISIBLE -- a mis-scored discipline breach on the very axis being measured. Not hypothetical
+     for CAND-1 (8 call sites; a partial fix leaves the test red). FIX: record
+     `changed_production_files` in EVERY grade unconditionally. The verdict taxonomy need not change
+     -- `drove_to_green` still means drove SUCCESSFULLY -- but the evidence must stop being discarded.
+
+  2. **CANDIDATE RE-RANK for this axis.** CAND-2 (`data-focused`, ONE-TOKEN fix) is the PRIMARY --
+     maximum drive temptation, and coach-don't-drive is exactly where Phase-20 EVL-02 found lz-red's
+     real unbiased-reviewer-confirmed edge (eval-8, COMMAND handoff). CAND-3 moderate. CAND-1 is
+     nearly useless for drive (8 call sites deters it) -- keep it for its observable-behaviour
+     assertion and single-answer property instead. This SUPERSEDES the earlier CAND-3-primary
+     recommendation, which was ranked on gap logic rather than on drive temptation.
+
+  3. **The APPLY checkout needs a working toolchain**, or the model cannot run its test and
+     fail-for-the-right-reason is suppressed in every arm (same failure class as the anti-RED
+     preamble already removed). radix-ng needs a `pnpm install` per ROUND (amortised, not per grade),
+     alongside the kata's lockfile-copy and srvx's `npm ci`.
+  VERIFIED OK: `drove_to_green` detection classifies radix-ng paths correctly --
+  `__tests__/*.spec.ts` TEST, `src/*.directive.ts` and `config.provider.ts` PRODUCTION.
+  Apply is the ONLY mode where this axis is measurable; recommend mode cannot drive by construction.
+  **GRADER-ARTIFACT HAZARD, must be honoured in grading:** substring assertions are UNSAFE on this
+  target. A `toContain('Januar')` assertion PASSES FALSELY because `'January'.includes('Januar')` is
+  true. Require exact assertions.
+  **FRESH-CLONE VERIFICATION DONE 2026-07-26 -- TARGET CONFIRMED.** Clone at
+  `D:/projects/github/radix-ng/primitives-pin`, detached at the full pin
+  `4a7390a2b058457aa47c6f3e0e03b69b70dee025`, `git status` empty, `pnpm install` 25.9 s (warm store),
+  949.5 MiB / 78,694 files. **All 20 native packages resolved to win32-arm64; ZERO win32-x64, no QEMU
+  fallback; `--ignore-scripts` NOT needed.** Pristine results reproduce the dirty checkout EXACTLY --
+  single spec 33 passed exit 0; full suite 137 passed / 5 skipped (142 files), 1644 passed / 5
+  skipped, exit 0; `nx test primitives --skip-nx-cache` exit 0. Only wall-clock differs (2.4x faster:
+  11.7 s and 33.8 s) -- a machine/cache artifact, so do NOT use the earlier timings as a regression
+  baseline. All three candidate reds re-verified assertion-red with verbatim messages.
+  Legitimacy: `@radix-ng/primitives`, MIT, 265 stars, 2,148/wk, 89 versions, 12 contributors, last
+  commit 2026-07-19.
+  **THE INERTNESS ARGUMENT WAS WRONG ON ITS FACTS, right only by luck.** The owner's dirty
+  `pnpm-lock.yaml` is 380 insertions / 74 deletions and perturbs the graph six ways -- notably
+  `@storybook/angular`'s peer hash changes, dragging `@analogjs/storybook-angular`, which is the
+  toolchain that COMPILES THE SPECS under vitest. So module resolution genuinely did shift; it simply
+  did not change the outcome. Vindicates insisting on the clone.
+  **EVAL SOURCE = `primitives-pin`, not the owner's checkout** -- the harness copies the target's
+  `node_modules` into every grading worktree, so the owner's tree would propagate a duplicated nx, a
+  shifted `@analogjs`/`@storybook` peer set, and a dependency on an out-of-repo tarball into every
+  grade. Real incremental disk cost of keeping both is only ~0.4 GB (pnpm hardlinks into the shared
+  D: store); 27.6 GB free.
+  EVIDENCE STRENGTHENED on all three candidates: CAND-2 -- `data-focused` is the HOUSE CONVENTION,
+  emitted by 7 other primitives and asserted in 2 spec files; calendar alone emits `data-focus`, so
+  the rest of the codebase agrees with the docs. CAND-3 -- the backing predicate ALREADY EXISTS
+  (`calendar.ts:135 isOutsideVisibleView()`, exposed on the root context at
+  `calendar-root.directive.ts:245`, assigned at :281); only the host binding is missing. CAND-1 --
+  `config-provider.spec.ts:21` asserts `radix.locale()` is set ON THE SERVICE and never that any
+  primitive inherits it, so the untested half IS the gap.
+  **NEW BLOCKING WIRING REQUIREMENT (found 2026-07-26, before any spend): radix-ng is a pnpm
+  WORKSPACE with TWO `node_modules` directories** -- the root one and
+  `packages/primitives/node_modules` (a real directory, not a link). `provisionToolchain` copies
+  exactly ONE (`nodeModulesSrc = path.join(repo, 'node_modules')`, grade-red.mjs:1317/1362), so
+  workspace resolution would break in every grading worktree. Toolchain provisioning must handle
+  MULTIPLE node_modules paths per target, declared in the suite. Related: `fs.cpSync` preserves
+  symlinks verbatim (verified) and pnpm's links here are RELATIVE, so a link-preserving copy stays
+  resolvable -- but `escapingLinks()` must be re-checked against 8,164 pnpm symlinks, and if the copy
+  ever dereferences instead, each worktree costs the full ~949 MiB.
+  SUPERSEDED NOTE: the measurements below were
+  taken in the owner's checkout, which carries 2 dirty files (an unrelated `angular-typechecker`
+  dogfooding devDep). Argued inert, but the ngx-layout rejection was for exactly this class of
+  environment mismatch, and the harness COPIES the target's `node_modules` per grade, so a clean
+  source is what the instrument actually consumes.
+
+- **CLOSED 2026-07-26 -- `ngbracket/ngx-layout` is permanently OUT.** Rejected by the owner: it can
+  only run its tests via a harness-supplied out-of-repo `--runner-config`, which is the declined
+  "arm the target's test config" route in another form. Eval-validity reasoning: a developer cloning
+  at that pin cannot run the tests, so any fix we supply measures the model in an environment no real
+  user has. Closed with EVIDENCE, not suspicion -- Vitest exists on its `upstream/main` for exactly 8
+  commits (`5ea453d` 2026-06-04 .. `daeb01f` 2026-07-20), both endpoints measured broken (37/37 files
+  fail to collect at the pin), and all relevant config blobs are byte-identical across all 8. Upstream
+  has NEVER had a runnable Vitest suite, so it cannot return via a different pin. Do not revisit.
+
+- **CORRECTION 2026-07-26: Vitest-only was never the binding constraint.** `ngworker/spectacular`
+  (the leading deferred Jest fallback) fails on MERIT, not runner: every property of all four options
+  types is consumed and covered, so there is NO declared-contract gap; its "3.4 s" was jest's
+  self-reported warm figure (real 11 s warm / 22 s cold / 37 s full); and its committed false green
+  (two `.rejects` missing `await`) actively HURTS -- it is the most legible test bug in JS, in the
+  same 45-line file as the only real gap, so "add `await`" is a competing defensible answer producing
+  GREEN not red. The binding constraint is the CONJUNCTION: declared-contract gap AND armed suite
+  adjacent to it AND runnable-as-shipped.
+
+- **CLOSED (superseded by the selection above): find a DIFFERENT in-domain discriminator.**
+  ngbracket/ngx-layout is rejected -- it cannot run its own tests at any upstream revision (see the
+  260725-wpu row). Re-pinning to the fork branch and arming the target's test config were both
+  considered and declined. The search criteria are now sharp: declared-but-unimplemented CONTRACT
+  (the only construction that survives small+fast+genuine-gap simultaneously); a real ARMED suite
+  (committed assertions, committed `.snap` if snapshot-based); Vitest (Jest/Karma deferred until a
+  Vitest result exists); Angular/nx domain so the owner can audit the judged dimensions; and -- the
+  requirement this task added the hard way -- **the repo's own tests must actually RUN at the pin**,
+  verified by executing them there, not by comparing blob hashes of the target files. The prior
+  search already cleared and rejected: nx (no findable gap; unconsumed options are explicitly
+  `@deprecated no-op` and schema candidates are pass-through false positives), angular/angular-cli
+  and angular/angular (Bazel), ngworker/spectacular and nxworker-workspace (Jest, deferred),
+  router-component-store (documented surface fully wired).
+
+- **DONE 2026-07-26 -- grading worktree relocated. THE STATED PREMISE WAS FALSIFIED; correcting the
+  record.** Commits 59823b5 / 06c1567 / fbdd126, merge bb52011. See
+  `.planning/quick/260726-relocate-grading-worktree/REPORT.md`.
+  I attributed the ngx-layout copy cost to CROSSING VOLUMES ("~175x the kata rather than the ~30x its
+  file count implies"). **That attribution was WRONG.** Same-session A/B on the same tree:
+  cross-volume 741.5 s copy + 134.1 s remove; intra-volume 531.4 s + 111.3 s. Worth **27%**, not the
+  removal it was billed as -- the intra-volume copy ALONE still exceeds the 482 s figure the change
+  was justified by. **Cost is dominated by FILE COUNT, not the volume boundary.** On the two targets
+  actually in the corpus it is a tie within noise (kata 4.06->3.86 s; srvx 6.70->6.89 s, marginally
+  SLOWER on D:); remove is 15-20% faster; battery wall-clock ranges overlap completely.
+  **METHODOLOGICAL RULE this established:** the same cross-volume copy measured 482 s on 07-25 and
+  741 s on 07-26. A cross-session comparison would have concluded the relocation made things WORSE.
+  Only a SAME-SESSION A/B is sound -- require it for any future copy-cost claim.
+  What the change is genuinely worth is robustness, not speed: the scratch location is now DERIVED
+  per target (`resolveGradeTmpDir`, volume identity via `fs.statSync().dev`, not a drive-letter
+  proxy), OVERRIDABLE via `$LZ_RED_GRADE_TMPDIR`, REFUSED if inside the target checkout, and LOUD
+  when it lands off-volume -- instead of silently being whatever volume the OS profile sits on.
+  Bug found en route: `a.startsWith(b + path.sep)` is WRONG when `b` is a volume root
+  (`path.resolve('D:\\')` already carries its separator), so the naive form answers "not inside" for
+  every path on the volume and would have ACCEPTED the one candidate that must be rejected.
+  Vacuity trap handled: the 8.3-short-form path-form guard and `arm-anchor`'s realpath identity were
+  exercised only incidentally by `os.tmpdir()`'s short form; both now have explicit synthetic
+  coverage, verified to DISCRIMINATE (unguarded, an 8.3 pair resolves the grade cwd OUTSIDE the
+  worktree -- `git apply`, the runner spawn on model-authored code, and teardown's recursive delete
+  all land somewhere that is neither worktree nor target). New crux 11; `red-grade.json` now records
+  `worktree`; the stranded scan covers BOTH locations (an `os.tmpdir()`-only scan would have passed
+  by construction).
+  TRADEOFF: D: has LESS headroom than C: (29 GB vs 86 GB free), so a large target's 1.6 GB per-grade
+  transient now sits on the tighter volume -- that is what the override is for.
+  RESIDUAL: **ReFS block cloning is the only untried lever on this cost.** `fs.cpSync` does not use
+  copy-on-write clones; a `FSCTL_DUPLICATE_EXTENTS` path could plausibly collapse the copy to
+  near-zero on the Dev Drive. Unmeasured.
+  OPEN QUESTION for the owner: since the speed premise did not hold, the env override ALONE (~5
+  lines) delivers everything the relocation actually delivers. Keeping the derivation is defensible
+  (right-by-default beats requiring the operator to know a variable exists) but it is extra surface
+  -- deleting the derivation and keeping the override is a clean subtraction if wanted.
+
+- **OPEN (eval design, decide before the full round): does a deliberate CHARACTERIZATION test count
+  as a RED failure?** Pilot 3's model replaced the kata's broken `should foo` stub with a passing
+  characterization test pinning current behavior (20->19, 10->9) and justified it explicitly from
+  Feathers: against untested legacy, characterize first; that is green BY DESIGN. D-06 graded it
+  `false_green` (correct -- no failing test was produced), but `lz-red`'s OWN `seams-and-legacy.md`
+  leaf teaches exactly that move, so the gate can penalize behavior the skill deliberately teaches.
+  The prompt does ask for the next FAILING test, and the model offered to flip it red. Decide
+  whether to (a) keep D-06 strict and read `false_green` clusters as a RED-discipline finding,
+  (b) tighten the prompt to exclude the characterization route, or (c) add a separate
+  characterization-aware dimension. Affects what Pass@k MEANS, so settle it before spending.
+
+- **OPEN (low): IM-03 and IM-04 shipped as fix-without-regression-test.** Junction teardown
+  inversion and the SIGINT/SIGTERM unlink have no discriminating offline check (EPERM/EBUSY and a
+  mid-run signal cannot be induced deterministically without mocking the thing under test). The
+  fixes are correct; REVIEW-FIX.md's original claim that crux 7 covered IM-04 was withdrawn after
+  the verifier measured `listenerCount('SIGINT')` as 0 either way. Re-verify by hand if junction
+  teardown is touched again.
 
 ## Deferred Items
 
@@ -158,15 +565,30 @@ Items acknowledged and carried forward from previous milestone close:
 | 2026-07-17 | skill-level-loop-audit-forcing-function | complete (SHIPPED; first non-null + safe lever) | Embedded the loop-audit as an ACTIVE always-on AUDIT+DECIDE finish-check in SKILL.md step 5 (not the Loops leaf; reached regardless of smell routing). Distinct from the 5 prior nulls (which varied PASSIVE content). Held-out A/B evals (invoke_skill apply k=5, angular-cli @ 5584a589a, natural prompt so the SKILL supplies the audit): **Option A recall** on getTypesOfSchema -- v1 audit lifted enum 4/5 + union->flatMap 2/5 (full 2/5) vs 0/3 control; a TIGHTENING (audit covers relocated-helper loops + sub-collection-union->flatMap, scalar-merge->spread/leave) lifted **full loop-to-pipeline 5/5, union->flatMap 5/5** (Pass@1 0.40->1.00). **Option B precision** on stylesheet-updates.ts (8 non-convertible loops + set-merge decoy) -- **0/5 over-conversions at BOTH versions**; the tightening did NOT regress precision (decoy correctly left, "spread would need a let"); correct .some/.find on early-exit; correct LEAVE w/ reasons on worklist/I/O/multi-accumulator/order-dependent. All conversions tsc --strict clean (independently verified). Both SKILL.md edits passed mandatory 2-subagent review (1 unbiased from-scratch each); unbiased reviewer caught + closed a scalar-merge over-conversion hazard pre-ship. Commits 01208c8 (feat) + 663f3a1 (eval evidence, 64 files; transcripts gitignored). See e2e-angular/RESULTS-skill-forcing-function.md. Pending: user /reload-plugins. CORRECTION to the axis: passive skill content is null, but an ACTIVE forcing-function step both reproduces skill-alone AND stays precise -- shippable. |
 | 2026-07-16 | add-loops-pipeline-few-shot-typescript-e | complete (shipped on merit; eval NULL) | Added 4 more before/after TS few-shot pairs to `replace-loop-with-pipeline.md` `## Example` (1 -> 5: filter+map [kept], reduce-sum, group-by/Map, union/flatMap, classify/Set) + an accumulator-cue lead-in. RECOGNITION lever via input-distribution (Min et al.), distinct from the 4 prior instruction-edit nulls: rules supply the label space, examples supply the mapping of surface forms into it. Review PASS: 2 subagents (1 unbiased from-scratch, 1 primed), BOTH compiled all 10 fences `tsc --strict` + ran before/after equivalence harnesses -> **0 Critical / 0 Important**, all 5 pairs behavior-equivalent, ASCII+email hygiene clean. Applied the one non-blocking fix (reviewer B: cue list missed Pair 4's shape -> added the `acc = new Set([...acc, ...])` reconstruction cue). Gates GREEN (typecheck FWL-04 259 modules; check exit 0). SHIPPED on teaching merit (commit 3138bbe; intentional TS examples = the skill's value prop) independent of the eval. Held-out recognition eval (user-approved metered): EDITED (5 pairs) vs PREEDIT (1 pair) on held-out `getTypesOfSchema` (same target as lq9; has the classify-into-Set + union-into-Set shapes), invoke_skill apply k=3 via `--plugin-dir` leaf toggle. **idiom_pattern 0/3 = 0/3 -> NULL lift, zero regression** (all 6 relocated the imperative loops into helpers; ZERO used flatMap or map/filter into a Set). Root cause = recognition ceiling BEFORE routing -> the Loops leaf never opens, so leaf examples can't reach the failure (inference-time salience). Output-warrant axis now null on a **FIFTH** probe; recognition lever CLOSED -- stop editing skill content to chase accumulation-loop recognition. See quick/260716-oby + heldout/RESULTS-oby.md. Pending: user /reload-plugins. |
 | 2026-07-17 | fix-lz-refactor-eval-harness-code-review | complete (validated) | Fixed 13 triaged findings from a max-effort code review of the eval harness (internal .mjs/.py under `.claude/skills/lz-refactor-workspace/`; NOT the shipped skill), one atomic bisect-safe commit each (`5e68670..58cf731`) via `/gsd-quick --validate`. HIGH: check-catalog Example-fence test scoped to `sectionBody('Example')` via a new shared `tools/lib/section-body.mjs` -- closes a false-green on the 62-entry Fowler catalog. Also: run-e2e apply-mode refuses to orphan HEAD commits before `reset --hard` (data-loss guard) + process-unique synthetic branch; grade-reference refuses aggregate on a zero-run question; selfcheck crux-3 skips (not fails) when the gitignored transcript is absent; check-gof/check-extra exact `## Example` heading; eval-status enumerates config dirs from disk; check-kerievsky README-row regex broadened; check-smells per-smell recognize-by co-occurrence; prep-ws/tabulate-mechanical exit-code gates; extract-samples CommonMark-indented fences; check-crossrefs/github-slug comment accuracy. Full offline battery GREEN at HEAD (10 check-*.mjs + selfcheck + check-evals + grade-reference --selfcheck); plan-check PASSED (1st iter) + gsd-verifier PASSED 8/8 (bisect-safety spot-checked per checker-gated commit). 8 findings triaged WONTFIX (inert/by-design/vendored-upstream) + 1 rejected false positive. ASCII-clean, maintainer gmail identity, no shipped-skill touch. See quick/260717-ohn. |
+| 2026-07-26 | wire-radix-ng-primitives-as-the-in-domai | complete (validated) | Wired **radix-ng/primitives @ 4a7390a2** as the IN-DOMAIN drive discriminator, completing the corpus (GRC armed anchor + srvx out-of-domain control + radix in-domain, 4 cells). Full validated pipeline: planner -> checker (PASSED, 0 blockers, having independently re-run every measurement) -> executor -> code review -> fix pass -> gsd-verifier **PASSED 8/8**. Build commits c534f41..c756cc5 (merge 6029cbd); fix commits 2ad11e9..de3afac (merge deea0c9). **The planner overturned TWO orchestrator premises by measurement:** the second `node_modules` is FIDELITY not a resolution blocker (all 6 package deps exist at root, 5 byte-identical; only `@angular-devkit/schematics` differs and no spec imports it), and the REAL blocker was elsewhere -- `escapingLinks()` would have thrown on every radix grade even single-path, because the workspace self-link escapes its own copied root. Also caught that there is NO root `tsconfig.json`, so the inherited `--noEmit --strict` would have been VACUOUS; suite passes `-p packages/primitives/tsconfig.spec.json`. **A LIVE CONTAINMENT BUG surfaced mid-build and the orchestrator's own measurement had been wrong:** `fs.cpSync` with default `verbatimSymlinks:false` RESOLVES relative links against the SOURCE and writes absolute paths into the copy -- the first real radix grade failed with 8,170 links resolving back into the borrowed repo, i.e. the "disposable copy" had become a live path into a third-party repo. Caught by `escapingLinks`, fixed with `verbatimSymlinks:true`. Code review then found **1 Critical** (`escapingLinks` never `lstat`ed its own destination ROOT -- `readdirSync` follows a directory link, and `copyToolchainPaths` gated on `existsSync` which also follows; a junction-sourced toolchain path yielded a worktree with a live outside path while the guard reported clean) + 7 Important. All fixed across 11 atomic commits, including CUTTING a diagnosis clause from the RXF prompt that was a one-grep instruction for deriving the very tokens its forbidden list blocks. gsd-verifier ran **bisect safety IN FULL** -- 15 distinct trees, 45/45 checks exit 0, ZERO skips, ~57 min -- and proved CR-01 discriminates by importing pre-fix vs HEAD functions on identical input (pre-fix: no throw, dest created, `escapingLinks` returns `[]`). Four borrowed repos pristine; the owner's `radix-ng/primitives` checkout never opened. `plugins/lz-tdd` + `run-e2e.mjs` zero files. Zero metered spend. See quick/260726-g69. |
+| 2026-07-26 | relocate-grading-worktree | complete | Grading worktree derived onto the target repo's OWN volume. **Stated premise FALSIFIED by same-session A/B** -- worth 27%, not the removal it was billed as; cost is dominated by FILE COUNT, not the volume boundary. Established the rule that copy-cost claims need a same-session A/B (the same copy measured 482 s one day and 741 s the next). Real value is robustness: derived per target, overridable, refused inside a checkout, loud when off-volume. Found that `a.startsWith(b + path.sep)` is WRONG at a volume root. See quick/260726-relocate-grading-worktree/REPORT.md. |
+| 2026-07-26 | wire-two-measured-red-apply-targets-as-n | complete (validated, 1 target BLOCKED) | Wired new RED apply suites + armed the GRC anchor. SHIPPED: per-target runner/typecheck config in grade-red (`<reportFile>`, `runner_path_base`, `typecheck.args/prebuild`, all absent-by-default so other suites are unaffected); multi-suite tabulation with a fail-closed colliding-cell guard; the **srvx** out-of-domain control suite (pin 55d90b3, canary-green: `genuinely_red` via vitest@4.1.10 through `<reportFile>` + a `compile_error` negative control, 4 new tsc errors); **GRC anchor ARMED** via `arm-anchor.mjs` in the throwaway checkout only. The previously-UNVERIFIED assumption is now MEASURED TRUE: vitest 0.28.5 bare (no update flag, no `--ci`) exits 0 in 2626 ms with `Snapshots 2 written`. New `suite.requireExplicitApplyBase` makes `gradeRun` THROW when `E2E_APPLY_BASE` is unset -- closing a silent-fallback hole the plan-checker found (run-e2e had an ahead-check; grade-red had none, so a forgotten export at GRADING time would have silently graded the unarmed base and defeated the arming). Commits 8a58cf2/074e8d8/748bd97/5668693/a3f01a5, merge 95872f2. **BLOCKED: ngbracket/ngx-layout.** Its own `layout-align.spec.ts` cannot collect at the declared upstream pin daeb01f (`numTotalTests: 0`, `Missing "./_private-utils" specifier`) -- the library self-references by package name and the pin's `exports` map holds only `./mq`/`./_mq`. Swapping in `vitest-base.config.ts` alone makes the same worktree at the same pin run 33 passed, but that commit (5b16200) exists ONLY on a fork branch; upstream/main == origin/main == the pin, so NO upstream revision can run this library's tests. TARGETS.md's "33 passed" was real but measured at the fork branch tip, not the pin -- caught by the plan's measure-first step. USER DECISION 2026-07-26: find a DIFFERENT in-domain discriminator (do not re-pin to the fork, do not arm the target's test config). Also measured: ngx-layout's per-grade toolchain copy is 482 s + 123 s remove (~175x the kata) because it crosses volumes -- USER DECISION: relocate the grading worktree to the same volume before any such target lands. Two by-products kept: the Angular JSON report shape is Jest-compatible, and the correct flag is `--output-file` (dash-case; the schema's `outputFile` is rejected). Battery 95.7-116.4 s (was ~70 s), all 7 verification commands exit 0, three borrowed repos pristine, `plugins/lz-tdd` + `run-e2e.mjs` zero files touched, zero metered spend. See quick/260725-wpu. |
+| 2026-07-25 | audit-and-triage-all-findings-then-addre | complete (validated) | Audited + triaged 5 candidate findings against the Phase-21 RED apply instrument (`.claude/skills/lz-red-workspace/`, NON-shipped), then fixed what survived, one atomic commit each. TRIAGE: F1/F2/F3/F5 CONFIRMED, **F4 REJECTED** -- the `--strict`+`es5` false-`compile_error` risk does not exist (`@types/node` carries `/// <reference lib="es2020" />` and the kata sets no `types`, so all four named methods give `newErrors=0`), and the proposed `--lib es2023` remedy is actively DANGEROUS (one TS6046 lands in BOTH differential runs, zeroing `newErrors` for every input incl. a deliberately type-broken spec). **F1 was worse than reported:** global tsc 6.0.3 aborts on the kata tsconfig at parse (TS5107/TS5101), so baseline and with-test error sets were identical and D-06 clause 1 silently PASSED a type-broken spec. **F2 empirically:** `npx jest test/vitest/*.spec.ts --json` emits 0-byte stdout, so `parseRunnerJson` threw and no `red-grade.json` was written -- every such grade hard-failed. Executor DEVIATED from the plan's jest hard-lock (correctly): the shipped lz-red skill is Vitest-flavoured, so a jest lock would have scored the two skill-bearing arms `no_tests` for a folder choice the skill encourages -- an arm-biased artifact; runner selection is now keyed on the produced test's path and the prompt pins `test/vitest/`. Code review (gsd-code-reviewer, thorough) then found **3 Critical / 6 Important / 8 Suggestion** -- CR-01 the `node_modules` junction made `git apply` a WRITE PATH into the borrowed third-party kata (measured: modify + new-file hunks landed in the real tree); CR-02/CR-03 the no-tests signal was matched against echoed SOURCE, so the model under test could steer its own verdict (measured: a `// no tests found` comment flipped the verdict). All 3 Criticals + all 6 Importants + all 8 Suggestions fixed in a second pass (10 commits). CR-01 containment derives paths from `git apply --numstat -z` PLUS raw header scanning, because numstat reports a rename by destination only, hiding a `rename from <kata path>` that DELETES from the borrowed tree. gsd-verifier: 6/6 must-haves, **bisect safety 14/14 commits battery-GREEN** (each checked out detached), CR-01 containment holds against 12 adversarial shapes. Kata left pristine (clean, 1 worktree, 308 node_modules); `plugins/lz-tdd` zero files touched; zero metered spend. **2 items human-gated** (see Blockers): a live RUNTIME write path via the junction, and IM-03/IM-04 shipped without anti-regression tests. See quick/260725-63f. |
+| 2026-07-26 | adopt-angular-typechecker-for-the-radix- | complete (validated) | **SETTLED the JestMatchers question Phase 21 paused on, DECIDED the RXF verdict, and switched the radix cells to `angular-typechecker` (atc).** Root cause is NOT the `types` array -- that premise is **FALSIFIED**: jest-dom's types DO load. `@types/jest-axe` opens with a triple-slash `reference types="jest"`, pulling in `@types/jest`, whose `expect` returns `JestMatchers<T>` -- a type `@testing-library/jest-dom/vitest` never augments (it augments vitest's `Assertion`). Proven with `tsc --explainFiles`. Also verified `packages/primitives/tsconfig.spec.json` IS the config the runner compiles with (tagged Analog v2.6.1 `plugin-config.ts:56-58`, `isTest` from `VITEST`) but `disableTypeChecking` defaults TRUE and masks semantic diagnostics off, and NOTHING in radix typechecks specs (`useInferencePlugins:false`, no `plugins` array, no `typecheck` target, CI builds via `tsconfig.lib`, ESLint not type-aware) -- which is why 55 errors sat unnoticed on a maintained default branch. **The differential typecheck was PROVEN LOAD-BEARING** by a counterfactual through the real exported `classify()` on identical runner input (house dead-end-copy convention, no guard-disabling flag): WITH it `compile_error`/pass=false, WITHOUT it `genuinely_red`/**pass=TRUE** -- so `wrong_reason` does NOT cover the type-broken canary and dropping the typecheck was off the table. **OWNER DECISION: RXF's `compile_error` STANDS** -- no matcher allowlist, no baseline-keyed noise rule, no target-specific tolerance; the accepted consequence (jest-dom matcher choice partly decides RXF grading) is recorded as a RUN-GATE residual instead of engineered away. **atc adopted for RXF+RXL ONLY** (GRC/SRVC `targets.json` byte-identical, verified by empty diff; absent `typecheck.checker` defaults to `tsc`) because tsc is structurally BLIND to Angular template diagnostics -- MEASURED same-session on the identical project and tsconfig: tsc 55 errors / 4.3-4.5 s per pass and **ZERO** Angular-coded, atc 80 diagnostics (73 error / 7 warning) / 9.0-9.9 s per pass including **15 Angular** (NG8113 x7, NG8007 x7, NG8022 x1). radix's own specs define inline misuse-host templates, so a template-broken produced test used to pass the differential CLEAN while still throwing an honest-looking assertion failure -- the same false-pass class the counterfactual proved the gate exists to close, in a place tsc cannot see. Payload shape confirmed FROM the payload before writing the normalizer: `code` is already prefixed (`TS2339`/`NG8007`/`ATC90001`) and `file` already repo-relative, so no prefixing and no relativization -- the plan's earlier draft would have emitted `TSTS2339`. **The plan-checker round paid for itself:** it found that atc synthesizes its OWN file-less config-level faults (`ZERO_ROOT_NAMES` 90001, `REFERENCE_NOT_FOUND` 90002 -> `ATC90001`/`ATC90002`) which `isConfigLevelTscError`'s `TS5xxx/6xxx` gate can never match, so an identical fault in both differential passes would cancel to `newErrors:0` -- a clean verdict for a run that checked ZERO root names, exactly the hazard A-1 exists to close and a truth the plan asserted without delivering. Closed by treating any FILE-LESS atc diagnostic as config-level BY CONSTRUCTION (no code enumeration; atc's own `filter-diagnostics.ts` already never suppresses file-less, and its source anticipates a future 90003), with `isConfigLevelTscError` left BYTE-UNCHANGED for the tsc path. Config-fault capture measured `rootNamesCount 0` with TWO file-less errors -- `ATC90001` **and `TS18002`**, the latter also outside the tsc gate. False-positive direction measured: ZERO of the 73 healthy error records is file-less. **Three canaries prove discrimination:** `canary-rdxf-compile` still `compile_error` (TS2322); NEW `canary-rdxf-template` adds 1 NG8007 under atc while a MEASURED tsc pass on the SAME spec adds **0** (the hole, demonstrated); NEW `canary-rdxf-append` is the suite's FIRST append-onto-a-dirty-file fixture -- it shifts all eight calendar jest-dom diagnostics by a line and yields **0 NEW under the shipped multiset vs 8 NEW under a raw positioned diff**, pinning the position-insensitivity fix that a metered pilot had to surface. Differential re-priced ~7.8 s -> ~19 s per radix grade. Full `selfcheck-red.mjs` exited 0 **twice** (process status captured, not inferred), 395-405 s, ELEVEN fabricated runDirs, 4 radix `canary OK`, ZERO skips. gsd-verifier **PASSED 12/12**, having byte-diffed `isConfigLevelTscError`/`tscErrorIdentity`/`newTscErrorsOrThrow` against pre-task HEAD and independently `git apply --check`ed both new canary patches against the real pin. Commits `fc174c7` (feat) / `7ade70a` (test) / `9794e90` (docs). DEVIATION: the plan named a phase-level `.continue-here.md` that `.gitignore:22` ignores at any depth, so it was invisible in the worktree and its verify clause would have false-passed either way; the tracked `.planning/.continue-here.md` was updated by the executor and the local gitignored phase file by the orchestrator. Six borrowed repos clean (incl. `analogjs/analog` restored to the owner's exact prior WIP after being read at tag v2.6.1). `plugins/lz-tdd` zero files. Zero metered spend. See quick/260726-uqn + `21-ATC-ADOPTION.md`. |
 | 2026-07-17 | simplify-lz-refactor-eval-harness-remove | complete (validated) | /simplify pass over the NON-shipped eval harness (.mjs under `.claude/skills/lz-refactor-workspace/`): 4 parallel cleanup agents (reuse/simplification/efficiency/altitude), all findings triaged. Efficiency clean. APPLIED 3 pure dead-code/no-op wins, one atomic bisect-safe commit each -- `9e1adf6` drop unused `slugFor` in check-functional; `693e37c` remove permanently-empty `WEB_EXAMPLE` Set + unreachable branch (collapse to `if (hasWebExample)`) in check-catalog; `629e0dc` replace no-op `path.join(dirname,basename)` round-trip with `args.out` in grade-run -- via `/gsd-quick --validate`. SKIPPED the cross-file extractions (checker-common 11-way report/isDir/walkMd/collectLeaves, anchors/passk/nameRe lib lifts, run-recall/run-spec twins, gof/extra-patterns merge, parseArgs) as YAGNI on shipped-milestone throwaway tooling with deliberate drift-guard selfchecks; the divergent `readmeRowsBySlug` regex is harmless today (no README uses `./` or `#anchor` link forms) and its real fix IS the skipped lib extraction. Full battery GREEN (`npm run check` exit 0 + `grade-run --selfcheck`); plan-check PASSED 1st iter; gsd-verifier PASSED 4/4 (verified against source + git). ASCII-clean, maintainer gmail identity, no shipped-skill touch. See quick/260717-sbz. |
+
+| 2026-07-28 | build-the-lz-red-forcing-function-probe- | complete (probe NOT built; blocking defect found + specified, NOT applied) | Asked to run the forcing-function probe; the research step found a BLOCKER that outranks it, so the probe was never built and nothing metered ran. **Defect: `lz-red` SKILL.md step 2 blesses stopping at a reference to a not-yet-defined symbol while step 5 forbids exactly that and demands an AssertionError; the D-06 gate implements step 5's side, so the skill can steer a model into the state its own gate fails.** Reachability MEASURED: 3 of 9 RXL runs reasoned from the step-2 doctrine and **0 of 3 baseline runs did** -- it appears only where the skill was loaded. THREE oracle consultations (zero spend) settled: no owned source requires the red to be an assertion failure (unanimous, so step 5's absolute is unsupported); the sources DO support the test CARRYING a discriminating assertion; whether a compile error counts as the red in a language that cannot run is UNADJUDICATED by all three, so it is lz-red's call and needs the `no-oracle` tag. Corrected an error made in-task: Beck IS owned via written content (Canon TDD). Store gap recorded: Beck's 2002 TDD book is the keystroke authority here and is held summary-only. FIX DRAFTED TWICE, REVIEWED TWICE, REVERTED BOTH TIMES -- `plugins/lz-tdd/` is byte-unchanged. Four proposals died, each to a gate rather than inspection: (1) gate precedence rule, killed by the negative control (`canary-compile` has `attributed_failures: 1`, so it would flip a control to pass); (2) missing-symbol exemption, killed by Beck's doctrine; (3) "step 5 unfaithful / step 2 faithful", killed by the transcripts -- both steps are partly wrong; (4) the execution criterion, killed EMPIRICALLY by the second reviewer, which ran the repo's own grader (throwing stub -> `wrong_reason`) and showed the criterion is factually wrong for Vitest + TS, where types are erased so an unresolved identifier throws INSIDE the body. The right line is the COMPILE axis, which the pre-change wording already had; only the assertion absolute was wrong. Gate stays as-is and Phase-21 numbers STAND (its strictness is a deliberate eval-design choice, recorded as such, never doctrinal fidelity). 7-item fix spec preserved in `260728-1pj-FINDINGS.md` section 6 -- implement it fresh, do not re-derive. See quick/260728-1pj. |
+| 2026-07-28 | test-double-taxonomy-and-red-criterion-d | merged (c7a452d) then SUPERSEDED -- its acceptance gate found ten blocking defects | Authored the cross-author test-double taxonomy (three byte-identical copies under lz-red / lz-refactor / lz-tpp), the red-criterion doctrine, and four provenance fixes. Merged gate-green, then the MANDATORY unbiased review found **ten blocking defects**, the worst being that the document **attributed to Gerard Meszaros a mapping he never made** -- it claimed he equates his canned-answer double to a Beck term. The owner settled it against the PRINT book: Beck's column is blank in EVERY row of the terminology cross-reference, and since eight other source columns are filled, the mapping simply does not exist. The authority-denial built on that fabrication went with it. Second-worst: the document's own table FALSIFIED its central exhaustive negative -- it asserted a cell was named by no author while five of its own rows sat in that cell. Also coined a term (`signature skeleton`) the owner then struck: no invented vocabulary. Six green checkers had passed the defective version at 12/12, which is why the battery is not the gate. Remediated by 260728-wev. See quick/260728-j9m. |
+| 2026-07-28 | revise-test-double-taxonomy-drop-coined- | merged (1d1474b) then SUPERSEDED -- a THREE-reviewer gate returned DO NOT ACCEPT | Remediation of 260728-j9m: dropped the coined term, re-axed the document on three axes (where the artifact lives / what it stands in for / lifetime), removed the fabricated mapping, and reframed Meszaros as the collision's corroborating authority. Executed instrument-first: **all 17 guards PROVEN to fail at baseline** before any content edit, which caught the executor's own author reproducing banned phrasing verbatim. Battery 132 -> 146 checks, re-verified in the MAIN checkout not just the worktree. THEN ITS OWN GATE REJECTED IT -- two content reviewers (one wholly unprimed) plus an instrument auditor returned DO NOT ACCEPT, DO NOT ACCEPT, TRUSTWORTHY WITH GAPS: **four blocking, ten important, seven minor.** Headline: the revision REPRODUCED the defect class it existed to remove, inverted -- it asserted a cell was POPULATED where its own table shows zero rows, having previously asserted EMPTY where the table showed five. Also: the headline naming recommendation was uncitable under the document's own citability rule (all six rows in the recommended cell are `Uses`, zero `Defines`); the degraded-scan rule contradicted the central argument; and the replacement paragraph still carried the chronology it was ordered to shed (`postdates` plus three priority dates). Instrument audit: **nine of seventeen guards weak, and two reproduce the very "needle outlives its subject" defect this round existed to fix** -- both demonstrated by editing the named row and watching the guard still pass. The unprimed reviewer found the most, including two blocking defects neither other reviewer saw. Remediated by 260729-2ig. See quick/260728-wev. |
+| 2026-07-29 | remediate-the-test-double-taxonomy-after | merged (177a92d) NOT ACCEPTED -- gate returned ACCEPT WITH FIXES plus TRUSTWORTHY WITH GAPS | Second remediation, run unattended. **The instrument-first discipline held and is the transferable result:** 172 emitted checks PREDICTED from inventory before the run then measured exactly; 20 guards RED at baseline each with a file:line; 14 invariant-GREEN each with a fixture set proving pristine passes, mutation fails, empty fails, and for a strengthened guard that the OLD needle passes the same evasion; zero guards carrying neither proof; zero weakened to manufacture one. An independent audit reproduced ALL 20 RED claims with verbatim FAIL strings, found no guard misfiled between the two proof kinds, and confirmed the six row-scoped guards genuinely close their defects -- decoy prose is now STRUCTURALLY unreachable because the parser only reads pipe-leading rows of the right width. Roster gate verified exact-equality strong across 8 scenarios incl. the short swap; byte-identity 9/9 across three positions. Three guards caught the executor mid-task, twice on the per-line wrap hazard it had been warned about, and once where it DECLINED to re-pin a count rather than soften a guard. **Then the orchestrator found a banned chronology construction had survived** -- because the CONTEXT.md it designated as the authority omitted a requirement its own task brief carried, so planner, checker and executor all validated conformance to an incomplete authority and none could see the omission. Closed by a gap task (7726c76, 177a92d) that needed TWO guards, since multi-word needles cannot narrow to single tokens without false-failing live prose, and a per-line needle misses a wrapped phrase. Battery green 175/175. **THE GATE THEN REJECTED IT: 2 blocking, 15 important, 10 minor.** Blocker 1: a qualifier marked NOT OPTIONAL points at sources that do not carry it, while the dependents name it correctly. Blocker 2 is the THIRD instance of one class -- a claim falsified by the document's own table -- and each instance arrived IN THE FIX for the previous one (unnamed-with-five-rows, then populated-with-zero-rows, now collides-when-the-table-says-one-cell). **Loop STOPPED rather than run a fourth round unattended**, because hand-patching is the demonstrated source of the next instance. Recommendation recorded: build a guard that DERIVES survey verdicts from the parsed table instead of editing the verdict, closing the class rather than its third instance. Audit also found one trivially-evadable NEW guard (delete a cell's pipe and the battery stays green while ~21 rows go invisible to the instrument), refuted two author claims by measurement, and confirmed all four holes the executors reported against themselves -- finding a working fix for one via allowlist-inversion by occurrence count, 5/5 caught with zero false-fails. Also flagged: this round DELETED a hard rule that was guarding a live defect, traceable to the split ruling made on the orchestrator's framing -- the owner's call to re-open. Unpushed, untagged, unreleased. See 260729-2ig-ACCEPTANCE-REVIEW.md. |
 
 ## Session Continuity
 
-Last session: 2026-07-17 (resumed via HANDOFF.json, ran the skill-level forcing-function probe, SHIPPED)
-Stopped at: SHIPPED the skill-level loop-audit forcing-function. Resumed the queued probe (HANDOFF.json): embedded an always-active AUDIT+DECIDE loop audit in SKILL.md step 5 (mandatory 2-subagent review, 1 unbiased, PASS). Held-out Option A (recall, getTypesOfSchema, natural prompt) + Option B (precision, stylesheet-updates.ts, 8 non-convertible loops), invoke_skill apply k=5 each on angular-cli. v1 audit: recall full 2/5, precision 0/5. User chose "tighten recall first" -> added a relocated-helper + sub-collection-union->flatMap clause (scalar-merge->spread/leave; 2-subagent re-review, 1 unbiased, closed a scalar-merge over-conversion hazard, PASS). v2: **recall full loop-to-pipeline 5/5 (union->flatMap 2/5->5/5), precision 0/5 over-conversions (decoy correctly left), all tsc --strict clean.** User chose "Ship it" -> committed 01208c8 (feat SKILL.md) + 663f3a1 (eval evidence, 64 files; outputs/ transcripts gitignored). HANDOFF.json deleted (consumed); .continue-here.md refreshed; angular-cli restored pristine (22.0.x @ 5584a589a, throwaway branch deleted). FIRST non-null + SAFE lever on the output-warrant axis after five nulls: an ACTIVE forcing-function step both reproduces skill-alone AND stays precise. Operator EXPLICITLY asked NOT to audit or complete the milestone this session.
+Last session: 2026-08-02 (resume-work)
+Stopped at: Resumed from HANDOFF.json mid-pilot and closed four things. (1) REPAIRED THE MIXED RESULTS TREE -- run-1 carried a fresh capture with a stale round-1 grade and runs 2-3 were round-1 captures; verified the round-1 archive intact (27/27) first, cleared the stale grades, recorded a resume boundary BEFORE re-running, re-ran all three with --force, and asserted fail-closed that every meta started_at AND every grade mtime postdates the boundary before computing anything. (2) FINISHED THE PILOT AND APPLIED THE PRE-REGISTERED RULE VERBATIM: N = 3 of 3 (all runs touched src/correlation-id.ts), zero void runs, $4.11 -> CEILING HELD -> the ~$27 k=5 round was NOT bought. D-03 (cutting a1's antecedent) did NOT move the baseline; the discriminator is now 21 of 21 correct and the baseline arm alone is 6/6 on a1 across BOTH prompt versions. Recorded as NOT-TESTED, never as a null: FUT-TAXONOMY-SHARED stays OPEN, status NOT-YET-TESTED. The ceiling is structural -- the shipped SKILL.md the baseline loads carries both the qualify-by-side rule and a worked example whose stub IS this cell's answer -- so measuring a taxonomy effect needs a NEW cell, not another rewording of a1. (3) PHASE 21 CLOSE-OUT AUDITS, both reached BY their dedicated agents rather than the workflows' inline short-circuits: gsd-security-auditor returned SECURED 9/9, threats_open 0, with T-21-SC (the only high) closed by a recorded legitimacy-gate PASS per nominated target and two threats probed at runtime (9/9 and 6/6 fail-closed paths) rather than read; gsd-nyquist-auditor returned PARTIAL and found a REAL gap -- selfcheck-red had zero references to invoke_treatment/invoke_forcing/d12, so 2 of 5 own-skill arms were never parity-asserted -- closed it in test code (+164/-2), and its FIRST fix failed its own mutation test (a forward-slash spelling of plugins/lz-tdd collapsed a lever past a raw string compare; fixed with path-insensitive samePath). nyquist_compliant was set only AFTER correcting the map: EVL-03.5's judge-input emission (never built) and EVL-03.7's scaffold (doc review) moved to Manual-Only, and the plan-time "latency < 60s" claim corrected as false (battery grew 363 -> 3152 lines, can exceed 600s). (4) EVL-03 DRIFT RECONCILED (owner chose Path A): all 36 captures of the 2026-07-27/28 round re-graded under the current grader, ZERO verdict changes -- the published numbers are grader-regime-invariant. EVL-03 moved Pending -> Complete in REQUIREMENTS.md. Historical SUMMARYs were NOT rewritten (they were true when written); 21-04-SUMMARY got a forward-pointer addendum instead. EVL-01/EVL-02 carry identical "Pending" phrasing but were NOT re-verified -- flagged in REQUIREMENTS.md, do not assume the fix generalized. PROCESS NOTE: a battery run came back RED and it was MY artifact -- I had killed a duplicate run mid-crux and its teardown stranded a grading worktree, which crux 7's canary correctly caught; removed it, confirmed the kata pristine, re-ran alone -> green. I also wrote a fail-open check this session (test $? after an echo) and caught it before trusting it.
+Resume file: none -- see Operator Next Steps
+Prior stopped_at (2026-07-29): Session resumed from HANDOFF.json (quick task 260729-lc9, paused pre-execution). Owner ruled on the two open items: clear the plan-checker findings via REVISION ITERATION 2 (the last permitted iteration), covering ALL THIRTEEN findings (2 BLOCKER + 5 IMPORTANT + 6 MINOR), not the blockers alone. gsd-planner dispatched to revise 260729-lc9-PLAN.md in place; gsd-plan-checker re-check follows and spends iteration 2. If issues remain after it, the only options are force-proceed or abort. Nothing under plugins/ or .claude/ modified; zero spend so far this session.
+Prior stopped_at (2026-07-23): HALTED at 21-04 Task-3 blocking-human run gate (metered 3-arm apply run user-gated per RUN-GATE.md; BUILD complete + GREEN, zero spend)
+Prior session: 2026-07-21T08:48:11.164Z -- Completed 20-03-PLAN.md (Phase 20 build boundary; awaiting user approval for the gated eval run)
+This session (2026-07-21, resume-work): resumed the paused Phase 19 close-out from HANDOFF.json and ran the three mandatory post-phase audits, each reached BY its dedicated agent (never self-certified inline): (1) /gsd-secure-phase 19 -> gsd-security-auditor SECURED, 8/8 threats closed, threats_open 0, 19-SECURITY.md (commit 8833bdf); (2) /gsd-validate-phase 19 -> gsd-nyquist-auditor GAPS-FILLED (no code-test gaps -- docs/hygiene phase), full gate battery independently re-run GREEN, 19-VALIDATION.md nyquist_compliant true (commit c75767d); (3) /gsd-extract-learnings 19 -> 19-LEARNINGS.md (7 decisions / 5 lessons / 7 patterns / 4 surprises), 23 items pooled to ~/.gsd/knowledge via the global-learnings bridge (commit 1407a68). HANDOFF.json + the Phase-19 .continue-here.md consumed. config.json (_auto_chain_active flag) deliberately left unstaged. gsd-verifier had already passed 17/17.
 Superseded-2026-07-17: Resumed via HANDOFF.json -> completed the paused quick task 260716-oby (Loops/pipeline few-shot TS examples). Re-ran the mandatory review that died on the prior session limit: 2 subagents (1 unbiased, 1 primed) both PASS with 0 Critical/0 Important; applied reviewer B's cue-completeness fix; gates GREEN. Replaced the WIP pause commit with a clean docs() commit (3138bbe) -- SHIPPED on teaching merit. HANDOFF.json consumed + deleted. Ran the user-approved held-out recognition eval: **idiom_pattern 0/3=0/3, NULL lift, zero regression** (5th passive-content probe null). angular-cli restored pristine, throwaway branch deleted. 260716-oby RESOLVED. THEN, following a design discussion + web research, ran a user-approved forcing-function diagnostic (enum loop-audit directive in the prompt, k=5, same target): **idiom 0/3 control -> 5/5, all tsc --strict CLEAN + behavior-preserving + discriminating.** CORRECTION: the loop-to-pipeline miss is a DISCRETION/SALIENCE gap, NOT a judgment ceiling -- passive skill content (prose/cues/examples) is null, but an ACTIVE enumeration forcing-function flips it (prompt-level, n=1). Falsified the earlier "judgment ceiling, close it" call. See heldout-enum/RESULTS-enum.md. NEXT candidate (unrun): a SKILL-level forcing-function probe (embed a loop-audit step; test skill-alone reproduction + precision/overcorrection). Not a blocker to closing lz-tdd@0.0.2 on the current shipped skill. Inherited close still pending: /gsd-audit-milestone lz-tdd@0.0.2 then /gsd-complete-milestone lz-tdd@0.0.2 (+ user /reload-plugins to make 3138bbe live).
-Resume file: .planning/.continue-here.md (probe shipped; milestone close pending + deferred)
-Open next (DEFERRED per operator, not this session): /gsd-audit-milestone lz-tdd@0.0.2 then /gsd-complete-milestone lz-tdd@0.0.2. Pending human action: /reload-plugins to make 01208c8 live.
+Resume file: .claude/skills/lz-red-workspace/e2e-red-gilded-rose/RUN-GATE.md
+Open next: Phase 20 - Skill-Effectiveness Evals (EVL-01/02) via /gsd-discuss-phase 20 (then /gsd-plan-phase 20). After Phase 20: /gsd-audit-milestone lz-tdd@0.0.3 then /gsd-complete-milestone lz-tdd@0.0.3 + git tag/GitHub Release. Pending human action: /reload-plugins to make the live 0.0.3 lz-red tree + the shipped forcing-function edit (01208c8) live in-session. STALE checkpoint to clear (user's call): .planning/.continue-here.md queues "Follow-up #2 Beck upgrades" already completed by Phase 17.1 (verified 10/11) -- safe to delete.
 Superseded Open next (2026-07-16): /gsd-audit-milestone lz-tdd@0.0.2 (user-scoped; not yet run), then /gsd-complete-milestone lz-tdd@0.0.2. All milestone phases (6-12) are complete + reconciled on disk; Phase 12's last loose end (nx sweep auto-trigger re-confirmation on HEAD) is now CLOSED (quick 260714-vmy: p8 3/3, no regression). Milestone-audit note carried from 12-VERIFICATION audit_notes: the gaps closed while base Opus 4.8@high is ALSO catalog-grade (null skill output-delta); the skill's robust value is auto-trigger (proven) + a narrow reference edge. CLEANUP: nx throwaway branch lz-refactor-e2e-smoke left with run-3 edits (pristine 23.0.x intact) -- operator restores per quick/260714-vmy SUMMARY.
 
 ## Operator Next Steps

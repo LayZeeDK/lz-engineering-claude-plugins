@@ -14,7 +14,7 @@ guard, D-11 / RESEARCH Pitfall 3).
 **Finding:** The full-tree work-email absence guard is RED. Six committed
 prior-phase planning artifacts contain the work-email domain in its PLAIN
 (unescaped) form -- a genuine public-repo PII leak, distinct from the sanctioned
-escaped `@consensus\.dk` needle that D-11 permits in docs that quote the guard:
+escaped work-domain needle that D-11 formerly permitted in docs quoting the guard:
 
 - `.planning/phases/02-tpp-source-distillation/02-SECURITY.md` -- in `main`, ACCEPTED
 - `.planning/phases/03-lz-tpp-skill-authoring/03-REVIEW.md` -- in `main`, ACCEPTED
@@ -23,10 +23,9 @@ escaped `@consensus\.dk` needle that D-11 permits in docs that quote the guard:
 - `.planning/phases/08-kerievsky-catalog-refactoring-to-patterns/08-SECURITY.md` -- branch-only, SCRUBBED
 - `.planning/phases/08.2-functional-catalog-inserted/08.2-SECURITY.md` -- branch-only, SCRUBBED
 
-Detection: `git grep -lE 'consensus\.dk'` (ERE; the escaped `\.` is a literal
-dot, so the pattern string itself carries no plain-form domain and does not
-self-trip). It matches the unescaped domain but NOT the escaped `@consensus\.dk`
-needle, so the six files above carry the domain in plain form. These are almost
+Detection: a bare work-domain scan, held only ephemerally on the command line and
+never committed (the needle is itself a leak). It matched the plain-form domain but not
+the escaped-needle form, so the six files above carried the domain in plain form. These are almost
 certainly the Pitfall-3 self-reference trap: security-auditor / review outputs
 that spelled the plain domain while asserting its absence.
 

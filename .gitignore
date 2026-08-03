@@ -21,6 +21,14 @@ Thumbs.db
 # Session/handoff scratch (GSD resume notes) -- never distributed.
 .continue-here.md
 
+# Agent worktrees created by subagent isolation (isolation: "worktree") and by GSD
+# execute/quick dispatch. Each is a full second checkout of this repo (~78 MB observed),
+# so leaving it untracked meant a stray `git add .` would stage a duplicate tree. The
+# nested checkout's own .gitignore already covers .oracle/ and .continue-here.md inside
+# it, so the exposure was bulk rather than sensitive -- but these are throwaway by
+# construction: merge the branch by exact name, then `git worktree remove`.
+.claude/worktrees/
+
 # Skill-creator eval workspaces (.claude/skills/<skill-name>-workspace/).
 # Keep the eval RECORD tracked -- eval sets, eval_metadata.json, benchmark.json/.md,
 # grading.json, EVAL-RESULTS.md, and the vendored tools/ harness. Ignore only caches
@@ -43,6 +51,39 @@ Thumbs.db
 .claude/skills/lz-refactor-workspace/**/results*/
 .claude/skills/lz-refactor-workspace/**/run-*/
 .claude/skills/lz-refactor-workspace/**/trigger-results-*.json
+# Per-run eval captures for lz-red (Phase 20, Pitfall 8): the generic *-workspace rules above
+# drop only caches; the bulky per-run capture dirs + probe-stdout chunks are per-skill. Mirror
+# the lz-refactor block above (additive; NOT a *-workspace generalization, which would newly
+# ignore already-tracked lz-tpp trigger-results-*.json).
+.claude/skills/lz-red-workspace/**/results*/
+.claude/skills/lz-red-workspace/**/run-*/
+.claude/skills/lz-red-workspace/iteration-*/
+.claude/skills/lz-red-workspace/**/trigger-results-*.json
+# Phase 21 RED apply suites (e2e-red-*): per-run capture tree under each suite dir. The generic
+# lz-red-workspace results*/ + run-*/ lines above and the *-workspace outputs/ line already cover
+# these paths; these explicit e2e-red-* lines make the new suite's run tree unambiguous
+# (results/apply/<arm>/<pid>/run-N/{meta.json,answer.md,diff.patch,red-grade.json,outputs/}). No
+# work/ line: the grader drives os.tmpdir() worktrees, so nothing lands in the tracked tree.
+.claude/skills/lz-red-workspace/e2e-red-*/**/results*/
+.claude/skills/lz-red-workspace/e2e-red-*/**/run-*/
+.claude/skills/lz-red-workspace/e2e-red-*/**/outputs/
+# mechanical-red.json is tabulate-mechanical-red.mjs's rollup OF that ignored run tree, so it is a
+# derived byproduct with the same lifetime -- regenerate it by re-running the tabulator. Ignoring it
+# next to results*/ keeps a stale rollup from being swept into a commit alongside unrelated work.
+# (The tracked verdict lives in EVAL-RESULTS.md; the lz-refactor analog tracks its mechanical.json
+# as frozen milestone evidence, which is a different, deliberate choice.)
+.claude/skills/lz-red-workspace/e2e-red-*/mechanical-red.json
+# EVL-01 reciprocal probe stdout + throwaway stderr (workspace root), and the runner-generated
+# per-chunk eval-set inputs (recall-chunk-*.json / spec-chunk-*.json). Raw, re-runnable byproducts;
+# the tracked evidence is EVAL-RESULTS.md. Root-anchored so evals/reciprocal-red.json stays tracked.
+.claude/skills/lz-red-workspace/reciprocal-*.json
+.claude/skills/lz-red-workspace/reciprocal-*.err
+.claude/skills/lz-red-workspace/evals/d07-chunks/recall-chunk-*.json
+.claude/skills/lz-red-workspace/evals/d07-chunks/spec-chunk-*.json
+# D-09 held-out A/B probe stdout/stderr (workspace root). The tracked evidence is the input set
+# evals/heldout-d09.json + the EVAL-RESULTS.md D-09 write-up; the raw per-run outputs are re-runnable.
+.claude/skills/lz-red-workspace/heldout-d09-*.json
+.claude/skills/lz-red-workspace/heldout-d09-*.err
 # Reference-eval (quick 260714-nxp): raw per-run outputs + the generated aggregate are local
 # byproducts. The verdict is tracked in e2e-reference/REFERENCE-RESULTS.md; runs are re-runnable.
 .claude/skills/lz-refactor-workspace/e2e-reference/results/

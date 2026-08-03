@@ -1,0 +1,132 @@
+{
+  "version": "1.0",
+  "timestamp": "2026-08-02T21:00:00.000Z",
+  "context": "milestone-close-prep",
+  "supersedes_quick_task": "260802-j03",
+  "supersedes_note": "The pilot that handoff was paused mid-way through has RUN and RESOLVED (N=3, ceiling held, round NOT bought). All three phase-21 close-out audits named there are now DONE, and the EVL-03 drift the owner had to rule on is reconciled.",
+  "phase": "21",
+  "phase_name": "applied-red-eval-real-oss-repos",
+  "phase_dir": ".planning/phases/21-applied-red-eval-in-real-oss-repos-multi-dimensional-3-arm-i",
+  "status": "phase_21_fully_closed_milestone_pending_owner",
+  "autonomous": false,
+  "summary": "Phase 21 is fully closed: SECURITY (9/9, threats_open 0), VALIDATION (nyquist_compliant true after correcting the map), LEARNINGS (32 items bridged to the global store). The D-12 pilot returned N=3 of 3 -> CEILING HELD, so the ~$27 round was NOT bought ($4.11 spent). EVL-03 reconciled Pending -> Complete after re-grading all 36 captures with zero verdict changes. Working tree clean; nothing pushed.",
+  "completed_this_session": [
+    {
+      "id": "mixed-tree-repaired",
+      "status": "done",
+      "name": "Verified the round-1 archive intact FIRST, cleared three stale grades, recorded a resume boundary BEFORE re-running, re-ran all three with --force, and asserted fail-closed that every meta started_at AND every grade mtime postdates the boundary before computing N."
+    },
+    {
+      "id": "pilot-resolved",
+      "status": "done",
+      "name": "N = 3 of 3, zero void runs, $4.11. CEILING HELD under the rule as committed. D-03 did not move the baseline; the discriminator stands at 21 of 21 and the baseline arm alone is 6/6 on a1 across both prompt versions. Recorded as NOT-TESTED, never null."
+    },
+    {
+      "id": "secure-21",
+      "status": "done",
+      "name": "gsd-security-auditor: SECURED 9/9, threats_open 0. T-21-SC closed by a recorded legitimacy-gate PASS per target. Two threats runtime-probed rather than read."
+    },
+    {
+      "id": "validate-21",
+      "status": "done",
+      "name": "gsd-nyquist-auditor: PARTIAL, found a real gap (d12 arms never parity-asserted; 2 of 5 own-skill arms), closed it in test code. Its first fix failed its own mutation test. nyquist_compliant set only AFTER moving two never-built rows to Manual-Only and correcting a false latency claim."
+    },
+    {
+      "id": "evl03-reconciled",
+      "status": "done",
+      "name": "Owner chose Path A. All 36 captures re-graded under the current grader: ZERO verdict changes, so the numbers are grader-regime-invariant. EVL-03 Pending -> Complete. Historical SUMMARYs left intact with a forward-pointer addendum."
+    },
+    {
+      "id": "learnings-21",
+      "status": "done",
+      "name": "Extracted LAST in the sequence (after secure + validate) and bridged 32 item sections to the global store as one uninterrupted build-copy-rm; the temp file was never staged."
+    }
+  ],
+  "remaining_tasks": [
+    {
+      "id": "secure-17.1",
+      "status": "done",
+      "name": "DONE (commit 27d69b5). gsd-security-auditor returned SECURED 5/5, threats_open 0 for phase 17.1 -- the only phase that had no SECURITY.md, found while checking milestone readiness. T-17.1-SC accepted with its no-installs PREMISE independently verified (logged as AR-17.1-SC). All eight phases now carry SECURITY + VALIDATION + LEARNINGS + VERIFICATION."
+    },
+    {
+      "id": "audit-milestone",
+      "status": "not_started",
+      "name": "/gsd-audit-milestone lz-tdd@0.0.3, and COMMIT the audit -- the commit is part of the command, not a follow-up the user must ask for."
+    },
+    {
+      "id": "complete-milestone",
+      "status": "not_started",
+      "name": "/gsd-complete-milestone lz-tdd@0.0.3 with MANUAL archival -- gsd-sdk milestone.complete rejects the @-scoped non-vX.Y version string. Follow the 0.0.2 precedent."
+    },
+    {
+      "id": "tag-and-release",
+      "status": "blocked_on_owner",
+      "name": "Tag + GitHub Release. OUTWARD-FACING and hard to retract -- confirm with the owner before publishing."
+    },
+    {
+      "id": "push",
+      "status": "blocked_on_owner",
+      "name": "Nothing has been pushed; the branch is ~380 commits ahead of origin/main."
+    }
+  ],
+  "blockers": [
+    {
+      "type": "technical",
+      "description": "The D-12 cell is at a STRUCTURAL ceiling -- the baseline arm loads a skill containing both the decision rule and a worked example whose answer IS the cell answer.",
+      "workaround": "None by rewording. A new cell where the baseline is not already correct is the only way to measure a taxonomy effect. Do NOT re-pilot a reworded a1."
+    },
+    {
+      "type": "technical",
+      "description": "ARM-LENGTH CONFOUND, measured and declared rather than fixed: baseline 167 lines, forcing 174, treatment 282.",
+      "workaround": "Unfixable -- you cannot guarantee the dose and hold length constant at once. Report any treatment effect as confounded with length and position."
+    },
+    {
+      "type": "technical",
+      "description": "EVL-01 and EVL-02 carry the same stale Pending phrasing EVL-03 did, and were NOT re-verified.",
+      "workaround": "Verify each against its own results write-up. The EVL-03 fix is not evidence they generalized."
+    }
+  ],
+  "async_jobs": [],
+  "human_actions_pending": [
+    {
+      "action": "Approve the milestone close for lz-tdd@0.0.3",
+      "blocking": true,
+      "context": "All 8 phases carry VERIFICATION + VALIDATION + LEARNINGS, and SECURITY once 17.1 lands. The EVL-03 drift that blocked the close is resolved."
+    },
+    {
+      "action": "Approve tagging and publishing a GitHub Release",
+      "blocking": true,
+      "context": "Outward-facing and hard to retract. Not to be self-approved."
+    }
+  ],
+  "decisions": [
+    {
+      "phase": "2026-08-02",
+      "decision": "Applied the pre-registered pilot rule verbatim and did NOT buy the round.",
+      "rationale": "N=3 is the rule's explicit CEILING HELD branch. A decision rule reinterpreted after seeing the numbers is not a decision rule. The verdict distribution (2 genuinely_red + 1 blunt_red) is recorded second and is explicitly not the gate."
+    },
+    {
+      "phase": "2026-08-02",
+      "decision": "Recorded the outcome in a NEW targets.json pilot_result field instead of editing ceiling_note.",
+      "rationale": "pilot_decision_rule forbids editing itself after the pilot runs; adding a sibling field preserves the audit trail byte-for-byte. Both protected fields were verified identical to HEAD by parse-and-compare."
+    },
+    {
+      "phase": "2026-08-02",
+      "decision": "Reached both close-out verdicts BY the dedicated agents, refusing the workflows' inline short-circuits.",
+      "rationale": "Both short-circuits would have passed cleanly -- and the nyquist auditor then found a real coverage gap the short-circuit would have missed entirely. Self-certification is not an audit."
+    },
+    {
+      "phase": "2026-08-02",
+      "decision": "Corrected the living status records but did NOT rewrite historical SUMMARYs.",
+      "rationale": "A SUMMARY is a point-in-time record; 21-04 was true when written. Editing it to tidy a status field would falsify history. A clearly marked forward-pointer addendum carries the new information instead."
+    },
+    {
+      "phase": "2026-08-02",
+      "decision": "Reconciled EVL-03 only, and flagged EVL-01/EVL-02 as unverified rather than sweeping them along.",
+      "rationale": "They were not re-verified in that pass. Fixing one row is not evidence about the others, and silently widening scope would have manufactured confidence."
+    }
+  ],
+  "uncommitted_files": [],
+  "next_action": "Consume the in-flight 17.1 security audit (re-run it if its result was lost), write and commit 17.1-SECURITY.md from the agent verdict, then /gsd-audit-milestone lz-tdd@0.0.3 and commit the audit. The milestone close, the tag, the Release and the push are all owner-gated.",
+  "context_notes": "THE HEADLINE IS THAT A PRE-REGISTERED $4.11 PILOT KILLED A $27 ROUND, AND THAT IS A WIN, NOT A DISAPPOINTMENT. The cell is at a structural ceiling: the baseline arm loads a skill that already contains the answer, so nothing can be measured there. The discipline that made it usable was committing the decision rule BEFORE the pilot ran, then applying it without reinterpretation once N was visible. SECOND, THE AUDITS EARNED THEIR KEEP. Both workflows offered an inline short-circuit that would have passed phase 21 cleanly; both were refused per the never-self-certify rule, and the nyquist auditor then found that 2 of 5 own-skill arms had never been parity-asserted -- the phase requirement said 'all THREE arms', so the letter passed while the intent failed after the instrument grew. Requirements pin a number; instruments grow. THIRD, THE AUDITOR'S FIX FAILED ITS OWN MUTATION TEST BEFORE IT PASSED, which is exactly why it is trustworthy. A green check that has never been shown to fail is not evidence -- drive every important assertion in both directions. FOURTH, A RED RESULT WAS MY OWN FAULT AND I NEARLY MISREAD IT: a battery failed on the leftover-worktree canary because I had killed a duplicate run mid-crux and its teardown never ran. Diagnose a failure to its cause before doubting the thing under test. I also wrote a fail-open check this session (test $? placed after an echo, which always passes) -- that is a recurrence in this project, so treat exit-status gating as muscle memory, not a rule to recall. FIFTH, ON RECORD-KEEPING: a status field only ever written by the step that DEFERS it will never be cleared by the step that RESOLVES it. That is why EVL-03 sat 'Pending' for a week after its round completed. Build-then-halt needs a matching reconcile-on-completion action. And when reconciling, correct LIVING records and leave HISTORY alone."
+}

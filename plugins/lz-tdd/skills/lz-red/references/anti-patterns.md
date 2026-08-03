@@ -1,0 +1,179 @@
+# RED-step Anti-patterns
+
+Scope: the failure modes to avoid when choosing and writing a failing test, plus the
+listen-to-the-tests meta-rule that reads test-writing pain as design feedback rather than a cue
+to mock more. This is the what-not-to-do surface the coach checks a candidate test against. It
+names six RED anti-patterns, each with a cue to recognize it and an observable-behavior
+correction; states the mockist counterpoint fairly; and offers the Test Desiderata lens for
+weighing what a test buys and costs.
+
+> Mixed-provenance reference. The over-mocking and test-per-class anti-pattern (Ian Cooper's TDD
+> talks), the listen-to-the-tests / keep-the-double-honest points (Sandi Metz, The Design of Tests
+> talk), and the Test Desiderata lens (Kent Beck's Test Desiderata essay and video series) are owned
+> and oracle-verified against the clean-room source. The implementation-detail brittleness thread
+> (Vladimir Khorikov) and the mockist counterpoint (GOOS -- Steve Freeman and Nat Pryce) are
+> high-confidence core, authored blind with no owned source to check against (no-oracle tag).
+> Technique names are kept as plain facts; every description below is written in original words, with
+> no verbatim source prose or code (DST-04).
+
+## The six anti-patterns
+
+Each entry names the failure mode, the cue that a candidate test is falling into it, and the
+red-step move that avoids it. Three of them (over-mocking, private methods, snapshot-as-thinking)
+share one root failure on the assertion side: the test is bound to how the code is built rather
+than to what it does, so it has low resistance to refactoring -- it breaks on a behavior-preserving
+change (Khorikov).
+
+### 1. Over-mocking and test-per-class rigidity
+
+- Anti-pattern: a suite that mirrors the production structure one-to-one -- one spec file per
+  class, a test double stood up for every collaborator the class touches, and assertions that
+  check a collaborator was called rather than what the code produced (Cooper).
+- Recognize by: a mock or collaborator-side stub for nearly every constructor argument; an assertion that a method
+  such as save was invoked; a fresh spec created reflexively the moment a new class is added.
+- Correction: drive tests from behavior reached through the public API or port, and reserve a
+  double for the one boundary that warrants it -- an outgoing command at the edge of the module.
+  Add a new test when a new behavior appears, not when a new class appears. A test coupled to the
+  call graph has low resistance to refactoring: rename or inline a collaborator and it fails even
+  though the behavior held (Khorikov). Where you do stand up that one warranted double, keep it
+  honest: a double can drift out of sync with the real collaborator's interface, so the suite stays
+  green while the code is broken -- guard against that with a shared role or contract test that both
+  the real collaborator and its double must satisfy (Metz).
+
+### 2. Testing private methods
+
+- Anti-pattern: reaching a private method or field straight from a test, through reflection, a
+  cast that strips the visibility, or an internal exported only so a test can call it.
+- Recognize by: a test that casts away private or any to poke at an internal; a test that breaks
+  the instant a helper is renamed, though the observable behavior is unchanged.
+- Correction: exercise the private through the public API that uses it, so the test pins the
+  guarantee rather than the mechanism. If the private is genuinely hard to reach that way, treat
+  the difficulty as design feedback and extract the logic into a collaborator with its own public
+  surface. An assertion bound to an internal name has low resistance to refactoring (Khorikov).
+
+### 3. Multiple unrelated assertions in one test
+
+- Anti-pattern: a single test that checks several unrelated behaviors at once, so one failure
+  cannot tell you which behavior regressed.
+- Recognize by: a test name joined with the word and; assertions that span different behaviors or
+  different units of work inside one test body.
+- Correction: keep one concept per test and split the unrelated checks into separate tests, each
+  named for the one behavior it pins (the one-concept-per-test rule in
+  [test-structure-and-assertions.md](test-structure-and-assertions.md)). A focused test reports
+  precisely what broke.
+
+### 4. A test that passes immediately (no red)
+
+- Anti-pattern: a new test that is green the first time it runs while it is meant to DRIVE new
+  behavior -- so it never showed that it can fail.
+- Recognize by: a fresh test that passes immediately on its first run; an assertion so loose, or
+  aimed at code that already behaves that way, that nothing was actually driven out. Establish what
+  the test is FOR before calling it: this recognizer applies to a test written to drive new behavior.
+- Carve-out: a characterization test is green by construction and is NOT this anti-pattern. It pins
+  what untested code already does, so that a later change becomes detectable -- a pin, not a driver.
+  Demanding a red from it would have this skill condemn its own legacy stance; see
+  [testing-stance/seams-and-legacy.md](testing-stance/seams-and-legacy.md).
+- Correction: for a test that drives new behavior, see it fail first, for the reason you intend,
+  before writing the code that makes it pass. A test that was never red proves nothing about the
+  behavior it claims to guard. Reading a red bar to confirm it fails for the right reason, and the
+  procedure step that gate feeds, are both in
+  [vitest-typescript-mechanics.md](vitest-typescript-mechanics.md); this entry is the anti-pattern
+  only.
+
+### 5. Snapshot-as-thinking
+
+- Anti-pattern: leaning on a serialized snapshot as the primary assertion and accepting whatever
+  it records, then refreshing the snapshot whenever it fails without reading what changed.
+- Recognize by: toMatchSnapshot standing in for a real expectation; a workflow where a failing
+  snapshot is updated on reflex rather than inspected.
+- Correction: assert the specific observable behavior you mean to pin, so the test states an intent
+  a reader can check. Reserve snapshots for stable, serializable output you actually review on
+  every change. A blindly-updated snapshot asserts nothing and has low resistance to refactoring --
+  it shifts shape with the implementation (Khorikov).
+
+### 6. Slow or order-dependent tests
+
+- Anti-pattern: tests that are slow, or that pass only in a particular run order because they share
+  mutable state or reach real I/O.
+- Recognize by: a test that fails when run in isolation or in a different order; fixtures mutated
+  across tests; a suite that hits a real network, clock, or filesystem.
+- Correction: isolate each test's state so it neither leaks into nor depends on another, push I/O
+  out to an imperative shell so the logic under test stays pure and fast, and keep each test
+  independent and quick (the F.I.R.S.T. properties). The fast, isolated tests are the ones you
+  actually run on every change.
+
+## Listen to the tests
+
+Writing the test is the first place the design pushes back. When a test needs heavy setup, a
+double for every collaborator, reflection to reach a private, or an assertion that never reads
+cleanly, treat that friction as feedback about the code under test -- not as a problem to mock your
+way through. Adding another double to silence the friction is the move this rule warns against: it
+preserves the design that caused the pain and buys a more brittle test. Reading test friction this
+way -- a hard-to-write test is a message about the design of the code under test, not a prompt for
+another double -- is Sandi Metz's framing in The Design of Tests (owned). The friction usually points
+one of two ways:
+
+- Toward a functional core: when the awkwardness is logic tangled up with I/O, separate the
+  decision from the effect so the core is a pure function you assert on by value, with no doubles.
+  See [testing-stance/functional-core.md](testing-stance/functional-core.md).
+- Toward a seam: when the awkwardness is that there is nowhere to get a test in at all, introduce a
+  seam and pin the current behavior with a characterization test before you change anything. See
+  [testing-stance/seams-and-legacy.md](testing-stance/seams-and-legacy.md).
+
+Counterpoint (GOOS, stated fairly): the mockist, or London, school -- Fowler's label for the
+position, not a name its proponents gave themselves -- is Steve Freeman and Nat Pryce
+in Growing Object-Oriented Software, Guided by Tests. It also listens to the tests, but reads the
+same friction as pressure to discover the right roles and protocols between objects, and uses mocks
+at those boundaries as a design tool to drive the object relationships out. It is a coherent
+position, not a strawman. This coach keeps the classicist, value-based default -- assert observable
+results and reserve a double for the one warranted boundary, the outgoing command in
+[testing-stance/message-matrix.md](testing-stance/message-matrix.md) -- and treats interaction
+testing as the exception you reach for at a genuine boundary, not the norm. Pick the stance that
+fits the code in front of you; do not impose either school wholesale.
+
+## Test Desiderata: a tradeoff lens
+
+Kent Beck's Test Desiderata name the properties that make a test worth having -- among them
+isolated, composable, deterministic, fast, writable, readable, behavioral, structure-insensitive,
+automated, specific, predictive, and inspiring. Read them as a heuristic for weighing what a test
+buys and costs, not as a checklist to satisfy in full: not every test needs every property, and you
+give one up only when you gain something worth more.
+
+Two of these are a paired aim rather than a tradeoff. A good test is sensitive to a change in
+behavior yet insensitive to a change in structure -- you want both at once (structure-insensitive is
+Khorikov's resistance to refactoring restated). That pairing is the target the other properties
+serve, not opposite ends of one dial.
+
+The real tradeoffs show up when you choose what KIND of test to write, because each kind optimizes a
+different bundle of the properties for a different job:
+
+- A fast, isolated, specific unit test buys quick, precise feedback but predicts less about the whole
+  assembled system -- speed is bought partly at the cost of how much it predicts.
+- A broader test that exercises more of the system predicts more about real behavior, but tends to be
+  slower and less isolated.
+- A production check trades breadth of assertion for staying fast and deterministic enough to run
+  continuously.
+
+No single test maxes all twelve at once. Naming which properties a given test is buying and which it
+is spending -- and choosing the bundle deliberately for the job in front of you -- is the lens, in
+the same coach-not-law voice as the rest of this skill.
+
+## Sources
+
+- Ian Cooper -- the over-mocking and test-per-class anti-pattern: test behavior through the public
+  API and add a test per behavior rather than per class. Owned; oracle-verified against the
+  clean-room source.
+- Sandi Metz, The Design of Tests (talk) -- test-writing pain as design feedback (a hard-to-write
+  test is a message about the code's design), and keeping the one warranted double honest against
+  interface drift via a shared role or contract test. Owned; oracle-verified against the clean-room
+  source.
+- Vladimir Khorikov -- implementation-detail assertions as the low-resistance-to-refactoring
+  failure mode threaded through the over-mocking, private-method, and snapshot anti-patterns.
+  Unowned; high-confidence core only (no-oracle).
+- GOOS (Steve Freeman and Nat Pryce), Growing Object-Oriented Software, Guided by Tests -- the
+  mockist counterpoint that drives object roles out through interaction testing at boundaries.
+  Unowned; high-confidence core only (no-oracle).
+- Kent Beck, Test Desiderata (essay + 12-part video series) -- the good-test properties, presented
+  here as a tradeoff lens rather than a checklist. Owned; oracle-verified against the clean-room
+  source. Sandi Metz's The Design of Tests (owned) corroborates the over-testing cost: too many
+  tests of the wrong thing become a liability.

@@ -1,0 +1,20 @@
+{
+  "name": "red-srvx",
+  "repo": "D:/projects/github/h3js/srvx",
+  "applyBase": "55d90b39840a5bb7236e23c4e326ee4fc3842d57",
+  "repo_path_note": "Taken VERBATIM from `git --git-dir=<repo>/.git --work-tree=<repo> rev-parse --show-toplevel`. resolveArmCwd() refuses a path-form mismatch between this field and the git toplevel before it creates anything (T-63f-05 / T-wpu-02), so the value must be git's own string rather than a hand-written one. --work-tree is MANDATORY in that command: with --git-dir alone git resolves the work tree from the CURRENT directory and returns whatever repo the caller happens to be standing in.",
+  "applyBase_note": "The pin is the v0.12.4 release commit. It postdates the merged node-adapter fixes #243/#263, so the defect under test is live rather than stale. No arming is needed here and there is nothing to choose at the gate, so this suite deliberately does NOT set requireExplicitApplyBase.",
+  "protectedBranches": ["main", "master"],
+  "skillCommand": "/lz-tdd:lz-red",
+  "trackSkills": ["lz-red", "lz-tpp"],
+  "preambles": {
+    "apply": "You are pair-programming with me. Read what I point you at and make the change in small steps. After editing, typecheck the touched file(s) and run the affected tests, then tell me what you see. Leave your edits in the working tree; do not commit. Here is my question:\n\n"
+  },
+  "preamble_note": "BYTE-IDENTICAL to every other RED suite's apply preamble, and selfcheck-red crux 2 asserts that across suites. The shared lz-refactor default ends '...run the affected tests to confirm nothing broke', which argues against the behavior a RED eval measures -- the produced test is REQUIRED to fail.",
+  "prompts": [
+    { "id": "r1", "file": "r1-next-test.md", "target": "SRVC", "code": true },
+    { "id": "a1", "file": "a1-stub-the-correlation-id.md", "target": "AMB1", "code": true },
+    { "id": "a2", "file": "a2-stub-the-logger-output.md", "target": "AMB2", "code": true }
+  ],
+  "d12_cell_note": "a1 + a2 are the D-12 AMBIGUITY CELL, added 2026-08-02. Both carry the contested word BARE and UNQUALIFIED and their correct answers land on OPPOSITE sides of the production/test line, so the discriminator is the EXISTING changed_production_files field rather than any new grader: a1 correct is NON-EMPTY, a2 correct is EMPTY. They ride in this suite rather than a new one because a second suite claiming a cell key is what walkAllSuites throws on, and because sharing SRVC's repo, pin, runner and typecheck means the SRVC canaries already prove the plumbing. They do NOT reuse SRVC's dropped-header defect -- that cell is measured saturated (9 archived runs, no arm fabricated a double), so building on it again would measure nothing. REVISED 2026-08-02 by quick 260802-j03 after the first round (18 runs) tied on every dimension and an unbiased audit found it could not have supported any conclusion. Four changes bear on this note. (1) a1's prompt was CUT: the absence assertion that resolved \"Stub it\" is gone, the artifact noun stays. a2 is EXEMPT and must not be cut -- the cut would invert its ground truth, not add ambiguity; see AMB2.ceiling_note. (2) The treatment arm's taxonomy is now INLINED into its generated SKILL.md rather than cited as a reference, because the measured dose was zero; the arm now asks \"does the content help WHEN GUARANTEED PRESENT\", and the arms are no longer matched on skill length. (3) A not-implemented throw on a1 now grades `blunt_red` and PASSES; any instruction to read a wrong_reason as a right-side answer is superseded. (4) Drive the three arms in ONE invocation with `--arm d12` so they interleave by run index. Read targets.json AMB1/AMB2 BEFORE spending a round -- and read AMB1.pilot_decision_rule FIRST, because the cell is at a MEASURED ceiling (the discriminator was correct on 18 of 18 prior runs, in all three arms) and the pre-registered pilot is a blocking GO/NO-GO on whether a round can observe anything at all."
+}

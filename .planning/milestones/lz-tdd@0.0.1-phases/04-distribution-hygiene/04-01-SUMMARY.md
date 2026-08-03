@@ -34,7 +34,7 @@ lift-align-verify over the already-built, already-validating marketplace.
 | Gate | Result |
 |------|--------|
 | Scoped ASCII gate (`plugins/ .claude-plugin/ README.md LICENSE`) | rc=1 clean (PASS) |
-| Full-tree work-email guard (`@consensus\.dk`) | rc=1 absent (PASS) |
+| Full-tree work-email allowlist-inversion guard (only approved gmail permitted) | clean, empty remainder (PASS) |
 | Public contact present (`larsbrinknielsen@gmail.com`) | present in both manifests + README |
 | `claude plugin validate . --strict` | exit 0 ("Validation passed") |
 | plugin-validator agent | PASS -- 0 critical, 0 major |

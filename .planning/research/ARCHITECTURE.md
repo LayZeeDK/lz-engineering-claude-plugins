@@ -1,325 +1,421 @@
 # Architecture Research
 
-**Domain:** Claude Code plugin marketplace repository (single repo hosting its own plugin, which ships one agent skill)
-**Researched:** 2026-07-02
-**Confidence:** HIGH
-
-Verified against three authoritative sources: (1) local plugin-dev skills `plugin-structure/SKILL.md`, `skill-development/SKILL.md`, and `plugin-structure/references/manifest-reference.md`; (2) the official Anthropic `claude-plugins-official/.claude-plugin/marketplace.json`; (3) the maintainer's own directly-analogous `lz-advisor-claude-plugins` repo (a marketplace whose `plugins/lz-advisor/.claude-plugin/plugin.json` sits under a `plugins/<name>/` container and is referenced by `"source": "./plugins/lz-advisor"`).
+**Domain:** Claude Code agent skill (RED-phase TDD coach) inside the `lz-tdd` plugin, mirroring
+its two shipped siblings lz-tpp (green) and lz-refactor (refactor).
+**Researched:** 2026-07-18
+**Confidence:** HIGH (both sibling skills read directly on disk; conventions are observed, not
+inferred; unowned-book source facts are high-confidence core, not verbatim).
 
 ## Standard Architecture
 
+lz-red is a third dual-mode agent skill under the existing `lz-tdd` plugin. It reuses the exact
+progressive-disclosure shape both siblings ship: a lean `SKILL.md` router that auto-triggers as a
+coach and answers on demand as a reference, plus a lazy-loaded `references/` tree the router points
+into but never inlines. Nothing about the plugin/marketplace scaffold changes -- skills are
+auto-discovered from the plugin root, so adding lz-red needs no manifest edits beyond a version
+bump.
+
 ### System Overview
 
-A marketplace repo is a three-level manifest hierarchy. The repo root doubles as the marketplace root; each plugin is a self-contained subtree; each skill is a self-contained subtree inside its plugin. Higher levels only *reference* lower levels -- they never duplicate their contents.
-
 ```
 +---------------------------------------------------------------+
-|  MARKETPLACE  (repo root)                                     |
-|  .claude-plugin/marketplace.json                              |
-|    - name: "lz-engineering-claude-plugins"                    |
-|    - owner: { name }                                          |
-|    - plugins[]: entry per plugin, each with a "source" ref    |
-|         |                                                     |
-|         | source: "./plugins/lz-tdd"   (relative in-repo ref) |
-|         v                                                     |
+|  Claude Code runtime (>= 2.1.x): auto-discovers skills/,      |
+|  namespaces as /lz-tdd:lz-red, triggers on `description`      |
 +---------------------------------------------------------------+
-|  PLUGIN  (plugins/lz-tdd/)                                    |
-|  .claude-plugin/plugin.json                                   |
-|    - name: "lz-tdd"  (drives the /lz-tdd: namespace)          |
-|    - version, description, author, repository, license, keywords
-|  component dirs at PLUGIN ROOT (auto-discovered):             |
-|    commands/  agents/  skills/  hooks/   (only what is used)  |
-|         |                                                     |
-|         | skills/ scanned for subdirs containing SKILL.md     |
-|         v                                                     |
+|  plugins/lz-tdd/  (plugin.json: name + version, MIT)          |
+|   +--------------+   +--------------+   +------------------+   |
+|   | lz-tpp       |   | lz-refactor  |   | lz-red (NEW)     |   |
+|   | GREEN step   |   | REFACTOR step|   | RED step         |   |
+|   +------+-------+   +------+-------+   +--------+---------+   |
+|          ^                                       |             |
+|          | Three Laws 1/2 -> Law 3 handoff       |             |
+|          +---------------------------------------+             |
 +---------------------------------------------------------------+
-|  SKILL  (plugins/lz-tdd/skills/lz-tpp/)                       |
-|  SKILL.md  (required: YAML frontmatter name+description+body) |
-|  references/   assets/   scripts/   examples/  (optional)     |
-|    - references/transformations.md  (loaded on demand)        |
+|  lz-red/SKILL.md  (lean router, target ~80-140 lines < 500)   |
+|   - frontmatter: name + description (dual-mode by omission)    |
+|   - Two modes (coach / reference)                             |
+|   - RED vs green seam (lz-tpp)                                |
+|   - numbered Coach decision procedure (incl. stance router)   |
+|   - "listen to the tests" meta-rule + heuristic caveat        |
+|   - Reference material pointers                              |
++---------------------------------------------------------------+
+|  lz-red/references/  (lazy-loaded; loaded only when routed)   |
+|   flat docs  + one small navigation subdir (testing-stance/)  |
++---------------------------------------------------------------+
+|  .claude/skills/lz-red-workspace/  (NOT shipped; gitignored   |
+|   run byproducts) -- vendored skill-creator eval harness      |
++---------------------------------------------------------------+
+|  .oracle/  (git-ignored clean-room; oracle agents only)       |
+|   owned books: RCM Clean Code, Metz 99 Bottles JS Ed          |
 +---------------------------------------------------------------+
 ```
-
-The two `.claude-plugin/` directories are distinct and never overlap: the one at repo root holds `marketplace.json`; the one at `plugins/lz-tdd/` holds `plugin.json`. This separation is the load-bearing boundary that lets a single repo be both the marketplace and a plugin host.
 
 ### Component Responsibilities
 
-| Component | Owns / Responsibility | What it must NOT do |
-|-----------|-----------------------|---------------------|
-| `.claude-plugin/marketplace.json` (repo root) | Marketplace identity (`name`, `owner`), and the `plugins[]` catalog. Each entry names a plugin and points to its location via `source`. This is the only file the `/plugin marketplace add` command reads first. | Does not contain plugin behavior, skills, or component config. Does not duplicate plugin.json fields (though it may echo `description`/`category` for listing). |
-| `plugins/lz-tdd/.claude-plugin/plugin.json` | Plugin identity (`name` -> namespace), version, and optional custom component paths. Declares metadata for install and marketplace display. | Does not list other plugins. Does not hold component files -- those live at the plugin root, never inside `.claude-plugin/`. |
-| `plugins/lz-tdd/skills/lz-tpp/SKILL.md` | The skill: frontmatter `name`+`description` (always-loaded trigger metadata) and the lean instruction body (loaded when triggered). | Does not carry the full reference corpus -- bulky material goes to `references/` for progressive disclosure. |
-| `plugins/lz-tdd/skills/lz-tpp/references/` | On-demand reference material (the full TPP transformation catalog). Loaded only when the body points Claude to it. | Not always-loaded; must not be required just to trigger the skill. |
-| Repo hygiene (`README.md`, `LICENSE`, `.gitignore`) | Human-facing docs, license, and ignore rules for the whole public repo. | Not read by the plugin runtime; purely distribution/hygiene. |
-
-### `source` Reference Forms (verified from real marketplace.json files)
-
-The `plugins[].source` field controls how the marketplace locates each plugin. Confirmed variants:
-
-| Form | Example | Use for |
-|------|---------|---------|
-| Relative in-repo string | `"source": "./plugins/lz-tdd"` | Plugin that lives in the SAME repo as the marketplace. **This is the form for this project.** |
-| `github` object | `{ "source": "github", "repo": "owner/repo" }` | Plugin in a separate GitHub repo (whole repo is the plugin). |
-| `url` object | `{ "source": "url", "url": "https://.../x.git", "sha": "..." }` | Plugin in an external git repo pinned by sha. |
-| `git-subdir` object | `{ "source": "git-subdir", "url": "...", "path": "plugins/x", "ref": "main", "sha": "..." }` | Plugin in a subdir of an external repo. |
-
-Answer to the core question: **yes, a single repo can host both the marketplace manifest and the plugin(s) it lists** -- confirmed by both the official Anthropic marketplace (`"source": "./plugins/agent-sdk-dev"`) and the maintainer's own `lz-advisor` marketplace (`"source": "./plugins/lz-advisor"`). The relative-path form is exactly designed for this.
+| Component | Responsibility | Typical Implementation |
+|-----------|----------------|------------------------|
+| `SKILL.md` | Router + coach: triggering `description`, mode split, inline numbered decision procedure, stance-router detection, seam handoff, reference pointers | Frontmatter (name + description only) + Markdown body; near lz-tpp size (81 lines), well under 500 |
+| `references/*.md` (flat) | Deep, single-topic docs loaded on demand (test selection, structure/assertions, naming, anti-patterns, Vitest/TS mechanics, principle backing) | Standalone Markdown with own-words prose + tsc-clean TS/Vitest examples (lz-tpp `references/` pattern) |
+| `references/testing-stance/` (subdir) | The adaptive router destinations behind a navigation index | `README.md` index (recognize-by cues + links) + one leaf per stance (Bernhardt / Metz / Feathers) -- the lz-refactor catalog-subdir pattern at small grain |
+| `.claude/skills/lz-red-workspace/` | Eval record + vendored harness; never shipped | evals/*.json + tools/skill-creator-eval (Apache-2.0) + grading `.mjs`, copied from a sibling workspace |
+| `.oracle/` | Clean-room copyrighted source; own-words only crosses back | Markdown book excerpts read solely by oracle/oracle-reviewer agents (DST-04) |
 
 ## Recommended Project Structure
 
-Concrete tree for THIS repo (v1: one marketplace, one plugin `lz-tdd`, one skill `lz-tpp`):
-
 ```
-lz-engineering-claude-plugins/            (repo root == marketplace root)
-|-- .claude-plugin/
-|   '-- marketplace.json                  MARKETPLACE manifest; lists lz-tdd
-|-- plugins/
-|   '-- lz-tdd/                           PLUGIN root (source: "./plugins/lz-tdd")
-|       |-- .claude-plugin/
-|       |   '-- plugin.json               PLUGIN manifest (name: "lz-tdd")
-|       |-- skills/
-|       |   '-- lz-tpp/                    SKILL dir (namespace: /lz-tdd:lz-tpp)
-|       |       |-- SKILL.md               required: frontmatter + lean body
-|       |       '-- references/
-|       |           '-- transformations.md full TPP priority list (on demand)
-|       '-- README.md                      optional per-plugin readme
-|-- research/                             optional: source-of-truth material
-|   |-- clean-coder-tpp.md                  (2 blog posts distilled)
-|   '-- ndc-2011-transcript.md              (talk transcript)
-|-- README.md                             repo/marketplace readme + install cmd
-|-- LICENSE                               MIT, covers the whole repo
-'-- .gitignore
+plugins/lz-tdd/skills/lz-red/
++-- SKILL.md                              # NEW lean router (target ~80-140 lines)
++-- references/
+    +-- three-laws-and-test-selection.md  # RCM Three Laws spine + Beck test tactics + seam
+    +-- test-structure-and-assertions.md  # AAA/GWT, assert-first, evident data, one concept, F.I.R.S.T., Khorikov pillars
+    +-- testing-stance/                   # the ADAPTIVE router (navigation index + leaves)
+    |   +-- README.md                     # detection signals + route table (navigation only)
+    |   +-- functional-core.md            # Bernhardt FCIS: value-based tests, no doubles
+    |   +-- message-matrix.md             # Metz+Owen query/command matrix (design-agnostic)
+    |   +-- seams-and-legacy.md           # Feathers no-seam legacy: seam first + characterization
+    +-- naming.md                         # behavior-shaped naming (North, Osherove, Metz)
+    +-- anti-patterns.md                  # over-mock / test-per-class (Ian Cooper), impl-detail
+    |                                     #   assertions (Khorikov), GOOS mockist counterpoint
+    +-- vitest-typescript-mechanics.md    # it.todo test list, test.each triangulation,
+    |                                     #   expectTypeOf/assertType, vi.* restraint, watch loop,
+    |                                     #   fast-check property triangulation, "fail for the right reason"
+    +-- principle-backing.md              # source-to-recommendation map + owned/unowned tier notes
 ```
 
-Notes on this layout:
+### Structure Rationale
 
-- **`plugins/<name>/` container from day one.** Even with a single plugin, do NOT flatten the plugin to the repo root. Keeping `plugins/lz-tdd/` separate from the repo-root `.claude-plugin/` is what makes adding a second plugin a pure addition (no move/restructure). The maintainer's `lz-advisor` repo follows exactly this.
-- **Component dirs live at the plugin root** (`plugins/lz-tdd/skills/`, not `plugins/lz-tdd/.claude-plugin/skills/`). Auto-discovery only scans the plugin root. This is an explicit rule in `plugin-structure/SKILL.md`.
-- **Skill directory name == intended skill namespace segment.** Directory `lz-tpp/` + plugin.json `name: "lz-tdd"` produce the `/lz-tdd:lz-tpp` reference. Keep the SKILL.md frontmatter `name` aligned (`lz-tpp`) to avoid confusion.
-- **The transformation catalog belongs in `references/`, not in SKILL.md.** It is the on-demand tier of progressive disclosure. Short, illustrative TypeScript examples that are core to the coaching behavior can stay inline in SKILL.md; the exhaustive ordered list loads only when needed.
-- **`research/` is optional and NOT part of the shipped skill context.** The analog repo keeps a `research/` dir at repo root for provenance. Grounding source material (the 2 Clean Code posts + NDC transcript) can live there; the distilled, shippable artifact is `references/transformations.md`.
-
-### License placement
-
-Put a single `LICENSE` (MIT) at the repo root -- it covers the whole public repo, which is the hygiene requirement. Additionally set `"license": "MIT"` in `plugin.json` (machine-readable, used for marketplace display). A per-plugin `LICENSE` file (as the analog repo has at `plugins/lz-advisor/LICENSE`) is optional and only worth adding if a plugin might be consumed independently of this repo. For v1, root LICENSE + plugin.json license field is sufficient.
-
-### `${CLAUDE_PLUGIN_ROOT}` usage
-
-For v1 this is effectively **not needed**. `${CLAUDE_PLUGIN_ROOT}` is required for paths inside executable manifests -- hook commands, MCP server args, and scripts -- because the plugin's install location is unknown. v1 ships no hooks, MCP servers, or scripts. A skill's own `references/` files are addressed relative to the skill directory (the SKILL.md body simply points to `references/transformations.md` and Claude loads it). Reserve `${CLAUDE_PLUGIN_ROOT}` for the future case where a skill gains a `scripts/` helper that a hook or command must invoke by absolute path -- at which point use `${CLAUDE_PLUGIN_ROOT}/skills/lz-tpp/scripts/<tool>` rather than any relative or hardcoded path.
+- **Flat docs, not a big catalog:** unlike lz-refactor (62 + 27 + 23 + 19 catalog leaves behind
+  index stubs), lz-red has no large enumerable catalog. Its knowledge is a small set of principles
+  and one router. So the right grain is lz-tpp's -- a handful of flat single-topic docs -- not a
+  many-leaf catalog. Do NOT over-decompose; a doc per source author would be catalog cosplay.
+- **One navigation subdir (`testing-stance/`):** the adaptive router is the skill's novel core and
+  the only part with a real branch. Splitting it into a navigation `README.md` (detection signals +
+  route table) plus three separately loadable leaves mirrors lz-refactor's proven index-is-navigation
+  -only, leaf-carries-content convention, and keeps the router logic in SKILL.md thin (route by
+  signal, open the matching leaf). Three destinations justify the subdir; a fourth would too.
+- **`test-selection` and `structure/assertions` split:** picking WHICH test (test list, one-step,
+  starter/degenerate, triangulation) and structuring THAT test (AAA/GWT, assert-first, evident data,
+  F.I.R.S.T.) are two decision-procedure steps with distinct source clusters; keeping them separate
+  lets the coach load only the one the current question needs.
+- **`principle-backing.md` single doc, not per-book files:** lz-refactor shipped separate
+  `beck-*.md` backing docs, but lz-red's unowned sources (Beck, Khorikov, Feathers, Cooper, North,
+  Osherove, GOOS, fast-check) are used as a cross-reference map, not full catalogs. One backing doc
+  that maps each recommendation to its source and marks the owned/unowned access tier is leaner and
+  matches the no-oracle high-confidence-core posture.
 
 ## Architectural Patterns
 
-### Pattern 1: Repo-as-marketplace with co-located plugins
+### Pattern 1: Dual-mode-by-omission frontmatter
 
-**What:** One git repo is simultaneously the marketplace (root `.claude-plugin/marketplace.json`) and the host of its plugins (`plugins/<name>/`), wired together with relative `source` strings.
-**When to use:** A maintainer owns both the catalog and the plugins (this project's exact situation).
-**Trade-offs:** Simplest possible distribution (one `git clone`, one `/plugin marketplace add`); no cross-repo version pinning. If a plugin later needs an independent release cadence, migrate its entry to a `git-subdir`/`url` source pointing at its own repo -- the marketplace entry changes, the plugin subtree can move out, and consumers are unaffected.
+**What:** The skill declares only `name` (== directory name) and a `description`. Omitting
+`disable-model-invocation` and `user-invocable` leaves both defaults, so the skill BOTH
+auto-triggers as a coach and answers explicit `/lz-tdd:lz-red` invocations as a reference. Both
+siblings do exactly this.
+**When to use:** Always here -- lz-red must auto-fire mid-TDD (coach) and be directly askable
+(reference).
+**Trade-offs:** The `description` carries the entire triggering burden. It must be scoped tightly
+enough to fire on RED-phase / next-failing-test / testing-stance prompts and stay quiet on
+green-step and refactor near-misses. Budget: the load-bearing window is ~1000-1536 chars
+(truncation at 1536); lz-refactor's is 774. Reserve the tail for the two exclusion clauses.
 
-**Example (`marketplace.json`):**
-```json
-{
-  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
-  "name": "lz-engineering-claude-plugins",
-  "owner": { "name": "Lars Gyrup Brink Nielsen" },
-  "plugins": [
-    {
-      "name": "lz-tdd",
-      "source": "./plugins/lz-tdd",
-      "description": "Test-driven development skills for Claude Code",
-      "category": "development"
-    }
-  ]
-}
+**Example:**
+```yaml
+---
+name: lz-red
+description: >-
+  This skill should be used during red-green-refactor TDD to choose and write the next
+  FAILING (red) unit test well ... adaptively matching the codebase's testing stance ...
+  Do NOT use it to make a failing test pass (that is the green/transformation step -- use
+  lz-tpp) nor to restructure passing code (that is the refactor step -- use lz-refactor).
+---
 ```
 
-### Pattern 2: Progressive disclosure (three loading tiers)
+### Pattern 2: Inline numbered coach decision procedure
 
-**What:** Skill content is split by how often it is needed -- frontmatter metadata (always in context), SKILL.md body (loaded on trigger), `references/` (loaded on demand).
-**When to use:** Every skill; mandatory for the TPP catalog which is bulky.
-**Trade-offs:** Keeps context lean and triggering accurate; costs a small amount of upfront design deciding what is "core" vs "reference." Rule of thumb from `skill-development/SKILL.md`: SKILL.md body 1,500-2,000 words (hard cap ~5k); move detailed catalogs to `references/`.
+**What:** The coach logic lives as a numbered list in SKILL.md (lz-tpp: 7 steps; lz-refactor: 6).
+It is concrete and self-contained -- it names the move, states the seam classification first, and
+routes to a `references/` doc only for depth. lz-red's procedure is the RED spine plus the stance
+router folded in as one step.
+**When to use:** Always -- the procedure IS the skill; it must not be buried in references.
+**Trade-offs:** Adds lines to SKILL.md; keep each step one to three sentences and push examples to
+references to hold the line count near lz-tpp.
 
-**Example (SKILL.md body pointer):**
-```markdown
-## Transformation priority reference
+**Proposed lz-red coach procedure (7-8 steps, mirroring lz-tpp shape):**
 
-For the complete ordered transformation list with TypeScript examples,
-consult `references/transformations.md`.
+1. **Classify against the seams.** Are we adding a NEW failing test? That is RED (this skill). If a
+   red test already exists and the question is the minimal code to green it, that is the green step
+   -- hand off to lz-tpp and stop. If the tests are green and the code needs restructuring, that is
+   lz-refactor. RED = selecting and writing the next failing test.
+2. **Detect the house idiom** (router step A -- see Detection Signals below). Read existing test
+   files and framework config; adopt their structure, assertion style, naming, and doubles
+   convention. Never impose a foreign idiom on a codebase that has one.
+3. **Pick the next test.** Consult / build the test list (`it.todo`). Prefer a one-step test
+   passable by a high-priority transformation (this is the reciprocal of lz-tpp's amended
+   red-green-refactor). If nothing exists yet, start with a degenerate / starter test. Use
+   triangulation (`test.each`, or a fast-check property) to force generalization rather than a
+   fake-it constant surviving.
+4. **Choose the testing stance** (router step B). Classify the unit under test: a pure functional
+   core -> Bernhardt value-based tests, no doubles (`testing-stance/functional-core.md`); an object
+   with collaborators -> Metz query/command matrix -- assert the return of an incoming query, the
+   public side effect of an incoming command, ignore sent-to-self and outgoing queries, expect only
+   outgoing commands (`testing-stance/message-matrix.md`); a no-seam legacy unit (hidden I/O,
+   statics, constructor work, singletons) -> Feathers: introduce a seam and pin behavior with a
+   characterization test first (`testing-stance/seams-and-legacy.md`). Honor an optional override
+   phrase; there is no CLI flag.
+5. **Structure the test.** AAA or Given-When-Then matching the house idiom; assert-first; evident
+   test data; ONE concept per test; keep it F.I.R.S.T. (Fast, Isolated, Repeatable,
+   Self-validating, Timely).
+6. **Assert observable behavior, not implementation.** Assert return values, public state, or
+   observable outgoing messages -- never private fields, and never merely that a collaborator method
+   was called (except a genuine outgoing command). Name the test for the behavior it pins (North's
+   "should ...", Osherove's unit-of-work / scenario / expected).
+7. **Fail for the right reason.** The test must fail with an assertion mismatch, not a compile /
+   type / import error. A test that errors instead of failing is not a valid RED -- fix the harness
+   first.
+8. **Hand off to lz-tpp.** Once the test is red for the right reason, the next move -- the minimal
+   code that makes it pass -- is the transformation step. Point to lz-tpp. Show, don't drive: on a
+   question, present the test and the next step; on an explicit command, write the test but do not
+   run production changes or commit unless asked.
+
+### Pattern 3: Adaptive stance router driven by repo-readable detection signals
+
+**What:** Rather than pick one testing school, the coach reads the actual codebase and routes. This
+is the skill's differentiator and the LOCKED design decision. The router has two detection passes
+(house idiom, then unit shape / seam availability) feeding one route table.
+**When to use:** Every coach invocation with a real codebase in view.
+**Trade-offs:** Detection is heuristic -- if signals conflict or the repo is greenfield, fall back
+to the house idiom (if any) then to the functional-core default, and say so.
+
+**Detection signals (must be actionable -- a coach reading the repo applies these directly):**
+
+| Question | Signals to read | Route implication |
+|----------|-----------------|-------------------|
+| What is the house test idiom? | `*.test.ts` / `*.spec.ts` / `__tests__/`; `vitest.config.*` / `jest.config.*`; package.json `test` script + devDeps; assertion style (`expect().toBe` vs `assert`); `describe`/`it` vs `test`; naming pattern of existing test titles; doubles lib in use (`vi.mock`, `jest.mock`, sinon); AAA vs GWT comment style | Adopt it verbatim in step 2/5. No existing tests -> pick the Vitest + `expect` default and note the choice. |
+| Does the unit already exist and is it controllable? | Is the target function/class exported? Can it be constructed in a test without heavy setup (pure vs needs dependency injection)? | Exists + pure -> functional-core route. Exists + needs collaborators -> message-matrix route. Does not exist yet -> starter/degenerate test drives it into existence (step 3). |
+| Is a seam available, or is this no-seam legacy? | Scan the unit for hidden I/O (`fs`, `fetch`/network, `Date.now`, `Math.random`, env, DB), module-level singletons/statics, real work in the constructor, `new ConcreteCollaborator()` inline | Present -> Feathers route: introduce a seam (parameterize/inject/extract) + characterization test BEFORE the new failing test. Absent -> test directly. |
+
+**Example (route table the SKILL.md step 4 encodes, detail in the leaves):**
 ```
-
-### Pattern 3: Auto-discovery over explicit configuration
-
-**What:** Claude Code discovers `skills/*/SKILL.md` automatically; the plugin.json needs no `skills` field unless using a non-default location.
-**When to use:** Standard layouts (this project). Keep `plugin.json` minimal -- `name` is the only required field.
-**Trade-offs:** Less to maintain, fewer paths to get wrong. Custom component-path fields exist but *supplement* (never replace) the defaults, so adding them is rarely worth the extra surface area.
+pure value-in/value-out .......... Bernhardt FCIS  -> functional-core.md   (assert the value; no doubles)
+object with collaborators ........ Metz matrix     -> message-matrix.md    (assert by message type)
+hidden I/O / statics / ctor work . Feathers        -> seams-and-legacy.md  (seam + characterization first)
+```
 
 ## Data Flow
 
-Instead of a runtime request cycle, the meaningful flow is install -> discovery -> activation, and it maps directly onto the three manifest levels.
-
-### Install and discovery flow
+### Invocation and progressive-disclosure load flow
 
 ```
-User: /plugin marketplace add LayZeeDK/lz-engineering-claude-plugins
-   -> Claude Code fetches repo, reads .claude-plugin/marketplace.json
-   -> enumerates plugins[]  (lz-tdd -> "./plugins/lz-tdd")
-
-User: /plugin install lz-tdd@lz-engineering-claude-plugins
-   -> reads plugins/lz-tdd/.claude-plugin/plugin.json  (identity, version)
-   -> scans plugins/lz-tdd/skills/  for subdirs containing SKILL.md
-   -> registers lz-tpp; loads its name+description into context (always-on)
+Developer prompt (mid-TDD, or explicit /lz-tdd:lz-red)
+    |
+    v
+description match -> Claude loads lz-red/SKILL.md (router only)
+    |
+    +-- coach mode: run numbered procedure
+    |       step 1 classify -> (green? -> lz-tpp) (refactor? -> lz-refactor)
+    |       step 2 detect house idiom (read repo)
+    |       step 3 pick next test (test list / triangulation)
+    |       step 4 stance route -> OPEN testing-stance/<leaf>.md on demand
+    |       step 5-7 structure / assert behavior / fail-right (open a ref doc if depth needed)
+    |       step 8 hand off to lz-tpp
+    |
+    +-- reference mode: route the question to the one references/ doc and answer from it
 ```
 
-### Skill activation flow (during a TDD session)
+### Seam data flow (the lz-tpp handoff)
 
 ```
-Session context mentions TDD / transformation / TPP
-   -> description match -> SKILL.md body loads into context
-   -> Claude coaches next transformation from the body
-   -> needs the exhaustive ordered list
-        -> reads references/transformations.md on demand
-   -> (reference behavior) user asks to explain the premise
-        -> same reference material serves the explanation
+lz-red   : Three Laws 1 (write a failing test first) + 2 (only enough test to fail)
+              |  RED test that fails for the right reason
+              v
+lz-tpp   : Three Laws 3 (only enough production code to pass) -- the transformation step
+              |  GREEN
+              v
+lz-refactor : structure-only, behavior-preserving cleanup -- the refactor step
+              |  loops back to lz-red for the next test
 ```
 
-### Key data flows
+### Key Data Flows
 
-1. **Reference-by-path, not by-copy:** marketplace.json -> `source` -> plugin dir -> plugin.json -> `skills/` scan -> SKILL.md -> `references/`. Every level points down; nothing is duplicated upward.
-2. **Namespace derivation:** plugin.json `name` ("lz-tdd") + skill dir/frontmatter name ("lz-tpp") = `/lz-tdd:lz-tpp`. Renaming either segment changes the public reference.
+1. **House-idiom detection:** the coach reads existing test files + config, then mirrors that idiom
+   in every test it proposes -- the single always-on router pass.
+2. **Stance routing:** unit-shape/seam signals select exactly one `testing-stance/` leaf; only that
+   leaf is loaded (progressive disclosure keeps the base context lean).
+3. **Seam handoff:** classification in step 1 and the explicit step-8 pointer route behavior changes
+   to lz-tpp and structure changes to lz-refactor, so lz-red never leaves its lane.
 
-## Build Order
+## Scaling Considerations
 
-Ordered by hard dependencies (each step's artifact is required by the next to install/validate cleanly):
+Here "scale" is context budget and authoring surface, not users.
 
-1. **Repo skeleton + hygiene.** `git init`; create `README.md` (stub), `LICENSE` (MIT), `.gitignore`. Rationale: makes the repo a publishable, license-clean baseline; no runtime dependency but should exist before first push.
-2. **Marketplace manifest.** `.claude-plugin/marketplace.json` with `name`, `owner`, and a `plugins[]` entry whose `source` is `./plugins/lz-tdd`. Rationale: it is the entry point `/plugin marketplace add` reads; but its plugin entry does not resolve until step 3 exists.
-3. **Plugin manifest.** `plugins/lz-tdd/.claude-plugin/plugin.json` with `name: "lz-tdd"` (+ version, description, author, repository, license, keywords). Rationale: the `source` from step 2 must point at a directory containing this file for the plugin to install/validate. Must exist before skills are discoverable.
-4. **Skill scaffold.** `plugins/lz-tdd/skills/lz-tpp/SKILL.md` with frontmatter (`name: lz-tpp`, trigger-tuned `description`) and a lean body. Rationale: auto-discovery under `skills/` requires this file to register the skill.
-5. **Bundled reference content.** `plugins/lz-tdd/skills/lz-tpp/references/transformations.md` (the full ordered TPP list + TS examples). Rationale: SKILL.md's on-demand pointers are only meaningful once this exists.
-6. **Docs finalization.** Fill `README.md` with the exact install command (`/plugin marketplace add LayZeeDK/lz-engineering-claude-plugins`). Rationale: the command string depends on the final GitHub `owner/repo`, which is fixed only at push time.
-7. **Validate.** Run plugin-dev's `plugin-validator` agent on the plugin and `skill-reviewer` on the skill; confirm auto-discovery, frontmatter, and manifest paths.
+| Scale | Architecture adjustments |
+|-------|--------------------------|
+| v1 (this milestone) | ~6-7 flat refs + one 4-file stance subdir; SKILL.md near lz-tpp size. Fits the base context comfortably. |
+| If the stance router grows | Add leaves under `testing-stance/`; the navigation README absorbs new routes without touching SKILL.md logic. |
+| If outside-in / acceptance TDD lands (deferred) | New sibling skill or a new reference cluster; keep unit RED and outside-in separate so neither router bloats. Do NOT pre-build it -- it is explicitly out of scope for 0.0.3. |
 
-### What must exist before what
+### Scaling Priorities
 
-| Artifact | Hard prerequisite | Why |
-|----------|-------------------|-----|
-| marketplace.json plugin entry resolves | `plugins/lz-tdd/.claude-plugin/plugin.json` | `source` must point at a real plugin dir |
-| Skill is discovered | `plugin.json` + `skills/lz-tpp/SKILL.md` | discovery scans plugin root's `skills/` |
-| Skill references load | `SKILL.md` body pointer + `references/*.md` | on-demand tier is addressed from the body |
-| README install command is correct | final GitHub `owner/repo` | command embeds the exact repo path |
-
-## Extensibility
-
-The `plugins/<name>/` + `skills/<name>/` layout was chosen precisely so growth is *additive*, never a restructure.
-
-### Add a second skill under `lz-tdd` (e.g., test naming, triangulation)
-
-```
-plugins/lz-tdd/skills/
-|-- lz-tpp/
-|   '-- SKILL.md
-'-- lz-triangulation/          <-- new: just add the directory
-    |-- SKILL.md
-    '-- references/
-```
-
-- No manifest edits required -- auto-discovery scans `skills/` and picks up the new `SKILL.md`.
-- New namespace `/lz-tdd:lz-triangulation` derives automatically.
-- If two skills share reference material, either duplicate the small file per skill (simplest) or, only if it grows large, promote a shared `references/` at the plugin root and point both SKILL.md bodies at it.
-
-### Add a second plugin (e.g., `lz-refactoring`)
-
-```
-plugins/
-|-- lz-tdd/
-|   '-- ...
-'-- lz-refactoring/            <-- new plugin subtree
-    |-- .claude-plugin/
-    |   '-- plugin.json
-    '-- skills/
-        '-- <skill>/SKILL.md
-```
-
-Then add ONE entry to `marketplace.json`:
-```json
-{ "name": "lz-refactoring", "source": "./plugins/lz-refactoring", "description": "...", "category": "development" }
-```
-
-- Existing `lz-tdd` files are untouched -- pure addition.
-- Consider `category`/`keywords` on each entry for discoverability once the catalog has several plugins.
-- If a future plugin needs independent releases, switch its `source` to a `git-subdir`/`url` form and move its subtree to a dedicated repo without disturbing the others.
-
-## Growth Considerations
-
-| Scale | Structure adjustments |
-|-------|-----------------------|
-| 1 plugin, 1 skill (v1) | Flat layout above. `plugin.json` minimal (name + metadata). No hooks/scripts/MCP. |
-| 1 plugin, many skills | Multiple dirs under `skills/`; keep each skill self-contained. Promote shared reference only if genuinely reused and large. |
-| Many plugins | One `plugins/<name>/` subtree + one `marketplace.json` entry each. Add `category`/`keywords` per entry. Consider a short catalog table in the root README. |
-| A plugin needs independent release | Migrate that plugin's `source` from `./plugins/x` to `git-subdir`/`url`; move its subtree out. Marketplace consumers unaffected. |
-
-### Growth priorities
-
-1. **First thing that strains:** SKILL.md bloat as coaching guidance grows. Fix by moving detail into `references/` (progressive disclosure) before the body exceeds ~2k words.
-2. **Second:** discoverability of many plugins in one catalog. Fix with `category`, `keywords`, and a README catalog table -- not with directory restructuring.
+1. **First thing that breaks: SKILL.md line count.** Fold the stance router into ONE numbered step
+   with the route table; push per-stance depth to leaves. Watch the < 500 hard cap; target ~80-140.
+2. **Second: description triggering.** If evals show green-step or refactor prompts stealing the
+   trigger, tighten the two exclusion clauses before adding positive phrasing.
 
 ## Anti-Patterns
 
-### Anti-Pattern 1: Flattening the single plugin to the repo root
+### Anti-Pattern 1: Over-decomposing references into a per-source catalog
 
-**What people do:** Put `skills/`, `plugin.json`, etc. directly at the repo root alongside `marketplace.json` because there is only one plugin.
-**Why it's wrong:** The repo-root `.claude-plugin/` is the marketplace's, not a plugin's. Co-locating a plugin there conflates the two manifests and forces a disruptive move-everything restructure the moment a second plugin is added.
-**Do this instead:** Use `plugins/lz-tdd/` from day one; reference it with `"source": "./plugins/lz-tdd"`.
+**What people do:** One reference file per author (beck.md, metz.md, feathers.md, khorikov.md, ...).
+**Why it is wrong:** lz-red has no enumerable catalog; a file per book fragments a single decision
+procedure across a dozen thin docs and mismatches the lz-tpp grain the skill should follow.
+**Do this instead:** Cluster by decision-procedure step (selection, structure, stance, naming,
+anti-patterns, mechanics, backing). Sources are cited inside the doc, not promoted to their own file.
 
-### Anti-Pattern 2: Nesting component dirs inside `.claude-plugin/`
+### Anti-Pattern 2: Restating reference content in SKILL.md
 
-**What people do:** Create `plugins/lz-tdd/.claude-plugin/skills/...`.
-**Why it's wrong:** Auto-discovery only scans the plugin root. Components inside `.claude-plugin/` are invisible; the skill silently never loads.
-**Do this instead:** Keep `.claude-plugin/` for `plugin.json` only; put `skills/`, `commands/`, `agents/`, `hooks/` at the plugin root.
+**What people do:** Inline the transformation list / route detail / the whole matrix in the router.
+**Why it is wrong:** Breaks progressive disclosure and blows the line budget; both siblings
+explicitly say "do not restate the list/content here."
+**Do this instead:** SKILL.md names the move and links; the leaf carries the content. Index docs are
+navigation-only (recognize-by cue + link), exactly as `smells.md` is.
 
-### Anti-Pattern 3: Putting the whole transformation catalog in SKILL.md
+### Anti-Pattern 3: Baking one testing school into the coach
 
-**What people do:** Inline the entire ordered TPP list + all examples in SKILL.md.
-**Why it's wrong:** Bloats always-triggered context, weakens triggering accuracy, and violates progressive disclosure (SKILL.md should be ~1,500-2,000 words).
-**Do this instead:** Keep core coaching heuristics + a few TS examples in the body; move the exhaustive ordered catalog to `references/transformations.md` and point to it.
+**What people do:** Always mock collaborators (London/mockist), or always demand a pure functional
+core.
+**Why it is wrong:** Brownfield code cannot assume a functional core; blanket mocking is the
+over-mock / test-per-class trap Ian Cooper warns against and couples tests to implementation.
+**Do this instead:** Detect and route (Pattern 3). Keep GOOS's mockist view as a cited counterpoint
+in `anti-patterns.md`, not the default. Let "listen to the tests" be the meta-rule: test pain
+signals design pain, not a mandate to mock.
 
-### Anti-Pattern 4: Hardcoded, absolute, or `../` paths in manifests
+### Anti-Pattern 4: Committing verbatim book/talk prose
 
-**What people do:** Reference files with absolute paths, `~/`, or parent-directory hops; or omit the `./` prefix on component paths.
-**Why it's wrong:** Install location is unknown and varies by OS/method; such paths break on other machines. Manifest component paths must be relative, start with `./`, and never use `../`.
-**Do this instead:** `./`-relative paths in `plugin.json`; `${CLAUDE_PLUGIN_ROOT}/...` in any future hook/MCP/script commands.
-
-### Anti-Pattern 5: Misaligned names between manifest and namespace
-
-**What people do:** Name the plugin dir `lz-tdd` but set `plugin.json` `name` to something else, or name the skill dir differently from its frontmatter `name`.
-**Why it's wrong:** The public reference `/lz-tdd:lz-tpp` derives from `plugin.json` `name` + skill name; mismatches make the skill hard to invoke and confuse contributors.
-**Do this instead:** Keep dir name, manifest `name`, and intended namespace segment identical at both levels.
+**What people do:** Paste RCM / Metz / talk transcripts into a reference to be "faithful."
+**Why it is wrong:** Public-repo copyright hygiene (DST-04); recorded talks are all-rights-reserved.
+**Do this instead:** Owned books (RCM Clean Code, Metz 99 Bottles JS Ed) go in git-ignored
+`.oracle/`, read only by oracle/oracle-reviewer agents; own-words synthesis crosses back. Unowned
+sources are no-oracle high-confidence core. DHH is hard-banned as a source.
 
 ## Integration Points
 
-### External / distribution
-
-| Integration | Pattern | Notes |
-|-------------|---------|-------|
-| Install | `/plugin marketplace add LayZeeDK/lz-engineering-claude-plugins` then `/plugin install lz-tdd@lz-engineering-claude-plugins` | The `add` argument is the GitHub `owner/repo`; the internal `name` field identifies the marketplace after clone. |
-| Authoring tooling | `skill-creator` (build/optimize skill, run evals), `plugin-dev` (scaffold + `plugin-validator`/`skill-reviewer`) | Already installed; use for step 7 validation. |
-| Provenance | 2 Clean Code posts + NDC 2011 transcript -> distilled into `references/transformations.md` | Keep raw sources in optional `research/`; ship only the distilled reference. |
-
-### Internal boundaries
+### Internal Boundaries
 
 | Boundary | Communication | Notes |
 |----------|---------------|-------|
-| marketplace.json <-> plugin | relative `source` string (`./plugins/lz-tdd`) | one entry per plugin; addition-only growth |
-| plugin.json <-> skill | filesystem convention (`skills/*/SKILL.md` auto-scan) | no explicit wiring needed for default layout |
-| SKILL.md body <-> references/ | in-body relative pointer, loaded on demand | the progressive-disclosure seam |
+| lz-red <-> lz-tpp | Seam in `description` (exclusion clause) + body section + step-1 classify + step-8 handoff | NEW forward seam: Three Laws 1/2 -> Law 3. Add a REVERSE pointer in lz-tpp SKILL.md ("choosing/writing the next failing test is lz-red"). |
+| lz-red <-> lz-refactor | `description` exclusion clause ("restructure passing code -> lz-refactor") + step-1 classify | No code change to lz-refactor needed; the carried-forward lz-tpp -> lz-refactor reverse pointer can be added in the same lz-tpp edit (tech debt from 0.0.2). |
+| SKILL.md <-> references/ | Markdown relative links; loaded on demand | Router links, never inlines. Stance subdir README is navigation-only. |
+| skill <-> eval harness | `.claude/skills/lz-red-workspace/` (not under `plugins/`, so never shipped) | Vendored skill-creator-eval + eval sets + grading scripts, copied from a sibling workspace. |
+| authoring <-> `.oracle/` | oracle/oracle-reviewer agents only | Main context never reads book prose; own-words only. |
+
+### Eval-harness reuse (vendored skill-creator rig)
+
+Both siblings ship an identical, self-contained recipe -- copy it into a new
+`.claude/skills/lz-red-workspace/`:
+
+- `tools/skill-creator-eval/` -- copy verbatim from `lz-tpp-workspace` (Apache-2.0; upstream
+  `run_eval.py` with the native-Windows `run_single_query` fix for the three trigger-probe bugs;
+  runs `python -m scripts.run_eval` natively, no WSL). `LICENSE.upstream.txt` travels with it.
+- `evals/trigger-eval.json` -- NEW: array of `{query, should_trigger}`. Positives = RED-phase /
+  next-failing-test / testing-stance / triangulation prompts; negatives = green-step (lz-tpp),
+  refactor (lz-refactor), debug-my-failing-test, and generic write-a-test-for-me near-misses.
+  Measures recall + specificity (0.0.1/0.0.2 target: 100%/100%).
+- `evals/evals.json` (and/or `evl02-scenarios.json`) -- NEW behavior eval: `{prompt, expected_output,
+  expectations[]}` scoring RED-behavior accuracy vs baseline: names the right next test, routes to
+  the correct stance, asserts behavior not implementation, fails for the right reason, hands off to
+  lz-tpp, and coaches (does not drive).
+- Grading scripts (`grade-run.mjs`, `merge-judge.mjs`, `eval-status.mjs`) -- copy from
+  `lz-tpp-workspace`.
+- Optional hygiene checker -- mirror lz-refactor's `tools/check-hygiene.mjs` (no verbatim prose) and
+  run the email allowlist-inversion scan before commit.
+- `.gitignore` -- MODIFY: add `lz-red-workspace` per-run capture globs (`**/results*/`, `**/run-*/`,
+  `**/trigger-results-*.json`) alongside the lz-refactor-specific block; the generic
+  `*-workspace/**` rules already cover pycache/outputs/samples/stream. Eval SETS and RESULTS stay
+  tracked.
+
+## New vs Modified Files
+
+**NEW (shipped under `plugins/`):**
+- `plugins/lz-tdd/skills/lz-red/SKILL.md`
+- `plugins/lz-tdd/skills/lz-red/references/three-laws-and-test-selection.md`
+- `.../references/test-structure-and-assertions.md`
+- `.../references/testing-stance/README.md`
+- `.../references/testing-stance/functional-core.md`
+- `.../references/testing-stance/message-matrix.md`
+- `.../references/testing-stance/seams-and-legacy.md`
+- `.../references/naming.md`
+- `.../references/anti-patterns.md`
+- `.../references/vitest-typescript-mechanics.md`
+- `.../references/principle-backing.md`
+
+**NEW (dev-only, not shipped):**
+- `.claude/skills/lz-red-workspace/**` -- eval sets + vendored harness + grading scripts (tracked
+  record; run byproducts gitignored)
+- `.oracle/` additions -- RCM Clean Code, Metz 99 Bottles JS Ed (git-ignored, build input only)
+
+**MODIFIED:**
+- `plugins/lz-tdd/skills/lz-tpp/SKILL.md` -- add reverse pointers to lz-red (and the deferred
+  lz-refactor reverse pointer)
+- `plugins/lz-tdd/.claude-plugin/plugin.json` -- version `0.0.2` -> `0.0.3`; extend `description`
+  and `keywords` to mention the red step
+- `README.md` -- document `/lz-tdd:lz-red`
+- `CHANGELOG.md` -- 0.0.3 entry
+- `.gitignore` -- lz-red-workspace per-run capture globs
+
+**UNCHANGED:** `.claude-plugin/marketplace.json` (version deliberately omitted from the marketplace
+entry; skills auto-discovered -- adding lz-red needs no marketplace edit).
+
+## Suggested Phase / Build Order (with dependencies)
+
+Mirrors the 0.0.2 rhythm (scaffold -> source -> content -> coach -> distribution -> evals) but
+leaner, since there is no large catalog.
+
+1. **Phase A -- Scaffold and progressive-disclosure skeleton.** Create `lz-red/`, SKILL.md router
+   with dual-mode-by-omission frontmatter, reference stubs each carrying a per-doc content contract,
+   plugin.json version bump. Gate: `claude plugin validate .` exits 0. *Depends on: nothing.*
+2. **Phase B -- Oracle setup and source distillation.** Add owned books to `.oracle/`; fix the
+   oracle-vs-no-oracle tiering per source; distill the RED-phase facts (Three Laws, F.I.R.S.T.,
+   Beck tactics, Metz matrix, Bernhardt FCIS, Feathers seams, Khorikov pillars, Cooper, North,
+   Osherove, GOOS counterpoint, fast-check) in own words. *Depends on: A (stubs to target); may
+   partly parallel A.*
+3. **Phase C -- Reference content authoring.** Fill the ~6-7 flat docs + the `testing-stance/`
+   subdir with own-words prose and tsc --strict-clean TS/Vitest examples. *Depends on: B.*
+4. **Phase D -- Coach procedure, stance router, and seam wiring.** Author the inline numbered
+   procedure and detection signals in SKILL.md; wire the lz-tpp forward seam + the reverse pointers
+   in lz-tpp SKILL.md. *Depends on: C (reference links must resolve).*
+5. **Phase E -- Distribution and hygiene.** README + CHANGELOG, verified version bump,
+   plugin-validator + skill-reviewer PASS, `validate --strict` exit 0, no-verbatim hygiene gate +
+   email allowlist-inversion scan. *Depends on: D.*
+6. **Phase F -- Skill-effectiveness evals.** Vendor the harness into `lz-red-workspace`; author
+   trigger + behavior eval sets; run trigger recall/specificity and RED-behavior accuracy vs
+   baseline; tune the `description` if needed. *Depends on: E (eval the shippable skill).*
+
+Reasonable merges if the roadmap wants fewer phases: A+B (scaffold with oracle setup) and D into C
+(author content and coach together). Keep E and F distinct -- distribution hygiene and empirical
+evals are separate gates.
 
 ## Sources
 
-- `plugin-dev/skills/plugin-structure/SKILL.md` (local, authoritative): directory layout, `.claude-plugin/` manifest location rule, component-at-root rule, auto-discovery, `${CLAUDE_PLUGIN_ROOT}` usage. HIGH.
-- `plugin-dev/skills/plugin-structure/references/manifest-reference.md` (local, authoritative): full `plugin.json` field reference, relative-path rules, license/README distribution guidance. HIGH.
-- `plugin-dev/skills/skill-development/SKILL.md` (local, authoritative): skill anatomy (`SKILL.md` + `references/`/`assets/`/`scripts/`), progressive disclosure tiers, skill-in-plugin location. HIGH.
-- `claude-plugins-official/.claude-plugin/marketplace.json` (official Anthropic): confirms `$schema`, `name`, `owner`, `plugins[]` shape and all `source` forms (`./...`, `github`, `url`, `git-subdir`). HIGH.
-- `lz-advisor-claude-plugins` repo (maintainer's own analog): confirms the co-located `plugins/<name>/.claude-plugin/plugin.json` layout, relative `"source": "./plugins/lz-advisor"`, root `README.md`/`LICENSE`/`.gitignore` hygiene, and optional `research/` dir. HIGH.
+- `plugins/lz-tdd/skills/lz-tpp/SKILL.md` (on disk, 81 lines) -- HIGH. Frontmatter convention, two-mode
+  split, 7-step coach procedure shape, heuristic caveat, reference-material pointers, seam framing.
+- `plugins/lz-tdd/skills/lz-refactor/SKILL.md` (on disk, 180 lines) -- HIGH. Router + references/
+  decomposition, index-is-navigation-only + leaf-carries-content convention, inline coach procedure,
+  description seam/near-miss pattern, whole-package sweep framing.
+- `plugins/lz-tdd/skills/lz-{tpp,refactor}/references/**` (on disk) -- HIGH. Flat-doc vs
+  index+subdir grain; `smells.md` navigation-only pattern; catalog-leaf structure.
+- `.claude/skills/lz-tpp-workspace/**` + `lz-refactor-workspace/**` (on disk) -- HIGH. Vendored
+  skill-creator-eval harness (Apache-2.0, native-Windows fix), eval-set JSON formats
+  (trigger-eval.json, evals.json), grading `.mjs`, gitignore posture.
+- `.planning/PROJECT.md` (Current Milestone lz-tdd@0.0.3 + Key Decisions) -- HIGH. Locked scope,
+  adaptive-stance decision, source access model, seam tech debt, DHH ban.
+- `plugins/lz-tdd/.claude-plugin/plugin.json` + root `.gitignore` -- HIGH. Version-bump surface;
+  workspace/oracle ignore rules.
+- Domain source facts (Beck, RCM Three Laws/F.I.R.S.T., Metz+Owen message matrix, Bernhardt FCIS,
+  Khorikov four pillars, Feathers seams/characterization, Ian Cooper, North GWT, Osherove naming,
+  GOOS mockist counterpoint, fast-check) -- HIGH as high-confidence core (own-words synthesis; no
+  verbatim). To be verified against `.oracle/` clean-room for the owned titles during Phase B.
 
 ---
-*Architecture research for: Claude Code plugin marketplace repo (lz-engineering-claude-plugins)*
-*Researched: 2026-07-02*
+*Architecture research for: RED-phase TDD coach skill (lz-red) under the lz-tdd plugin*
+*Researched: 2026-07-18*

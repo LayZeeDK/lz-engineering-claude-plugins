@@ -36,7 +36,7 @@ returns rc=1 (absent) on both the working tree and HEAD/index. The repo is publi
 | 1 | Root README documents both install commands verbatim, what lz-tpp does, and the `/lz-tdd:lz-tpp` invocation (DIST-01, D-01) | VERIFIED | `git grep -qF` matches (rc=0) for `/plugin marketplace add LayZeeDK/lz-engineering-claude-plugins`, `/plugin install lz-tdd@lz-engineering-claude-plugins`, and `/lz-tdd:lz-tpp` in README.md. README.md:22-27 install block; :29-40 "What lz-tpp does" (coach auto-trigger + on-demand reference). |
 | 2 | README gives a brief TPP primer linking the three authoritative sources and pointing to references/transformations.md, without inlining the 14-item list or worked examples (D-02) | VERIFIED | README.md:42-61 has a 2-4 sentence primer, the 3 source links (TheTransformationPriorityPremise.html, FibTPP.html, youtu.be/B93QezwTQpI), and the pointer `plugins/lz-tdd/skills/lz-tpp/references/transformations.md` (rc=0). No numbered 14-item list present (only 3 illustrative examples). |
 | 3 | Root LICENSE contains verbatim OSI MIT text with the exact line `Copyright (c) 2026 Lars Gyrup Brink Nielsen` (DIST-02, D-03) | VERIFIED | LICENSE:1 "MIT License"; :3 exact copyright line (rc=0 on `git grep -qF`); body byte-matches the OSI MIT template / 04-RESEARCH.md Code Examples. |
-| 4 | Public contact larsbrinknielsen@gmail.com is the only contact used; the work email appears nowhere, full-tree guard rc=1 (DIST-02, D-04) | VERIFIED | Public contact present + correct (README.md:65 + both manifests, rc=0). Full-tree guard `git grep -qE '@consensus\.dk'` now returns rc=1 (absent) on working tree AND index (`--cached`); previous offender `04-REVIEW.md:41` redacted; zero full-tree offenders. |
+| 4 | Public contact larsbrinknielsen@gmail.com is the only contact used; the work email appears nowhere, full-tree allowlist-inversion guard clean (DIST-02, D-04) | VERIFIED | Public contact present + correct (README.md:65 + both manifests, rc=0). Full-tree work-email allowlist-inversion guard now leaves only the approved public gmail (empty remainder) on working tree AND index (`--cached`); previous offender `04-REVIEW.md:41` redacted; zero full-tree offenders. |
 | 5 | `claude plugin validate . --strict` exits 0, and plugin-validator + skill-reviewer report no significant blocking findings (DIST-03, D-05) | VERIFIED | `claude plugin validate . --strict` -> "Validation passed", exit 0 (independently re-run, Claude Code 2.1.198). Agent PASS reports recorded in SUMMARY (both 0 critical / 0 major) via the completed Task-3 checkpoint:human-verify gate; the two subagents are read-only with no exit code, and the independent code review (04-REVIEW.md) cross-checked all hard facts with no structural/manifest/security defect. |
 | 6 | Agent findings triaged per D-06: structural/manifest/security/ASCII/factual fixed; description-length, body-word-count, triggering findings recorded-deferred to Phase 5 (D-06) | VERIFIED | SUMMARY records: nothing needed fixing from the two agents; ~749-char description + ~670-word body recorded-DEFERRED to Phase 5 (EVAL-01/02), not acted on. Code-review WR-01 (factual extensibility inaccuracy) was FIXED -- old text absent (rc=1), corrected wording present at README.md:15-18. IN-01 recorded. |
 | 7 | All shippable-surface committed output (plugins/, .claude-plugin/, README.md, LICENSE) is ASCII-only, scoped ASCII gate rc=1 | VERIFIED | `git grep -qP '[^\x00-\x7F]' -- 'plugins/' '.claude-plugin/' 'README.md' 'LICENSE'` returns rc=1 (clean); `-nP` list is empty. |
@@ -82,7 +82,7 @@ All three declared requirement IDs are accounted for and SATISFIED. No orphaned 
 | --- | --- | --- | --- |
 | First-party manifest validation | `claude plugin validate . --strict` | "Validation passed", exit 0 | PASS |
 | Scoped ASCII cleanliness | `git grep -qP '[^\x00-\x7F]' -- plugins/ .claude-plugin/ README.md LICENSE` | rc=1 (clean) | PASS |
-| Full-tree work-email absence | `git grep -qE '@consensus\.dk'` (tree + `--cached`) | rc=1 (absent), 0 offenders | PASS |
+| Full-tree work-email absence | allowlist-inversion, tree + `--cached` (only approved gmail permitted) | empty remainder, 0 offenders | PASS |
 | README install strings present | `git grep -qF` (both `/plugin ...` commands) | rc=0 | PASS |
 | transformations.md pointer target | `test -f .../references/transformations.md` | EXISTS | PASS |
 
@@ -100,8 +100,8 @@ All three declared requirement IDs are accounted for and SATISFIED. No orphaned 
 
 No open gaps. The single prior blocker -- the plain work-email literal in the committed
 code-review meta-doc `04-REVIEW.md:41` -- has been closed by redaction and commit amend. The
-phase's own DIST-02 gate, the full-tree guard `git grep -qE '@consensus\.dk'`, now returns
-rc=1 (absent) on both the working tree and HEAD/index. The pre-existing PUBLIC git-history
+phase's own DIST-02 gate, the full-tree work-email allowlist-inversion guard, now leaves
+only the approved public gmail (empty remainder) on both the working tree and HEAD/index. The pre-existing PUBLIC git-history
 exposure in the four Phase-1 commits (5f46fee, 79b1db0, 43ee129, 009060c) remains explicitly
 OUT OF SCOPE for this phase (which gates the working tree, not history) and is a separate,
 user-gated decision.

@@ -1,0 +1,13 @@
+[
+  { "arm": "with_skill", "target": "GRC", "prompt_id": "r1", "run_idx": 1, "verdict": "genuinely_red", "pass": true },
+  { "arm": "with_skill", "target": "GRC", "prompt_id": "r1", "run_idx": 2, "verdict": "genuinely_red", "pass": true },
+  { "arm": "with_skill", "target": "GRC", "prompt_id": "r1", "run_idx": 3, "verdict": "false_green", "pass": false },
+  { "arm": "with_skill", "target": "GRC", "prompt_id": "r1", "run_idx": 4, "verdict": "genuinely_red", "pass": true },
+  { "arm": "with_skill", "target": "GRC", "prompt_id": "r1", "run_idx": 5, "verdict": "collection_error", "pass": false },
+  { "arm": "invoke_skill", "target": "GRC", "prompt_id": "r1", "run_idx": 1, "verdict": "genuinely_red", "pass": true },
+  { "arm": "invoke_skill", "target": "GRC", "prompt_id": "r1", "run_idx": 2, "verdict": "genuinely_red", "pass": true },
+  { "arm": "invoke_skill", "target": "GRC", "prompt_id": "r1", "run_idx": 3, "verdict": "genuinely_red", "pass": true },
+  { "arm": "no_skill", "target": "GRC", "prompt_id": "r1", "run_idx": 1, "verdict": "genuinely_red", "pass": true },
+  { "arm": "no_skill", "target": "GRC", "prompt_id": "r1", "run_idx": 2, "verdict": "genuinely_red", "pass": true },
+  { "arm": "no_skill", "target": "GRC", "prompt_id": "r1", "run_idx": 3, "verdict": "drove_to_green", "pass": false }
+]

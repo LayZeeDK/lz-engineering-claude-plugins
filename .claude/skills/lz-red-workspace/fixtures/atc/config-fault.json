@@ -1,0 +1,41 @@
+{
+  "formatVersion": 1,
+  "tool": "angular-typechecker",
+  "version": "0.2.4",
+  "tsConfigPath": "tsconfig.empty.json",
+  "summary": {
+    "outcome": "type-error",
+    "success": false,
+    "errorCount": 2,
+    "warningCount": 0,
+    "diagnosticCount": 2,
+    "rootNamesCount": 0,
+    "suppressedThirdParty": 0,
+    "suppressedInGraphErrorCount": 0,
+    "suppressedInGraphWarningCount": 0
+  },
+  "diagnostics": [
+    {
+      "file": null,
+      "line": null,
+      "column": null,
+      "endLine": null,
+      "endColumn": null,
+      "code": "TS18002",
+      "rawCode": 18002,
+      "severity": "error",
+      "message": "The 'files' list in config file 'D:/.lz-red-grade-tmp/atc-empty-project/tsconfig.empty.json' is empty."
+    },
+    {
+      "file": null,
+      "line": null,
+      "column": null,
+      "endLine": null,
+      "endColumn": null,
+      "code": "ATC90001",
+      "rawCode": 90001,
+      "severity": "error",
+      "message": "angular-typechecker: the resolved tsconfig has no input files (empty project). Point the tsConfig option at a leaf tsconfig that includes source files, e.g. tsconfig.app.json, tsconfig.lib.json, or tsconfig.spec.json."
+    }
+  ]
+}

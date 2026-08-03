@@ -1,0 +1,14 @@
+[
+  {"query":"starting a new `slugify(title)` from scratch, tests-first. whats the first test i should write?","should_trigger":false},
+  {"query":"i'm doing tdd on a `discount` function. i've got the 10%-off case green. whats the next test to drive out the behavior?","should_trigger":false},
+  {"query":"how should i structure this unit test - is there a standard skeleton to follow?","should_trigger":false},
+  {"query":"what should i actually assert here? the function just returns a number and i'm not sure what to check","should_trigger":false},
+  {"query":"this `OrderService` class has a mailer collaborator it notifies on checkout. what do i assert, and do i mock it? doing tdd","should_trigger":false},
+  {"query":"is `test('works')` a good name for this test? i'm doing tdd and want the name to say something","should_trigger":false},
+  {"query":"keep a test list for this markdown parser feature - what belongs on it and how do i track the ones i haven't written yet?","should_trigger":false},
+  {"query":"my brand-new test went green the very first time i ran it, before i wrote any code. is that a problem?","should_trigger":false},
+  {"query":"how do i match the way this codebase already writes its tests before i add a new one? want to stay consistent","should_trigger":false},
+  {"query":"legacy `PriceCalculator` has no tests and reaches into a global clock. how do i get a first test around it before i add behavior?","should_trigger":false},
+  {"query":"is this a good test? `expect(svc.total).toBe(42)` where `total` is a private field i reach into","should_trigger":false},
+  {"query":"what should i test here? `export function isEven(n: number) { return n % 2 === 0; }`","should_trigger":false}
+]

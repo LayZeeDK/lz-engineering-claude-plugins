@@ -27,7 +27,7 @@ created: 2026-07-02
 
 | Threat ID | Category | Component | Disposition | Mitigation | Status |
 |-----------|----------|-----------|-------------|------------|--------|
-| T-04-01 | Information Disclosure | Work/PII email in a public repo (incl. `.planning/`) | mitigate | The two `.planning/` occurrences and the code-review report were redacted and their commits amended (never spelled); full-tree `git grep -qE '@consensus\.dk'` returns rc=1 (absent) on the working tree and HEAD. Verified live 2026-07-02. | closed |
+| T-04-01 | Information Disclosure | Work/PII email in a public repo (incl. `.planning/`) | mitigate | The two `.planning/` occurrences and the code-review report were redacted and their commits amended (never spelled); the full-tree work-email allowlist-inversion guard leaves only the approved public gmail (empty remainder) on the working tree and HEAD. Verified live 2026-07-02. | closed |
 | T-04-02 | Tampering | `marketplace.json` plugin `source` path (path traversal) | mitigate | `source` is the relative `./plugins/lz-tdd` only -- no `../`, no absolute path. plugin-validator agent + `claude plugin validate . --strict` (exit 0) confirm path-traversal safety. | closed |
 | T-04-03 | Information Disclosure | Hardcoded secrets/credentials in README/LICENSE | mitigate | README/LICENSE carry only public identity lifted verbatim from the manifests; no secrets introduced. plugin-validator secret scan reported no credentials/keys/tokens. | closed |
 | T-04-04 | Information Disclosure | Non-ASCII / stray content leaking into shippable files | mitigate | Scoped ASCII gate `git grep -qP '[^\x00-\x7F]' -- 'plugins/' '.claude-plugin/' 'README.md' 'LICENSE'` returns rc=1 (clean); validator stdout never pasted into committed files. | closed |

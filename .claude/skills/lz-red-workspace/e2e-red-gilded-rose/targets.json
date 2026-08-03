@@ -1,0 +1,65 @@
+{
+  "repo": "D:/projects/github/emilybache/GildedRose-Refactoring-Kata/TypeScript",
+  "branch": "main",
+  "focus": "GildedRose.updateQuality Conjured RED anchor",
+  "rationale": "The canonical kata with a fully-documented missing behavior (Conjured items degrade twice as fast). The public API (Item + GildedRose) already exists and compiles, so a correct-behavior test compiles (tsc-clean) and FAILS on an assertion on current code -- a verified genuinely-red target (D-06 / RESEARCH Pitfall 1). HIGH contamination (canonical), so it is a correctness SMOKE anchor across arms, NOT a discriminator (D-01 / Pitfall 5).",
+  "targets": [
+    {
+      "id": "GRC",
+      "file": "app/gilded-rose.ts",
+      "symbol": "GildedRose.updateQuality (Conjured branch)",
+      "runner": {
+        "vitest": "npx vitest run <producedTestFile> --reporter=json",
+        "jest": "npx jest <producedTestFile> --json --coverage=false",
+        "runner_select": {
+          "test/jest/": "jest",
+          "test/vitest/": "vitest"
+        },
+        "runner_default": "jest",
+        "runner_select_note": "MACHINE-READABLE selector, read by grade-red.mjs selectRunner(): repo-subdir-relative path prefix -> runner name, longest prefix first, falling back to runner_default. It keys on the PRODUCED test's own path so the runner is always one whose collection config includes that path, and so the gate never scores a run on which of the kata's test dirs the model happened to choose. Do NOT reintroduce selection from runner_preference: that field is prose, and a substring test over prose matches any sentence mentioning a runner's name, so it can only ever return one answer.",
+        "coverage_note": "--coverage=false on the jest command because jest.config.ts sets collectCoverage: true. It keeps the --json payload small and the run fast. CORRECTION 2026-07-25: an earlier version of this note claimed the flag keeps the gate from writing into the borrowed kata's coverage/ directory. That was false and is worth stating plainly, because a reader who believed it would conclude the borrowed tree is unreachable from a grade. The runner's cwd is the grading worktree, so coverage output never reached the kata. The genuine write path into the kata was the toolchain junction, used two ways: an unconstrained `git apply` of the captured diff, closed by assertSafeDiffPaths(); and -- FOLLOW-UP 2026-07-25 -- the runner spawn executing the produced spec, which a declared-path check cannot see at all, closed by making the grading worktree's node_modules a per-grade disposable COPY (T-63f-05, selfcheck-red crux 9). Neither is closed by this flag. Jest's stdout is pure JSON either way (coverage is added as a coverageMap field, not interleaved text) -- measured 2026-07-25.",
+        "runner_preference": "DOCUMENTATION ONLY -- not read by any code (see runner_select_note). Both runners were measured against this kata on 2026-07-25 and BOTH emit the Jest-compatible report shape classify() reads: jest 29 --json (4455 bytes, numFailedTests 1) and vitest 0.28 --reporter=json (1016 bytes, assertionResults[0].status 'failed', \"expected 'foo' to be 'fixme' // Object.is equality\"). The earlier concern that the vitest 0.28 reporter predates the 1.x shape did not hold."
+      },
+      "test_dir": "test/vitest/",
+      "test_dir_note": "The PINNED landing directory, named verbatim in prompts/r1-next-test.md and asserted by selfcheck-red crux 2 -- so this field has a consumer and the prompt and the target spec cannot silently disagree. Pinning it removes the last uncontrolled variable in the gate: a runner only collects paths its own config covers (jest roots are <rootDir>/app and <rootDir>/test/jest; the vitest include glob is test/vitest/**/*.{spec,test}.{js,ts}), so a spec written anywhere else -- test/mocha/, the test/ root, src/ -- is collected by NEITHER and grades no_tests for a folder choice that says nothing about RED quality. test/vitest/ is the pin rather than test/jest/ because it accepts BOTH idioms: vitest.config.ts enables globals, so a jest-flavoured spec using bare describe/it/expect collects there too (measured -- canary-rundir has no import and grades genuinely_red), while a vitest-flavoured spec placed in test/jest/ fails at import. The skill under test is Vitest-flavoured throughout its examples, so pinning the jest dir instead would have penalised the two skill arms for following the skill. runner_select still routes by path, so a spec in test/jest/ is graded by jest rather than crashing, and a spec outside every collection root is still a recognized no-tests miss rather than a crash (RESEARCH Pitfall 4).",
+      "behavior_gap": "updateQuality has no Conjured branch (only Aged Brie / Backstage passes / Sulfuras / normal). A test asserting a Conjured item degrades by 2 per day compiles because Item + GildedRose already exist, and FAILS on the assertion because current code degrades it by 1.",
+      "expected_red_color": "genuinely_red",
+      "red_shape_rationale": "existing-compiling-API + missing-behavior (D-06 / RESEARCH Pitfall 1): tsc-clean AND assertion-red -- not a compile error and not a false green.",
+      "constraint": "do NOT modify Item",
+      "constraint_note": "the produced test asserts observable behavior only (updateQuality's effect on quality and sellIn). If production files change so the test passes, that is drove_to_green (overstepped into lz-tpp's green step), not a RED pass.",
+      "discipline_traps": [
+        "classify-first (this is RED -- choosing and writing the next failing test -- not GREEN or REFACTOR)",
+        "assert-observable-behavior (assert the quality/sellIn outcome, not internals)",
+        "coach-don't-drive-to-green (write the failing test and stop; making it pass is lz-tpp's job)",
+        "lz-tpp handoff (Law 3: hand the green step to lz-tpp)"
+      ],
+      "prompt_forbidden_tokens": [
+        "conjured",
+        "sulfuras",
+        "brie",
+        "backstage",
+        "twice as fast",
+        "degrade",
+        "sell-by",
+        "quality",
+        "sellIn",
+        "characterization"
+      ],
+      "prompt_forbidden_tokens_note": "Asserted in BOTH directions by selfcheck-red crux 2 (added by quick 260725-wpu): the real composed prompt must contain NONE of these, and the same prompt with one of them appended in a DIFFERENT letter case must be caught. The second half is what proves the matcher works rather than that the list happens to be unreachable -- a positive-only assertion passes trivially with a case-folding bug, an emptied list, or a matcher wired to the wrong field. The tokens are the ones that would hand the model the missing behavior: the item names, the degradation rule, and the domain fields the assertion would touch.",
+      "contamination": "HIGH",
+      "contamination_note": "The Conjured spec is fully documented (Conjured Mana Cake; quality degrades by 2, and by 4 after the sell-by date; quality is never negative). A strong base model already knows it, so correctness PARITY across arms is EXPECTED here. This target is a correctness SMOKE anchor, not a discriminator (D-01 / Pitfall 5); read parity as pass-at-ceiling, not as 'the skill adds nothing'.",
+      "strict_scope_note": "The Item constructor params are untyped (constructor(name, sellIn, quality)), so a whole-project tsc --strict is already non-zero on the pre-existing source. The D-06 gate MUST DIFFERENTIAL-typecheck: record the pristine baseline error set, then assert ZERO NEW errors attributable to the produced test (RESEARCH Pitfall 3).",
+      "axis": "correctness smoke anchor + RED-discipline stressor (contamination HIGH)"
+    }
+  ],
+  "discriminating_target_checklist": [
+    "1. Small + Vitest/Jest + offline-vendorable (its npm test runs a single file quickly).",
+    "2. The target public API EXISTS and COMPILES (so the test is tsc-clean, not a compile error).",
+    "3. A specific behavior is wrong/missing such that a correct-behavior test FAILS on an ASSERTION (not compile, not false green) on CURRENT code.",
+    "4. The gap is a genuine bug or unimplemented feature, NOT a deliberate design choice (else the red is arguing with the maintainers).",
+    "5. Low contamination preferred (not a textbook example) -- or contamination flagged so parity is read correctly.",
+    "6. A byte-identical short human prompt works (the target is nameable by path without leading the answer).",
+    "7. It stresses at least one RED-DISCIPLINE axis (classify-first / assert-observable-behavior / message-matrix-over-mock / coach-don't-drive-to-green)."
+  ],
+  "discriminating_target_note": "The Conjured anchor (GRC) is the fixed, verified correctness smoke target. The discriminating 2nd/3rd target is NOT hard-locked here: the USER confirms it at the run gate (D-01 steer-at-gate) using the checklist above. If a NEW real-OSS repo is nominated, run the package-legitimacy gate on it (it will be npm installed) and confirm it is a real, maintained repo before vendoring."
+}

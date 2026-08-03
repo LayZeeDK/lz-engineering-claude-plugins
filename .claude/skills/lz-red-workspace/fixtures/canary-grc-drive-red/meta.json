@@ -1,0 +1,10 @@
+{
+  "prompt_id": "r1",
+  "target": "GRC",
+  "arm": "canary",
+  "run_idx": 0,
+  "changed_files": [
+    "TypeScript/app/gilded-rose.ts",
+    "TypeScript/test/vitest/canary-drive-conjured.spec.ts"
+  ]
+}

@@ -1,0 +1,220 @@
+{
+  "repo": "D:/projects/github/h3js/srvx",
+  "branch": "detached at 55d90b39840a5bb7236e23c4e326ee4fc3842d57 (v0.12.4)",
+  "focus": "sendNodeResponse drops headers already set on the Node response",
+  "rationale": "The OUT-OF-DOMAIN control for the RED apply eval. GRC is a HIGH-contamination kata anchor and every in-domain candidate so far is an Angular/CSS library; a universal HTTP server package exercises the same RED discipline on unrelated material, so a lift that survives here is not a domain artifact. The public API EXISTS and compiles, the defect is live at the pin, and a correct-behavior test is tsc-clean and ASSERTION-red -- the D-06 / Pitfall 1 shape.",
+  "targets": [
+    {
+      "id": "SRVC",
+      "file": "src/adapters/_node/send.ts",
+      "symbol": "sendNodeResponse",
+      "runner": {
+        "vitest": "npx vitest run <producedTestFile> --typecheck.enabled=false --reporter=json --outputFile \"<reportFile>\"",
+        "runner_select": {
+          "test/": "vitest"
+        },
+        "runner_default": "vitest",
+        "runner_select_note": "MACHINE-READABLE selector read by grade-red.mjs selectRunner(): repo-relative path prefix -> runner name, longest prefix first, falling back to runner_default. A runner_default is SET rather than omitted so a produced spec landing outside test/ grades no_tests honestly instead of throwing for a folder choice that says nothing about RED quality. There is no runner_path_base: the repo IS its git root and vitest takes a repo-relative path, so the produced test's path needs no stripping.",
+        "typecheck_flag_note": "--typecheck.enabled=false MATTERS. vitest.config.mjs sets typecheck: { enabled: true }, and leaving it on turns TYPE diagnostics into test failures -- which would muddy the classifier, because D-06 clause 1 already owns the type question through the differential tsc and clause 2 must see assertion failures only.",
+        "report_file_note": "The runner writes its report to the <reportFile> path grade-red substitutes, rather than to stdout. vitest can report on stdout (that is what the GRC suite does), but a file is the deterministic source: nothing the produced spec prints can end up inside the parsed payload. The fail-closed contract is unchanged -- the file's contents are fed to the SAME parseRunnerReport spread over the real spawn result, so status/stderr/error still decide the no-collect and infrastructure branches, and a missing file reads as the empty stdout a collection miss produces.",
+        "runner_measured": "MEASURED 2026-07-26 in a detached throwaway at the pin with a copied toolchain: exit 1 in 1458 ms, a Jest-compatible report (numTotalTests 1, numFailedTests 1) whose testResults[0].assertionResults[0] carries title, status 'failed', and the failureMessage \"AssertionError: expected [ 'b=2' ] to deeply equal [ 'a=1', 'b=2' ]\". vitest 4.1.10."
+      },
+      "typecheck": {
+        "args": ["--noEmit", "--strict", "--skipLibCheck"],
+        "prebuild": "npm run build"
+      },
+      "typecheck_note": "The prebuild exists because the package SELF-REFERENCES: its public entry points resolve through a gitignored dist/, so an unbuilt worktree -- which is exactly what `git worktree add` produces -- manufactures a NEW module-resolution error for any produced test that imports the public API. That is a FALSE compile_error which reads as a model failure. MEASURED 2026-07-26, same throwaway: unbuilt baseline 13 errors and the red canary adds 2 NEW (TS2307 'Cannot find module srvx/node' plus a knock-on TS7006); after `npm run build` the baseline is 0 and the same canary adds 0. The RUNNER does not need the build for a bare `srvx` import (vitest.config.mjs aliases that at the source), so the prebuild is a TYPECHECK-only cost -- 12.2 s measured, of which obuild itself is 210 ms.",
+      "test_dir": "test/",
+      "test_dir_note": "The PINNED landing directory, named verbatim in prompts/r1-next-test.md and asserted by selfcheck-red crux 2, so the prompt and the target spec cannot silently disagree. vitest collects the whole repo, but pinning the directory removes a variable that says nothing about RED quality, and runner_select keys on the same prefix.",
+      "behavior_gap": "_sendNodeResponse builds the header list it passes to the Node response's write-head call from the web Response's headers ONLY; it never merges headers already set on the Node response object. Node gives that argument precedence, so a cookie set by earlier middleware is silently dropped. Upstream issue #144, maintainer-labelled a bug, open since 2025-11-11. The SAME defect exists on the fast path, so a run that patches only one path is a root-cause-versus-symptom signal rather than a fix.",
+      "expected_red_color": "genuinely_red",
+      "red_shape_rationale": "existing-compiling-API + wrong behavior (D-06 / RESEARCH Pitfall 1): the correct-behavior test is tsc-clean AND fails on an assertion -- not a compile error and not a false green. MEASURED: the server responds 200 and simply drops the earlier cookie; no exception escapes.",
+      "constraint": "do NOT modify the adapter to make the test pass",
+      "constraint_note": "the produced test asserts observable behavior only (what the CLIENT receives). If production files change so the test passes, that is drove_to_green -- overstepping into lz-tpp's green step -- not a RED pass.",
+      "mock_has_no_diagnostic_power_note": "The strongest property measured anywhere in this target search, and the reason this target grades test DESIGN rather than domain knowledge. A naive fabricated double -- an object literal of vi.fn()s asserted to have been called with the right arguments -- is green BEFORE AND AFTER a correct fix. It has ZERO diagnostic power, not merely a false green: the double never implements the header GETTER, so the optional call short-circuits and the merge branch is skipped entirely. Verified by applying a real fix and re-running. CAVEAT, decide deliberately if a post-fix signal is ever scored: a variant double that DOES implement the getter is still green at the pin (discrimination intact) but goes RED after a correct fix -- that is mock brittleness, not bug detection.",
+      "environmental_failures_note": "Two test files fail on this machine for environmental reasons and are NOT flakes: test/log.test.ts (a da-DK locale renders the time as [22.04.21] against a regex expecting 1:23:45) and test/cli.test.ts (GetPortError, timeout waiting for a port after 100 retries). NO tolerance mechanism is needed and none was added -- the gate runs ONLY the produced test file, so neither is ever collected, and classify() reads testResults[0], the single file it ran. The differential typecheck is likewise unaffected: both files are type-clean and appear identically in the baseline and the with-test run. Recorded here so a future reader does not re-derive it and add a tolerance the gate does not need.",
+      "discipline_traps": [
+        "message-matrix-over-mock (a fabricated double of the Node response is green before AND after a correct fix; only a real server plus a real client request can see the defect)",
+        "assert-observable-behavior (assert what the CLIENT receives, not which internal call was made with which arguments)",
+        "classify-first (this is RED -- choosing and writing the next failing test -- not GREEN or REFACTOR)",
+        "coach-don't-drive-to-green (write the failing test and stop; making it pass is lz-tpp's job)",
+        "root-cause-over-symptom (the same defect exists on both response paths)"
+      ],
+      "contamination": "LOW",
+      "contamination_note": "Not a textbook example and not a kata: a live, maintainer-labelled bug in a package with no tutorial presence. ONE caveat -- a fix PR (#200, 'node: preserve pre-existing Set-Cookie headers in sendNodeResponse') exists upstream and was CLOSED UNMERGED, so a model that searches the web could find the attempt. The bug is genuinely live at the pin either way.",
+      "coverage_note": "`git grep -n sendNodeResponse -- test/` returns NOTHING at the pin: the function is completely uncovered, so there is no existing test for a run to tighten instead of writing one. That is the opposite of the GRC anchor, whose shipped placeholder spec makes the tighten-an-existing-test branch reachable.",
+      "prompt_forbidden_tokens": [
+        "writeHead",
+        "getHeaders",
+        "setHeader",
+        "rawHeaders",
+        "merge",
+        "FastResponse",
+        "fast path",
+        "_toNodeResponse",
+        "sendNodeResponse"
+      ],
+      "prompt_forbidden_tokens_note": "Asserted in BOTH directions by selfcheck-red crux 2: the real composed prompt must contain NONE of these, and the same prompt with one of them appended in a different letter case must be caught. The prompt names the SYMPTOM because the function is unguessable from the path alone -- and naming the symptom is not leading the DESIGN, which is what this target grades. Everything that would hand the model the mechanism, the internal call sequence, or the second affected path is on this list.",
+      "axis": "out-of-domain control + message-matrix-over-mock discipline stressor (contamination LOW)"
+    },
+    {
+      "id": "AMB1",
+      "pilot_result": "RESOLVED 2026-08-02. The pre-registered pilot RAN (3 runs, baseline `invoke_skill` arm, revised a1, $4.11) and returned N = 3 of 3 -- every run touched the production side (`src/correlation-id.ts`), zero void runs. Per `pilot_decision_rule` that is CEILING HELD: STOP, the ~$27 round was NOT bought, `FUT-TAXONOMY-SHARED` stays OPEN with status NOT-YET-TESTED, and D-03 (cutting a1's absence assertion) is recorded as having NOT moved the baseline. Cumulative record on this discriminator is now 21 of 21 correct -- 18/18 across all three arms in round 1, plus 3/3 here -- and the baseline arm alone is 6 of 6 on a1 across BOTH prompt versions. The ceiling is structural, not bad luck: the shipped lz-red SKILL.md the baseline loads already carries the qualify-by-side rule verbatim AND a worked example whose production-side stub IS this cell's correct answer, so the baseline is reading the answer out of its own skill. DO NOT re-word a1 again and re-pilot -- measuring a taxonomy effect needs a target where the baseline is NOT already correct, which is a new-cell problem. Secondary and explicitly NOT the gate: verdicts were 2 genuinely_red + 1 blunt_red, all passing, all tsc-clean. Full write-up at `.planning/quick/260802-j03-fix-six-methodological-defects-in-the-d-/260802-j03-PILOT-RESULT.md`. `pilot_decision_rule` and `ceiling_note` above are left BYTE-UNCHANGED on purpose: the rule forbids editing itself after the pilot runs, so the outcome is recorded here instead.",
+      "file_note": "DELIBERATELY NO `file` key. The symbol this cell is about does NOT exist at the pin, and that absence IS the cell, so there is no path to name and `git rev-parse <pin>:<path>` would fail on any path invented for it. Nothing in grade-red.mjs reads target.file; the only consumer is run-e2e's buildSyntheticBase, so --synthetic-base is unusable for this target BY CONSTRUCTION rather than by oversight. Do NOT 'fix' this by naming the file a correct answer would create: that asserts a path exists at the pin when it does not.",
+      "symbol": "a per-request correlation-id middleware, ABSENT at the pin",
+      "absence_measured": "MEASURED 2026-08-02 in the pristine clone at the pin: `git grep -in correlation` returns NOTHING repo-wide, and the only two middleware exports in src are loggerMiddleware (src/log.ts:206) and staticMiddleware (src/static.ts:215). So the symbol the prompt asks for is genuinely missing, and the house naming convention for it is discoverable from those two.",
+      "runner": {
+        "vitest": "npx vitest run <producedTestFile> --typecheck.enabled=false --reporter=json --outputFile \"<reportFile>\"",
+        "runner_select": {
+          "test/": "vitest"
+        },
+        "runner_default": "vitest",
+        "shared_plumbing_note": "The machine-readable keys above are BYTE-IDENTICAL to SRVC's, deliberately: same repo, same pin, same collection root, same report-file contract. That is what licenses the existing SRVC canary pair (crux 7:SRVC) to cover this target too, exactly as the radix suite's target-config-equality assertion licenses one canary set there. The runner_measured figures are NOT copied down here, because they were measured on SRVC's spec and repeating them would read as a measurement of this target. This target's own measured red shape is in red_shape_rationale. If these keys ever diverge from SRVC's, this target needs its own fabricated-runDir canary.",
+        "typecheck_flag_note": "--typecheck.enabled=false MATTERS, for SRVC's reason unchanged: vitest.config.mjs sets typecheck: { enabled: true }, and leaving it on turns TYPE diagnostics into test failures, which D-06 clause 1 already owns through the differential tsc."
+      },
+      "typecheck": {
+        "args": ["--noEmit", "--strict", "--skipLibCheck"],
+        "prebuild": "npm run build"
+      },
+      "typecheck_note": "BYTE-IDENTICAL to SRVC's block, and the prebuild is load-bearing here for SRVC's reason (the package self-references through a gitignored dist/). ONE NEW FACT this target needs and SRVC did not: a correct answer CREATES a new file under src/, so the prebuild must survive one. MEASURED 2026-08-02 by reading build.config.mjs rather than by inference: obuild is driven by an EXPLICIT `input` list of 15 entry paths, so a src file that is not on that list is never built and cannot break the prebuild. SEPARATELY MEASURED the same day: `npx tsc --noEmit --strict --skipLibCheck` exits 0 in the pristine clone with a placeholder middleware in src/ and two specs in test/ present, i.e. ZERO new errors, so a correct answer is differential-clean.",
+      "test_dir": "test/",
+      "test_dir_note": "The PINNED landing directory, named verbatim in prompts/a1-stub-the-correlation-id.md and asserted by selfcheck-red crux 2. Same pin, same runner_select prefix and same collection root as SRVC.",
+      "behavior_gap": "There is no correlation-id middleware at all. This is an ABSENT-SYMBOL cell rather than a wrong-behavior one, which is what puts its correct answer on the production side of the line: the thing the developer names is the SUBJECT, not a collaborator, so on the artifact's axis 2 it is the symbol's own unwritten implementation.",
+      "expected_red_color": "genuinely_red",
+      "red_shape_rationale": "created-symbol + placeholder body (the shipped lz-red SKILL.md's own worked RED shape): the new production symbol compiles, and the added test fails on an ASSERTION rather than on a compile error. MEASURED 2026-08-02 in the pristine clone at the pin with a pass-through placeholder (`() => (_request, next) => next()`) typed as ServerMiddleware: vitest exits 1 with a Jest-compatible report, numTotalTests 1 / numFailedTests 1, assertionResults[0].status 'failed' and the verbatim message \"AssertionError: expected null to be truthy\". That matches ASSERTION_RE and matches none of RUNTIME_RE, so classify() returns genuinely_red. A MIDDLEWARE was chosen for exactly this reason: its natural placeholder body is a pass-through, which is assertion-red, whereas a plain helper's natural placeholder is a not-implemented THROW, which grades wrong_reason.",
+      "throw_variant_hazard": "SUPERSEDED 2026-08-02 by D-05 (quick 260802-j03). The instruction this field used to carry is now the OPPOSITE of what the grader does, so do not follow a stale copy of it. The measured shape above is the pass-through placeholder. A correct answer that instead writes a not-implemented THROW is still correct on the DISCRIMINATOR (changed_production_files NON-EMPTY) and it now grades `blunt_red` and PASSES: grade-red recognises a deliberate not-implemented placeholder whose stack frame 0 names a file the diff itself added or modified, and verdictPass() is true for that class. So do NOT read a wrong_reason with a non-empty production list as a right-side answer any more -- that verdict no longer occurs for this shape, and a wrong_reason here now means a genuine runtime error. Reading the DISCRIMINATOR first is still good practice; it is simply no longer a workaround for a mis-scored verdict. TWO-REGIME CONSEQUENCE, declared rather than repaired: the 46 archived apply grades were computed under the old single-passing-class rule, so a verdict column that mixes pre- and post-2026-08-02 grades is not homogeneous. History is deliberately NOT re-graded, because the number that carries downstream is the 42-in-44 EMPTY base rate in AMB2.ceiling_note, and that is a changed_production_files count which a verdict-class change cannot move.",
+      "constraint": "none -- this cell REQUIRES a production file",
+      "constraint_note": "INVERTED relative to every other target in the corpus, and that inversion is the point. Everywhere else a non-empty changed_production_files is a drive signal; here it is the CORRECT signature, because the developer asked for the symbol itself. drove_to_green is still distinguishable and is still wrong: it needs the added test to PASS, which a placeholder body cannot do.",
+      "discipline_traps": [
+        "which-side-of-the-line (the contested word is bare; the subject is the symbol's own unwritten implementation, not a collaborator)",
+        "answer-the-whole-request (the developer asked for the symbol AND a failing test; a test-only turn answers half)",
+        "assert-observable-behavior (assert what a caller of the middleware sees on the response, not an internal call)"
+      ],
+      "plausible_wrong_answers": [
+        "TEST-ONLY, import-fails: write the spec against a module that does not exist and treat the module-resolution failure as the red. Leaves changed_production_files EMPTY and grades compile_error. Orthodox TDD, and it is the failure mode this cell is built to see.",
+        "TEST-ONLY, fabricated in the test: stand the middleware up inside the spec (or vi.mock a module that is not there) and never add anything shippable. EMPTY.",
+        "DECLINE: hand the production symbol to lz-tpp and write only the test. EMPTY. See ceiling_note -- the shipped SKILL.md leaves ownership of that symbol explicitly unsettled, so this one is partly manufactured by the skill under test."
+      ],
+      "contamination": "LOW for the repo, HIGH for the idea. A correlation-id middleware is a generic server-library feature with no srvx-specific answer, so nothing about THIS repo is memorised. The cell does not grade gap discovery, so idea-contamination costs nothing: the graded question is which SIDE the placeholder lands on, not whether the model can guess the feature.",
+      "ceiling_note": "READ BEFORE SPENDING. The shipped lz-red SKILL.md -- which the invoke_skill BASELINE arm loads -- already carries (i) the qualify-by-side rule verbatim at lines 101-104 and (ii) a worked RED example whose production-side stub IS this cell's correct answer, at lines 106-130. So the treatment arm's delta over the baseline on this cell is the census and catalog, not the decision rule, and the decision rule is the thing being measured. Expect invoke_treatment vs invoke_skill to be NULL here on structural grounds. SEPARATELY, SKILL.md:99-100 says lz-red 'no longer has to author a wrong-value production-side stub' and leaves 'who owns that production-side stub' explicitly UNSETTLED, so a skill-armed model that declines to write it is following the skill. That makes this cell partly a coach-don't-drive cell rather than a pure which-side cell, and a DECLINE cluster must be read that way rather than as a disambiguation failure. MEASURED UPDATE 2026-08-02, after the first D-12 round (18 runs, 2026-08-01, $16.36), and it is worse than the structural prediction above: the discriminator was correct on 18 of 18 runs -- NON-EMPTY on every a1 and EMPTY on every a2, in ALL THREE arms. The baseline arm alone scored 3/3 on a1. That is a CEILING, not a tie. It also FALSIFIES the reasoning that a 2-in-44 corpus base rate for touching production leaves headroom here (see AMB2.ceiling_note for that rate): a1 asks for the production touch outright, so the corpus rate does not transfer and every arm delivered it. At k=5 that ceiling is 10/10 per arm, and nothing in a round is observable until the BASELINE comes off saturation. That is what pilot_decision_rule exists to test, on about a tenth of the round's budget, before any round is bought.",
+      "pilot_decision_rule": "PRE-REGISTERED 2026-08-02 (quick 260802-j03, D-06), BEFORE any pilot run, and it must not be edited after the pilot runs. THE PILOT: baseline arm only, revised a1 only, 3 runs, apply mode, against the srvx throwaway checkout -- `node .claude/skills/lz-refactor-workspace/e2e-nx/run-e2e.mjs --suite .claude/skills/lz-red-workspace/e2e-red-srvx --mode apply --cwd D:/.lz-red-throwaway/srvx-d12 --arm invoke_skill --prompt a1 --runs 3`. MEASURED BUDGET CORRECTION: the ~$0.91/run figure quoted elsewhere is the ALL-CELL mean over the 18 prior runs and it UNDERSTATES this pilot by about 37%, because the pilot is three a1 runs and a1 is the expensive prompt. Measured 2026-08-02 from the prior round's meta.json files -- all 18 runs $0.909; a1 only, all arms, $1.199; invoke_skill/a1, THE PILOT CELL, $1.236 (146/164/159 s); a2 only, all arms, $0.619. So the pilot budgets at ~$3.71, not $2.70. The 30-run round still budgets at ~$27 (15 x $1.199 + 15 x $0.619 = $27.28), so only the pilot figure moves. THE RULE: read changed_production_files on the pilot's red-grade.json files and let N be the number of GRADEABLE pilot runs whose changed_production_files is NON-EMPTY, out of 3. N = 3 means CEILING HELD -- the rewritten a1 is resolved correctly by the baseline every time, exactly as the un-rewritten one was; STOP, do NOT buy the round, report the ceiling as the finding, keep FUT-TAXONOMY-SHARED OPEN with status NOT-YET-TESTED, and record that D-03 did not move the baseline. N = 0, 1 or 2 means CEILING MOVED -- at least one baseline run failed to resolve the prompt to the production side, the first such observation in 21 prior baseline-and-arm runs on this discriminator; BUY the round at k=5, 3 arms x 2 prompts = 30 runs, ~$27. The threshold is deliberately permissive: the pilot is a GO/NO-GO on OBSERVABILITY, not a hypothesis test, and a baseline base rate below 100% is the precondition for detecting anything at all. VOID RUNS fail closed on EVIDENCE, not on spend: a pilot run that produces no red-grade.json (empty diff, assertReadableDiff throw, grade-red throw) is VOID rather than evidence, and is neither an N-hit nor an N-miss -- re-run that index until 3 GRADEABLE runs exist, read the gate on 3 grades and never on 2, cap at 2 void re-runs (~$2.47 additional), and if 3 gradeable runs cannot be obtained within 5 attempts STOP and report the stall rate itself as the finding. REPORTED BUT NOT THE GATE: the verdict distribution (genuinely_red / blunt_red / compile_error / unattributable / ...) is recorded alongside and read second. The gate is changed_production_files, for the reason the cell was built that way -- it is immune to naming.",
+      "treatment_arm_question_note": "CHANGED 2026-08-02 by D-04 (quick 260802-j03). Zero of six treatment runs in the prior round opened the taxonomy reference -- verified by transcript grep with a passing positive control -- so the treatment DOSE was zero and the arm measured RETRIEVAL rather than content. The taxonomy is now composed INLINE into the treatment tree's generated SKILL.md body instead of being cited from the reference list, so arm 2 no longer answers \"does the reference get used and help\"; it answers \"does the content help WHEN GUARANTEED PRESENT\". That is the question D-12 actually asks. CONSEQUENCE that must ride with any result: the three arms are no longer matched on skill length (MEASURED 2026-08-02: baseline 167 lines, forcing 174, treatment 282), so any measured treatment effect is confounded with length and position, and treatment-versus-forcing is not a clean two-lever comparison on length either. This is unavoidable rather than a defect -- the dose cannot be guaranteed and the length held constant at the same time -- so it is declared as a known limitation.",
+      "is_test_file_note": "isTestFile is a FILENAME PATTERN (/\\.(spec|test)\\.[cm]?[jt]sx?$/i, grade-red.mjs), not a directory or a role judgement. A test HELPER that is not named with a spec/test suffix therefore counts as PRODUCTION and lands in changed_production_files. One prior run came close to tripping this. An operator reading a surprising non-empty changed_production_files must check the file NAMES before concluding the model touched the production side.",
+      "prompt_forbidden_tokens": [
+        "x-request-id",
+        "requestId",
+        "randomUUID",
+        "crypto",
+        "headers.set",
+        "ServerMiddleware",
+        "toBe",
+        "toBeTruthy",
+        "toBeDefined",
+        "vi.mock",
+        "vi.fn",
+        "src/",
+        "log.ts",
+        "production-side",
+        "collaborator-side",
+        "test double",
+        "placeholder"
+      ],
+      "prompt_forbidden_tokens_note": "Asserted in BOTH directions by selfcheck-red crux 2. REVISED 2026-08-02 (quick 260802-j03, D-03): the prompt used to name a FEATURE AREA and an ABSENCE; the absence assertion (\", and there is no middleware for it here yet\") has been CUT, because it was the clause that resolved \"Stub it\" -- once the reader knows the symbol does not exist, the imperative can only mean write the production placeholder, and the forcing arm's own manipulation check reported the manipulation had failed 6 of 6. The prompt now names a FEATURE AREA and the ARTIFACT NOUN and nothing else: not the header, not the generator, not the assertion helper, not the type, and above all NOT A DIRECTORY. The noun is KEPT deliberately -- cutting the whole clause takes it with it and collapses the referent onto \"a correlation id\", a value rather than a symbol, which leaves the prompt underdetermined about which ARTIFACT is wanted instead of ambiguous about which SIDE. Absence is now DISCOVERED (the model greps and finds nothing, see absence_measured) rather than ASSERTED, which is the point of the cut. `src/` is on this list precisely because naming it would resolve the artifact's axis 1 syntactically and dissolve the ambiguity the cell exists to measure -- the prompt names `test/` because crux 2 requires the landing directory to be pinned, and naming ONLY the test directory is the asymmetry this cell has to live with (see prompt_asymmetry_note). `production-side`, `collaborator-side` and `test double` are here so no future rewording can hand over the answer in the treatment's own vocabulary.",
+      "prompt_asymmetry_note": "a1's prompt names no source file while a2's names src/log.ts. That asymmetry is FORCED, not chosen: a1's subject does not exist, so there is no file to name. It is a real residual -- a2's prompt is more grounded in the tree than a1's -- and it cannot bias the A/B, because all three arms receive byte-identical bytes. Record it when reading a cross-prompt comparison, not when reading a cross-arm one.",
+      "axis": "D-12 ambiguity cell, PRODUCTION-side pole. Correct signature: changed_production_files NON-EMPTY."
+    },
+    {
+      "id": "AMB2",
+      "file": "src/log.ts",
+      "symbol": "loggerMiddleware (the throwing-handler path)",
+      "runner": {
+        "vitest": "npx vitest run <producedTestFile> --typecheck.enabled=false --reporter=json --outputFile \"<reportFile>\"",
+        "runner_select": {
+          "test/": "vitest"
+        },
+        "runner_default": "vitest",
+        "shared_plumbing_note": "BYTE-IDENTICAL machine-readable keys to SRVC's and AMB1's, for the same reason: one repo, one pin, one collection root, so the existing SRVC canary pair covers this target too. SRVC's runner_measured figures are not copied down here; this target's own measured red shape is in red_shape_rationale.",
+        "typecheck_flag_note": "--typecheck.enabled=false MATTERS, for SRVC's reason unchanged."
+      },
+      "typecheck": {
+        "args": ["--noEmit", "--strict", "--skipLibCheck"],
+        "prebuild": "npm run build"
+      },
+      "typecheck_note": "BYTE-IDENTICAL to SRVC's block. MEASURED 2026-08-02: `npx tsc --noEmit --strict --skipLibCheck` exits 0 in the pristine clone with the probe spec present, so a correct test-only answer adds ZERO new errors.",
+      "test_dir": "test/",
+      "test_dir_note": "The PINNED landing directory, named verbatim in prompts/a2-stub-the-logger-output.md and asserted by selfcheck-red crux 2. It is where the middleware's own shipped spec already lives (test/log.test.ts), so a produced spec there is collected and typechecked exactly as that one is.",
+      "behavior_gap": "loggerMiddleware's returned handler is `async (req, next) => { const start = ...; const res = await next(); ...; emit(line); return res; }` (src/log.ts:229-239). When `next()` rejects, the await throws and `emit` is NEVER reached, so the request produces no access line at all. The requests missing from the log are exactly the failed ones. It is a genuine defect rather than a design choice: srvx's own errorPlugin (src/_plugins.ts:4) unshifts itself AHEAD of the logger, so it converts the error to a Response only after the rejection has already passed THROUGH the logger, and configuring an error handler does not restore the line.",
+      "expected_red_color": "genuinely_red",
+      "red_shape_rationale": "existing-compiling-API + missing behavior (D-06 / RESEARCH Pitfall 1). MEASURED 2026-08-02 in the pristine clone at the pin, as a DISCRIMINATING PAIR rather than a single run, because a single red proves nothing about WHY it is red: (1) THROW PATH -- swap process.stdout.write from the test, call the middleware with a next that throws, assert one line was written: vitest exits 1, numFailedTests 1, verbatim \"AssertionError: expected +0 to be 1 // Object.is equality\". (2) SUCCESS-PATH CONTROL, same swap, same middleware, a next that returns a Response: vitest exits 0 and the swap intercepts EXACTLY ONE chunk. The control is what licenses reading (1) as the behavior gap instead of as a dead observation mechanism -- without it, a spy that never sees anything would produce an identical red.",
+      "seam_measured": "The test-side substitute needs NO production change, and that is measured rather than reasoned. src/log.ts captures `const stdout = globalThis.process?.stdout` at module load but calls `stdout.write(chunk)` per line, so the property lookup is late and a test-side swap of process.stdout.write intercepts every line -- which is what control (2) above demonstrates end to end. The shipped test/log.test.ts:52-56 does the same swap, so it is also the house pattern.",
+      "constraint": "do NOT add a writer/sink option or any other seam to src/log.ts to make the output observable",
+      "constraint_note": "A production edit here is pure over-reach: the seam already exists (see seam_measured), so widening the shipped API to serve a test changes the product for the test's convenience. changed_production_files NON-EMPTY is the WRONG signature on this cell.",
+      "discipline_traps": [
+        "which-side-of-the-line (the contested word is bare; what stands in here is a COLLABORATOR the code under test talks to, not the subject)",
+        "use-the-seam-you-have (the late property lookup is already substitutable; adding an option is a product change made for a test)",
+        "coach-don't-drive-to-green (write the failing test and stop; wiring the missing line is lz-tpp's job)",
+        "assert-observable-behavior (assert that a line was written, not which internal helper was called)"
+      ],
+      "plausible_wrong_answers": [
+        "PRODUCTION SEAM: add a writer/sink/stream option next to `batch` on the middleware's options so stdout can be injected, then test through the new option. changed_production_files NON-EMPTY. Plausible because the module-private writer looks unseamable when src/log.ts is read on its own, and adding a small option is a tidy-looking diff.",
+        "DRIVE TO GREEN: emit the line on the throw path as well, which makes the produced test pass. Non-empty AND all-green, so classify() returns drove_to_green and the discriminator names the file."
+      ],
+      "contamination": "LOW. Not a kata and not a textbook example: an unlogged failure path in a maintained package, with no tutorial presence and no upstream issue known to this suite.",
+      "ceiling_note": "READ BEFORE SPENDING, and this one is MEASURED, not argued. COUNTED 2026-08-02 over every red-grade.json in this workspace: 46 archived apply grades, of which 44 record changed_production_files (2 pre-date the field) -- 42 EMPTY and 2 NON-EMPTY, both radix RXL r2 naming config.provider.ts. So the corpus base rate for touching production at all is 2 in 44, and a2's CORRECT signature is EMPTY -- which is what the baseline already produces roughly 19 times in 20. This cell therefore has almost no headroom as a discriminator and should be read as the PRECISION CONTROL it is: its job is to catch an invoke_treatment or invoke_forcing arm OVER-CORRECTING to the production side after being handed side vocabulary, not to show a baseline failure. A 3/3-versus-3/3 result here is the expected and useful outcome. Compounding it, the shipped lz-red SKILL.md already carries the qualify-by-side rule (lines 101-104) and test/log.test.ts demonstrates the correct test-side pattern one file away from the target. MEASURED UPDATE 2026-08-02, after the first D-12 round: a2 scored 9 of 9 EMPTY -- 3/3 in every arm, including both non-baseline levers. The precision control held perfectly and detected no over-correction, which is the useful null it was built to produce. D-03 EXEMPTION, and it is deliberate: the antecedent cut that D-03 applies to a1 was NOT applied here, and a future reader must not \"fix\" that. a2's resolving clause (\"Real stdout is in the way of seeing what it writes.\") is the only thing in the prompt that introduces a COLLABORATOR at all. Remove it and \"Stub that\" has no collaborator referent left, so the only nameable artifact is src/log.ts -- the SUBJECT -- and the natural reading shifts toward the production side, which is this cell's WRONG answer. The cut would not create ambiguity; it would INVERT ground truth. a2 also has no headroom to gain: its correct signature is EMPTY, the corpus base rate for EMPTY is 42 in 44, and ambiguity cannot create headroom on a discriminator whose correct side is already saturated. An unambiguous precision control is a perfectly good precision control.",
+      "is_test_file_note": "isTestFile is a FILENAME PATTERN (/\\.(spec|test)\\.[cm]?[jt]sx?$/i, grade-red.mjs), not a directory or a role judgement. A test HELPER that is not named with a spec/test suffix therefore counts as PRODUCTION and lands in changed_production_files. That matters more on THIS cell than on AMB1, because here a non-empty changed_production_files is the WRONG signature: an operator must check the file NAMES before scoring a run as an over-correction to the production side.",
+      "prompt_forbidden_tokens": [
+        "process.stdout",
+        "stdout.write",
+        "spyOn",
+        "vi.fn",
+        "vi.mock",
+        "loggerMiddleware",
+        "LoggerMiddlewareOptions",
+        "log.test.ts",
+        "batch",
+        "enqueue",
+        "writeNow",
+        "flush",
+        "toBe",
+        "toHaveBeenCalled",
+        "sink",
+        "writer",
+        "inject",
+        "seam",
+        "production-side",
+        "collaborator-side",
+        "test double"
+      ],
+      "prompt_forbidden_tokens_note": "Asserted in BOTH directions by selfcheck-red crux 2. The prompt names the SYMPTOM (no line for a throwing handler), the SUBJECT FILE and the COLLABORATOR that is in the way, and nothing else. The bare word `stdout` is deliberately NOT forbidden -- it names what is in the way, which is the symptom, and it says nothing about which SIDE the substitute goes on -- while `process.stdout` and `stdout.write` are, because either would hand over the exact interception point. `sink`, `writer`, `inject` and `seam` are listed so no future rewording can suggest the production move, and `spyOn`/`vi.fn`/`vi.mock` so none can suggest the test-side one; the cell is only honest while the prompt suggests neither. `log.test.ts` is forbidden so the prompt cannot point at the house pattern, which is one grep away but must not be handed over.",
+      "axis": "D-12 ambiguity cell, COLLABORATOR-side pole and precision control. Correct signature: changed_production_files EMPTY."
+    }
+  ],
+  "d12_ambiguity_cell": {
+    "added": "2026-08-02, quick 260801-w8b",
+    "design": "TWO prompts carrying the contested word BARE and UNQUALIFIED whose correct answers land on OPPOSITE sides of the production/test line. a1 (AMB1) is the production pole: the symbol the developer names does not exist, so the correct answer creates it with a placeholder body AND adds a failing test, and changed_production_files is NON-EMPTY. a2 (AMB2) is the collaborator pole: a real collaborator is in the way of testing something that already exists and already has a seam, so the correct answer is a test-side substitute only and changed_production_files is EMPTY.",
+    "discriminator": "The EXISTING changed_production_files field (grade-red.mjs:167, recorded UNCONDITIONALLY on every path since the field was made unconditional). NO new grader, no rubric, no judge. It is immune to naming: the model cannot win by calling its stand-in the right thing, only by putting it on the right side.",
+    "arms": "invoke_skill (baseline, plugins/lz-tdd), invoke_treatment (passive lever, the taxonomy content INLINED into the generated SKILL.md body since 2026-08-02 -- it was a cited reference file until D-04 measured the dose at zero), invoke_forcing (active lever, the enumerate-then-decide step, no reference and no taxonomy). All three already exist in run-e2e.mjs and compose byte-identical -p text; the single variable is --plugin-dir. Drive them in ONE invocation with `--arm d12`, which expands to exactly these three: the main loop is `for k { for prompt { for arm } }`, so a multi-arm list interleaves by RUN INDEX natively. One arm per invocation is what confounded arm with time-of-run in the 2026-08-01 round.",
+    "why_not_the_four_dead_designs": [
+      "WRONG CARRIER WORD: every mock-family term other than the contested one sits in exactly ONE census cell, so a win on such a prompt is not attributable to the artifact. Both prompts here use the contested word bare.",
+      "SATURATED FORK: SRVC r1 measured 9 runs with no arm fabricating a double, so the dropped-header defect is measured shut. Neither prompt reuses it.",
+      "WRONG AXIS: the artifact teaches REQUEST DISAMBIGUATION, not test-design discipline, and lz-red's shipped references already cover the latter. Both prompts are ambiguous IN THE WORD, and the grader reads a side, not a test-design quality.",
+      "PROSE GRADING: the treatment IS the vocabulary, so a prose judge scores it high by construction. This cell is APPLY-mode and mechanically graded."
+    ],
+    "instrument_hazards": [
+      "ADDED-TEST ATTRIBUTION IS LINE-SCOPED BY DESIGN (grade-red.mjs addedTestTitles / DIRECT_TITLE_RE). A produced test whose title literal sits on a different source line from its it()/test() call grades unattributable even when the model is right. It is deliberate and UNFIXED -- the fail-closed direction -- and it cost 1 of 9 runs on the archived SRVC cell. Read an unattributable CLUSTER on either prompt as an instrument artifact first and an arm effect second, and read changed_production_files anyway: it is recorded on that path too.",
+      "TREATMENT STALL. The treatment artifact's hard rule is to ASK WHICH SIDE before answering, and an apply run is one-shot with no one to ask. A treatment-arm run that asks and edits nothing produces an EMPTY diff, and assertReadableDiff then THROWS rather than scoring 'no change'. That failure is ASYMMETRIC -- only the treatment arm carries the ask rule -- so it must be COUNTED as its own outcome per arm, never silently dropped, or the arm gets credit for the runs it refused to answer. RAISED 2026-08-02 by D-04: with the dose now INLINED and therefore guaranteed present on every run (see AMB1.treatment_arm_question_note), the ask-which-side rule reaches the model EVERY time rather than only when it opens a reference it never opened, so the empty-diff stall rate could go UP rather than holding at prior-round levels. grade-red still throws on an empty diff, so a stalled run produces no red-grade.json and there is still NO automatic tally -- the per-arm HAND COUNT stands. AMB1.pilot_decision_rule's void-run rule covers the PILOT only; the round needs the hand count.",
+      "THROW-VARIANT SPLIT on a1 -- CLOSED 2026-08-02 by D-05, see AMB1.throw_variant_hazard. A not-implemented throw is right-side AND now grades `blunt_red`, which PASSES. The old instruction to read a wrong_reason with a non-empty production list as a right-side answer is SUPERSEDED: that verdict no longer occurs for this shape, and a wrong_reason here now means a genuine runtime error. Reading the discriminator first remains good practice, but it is no longer a workaround."
+    ],
+    "read_the_ceiling_notes_first": "Both targets carry a ceiling_note and both are load-bearing. In short: the shipped lz-red SKILL.md that the BASELINE arm loads already contains the qualify-by-side rule (SKILL.md:101-104) and a worked production-side-stub RED example (SKILL.md:106-130), so invoke_treatment's delta over invoke_skill is the census and catalog rather than the decision rule under measurement; and a2's correct signature is what the corpus baseline already produces on 43 of 45 archived runs. The arm with a genuine, un-shipped delta is invoke_forcing, whose enumerate-then-decide step forces a stated per-word verdict that the shipped rule asks for but does not force. UPDATED 2026-08-02: both ceiling notes now carry MEASURED figures from the first round rather than structural predictions, and AMB1's is the binding one -- the discriminator was correct on 18 of 18 runs across all three arms, so the cell is at CEILING and no round can detect anything until the baseline comes off it. Read AMB1.pilot_decision_rule BEFORE buying a round; it is the pre-registered GO/NO-GO and it is blocking."
+  },
+  "qualification_checklist_scored": [
+    "1. Small + Vitest + offline-vendorable: YES -- 170.8 MB / 12,855-file node_modules, and the gate runs a single file in ~1.5 s.",
+    "2. Public API exists and compiles: YES -- `serve` from srvx/node, tsc-clean after the prebuild.",
+    "3. A correct-behavior test FAILS on an ASSERTION on current code: YES, measured.",
+    "4. A genuine bug rather than a design choice: YES -- upstream issue #144, maintainer-labelled a bug.",
+    "5. Contamination: LOW, with the closed-unmerged-PR caveat above.",
+    "6. A byte-identical short human prompt works: YES -- the symptom is nameable without naming the design.",
+    "7. Stresses a RED-DISCIPLINE axis: YES -- message-matrix-over-mock, with a measured zero-diagnostic-power double."
+  ],
+  "legitimacy_gate": "PASS (T-21-SC / T-wpu-SC). First publish 2024-09-16, latest 0.12.4 (2026-07-22), 83 versions, MIT, 0 runtime dependencies, not deprecated, repo live and not a fork. Installs happen only inside throwaway checkouts."
+}

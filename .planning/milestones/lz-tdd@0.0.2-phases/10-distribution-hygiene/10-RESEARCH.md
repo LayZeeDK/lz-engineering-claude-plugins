@@ -438,12 +438,12 @@ error message.
 ### Pitfall 3: The work-email self-reference trap (recurred twice in Phase 4)
 **What goes wrong:** Any doc stating the "work email must appear nowhere" rule, and any agent report
 asserting absence, tends to spell the literal while doing so -- tripping the DST-02 full-tree guard.
-**How to avoid (D-11):** Reference the work email only in the escaped `@consensus\.dk` form in every
-committed file (the escaped dot does not match the plain-dot guard regex, so a doc quoting the guard
-command does not self-trip). Run `git grep -qE '@consensus\.dk'` full-tree as a post-commit gate, not
-only at authoring time (04-LEARNINGS: "confirmed absent" is a point-in-time claim). The widened
-`check-hygiene` covers the shippable surface; the full-tree `git grep` catches `.planning/` leaks.
-**Warning signs:** `git grep -lE 'consensus\.dk'` returns any path after a commit that added a
+**How to avoid (D-11):** Never write the work email or its work domain in any committed file, not even as
+a search needle -- the needle is itself a leak. Detect by allowlist-inversion instead: assert the only
+email-shaped token present is the approved public gmail and flag everything else. Run the allowlist-inversion
+guard full-tree as a post-commit gate, not only at authoring time (04-LEARNINGS: "confirmed absent" is a
+point-in-time claim). The widened `check-hygiene` covers the shippable surface; the full-tree scan catches `.planning/` leaks.
+**Warning signs:** the full-tree allowlist-inversion guard leaves a non-empty remainder after a commit that added a
 plan/summary/review doc.
 
 ### Pitfall 4: `skill-reviewer` WILL flag both skills' descriptions as ">500 chars" and possibly "body too short" -- these are D-13 defer items
@@ -500,9 +500,9 @@ git grep -c '^## Mechanics' -- 'plugins/lz-tdd/skills/lz-refactor/references/ker
 # ASCII over the widened target set. rc=1 => clean (PASS). Do NOT read $? after a pipe.
 git grep -qP '[^\x00-\x7F]' -- 'plugins/lz-tdd/skills/' 'README.md' 'CHANGELOG.md' 'LICENSE' '.claude-plugin/' 'plugins/lz-tdd/.claude-plugin/'
 echo "ascii rc=$?   # target 1 (clean)"
-# Work-email over the widened set (escaped needle, does not self-trip).
-git grep -qE 'consensus\.dk' -- 'plugins/lz-tdd/skills/' 'README.md' 'CHANGELOG.md' 'LICENSE' '.claude-plugin/' 'plugins/lz-tdd/.claude-plugin/'
-echo "email rc=$?   # target 1 (absent)"
+# Work-email allowlist-inversion over the widened set (only the approved gmail permitted).
+test -z "$(git grep -hoiE '[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}' -- 'plugins/lz-tdd/skills/' 'README.md' 'CHANGELOG.md' 'LICENSE' '.claude-plugin/' 'plugins/lz-tdd/.claude-plugin/' | sort -u | rg -iv 'larsbrinknielsen@gmail\.com')"
+echo "email rc=$?   # target 0 (empty remainder)"
 # VERIFIED 2026-07-09: both rc=1 (clean/absent) on today's tree -- widening is a regression gate.
 ```
 
@@ -522,8 +522,9 @@ npm run typecheck   # extract-samples.mjs: tsc --strict over every fenced sample
 
 ### Full-tree work-email post-commit guard (D-11, Pitfall 3)
 ```bash
-git grep -qE 'consensus\.dk'    # rc=1 => absent (PASS). Run AFTER every commit touching docs/reports.
-git grep -lE 'consensus\.dk'    # list offenders if it fails.
+# Allowlist-inversion: only the approved public gmail may appear as an email-shaped token.
+test -z "$(git grep -hoiE '[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}' | sort -u | rg -iv 'larsbrinknielsen@gmail\.com' | rg -iv 'lz-tdd@')"   # rc=0 => clean (PASS). Run AFTER every commit touching docs/reports.
+git grep -hoiE '[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}' | sort -u | rg -iv 'larsbrinknielsen@gmail\.com' | rg -iv 'lz-tdd@'   # list non-approved tokens if it fails.
 ```
 
 ### Running the review agents (NOT CLI commands)
@@ -609,7 +610,7 @@ a clean-room sweep verdict.
 | Req | Behavior | Type | Objective signal | Wave-0? |
 |-----|----------|------|------------------|---------|
 | DST-01 | version 0.0.2 + README documents lz-refactor + `/lz-tdd:lz-refactor` | value + doc-presence | `jq -r .version plugins/lz-tdd/.claude-plugin/plugin.json` == `0.0.2`; `git grep -nF '/lz-tdd:lz-refactor' -- README.md` present; README has a two-skill "What this is" + a `## What lz-refactor does` section; recounted inventory matches the tree | README edits not yet made |
-| DST-02 | validate + --strict + agents PASS; work-email absent; MIT; ASCII-only | gate + agent verdict | `claude plugin validate . --strict` exit 0; widened `check-hygiene` (a)+(b) GREEN; `git grep -qE 'consensus\.dk'` full-tree rc=1; `plugin-validator` PASS; `skill-reviewer` PASS on BOTH skills (D-13-triaged); `npm run check` + `npm run typecheck` exit 0 | check-hygiene widening not yet made |
+| DST-02 | validate + --strict + agents PASS; work-email absent; MIT; ASCII-only | gate + agent verdict | `claude plugin validate . --strict` exit 0; widened `check-hygiene` (a)+(b) GREEN; full-tree work-email allowlist-inversion clean (only approved gmail present); `plugin-validator` PASS; `skill-reviewer` PASS on BOTH skills (D-13-triaged); `npm run check` + `npm run typecheck` exit 0 | check-hygiene widening not yet made |
 | DST-03 | CHANGELOG gains lz-tdd@0.0.2 entry | doc-presence | `git grep -nF '[lz-tdd@0.0.2]' -- CHANGELOG.md` present (heading + bottom link-ref); lead + `### Added` + `%400.0.2` release-tag link-ref present | CHANGELOG entry not yet made |
 | DST-04 | no verbatim Fowler/Kerievsky/GoF prose or code in the shipped tree | gate + sweep verdict + attestation | (L1) hardened `check-hygiene` (c) gate exit 0 over lz-refactor + new prose; (L2) `oracle-reviewer` returns `pass` on all 28 Intent + 89 mechanics surfaces (revises reworded blind + re-passed); (L3) attestation citation to Phase 7/8/8.1 verdicts recorded in the phase artifact | hardened (c) gate + sweep not yet run |
 

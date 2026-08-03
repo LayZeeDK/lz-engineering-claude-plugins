@@ -149,3 +149,75 @@ one-sentence prose edits with no book-backed claim attached (neither carries a S
 provenance tier, or a Beck/Fowler attribution), so if the reviewer confirms them they are cheap to
 close -- either folded into a 22-07 follow-up or via `/gsd-plan-phase 22 --gaps`. Do NOT treat the
 GREEN routing gate as evidence they are fine.
+
+## From plan 22-07
+
+### Round A's ROLLUP steps cannot reach the routing suite -- OPEN, BLOCKS THE A/B WRITEUP, NOT THE CAPTURE
+
+**Status:** OPEN. Not fixed in Phase 22 execution. Both halves are MEASURED, not inferred. Neither
+blocks the metered CAPTURE or the per-run GRADING; both block the ROLLUP that turns captured grades
+into the numbers `ROUTING-AB-RESULTS.md` is scaffolded to hold. Recorded here, and stated in full in
+`e2e-rgr-routing/RUN-GATE.md` under KNOWN GAPS, so the operator meets them before spending rather
+than after.
+
+**Gap 1 -- `tabulate-mechanical-red.mjs` is a SILENT NO-OP for this suite.**
+
+Reproduced from the repo root at base `f8643eb`:
+
+```
+node .claude/skills/lz-red-workspace/tabulate-mechanical-red.mjs --grade-file routing-grade.json
+-> no captured runs under any of 3 RED suite(s) -- nothing to tabulate (run the gated suites first):
+     ...e2e-red-gilded-rose\results\apply
+     ...e2e-red-radix-ng\results\apply
+     ...e2e-red-srvx\results\apply
+```
+
+Two independent causes, both in the main path:
+
+1. `discoverSuiteDirs()` (L339-353) filters directory names on the `e2e-red-` prefix. This suite is
+   deliberately named `e2e-rgr-routing`, OUTSIDE that namespace, per D-22 -- `selfcheck-red.mjs`
+   auto-discovers `e2e-red-*` siblings and its crux 2 bans thirteen state-claim tokens in prompts,
+   while this corpus MUST carry test-state facts by design. **The suite name is correct and must not
+   be changed to work around this**; changing it would re-import the token ban onto a corpus that
+   violates it by construction and would perturb `selfcheck-red.mjs`, which D-22 requires to stay
+   byte-unchanged.
+2. `walkAllSuites()` (L369) walks `results/apply` only. This suite is recommend-only and writes to
+   `results/recommend`.
+
+It exits **0** with an informational message, so it looks healthy while producing nothing.
+
+**This was anticipated and only HALF closed.** `22-RESEARCH.md` L721-724 recorded that the tabulator
+"hard-wires `red-grade.json` AND the `results/apply/<arm>/<pid>/run-*/` walk" and that recommend mode
+writes elsewhere, then recommended the `--grade-file` parameter. 22-05 implemented that parameter
+correctly and it is selfchecked -- it closes the FILENAME half. The DIRECTORY half (discovery prefix
+plus the apply-only walk) was never closed, and the research's own sentence names both.
+
+**Gap 2 -- `merge-judge --verify` does not reach these run dirs either.**
+
+`--verify <iterationDir>` mirrors the skill-creator aggregate's glob `eval-*/<config>/run-*`
+(L161-189) and looks for a file literally named `grading.json` (L228). This suite's captures live at
+`results/recommend/<arm>/<case-id>/run-N/` and their final grade is `routing-grade.json`. So the gate
+reports "no `eval-*/<config>/run-* dirs`" instead of checking anything.
+
+`--merge` is UNAFFECTED: it takes explicit `--preliminary` / `--verdicts` / `--out` paths, is
+filename-agnostic, and every one of its fail-closed refusals still binds.
+
+**Consequence:** the pre-aggregate completeness gate is not automated for this suite. That gate exists
+to stop an unmerged run from silently dropping out of the denominator -- a scored-only false pass. Until
+it is closed, completeness must be confirmed by hand before any rollup is believed.
+
+**Why 22-07 did not fix either.** Three reasons, all the same shape as the 22-03 and 22-04 items above:
+
+- Plan 22-07's `files_modified` is exactly the two new documents. Editing two instrument files would
+  have put an unrelated hunk in front of the D-18/SC7 reviewer.
+- `tabulate-mechanical-red.mjs` is on `22-VALIDATION.md`'s "assert unchanged after the new param" line.
+  Changing its discovery and walk is not a one-argument addition; it is a design choice.
+- Neither fix can be END-TO-END verified without a metered run, which is exactly what this phase HALTS
+  on. A change that cannot be proven at zero spend does not belong in the gate plan.
+
+**To resolve:** a gap-closure step, before Round A's rollup rather than before its capture. The obvious
+shape is a `--suite` and a `--mode` argument on the tabulator -- `discoverSuiteDirs` and `walkAllSuites`
+are ALREADY exported, so the reuse path exists -- plus either a `--grade-file`-equivalent and a
+directory-shape argument on `merge-judge --verify`, or an explicit hand-verification step recorded in
+the writeup. Either way the fix needs its own selfcheck: a rollup that silently tabulates zero runs is
+the same vacuity class this repo's instruments exist to refuse.

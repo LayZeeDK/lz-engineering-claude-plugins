@@ -400,7 +400,7 @@ and `22-DISCUSSION-LOG.md`.
 `description` frontmatter. The EVL-01 reciprocal trigger round is therefore REQUIRED, not optional,
 as the regression check, and `/reload-plugins` must follow -- committed is not live.
 
-**Plans:** 5/7 plans executed
+**Plans:** 6/7 plans executed
 
 **Wave 1** (instrument-first; the routing gate is ASSERTED RED against today's tree)
 
@@ -418,7 +418,7 @@ as the regression check, and `/reload-plugins` must follow -- committed is not l
 
 **Wave 4** *(blocked on Wave 3)*
 
-- [ ] 22-06-PLAN.md -- Variant staging: the shared routing table as a workspace SOURCE artifact, `build-variants.mjs` with fail-closed transforms, and `selfcheck-routing.mjs` proving three-arm composition, nine-prompt parity and byte-identical descriptions across all three trees [CLS-05]
+- [x] 22-06-PLAN.md -- Variant staging: the shared routing table as a workspace SOURCE artifact, `build-variants.mjs` with fail-closed transforms, and `selfcheck-routing.mjs` proving three-arm composition, nine-prompt parity and byte-identical descriptions across all three trees [CLS-05]
 
 **Wave 5** *(phase gate; blocked on Wave 4)*
 

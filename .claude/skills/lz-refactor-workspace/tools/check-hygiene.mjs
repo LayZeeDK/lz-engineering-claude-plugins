@@ -1,13 +1,17 @@
 #!/usr/bin/env node
-// Hygiene checker over the shippable public surface -- both skill trees (lz-refactor + lz-tpp),
+// Hygiene checker over the shippable public surface -- all three skill trees (lz-refactor + lz-tpp
+// + lz-red), the PLUGIN-WIDE plugins/lz-tdd/README.md + plugins/lz-tdd/references/ (added by D-21),
 // the repo-root README/CHANGELOG/LICENSE, and both manifests:
 //   (a) ASCII-only    -- fail on any non-ASCII byte, reported as file@byteN (cp1252 mojibake risk).
 //   (b) work-email    -- enumerate every email-shaped token, subtract the approved public gmail,
 //                        assert the remainder is empty (the work-email leak recurred twice in Phase 4).
 //   (c) no-verbatim   -- DST-04 gate: fail on long double-quoted runs (a verbatim-prose proxy).
 // (a), (b), and (c) are all HARD failures (non-zero exit). (c) is the realized Phase-10 no-verbatim
-// gate (D-01 layer 1); it scans the narrower verbatimTargets set -- the lz-refactor tree + new
-// Phase-10 root prose ONLY, excluding lz-tpp (cited FibTPP), LICENSE, and the manifests. Node builtins only.
+// gate (D-01 layer 1); it scans the narrower verbatimTargets set -- the lz-refactor tree + lz-red +
+// the plugin-wide surface + new Phase-10 root prose ONLY, excluding lz-tpp (cited FibTPP), LICENSE,
+// and the manifests. Node builtins only.
+// TWO floors keep an empty scan from reading as clean: the identity-anchor `scan floor` and the
+// `[cls] hygiene scope floor` non-vacuity check on the D-21 widen (see both report() calls below).
 // GREEN against the current tree today (ASCII-clean, email-clean, no verbatim-looking runs).
 //   node .claude/skills/lz-refactor-workspace/tools/check-hygiene.mjs
 import fs from "node:fs";
@@ -31,6 +35,20 @@ const TPP_REFERENCES = path.join(TPP_SKILL_DIR, "references");
 const LZ_RED_SKILL_DIR = path.join(repoRoot, "plugins", "lz-tdd", "skills", "lz-red");
 const LZ_RED_SKILL_MD = path.join(LZ_RED_SKILL_DIR, "SKILL.md");
 const LZ_RED_REFERENCES = path.join(LZ_RED_SKILL_DIR, "references");
+// PLUGIN-WIDE surface, OUTSIDE the three skill trees -- in scope for ALL THREE axes: ASCII +
+// work-email (wideTargets) AND no-verbatim (verbatimTargets). This takes the lz-red treatment, not
+// the lz-tpp carve-out: the plugin-wide references dir is clean-room own-words (DST-04), whereas
+// lz-tpp's references/transformations.md is cited FibTPP and is no-verbatim-EXCLUDED by D-04.
+// MEASURED before this widen (D-21): plugins/lz-tdd/README.md and
+// plugins/lz-tdd/references/beck-tdd-by-example.md were the ONLY two shipped .md files under
+// plugins/ falling outside ALL THREE axes -- and beck-tdd-by-example.md is the file Phase 22
+// repairs, so the phase's own hygiene re-run would have been a VACUOUS PASS on the one surface it
+// edits. The `[cls] hygiene scope floor` check below is what makes this widen provable rather than
+// merely printed.
+const PLUGIN_ROOT = path.join(repoRoot, "plugins", "lz-tdd");
+const PLUGIN_README = path.join(PLUGIN_ROOT, "README.md");
+const PLUGIN_REFERENCES = path.join(PLUGIN_ROOT, "references");
+const PLUGIN_REFERENCE_ANCHOR = path.join(PLUGIN_REFERENCES, "beck-tdd-by-example.md");
 // Repo-root shippable prose + both manifests -- the exact files this phase writes.
 const ROOT_README = path.join(repoRoot, "README.md");
 const ROOT_CHANGELOG = path.join(repoRoot, "CHANGELOG.md");
@@ -117,6 +135,16 @@ if (fs.existsSync(LZ_RED_SKILL_MD)) {
 
 wideTargets.push(...walkMd(LZ_RED_REFERENCES));
 
+// Plugin-wide surface (D-21). This push-gate is safe ONLY because the `[cls] hygiene scope floor`
+// check below fails loud when either target drops out; never copy the gate without its floor.
+// Plugin-wide surface (D-21). This push-gate is safe ONLY because the `[cls] hygiene scope floor`
+// check below fails loud when either target drops out; never copy the gate without its floor.
+if (fs.existsSync(PLUGIN_README)) {
+  wideTargets.push(PLUGIN_README);
+}
+
+wideTargets.push(...walkMd(PLUGIN_REFERENCES));
+
 for (const f of [ROOT_README, ROOT_CHANGELOG, LICENSE, PLUGIN_MANIFEST, MARKETPLACE_MANIFEST]) {
   if (fs.existsSync(f)) {
     wideTargets.push(f);
@@ -142,6 +170,14 @@ if (fs.existsSync(LZ_RED_SKILL_MD)) {
 
 verbatimTargets.push(...walkMd(LZ_RED_REFERENCES));
 
+// The plugin-wide surface is own-words (DST-04), NOT cited-verbatim like lz-tpp, so it DOES take
+// the no-verbatim gate too (D-21). Same push-gate/floor pairing as wideTargets above.
+if (fs.existsSync(PLUGIN_README)) {
+  verbatimTargets.push(PLUGIN_README);
+}
+
+verbatimTargets.push(...walkMd(PLUGIN_REFERENCES));
+
 for (const f of [ROOT_README, ROOT_CHANGELOG]) {
   if (fs.existsSync(f)) {
     verbatimTargets.push(f);
@@ -149,26 +185,62 @@ for (const f of [ROOT_README, ROOT_CHANGELOG]) {
 }
 
 console.log("Hygiene check (ASCII + work-email allowlist + no-verbatim heuristic)");
-console.log(`  scope: the skill trees + root README/CHANGELOG/LICENSE + both manifests`);
+console.log(`  scope: the skill trees + the plugin-wide README/references + root README/CHANGELOG/LICENSE + both manifests`);
 console.log(`  files: ${wideTargets.length}`);
 console.log("");
 
 // Scan floor: the ASCII + work-email axes are only meaningful if the identity-bearing
-// surface is actually present. A missing/renamed anchor (SKILL.md or either manifest)
-// would silently drop from wideTargets, and an empty scan reads as "clean" -- a false
-// GREEN on the load-bearing work-email control. Fail loud if any anchor is absent.
+// surface is actually present. A missing/renamed anchor (SKILL.md, either manifest, or either
+// plugin-wide target) would silently drop from wideTargets, and an empty scan reads as "clean" -- a
+// false GREEN on the load-bearing work-email control. Fail loud if any anchor is absent.
 const missingAnchors = Object.entries({
   "SKILL.md": SKILL_MD,
   "plugin.json": PLUGIN_MANIFEST,
   "marketplace.json": MARKETPLACE_MANIFEST,
+  "plugins/lz-tdd/README.md": PLUGIN_README,
+  "plugins/lz-tdd/references/beck-tdd-by-example.md": PLUGIN_REFERENCE_ANCHOR,
 })
   .filter(([, p]) => !fs.existsSync(p))
   .map(([k]) => k);
 
 report(
   missingAnchors.length === 0,
-  "scan floor -- identity-bearing anchors present (SKILL.md + both manifests)",
+  "scan floor -- identity-bearing anchors present (SKILL.md + both manifests + plugin-wide README/reference)",
   missingAnchors.length === 0 ? "" : `missing: ${missingAnchors.join(", ")}`
+);
+
+// [cls] NON-VACUITY FLOOR on the D-21 widen. Before this, the file carried NO count assertion at
+// all -- the file counts appeared only in the detail/summary STRINGS below, so "the widen worked"
+// was unfalsifiable. Modelled on check-evals.mjs's suite-dir non-vacuity fail() ("found N dirs but
+// scanned 0 authored files ... a SKIP is not a pass"): assert the newly-reached PATHS are actually
+// in both scope sets rather than trusting a printed total.
+//
+// Deliberately keyed on the newly-reached paths and NOT on a bare total-equality literal (199): a
+// path-keyed floor survives an unrelated reference leaf being added, whereas `=== 199` would redden
+// the battery on every legitimate new file. This is a fail-safe scan floor, not a snapshot test.
+// The totals ARE printed in the detail so the 197 -> 199 / 190 -> 192 movement stays visible.
+const underPluginReferences = (f) => f.startsWith(PLUGIN_REFERENCES + path.sep);
+const scopeGaps = [];
+
+for (const [axis, targets] of [
+  ["wide", wideTargets],
+  ["verbatim", verbatimTargets],
+]) {
+  if (!targets.some(underPluginReferences)) {
+    scopeGaps.push(`${axis}Targets reaches no file under plugins/lz-tdd/references`);
+  }
+
+  if (!targets.includes(PLUGIN_README)) {
+    scopeGaps.push(`${axis}Targets is missing plugins/lz-tdd/README.md`);
+  }
+}
+
+const scopeTotals = `wide ${wideTargets.length} / verbatim ${verbatimTargets.length} (197 / 190 before the D-21 widen)`;
+
+report(
+  scopeGaps.length === 0,
+  "[cls] hygiene scope floor -- plugin-wide references + README reached",
+  scopeGaps.length === 0 ? scopeTotals : `${scopeGaps.join("; ")} -- ${scopeTotals}`
 );
 
 // (a) ASCII-only.

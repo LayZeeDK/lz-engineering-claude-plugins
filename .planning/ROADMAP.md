@@ -4,7 +4,7 @@
 
 - [SHIPPED] **lz-tdd@0.0.1 First Release** -- Phases 1-5 (shipped 2026-07-04)
 - [SHIPPED] **lz-tdd@0.0.2 lz-refactor Skill (Fowler + Kerievsky)** -- Phases 6-14 (shipped 2026-07-17)
-- [IN PROGRESS] **lz-tdd@0.0.3 lz-red Skill (RED phase)** -- Phases 15-21 (all 8 phases complete 2026-08-03; awaiting ship + milestone close)
+- [IN PROGRESS] **lz-tdd@0.0.3 lz-red Skill (RED phase)** -- Phases 15-22 (8 of 9 complete; Phases 15-21 done 2026-08-03, Phase 22 added 2026-08-03 to close the three-way classifier before the milestone ships. PR #3 open and held for it.)
 
 ## Phases
 
@@ -50,7 +50,7 @@ Full phase detail archived at `.planning/milestones/lz-tdd@0.0.2-ROADMAP.md`
 
 </details>
 
-### [IN PROGRESS] lz-tdd@0.0.3 lz-red Skill (RED phase) (Phases 15-21)
+### [IN PROGRESS] lz-tdd@0.0.3 lz-red Skill (RED phase) (Phases 15-22)
 
 **Milestone Goal:** Add a third dual-mode agent skill, `/lz-tdd:lz-red`, that coaches the
 RED step of red-green-refactor -- choosing and writing the next failing unit test well,
@@ -65,6 +65,7 @@ validation deps live only in a dev-only eval workspace.
 - [x] **Phase 19: Distribution & Hygiene** - Three-skill 0.0.3 ship: version bump, docs, validators, copyright/ASCII/email hygiene (completed 2026-07-20)
 - [x] **Phase 20: Skill-Effectiveness Evals** - Trigger eval (incl. the cross-skill boundary) + RED-behavior eval vs baseline (completed 2026-07-21)
 - [x] **Phase 21: Applied RED Eval in Real OSS Repos (multi-dimensional, 3-arm)** - APPLY the next failing test in real OSS TypeScript repos with short human prompts; no_skill / with_skill / invoke_skill arms (+ optional mattpocock tdd competitor); grade on many lift dimensions -- mirrors the lz-refactor Phase 13/14 apply evals (INSERTED 2026-07-22) (completed 2026-07-23)
+- [ ] **Phase 22: Three-way classifier correctness (lz-refactor + lz-red)** - Make the three skills' request classifiers exhaustive, mutually exclusive, and keyed on one axis, so no request in the red-green-refactor loop falls through or is claimed by two skills (ADDED 2026-08-03)
 
 ## Phase Details
 
@@ -316,6 +317,68 @@ snippets).
 | 19. Distribution & Hygiene | lz-tdd@0.0.3 | 3/3 | Complete    | 2026-07-20 |
 | 20. Skill-Effectiveness Evals | lz-tdd@0.0.3 | 3/3 | Complete    | 2026-07-21 |
 | 21. Applied RED Eval in Real OSS Repos (multi-dimensional, 3-arm) | lz-tdd@0.0.3 | 4/4 | Complete    | 2026-07-23 |
+
+### Phase 22: Three-way classifier correctness (lz-refactor + lz-red)
+
+**Goal**: Every request in the red-green-refactor loop lands with exactly one skill. The three
+sibling classifiers are exhaustive (nothing falls through), mutually exclusive (no two skills
+claim the same request), and keyed on a single axis (what the developer is asking for), so the
+loop the milestone claims to complete actually closes.
+
+**Depends on**: Phase 18 (authored the lz-red coach procedure and the lz-tpp seam), quick task
+260803-53q (closed TD-02 and surfaced this)
+
+**Requirements**: CLS-01, CLS-02, CLS-03, CLS-04 (to be added to REQUIREMENTS.md during planning)
+
+**Origin**: Raised by the unprimed acceptance reviewer on quick task 260803-53q, 2026-08-03. Full
+finding list and the orchestrator's pre-existing-vs-regression adjudication in
+`.planning/quick/260803-53q-close-td-02-widen-the-lz-refactor-seam-s/260803-53q-REVIEW.md`. The
+defect is NOT introduced by 0.0.3 -- it has been public since lz-refactor shipped in lz-tdd@0.0.2.
+The available two-line patch was deliberately declined in favour of fixing the classifier as a
+unit.
+
+**Success Criteria** (what must be TRUE):
+
+  1. **Exhaustive.** Every one of the reviewer's eight traced requests lands with exactly one
+     skill, including the two that currently fail: "I just finished making a test pass. What now?"
+     (fires no lz-refactor branch today, so lz-red's catch-all takes it and the refactor step is
+     skipped at the moment it exists for) and "I want to add a new behavior to this module" with
+     nothing failing yet (routes nowhere; the destination the lz-refactor description names is
+     lz-tpp, which declines it by its own description).
+  2. **Mutually exclusive across skills.** At most one of the three step-1 procedures claims any
+     given request. Today lz-refactor is the only sibling whose "otherwise" is a positive
+     condition rather than a catch-all, so it is the only one that can lose a request it owns --
+     while lz-red and lz-tpp both end with an "otherwise ... is this skill" catch-all, which is
+     the collision half of the same defect.
+  3. **Single axis.** No routing branch keys on test state; all key on the ask. Includes the two
+     surviving test-state conditions left out of scope by 260803-53q: `lz-refactor/SKILL.md:30`
+     (`## Two modes` coach gate, which also contradicts step 5's own untested-code branch) and any
+     equivalent in lz-red or lz-tpp.
+  4. **Test code has a named owner.** "Is this a good test?" routes to lz-red, not to lz-refactor's
+     Extract Function advice. Today lz-red claims it by description while lz-refactor's branch (c)
+     captures it, because branch (b) hands off only the *next failing* test.
+  5. **Body and description agree, per skill.** lz-refactor's body currently drops the
+     description's "or otherwise ADD or CHANGE behavior" clause, and `SKILL.md:139` cites a step-1
+     rule that step 1 does not contain. Every in-body handoff matches its own frontmatter.
+  6. **Guarded.** A checker gate holds the routing semantics, not merely token presence -- the
+     TD-02 guard's measured ceiling (a renamed heading alone satisfies a bare `/lz-red/` needle)
+     is closed for the new gates. Mutation-tested in both directions.
+  7. Both shipped skills pass a fresh acceptance review with at least one from-scratch unprimed
+     reviewer, and the full battery plus `claude plugin validate .` stay GREEN.
+
+**Also in scope** (cheap, same files, found by the same review): step 6's reference router omits
+`refactoring-without-tests.md` and `beck-tidy-first.md`; `lz-refactor/SKILL.md:81` names a section
+that does not exist.
+
+**Risk**: This edits two SHIPPED skills and changes triggering-adjacent prose. A trigger-eval round
+may be needed -- EVL-01's reciprocal sets exist and are the natural regression check. Treat any
+`description` frontmatter change as requiring one.
+
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 22 to break down)
 
 ---
 *Roadmap created: 2026-07-02 | lz-tdd@0.0.1 shipped: 2026-07-04 | lz-tdd@0.0.2 shipped: 2026-07-17 | lz-tdd@0.0.3 roadmap added: 2026-07-18 (Phases 15-20); Phase 21 (applied eval) inserted 2026-07-22. Per-milestone phase detail lives in `.planning/milestones/`.*

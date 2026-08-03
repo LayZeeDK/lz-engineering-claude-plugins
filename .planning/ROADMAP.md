@@ -400,7 +400,7 @@ and `22-DISCUSSION-LOG.md`.
 `description` frontmatter. The EVL-01 reciprocal trigger round is therefore REQUIRED, not optional,
 as the regression check, and `/reload-plugins` must follow -- committed is not live.
 
-**Plans:** 4/7 plans executed
+**Plans:** 5/7 plans executed
 
 **Wave 1** (instrument-first; the routing gate is ASSERTED RED against today's tree)
 
@@ -414,7 +414,7 @@ as the regression check, and `/reload-plugins` must follow -- committed is not l
 
 **Wave 3** *(blocked on Wave 2)*
 
-- [ ] 22-04-PLAN.md -- The two reference-tier classifier surfaces (D-20): the three-laws leaf's replicated classify-first block, and `plugins/lz-tdd/references/beck-tdd-by-example.md`'s seam section made three-way, plugin-neutral and ask-keyed; the routing gate goes GREEN [CLS-01, CLS-02, CLS-03]
+- [x] 22-04-PLAN.md -- The two reference-tier classifier surfaces (D-20): the three-laws leaf's replicated classify-first block, and `plugins/lz-tdd/references/beck-tdd-by-example.md`'s seam section made three-way, plugin-neutral and ask-keyed; the routing gate goes GREEN [CLS-01, CLS-02, CLS-03]
 
 **Wave 4** *(blocked on Wave 3)*
 

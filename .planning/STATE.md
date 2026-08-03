@@ -4,11 +4,11 @@ milestone: lz-tdd@0.0.3
 milestone_name: lz-red Skill
 current_phase: 22
 current_phase_name: three-way-classifier-correctness-lz-refactor-lz-red
-status: paused
-stopped_at: "Waves 1 and 2 complete + merged (4/7 plans). PAUSED before wave 3 at owner request. Routing gate now 2 FAIL / 52 PASS -- both survivors are 22-04's wave-3 targets."
-last_updated: "2026-08-03T14:57:12.412Z"
+status: executing
+stopped_at: "Resumed at wave 3 of 5. Waves 1 and 2 complete + merged (4/7 plans). Routing gate at 2 FAIL / 52 PASS entering wave 3 -- both survivors are 22-04's targets."
+last_updated: "2026-08-03T18:19:57.108Z"
 last_activity: 2026-08-03
-last_activity_desc: "Phase 22 waves 1-2 executed and merged: instrument authored RED (22-01), instrument holes closed (22-02), all three shipped classifiers rewritten (22-03), A/B plumbing built dry-run-only (22-05). Gate went 20 FAIL -> 2. Paused before wave 3."
+last_activity_desc: "Phase 22 execution RESUMED at wave 3 (22-04). Waves 1-2 were executed and merged earlier: instrument authored RED (22-01), instrument holes closed (22-02), all three shipped classifiers rewritten (22-03), A/B plumbing built dry-run-only (22-05). Gate went 20 FAIL -> 2."
 progress:
   total_phases: 9
   completed_phases: 8
@@ -29,11 +29,11 @@ See: .planning/PROJECT.md (updated 2026-07-18 -- started milestone lz-tdd@0.0.3)
 
 ## Current Position
 
-Phase: 22 (three-way-classifier-correctness-lz-refactor-lz-red) -- PAUSED before wave 3 of 5 at
-owner request; waves 1 and 2 are complete and merged. Handoff:
+Phase: 22 (three-way-classifier-correctness-lz-refactor-lz-red) -- EXECUTING, resumed at wave 3 of
+5; waves 1 and 2 are complete and merged. Handoff:
 `.planning/phases/22-three-way-classifier-correctness-lz-refactor-lz-red/.continue-here.md`
-Plan: 4 of 7 complete (22-01, 22-02, 22-03, 22-05). Remaining: 22-04 (wave 3), 22-06 (wave 4),
-22-07 (wave 5, `autonomous: false`, ends in a blocking human HALT).
+Plan: 4 of 7 complete (22-01, 22-02, 22-03, 22-05). Remaining: 22-04 (wave 3, in progress),
+22-06 (wave 4), 22-07 (wave 5, `autonomous: false`, ends in a blocking human HALT).
 **THE INSTRUMENT-FIRST BET PAID OFF AND IS MEASURED:** `check-rgr-routing.mjs` went 20 FAIL / 34
 PASS at the wave-1 RED baseline to 2 FAIL / 52 PASS after wave 2, and the two survivors are exactly
 22-04's targets (`beck-seam` scan floor; `laws-classify` bare catch-all). All nine corpus cases now

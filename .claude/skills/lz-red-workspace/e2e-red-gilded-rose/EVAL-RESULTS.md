@@ -486,7 +486,7 @@ the grader's own reason, condensed. Cell order GRC / SRVC / RXF / RXL; arms in d
 | RXF | `with_skill` | 2 | compile_error | partial | shared design |
 | RXF | `with_skill` | 3 | compile_error | partial | dedicated spec and exact assertion, but conflates locate with verify; unverified role token |
 | RXF | `invoke_skill` | 1 | compile_error | partial | shared design; no cast, no comment |
-| RXF | `invoke_skill` | 2 | compile_error | partial | locates the subject by the state under test; containment text match (false-green channel) |
+| RXF | `invoke_skill` | 2 | compile_error | partial | shared design -- and the canonical statement of its defect: locates the subject by the state under test, then confirms with a containment text match (the false-green channel) |
 | RXF | `invoke_skill` | 3 | compile_error | partial | shared design |
 | RXL | `no_skill` | 1 | compile_error | authentic | single exact assertion; comment pins a production line number; value cast to a signal type |
 | RXL | `no_skill` | 2 | compile_error | partial | folds an unrelated already-working direction token into the same test |

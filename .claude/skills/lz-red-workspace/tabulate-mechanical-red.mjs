@@ -25,8 +25,16 @@
 // It FAILS CLOSED (exit 1, T-21-02b): a garbled/keyless meta.json, or a captured run (meta.json
 // present) missing its red-grade.json, throws rather than silently skewing the numbers.
 //
+// The per-run GRADE FILENAME is a parameter with `red-grade.json` as the DEFAULT, so Phase 21's
+// frozen evidence path is byte-unchanged and a bare invocation behaves exactly as it always has. The
+// parameter exists because a second grader now writes a differently-named per-run verdict beside the
+// same meta.json (the D-08 placement A/B's routing grade), and pointing this walker at that filename
+// is one argument rather than a forked copy of the walk. Nothing else about the walk moves: the
+// directory shape, the Pass@k / Pass^k formulas and the --selfcheck fixtures are untouched.
+//
 // Usage:
 //   node tabulate-mechanical-red.mjs              # walk the suite's results/apply, print + write mechanical-red.json
+//   node tabulate-mechanical-red.mjs --grade-file <name>  # read <name> instead of red-grade.json as each run's grade
 //   node tabulate-mechanical-red.mjs --selfcheck  # offline, zero spend; assert rollup/auto-trigger/Pass@k on fixtures
 
 import fs from 'node:fs';
@@ -225,9 +233,14 @@ function readJsonOrThrow(p, label) {
   }
 }
 
-// Walk results/apply/<arm>/<pid>/run-*/, joining each meta.json with its sibling red-grade.json.
-// A meta.json present but red-grade.json missing FAILS CLOSED (a captured run must be graded).
-function walkRuns(applyRoot) {
+// The per-run grade filename every walk defaults to. Phase 21's captured evidence is graded under
+// this exact name, so it stays the default and no existing caller has to pass anything.
+const DEFAULT_GRADE_FILE = 'red-grade.json';
+
+// Walk results/apply/<arm>/<pid>/run-*/, joining each meta.json with its sibling grade file
+// (`gradeFile`, default red-grade.json). A meta.json present but that grade file missing FAILS
+// CLOSED (a captured run must be graded).
+function walkRuns(applyRoot, gradeFile = DEFAULT_GRADE_FILE) {
   const runs = [];
 
   if (!fs.existsSync(applyRoot)) {
@@ -290,18 +303,21 @@ function walkRuns(applyRoot) {
           );
         }
 
-        const gradePath = path.join(dir, 'red-grade.json');
+        const gradePath = path.join(dir, gradeFile);
 
+        // Fail-closed, unchanged in semantics: an ungraded captured run must not be tabulated. The
+        // message names the RESOLVED filename rather than a literal, so a run missing a routing grade
+        // does not send the operator to grade-red.mjs for a file it never writes.
         if (!fs.existsSync(gradePath)) {
           throw new Error(
-            `tabulate-red: captured run ${dir} is missing red-grade.json -- grade it with grade-red.mjs first (fail closed, T-21-02b)`,
+            `tabulate-red: captured run ${dir} is missing ${gradeFile} -- grade it with the grader that writes ${gradeFile} first (fail closed, T-21-02b)`,
           );
         }
 
-        const grade = readJsonOrThrow(gradePath, 'red-grade.json');
+        const grade = readJsonOrThrow(gradePath, gradeFile);
 
         if (!grade || typeof grade.pass !== 'boolean') {
-          throw new Error(`tabulate-red: red-grade ${gradePath} has no boolean 'pass' (fail closed, T-21-02b)`);
+          throw new Error(`tabulate-red: grade file ${gradePath} has no boolean 'pass' (fail closed, T-21-02b)`);
         }
 
         runs.push(toRun(meta, grade));
@@ -344,13 +360,13 @@ export function discoverSuiteDirs(root = HERE) {
 // into one cell is a wrong number that looks entirely plausible: the n doubles, the Pass@k is a
 // blend of two different targets, and nothing in the output says so. That is exactly the class of
 // defect this file's fail-closed contract exists to prevent, so it is an error rather than a note.
-export function walkAllSuites(suiteDirs) {
+export function walkAllSuites(suiteDirs, gradeFile = DEFAULT_GRADE_FILE) {
   const owner = new Map();
   const perSuite = [];
   const all = [];
 
   for (const suiteDir of suiteDirs) {
-    const runs = walkRuns(path.join(suiteDir, 'results', 'apply'));
+    const runs = walkRuns(path.join(suiteDir, 'results', 'apply'), gradeFile);
 
     for (const r of runs) {
       const key = `${r.target}:${r.pid}|${r.arm}`;
@@ -682,6 +698,28 @@ function main(argv) {
     return;
   }
 
+  // --grade-file <name>: which per-run verdict file to join each meta.json with. Defaults to
+  // red-grade.json, so Phase 21's frozen path is what a bare invocation still walks. A bare basename
+  // is required -- a path here would silently escape the run dir the grade must be a sibling of.
+  const gradeFileIdx = argv.indexOf('--grade-file');
+  let gradeFile = DEFAULT_GRADE_FILE;
+
+  if (gradeFileIdx >= 0) {
+    const value = argv[gradeFileIdx + 1];
+
+    if (!value || value.startsWith('--')) {
+      console.error('tabulate-red: --grade-file needs a filename (e.g. --grade-file routing-grade.json)');
+      process.exit(2);
+    }
+
+    if (value !== path.basename(value)) {
+      console.error(`tabulate-red: --grade-file must be a bare filename, not a path (got ${JSON.stringify(value)})`);
+      process.exit(2);
+    }
+
+    gradeFile = value;
+  }
+
   const suiteDirs = discoverSuiteDirs();
 
   if (!suiteDirs.length) {
@@ -690,7 +728,7 @@ function main(argv) {
     return;
   }
 
-  const { all, perSuite } = walkAllSuites(suiteDirs);
+  const { all, perSuite } = walkAllSuites(suiteDirs, gradeFile);
 
   if (!all.length) {
     console.log(

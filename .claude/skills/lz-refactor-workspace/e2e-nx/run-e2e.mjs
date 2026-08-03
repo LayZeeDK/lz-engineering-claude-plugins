@@ -72,6 +72,27 @@ const TREATMENT_DIR = process.env.LZ_TREATMENT_DIR || path.join(REPO_ROOT, 'out'
 // content in the forcing tree, so the arms cannot silently collapse into each other.
 const FORCING_DIR = process.env.LZ_FORCING_DIR || path.join(REPO_ROOT, 'out', 'lz-tdd-forcing');
 
+// The D-08 PLACEMENT variant trees on the `placement` arm group: generated copies of plugins/lz-tdd
+// carrying the routing content in variant B (shared table PLUS inline rationale) and variant C
+// (shared table REPLACING the per-skill narrative sections). Built on demand by
+// .claude/skills/lz-red-workspace/variants/build-variants.mjs, which hardcodes these same paths.
+// KEEP THE TWO IN SYNC -- if they drift, the arm loads a stale or absent tree and the run silently
+// degrades into a second variant_a baseline, which is the failure mode that looks healthiest.
+//
+// There is deliberately NO const for variant A: the TRACKED tree IS variant A (D-24), so `variant_a`
+// reuses PLUGIN_DIR, and that doubles as the composition anchor selfcheck-red.mjs cruxes 1/2 already
+// assert. The env override is safe on these two for exactly the reason it is safe on TREATMENT_DIR
+// and FORCING_DIR -- each is only ever READ as a --plugin-dir value -- and PLUGIN_DIR still must NOT
+// gain one, for the reason stated above.
+const VARIANT_B_DIR = process.env.LZ_VARIANT_B_DIR || path.join(REPO_ROOT, 'out', 'lz-tdd-variant-b');
+const VARIANT_C_DIR = process.env.LZ_VARIANT_C_DIR || path.join(REPO_ROOT, 'out', 'lz-tdd-variant-c');
+
+// The canonical shared routing table's FILENAME, used only to instrument RETRIEVAL. This repo has
+// MEASURED zero-of-six retrieval on a cited reference, so under variants B and C a high pass rate at
+// a ZERO read rate means the A/B captured the inline residue rather than the placement. Recorded per
+// run next to the three trigger facts so the read rate can be reported alongside the pass rate.
+const ROUTING_TABLE_FILE = 'rgr-routing.md';
+
 // A suite is a directory with suite.json + prompts/ + targets.json; results land under it.
 // --suite <dir> selects it (default: this runner's own dir = the nx suite). Scanned from argv here,
 // before parseArgs, so the module-level config can derive from it.
@@ -191,9 +212,11 @@ function parseArgs(argv) {
     throw new Error(`--mode must be recommend|apply, got ${args.mode}`);
   }
 
-  if (!['with_skill', 'no_skill', 'invoke_skill', 'invoke_treatment', 'invoke_forcing', 'code_review', 'both', 'all', 'd12'].includes(args.arm)) {
+  // APPENDED, never reordered: the three D-08 placement arms plus their group token. Everything
+  // before them is byte-unchanged.
+  if (!['with_skill', 'no_skill', 'invoke_skill', 'invoke_treatment', 'invoke_forcing', 'code_review', 'both', 'all', 'd12', 'variant_a', 'variant_b', 'variant_c', 'placement'].includes(args.arm)) {
     throw new Error(
-      `--arm must be with_skill|no_skill|invoke_skill|invoke_treatment|invoke_forcing|code_review|both|all|d12, got ${args.arm}`,
+      `--arm must be with_skill|no_skill|invoke_skill|invoke_treatment|invoke_forcing|code_review|both|all|d12|variant_a|variant_b|variant_c|placement, got ${args.arm}`,
     );
   }
 
@@ -264,6 +287,10 @@ function composePrompt(promptEntry, mode, arm) {
 
   const body = fs.readFileSync(path.join(PROMPTS_DIR, promptEntry.file), 'utf8').trim();
 
+  // The three D-08 placement arms are deliberately ABSENT from the force-invoke branch below: all
+  // three carry byte-identical `description` frontmatter by construction (D-11), so auto-trigger is a
+  // shared constant across them and a natural prompt keeps the -p bytes identical arm to arm. The
+  // ONLY variable is the tree named by --plugin-dir. They fall through to the natural-prompt return.
   if (arm === 'invoke_skill' || arm === 'invoke_treatment' || arm === 'invoke_forcing') {
     // Force skill activation via its slash command; the preamble + body become the skill's input.
     // (Read-only in recommend mode is still enforced by --disallowedTools, not the text.)
@@ -309,6 +336,14 @@ function buildCmd(fullPrompt, arm, mode) {
     cmd.push('--plugin-dir', FORCING_DIR);
   } else if (arm === 'code_review') {
     cmd.push('--plugin-dir', MATTPOCOCK_DIR);
+  } else if (arm === 'variant_a') {
+    // D-24: the tracked tree IS variant A (inline only), so this arm needs no generated copy and
+    // resolves to the same dir with_skill does.
+    cmd.push('--plugin-dir', PLUGIN_DIR);
+  } else if (arm === 'variant_b') {
+    cmd.push('--plugin-dir', VARIANT_B_DIR);
+  } else if (arm === 'variant_c') {
+    cmd.push('--plugin-dir', VARIANT_C_DIR);
   }
 
   return cmd;
@@ -355,6 +390,14 @@ function extractResult(raw, trackSkills = TRACK_SKILLS) {
   const skillsAvailable = Object.fromEntries(trackSkills.map((n) => [n, false]));
   // (b) invoked by MODEL CHOICE -- a `Skill` tool_use block. The genuine auto-trigger signal.
   const skillsModelFired = Object.fromEntries(trackSkills.map((n) => [n, 0]));
+  // (d) RETRIEVED -- was the canonical shared routing table actually READ this run? A FOURTH fact,
+  // kept separate from the three above for the same reason they are kept apart from each other: it
+  // answers a different question. Availability says the tree loaded, model-fired says the skill ran,
+  // and this says the model chose to open the lazily-read file the placement question is about. It is
+  // the honesty check on variants B and C -- a high pass rate at a zero read rate means the graded
+  // answer came from the inline branch list, so the number says nothing about placement.
+  let routingTableRead = false;
+  let routingTableReadPath = null;
 
   // D-07 meta capture. Read the CLI's OWN reported usage from the final `result` event -- do NOT
   // recompute tokens from transcript text. `total_cost_usd`/`modelUsage` roll up sub-agents (the fair
@@ -442,6 +485,21 @@ function extractResult(raw, trackSkills = TRACK_SKILLS) {
         }
       }
 
+      // (d) RETRIEVAL. Scoped to the Read tool's OWN path argument, not the whole blob: a Skill call
+      // whose args merely MENTION the table, or an answer that cites it from memory, is not a read.
+      // First hit wins; the path is recorded so a later reader can see WHICH file matched rather than
+      // trusting the boolean. ponytail: Read only -- recommend mode hard-blocks Bash, so `cat` is not
+      // a reachable second path; widen this if an arm is ever run with Bash allowed.
+      if (block.name === 'Read' && !routingTableRead) {
+        const readInput = block.input || {};
+        const readPath = String(readInput.file_path || readInput.path || '');
+
+        if (readPath.toLowerCase().includes(ROUTING_TABLE_FILE)) {
+          routingTableRead = true;
+          routingTableReadPath = readPath;
+        }
+      }
+
       // (b) MODEL-FIRED. Count only the Skill call's own DESCRIPTOR, never the whole input blob:
       // args mentioning a sibling skill ("then hand off to lz-tpp") must not read as that sibling
       // having fired.
@@ -471,6 +529,8 @@ function extractResult(raw, trackSkills = TRACK_SKILLS) {
     used_skills: usedSkills,
     skills_available: skillsAvailable,
     skills_model_fired: skillsModelFired,
+    routing_table_read: routingTableRead,
+    routing_table_read_path: routingTableReadPath,
     usedRefactor: refactorHits > 0,
     usedTpp: tppHits > 0,
     refactorHits,
@@ -760,6 +820,8 @@ function runOne(claude, promptEntry, arm, mode, cwd, runIdx, force) {
     used_skills,
     skills_available,
     skills_model_fired,
+    routing_table_read,
+    routing_table_read_path,
     usedRefactor,
     usedTpp,
     refactorHits,
@@ -815,6 +877,12 @@ function runOne(claude, promptEntry, arm, mode, cwd, runIdx, force) {
     skills_model_fired,
     skill_forced: skillForced,
     forced_skill: skillForced ? SKILL_COMMAND : null,
+    // (d) RETRIEVAL, off the transcript (see extractResult). Present on EVERY run's meta, not just
+    // the placement arms, so the read rate has an in-corpus zero baseline to be read against: a
+    // variant_a run cannot read a file its tree does not carry, and recording that explicitly is
+    // what makes variant B's and C's rates interpretable rather than merely reported.
+    routing_table_read,
+    routing_table_read_path,
     used_refactor: usedRefactor,
     used_tpp: usedTpp,
     refactor_hits: refactorHits,
@@ -1021,6 +1089,11 @@ function main() {
   // `d12` is a NEW token rather than an edit to an existing one, and that is deliberate: selfcheck
   // crux 6 pins the nx `--arm all` dry-run byte-for-byte, so adding a token keeps that guarantee
   // structural instead of merely tested. `both` and `all` are byte-unchanged.
+  //
+  // `placement` (D-08) is added for the SAME reason and in the SAME way -- appended as a new branch,
+  // touching neither `both`, `all` nor `d12`. It expands to the three placement variants in variant
+  // order, so the main loop interleaves them by run index and arm is never confounded with
+  // time-of-run.
   const arms =
     args.arm === 'both'
       ? ['with_skill', 'no_skill']
@@ -1028,7 +1101,9 @@ function main() {
         ? ['with_skill', 'no_skill', 'invoke_skill']
         : args.arm === 'd12'
           ? ['invoke_skill', 'invoke_treatment', 'invoke_forcing']
-          : [args.arm];
+          : args.arm === 'placement'
+            ? ['variant_a', 'variant_b', 'variant_c']
+            : [args.arm];
   const cwd = args.cwd || REPO;
   const suiteCtx = { repo: REPO, applyBase: APPLY_BASE, targetsById: TARGET_BY_ID, protectedBranches: PROTECTED_BRANCHES };
 
@@ -1134,4 +1209,7 @@ if (isMainModule) {
   main();
 }
 
-export { extractResult, buildSyntheticBase, countModelFired, git, MATTPOCOCK_DIR, CODE_REVIEW_COMMAND };
+// VARIANT_B_DIR / VARIANT_C_DIR are exported so selfcheck-routing.mjs (22-06) can compare the
+// dry-run argv against the SOURCE OF TRUTH instead of recomputing the same two paths in a second
+// place -- a recomputation that would still pass if this file's defaults ever changed.
+export { extractResult, buildSyntheticBase, countModelFired, git, MATTPOCOCK_DIR, CODE_REVIEW_COMMAND, VARIANT_B_DIR, VARIANT_C_DIR };

@@ -120,13 +120,21 @@ triangulation all operate inside the discipline these laws impose.
   lz-tpp then chooses the minimal transformation that turns it green. Framing Law 3 as this forward
   handoff is the lz-red orchestration reframe, not a restatement of the law's source.
 
-Classify first: before writing or selecting any test, sort the request into red, green, or refactor.
-A failing test that must now be made to pass is the green step -- hand it off to lz-tpp and stop.
-Already-passing code to clean up without changing behavior is the refactor step -- hand it off to
-lz-refactor. Otherwise the work is choosing and writing the next failing test, which is lz-red: apply
-the selection moves above under the Three Laws. This is the same red-vs-green-vs-refactor split the
-SKILL.md router states; it is repeated here as the entry gate to the selection moves, not to re-argue
-the seam.
+Classify first: before writing or selecting any test, sort the request by what the developer is
+asking for, never by the state of the suite, and take the first branch that fits. An ask about which
+test comes next -- what a test should assert, how to name it, whether this is a good test -- is the
+red step, and the red step is lz-red: apply the selection moves above under the Three Laws. An ask to
+make a failing test pass is the green step, and the green step is lz-tpp: hand it off and stop. An
+ask to add a new behavior, or to change what working code does, before any test covers it starts in
+lz-red, because Law 1 gates production code behind a failing test, and moves on to lz-tpp once that
+test is red, which is the Law 3 handoff reframed above. An ask to improve structure or readability
+without changing behavior -- clean up this function, tidy this test file, de-duplicate this module --
+or saying "I just finished making a test pass, what now?" is the refactor step, and the refactor step
+is lz-refactor. An ask about the test itself -- what it should assert, how it reads as a test -- is
+the red step, and that step is lz-red. Anything outside those is not a red-green-refactor-loop
+request and no skill in this loop owns it; say so plainly and answer directly. This is
+the same red-vs-green-vs-refactor split the SKILL.md router states; it is repeated here as the
+entry gate to the selection moves, not to re-argue the seam.
 
 ## Sources
 

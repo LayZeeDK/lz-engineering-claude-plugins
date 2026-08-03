@@ -209,7 +209,7 @@ the operator was the defect.
 Separated because these were measured AFTER 2026-07-23 and several correct the phase's own claims.
 
 ### The round ran, and the numbers are grader-regime-invariant
-The metered round ran 2026-07-27/28 (36 runs, $29.05) across GRC/RXF/RXL/SRVC. On 2026-08-02 all 36
+The metered round ran 2026-07-27/28 (36 runs, $29.04) across GRC/RXF/RXL/SRVC. On 2026-08-02 all 36
 captures were re-graded under a grader that had since gained a `blunt_red` class and a widened
 `verdictPass()`: ZERO verdict changes. The published numbers stand. Cost: nothing, because grading is
 local -- which makes "re-grade before you re-run" the cheapest possible way to test a regime worry.

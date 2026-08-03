@@ -433,9 +433,75 @@ implements, and states its plan as adopting whatever the implementation emits --
 of authority the sources insist on. That is a real defect, it sits on a skill-bearing arm, and n=1 means
 it says nothing about the arm.
 
-**Authenticity does not track the mechanical gate.** Cross-tabulated, 5 `compile_error` captures still
-graded authentic in design while 8 `genuinely_red` captures graded only partial. The axis measures
-something real and separate from correctness -- it just does not separate the arms.
+**Authenticity does not track the mechanical gate.** Cross-tabulated over the 36 rows in the table
+below: 6 `compile_error` captures still graded authentic in design, while 6 `genuinely_red` captures
+graded only partial. The axis measures something real and separate from correctness -- it just does not
+separate the arms.
+
+> **CORRECTED 2026-08-02, and the correction is itself the cautionary note.** This sentence first read
+> "5 `compile_error` ... 8 `genuinely_red`". Both figures were carried out of the DISCARDED v1 grading
+> round described below, into a paragraph about the corrected one. The re-verification caught it by
+> bounding the first figure against the on-disk mechanical verdicts and this section's own per-cell
+> counts, proving 5 impossible. Its inferred replacement (7 or 8) was in turn derived from the wrong
+> companion figure; recomputed from the v2 verdicts the answer is 6 and 6. Nothing else in the section
+> depended on the cross-tab, and the error's direction made the section's own conclusion look weaker
+> rather than stronger. The per-specimen table below is committed precisely so this class of error is
+> mechanically checkable next time instead of resting on an attestation.
+
+**The ordering is monotone in skill dose (7 > 6 > 5), and that is stated rather than left implicit.**
+It is still a tie: the whole spread is two specimens across twelve, it inverts to flat on the
+not-inauthentic reading, and the graders' own tie-breaker sensitivity swamps it. But a monotone
+direction should be named by any report that then argues it away, not omitted so the argument reads
+cleaner.
+
+#### Per-specimen authenticity verdicts (all 36, so the axis is auditable)
+
+Mechanical verdict is from `red-grade.json`; authenticity is the blind grader's verdict; the note is
+the grader's own reason, condensed. Cell order GRC / SRVC / RXF / RXL; arms in dose order.
+
+| cell | arm | run | mechanical | authenticity | grader note |
+|---|---|---|---|---|---|
+| GRC | `no_skill` | 1 | genuinely_red | partial | surplus assertion on an already-implemented rule widens it past its own name |
+| GRC | `no_skill` | 2 | genuinely_red | authentic | single assertion on the governed quantity, literal expectation, fails on the value |
+| GRC | `no_skill` | 3 | genuinely_red | authentic | exactly one assertion, the minimum that produces the red |
+| GRC | `with_skill` | 1 | genuinely_red | authentic | names rule plus baseline plus precondition; inputs clear of the lower bound |
+| GRC | `with_skill` | 2 | genuinely_red | authentic | labelled phases, one assertion, hard-coded expectation, no derivation from production logic |
+| GRC | `with_skill` | 3 | genuinely_red | authentic | one assertion, inputs far from the bound, unambiguous arithmetic |
+| GRC | `invoke_skill` | 1 | genuinely_red | inauthentic | fabricates the red against already-working behavior; plans to adopt whatever the code emits |
+| GRC | `invoke_skill` | 2 | genuinely_red | authentic | clean structure; clumsiest name, drops baseline and precondition |
+| GRC | `invoke_skill` | 3 | genuinely_red | authentic | minimum needed to go red; name omits the precondition (hairline nit) |
+| SRVC | `no_skill` | 1 | genuinely_red | authentic | real middleware seam plus a lifecycle helper that makes cleanup unconditional |
+| SRVC | `no_skill` | 2 | genuinely_red | authentic | guaranteed teardown so the expected red does not leak a server; per-cookie checks |
+| SRVC | `no_skill` | 3 | genuinely_red | partial | sharpest assertion (order-normalized exact set); teardown not guaranteed; runtime gated |
+| SRVC | `with_skill` | 1 | unattributable | partial | best scenario fidelity via the real middleware seam; pre-emptively gated off one runtime |
+| SRVC | `with_skill` | 2 | genuinely_red | partial | leads with a test that already passes; teardown not guaranteed on the failing path |
+| SRVC | `with_skill` | 3 | genuinely_red | authentic | guaranteed teardown; membership plus exact count without committing to order |
+| SRVC | `invoke_skill` | 1 | genuinely_red | partial | shortest path to red; one containment check covers both cookies, so failure is less pointed |
+| SRVC | `invoke_skill` | 2 | genuinely_red | partial | padded with a currently-passing companion test, reasoned as triangulation; failure-path teardown missing |
+| SRVC | `invoke_skill` | 3 | genuinely_red | partial | tightest single statement of the gap; teardown not guaranteed on failure |
+| RXF | `no_skill` | 1 | compile_error | partial | shared design; motivation pushed into comment prose |
+| RXF | `no_skill` | 2 | compile_error | partial | shared design; cast plus two comment lines |
+| RXF | `no_skill` | 3 | compile_error | authentic | locates the subject independently of the state under test, then asserts exactly |
+| RXF | `with_skill` | 1 | compile_error | partial | shared design; force-casts the helper result to non-null |
+| RXF | `with_skill` | 2 | compile_error | partial | shared design |
+| RXF | `with_skill` | 3 | compile_error | partial | dedicated spec and exact assertion, but conflates locate with verify; unverified role token |
+| RXF | `invoke_skill` | 1 | compile_error | partial | shared design; no cast, no comment |
+| RXF | `invoke_skill` | 2 | compile_error | partial | locates the subject by the state under test; containment text match (false-green channel) |
+| RXF | `invoke_skill` | 3 | compile_error | partial | shared design |
+| RXL | `no_skill` | 1 | compile_error | authentic | single exact assertion; comment pins a production line number; value cast to a signal type |
+| RXL | `no_skill` | 2 | compile_error | partial | folds an unrelated already-working direction token into the same test |
+| RXL | `no_skill` | 3 | compile_error | authentic | one concept, one exact assertion, nothing surplus |
+| RXL | `with_skill` | 1 | genuinely_red | authentic | explicit three-part comments; pending marker records the next step without a false signal |
+| RXL | `with_skill` | 2 | compile_error | partial | same two-concept defect, with better prose |
+| RXL | `with_skill` | 3 | compile_error | authentic | minimal, one concept, one exact assertion, nothing extraneous |
+| RXL | `invoke_skill` | 1 | genuinely_red | authentic | three-part comments double as motivation, naming the fallback the assertion rules out |
+| RXL | `invoke_skill` | 2 | compile_error | authentic | strict equality on one written expected locale; per-test config plus reset |
+| RXL | `invoke_skill` | 3 | compile_error | authentic | own spec file, cleanest blast radius; resolves the locale as a real consumer would |
+
+RXF's seven `shared design` rows are the one test the cell's grader identified as appearing seven times
+with only cosmetic variation (title wording, truthiness versus null check, an optional non-null cast,
+comment volume) -- it listed the dimensions it compared before grouping them, and none changes what the
+test pins or how it fails.
 
 **RXL: independently confirmed unwinnable-by-target, not badly designed.** Asked to distinguish the two,
 the RXL grader concluded the nine are competent tests aimed at the only file the prompt allowed, in a

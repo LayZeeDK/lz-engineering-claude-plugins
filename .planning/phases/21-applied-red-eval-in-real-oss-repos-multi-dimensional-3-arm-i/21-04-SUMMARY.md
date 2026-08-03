@@ -80,7 +80,7 @@ status: complete
 > execution.
 >
 > What happened afterwards: the gated metered run WAS approved and RAN on 2026-07-27/28 --
-> 36 runs, $29.05, across GRC/RXF/RXL/SRVC -- and is written up in
+> 36 runs, $29.04, across GRC/RXF/RXL/SRVC -- and is written up in
 > `.claude/skills/lz-red-workspace/e2e-red-gilded-rose/EVAL-RESULTS.md`. EVL-03 was
 > reconciled to Complete in `REQUIREMENTS.md` on 2026-08-02, and all 36 captures were
 > re-graded under the current grader with zero verdict changes.

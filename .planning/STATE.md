@@ -3,18 +3,18 @@ gsd_state_version: 1.0
 milestone: lz-tdd@0.0.3
 milestone_name: lz-red Skill
 current_phase: 22
-current_phase_name: three-way-classifier-correctness
-status: planned
-stopped_at: "Phase 22 planned -- 7 plans in 5 waves, verified, ready to execute"
-last_updated: "2026-08-03T11:33:58.291Z"
+current_phase_name: three-way-classifier-correctness-lz-refactor-lz-red
+status: executing
+stopped_at: Phase 22 planned -- 7 plans in 5 waves, verified, ready to execute
+last_updated: "2026-08-03T11:37:07.022Z"
 last_activity: 2026-08-03
-last_activity_desc: "Phase 22 discussed + researched + planned. 7 plans in 5 waves, plan-checker PASSED on re-check. Owner expanded scope at discuss time: placement decided by a folded-in 3-arm A/B eval, descriptions in scope, all three shipped skills edited. Research found SIX classifier surfaces, not three. PR #3 hold extended."
+last_activity_desc: Phase 22 execution started
 progress:
   total_phases: 9
   completed_phases: 8
-  total_plans: 27
+  total_plans: 34
   completed_plans: 27
-  percent: 89
+  percent: 79
 ---
 
 # Project State
@@ -24,14 +24,15 @@ progress:
 See: .planning/PROJECT.md (updated 2026-07-18 -- started milestone lz-tdd@0.0.3)
 
 **Core value:** `lz-tpp` helps Claude choose the next code transformation by TPP priority during red-green-refactor TDD, and explains the premise on demand. lz-tdd@0.0.2 added `lz-refactor` (refactor step); lz-tdd@0.0.3 adds `lz-red` (red step) to complete the loop.
-**Current focus:** Phase 21 -- applied-red-eval-real-oss-repos
+**Current focus:** Phase 22 -- three-way-classifier-correctness-lz-refactor-lz-red
 **Milestone:** lz-tdd@0.0.3 (lz-red Skill, RED phase) -- planning (started 2026-07-18)
 
 ## Current Position
 
-Phase: 22 (three-way-classifier-correctness) -- PLANNED, ready to execute
-Plan: 0 of 7 executed (7 plans across 5 waves)
-Status: Phase 22 discussed + researched + planned 2026-08-03 (`--analyze --auto --chain`). Artifacts:
+Phase: 22 (three-way-classifier-correctness-lz-refactor-lz-red) -- EXECUTING
+Plan: 0 of 7 complete (wave 1 of 5 dispatched)
+Status: Phase 22 discussed + researched + planned 2026-08-03 (`--analyze --auto --chain`), now
+EXECUTING. Artifacts:
 22-CONTEXT.md + 22-DISCUSSION-LOG.md (d0a8b03), 22-RESEARCH.md (de101bf), 22-VALIDATION.md +
 context amendments (17173c2), 22-PATTERNS.md (3bf4d3b), 7 plans (2dcc1af) + targeted revision
 (4a0e084). Plan-checker: first pass 0 BLOCKER / 3 WARNING, all three closed by the revision,
@@ -72,7 +73,8 @@ and the unprimed reviewer on quick 260803-53q showed the loop's own classifier i
 -- the canonical post-green request falls through lz-refactor and lz-red's catch-all takes it.
 Pre-existing since lz-tdd@0.0.2, not a 0.0.3 regression, and the owner chose to fix the classifier
 as a unit rather than take the available two-line patch. Next: `/gsd-plan-phase 22`.
-Last activity: 2026-08-03 -- **MILESTONE SHIPPED.** `/gsd-core:ship lz-tdd@0.0.3` ran end-to-end.
+Last activity: 2026-08-03 -- Phase 22 execution started (wave 1 of 5 dispatched).
+Prior entry: 2026-08-03 -- **MILESTONE SHIPPED.** `/gsd-core:ship lz-tdd@0.0.3` ran end-to-end.
 Preflight cleared on all five gates plus the public-repo one: verification `passed` on all 8
 phases, clean tree, feature branch, origin reachable, `gh` authenticated, and the capability
 registry's blocking `ship:pre` security gate satisfied by `threats_open: 0` in all 8

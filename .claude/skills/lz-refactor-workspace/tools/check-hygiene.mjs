@@ -137,8 +137,6 @@ wideTargets.push(...walkMd(LZ_RED_REFERENCES));
 
 // Plugin-wide surface (D-21). This push-gate is safe ONLY because the `[cls] hygiene scope floor`
 // check below fails loud when either target drops out; never copy the gate without its floor.
-// Plugin-wide surface (D-21). This push-gate is safe ONLY because the `[cls] hygiene scope floor`
-// check below fails loud when either target drops out; never copy the gate without its floor.
 if (fs.existsSync(PLUGIN_README)) {
   wideTargets.push(PLUGIN_README);
 }

@@ -1,9 +1,10 @@
 # Test-Driven Development (Beck, TDD by Example)
 
-Scope: the core of the test-first loop that lz-refactor sits inside, distilled from Beck's Test-Driven
-Development by Example. This reference exists so the coach can name the seam it shares with lz-tpp and
-explain where the refactor step begins. The green step is lz-tpp's concern; the refactor step is this
-skill's. See the two-hats framing in principles.md for the same boundary from Fowler's side.
+Scope: the core of the test-first loop that all three lz-tdd skills sit inside, distilled from Beck's
+Test-Driven Development by Example. This is a plugin-wide reference, shared so any of the three can
+name the seams it owns and the seams it hands off. The red step is lz-red's concern, the green step
+is lz-tpp's, and the refactor step begins where lz-refactor takes over. The two-hats framing for the
+same boundary from Fowler's side lives in lz-refactor's principles.md reference.
 
 > No-oracle reference: high-confidence CORE only (no owned book to verify against). Original prose, no
 > verbatim Beck prose or code (DST-04). NAMES of techniques are kept verbatim as facts; every
@@ -63,14 +64,22 @@ descriptions are original:
   rather than faking or triangulating. Fall back to the slower strategies the moment "obvious" turns
   out to be wrong.
 
-## The seam with lz-tpp
+## The seam across the three steps
 
-The red-green-refactor loop is the boundary this plugin is built around. Making a failing test pass
-(picking and applying the next transformation by priority) is the green step, and that is lz-tpp's
-job. Once the bar is green, choosing and applying the structure-improving move is the refactor step,
-and that is this skill's job. The coach classifies every request against this line first: if a red
-test must be made to pass, hand off to lz-tpp; if the tests are green and the code has a smell, stay
-here.
+Each of the three beats above has a different owning skill, and a request belongs to the beat it ASKS
+for -- never to the beat the suite happens to be sitting in. Classify the ask, then take the first
+branch that fits. An ask about which test comes next -- what a test should assert, how to name it,
+whether this is a good test -- is the red step, and the red step is lz-red. An ask to make a failing
+test pass, by picking and applying the next transformation by priority, is the green step, and the
+green step is lz-tpp. An ask to add a new behavior, or to change what working code does, before any
+test covers it starts in lz-red, because production code waits for a failing test, and moves on to
+lz-tpp once that test is red. An ask to improve structure or readability without changing behavior --
+clean up this function, tidy this test file, de-duplicate this module -- or saying "I just finished
+making a test pass, what now?" is the refactor step, and the refactor step is lz-refactor. A
+structure-only tidy of code that happens to live in a test file belongs to lz-refactor as well; an
+ask about the test itself -- what it should assert, how it reads as a test -- is the red step, and
+that step is lz-red. Anything outside those is not a red-green-refactor-loop request and no skill in
+this loop owns it; say so plainly and answer directly.
 
 ## Sources
 

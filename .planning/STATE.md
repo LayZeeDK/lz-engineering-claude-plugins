@@ -3,18 +3,19 @@ gsd_state_version: 1.0
 milestone: lz-tdd@0.0.3
 milestone_name: lz-red Skill
 current_phase: 21
-current_phase_name: applied-red-eval-real-oss-repos
-status: verifying
-stopped_at: HALTED at 21-04 Task-3 blocking-human run gate; BUILD verified GREEN (7/7 must-haves, 21-VERIFICATION.md); metered 3-arm apply run user-gated per RUN-GATE.md, zero spend
-last_updated: "2026-08-02T00:00:00.000Z"
-last_activity: 2026-08-02
-last_activity_desc: "2026-08-02 resume session: PILOT CLOSED THE D-12 QUESTION AND THE ANSWER IS A CEILING. N = 3 of 3 gradeable runs touched the production side, so the pre-registered rule resolves to CEILING HELD -- the ~$27 k=5 round was NOT bought, $4.11 spent to avoid it. D-03 did not move the baseline; the discriminator stands at 21 of 21 and the baseline arm alone is 6/6 on a1 across both prompt versions. Recorded as NOT-TESTED rather than null: FUT-TAXONOMY-SHARED stays OPEN, NOT-YET-TESTED, because a saturated baseline cannot test the hypothesis -- that needs a NEW cell, not another rewording. Phase 21 close-out audits both reached BY their dedicated agents (never the workflows' inline short-circuits): SECURED 9/9 threats_open 0 (T-21-SC closed by a recorded legitimacy-gate PASS per target; two threats runtime-probed, not read), and nyquist PARTIAL -> a REAL gap found and closed (selfcheck-red never parity-asserted the d12 arms, so 2 of 5 own-skill arms were unasserted; the fix's FIRST version failed its own mutation test). nyquist_compliant set only AFTER correcting the map -- two rows claimed automated coverage that never existed, and the plan-time 'latency < 60s' claim was false. EVL-03 drift RECONCILED via owner-chosen Path A: 36 captures re-graded under the current grader, ZERO verdict changes, so the published numbers are grader-regime-invariant; EVL-03 Pending -> Complete. Historical SUMMARYs NOT rewritten (true when written; forward-pointer addendum instead). EVL-01/EVL-02 carry the same stale phrasing but were NOT re-verified -- flagged, not assumed. PRIOR: Quick task 260802-j03 CLOSED (4 commits, ef3ea2e, verified 10/10, zero metered spend): repaired the D-12 A/B instrument after the first round proved uninterpretable. The prior round (260801-w8b, 18 runs, $16.36) tied on every dimension -- side-correctness 6/6 per arm, blind judge 18/18, oracle-reviewer 18/18 on RED authenticity -- but the mandatory unbiased audit established it could support no conclusion: the TREATMENT WAS NEVER DELIVERED (zero taxonomy reads across all six treatment transcripts, positive control passing), the prompts were referentially unambiguous ('Stub it'/'Stub that' carry resolving antecedents, and the forcing arm's own audit reported 'settled' 6/6), and the forcing arm's 4/6 was a grading artifact penalising the blunt red that SKILL.md:89 endorses. Seven fixes landed: the arms now interleave via a new --arm d12 token (crux 6's --arm all pin byte-unperturbed), each run records its pristine-tree evidence, a1's absence assertion is cut while a2 is EXEMPT (cutting it would invert its ground truth, not create ambiguity), the taxonomy is INLINED so the dose is guaranteed, a blunt_red verdict class passes without loosening the gate (RUNTIME_RE stays a hard first veto; both conditions required; proven against a dead-end copy), and the lever tripwire is re-keyed on lever identity rather than the field inlining removes. MEASURED and declared, not fixed: guaranteeing the dose costs arm-length parity (baseline 167 lines, forcing 174, treatment 282). A pre-registered 3-run pilot now gates the $27 round -- the prior discriminator was correct 18 of 18, a CEILING rather than a tie, and nothing is observable until the baseline comes off it. FUT-TAXONOMY-SHARED stays OPEN, status NOT-YET-TESTED. PRIOR: quick task 260801-sc9 CLOSED (4 commits, ac4008e, zero metered spend): built the TREATMENT ARM for the D-12 'distinguish, but prove it first' A/B. Authored a distilled test-double artifact OUTSIDE plugins/ (guard N3 forbids the stem there and renaming to dodge it is the evasion N3 was hardened against), made the treatment plugin tree reproducible via build-treatment.mjs, and wired an invoke_treatment arm deliberately EXCLUDED from --arm all so crux 6's pinned dry-run stays byte-identical. Plan-checker caught 2 fail-open verify legs (the roster line prints '123 checks' even on a RED battery; a trailing echo of $? launders selfcheck's exit status) -- both closed, 24 legs re-verified individually. The DST-04 oracle-reviewer gate returned revise with too_close_to_source TRUE on the first pass, catching two near-verbatim spots the distilled form did not inherit protection against; second pass clean-room/attribution/fidelity all correct. ALSO DISCOVERED, unrelated: EVL-03's metered round already RAN 2026-07-27/28 (36 runs, $29.04, fully written up) while six planning artifacts still describe it as outstanding -- reconciliation pending. Battery steady at 123 checks / 0 FAILs throughout. The D-12 A/B corpus (UNRESOLVED-1) and its spend approval remain owner-gated. PRIOR: quick task 260729-x0i CLOSED (8 commits, 57b680d, zero spend): removed a fail-CLOSED dependency from the ragged-table gate onto .planning/research/, which /gsd-complete-milestone would have relocated and reddened -- PROVEN by moving the archive aside (battery exit 0, 0 UNREADABLE, restore sha256-identical). Corrected 3 archive-header claims, 2 FALSE FUT claims, an authorization asserted with NO record, and an over-claimed mirroring citation; fixed the roster rename-blindness contradiction UPSTREAM in the checker too. TWO unprimed content reviews were required: the first turned a passed/12-of-12 verifier result into NEEDS WORK, the second caught a false claim round 2 had inherited from round 1. Battery steady at 123 checks / 0 FAILs throughout. EVL-03 (~$39) and the D-12 A/B remain the only owner-gated blockers"
+status: complete
+stopped_at: ""
+prior_stopped_at: "Resumed from HANDOFF.json mid-pilot and closed four things. (1) REPAIRED THE MIXED RESULTS TREE -- run-1 carried a fresh capture with a stale round-1 grade and runs 2-3 were round-1 captures; verified the round-1 archive intact (27/27) first, cleared the stale grades, recorded a resume boundary BEFORE re-running, re-ran all three with --force, and asserted fail-closed that every meta started_at AND every grade mtime postdates the boundary before computing anything. (2) FINISHED THE PILOT AND APPLIED THE PRE-REGISTERED RULE VERBATIM: N = 3 of 3 (all runs touched src/correlation-id.ts), zero void runs, $4.11 -> CEILING HELD -> the ~$27 k=5 round was NOT bought. D-03 (cutting a1's antecedent) did NOT move the baseline; the discriminator is now 21 of 21 correct and the baseline arm alone is 6/6 on a1 across BOTH prompt versions. Recorded as NOT-TESTED, never as a null: FUT-TAXONOMY-SHARED stays OPEN, status NOT-YET-TESTED. The ceiling is structural -- the shipped SKILL.md the baseline loads carries both the qualify-by-side rule and a worked example whose stub IS this cell's answer -- so measuring a taxonomy effect needs a NEW cell, not another rewording of a1. (3) PHASE 21 CLOSE-OUT AUDITS, both reached BY their dedicated agents rather than the workflows' inline short-circuits: gsd-security-auditor returned SECURED 9/9, threats_open 0, with T-21-SC (the only high) closed by a recorded legitimacy-gate PASS per nominated target and two threats probed at runtime (9/9 and 6/6 fail-closed paths) rather than read; gsd-nyquist-auditor returned PARTIAL and found a REAL gap -- selfcheck-red had zero references to invoke_treatment/invoke_forcing/d12, so 2 of 5 own-skill arms were never parity-asserted -- closed it in test code (+164/-2), and its FIRST fix failed its own mutation test (a forward-slash spelling of plugins/lz-tdd collapsed a lever past a raw string compare; fixed with path-insensitive samePath). nyquist_compliant was set only AFTER correcting the map: EVL-03.5's judge-input emission (never built) and EVL-03.7's scaffold (doc review) moved to Manual-Only, and the plan-time "latency < 60s" claim corrected as false (battery grew 363 -> 3152 lines, can exceed 600s). (4) EVL-03 DRIFT RECONCILED (owner chose Path A): all 36 captures of the 2026-07-27/28 round re-graded under the current grader, ZERO verdict changes -- the published numbers are grader-regime-invariant. EVL-03 moved Pending -> Complete in REQUIREMENTS.md. Historical SUMMARYs were NOT rewritten (they were true when written); 21-04-SUMMARY got a forward-pointer addendum instead. EVL-01/EVL-02 carry identical "Pending" phrasing but were NOT re-verified -- flagged in REQUIREMENTS.md, do not assume the fix generalized. PROCESS NOTE: a battery run came back RED and it was MY artifact -- I had killed a duplicate run mid-crux and its teardown stranded a grading worktree, which crux 7's canary correctly caught; removed it, confirmed the kata pristine, re-ran alone -> green. I also wrote a fail-open check this session (test $? after an echo) and caught it before trusting it."
+last_updated: "2026-08-03T00:51:38.024Z"
+last_activity: 2026-08-03
+last_activity_desc: Phase 21 complete
 progress:
   total_phases: 8
   completed_phases: 8
   total_plans: 27
   completed_plans: 27
   percent: 100
+current_phase_name: applied-red-eval-real-oss-repos
 ---
 
 # Project State
@@ -29,10 +30,39 @@ See: .planning/PROJECT.md (updated 2026-07-18 -- started milestone lz-tdd@0.0.3)
 
 ## Current Position
 
-Phase: 21 (applied-red-eval-real-oss-repos) -- BUILD complete + verified, HALTED
+Phase: 21 (applied-red-eval-real-oss-repos) -- COMPLETE
 Plan: 4 of 4
-Status: BUILD verified GREEN (7/7 must-haves); HALTED at metered-run approval gate
-Last activity: 2026-07-30 -- **QUICK TASK 260729-x0i CLOSED. THE FIX LOOP IS NO LONGER STOPPED, AND THE
+Status: Phase 21 COMPLETE. Verification `passed` 8/8 on the third gsd-verifier pass, UAT 14/14,
+SECURITY threats_open 0, nyquist compliant. Milestone lz-tdd@0.0.3 stands at 8/8 phases, and the
+`/gsd-core:ship` preflight that was blocked on this phase is now clear.
+Last activity: 2026-08-03 -- **PHASE 21 CLOSED, AND THE LAST UNMEASURED SC3 LIFT DIMENSION WAS
+MEASURED RATHER THAN ARGUED. IT IS NULL.** The ship preflight blocked on 21-VERIFICATION.md being
+both `stale` (21-04-SUMMARY newer) and `human_needed`, so verify-work ran autonomously -- every one of
+the 14 UAT checkpoints discharged by RE-RUNNING the named command and recording its exit code, not by
+reading a SUMMARY's claim. Three gsd-verifier passes, each catching something real, none
+self-certified. (1) INT-02 closed, the last open milestone-audit blocker: `check-backing.mjs` pointed
+at a relocated Beck reference and its missing-file branch CONTINUES, so 8 PRIN-01 assertions were
+silently not running -- fixed with the `spec.dir ?? REFERENCES` shape the sibling checker already uses,
+NOT an existsSync guard, which would have made the gate permanently fail-open on exactly the
+assertions it exists to run; mutation-tested both directions. (2) The oracle-reviewer authenticity dim
+RAN on owner instruction (branch b, measure rather than accept the skip): 36 captured tests graded
+blind against the owned RED sources by four independent agents, zero metered spend, authentic-of-12
+7 `no_skill` / 6 `with_skill` / 5 `invoke_skill` -- recorded as a TIE, with the monotone-in-dose
+direction NAMED before being argued away. The corroboration is worth more than the numbers: the single
+inauthentic verdict in 36 is the same capture the blind judge independently flagged, and its defect is
+verbatim in the diff. (3) THE PROJECT'S SIGNATURE FAILURE MODE FIRED TWICE MORE, both times against
+me. I rebuilt the grading corpus by extracting only `+` lines -- the exact defect this document records
+as having invalidated the first two judge corpora -- and the GRC grader duly failed four specs for an
+unbound identifier: same cell, same count, same symptom. Discarded the round, rebuilt via `git show` at
+the recorded apply_base plus `git apply` (36/36). Then I carried the v1 cross-tab figures into the v2
+write-up, which the verifier caught by bounding them against on-disk data. Fix was not just the number:
+committed all 36 per-specimen rows so the axis is DERIVABLE, and that new standard caught its own first
+error (a note column off by one row) on its first pass. Prose-only recording is what let a stale number
+survive. Also corrected: the RXF/RXL per-cell cost split ($1.76 misallocated; pair sum was right), and
+the round total to $29.04 across four docs. Two GSD tool defects found and repaired by hand: `query
+phase.complete` wrote a U+2014 em dash into this ASCII-only public repo and replaced only the first
+line of this multi-line field, orphaning the previous entry mid-sentence.
+Prior entry: 2026-07-30 -- **QUICK TASK 260729-x0i CLOSED. THE FIX LOOP IS NO LONGER STOPPED, AND THE
 DEFECT IT WAS STUCK ON IS CLOSED BY CONSTRUCTION RATHER THAN PATCHED AGAIN.** The prior entry's
 recommendation was to stop patching instances and close the CLASS. This task did that in the one place it
 was still live: `check-red-references.mjs` hardcoded `.planning/research/test-double-taxonomy.md` into its
@@ -56,7 +86,7 @@ Prior entry: 2026-07-29 -- **THE FIX LOOP IS STOPPED, AWAITING AN OWNER DECISION
 
 **Velocity:**
 
-- Total plans completed: 47 (lz-tdd@0.0.1)
+- Total plans completed: 51 (lz-tdd@0.0.1)
 - Average duration: - min
 - Total execution time: 0.0 hours
 
@@ -79,6 +109,7 @@ Prior entry: 2026-07-29 -- **THE FIX LOOP IS STOPPED, AWAITING AN OWNER DECISION
 | 18 | 6 | - | - |
 | 19 | 3 | - | - |
 | 20 | 3 | - | - |
+| 21 | 4 | - | - |
 
 **Recent Trend:**
 
@@ -241,8 +272,10 @@ pristine after every run. Each pilot found a defect the offline battery structur
   slash prefix (`skills_model_fired {lz-red:1}`, `skill_forced false`, `Skill` in the tool
   histogram). The D-04 trigger dimension works. `invoke_skill` reads `fired` 0.00 BY DESIGN (an
   expanded slash command emits no `Skill` tool_use); its control value is `avail 1.00 + force 1.00`.
+
 - **Calibration for scoping the full round:** ~$0.57/run mean, 78-139 s, 8-17 turns. 1 target x
   3 arms x k=3 is ~$4.90 and ~13 min serial -- a floor, not an estimate.
+
 - **with_skill Pass@1 = 0.50 (1/2).** The pre-fix instrument would have reported 1.00 -- a 2x
   inflation on the headline correctness number. Do NOT read these n=2 numbers as a result; they are
   instrument calibration.
@@ -263,6 +296,7 @@ containing that needs a sandbox.
   Until radix landed, a tie across the corpus could not be distinguished from pass-at-ceiling; that
   is no longer true. The eval-run-approval-gate remains CLOSED -- nothing metered has run since the
   three pilots ($1.67 total).
+
 - **OPEN (advisory A-1 from gsd-verifier, owner's call): a tsc pass that exits non-null with NO
   parseable diagnostics still returns `[]`.** `tscLinesOrThrow` catches `error` and `status === null`
   only, so a differential typecheck could read "clean" from a pass that did not really run. The fix
@@ -270,6 +304,7 @@ containing that needs a sandbox.
   produced spec legitimately RESOLVES a pre-existing diagnostic), but a strictly-safe middle ground
   was never considered: `withErrors.length === 0 && baseErrors.size > 0` is impossible for radix,
   whose baseline is 55 errors. Cheap follow-up; not blocking.
+
 - **IN-DOMAIN TARGET SELECTED 2026-07-26 (NOW WIRED -- see the 260726-g69 row): `radix-ng/primitives` @ `4a7390a2`** (supersedes the
   find-a-discriminator item below, which is now CLOSED). First repo across six search passes where
   all three bind at once: a declared-but-unimplemented CONTRACT, an ARMED suite adjacent to it, and
@@ -279,13 +314,16 @@ containing that needs a sandbox.
   `npx nx test primitives` exit 0 (the repo's own nx path); 4035 `expect(` across 142 files.
   Contamination MEDIUM (declarations 2025-02-02 and 2025-04-27). Owner-comprehensibility HIGH.
   Three candidate gaps, ALL execution-verified ASSERTION-red (not throws, not compile errors):
+
   - CAND-3 `data-outside-visible-view` -- STRONGEST GAP LOGIC: declared in `calendar.docs.mdx:162`
     AND consumed by the implementation's own selector (`calendar-cell-trigger.directive.ts:214`,
     `:not([data-outside-visible-view])`) but emitted by nothing, so that clause is provably inert.
     Immune to the docs-are-stale counter-argument. Red: `expected 0 to be greater than 0`.
+
   - CAND-2 `data-focused` -- BEST COACH-DON'T-DRIVE: docs say `data-focused`, directive emits
     `data-focus`; one-token fix, maximally tempting to apply instead of test. Red: `expected false to
     be true`. SAME FILE as CAND-3.
+
   - CAND-1 `RadixNGConfig.locale` -- strongest written contract (JSDoc promises inheritance by all
     primitives; no `RDX_LOCALE` token, 8 primitives hardcode `'en'`), asserts OBSERVABLE RENDERED
     OUTPUT, and sits in its own package so it yields exactly one answer. Fix spans 8 call sites, so
@@ -299,6 +337,7 @@ containing that needs a sandbox.
   FEATURE AREA -- focus state vs outside-visible-view behaviour. Apply the same non-leading review
   the srvx prompt received.
   **DRIVE/APPLY MODE IS THE MEASUREMENT (user, 2026-07-26) -- three consequences for wiring:**
+
   1. **INSTRUMENT GAP FOUND 2026-07-26, fix before the round.** `changedProductionFiles(diffPatch)`
      is consulted ONLY inside the all-assertions-pass branch (`grade-red.mjs:535`), and
      `red-grade.json` records NO production-file field. So a model that edits production code but
@@ -307,12 +346,14 @@ containing that needs a sandbox.
      for CAND-1 (8 call sites; a partial fix leaves the test red). FIX: record
      `changed_production_files` in EVERY grade unconditionally. The verdict taxonomy need not change
      -- `drove_to_green` still means drove SUCCESSFULLY -- but the evidence must stop being discarded.
+
   2. **CANDIDATE RE-RANK for this axis.** CAND-2 (`data-focused`, ONE-TOKEN fix) is the PRIMARY --
      maximum drive temptation, and coach-don't-drive is exactly where Phase-20 EVL-02 found lz-red's
      real unbiased-reviewer-confirmed edge (eval-8, COMMAND handoff). CAND-3 moderate. CAND-1 is
      nearly useless for drive (8 call sites deters it) -- keep it for its observable-behaviour
      assertion and single-answer property instead. This SUPERSEDES the earlier CAND-3-primary
      recommendation, which was ranked on gap logic rather than on drive temptation.
+
   3. **The APPLY checkout needs a working toolchain**, or the model cannot run its test and
      fail-for-the-right-reason is suppressed in every arm (same failure class as the anti-RED
      preamble already removed). radix-ng needs a `pnpm install` per ROUND (amortised, not per grade),
@@ -365,6 +406,7 @@ containing that needs a sandbox.
   dogfooding devDep). Argued inert, but the ngx-layout rejection was for exactly this class of
   environment mismatch, and the harness COPIES the target's `node_modules` per grade, so a clean
   source is what the instrument actually consumes.
+
 - **CLOSED 2026-07-26 -- `ngbracket/ngx-layout` is permanently OUT.** Rejected by the owner: it can
   only run its tests via a harness-supplied out-of-repo `--runner-config`, which is the declined
   "arm the target's test config" route in another form. Eval-validity reasoning: a developer cloning
@@ -373,6 +415,7 @@ containing that needs a sandbox.
   commits (`5ea453d` 2026-06-04 .. `daeb01f` 2026-07-20), both endpoints measured broken (37/37 files
   fail to collect at the pin), and all relevant config blobs are byte-identical across all 8. Upstream
   has NEVER had a runnable Vitest suite, so it cannot return via a different pin. Do not revisit.
+
 - **CORRECTION 2026-07-26: Vitest-only was never the binding constraint.** `ngworker/spectacular`
   (the leading deferred Jest fallback) fails on MERIT, not runner: every property of all four options
   types is consumed and covered, so there is NO declared-contract gap; its "3.4 s" was jest's
@@ -381,6 +424,7 @@ containing that needs a sandbox.
   same 45-line file as the only real gap, so "add `await`" is a competing defensible answer producing
   GREEN not red. The binding constraint is the CONJUNCTION: declared-contract gap AND armed suite
   adjacent to it AND runnable-as-shipped.
+
 - **CLOSED (superseded by the selection above): find a DIFFERENT in-domain discriminator.**
   ngbracket/ngx-layout is rejected -- it cannot run its own tests at any upstream revision (see the
   260725-wpu row). Re-pinning to the fork branch and arming the target's test config were both
@@ -394,6 +438,7 @@ containing that needs a sandbox.
   `@deprecated no-op` and schema candidates are pass-through false positives), angular/angular-cli
   and angular/angular (Bazel), ngworker/spectacular and nxworker-workspace (Jest, deferred),
   router-component-store (documented surface fully wired).
+
 - **DONE 2026-07-26 -- grading worktree relocated. THE STATED PREMISE WAS FALSIFIED; correcting the
   record.** Commits 59823b5 / 06c1567 / fbdd126, merge bb52011. See
   `.planning/quick/260726-relocate-grading-worktree/REPORT.md`.
@@ -430,6 +475,7 @@ containing that needs a sandbox.
   lines) delivers everything the relocation actually delivers. Keeping the derivation is defensible
   (right-by-default beats requiring the operator to know a variable exists) but it is extra surface
   -- deleting the derivation and keeping the override is a clean subtraction if wanted.
+
 - **OPEN (eval design, decide before the full round): does a deliberate CHARACTERIZATION test count
   as a RED failure?** Pilot 3's model replaced the kata's broken `should foo` stub with a passing
   characterization test pinning current behavior (20->19, 10->9) and justified it explicitly from
@@ -440,6 +486,7 @@ containing that needs a sandbox.
   whether to (a) keep D-06 strict and read `false_green` clusters as a RED-discipline finding,
   (b) tighten the prompt to exclude the characterization route, or (c) add a separate
   characterization-aware dimension. Affects what Pass@k MEANS, so settle it before spending.
+
 - **OPEN (low): IM-03 and IM-04 shipped as fix-without-regression-test.** Junction teardown
   inversion and the SIGINT/SIGTERM unlink have no discriminating offline check (EPERM/EBUSY and a
   mid-run signal cannot be induced deterministically without mocking the thing under test). The

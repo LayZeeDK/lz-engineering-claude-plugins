@@ -13,9 +13,13 @@
 //       positives (the RED positives re-tagged should_trigger:false for the sibling probes);
 //   (7) repo hygiene (AGENTS.md): the ONLY email-shaped token in any present eval file is the
 //       approved public contact -- allowlist-inversion; the forbidden value is NEVER encoded here.
-//   (8) the same hygiene over the AUTHORED files of every e2e-red-* apply suite (suite.json,
-//       targets.json, prompts/*.md): ASCII-only AND the email allowlist. Those are hand-written
-//       prose files in a public repo and nothing else checked them mechanically.
+//   (8) the same hygiene over the AUTHORED files of BOTH suite families (suite.json, targets.json,
+//       prompts/*.md): ASCII-only AND the email allowlist. Those are hand-written prose files in a
+//       public repo and nothing else checked them mechanically. The families are the e2e-red-* apply
+//       suites AND the e2e-rgr-routing suite -- which deliberately sits OUTSIDE selfcheck-red.mjs's
+//       auto-discovered e2e-red-* namespace (D-22), because its routing corpus MUST carry test-state
+//       facts by design and that selfcheck's 13-token state-claim ban would hard-fail a corpus that
+//       is CORRECT. Clause 8 is therefore WIDENED to reach it rather than letting it go unswept.
 // ponytail: single self-contained script, no framework, no config file.
 // This is a local lint, NOT a claude -p run (D-11 respected).
 
@@ -241,12 +245,22 @@ if (existsSync(behaviorPath)) {
 // AGENTS.md's rule for a public repo, asserted by inversion so the forbidden value is never written
 // here as a needle.
 //
-// Scope: `.json` and `.md` under `e2e-red-*/`, skipping the gitignored runtime output that lives in
-// the same dirs (`results*/`, `run-*/`, `outputs/`, `mechanical-red.json`). That output is captured
-// MODEL text, not authored content, and it is not committed -- scanning it would fail this lint on
-// whatever a model happened to emit.
+// Scope: `.json` and `.md` under EITHER suite family's dir, skipping the gitignored runtime output
+// that lives in the same dirs (`results*/`, `run-*/`, `outputs/`, and the per-family rollup JSON).
+// That output is captured MODEL text, not authored content, and it is not committed -- scanning it
+// would fail this lint on whatever a model happened to emit.
 const SUITE_SCAN_EXTS = new Set(['.json', '.md']);
 const SUITE_SKIP_DIR = /^(?:results|outputs|node_modules)|^run-/;
+// Derived rollups that sit at a suite-dir ROOT, where SUITE_SKIP_DIR cannot reach them. Both are
+// gitignored byproducts of a tabulate pass over captured model text. `mechanical-routing.json` is
+// the routing suite's rollup; the name is FIXED HERE and 22-05's tabulate step follows it, matching
+// the explicit .gitignore lines added in the same commit as this edit.
+const SUITE_SKIP_FILES = new Set(['mechanical-red.json', 'mechanical-routing.json']);
+// The two swept suite families. An EXACT name for the routing suite, deliberately not a loosened
+// `e2e-` prefix: a bare prefix would silently sweep an unrelated future e2e-* dir in, and the point
+// of the widen is to reach one known dir, not to stop reasoning about which dirs are in scope.
+const ROUTING_SUITE_DIR = 'e2e-rgr-routing';
+const isSweptSuiteDir = (name) => name.startsWith('e2e-red-') || name === ROUTING_SUITE_DIR;
 
 function authoredSuiteFiles(dir, out = []) {
   for (const entry of readdirSync(dir, { withFileTypes: true })) {
@@ -258,7 +272,7 @@ function authoredSuiteFiles(dir, out = []) {
       continue;
     }
 
-    if (entry.name !== 'mechanical-red.json' && SUITE_SCAN_EXTS.has(extname(entry.name))) {
+    if (!SUITE_SKIP_FILES.has(entry.name) && SUITE_SCAN_EXTS.has(extname(entry.name))) {
       out.push(join(dir, entry.name));
     }
   }
@@ -275,7 +289,7 @@ function scanNonAscii(label, raw) {
 }
 
 const suiteDirs = readdirSync(here, { withFileTypes: true })
-  .filter((e) => e.isDirectory() && e.name.startsWith('e2e-red-'))
+  .filter((e) => e.isDirectory() && isSweptSuiteDir(e.name))
   .map((e) => join(here, e.name));
 let suiteFileCount = 0;
 
@@ -291,8 +305,9 @@ for (const suiteDir of suiteDirs) {
 
 if (suiteDirs.length > 0 && suiteFileCount === 0) {
   fail(
-    `found ${suiteDirs.length} e2e-red-* suite dir(s) but scanned 0 authored files in them; the hygiene ` +
-      'sweep is not reaching the suite content it exists to cover (a SKIP is not a pass)',
+    `found ${suiteDirs.length} swept suite dir(s) (e2e-red-* + ${ROUTING_SUITE_DIR}) but scanned 0 ` +
+      'authored files in them; the hygiene sweep is not reaching the suite content it exists to ' +
+      'cover (a SKIP is not a pass)',
   );
 }
 
@@ -301,7 +316,7 @@ console.log(
     `(${positives.length} trigger / ${negatives.length} near-miss; ` +
     `${tppSeamNegatives.length} lz-tpp-seam + ${refactorSeamNegatives.length} lz-refactor-seam), ` +
     `reciprocal ${recip.length} all-false byte-consistent, ASCII-clean, email-allowlist-clean; ` +
-    `${suiteFileCount} authored file(s) across ${suiteDirs.length} e2e-red-* suite dir(s) swept for ` +
-    'non-ASCII bytes and disallowed email-shaped tokens',
+    `${suiteFileCount} authored file(s) across ${suiteDirs.length} suite dir(s) ` +
+    `(e2e-red-* + ${ROUTING_SUITE_DIR}) swept for non-ASCII bytes and disallowed email-shaped tokens`,
 );
 process.exit(0);

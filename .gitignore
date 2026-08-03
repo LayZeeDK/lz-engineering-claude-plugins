@@ -73,6 +73,20 @@ Thumbs.db
 # (The tracked verdict lives in EVAL-RESULTS.md; the lz-refactor analog tracks its mechanical.json
 # as frozen milestone evidence, which is a different, deliberate choice.)
 .claude/skills/lz-red-workspace/e2e-red-*/mechanical-red.json
+# Phase 22 routing A/B suite (e2e-rgr-routing): same per-run capture tree, same rationale. It is
+# named OUTSIDE the e2e-red-* namespace on purpose (D-22 -- selfcheck-red.mjs auto-discovers that
+# prefix and bans test-state claims in prompts, which the routing corpus must carry by design), so
+# the e2e-red-* lines above do NOT reach it. The generic lz-red-workspace results*/ + run-*/ lines
+# and the *-workspace outputs/ line already cover these paths; these explicit lines exist for
+# unambiguity, exactly the reason the e2e-red-* lines were added.
+.claude/skills/lz-red-workspace/e2e-rgr-routing/**/results*/
+.claude/skills/lz-red-workspace/e2e-rgr-routing/**/run-*/
+.claude/skills/lz-red-workspace/e2e-rgr-routing/**/outputs/
+# mechanical-routing.json is the routing rollup OF that ignored run tree -- same derived-byproduct
+# lifetime as mechanical-red.json above; regenerate by re-running the tabulator. The tracked verdict
+# lives in the phase-scoped ROUTING-AB-RESULTS.md (D-25). This filename is the one check-evals.mjs
+# excludes from its clause-8 sweep; keep the two in sync.
+.claude/skills/lz-red-workspace/e2e-rgr-routing/mechanical-routing.json
 # EVL-01 reciprocal probe stdout + throwaway stderr (workspace root), and the runner-generated
 # per-chunk eval-set inputs (recall-chunk-*.json / spec-chunk-*.json). Raw, re-runnable byproducts;
 # the tracked evidence is EVAL-RESULTS.md. Root-anchored so evals/reciprocal-red.json stays tracked.

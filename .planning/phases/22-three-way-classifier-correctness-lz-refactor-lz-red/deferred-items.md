@@ -114,3 +114,38 @@ exists to catch, and no mechanical check in this phase can catch it.
 edited shipped file) should rule on it. If confirmed, close via `/gsd-plan-phase 22 --gaps` -> gap
 plan -> `/gsd-execute-phase 22 --gaps-only`. Do NOT let a GREEN `check-rgr-routing.mjs` be read as
 evidence that this paragraph is fine -- the gate is structurally blind to it.
+
+## From plan 22-04
+
+### Two skill-relative sentences survive OUTSIDE beck-tdd-by-example.md's two repaired regions -- OPEN, REQUIRED INPUT TO THE D-26 REVIEW
+
+**Status:** OPEN. Not fixed in plan 22-04. Recorded so the ORCHESTRATOR has the item in hand when it
+reads the D-26 unprimed reviewer's report, because that reviewer is asked precisely "is any sentence
+skill-relative in a plugin-wide file" and will very likely surface these two. They are NOT regressions
+introduced by 22-04 and they are NOT defects the executor left in its own diff.
+
+**Where:** `plugins/lz-tdd/references/beck-tdd-by-example.md`
+
+1. **Line 49, `## The two rules`:** "The second rule is where **this skill** lives: removing that
+   duplication is a refactoring, done under a green bar." Read from `lz-red` or `lz-tpp`, this says
+   the refactor step is theirs -- the identical defect class D-20b names for the seam section, in a
+   different section of the same plugin-wide file.
+2. **Line 55, `## Green-bar strategies`:** "...**the coach** mentions them only to locate the seam."
+   `the coach` is unqualified in a file loaded from three skills, each of which has its own coach.
+
+**Why 22-04 did not fix them.** The plan's action step for Task 2 scopes the repair to EXACTLY two
+regions and names these sections in its byte-unchanged list: "Everything else -- the no-oracle banner,
+the red-green-refactor-cycle section with its per-claim Owned Fowler tier, **the two rules**, **the
+green-bar strategies**, and every `## Sources` row -- stays byte-unchanged." Widening the diff would
+have contradicted an explicit instruction and put an unrelated hunk in front of the D-26 reviewer.
+Same disposition, and same reasoning, as the 22-03 item above.
+
+**Why the gate cannot see them.** `beck-seam` is anchored to the `## The seam across the three steps`
+heading, so `sectionBody` stops at the next `## `. Both sentences sit in earlier sections and are
+outside every one of the eleven parsed surfaces. `check-rgr-routing.mjs` is GREEN with them present.
+
+**To resolve:** the orchestrator should decide after the D-26 unprimed review reports. Both are
+one-sentence prose edits with no book-backed claim attached (neither carries a Sources row, a
+provenance tier, or a Beck/Fowler attribution), so if the reviewer confirms them they are cheap to
+close -- either folded into a 22-07 follow-up or via `/gsd-plan-phase 22 --gaps`. Do NOT treat the
+GREEN routing gate as evidence they are fine.

@@ -4,11 +4,11 @@ milestone: lz-tdd@0.0.3
 milestone_name: lz-red Skill
 current_phase: 22
 current_phase_name: three-way-classifier-correctness-lz-refactor-lz-red
-status: paused
-stopped_at: "Phase 22 planned + verified; execution PAUSED before wave 1 (fresh session will carry it). 7 plans in 5 waves, nothing dispatched."
-last_updated: "2026-08-03T12:17:54.610Z"
+status: executing
+stopped_at: "Phase 22 execution STARTED in a fresh session; wave 1 (22-01 + 22-02) dispatching in parallel worktrees. 7 plans in 5 waves."
+last_updated: "2026-08-03T12:49:12.468Z"
 last_activity: 2026-08-03
-last_activity_desc: "Phase 22 planned + verified (7 plans, 5 waves, plan-checker PASSED). Execution paused before wave 1 at owner request. Handoff at 22-.../.continue-here.md + .planning/HANDOFF.json."
+last_activity_desc: "Phase 22 execution started (fresh session carries it). Wave 1 of 5 dispatching: 22-01 routing gate asserted RED instrument-first + 22-02 instrument-hole closure."
 progress:
   total_phases: 9
   completed_phases: 8
@@ -29,10 +29,10 @@ See: .planning/PROJECT.md (updated 2026-07-18 -- started milestone lz-tdd@0.0.3)
 
 ## Current Position
 
-Phase: 22 (three-way-classifier-correctness-lz-refactor-lz-red) -- PLANNED, execution PAUSED before
-wave 1 (owner request: carry execution in a fresh session). Handoff:
+Phase: 22 (three-way-classifier-correctness-lz-refactor-lz-red) -- EXECUTING, wave 1 of 5
+dispatching in a fresh session (owner request). Handoff:
 `.planning/phases/22-three-way-classifier-correctness-lz-refactor-lz-red/.continue-here.md`
-Plan: 0 of 7 complete (nothing dispatched; no worktrees, no SUMMARYs)
+Plan: 0 of 7 complete (wave 1 dispatching: 22-01 + 22-02 in parallel worktrees)
 Status: Phase 22 discussed + researched + planned 2026-08-03 (`--analyze --auto --chain`), now
 EXECUTING. Artifacts:
 22-CONTEXT.md + 22-DISCUSSION-LOG.md (d0a8b03), 22-RESEARCH.md (de101bf), 22-VALIDATION.md +
@@ -75,8 +75,8 @@ and the unprimed reviewer on quick 260803-53q showed the loop's own classifier i
 -- the canonical post-green request falls through lz-refactor and lz-red's catch-all takes it.
 Pre-existing since lz-tdd@0.0.2, not a 0.0.3 regression, and the owner chose to fix the classifier
 as a unit rather than take the available two-line patch. Next: `/gsd-plan-phase 22`.
-Last activity: 2026-08-03 -- Phase 22 planned + verified; execution PAUSED before wave 1 at owner
-request so a fresh session carries it. Nothing dispatched, nothing executed.
+Last activity: 2026-08-03 -- Phase 22 execution STARTED in a fresh session; wave 1 (22-01 + 22-02)
+dispatching in parallel worktrees. Planning was complete + independently verified before the pause.
 Prior entry: 2026-08-03 -- **MILESTONE SHIPPED.** `/gsd-core:ship lz-tdd@0.0.3` ran end-to-end.
 Preflight cleared on all five gates plus the public-repo one: verification `passed` on all 8
 phases, clean tree, feature branch, origin reachable, `gh` authenticated, and the capability

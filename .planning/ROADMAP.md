@@ -346,24 +346,30 @@ unit.
      skipped at the moment it exists for) and "I want to add a new behavior to this module" with
      nothing failing yet (routes nowhere; the destination the lz-refactor description names is
      lz-tpp, which declines it by its own description).
+
   2. **Mutually exclusive across skills.** At most one of the three step-1 procedures claims any
      given request. Today lz-refactor is the only sibling whose "otherwise" is a positive
      condition rather than a catch-all, so it is the only one that can lose a request it owns --
      while lz-red and lz-tpp both end with an "otherwise ... is this skill" catch-all, which is
      the collision half of the same defect.
+
   3. **Single axis.** No routing branch keys on test state; all key on the ask. Includes the two
      surviving test-state conditions left out of scope by 260803-53q: `lz-refactor/SKILL.md:30`
      (`## Two modes` coach gate, which also contradicts step 5's own untested-code branch) and any
      equivalent in lz-red or lz-tpp.
+
   4. **Test code has a named owner.** "Is this a good test?" routes to lz-red, not to lz-refactor's
      Extract Function advice. Today lz-red claims it by description while lz-refactor's branch (c)
      captures it, because branch (b) hands off only the *next failing* test.
+
   5. **Body and description agree, per skill.** lz-refactor's body currently drops the
      description's "or otherwise ADD or CHANGE behavior" clause, and `SKILL.md:139` cites a step-1
      rule that step 1 does not contain. Every in-body handoff matches its own frontmatter.
+
   6. **Guarded.** A checker gate holds the routing semantics, not merely token presence -- the
      TD-02 guard's measured ceiling (a renamed heading alone satisfies a bare `/lz-red/` needle)
      is closed for the new gates. Mutation-tested in both directions.
+
   7. All shipped skills touched pass a fresh acceptance review with at least one from-scratch
      unprimed reviewer, and the full battery plus `claude plugin validate .` stay GREEN.
 
@@ -394,12 +400,12 @@ and `22-DISCUSSION-LOG.md`.
 `description` frontmatter. The EVL-01 reciprocal trigger round is therefore REQUIRED, not optional,
 as the regression check, and `/reload-plugins` must follow -- committed is not live.
 
-**Plans:** 7 plans
+**Plans:** 2/7 plans executed
 
 **Wave 1** (instrument-first; the routing gate is ASSERTED RED against today's tree)
 
-- [ ] 22-01-PLAN.md -- The semantic routing gate: `routing-parse.mjs` + the 9-case corpus + `check-rgr-routing.mjs` (asserted RED) + an 8-mutation both-directions selftest, wired into the lz-red battery [CLS-01..CLS-04]
-- [ ] 22-02-PLAN.md -- Close the two measured instrument holes: widen `check-hygiene.mjs` to the plugin-wide references dir + README with an AUTHORED non-vacuity floor, widen `check-evals.mjs` clause 8 to the new suite, gitignore lines, and author CLS-01..CLS-05 in REQUIREMENTS.md [CLS-01..CLS-05]
+- [x] 22-01-PLAN.md -- The semantic routing gate: `routing-parse.mjs` + the 9-case corpus + `check-rgr-routing.mjs` (asserted RED) + an 8-mutation both-directions selftest, wired into the lz-red battery [CLS-01..CLS-04]
+- [x] 22-02-PLAN.md -- Close the two measured instrument holes: widen `check-hygiene.mjs` to the plugin-wide references dir + README with an AUTHORED non-vacuity floor, widen `check-evals.mjs` clause 8 to the new suite, gitignore lines, and author CLS-01..CLS-05 in REQUIREMENTS.md [CLS-01..CLS-05]
 
 **Wave 2** *(parallel, disjoint files; blocked on Wave 1)*
 

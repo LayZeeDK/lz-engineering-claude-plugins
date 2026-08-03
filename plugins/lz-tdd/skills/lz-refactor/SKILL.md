@@ -34,18 +34,23 @@ changes belong to the green step and its sibling skill lz-tpp.
   lookup, or an explicit `/lz-tdd:lz-refactor` invocation with nothing to coach. Answer from the
   reference files listed below; do not restate their content here.
 
-## Refactoring vs the green step (the lz-tpp seam)
+## Refactoring vs the red step (lz-red) and the green step (lz-tpp)
 
-The refactor step (structure-only, behavior-preserving) is lz-refactor. The green / transformation
-step (making a failing test pass by changing behavior) is lz-tpp. Classify the request before
-acting: if a red test must be made to pass, that is lz-tpp, not this skill.
+lz-refactor owns the refactor step: improving the structure or readability of code without changing
+what it does. Its two siblings own the neighboring steps -- lz-tpp the green / transformation step
+(changing behavior so that a failing test passes), lz-red the red step (deciding and writing the
+next failing test). Classify the request by what the developer is asking for, before acting: if the
+ask is to make a failing test pass by changing behavior, hand off to lz-tpp; if the ask is to decide
+or write the next failing test, hand off to lz-red; if the ask is to improve structure or
+readability without changing behavior, that is this skill.
 
 ## Coach decision procedure
 
-1. Classify the request against the lz-tpp seam. If a red / failing test must be made to
-   pass, that is the green step. Hand off to lz-tpp and stop. If the tests are green and the code
-   has a structure-only smell, continue here (the refactor step). See "Refactoring vs the green step"
-   above; do not restate it.
+1. Classify the request against both seams, by what the developer is asking for. If the ask is to
+   make a failing test pass by changing behavior, hand off to lz-tpp and stop. If the ask is to
+   decide or write the next failing test, hand off to lz-red and stop. If the ask is to improve
+   structure or readability without changing behavior, continue here (the refactor step). See
+   "Refactoring vs the red step (lz-red) and the green step (lz-tpp)" above; do not restate it.
 2. Recognize the smell. Scan the recognize-by cues in
    [references/smells.md](references/smells.md), then OPEN the matching smell leaf for its candidate
    refactorings. The index is navigation-only, so never guess a refactoring from it.

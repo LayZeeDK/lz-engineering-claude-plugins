@@ -6,9 +6,9 @@ current_phase: 21
 status: complete
 stopped_at: ""
 prior_stopped_at: "Resumed from HANDOFF.json mid-pilot and closed four things. (1) REPAIRED THE MIXED RESULTS TREE -- run-1 carried a fresh capture with a stale round-1 grade and runs 2-3 were round-1 captures; verified the round-1 archive intact (27/27) first, cleared the stale grades, recorded a resume boundary BEFORE re-running, re-ran all three with --force, and asserted fail-closed that every meta started_at AND every grade mtime postdates the boundary before computing anything. (2) FINISHED THE PILOT AND APPLIED THE PRE-REGISTERED RULE VERBATIM: N = 3 of 3 (all runs touched src/correlation-id.ts), zero void runs, $4.11 -> CEILING HELD -> the ~$27 k=5 round was NOT bought. D-03 (cutting a1's antecedent) did NOT move the baseline; the discriminator is now 21 of 21 correct and the baseline arm alone is 6/6 on a1 across BOTH prompt versions. Recorded as NOT-TESTED, never as a null: FUT-TAXONOMY-SHARED stays OPEN, status NOT-YET-TESTED. The ceiling is structural -- the shipped SKILL.md the baseline loads carries both the qualify-by-side rule and a worked example whose stub IS this cell's answer -- so measuring a taxonomy effect needs a NEW cell, not another rewording of a1. (3) PHASE 21 CLOSE-OUT AUDITS, both reached BY their dedicated agents rather than the workflows' inline short-circuits: gsd-security-auditor returned SECURED 9/9, threats_open 0, with T-21-SC (the only high) closed by a recorded legitimacy-gate PASS per nominated target and two threats probed at runtime (9/9 and 6/6 fail-closed paths) rather than read; gsd-nyquist-auditor returned PARTIAL and found a REAL gap -- selfcheck-red had zero references to invoke_treatment/invoke_forcing/d12, so 2 of 5 own-skill arms were never parity-asserted -- closed it in test code (+164/-2), and its FIRST fix failed its own mutation test (a forward-slash spelling of plugins/lz-tdd collapsed a lever past a raw string compare; fixed with path-insensitive samePath). nyquist_compliant was set only AFTER correcting the map: EVL-03.5's judge-input emission (never built) and EVL-03.7's scaffold (doc review) moved to Manual-Only, and the plan-time "latency < 60s" claim corrected as false (battery grew 363 -> 3152 lines, can exceed 600s). (4) EVL-03 DRIFT RECONCILED (owner chose Path A): all 36 captures of the 2026-07-27/28 round re-graded under the current grader, ZERO verdict changes -- the published numbers are grader-regime-invariant. EVL-03 moved Pending -> Complete in REQUIREMENTS.md. Historical SUMMARYs were NOT rewritten (they were true when written); 21-04-SUMMARY got a forward-pointer addendum instead. EVL-01/EVL-02 carry identical "Pending" phrasing but were NOT re-verified -- flagged in REQUIREMENTS.md, do not assume the fix generalized. PROCESS NOTE: a battery run came back RED and it was MY artifact -- I had killed a duplicate run mid-crux and its teardown stranded a grading worktree, which crux 7's canary correctly caught; removed it, confirmed the kata pristine, re-ran alone -> green. I also wrote a fail-open check this session (test $? after an echo) and caught it before trusting it."
-last_updated: "2026-08-03T00:51:38.024Z"
+last_updated: "2026-08-03T01:13:49.844Z"
 last_activity: 2026-08-03
-last_activity_desc: Phase 21 complete
+last_activity_desc: Milestone lz-tdd@0.0.3 shipped -- PR #3
 progress:
   total_phases: 8
   completed_phases: 8
@@ -32,10 +32,33 @@ See: .planning/PROJECT.md (updated 2026-07-18 -- started milestone lz-tdd@0.0.3)
 
 Phase: 21 (applied-red-eval-real-oss-repos) -- COMPLETE
 Plan: 4 of 4
-Status: Phase 21 COMPLETE. Verification `passed` 8/8 on the third gsd-verifier pass, UAT 14/14,
-SECURITY threats_open 0, nyquist compliant. Milestone lz-tdd@0.0.3 stands at 8/8 phases, and the
-`/gsd-core:ship` preflight that was blocked on this phase is now clear.
-Last activity: 2026-08-03 -- **PHASE 21 CLOSED, AND THE LAST UNMEASURED SC3 LIFT DIMENSION WAS
+Status: Milestone lz-tdd@0.0.3 SHIPPED -- PR #3 open against main
+(https://github.com/LayZeeDK/lz-engineering-claude-plugins/pull/3). Phase 21 COMPLETE.
+Verification `passed` 8/8 on the third gsd-verifier pass, UAT 14/14, SECURITY threats_open 0,
+nyquist compliant. Milestone lz-tdd@0.0.3 stands at 8/8 phases; the `/gsd-core:ship` preflight
+that was blocked on this phase cleared and the PR is awaiting owner self-review + merge.
+Last activity: 2026-08-03 -- **MILESTONE SHIPPED.** `/gsd-core:ship lz-tdd@0.0.3` ran end-to-end.
+Preflight cleared on all five gates plus the public-repo one: verification `passed` on all 8
+phases, clean tree, feature branch, origin reachable, `gh` authenticated, and the capability
+registry's blocking `ship:pre` security gate satisfied by `threats_open: 0` in all 8
+`*-SECURITY.md`. A maintainer-scoped allowlist-inversion scan over all 381 non-merge commits
+found a single approved identity and zero email-shaped tokens in any commit message; the PR body
+was scanned the same way before publication (only hit was the `@` in a filename) and is
+ASCII-only. Branch was already at origin (`a20b700`), so the push was a no-op. PR #3 created:
+362 files, +84,869/-1,440, 395 commits, body auto-generated from ROADMAP/REQUIREMENTS/SUMMARY/
+VERIFICATION/SECURITY plus a TDD audit. That audit is honest about its own emptiness --
+`workflow.tdd_mode` is false, so no commit carries a `gate_status:` trailer and all 381
+normalize to `missing`; the 18 `test:`-anchored RED/GREEN pairings are tabled and the 363
+omitted commits are itemized by type rather than silently dropped. The PR body also corrects the
+milestone audit: its `status_if_reaudited` still reads "INT-02 remains open", which is stale --
+INT-02 closed at `ee50a74` and INT-01/SEAM-02 at `50fb4ba`, both after the 2026-08-02 audit.
+Owner chose SELF-REVIEW over skip/request. **The STATE.md tool defect fired again and was
+repaired by hand, as the standing note predicts:** `query state.update` clobbered the `status:`
+enum (`complete` -> a prose sentence), collapsed `prior_stopped_at` into `stopped_at`, deleted
+`last_activity_desc`, and replaced only the FIRST line of both multi-line body fields, orphaning
+two sentences mid-clause. Restored from a pre-call snapshot and edited by hand instead. Do not
+trust that verb on this file.
+Prior entry: 2026-08-03 -- **PHASE 21 CLOSED, AND THE LAST UNMEASURED SC3 LIFT DIMENSION WAS
 MEASURED RATHER THAN ARGUED. IT IS NULL.** The ship preflight blocked on 21-VERIFICATION.md being
 both `stale` (21-04-SUMMARY newer) and `human_needed`, so verify-work ran autonomously -- every one of
 the 14 UAT checkpoints discharged by RE-RUNNING the named command and recording its exit code, not by

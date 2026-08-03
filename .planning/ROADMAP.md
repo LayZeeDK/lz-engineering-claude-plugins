@@ -400,7 +400,7 @@ and `22-DISCUSSION-LOG.md`.
 `description` frontmatter. The EVL-01 reciprocal trigger round is therefore REQUIRED, not optional,
 as the regression check, and `/reload-plugins` must follow -- committed is not live.
 
-**Plans:** 2/7 plans executed
+**Plans:** 4/7 plans executed
 
 **Wave 1** (instrument-first; the routing gate is ASSERTED RED against today's tree)
 
@@ -409,8 +409,8 @@ as the regression check, and `/reload-plugins` must follow -- committed is not l
 
 **Wave 2** *(parallel, disjoint files; blocked on Wave 1)*
 
-- [ ] 22-03-PLAN.md -- The three shipped `SKILL.md` classifiers: description, `## Two modes` gate, sibling-seam narrative and coach step 1 for each of lz-refactor / lz-red / lz-tpp, plus lz-refactor's three D-07 mechanical fixes [CLS-01, CLS-02, CLS-03]
-- [ ] 22-05-PLAN.md -- A/B harness plumbing (content-independent): `run-e2e.mjs` placement arm + two read-only variant consts + retrieval instrumentation, `tabulate-mechanical-red.mjs --grade-file`, the `e2e-rgr-routing` suite derived from the corpus, and `grade-routing.mjs` + fixtures + `--selfcheck` [CLS-05]
+- [x] 22-03-PLAN.md -- The three shipped `SKILL.md` classifiers: description, `## Two modes` gate, sibling-seam narrative and coach step 1 for each of lz-refactor / lz-red / lz-tpp, plus lz-refactor's three D-07 mechanical fixes [CLS-01, CLS-02, CLS-03]
+- [x] 22-05-PLAN.md -- A/B harness plumbing (content-independent): `run-e2e.mjs` placement arm + two read-only variant consts + retrieval instrumentation, `tabulate-mechanical-red.mjs --grade-file`, the `e2e-rgr-routing` suite derived from the corpus, and `grade-routing.mjs` + fixtures + `--selfcheck` [CLS-05]
 
 **Wave 3** *(blocked on Wave 2)*
 

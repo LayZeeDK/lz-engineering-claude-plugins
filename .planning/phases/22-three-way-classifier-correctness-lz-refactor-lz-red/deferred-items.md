@@ -73,3 +73,44 @@ committed dependency set rather than resolving anything new).
 base. The plan's softer "`node selfcheck-red.mjs` exits 0" line is ALSO satisfied, measured in the
 main tree post-merge. The executor was right to refuse to claim a pass it had not observed; the
 orchestrator then observed it.
+
+## From plan 22-03
+
+### lz-refactor/SKILL.md intro paragraph contradicts the classifier beneath it -- OPEN, REQUIRED INPUT TO THE D-18/SC7 REVIEW
+
+**Status:** OPEN. Not fixed in Phase 22 execution. This entry exists so the item reaches the
+D-18/SC7 acceptance review as a NAMED input rather than depending on a reviewer happening to read
+five particular lines.
+
+**Where:** `plugins/lz-tdd/skills/lz-refactor/SKILL.md`, the intro paragraph directly under the H1
+(around lines 23-27), ABOVE the first `## ` heading.
+
+**Why the gate cannot see it.** `ROUTING_SURFACES` anchors every parsed surface to a `## ` heading;
+the first one in this file is `## Two modes`. The intro paragraph sits above it, so it is outside
+all eleven parsed surfaces. `check-rgr-routing.mjs` is GREEN on this file's routing and will stay
+GREEN with this defect present. This is precisely the coverage boundary `22-VALIDATION.md` states:
+the deterministic layer proves the AUTHORED classifier is exhaustive, disjoint and single-axis --
+it does not prove the surrounding prose agrees with it.
+
+**The two defects, both now weaker than the classifier below them:**
+
+1. "with the tests green, it recommends the next NAMED refactoring ..." -- TEST-STATE framing, the
+   exact axis D-03 removes from every routing branch. `## Two modes` and coach step 5 (which has an
+   untested-code branch) now contradict it.
+2. "Behavior changes belong to the green step and its sibling skill lz-tpp" -- omits the two-hop.
+   Corpus case `c4` routes `lz-red` THEN `lz-tpp`, and this sentence names only the second hop.
+
+**Why it was raised rather than absorbed.** Plan 22-03's `files_modified` covers the three
+`SKILL.md` files, so the file is in scope, but this paragraph is not one of the plan's authoring
+sites and not a parsed surface. The executor declined to widen its own diff and escalated instead.
+The orchestrator declined to expand a plan's scope mid-wave. Both are the correct default; neither
+closes the item.
+
+**Why it still matters:** ROADMAP **SC5** requires "Body and description agree, per skill". A
+shipped, public skill whose opening paragraph contradicts its own classifier is exactly what SC5
+exists to catch, and no mechanical check in this phase can catch it.
+
+**To resolve:** the D-18/SC7 fresh acceptance review (>= 1 from-scratch UNPRIMED reviewer over every
+edited shipped file) should rule on it. If confirmed, close via `/gsd-plan-phase 22 --gaps` -> gap
+plan -> `/gsd-execute-phase 22 --gaps-only`. Do NOT let a GREEN `check-rgr-routing.mjs` be read as
+evidence that this paragraph is fine -- the gate is structurally blind to it.

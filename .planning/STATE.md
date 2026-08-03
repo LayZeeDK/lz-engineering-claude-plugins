@@ -4,17 +4,17 @@ milestone: lz-tdd@0.0.3
 milestone_name: lz-red Skill
 current_phase: 22
 current_phase_name: three-way-classifier-correctness-lz-refactor-lz-red
-status: executing
-stopped_at: "Phase 22 execution STARTED in a fresh session; wave 1 (22-01 + 22-02) dispatching in parallel worktrees. 7 plans in 5 waves."
-last_updated: "2026-08-03T12:49:12.468Z"
+status: paused
+stopped_at: "Waves 1 and 2 complete + merged (4/7 plans). PAUSED before wave 3 at owner request. Routing gate now 2 FAIL / 52 PASS -- both survivors are 22-04's wave-3 targets."
+last_updated: "2026-08-03T14:57:12.412Z"
 last_activity: 2026-08-03
-last_activity_desc: "Phase 22 execution started (fresh session carries it). Wave 1 of 5 dispatching: 22-01 routing gate asserted RED instrument-first + 22-02 instrument-hole closure."
+last_activity_desc: "Phase 22 waves 1-2 executed and merged: instrument authored RED (22-01), instrument holes closed (22-02), all three shipped classifiers rewritten (22-03), A/B plumbing built dry-run-only (22-05). Gate went 20 FAIL -> 2. Paused before wave 3."
 progress:
   total_phases: 9
   completed_phases: 8
   total_plans: 34
-  completed_plans: 27
-  percent: 79
+  completed_plans: 31
+  percent: 91
 ---
 
 # Project State
@@ -29,10 +29,16 @@ See: .planning/PROJECT.md (updated 2026-07-18 -- started milestone lz-tdd@0.0.3)
 
 ## Current Position
 
-Phase: 22 (three-way-classifier-correctness-lz-refactor-lz-red) -- EXECUTING, wave 1 of 5
-dispatching in a fresh session (owner request). Handoff:
+Phase: 22 (three-way-classifier-correctness-lz-refactor-lz-red) -- PAUSED before wave 3 of 5 at
+owner request; waves 1 and 2 are complete and merged. Handoff:
 `.planning/phases/22-three-way-classifier-correctness-lz-refactor-lz-red/.continue-here.md`
-Plan: 0 of 7 complete (wave 1 dispatching: 22-01 + 22-02 in parallel worktrees)
+Plan: 4 of 7 complete (22-01, 22-02, 22-03, 22-05). Remaining: 22-04 (wave 3), 22-06 (wave 4),
+22-07 (wave 5, `autonomous: false`, ends in a blocking human HALT).
+**THE INSTRUMENT-FIRST BET PAID OFF AND IS MEASURED:** `check-rgr-routing.mjs` went 20 FAIL / 34
+PASS at the wave-1 RED baseline to 2 FAIL / 52 PASS after wave 2, and the two survivors are exactly
+22-04's targets (`beck-seam` scan floor; `laws-classify` bare catch-all). All nine corpus cases now
+have exactly one owner, c6 is not regressed, and descriptions sit at lz-red 1439 / lz-tpp 840 /
+lz-refactor 1369 against the 1536 cap.
 Status: Phase 22 discussed + researched + planned 2026-08-03 (`--analyze --auto --chain`), now
 EXECUTING. Artifacts:
 22-CONTEXT.md + 22-DISCUSSION-LOG.md (d0a8b03), 22-RESEARCH.md (de101bf), 22-VALIDATION.md +
@@ -75,8 +81,31 @@ and the unprimed reviewer on quick 260803-53q showed the loop's own classifier i
 -- the canonical post-green request falls through lz-refactor and lz-red's catch-all takes it.
 Pre-existing since lz-tdd@0.0.2, not a 0.0.3 regression, and the owner chose to fix the classifier
 as a unit rather than take the available two-line patch. Next: `/gsd-plan-phase 22`.
-Last activity: 2026-08-03 -- Phase 22 execution STARTED in a fresh session; wave 1 (22-01 + 22-02)
-dispatching in parallel worktrees. Planning was complete + independently verified before the pause.
+Last activity: 2026-08-03 -- **WAVES 1 AND 2 EXECUTED AND MERGED (4/7 plans); PAUSED before wave 3
+at owner request.** The instrument-first sequencing is now vindicated by measurement rather than
+argument: wave 1 authored the gate and asserted it RED (20 FAIL / 34 PASS) touching zero shipped
+Markdown, and wave 2 drove it to 2 FAIL / 52 PASS with the two survivors being precisely 22-04's
+wave-3 targets. That made wave 2's acceptance FALSIFIABLE instead of a judgment call -- 22-03 was
+handed its 18 owned failures verbatim and had to land exactly the other two. Post-merge battery in
+the main tree: selftest GREEN, check-red-references GREEN, check-evals GREEN (now 25 authored files
+across 4 suite dirs, up from 14 across 3 -- 22-02's widen is live, not merely printed), hygiene
+GREEN 199/192, `claude plugin validate .` exit 0. Zero metered spend; both eval rounds remain
+HALT-gated and unrun. **BOTH QUOTA INTERRUPTIONS WERE RECOVERED WITHOUT LOSS** (22-02 mid-task-2,
+22-05 mid-task-3): worktree state was inspected before any re-dispatch, and each agent was resumed
+in place rather than replaced, because a fresh agent forks a NEW worktree and the wave cleanup then
+force-removes the old one along with its uncommitted work. **THE NEAR-MISS WORTH REMEMBERING:** the
+insurance patch for 22-05 came back 0 BYTES because its pending work was STAGED -- `git diff` and
+`ls-files --others` both report nothing in that state; only `git diff --cached` sees it. Trusting
+that empty patch would have silently discarded 52 KB across 10 files. **TWO DEFECTS FOUND BY
+ORCHESTRATOR SPOT-CHECK THAT THE EXECUTORS' OWN SELF-CHECKS PASSED OVER** (b7a298f): a verbatim
+duplicated comment block in check-hygiene.mjs, and a deferral filed against selfcheck-red.mjs on
+FALSE stated evidence -- it claimed the gitignored node_modules was absent from the main working
+copy too, which is untrue; the real mechanism is that worktrees do not carry gitignored files, and
+the full run exits 0 post-merge. The executor's CONCLUSION was right and its EVIDENCE was wrong, so
+verify the evidence and not just the verdict. One item deliberately left OPEN for the D-18/SC7
+unprimed review and recorded in deferred-items.md: lz-refactor/SKILL.md's intro paragraph (above the
+first `## `, therefore invisible to all eleven parsed surfaces) still carries test-state framing and
+omits the two-hop, which contradicts the classifier beneath it and bears on SC5.
 Prior entry: 2026-08-03 -- **MILESTONE SHIPPED.** `/gsd-core:ship lz-tdd@0.0.3` ran end-to-end.
 Preflight cleared on all five gates plus the public-repo one: verification `passed` on all 8
 phases, clean tree, feature branch, origin reachable, `gh` authenticated, and the capability

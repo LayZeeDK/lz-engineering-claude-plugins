@@ -65,7 +65,7 @@ validation deps live only in a dev-only eval workspace.
 - [x] **Phase 19: Distribution & Hygiene** - Three-skill 0.0.3 ship: version bump, docs, validators, copyright/ASCII/email hygiene (completed 2026-07-20)
 - [x] **Phase 20: Skill-Effectiveness Evals** - Trigger eval (incl. the cross-skill boundary) + RED-behavior eval vs baseline (completed 2026-07-21)
 - [x] **Phase 21: Applied RED Eval in Real OSS Repos (multi-dimensional, 3-arm)** - APPLY the next failing test in real OSS TypeScript repos with short human prompts; no_skill / with_skill / invoke_skill arms (+ optional mattpocock tdd competitor); grade on many lift dimensions -- mirrors the lz-refactor Phase 13/14 apply evals (INSERTED 2026-07-22) (completed 2026-07-23)
-- [ ] **Phase 22: Three-way classifier correctness (lz-refactor + lz-red)** - Make the three skills' request classifiers exhaustive, mutually exclusive, and keyed on one axis, so no request in the red-green-refactor loop falls through or is claimed by two skills (ADDED 2026-08-03)
+- [x] **Phase 22: Three-way classifier correctness (lz-refactor + lz-red)** - Make the three skills' request classifiers exhaustive, mutually exclusive, and keyed on one axis, so no request in the red-green-refactor loop falls through or is claimed by two skills (ADDED 2026-08-03) (completed 2026-08-03)
 
 ## Phase Details
 
@@ -400,7 +400,7 @@ and `22-DISCUSSION-LOG.md`.
 `description` frontmatter. The EVL-01 reciprocal trigger round is therefore REQUIRED, not optional,
 as the regression check, and `/reload-plugins` must follow -- committed is not live.
 
-**Plans:** 6/7 plans executed
+**Plans:** 7/7 plans complete
 
 **Wave 1** (instrument-first; the routing gate is ASSERTED RED against today's tree)
 
@@ -422,7 +422,7 @@ as the regression check, and `/reload-plugins` must follow -- committed is not l
 
 **Wave 5** *(phase gate; blocked on Wave 4)*
 
-- [ ] 22-07-PLAN.md -- Phase gate: full battery GREEN with both widens proven non-vacuous by risen counts, `RUN-GATE.md` with TWO separately-approvable metered HALTs, the `ROUTING-AB-RESULTS.md` scaffold carrying the D-24 success framing, and the blocking-human HALT [CLS-01..CLS-05]
+- [x] 22-07-PLAN.md -- Phase gate: full battery GREEN with both widens proven non-vacuous by risen counts, `RUN-GATE.md` with TWO separately-approvable metered HALTs, the `ROUTING-AB-RESULTS.md` scaffold carrying the D-24 success framing, and the blocking-human HALT [CLS-01..CLS-05]
 
 **Closing note (D-24):** the phase completes with the classifier FIXED and the placement question
 BUILT-and-HALTED. Closing Phase 22 does not by itself unblock PR #3 -- the owner-approved A/B run does.

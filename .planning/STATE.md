@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: lz-tdd@0.0.3
 milestone_name: lz-red Skill
-current_phase: 21
-current_phase_name: applied-red-eval-real-oss-repos
-status: complete
-stopped_at: "Resumed from HANDOFF.json mid-pilot and closed four things. (1) REPAIRED THE MIXED RESULTS TREE -- run-1 carried a fresh capture with a stale round-1 grade and runs 2-3 were round-1 captures; verified the round-1 archive intact (27/27) first, cleared the stale grades, recorded a resume boundary BEFORE re-running, re-ran all three with --force, and asserted fail-closed that every meta started_at AND every grade mtime postdates the boundary before computing anything. (2) FINISHED THE PILOT AND APPLIED THE PRE-REGISTERED RULE VERBATIM: N = 3 of 3 (all runs touched src/correlation-id.ts), zero void runs, $4.11 -> CEILING HELD -> the ~$27 k=5 round was NOT bought. D-03 (cutting a1's antecedent) did NOT move the baseline; the discriminator is now 21 of 21 correct and the baseline arm alone is 6/6 on a1 across BOTH prompt versions. Recorded as NOT-TESTED, never as a null: FUT-TAXONOMY-SHARED stays OPEN, status NOT-YET-TESTED. The ceiling is structural -- the shipped SKILL.md the baseline loads carries both the qualify-by-side rule and a worked example whose stub IS this cell's answer -- so measuring a taxonomy effect needs a NEW cell, not another rewording of a1. (3) PHASE 21 CLOSE-OUT AUDITS, both reached BY their dedicated agents rather than the workflows' inline short-circuits: gsd-security-auditor returned SECURED 9/9, threats_open 0, with T-21-SC (the only high) closed by a recorded legitimacy-gate PASS per nominated target and two threats probed at runtime (9/9 and 6/6 fail-closed paths) rather than read; gsd-nyquist-auditor returned PARTIAL and found a REAL gap -- selfcheck-red had zero references to invoke_treatment/invoke_forcing/d12, so 2 of 5 own-skill arms were never parity-asserted -- closed it in test code (+164/-2), and its FIRST fix failed its own mutation test (a forward-slash spelling of plugins/lz-tdd collapsed a lever past a raw string compare; fixed with path-insensitive samePath). nyquist_compliant was set only AFTER correcting the map: EVL-03.5's judge-input emission (never built) and EVL-03.7's scaffold (doc review) moved to Manual-Only, and the plan-time "latency < 60s" claim corrected as false (battery grew 363 -> 3152 lines, can exceed 600s). (4) EVL-03 DRIFT RECONCILED (owner chose Path A): all 36 captures of the 2026-07-27/28 round re-graded under the current grader, ZERO verdict changes -- the published numbers are grader-regime-invariant. EVL-03 moved Pending -> Complete in REQUIREMENTS.md. Historical SUMMARYs were NOT rewritten (they were true when written); 21-04-SUMMARY got a forward-pointer addendum instead. EVL-01/EVL-02 carry identical "Pending" phrasing but were NOT re-verified -- flagged in REQUIREMENTS.md, do not assume the fix generalized. PROCESS NOTE: a battery run came back RED and it was MY artifact -- I had killed a duplicate run mid-crux and its teardown stranded a grading worktree, which crux 7's canary correctly caught; removed it, confirmed the kata pristine, re-ran alone -> green. I also wrote a fail-open check this session (test $? after an echo) and caught it before trusting it."
-last_updated: "2026-08-03T08:57:36.087Z"
+current_phase: 22
+current_phase_name: three-way-classifier-correctness
+status: planning
+stopped_at: "Phase 22 context gathered"
+last_updated: "2026-08-03T09:29:50.288Z"
 last_activity: 2026-08-03
-last_activity_desc: "**MILESTONE SHIPPED.** `/gsd-core:ship lz-tdd@0.0.3` ran end-to-end."
+last_activity_desc: "Phase 22 CONTEXT committed (d0a8b03). Owner expanded scope at discuss time: placement decided by a folded-in 3-arm A/B eval, descriptions in scope, all three shipped skills edited. PR #3 hold extended."
 progress:
   total_phases: 9
   completed_phases: 8
@@ -29,9 +29,24 @@ See: .planning/PROJECT.md (updated 2026-07-18 -- started milestone lz-tdd@0.0.3)
 
 ## Current Position
 
-Phase: 21 (applied-red-eval-real-oss-repos) -- COMPLETE
-Plan: 4 of 4
-Status: Milestone lz-tdd@0.0.3 SHIPPED -- PR #3 open against main
+Phase: 22 (three-way-classifier-correctness) -- CONTEXT GATHERED, not yet planned
+Plan: 0 plans
+Status: Phase 22 discussed 2026-08-03 (`--analyze --auto --chain`); 22-CONTEXT.md + 22-DISCUSSION-LOG.md
+committed at d0a8b03 with the ROADMAP amendment. **Four decisions were ESCALATED to the owner rather
+than auto-locked** (the `--auto` trap-quadrant rule: high impact plus not-high confidence): (1) the
+routing content's PLACEMENT is decided EMPIRICALLY by a 3-arm A/B eval (inline / shared table plus
+inline rationale / shared table replacing the narrative sections), not by argument; (2) that A/B is
+FOLDED INTO Phase 22 -- author 3 variants, measure, ship the winner -- which extends the PR #3 hold
+by the full cycle; (3) pre-registered null tiebreak is variant C (shared table replacing the
+narrative sections), chosen for a future `/lz-tdd` entrypoint skill, with the disclosed risk that it
+moves the EVL-02-measured classify-first rationale behind a lazy read; (4) `description` frontmatter
+IS in scope, so the EVL-01 reciprocal trigger round is now MANDATORY and `/reload-plugins` must
+follow. Correction issued and accepted during discussion: a TRIGGER eval cannot discriminate the
+three placement arms (byte-identical descriptions by construction) -- the instrument is an
+EVL-02-style body/behavior eval with `--plugin-dir` arm toggling. Scope is all THREE shipped skills,
+not the two in the phase title. TWO metered rounds remain HALT-gated on explicit owner approval.
+Next: `/gsd-plan-phase 22` (dispatched by the `--chain` auto-advance).
+Prior status: Milestone lz-tdd@0.0.3 SHIPPED -- PR #3 open against main
 (https://github.com/LayZeeDK/lz-engineering-claude-plugins/pull/3). Phase 21 COMPLETE.
 Verification `passed` 8/8 on the third gsd-verifier pass, UAT 14/14, SECURITY threats_open 0,
 nyquist compliant. **Milestone lz-tdd@0.0.3 now stands at 8 of 9 phases: Phase 22 (three-way
@@ -579,9 +594,10 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-08-02 (resume-work)
-Stopped at: Resumed from HANDOFF.json mid-pilot and closed four things. (1) REPAIRED THE MIXED RESULTS TREE -- run-1 carried a fresh capture with a stale round-1 grade and runs 2-3 were round-1 captures; verified the round-1 archive intact (27/27) first, cleared the stale grades, recorded a resume boundary BEFORE re-running, re-ran all three with --force, and asserted fail-closed that every meta started_at AND every grade mtime postdates the boundary before computing anything. (2) FINISHED THE PILOT AND APPLIED THE PRE-REGISTERED RULE VERBATIM: N = 3 of 3 (all runs touched src/correlation-id.ts), zero void runs, $4.11 -> CEILING HELD -> the ~$27 k=5 round was NOT bought. D-03 (cutting a1's antecedent) did NOT move the baseline; the discriminator is now 21 of 21 correct and the baseline arm alone is 6/6 on a1 across BOTH prompt versions. Recorded as NOT-TESTED, never as a null: FUT-TAXONOMY-SHARED stays OPEN, status NOT-YET-TESTED. The ceiling is structural -- the shipped SKILL.md the baseline loads carries both the qualify-by-side rule and a worked example whose stub IS this cell's answer -- so measuring a taxonomy effect needs a NEW cell, not another rewording of a1. (3) PHASE 21 CLOSE-OUT AUDITS, both reached BY their dedicated agents rather than the workflows' inline short-circuits: gsd-security-auditor returned SECURED 9/9, threats_open 0, with T-21-SC (the only high) closed by a recorded legitimacy-gate PASS per nominated target and two threats probed at runtime (9/9 and 6/6 fail-closed paths) rather than read; gsd-nyquist-auditor returned PARTIAL and found a REAL gap -- selfcheck-red had zero references to invoke_treatment/invoke_forcing/d12, so 2 of 5 own-skill arms were never parity-asserted -- closed it in test code (+164/-2), and its FIRST fix failed its own mutation test (a forward-slash spelling of plugins/lz-tdd collapsed a lever past a raw string compare; fixed with path-insensitive samePath). nyquist_compliant was set only AFTER correcting the map: EVL-03.5's judge-input emission (never built) and EVL-03.7's scaffold (doc review) moved to Manual-Only, and the plan-time "latency < 60s" claim corrected as false (battery grew 363 -> 3152 lines, can exceed 600s). (4) EVL-03 DRIFT RECONCILED (owner chose Path A): all 36 captures of the 2026-07-27/28 round re-graded under the current grader, ZERO verdict changes -- the published numbers are grader-regime-invariant. EVL-03 moved Pending -> Complete in REQUIREMENTS.md. Historical SUMMARYs were NOT rewritten (they were true when written); 21-04-SUMMARY got a forward-pointer addendum instead. EVL-01/EVL-02 carry identical "Pending" phrasing but were NOT re-verified -- flagged in REQUIREMENTS.md, do not assume the fix generalized. PROCESS NOTE: a battery run came back RED and it was MY artifact -- I had killed a duplicate run mid-crux and its teardown stranded a grading worktree, which crux 7's canary correctly caught; removed it, confirmed the kata pristine, re-ran alone -> green. I also wrote a fail-open check this session (test $? after an echo) and caught it before trusting it.
-Resume file: none -- see Operator Next Steps
+Last session: 2026-08-03 (discuss-phase 22)
+Stopped at: Phase 22 context gathered
+Resume file: .planning/phases/22-three-way-classifier-correctness-lz-refactor-lz-red/22-CONTEXT.md
+Prior stopped_at (2026-08-03): Phase 21 close-out -- results tree repaired, pilot finished under the pre-registered ceiling rule ($4.11, the ~$27 k=5 round NOT bought), both close-out audits reached BY their dedicated agents (security SECURED 9/9; nyquist PARTIAL then closed a real parity gap in test code), and EVL-03 drift reconciled by re-grading all 36 captures with zero verdict changes. Full narrative preserved in the Current Position "Prior entry" chain below and in git history at the pre-d0a8b03 revision; the state verb overwrote this field without chaining it, as the standing defect note predicts.
 Prior stopped_at (2026-07-29): Session resumed from HANDOFF.json (quick task 260729-lc9, paused pre-execution). Owner ruled on the two open items: clear the plan-checker findings via REVISION ITERATION 2 (the last permitted iteration), covering ALL THIRTEEN findings (2 BLOCKER + 5 IMPORTANT + 6 MINOR), not the blockers alone. gsd-planner dispatched to revise 260729-lc9-PLAN.md in place; gsd-plan-checker re-check follows and spends iteration 2. If issues remain after it, the only options are force-proceed or abort. Nothing under plugins/ or .claude/ modified; zero spend so far this session.
 Prior stopped_at (2026-07-23): HALTED at 21-04 Task-3 blocking-human run gate (metered 3-arm apply run user-gated per RUN-GATE.md; BUILD complete + GREEN, zero spend)
 Prior session: 2026-07-21T08:48:11.164Z -- Completed 20-03-PLAN.md (Phase 20 build boundary; awaiting user approval for the gated eval run)

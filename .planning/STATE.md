@@ -269,6 +269,7 @@ None open. lz-tdd@0.0.1 shipped with all prior concerns resolved:
 | 260801-sc9 | Complete "distinguish, but prove it first" for the test double taxonomy for the lz-red skill (BUILD-THEN-HALT; treatment arm built, A/B still owner-gated) | 2026-08-01 | ac4008e | Verified | [260801-sc9-complete-distinguish-but-prove-it-first-](./quick/260801-sc9-complete-distinguish-but-prove-it-first-/) |
 | 260801-w8b | Build the D-12 Option A ambiguity cell and run the first three-arm round (18 runs, $16.36); the mandatory unbiased audit then overturned its reading -- the treatment was never delivered | 2026-08-01 | 3c0c99d | Verified | [260801-w8b-build-the-d-12-option-a-dedicated-apply-](./quick/260801-w8b-build-the-d-12-option-a-dedicated-apply-/) |
 | 260802-j03 | Fix seven methodological defects in the D-12 A/B (arm interleave, per-run pristine record, prompt antecedent, guaranteed treatment dose, blunt-red pass criterion, k, lever tripwire re-key) | 2026-08-02 | ef3ea2e | Verified | [260802-j03-fix-six-methodological-defects-in-the-d-](./quick/260802-j03-fix-six-methodological-defects-in-the-d-/) |
+| 260803-53q | Close TD-02: widen the lz-refactor seam to route back to lz-red on intent, plus a fail-closed regression guard. Contract met and verified; the unprimed gate then found the surrounding classifier is not exhaustive (pre-existing, routed to phase work) | 2026-08-03 | 6b7ac4f | Verified (contract) | [260803-53q-close-td-02-widen-the-lz-refactor-seam-s](./quick/260803-53q-close-td-02-widen-the-lz-refactor-seam-s/) |
 
 **Status basis, stated because "Verified" is doing real work here.** gsd-verifier returned `passed` at
 12/12 must-haves, re-measuring independently rather than reading the SUMMARY. But that verdict alone did
@@ -278,6 +279,20 @@ were correct about different things -- the verifier checked that entries EXIST, 
 whether their content is TRUE. A second unprimed review after remediation found one further false claim
 that round 2 had inherited from round 1. `Verified` here means: 12/12 must-haves, plus two independent
 content reviews run to a clean verdict, plus the full deterministic battery.
+
+**`Verified (contract)` on 260803-53q is a DELIBERATELY narrower status, and the qualifier is load-bearing.**
+TD-02's own contract is closed and both reviewers confirm it: the `lz-refactor -> lz-red` hop now exists,
+routes on intent, and is held by a fail-closed guard that was mutation-proven in three directions
+(pointer stripped, target file deleted, restored byte-identical). What is NOT claimed is that
+`lz-refactor/SKILL.md` is correct as a whole. The unprimed reviewer -- given no contract and eight
+developer requests to trace -- found the surrounding classifier is not exhaustive: the canonical
+post-green request ("I just finished making a test pass. What now?") fires no branch, and lz-red's
+catch-all claims it, so the refactor step is skipped at the moment it exists for. That defect is
+PRE-EXISTING (verified by tracing the old text at `2ea7b2b` against the same scenarios; it has been
+public since lz-refactor shipped in lz-tdd@0.0.2) and this change introduced no regression. The owner
+declined the available two-line patch and routed the whole classifier to phase work instead, because the
+patch would have left the test-code ownership boundary and the cross-skill catch-all collision
+unresolved. Full record: `quick/260803-53q-close-td-02-widen-the-lz-refactor-seam-s/260803-53q-REVIEW.md`.
 
 ### Phase-21 pilot runs + open items (quick 260725-63f)
 

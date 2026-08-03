@@ -394,11 +394,35 @@ and `22-DISCUSSION-LOG.md`.
 `description` frontmatter. The EVL-01 reciprocal trigger round is therefore REQUIRED, not optional,
 as the regression check, and `/reload-plugins` must follow -- committed is not live.
 
-**Plans:** 0 plans
+**Plans:** 7 plans
 
-Plans:
+**Wave 1** (instrument-first; the routing gate is ASSERTED RED against today's tree)
 
-- [ ] TBD (run /gsd-plan-phase 22 to break down)
+- [ ] 22-01-PLAN.md -- The semantic routing gate: `routing-parse.mjs` + the 9-case corpus + `check-rgr-routing.mjs` (asserted RED) + an 8-mutation both-directions selftest, wired into the lz-red battery [CLS-01..CLS-04]
+- [ ] 22-02-PLAN.md -- Close the two measured instrument holes: widen `check-hygiene.mjs` to the plugin-wide references dir + README with an AUTHORED non-vacuity floor, widen `check-evals.mjs` clause 8 to the new suite, gitignore lines, and author CLS-01..CLS-05 in REQUIREMENTS.md [CLS-01..CLS-05]
+
+**Wave 2** *(parallel, disjoint files; blocked on Wave 1)*
+
+- [ ] 22-03-PLAN.md -- The three shipped `SKILL.md` classifiers: description, `## Two modes` gate, sibling-seam narrative and coach step 1 for each of lz-refactor / lz-red / lz-tpp, plus lz-refactor's three D-07 mechanical fixes [CLS-01, CLS-02, CLS-03]
+- [ ] 22-05-PLAN.md -- A/B harness plumbing (content-independent): `run-e2e.mjs` placement arm + two read-only variant consts + retrieval instrumentation, `tabulate-mechanical-red.mjs --grade-file`, the `e2e-rgr-routing` suite derived from the corpus, and `grade-routing.mjs` + fixtures + `--selfcheck` [CLS-05]
+
+**Wave 3** *(blocked on Wave 2)*
+
+- [ ] 22-04-PLAN.md -- The two reference-tier classifier surfaces (D-20): the three-laws leaf's replicated classify-first block, and `plugins/lz-tdd/references/beck-tdd-by-example.md`'s seam section made three-way, plugin-neutral and ask-keyed; the routing gate goes GREEN [CLS-01, CLS-02, CLS-03]
+
+**Wave 4** *(blocked on Wave 3)*
+
+- [ ] 22-06-PLAN.md -- Variant staging: the shared routing table as a workspace SOURCE artifact, `build-variants.mjs` with fail-closed transforms, and `selfcheck-routing.mjs` proving three-arm composition, nine-prompt parity and byte-identical descriptions across all three trees [CLS-05]
+
+**Wave 5** *(phase gate; blocked on Wave 4)*
+
+- [ ] 22-07-PLAN.md -- Phase gate: full battery GREEN with both widens proven non-vacuous by risen counts, `RUN-GATE.md` with TWO separately-approvable metered HALTs, the `ROUTING-AB-RESULTS.md` scaffold carrying the D-24 success framing, and the blocking-human HALT [CLS-01..CLS-05]
+
+**Closing note (D-24):** the phase completes with the classifier FIXED and the placement question
+BUILT-and-HALTED. Closing Phase 22 does not by itself unblock PR #3 -- the owner-approved A/B run does.
+"No variant shipped" is the designed outcome, not an incomplete phase: the tracked tree is variant A,
+which is itself a legitimate variant. The D-18/SC7 acceptance review, the D-26 unprimed review and both
+metered rounds are ORCHESTRATOR steps after the executors return.
 
 ---
 *Roadmap created: 2026-07-02 | lz-tdd@0.0.1 shipped: 2026-07-04 | lz-tdd@0.0.2 shipped: 2026-07-17 | lz-tdd@0.0.3 roadmap added: 2026-07-18 (Phases 15-20); Phase 21 (applied eval) inserted 2026-07-22. Per-milestone phase detail lives in `.planning/milestones/`.*

@@ -102,6 +102,18 @@ step ends with a `See "<exact heading>" above; do not restate it.` pointer. That
 the progressive-disclosure idiom all three files use and is what variant C's link-out must replace,
 not delete.
 
+**Correction -- property (a) is ASPIRATIONAL for the new content, not descriptive of the text quoted
+above.** The quoted block names its owner explicitly only for the two branches it hands OFF
+(`lz-tpp`, `lz-red`); the self-owning branch says "continue here (the refactor step)" and never the
+literal slug. The same is true of both sibling files -- `lz-red/SKILL.md:42` ("is this skill"),
+`lz-refactor/SKILL.md:45` ("that is this skill"), `lz-tpp/SKILL.md:44` ("is this skill"). Since
+`destinationsIn()` (22-01) matches only the three literal slugs word-bounded and has NO
+self-reference resolution, "keep verbatim in spirit" applied to a self-owning branch would author
+text the gate cannot take GREEN. Read (a) as a REQUIREMENT on the new branches -- every branch,
+including the self-owning one, carries the literal slug -- not as a property to preserve from here.
+The literal-slug requirement sits on the authored content by design; the parser stays deliberately
+dumb, which is what keeps it mutation-sensitive.
+
 **Defect sites in THIS file, with the shape each must take:**
 
 | Line | Defect | Required shape |

@@ -1342,7 +1342,11 @@ already written out at `EVAL-RESULTS.md` L382-399 and need only the model pin re
 | A6 | A `matchTokens` set-membership match is a faithful way to bind a corpus case to an authored branch | Guard Design | Moderate. It makes the guard structural rather than semantic. Mitigation: mutation 7 (reworded-but-correct branch must stay GREEN) plus stating the boundary in the checker header so the guard is never read as a claim about model behavior. |
 | A7 | `plugins/lz-tdd/references/` should take ALL THREE hygiene axes (like lz-red), not two (like lz-tpp) | Finding 8 | Low. `beck-tdd-by-example.md`'s own Sources block declares it unowned / own-words / DST-04-clean, which is the lz-red treatment. If the owner prefers the lz-tpp carve-out, only the no-verbatim axis changes. |
 
-## Open Questions
+## Open Questions (RESOLVED)
+
+All four were carried into `22-CONTEXT.md` and settled there under
+`### Research-driven amendments`. The questions are left as written -- the audit trail is the point --
+with the resolving decision named under each.
 
 1. **Which surface set does the guard target in Wave 0, given the winner is unknown?**
    - What we know: D-17 requires fail-closed on the canonical location, and the winner is decided by
@@ -1353,6 +1357,9 @@ already written out at `EVAL-RESULTS.md` L382-399 and need only the model pin re
      Findings 1 and 2's surfaces) in Wave 0, with the canonical-shared-table assertion in a separate
      labeled check that is only ADDED when the winner is known. That keeps Wave 0 RED-then-GREEN
      without depending on a metered run, and keeps D-17's no-skip rule intact for whatever ships.
+   - **RESOLVED by D-24** (with D-20 supplying the surface list): variant A is the TRACKED tree, so the
+     guard targets variant A's surface set, declared as data with a documented `variantScope` flip
+     contract. Recommendation adopted.
 
 2. **Does the phase ship a variant before the A/B runs?**
    - What we know: D-09 says "author all three variants, measure, ship only the winner", and D-14
@@ -1364,6 +1371,9 @@ already written out at `EVAL-RESULTS.md` L382-399 and need only the model pin re
      the composition anchor `selfcheck-red.mjs` already asserts). The phase then completes with the
      classifier FIXED and the placement question BUILT-and-HALTED. Make that explicit in the phase's
      own success framing so "no variant shipped" is not later read as an incomplete phase.
+   - **RESOLVED by D-24:** NO variant is formally selected inside Phase 22. Recommendation adopted, and
+     D-24 adds the consequence this question did not state -- closing Phase 22 does not by itself
+     unblock PR #3; the owner-approved A/B run does.
 
 3. **Does reconciling `beck-tdd-by-example.md` (Finding 2) need an oracle-reviewer gate?**
    - What we know: the file is `Unowned; high-confidence core only, no-oracle` per its own Sources
@@ -1373,6 +1383,8 @@ already written out at `EVAL-RESULTS.md` L382-399 and need only the model pin re
    - Recommendation: scope the edit to the seam section and the L3-5 scope line only, leave every
      Sources row untouched, and have the ORCHESTRATOR run the standard unprimed review rather than an
      oracle-reviewer gate. Escalate to oracle-reviewer only if the edit touches a book-backed claim.
+   - **RESOLVED by D-26:** no oracle-reviewer gate. Recommendation adopted verbatim, including the
+     escalate-only-on-a-book-backed-claim condition.
 
 4. **Where does the A/B writeup live?**
    - CONTEXT leaves it to discretion.
@@ -1380,6 +1392,8 @@ already written out at `EVAL-RESULTS.md` L382-399 and need only the model pin re
      of frozen EVL-01/EVL-02 evidence with a hand-maintained structure; appending a fourth eval to it
      invites the drift the REQUIREMENTS.md DRIFT NOTICE documents. A sibling also means the
      reconcile-on-completion step has one obvious file to update.
+   - **RESOLVED by D-25:** phase-scoped `ROUTING-AB-RESULTS.md` sibling. Recommendation adopted; the
+     CONTEXT discretion item it answers is now closed.
 
 ## Environment Availability
 

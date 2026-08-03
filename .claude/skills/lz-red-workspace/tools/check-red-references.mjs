@@ -524,6 +524,34 @@ if (fs.existsSync(lzTppSkillPath)) {
   );
 }
 
+// TD-02 (quick-260803-53q): the SIBLING of the SEAM-02 block above, in the mirror direction. The
+// 2026-08-03 milestone re-audit measured ZERO occurrences of `lz-red` in the shipped lz-refactor
+// router, so the lz-refactor -> lz-red return hop of the red-green-refactor seam did not exist while
+// SEAM-02 was marked Complete. Prose alone did not hold it the first time; this guard is what keeps
+// the pointer from disappearing a second time in silence.
+//
+// Deliberately NOT existsSync-gated, unlike the SEAM-02 and D-05 blocks it sits between. This file's
+// own header condemns an existsSync-gated post-loop block as a silent vacuous pass, and an
+// emit-nothing path would make the roster gate fire on the COUNT rather than on the guard that found
+// something. The try/catch yields the empty string instead, which has no match, so the guard fails
+// CLOSED with no extra branch and report() runs exactly once every run.
+const lzRefactorSkillPath = path.join(repoRoot, "plugins", "lz-tdd", "skills", "lz-refactor", "SKILL.md");
+let lzRefactorText = "";
+
+try {
+  lzRefactorText = fs.readFileSync(lzRefactorSkillPath, "utf8");
+} catch {
+  lzRefactorText = "";
+}
+
+const lzRefactorPointsBack = /lz-red/.test(lzRefactorText);
+
+report(
+  lzRefactorPointsBack,
+  "lz-refactor/SKILL.md: TD-02 return pointer to lz-red",
+  lzRefactorPointsBack ? "" : "lz-refactor skill carries no return pointer to the red step"
+);
+
 // Phase-17.1 D-05 honesty gate: no principle-backing.md row may be tagged "Owned;
 // oracle-verified ..." while its Source cell still cites Kent Beck, Test-Driven Development by
 // Example (Access: book, summary-only, never gateable -- 17.1-CONTEXT.md D-05). Generic over the
@@ -1016,7 +1044,15 @@ for (const guard of TWO_IG_GUARDS) {
 // guards, the backing row that LINKED to it, the nine count guards, and the chronology phrase gate.
 // Every one is recorded BY NAME in RETIRED_LABELS, so the roster gate can tell a deliberate retirement
 // from an accidental drop -- without that list the two are the same green run.
-const EXPECTED_CHECKS = 124;
+//
+// [53q] +1 for the TD-02 return-pointer guard, so 125:
+//
+//   124 ([lc9] baseline with SEAM-02 restored) + 1 (TD-02 return pointer) = 125
+//
+// It is the SIBLING of the restored SEAM-02 pointer guard, in the mirror direction: SEAM-02 asserts
+// lz-tpp points at both neighbours, TD-02 asserts lz-refactor points back at the red step. Carried as
+// its own term rather than folded into the +1 above, so each decision stays legible on its own line.
+const EXPECTED_CHECKS = 125;
 const ROSTER_LABEL = "[2ig] roster integrity: exact emitted-check count";
 
 // Every label the surviving [2ig] round and the [lc9] round ADD, composed exactly as emitted
@@ -1093,7 +1129,7 @@ report(rosterOk, ROSTER_LABEL, rosterDetail);
 console.log("");
 
 if (failures === 0) {
-  console.log(`SUMMARY: RED-REFS GREEN -- ${filesPresent}/${FILES.length} lz-red surfaces authored (SKILL.md coach procedure + SEL/STR/NAME/ASRT/RTR/VIT/ANTI references) with topics + required ts fences + cross-links, no scaffold leak, no stale Phase-18 markers, the red criterion consistent across every surface that restates it, no ragged pipe table and no dead relative link anywhere in the shipped tree, no per-skill copy of the development-time vocabulary map, SEAM-02 lz-tpp reverse pointers present, D-05 honesty gate holds`);
+  console.log(`SUMMARY: RED-REFS GREEN -- ${filesPresent}/${FILES.length} lz-red surfaces authored (SKILL.md coach procedure + SEL/STR/NAME/ASRT/RTR/VIT/ANTI references) with topics + required ts fences + cross-links, no scaffold leak, no stale Phase-18 markers, the red criterion consistent across every surface that restates it, no ragged pipe table and no dead relative link anywhere in the shipped tree, no per-skill copy of the development-time vocabulary map, SEAM-02 lz-tpp reverse pointers present, TD-02 lz-refactor return pointer to lz-red present, D-05 honesty gate holds`);
   process.exit(0);
 }
 

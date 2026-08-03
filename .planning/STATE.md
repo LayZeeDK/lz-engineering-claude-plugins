@@ -4,11 +4,11 @@ milestone: lz-tdd@0.0.3
 milestone_name: lz-red Skill
 current_phase: 22
 current_phase_name: three-way-classifier-correctness
-status: planning
-stopped_at: "Phase 22 context gathered"
-last_updated: "2026-08-03T09:29:50.288Z"
+status: planned
+stopped_at: "Phase 22 planned -- 7 plans in 5 waves, verified, ready to execute"
+last_updated: "2026-08-03T11:33:58.291Z"
 last_activity: 2026-08-03
-last_activity_desc: "Phase 22 CONTEXT committed (d0a8b03). Owner expanded scope at discuss time: placement decided by a folded-in 3-arm A/B eval, descriptions in scope, all three shipped skills edited. PR #3 hold extended."
+last_activity_desc: "Phase 22 discussed + researched + planned. 7 plans in 5 waves, plan-checker PASSED on re-check. Owner expanded scope at discuss time: placement decided by a folded-in 3-arm A/B eval, descriptions in scope, all three shipped skills edited. Research found SIX classifier surfaces, not three. PR #3 hold extended."
 progress:
   total_phases: 9
   completed_phases: 8
@@ -29,9 +29,25 @@ See: .planning/PROJECT.md (updated 2026-07-18 -- started milestone lz-tdd@0.0.3)
 
 ## Current Position
 
-Phase: 22 (three-way-classifier-correctness) -- CONTEXT GATHERED, not yet planned
-Plan: 0 plans
-Status: Phase 22 discussed 2026-08-03 (`--analyze --auto --chain`); 22-CONTEXT.md + 22-DISCUSSION-LOG.md
+Phase: 22 (three-way-classifier-correctness) -- PLANNED, ready to execute
+Plan: 0 of 7 executed (7 plans across 5 waves)
+Status: Phase 22 discussed + researched + planned 2026-08-03 (`--analyze --auto --chain`). Artifacts:
+22-CONTEXT.md + 22-DISCUSSION-LOG.md (d0a8b03), 22-RESEARCH.md (de101bf), 22-VALIDATION.md +
+context amendments (17173c2), 22-PATTERNS.md (3bf4d3b), 7 plans (2dcc1af) + targeted revision
+(4a0e084). Plan-checker: first pass 0 BLOCKER / 3 WARNING, all three closed by the revision,
+scoped re-check returned VERIFICATION PASSED with no regression. Requirements coverage 5/5
+(CLS-01..CLS-05, authored into REQUIREMENTS.md by 22-02 T3); decision coverage 26/26.
+**RESEARCH CHANGED THE SHAPE:** there are SIX classifier surfaces, not three -- the three SKILL.md
+routers plus `lz-red/references/three-laws-and-test-selection.md` (its own three-way classify with
+the same catch-all, read by coach step 2) and `plugins/lz-tdd/references/beck-tdd-by-example.md`
+(two-way, skill-relative, test-state-keyed -- and the very file D-08 names as the shared-table
+precedent). Also measured: `check-hygiene.mjs` reaches NEITHER `plugins/lz-tdd/README.md` nor
+`plugins/lz-tdd/references/`, so D-19's hygiene re-run would be VACUOUS exactly where variants B/C
+write; and it has no file-count assertion to widen -- one must be authored. The new eval suite is
+`e2e-rgr-routing`, not `e2e-red-*`, because `selfcheck-red.mjs` crux 2 bans state-claim tokens in
+prompts while this corpus must carry them by design. Only 3 of the reviewer's "eight traced
+requests" survive verbatim, so the 9-case corpus is labelled RECONSTRUCTED.
+Prior status: Phase 22 discussed 2026-08-03; 22-CONTEXT.md + 22-DISCUSSION-LOG.md
 committed at d0a8b03 with the ROADMAP amendment. **Four decisions were ESCALATED to the owner rather
 than auto-locked** (the `--auto` trap-quadrant rule: high impact plus not-high confidence): (1) the
 routing content's PLACEMENT is decided EMPIRICALLY by a 3-arm A/B eval (inline / shared table plus
@@ -594,9 +610,10 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-08-03 (discuss-phase 22)
-Stopped at: Phase 22 context gathered
-Resume file: .planning/phases/22-three-way-classifier-correctness-lz-refactor-lz-red/22-CONTEXT.md
+Last session: 2026-08-03 (discuss-phase 22 -> plan-phase 22, chained)
+Stopped at: Phase 22 planned -- 7 plans in 5 waves, plan-checker PASSED, ready to execute
+Resume file: .planning/phases/22-three-way-classifier-correctness-lz-refactor-lz-red/22-01-PLAN.md
+Note on the tooling: `query state.planned-phase` reported `"updated": []` yet still stripped a quoted scalar AND reverted `last_activity_desc` to the superseded Phase-21 string. Repaired by hand from a pre-call snapshot. The standing rule holds -- do not trust the state verbs on this file; snapshot, run, diff, repair.
 Prior stopped_at (2026-08-03): Phase 21 close-out -- results tree repaired, pilot finished under the pre-registered ceiling rule ($4.11, the ~$27 k=5 round NOT bought), both close-out audits reached BY their dedicated agents (security SECURED 9/9; nyquist PARTIAL then closed a real parity gap in test code), and EVL-03 drift reconciled by re-grading all 36 captures with zero verdict changes. Full narrative preserved in the Current Position "Prior entry" chain below and in git history at the pre-d0a8b03 revision; the state verb overwrote this field without chaining it, as the standing defect note predicts.
 Prior stopped_at (2026-07-29): Session resumed from HANDOFF.json (quick task 260729-lc9, paused pre-execution). Owner ruled on the two open items: clear the plan-checker findings via REVISION ITERATION 2 (the last permitted iteration), covering ALL THIRTEEN findings (2 BLOCKER + 5 IMPORTANT + 6 MINOR), not the blockers alone. gsd-planner dispatched to revise 260729-lc9-PLAN.md in place; gsd-plan-checker re-check follows and spends iteration 2. If issues remain after it, the only options are force-proceed or abort. Nothing under plugins/ or .claude/ modified; zero spend so far this session.
 Prior stopped_at (2026-07-23): HALTED at 21-04 Task-3 blocking-human run gate (metered 3-arm apply run user-gated per RUN-GATE.md; BUILD complete + GREEN, zero spend)

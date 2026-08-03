@@ -3,11 +3,13 @@ name: lz-tpp
 description: >-
   This skill should be used during red-green-refactor TDD to recommend the next code
   transformation by Transformation Priority Premise (TPP) priority, and to explain the
-  transformations and their ordering on demand. Use it as a coach when a failing test and the
-  current code are present and the question is which minimal change makes the failing test
-  pass, and when the user mentions TPP, transformation priority, the transformation priority
+  transformations and their ordering on demand. Use it as a coach when the ask is which minimal
+  change makes a failing (red) test pass, and when the user mentions TPP, transformation
+  priority, the transformation priority
   list, the next transformation, or asks what a transformation such as (constant -> scalar) or
-  ({} -> nil) means or why the ordering is what it is. Do not use it for generic
+  ({} -> nil) means or why the ordering is what it is. Do not use it to choose or write the next
+  failing test, or to judge whether a test is a good test -- that is the red step; use lz-red
+  instead. Do not use it for generic
   write-a-function, write-code, add-a-feature, or plain refactoring requests that are not about
   choosing the next transformation during TDD.
 ---
@@ -20,9 +22,8 @@ the current failing test pass. It runs in two modes and routes by intent.
 
 ## Two modes
 
-- Coach mode: the request has a failing (red) test plus the current code, and the question is
-  which minimal change makes the test pass. Run the coach decision procedure below and
-  recommend a NAMED next transformation.
+- Coach mode: the ask is which minimal change makes a failing (red) test pass. Run the coach
+  decision procedure below and recommend a NAMED next transformation.
 - Reference mode: the request is "explain TPP", "why this order", "what does (X) mean", or an
   explicit `/lz-tdd:lz-tpp` invocation with no test to coach. Explain the transformations and
   their ordering rationale FROM references/transformations.md; do not restate the list here.
@@ -37,11 +38,17 @@ belongs to the refactor step). Classify every candidate change before ranking it
 
 lz-tpp coaches the green / transformation step: turning a failing (red) test green by changing
 behavior. Its two siblings own the neighboring steps. Deciding and writing the next failing (red)
-test is the red step (lz-red). Restructuring code whose tests already pass, without altering
-behavior, is the refactor step (lz-refactor). Classify a coach-mode request before ranking a
-transformation: if already-passing code must be cleaned up, hand off to lz-refactor; if the next
-failing test still has to be chosen or written, hand off to lz-red; otherwise, picking the minimal
-change that turns the red bar green is this skill.
+test is the red step (lz-red). Restructuring working code without altering what it does is the
+refactor step (lz-refactor). Classify the request by what the developer is asking for, before
+ranking a transformation, and take the first branch that fits. An ask to make a failing test pass --
+which minimal change turns this red test green -- is this step, and this step is lz-tpp. An ask
+about which test comes next, what a test should assert, how to name it, or whether it is a good test
+is the red step: hand off to lz-red. An ask to add a new behavior, or to change what working code
+does, opens the red step first: hand off to lz-red, and it returns here to lz-tpp once that test is
+red. An ask to improve structure or readability without changing behavior -- including a tidy of
+code that happens to live in a test file -- is the refactor step: hand off to lz-refactor. Anything
+outside those is not a red-green-refactor-loop request and no skill in this loop owns it; say so
+plainly and answer directly.
 
 ## Amended red-green-refactor
 
@@ -51,10 +58,27 @@ change that turns the red bar green is this skill.
 
 ## Coach decision procedure
 
-1. Confirm the green phase. Exactly one new failing (red) test, all prior tests green, and
-   the code compiles -> you are choosing a transformation. If the tests are green and the
-   request is "clean this up", that is a refactoring (structure-only) -- do not priority-rank
-   it.
+1. Classify the request by what the developer is asking for, never by the state of the suite. Once
+   a branch below has settled this as the green step, confirm the green phase before ranking
+   anything: exactly one new failing (red) test, all prior tests green, and the code compiles. A
+   cleanup ask is a structure-only refactoring that belongs to lz-refactor, so it is never
+   priority-ranked here. See "The green step vs the red step (lz-red) and the refactor step
+   (lz-refactor)" above; do not restate it. Take the FIRST branch that matches:
+   a. Asking which test to write next -- what test comes next, what a test should assert, how to
+      name it, or whether this is a good test: that is the red step, and the red step is lz-red.
+   b. Asking to make a failing test pass -- which minimal change turns this red test green: that
+      is the green step, and the green step is lz-tpp.
+   c. Asking to add a new behavior, or to change what working code does, before any test covers
+      it: hand off to lz-red first, because Law 1 gates production code behind a failing test;
+      then lz-tpp ranks the transformation that turns that test green.
+   d. Asking to improve structure or readability without changing behavior -- clean up this
+      function, tidy this test file, de-duplicate this module -- or saying "I just finished making
+      a test pass, what now?": that is the refactor step, and the refactor step is lz-refactor. A
+      structure-only tidy of code that happens to live in a test file belongs there, and so does a
+      target that carries no tests (characterization tests pin its behavior first). An ask about
+      the test itself -- what it should assert, how it reads as a test -- is (a).
+   e. None of (a) through (d): this is not a red-green-refactor-loop request and no skill in this
+      loop owns it. Say so plainly, answer the question directly, and claim nothing.
 2. Enumerate the candidate minimal changes that would make the red test pass.
 3. Classify and map each candidate to the canonical 14-item list
    (references/transformations.md) as a behavior change (specific -> generic).

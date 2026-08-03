@@ -12,9 +12,10 @@ description: >-
   refactor. It recommends the next named Fowler or Kerievsky refactoring and, when the developer
   asks you to apply it, performs it in small behavior-preserving steps; it also explains a
   refactoring, code smell, refactoring principle, or design pattern on request. Do NOT use it to
-  make a failing or red test pass or otherwise ADD or CHANGE behavior -- that is the
-  green/transformation step; use lz-tpp instead -- nor for writing new code, adding a feature, or
-  writing a function from scratch.
+  make a failing or red test pass -- that is the green/transformation step; use lz-tpp instead.
+  Do NOT use it to ADD or CHANGE behavior when no test is failing yet -- the red step comes first,
+  so use lz-red for the failing test and lz-tpp to pass it. Nor use it for writing new code,
+  adding a feature, or writing a function from scratch.
 ---
 
 # lz-refactor: Refactoring coach (Fowler + Kerievsky)
@@ -27,9 +28,11 @@ changes belong to the green step and its sibling skill lz-tpp.
 
 ## Two modes
 
-- Coach mode: the tests are green and the code has a smell, and the question is which refactoring
-  to apply. Route the smell to a candidate NAMED refactoring and present it via the coach decision
-  procedure below.
+- Coach mode: the ask is to improve the structure or readability of existing code without changing
+  what it does -- clean up, tidy, simplify, restructure, de-duplicate -- or which refactoring
+  applies to a smell in view. Route the smell to a candidate NAMED refactoring and present it via
+  the coach decision procedure below. A target carrying no tests is still coach mode, not an
+  exclusion: step 5 pins its current behavior with characterization tests first, then refactors.
 - Reference mode: the request is "explain this refactoring / smell / principle", a named-refactoring
   lookup, or an explicit `/lz-tdd:lz-refactor` invocation with nothing to coach. Answer from the
   reference files listed below; do not restate their content here.
@@ -39,18 +42,36 @@ changes belong to the green step and its sibling skill lz-tpp.
 lz-refactor owns the refactor step: improving the structure or readability of code without changing
 what it does. Its two siblings own the neighboring steps -- lz-tpp the green / transformation step
 (changing behavior so that a failing test passes), lz-red the red step (deciding and writing the
-next failing test). Classify the request by what the developer is asking for, before acting: if the
-ask is to make a failing test pass by changing behavior, hand off to lz-tpp; if the ask is to decide
-or write the next failing test, hand off to lz-red; if the ask is to improve structure or
-readability without changing behavior, that is this skill.
+next failing test). Classify the request by what the developer is asking for, before acting, and
+take the first branch that fits. An ask about which test comes next, what a test should assert, how
+to name it, or whether it is a good test is the red step: hand off to lz-red. An ask to make a
+failing test pass is the green step: hand off to lz-tpp. An ask to add a new behavior, or to change
+what working code does, opens the red step first: hand off to lz-red, then on to lz-tpp once that
+test is red. An ask to improve structure or readability without changing behavior -- including a
+tidy of code that happens to live in a test file, and including a target with no tests -- is the
+refactor step, and that is lz-refactor. Anything outside those is not a red-green-refactor-loop
+request and no skill in this loop owns it; say so plainly and answer directly.
 
 ## Coach decision procedure
 
-1. Classify the request against both seams, by what the developer is asking for. If the ask is to
-   make a failing test pass by changing behavior, hand off to lz-tpp and stop. If the ask is to
-   decide or write the next failing test, hand off to lz-red and stop. If the ask is to improve
-   structure or readability without changing behavior, continue here (the refactor step). See
+1. Classify the request by what the developer is asking for, never by the state of the suite. See
    "Refactoring vs the red step (lz-red) and the green step (lz-tpp)" above; do not restate it.
+   Take the FIRST branch that matches:
+   a. Asking which test to write next -- what test comes next, what a test should assert, how to
+      name it, or whether this is a good test: that is the red step, and the red step is lz-red.
+   b. Asking to make a failing test pass -- which minimal change turns this red test green: that
+      is the green step, and the green step is lz-tpp.
+   c. Asking to add a new behavior, or to change what working code does, before any test covers
+      it: hand off to lz-red first, because Law 1 gates production code behind a failing test;
+      then lz-tpp ranks the transformation that turns that test green.
+   d. Asking to improve structure or readability without changing behavior -- clean up this
+      function, tidy this test file, de-duplicate this module -- or saying "I just finished making
+      a test pass, what now?": that is the refactor step, and the refactor step is lz-refactor. A
+      structure-only tidy of code that happens to live in a test file belongs here, and so does a
+      target that carries no tests (step 5 pins its behavior with characterization tests first).
+      An ask about the test itself -- what it should assert, how it reads as a test -- is (a).
+   e. None of (a) through (d): this is not a red-green-refactor-loop request and no skill in this
+      loop owns it. Say so plainly, answer the question directly, and claim nothing.
 2. Recognize the smell. Scan the recognize-by cues in
    [references/smells.md](references/smells.md), then OPEN the matching smell leaf for its candidate
    refactorings. The index is navigation-only, so never guess a refactoring from it.
@@ -76,8 +97,9 @@ readability without changing behavior, that is this skill.
    one switch -> Replace Conditional with Polymorphism adds 4 classes, removes 0 duplication sites ->
    DECLINE. If an unwarranted pattern is already present, refactor it AWAY: a Kerievsky Away
    refactoring (Inline Singleton, Encapsulate Composite with Builder, Move Accumulation to Visitor) or
-   the functional dissolution above. De-patterning away is a first-class direction but stays gated by
-   the QUESTION/COMMAND intent routing below, so do not edit working code on a question. Replace
+   the functional dissolution above. De-patterning away is a first-class direction but stays gated on
+   intent -- see "QUESTION vs COMMAND intent routing" below -- so do not edit working code on a
+   question. Replace
    Pipeline with Loop only on a measured hot path or a named house-style reason.
 5. Preserve behavior. Advise -- or perform, when the developer asks you to apply it -- the
    smallest steps that keep the code working, following the chosen refactoring's catalog-leaf
@@ -113,8 +135,12 @@ readability without changing behavior, that is this skill.
    were asked to touch; on a QUESTION, present them as the next steps and do not edit. This audit is not
    a mandate to convert every loop -- an unwarranted pipeline is as unwelcome as an unwarranted pattern.
 6. Reference mode. For an explain / lookup request, route to the correct references/ doc:
-   Fowler, Kerievsky, GoF, extra-patterns, functional, [smells](references/smells.md), or
-   [principles](references/principles.md). Answer from it; do not restate it here.
+   Fowler, Kerievsky, GoF, extra-patterns, functional, [smells](references/smells.md),
+   [principles](references/principles.md),
+   [refactoring-without-tests](references/refactoring-without-tests.md), or
+   [beck-tidy-first](references/beck-tidy-first.md). Answer from it; do not restate it here.
+
+## QUESTION vs COMMAND intent routing
 
 Coach by default; drive when asked. When the request is a QUESTION or asks for advice (what would you
 do here, anything you'd refactor, how would you make this more readable), present the named refactoring
@@ -136,7 +162,9 @@ across rounds without asking between them. Lead with the
 pattern-directed, de-patterning, and seam judgment calls, where this skill earns its keep over an
 unaided model; do not churn a package with mechanical edits for their own sake. Pause and ask
 (do not silently proceed) on the step-5 blast-radius guard and on an untested target (characterization
-test first, per step 5); route any behavior change to lz-tpp and exclude it (step 1). If a step turns
+test first, per step 5); hand a behavior change to the sibling step 1 names and exclude it from the
+sweep (step 1) -- a make-a-failing-test-pass ask to lz-tpp, an add-a-new-behavior ask to lz-red
+first. If a step turns
 the tests red, revert it and take a smaller step; halt the sweep if green cannot be restored. Once a
 sweep has touched many files or run several rounds, checkpoint scope with the developer rather than
 churning unbounded. Stop at the fixpoint (a scan finds nothing warranted left in scope), not at

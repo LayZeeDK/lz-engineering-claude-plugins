@@ -9,7 +9,9 @@ description: >-
   and confirming it fails for the right reason. Use it whenever a developer asks what test to
   write next, how to write or structure a unit test, whether a test is a good test, or how to
   match the codebase's existing testing stance -- how the codebase already writes its tests and how to stay consistent with that existing test style or convention when adding the next test -- even when they only ask "what should I test
-  here?" or "is this a good test?". Do NOT use it to make an existing failing test pass or to
+  here?" or "is this a good test?". Also use it when the developer wants to ADD or CHANGE behavior
+  and no test is failing yet: production code waits for a failing test, so the red step starts here
+  and lz-tpp takes over once that test is red. Do NOT use it to make an existing failing test pass or to
   pick the minimal code change that turns the bar green -- that is the green/transformation step;
   use lz-tpp instead. Do NOT use it to restructure, clean up, or de-duplicate code whose tests
   already pass -- that is the refactor step; use lz-refactor instead.
@@ -36,10 +38,17 @@ and its sibling skill lz-refactor.
 ## RED vs the green step (lz-tpp) and the refactor step (lz-refactor)
 
 The red step (choose and write the next failing test) is lz-red. Making that failing test pass by
-changing behavior is the green / transformation step (lz-tpp). Restructuring passing code without
-changing behavior is the refactor step (lz-refactor). Classify the request before acting: if a
-failing test must be made to pass, hand off to lz-tpp; if already-passing code must be cleaned up,
-hand off to lz-refactor; otherwise, choosing and writing the next failing test is this skill.
+changing behavior is the green / transformation step (lz-tpp). Restructuring working code without
+changing what it does is the refactor step (lz-refactor). Classify the request by what the developer
+is asking for, before acting, and take the first branch that fits. An ask about which test comes
+next, what a test should assert, how to name it, or whether it is a good test is this step, and this
+step is lz-red. An ask to make a failing test pass is the green step: hand off to lz-tpp. An ask to
+add a new behavior, or to change what working code does, starts here in lz-red -- Law 1 gates
+production code behind a failing test -- and moves on to lz-tpp once that test is red. An ask to
+improve structure or readability without changing behavior -- including a tidy of code that happens
+to live in a test file, and including a target with no tests -- is the refactor step: hand off to
+lz-refactor. Anything outside those is not a red-green-refactor-loop request and no skill in this
+loop owns it; say so plainly and answer directly.
 
 ## Listen to the tests
 
@@ -54,11 +63,24 @@ mandatory.
 Run these steps in order on a coach-mode request. Each step is a move plus a pointer to the
 reference leaf that carries the detail; do not restate a leaf's content here.
 
-1. Classify the request against the lz-tpp and lz-refactor seams. A failing test that must be made
-   to pass is the green step: hand off to lz-tpp and stop. Already-passing code to clean up is the
-   refactor step: hand off to lz-refactor. Otherwise choosing and writing the next failing test is
-   this skill's work. See "RED vs the green step (lz-tpp) and the refactor step (lz-refactor)" above;
-   do not restate it.
+1. Classify the request by what the developer is asking for, never by the state of the suite. See
+   "RED vs the green step (lz-tpp) and the refactor step (lz-refactor)" above; do not restate it.
+   Take the FIRST branch that matches:
+   a. Asking which test to write next -- what test comes next, what a test should assert, how to
+      name it, or whether this is a good test: that is the red step, and the red step is lz-red.
+   b. Asking to make a failing test pass -- which minimal change turns this red test green: that
+      is the green step, and the green step is lz-tpp.
+   c. Asking to add a new behavior, or to change what working code does, before any test covers
+      it: hand off to lz-red first, because Law 1 gates production code behind a failing test;
+      then lz-tpp ranks the transformation that turns that test green.
+   d. Asking to improve structure or readability without changing behavior -- clean up this
+      function, tidy this test file, de-duplicate this module -- or saying "I just finished making
+      a test pass, what now?": that is the refactor step, and the refactor step is lz-refactor. A
+      structure-only tidy of code that happens to live in a test file belongs there, and so does a
+      target that carries no tests (characterization tests pin its behavior first). An ask about
+      the test itself -- what it should assert, how it reads as a test -- is (a).
+   e. None of (a) through (d): this is not a red-green-refactor-loop request and no skill in this
+      loop owns it. Say so plainly, answer the question directly, and claim nothing.
 2. Hold the Three Laws spine. Law 1 gates entry: write no production code until a failing test asks
    for it. Law 2 sizes the test: grow it only to the first failure, and a reference to a
    not-yet-defined symbol counts as that failure. Read that clause at its own scope: it governs when to

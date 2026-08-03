@@ -328,8 +328,8 @@ loop the milestone claims to complete actually closes.
 **Depends on**: Phase 18 (authored the lz-red coach procedure and the lz-tpp seam), quick task
 260803-53q (closed TD-02 and surfaced this)
 
-**Requirements**: CLS-01, CLS-02, CLS-03, CLS-04, plus one new requirement for SC8's placement A/B
-(all to be added to REQUIREMENTS.md during planning)
+**Requirements**: CLS-01, CLS-02, CLS-03, CLS-04, CLS-05 (all to be added to REQUIREMENTS.md during
+planning; CLS-05 is SC8's placement A/B)
 
 **Origin**: Raised by the unprimed acceptance reviewer on quick task 260803-53q, 2026-08-03. Full
 finding list and the orchestrator's pre-existing-vs-regression adjudication in

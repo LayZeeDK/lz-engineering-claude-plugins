@@ -154,6 +154,50 @@ metered trigger-eval regression round. PR #3 stays held for the full cycle.
   `/reload-plugins` is required after the description edits land, and the owner must run it --
   committed is not live.
 
+### Research-driven amendments (added 2026-08-03 after `22-RESEARCH.md`)
+
+These are consequences of the decisions above, not new choices. Each is forced by an SC or by a
+measured fact; none reopens a locked decision. Full evidence in `22-RESEARCH.md`.
+
+- **D-20:** There are **SIX classifier surfaces, not three.** Two sit outside the scope list in
+  `<domain>` and are hereby IN scope: (a)
+  `plugins/lz-tdd/skills/lz-red/references/three-laws-and-test-selection.md` carries a full three-way
+  classify with the same catch-all and states it is the same split the SKILL.md router states -- and
+  step 2 of the coach procedure explicitly tells the model to read that leaf, so fixing
+  `lz-red/SKILL.md` alone would ship two contradicting classifiers inside one skill; (b)
+  `plugins/lz-tdd/references/beck-tdd-by-example.md` (`## The seam with lz-tpp`) is TWO-WAY only
+  (never names lz-red), written skill-relative ("this skill") despite being plugin-wide, and **keys on
+  test state** -- a direct SC3 violation in a file cited from `lz-red/SKILL.md`. It is also the file
+  D-08 names as the precedent for variants B and C, so leaving it stale would falsify variant C's
+  "one normative artifact" premise (D-10) at the moment it shipped.
+- **D-21:** `check-hygiene.mjs` scans 197 files but `plugins/lz-tdd/README.md` and
+  `plugins/lz-tdd/references/beck-tdd-by-example.md` fall outside ALL THREE of its axes -- which is
+  exactly where variants B and C write. D-19's hygiene re-run would be a VACUOUS PASS on the new
+  shared table. Widen the scope in Wave 0 and update the file-count assertion so the widen is provably
+  non-vacuous.
+- **D-22:** The new eval suite is named `e2e-rgr-routing`, NOT `e2e-red-*`. `selfcheck-red.mjs`
+  auto-discovers `e2e-red-*` siblings and its crux 2 bans 13 state-claim tokens in prompts -- but the
+  routing corpus MUST carry test-state facts by design (D-03 exists precisely because routing has to
+  ignore them). Add a sibling `selfcheck-routing.mjs`; leave `selfcheck-red.mjs` byte-unchanged.
+- **D-23:** The corpus is **9 cases and must be labelled RECONSTRUCTED.** Only three of the
+  reviewer's "eight traced requests" survive as quoted text in the `260803-53q` record; a fourth is
+  derivable from ROADMAP SC1. Do not claim the corpus is the reviewer's verbatim set.
+- **D-24:** D-09 ("measure, then ship the winner") and D-14 ("no metered command runs inside this
+  phase") together mean **no placement variant is formally selected inside Phase 22.** Variant A is
+  the TRACKED tree -- it needs no generated copy and is the composition anchor `selfcheck-red.mjs`
+  already asserts. The phase therefore completes with the classifier FIXED and the placement question
+  BUILT-and-HALTED. **State this plainly in the phase's success framing: closing Phase 22 does not by
+  itself unblock PR #3 -- the owner-approved A/B run does.** "No variant shipped" must not later read
+  as an incomplete phase.
+- **D-25:** The A/B writeup goes in a phase-scoped `ROUTING-AB-RESULTS.md` sibling, not appended to
+  `EVAL-RESULTS.md` (515 lines of frozen EVL-01/EVL-02 evidence with a hand-maintained structure --
+  appending a fourth eval invites the drift the REQUIREMENTS.md drift notice documents). Resolves the
+  discretion item below.
+- **D-26:** The `beck-tdd-by-example.md` repair is scoped to the seam section and its scope line; every
+  `Sources` row stays untouched (the file is no-oracle except one oracle-verified Fowler row). The
+  ORCHESTRATOR runs the standard unprimed review on it -- not an oracle-reviewer gate -- and escalates
+  to oracle-reviewer only if an edit touches a book-backed claim.
+
 ### Claude's Discretion
 
 - Exact branch wording and ordering inside each step 1, provided D-01 through D-04 hold.

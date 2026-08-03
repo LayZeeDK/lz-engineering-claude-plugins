@@ -1,0 +1,87 @@
+{
+  "provenance": "RECONSTRUCTED, not recovered. Cases c1, c2 and c3 are the reviewer's verbatim quoted developer requests from .planning/quick/260803-53q-close-td-02-widen-the-lz-refactor-seam-s/260803-53q-REVIEW.md. Case c4 is derived from ROADMAP SC1. Cases c5 through c9 are RECONSTRUCTED from the defect descriptions in that review -- they are NOT the reviewer's own wording, because the brief that carried the eight traced requests was not saved.",
+  "provenance_note": "D-12 describes the corpus as the reviewer's eight traced requests plus the residual case. Exhaustive quoted-string extraction over all four 260803-53q-*.md records yields exactly three surviving quoted requests (c1, c2, c3); a fourth (c4) is derivable from ROADMAP SC1. The remaining four defects are described only by effect -- the combined-ask overlap between branches (a) and (b), and the untested-code case that step 5 handles -- so c5 through c9 were authored here from those descriptions. Claiming otherwise would be provenance this corpus does not have (D-23). ONE SOURCE, TWO CONSUMERS: tools/check-rgr-routing.mjs reads matchTokens + expectedOwner + expectedSecondHop, and e2e-rgr-routing/prompts/<id>.md (authored in 22-05) is derived from `request`, one prompt per case with ids matching. A divergence between the two would be a silent measurement error, which is why there is one file rather than two. MATCHTOKENS ARE THE AUTHORING CONTRACT: a case is covered when some step-1 branch's whitespace-flattened condition contains EVERY one of its matchTokens and names the expected owner first. Tokens are drawn from ask-words the request actually contains, so the binding is legible in the report; they are a STRUCTURAL check on the authored branches, never a claim that a model routes correctly (that is the metered eval's claim). COUPLED TO TEST_STATE_TOKENS: c4's context fact `nothing failing yet` is a test-state token in tools/lib/routing-parse.mjs, so it is deliberately NOT one of c4's matchTokens -- binding c4 on a test-state phrase would demand a branch that D-03 forbids, making the gate unsatisfiable by construction. c4 binds on the ASK instead. THE RESIDUAL CASE IS DIFFERENT: c9's matchTokens are recorded for the eval prompt and for the corpus floor, but coverage for expectedOwner NONE is decided by the explicit no-owner residual marker with zero affirmed destinations, never by matchTokens and never by the ABSENCE of a skill name.",
+  "cases": [
+    {
+      "id": "c1",
+      "request": "I just finished making a test pass. What now?",
+      "expectedOwner": "lz-refactor",
+      "expectedSecondHop": null,
+      "defectRef": "260803-53q BLOCKER; D-02",
+      "matchTokens": ["finished", "test pass", "what now"],
+      "rationale": "Verbatim quoted request. Newly green and asking what comes next IS the refactor step's own trigger, so this must fire a POSITIVE lz-refactor branch -- never a fallback. Today it lands nowhere: lz-refactor step 1 has positive conditions only and no branch covers it, which is the blocker this phase exists to close."
+    },
+    {
+      "id": "c2",
+      "request": "What test should I write next?",
+      "expectedOwner": "lz-red",
+      "expectedSecondHop": null,
+      "defectRef": "260803-53q TD-02 regression floor",
+      "matchTokens": ["what test", "write next"],
+      "rationale": "Verbatim quoted request. The hop TD-02 closed, kept here as a regression floor: choosing the next failing test is the red step. If a later edit re-breaks this the gate must say so."
+    },
+    {
+      "id": "c3",
+      "request": "Is this a good test?",
+      "expectedOwner": "lz-red",
+      "expectedSecondHop": null,
+      "defectRef": "260803-53q IMPORTANT (branch (c) over-capture); D-04",
+      "matchTokens": ["good test"],
+      "rationale": "Verbatim quoted request. Judging a test is an ask about the TEST, so it belongs to the red step even though the code in question lives in a test file. Paired with c5 this pins D-04: test code is owned by the ask, not by the file's kind."
+    },
+    {
+      "id": "c4",
+      "request": "I want to add a new behavior to this module -- nothing failing yet.",
+      "expectedOwner": "lz-red",
+      "expectedSecondHop": "lz-tpp",
+      "defectRef": "260803-53q IMPORTANT (body-vs-description gap); D-02 two-hop",
+      "matchTokens": ["add a new behavior"],
+      "rationale": "Derived from ROADMAP SC1. The ONLY ordered two-hop in the corpus: Law 1 forbids production code before a failing test, so the red step owns it FIRST and the green step owns it only once a red test is in play. That replaces today's dead end, where lz-refactor's description sends the case to lz-tpp and lz-tpp declines it. Bound on the ASK, not on the nothing-failing-yet fact -- see provenance_note."
+    },
+    {
+      "id": "c5",
+      "request": "This test file is duplicated and messy, tidy it up.",
+      "expectedOwner": "lz-refactor",
+      "expectedSecondHop": null,
+      "defectRef": "260803-53q IMPORTANT; D-04 (other side)",
+      "matchTokens": ["test file", "tidy"],
+      "rationale": "RECONSTRUCTED. A structure-only ask about code that happens to live in a test file, so the refactor step owns it. c3 and c5 must resolve to DIFFERENT owners; routing on file type instead would violate D-03's single axis and would strip a legitimate refactoring case."
+    },
+    {
+      "id": "c6",
+      "request": "Make this failing test pass.",
+      "expectedOwner": "lz-tpp",
+      "expectedSecondHop": null,
+      "defectRef": "260803-53q regression floor (the seam that already works)",
+      "matchTokens": ["failing test pass"],
+      "rationale": "RECONSTRUCTED. The one seam that already routes correctly today, carried as a regression floor so a rewrite of the branches cannot lose it. Note that the state word here is part of the ASK, which is why no test-state token matches it."
+    },
+    {
+      "id": "c7",
+      "request": "Clean up this function -- it has no tests.",
+      "expectedOwner": "lz-refactor",
+      "expectedSecondHop": null,
+      "defectRef": "260803-53q MINOR; D-03",
+      "matchTokens": ["clean up", "no tests"],
+      "rationale": "RECONSTRUCTED. The refactor step owns it: coverage is not ownership, and step 5 already routes an untested target through characterization tests first. Today lz-refactor's coach gate excludes exactly the case its own step 5 handles, which is the contradiction D-03 removes."
+    },
+    {
+      "id": "c8",
+      "request": "What test comes next, and can you also tidy the helper?",
+      "expectedOwner": "lz-red",
+      "expectedSecondHop": null,
+      "defectRef": "260803-53q MINOR (branches (a) and (b) both fire)",
+      "matchTokens": ["what test comes next"],
+      "rationale": "RECONSTRUCTED combined ask. ONE owner takes it -- the primary ask is which test comes next, so the red step owns it and names tidying the helper as a NAMED SECOND STEP in its answer rather than as a second routing hop. expectedSecondHop stays null deliberately: c4 is the corpus's only ordered two-hop, and a second one would make the ordered-pair assertion ambiguous about which case pins D-02. matchTokens bind the primary ask only, because requiring both asks in one condition would fight D-01's disjointness."
+    },
+    {
+      "id": "c9",
+      "request": "What is the best way to structure this CLI's argument parsing?",
+      "expectedOwner": "NONE",
+      "expectedSecondHop": null,
+      "defectRef": "D-01 declared residual terminal (d)",
+      "matchTokens": ["best way to structure", "argument parsing"],
+      "rationale": "RECONSTRUCTED. The declared residual: a legitimate design question that is NOT a red-green-refactor-loop request. Exhaustiveness is proven by named-owner enumeration plus this one terminal that claims NOTHING and says so -- so it must be recognized by an explicit no-owner marker, never by a branch that merely forgot to name an owner."
+    }
+  ]
+}

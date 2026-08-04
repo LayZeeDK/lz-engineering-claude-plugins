@@ -659,16 +659,23 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-08-04 (resume-work -- ZERO-SPEND item 1 of 2 DONE, then its review cascaded into a
-second closed task; the ROLLUP gap is the one remaining zero-spend item, still UNSTARTED)
-Progress this session: quick 260804-hbv closed the description-completeness item (commits 2f13036 +
-c828cfd), then its mandatory unprimed review surfaced four findings, the owner approved closing ALL of
-them, and quick 260804-hwy closed those plus three further gate evasions. Both metered rounds remain
-UNAPPROVED and nothing metered has run. `/reload-plugins` is OWED -- four shipped SKILL.md edits
-across the two tasks are committed but not live. STILL TO DO before approving Round B: the Round-A
-ROLLUP gap (tabulate-mechanical-red.mjs + merge-judge --verify cannot reach this suite). Also OPEN by
-deliberate decision: four proven gate evasions in `260804-hwy-deferred-items.md`, three sharing one
-root cause (assertions quantified over a pooled branch list instead of per surface).
+Last session: 2026-08-04 (resume-work -- BOTH zero-spend items DONE, plus a cascaded third task; the
+two metered rounds are the ONLY remaining blockers and neither is approved)
+Progress this session, 7 commits, ZERO metered spend: (1) quick 260804-hbv closed the
+description-completeness item (2f13036, c828cfd); (2) its mandatory unprimed review surfaced four
+findings, the owner approved closing ALL of them -- explicitly OVERTURNING gsd-verifier's
+"omission not contradiction" ruling on item 3 -- and quick 260804-hwy closed those plus three further
+gate evasions (6587d65, 53188cb, 94dbb3b); (3) the Round-A ROLLUP gap is CLOSED (8fa406d) -- the
+tabulator and `merge-judge --verify` now both reach `e2e-rgr-routing`, each proven in BOTH directions
+with negative controls, and RUN-GATE.md's KNOWN GAPS now carries a CLOSED banner with corrected
+commands. So Round A can now be tabulated mechanically rather than by hand.
+`/reload-plugins` is OWED -- four shipped SKILL.md edits across two tasks are committed but NOT live.
+OPEN by deliberate decision: four PROVEN gate evasions in `260804-hwy-deferred-items.md` (E1 pooled
+branch deletion, E2 house-vocabulary catch-all, E7 captured residual printed as PASS -- all one root
+cause, assertions quantified over a pooled list instead of per surface -- plus E5, the inherent
+literal-blocklist ceiling). Each is recorded with the exact mutation that demonstrates it, so those
+mutations are the acceptance suite for whoever closes them. NOT closed here because this repo's record
+is that consecutive hand-patching rounds each introduce a fresh instance of the class they repair.
 Prior last session: 2026-08-04 (resume-work -- owner chose the ZERO-SPEND items before any metered round)
 Stopped at: Phase 22 stays BUILD-complete and HALTED. At the resume gate the owner selected "close the
 two zero-spend items first", so neither metered round is approved and nothing metered has run. The two

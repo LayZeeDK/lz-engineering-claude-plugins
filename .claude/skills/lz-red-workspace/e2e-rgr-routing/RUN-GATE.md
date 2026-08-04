@@ -207,18 +207,30 @@ and exits non-zero unless EVERY `judge_required` text has exactly one verdict wi
 `passed`, and it refuses unknown verdict texts, duplicate verdict texts, a preliminary that is already
 final, and any expectation that would remain `passed: null`.
 
-Its `--verify` gate is what stops an unmerged run from silently dropping out of the denominator. **See
-the KNOWN GAPS section below before running it against this suite** -- `--verify` does not currently
-reach this suite's directory shape.
-
-### Then -- the tabulator, with the routing grade file
+Its `--verify` gate is what stops an unmerged run from silently dropping out of the denominator. It
+now reaches this suite's directory shape, given both flags:
 
 ```
-node .claude/skills/lz-red-workspace/tabulate-mechanical-red.mjs --grade-file routing-grade.json
+node .claude/skills/lz-red-workspace/merge-judge.mjs --verify \
+  .claude/skills/lz-red-workspace/e2e-rgr-routing/results/recommend \
+  --grade-file routing-grade.json --eval-prefix ""
 ```
 
-**See the KNOWN GAPS section below.** As of this writing that invocation is a MEASURED silent no-op
-for this suite.
+Omitting either flag makes it glob the skill-creator shape and find nothing here, so do not shorten
+this command. See the CLOSED note in the KNOWN GAPS section for the proof.
+
+### Then -- the tabulator, with the routing grade file, suite and mode
+
+```
+node .claude/skills/lz-red-workspace/tabulate-mechanical-red.mjs \
+  --suite .claude/skills/lz-red-workspace/e2e-rgr-routing \
+  --mode recommend \
+  --grade-file routing-grade.json
+```
+
+All three flags are required for this suite: it sits outside the `e2e-red-` discovery namespace, it is
+recommend-only, and its grade file is not `red-grade.json`. `--grade-file` alone -- which is what this
+document used to say -- was a MEASURED silent no-op. See the CLOSED note in the KNOWN GAPS section.
 
 ### Stage 2 -- escalate ONLY on a signal, and ONLY on the discriminating subset
 
@@ -233,11 +245,56 @@ D-10 pre-registers a tiebreak -- and why the tiebreak carries a disclosed risk r
 
 ---
 
-## KNOWN GAPS in Round A's downstream chain -- MEASURED, stated rather than discovered at run time
+## KNOWN GAPS in Round A's downstream chain -- BOTH NOW CLOSED (2026-08-04, quick 260804-hbv follow-on)
 
-Two steps of the chain above do not currently reach this suite. Neither blocks the CAPTURE or the
-GRADING; both affect the ROLLUP. Both are recorded here rather than worked around silently, because a
-rollup step that quietly produces nothing is the failure shape that looks healthiest.
+> ## CLOSED -- read this before the historical description below
+>
+> Both gaps were closed at ZERO spend, and each fix was proven in BOTH directions against a
+> fabricated tree mirroring this suite's real layout. **The commands in this section are updated;
+> use them as written.**
+>
+> **Gap 1 -- the tabulator now reaches this suite.** `discoverSuiteDirs` takes a name-prefix list
+> (default `['e2e-red-']`, unchanged) and `walkAllSuites` takes a `mode` (default `'apply'`,
+> unchanged), plus new `--suite` and `--mode` CLI flags. Run:
+>
+> ```
+> node .claude/skills/lz-red-workspace/tabulate-mechanical-red.mjs \
+>   --suite .claude/skills/lz-red-workspace/e2e-rgr-routing \
+>   --mode recommend \
+>   --grade-file routing-grade.json
+> ```
+>
+> Verified: a bare invocation still prints the existing `e2e-red-*` apply table byte-compatibly, and
+> the command above now resolves to
+> `e2e-rgr-routing\results\recommend` instead of the three `e2e-red-*\results\apply` dirs. The
+> selfcheck gained an out-of-namespace case carrying TWO negative controls -- the default prefix must
+> find 0 suites here, and mode `apply` must find 0 runs in a recommend-only suite -- so the positive
+> assertions cannot pass vacuously.
+>
+> **Gap 2 -- `merge-judge --verify` now reaches these run dirs.** It takes `--grade-file` and
+> `--eval-prefix` (both defaulting to the skill-creator shape, so a bare `--verify` is unchanged):
+>
+> ```
+> node .claude/skills/lz-red-workspace/merge-judge.mjs --verify \
+>   .claude/skills/lz-red-workspace/e2e-rgr-routing/results/recommend \
+>   --grade-file routing-grade.json --eval-prefix ""
+> ```
+>
+> Proven against a fabricated tree: the OLD invocation still finds nothing here (the negative control
+> that reproduces the gap), the new one verifies all runs, an unmerged preliminary-only run FAILS and
+> is named, a `routing-grade.json` still marked `preliminary` FAILS, and `--grade-file` rejects a path
+> rather than a bare filename. So the pre-aggregate completeness gate IS automated for this suite now
+> -- the hand-verification fallback below is no longer the only option.
+>
+> **What has NOT changed:** the suite name stays `e2e-rgr-routing`, outside the `e2e-red-` namespace,
+> for the reason Gap 1 records below. The DISCOVERY widened; the suite did not move.
+
+The historical description follows, kept because it records why the suite is named as it is and why a
+clean exit must never be read as a tabulated result.
+
+Neither gap ever blocked the CAPTURE or the GRADING; both affected the ROLLUP. Both were recorded
+rather than worked around silently, because a rollup step that quietly produces nothing is the failure
+shape that looks healthiest.
 
 ### Gap 1 -- `tabulate-mechanical-red.mjs` cannot see this suite
 

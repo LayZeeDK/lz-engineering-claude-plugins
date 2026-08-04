@@ -180,9 +180,9 @@ const EVASIONS = [
   // -- OPEN: recorded, expected to EVADE until each is closed ----------------------------------
   {
     id: "M7b",
-    open: "OPEN-1",
-    what: "swap the sweep rule's cited destinations",
-    claim: "[cls-03] sweep-rule citation resolves -- TAUTOLOGICAL: `changing behavior` matches `without changing behavior`",
+    open: "closed",
+    what: "swap the sweep rule's cited destinations (both slugs stay in the set, so membership alone passes)",
+    claim: "[cls-03] sweep-rule citation PAIRS each ask with the skill step 1 routes it to",
     file: REFACTOR,
     find: "sweep (step 1) -- a make-a-failing-test-pass ask to lz-tpp, an add-a-new-behavior ask to lz-red",
     repl: "sweep (step 1) -- a make-a-failing-test-pass ask to lz-red, an add-a-new-behavior ask to lz-tpp",

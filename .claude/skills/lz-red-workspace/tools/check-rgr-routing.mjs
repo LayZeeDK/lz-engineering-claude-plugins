@@ -141,6 +141,18 @@ const SKILLS = Object.freeze(["lz-red", "lz-tpp", "lz-refactor"]);
 // A behavior-change ask, as DATA. The sweep rule cites a step-1 rule in order to EXCLUDE behavior
 // changes from a sweep, so "the citation resolves" means every skill the citation names really is a
 // destination of some step-1 branch whose condition is about changing behavior.
+//
+// THIS SET MUST NOT MATCH A NEGATED MENTION, and it used to. `"changing behavior"` matched branch
+// 1d's condition "Asking to improve structure or readability WITHOUT changing behavior" -- the exact
+// negation -- so `lz-refactor` joined the set, all three slugs were then members, `unresolved` was
+// empty for ANY cited slug, and the check collapsed to "some sweep sentence contains the literal
+// string `(step 1)`". It printed "cites [lz-tpp, lz-red], each a step-1 behavior-change destination"
+// while the citation was SWAPPED. A check that asserts a property it cannot compute is worse than a
+// missing check, because it reads as coverage.
+//
+// Two defences, both required. First, the tokens are matched with a preceding-negation guard below.
+// Second, an explicit anti-tautology control asserts the resulting set is a STRICT SUBSET of the
+// three slugs -- if it ever contains all three again, the check has re-degenerated and says so.
 const BEHAVIOR_CHANGE_ASK_TOKENS = Object.freeze([
   "changing behavior",
   "change behavior",
@@ -148,6 +160,34 @@ const BEHAVIOR_CHANGE_ASK_TOKENS = Object.freeze([
   "add a new behavior",
   "failing test pass",
 ]);
+
+// Negators that flip a behavior-change mention into a behavior-PRESERVING one. Scoped to a short
+// window immediately before the token so an unrelated "not" earlier in a long condition cannot
+// suppress a genuine mention.
+const NEGATED_ASK_RE = /\b(?:without|not|never|no|preserv\w*|rather\s+than)\b[^.;:]{0,40}$/i;
+
+// True when `cond` affirms a behavior-change ask -- i.e. some token appears NOT under a negation.
+const affirmsBehaviorChangeAsk = (cond) => {
+  const lowered = cond.toLowerCase();
+
+  return BEHAVIOR_CHANGE_ASK_TOKENS.some((token) => {
+    let from = 0;
+
+    for (;;) {
+      const at = lowered.indexOf(token, from);
+
+      if (at === -1) {
+        return false;
+      }
+
+      if (!NEGATED_ASK_RE.test(lowered.slice(0, at))) {
+        return true;
+      }
+
+      from = at + token.length;
+    }
+  });
+};
 
 // The heading 22-03 authors over today's unnamed QUESTION/COMMAND paragraph, and the exact string
 // step 4's prose pointer must name so the cross-reference resolves.
@@ -417,14 +457,26 @@ const refactorStep1 = parsed.get("refactor-step1");
 const behaviorChangeDestinations = new Set();
 
 for (const branch of refactorStep1.branches) {
-  const cond = branch.conditionText.toLowerCase();
-
-  if (BEHAVIOR_CHANGE_ASK_TOKENS.some((t) => cond.includes(t))) {
+  if (affirmsBehaviorChangeAsk(branch.conditionText)) {
     for (const name of branch.destinations) {
       behaviorChangeDestinations.add(name);
     }
   }
 }
+
+// ANTI-TAUTOLOGY CONTROL. If every slug is a behavior-change destination then `unresolved` is empty
+// for any citation whatsoever and the check below cannot fail -- the guard-that-cannot-fail class.
+// This is reported as its own assertion rather than folded in, so the degeneration is named rather
+// than inferred from a suspiciously cheerful pass.
+report(
+  behaviorChangeDestinations.size > 0 && behaviorChangeDestinations.size < SKILLS.length,
+  "[cls-03] sweep-rule citation is DISCRIMINATING",
+  behaviorChangeDestinations.size === 0
+    ? "no step-1 branch affirms a behavior-change ask, so the citation check has nothing to resolve against"
+    : behaviorChangeDestinations.size >= SKILLS.length
+      ? `all ${SKILLS.length} slugs are behavior-change destinations {${[...behaviorChangeDestinations].join(", ")}}, so the citation check below cannot fail -- it has degenerated into "some sentence contains a (step 1) citation"`
+      : `behaviour-change destinations {${[...behaviorChangeDestinations].join(", ")}} is a strict subset of the ${SKILLS.length} slugs, so a wrong citation can still fail`
+);
 
 if (sweepBody === null) {
   report(false, "[cls-03] sweep-rule citation resolves", `heading absent -- no "## ${SWEEP_HEADING}" section`);
@@ -450,6 +502,70 @@ if (sweepBody === null) {
       : unresolved.length === 0
         ? `cites [${[...cited].join(", ")}], each a step-1 behavior-change destination`
         : `cites [${unresolved.join(", ")}], which step 1 does not route a behavior-change ask to`
+  );
+
+  // PER-ASK resolution, which set membership cannot give. The check above asks only "is each cited
+  // slug SOME behavior-change destination", so SWAPPING two slugs that are both in the set passes --
+  // measured: rewriting the rule to "a make-a-failing-test-pass ask to lz-red, an add-a-new-behavior
+  // ask to lz-tpp" left it GREEN, because {lz-red, lz-tpp} is exactly the set either way. A citation
+  // that names the right skills against the wrong asks is precisely the dead end this phase exists to
+  // remove, so the pairing is what has to resolve.
+  //
+  // Ask phrases are matched with `[-\s]+` between words because the sweep rule hyphenates
+  // ("make-a-failing-test-pass") while step-1 conditions space them ("make a failing test pass").
+  // Normalising hyphens globally instead would corrupt the slugs, which contain one.
+  const askRouting = new Map();
+
+  for (const branch of refactorStep1.branches) {
+    if (!affirmsBehaviorChangeAsk(branch.conditionText) || branch.destinations.length === 0) {
+      continue;
+    }
+
+    for (const token of BEHAVIOR_CHANGE_ASK_TOKENS) {
+      const loose = new RegExp(token.split(/\s+/).join("[-\\s]+"), "i");
+
+      if (loose.test(branch.conditionText) && !askRouting.has(token)) {
+        askRouting.set(token, branch.destinations[0]);
+      }
+    }
+  }
+
+  const SLUG_RE = /\blz-(?:red|tpp|refactor)\b/i;
+  const mispaired = [];
+  let pairsChecked = 0;
+
+  for (const sentence of citing) {
+    for (const [token, expected] of askRouting) {
+      const loose = new RegExp(token.split(/\s+/).join("[-\\s]+"), "i");
+      const m = loose.exec(sentence);
+
+      if (m === null) {
+        continue;
+      }
+
+      const after = sentence.slice(m.index + m[0].length);
+      const slug = SLUG_RE.exec(after);
+
+      if (slug === null) {
+        continue;
+      }
+
+      pairsChecked++;
+
+      if (slug[0].toLowerCase() !== expected) {
+        mispaired.push(`"${token}" -> ${slug[0].toLowerCase()} but step 1 routes it to ${expected}`);
+      }
+    }
+  }
+
+  report(
+    pairsChecked > 0 && mispaired.length === 0,
+    "[cls-03] sweep-rule citation PAIRS each ask with the skill step 1 routes it to",
+    pairsChecked === 0
+      ? "no ask-to-skill pairing found in the citing sentence(s), so the pairing cannot be checked -- set membership alone would let a swap pass"
+      : mispaired.length === 0
+        ? `${pairsChecked} ask-to-skill pairing(s) resolve against step 1`
+        : `${mispaired.length} mispaired: ${mispaired.join("; ")}`
   );
 }
 

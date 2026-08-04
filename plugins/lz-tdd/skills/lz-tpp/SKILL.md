@@ -10,9 +10,10 @@ description: >-
   ({} -> nil) means or why the ordering is what it is. Do not use it to choose or write the next
   failing test, or to judge whether a test is a good test -- that is the red step; use lz-red
   instead. Do not use it to clean up, tidy, restructure, or de-duplicate working code without
-  changing what it does -- that is the refactor step; use lz-refactor instead. Do not use it for
-  generic write-a-function, write-code, add-a-feature, or plain refactoring requests that are not
-  about choosing the next transformation during TDD.
+  changing what it does -- that is the refactor step; use lz-refactor instead. An ask to add a new
+  behavior or change what working code does starts at lz-red, which writes the failing test, and
+  comes back here once that test is red. Do not use it for generic write-a-function, write-code, or
+  plain refactoring requests that are not about choosing the next transformation during TDD.
 ---
 
 # lz-tpp: Transformation Priority Premise coach
@@ -59,9 +60,7 @@ plainly and answer directly.
 
 ## Coach decision procedure
 
-1. Classify the request by what the developer is asking for, never by the state of the suite. Once
-   a branch below has settled this as the green step, confirm the green phase before ranking
-   anything: exactly one new failing (red) test, all prior tests green, and the code compiles. A
+1. Classify the request by what the developer is asking for, never by the state of the suite. A
    cleanup ask is a structure-only refactoring that belongs to lz-refactor, so it is never
    priority-ranked here. See "The green step vs the red step (lz-red) and the refactor step
    (lz-refactor)" above; do not restate it. Take the FIRST branch that matches:
@@ -84,22 +83,28 @@ plainly and answer directly.
       the test itself -- what it should assert, how it reads as a test -- is (a).
    e. None of (a) through (d): this is not a red-green-refactor-loop request and no skill in this
       loop owns it. Say so plainly, answer the question directly, and claim nothing.
-2. Enumerate the candidate minimal changes that would make the red test pass.
-3. Classify and map each candidate to the canonical 14-item list
+2. Once branch (b) has settled this as the green step, ASSUME the phase is sound before ranking:
+   one new test failing for the right reason, no unrelated test red, and the code compiles. State
+   it as an assumption rather than interrogating the developer -- a make-this-test-pass ask almost
+   never supplies any of the three. Ask only when something already in view contradicts it. This is
+   a precondition on ranking, never a condition for routing: step 1 has already decided ownership
+   from the ask alone.
+3. Enumerate the candidate minimal changes that would make the red test pass.
+4. Classify and map each candidate to the canonical 14-item list
    (references/transformations.md) as a behavior change (specific -> generic).
-4. Recommend the highest-priority (lowest-numbered) available transformation, and NAME it
+5. Recommend the highest-priority (lowest-numbered) available transformation, and NAME it
    (for example, use `(constant -> scalar)`: replace the literal 1 with the parameter n).
-5. Apply the TS/JS overlay when it changes the pick: prefer `(if -> while)` and
+6. Apply the TS/JS overlay when it changes the pick: prefer `(if -> while)` and
    `(variable -> assignment)` above the recursion transformations, because JS/TS lacks
    reliable tail-call optimization -- a source-sanctioned heuristic, not a contradiction of the
    canonical list. State this whenever it changes the recommendation.
-6. Impasse check. If the only transformation that passes is low-priority
+7. Impasse check. If the only transformation that passes is low-priority
    (`(expression -> function)` or `(case)`): (a) pose a different, simpler test passable by a
    higher-priority transformation (optionally skip the hard test for now); (b) check whether a
    structure-only refactoring opens a higher-priority path; (c) only then take the
    low-priority transformation, and say why it was unavoidable. Word Wrap is the classic
    illustration of this impasse.
-7. Show, don't drive. Present the minimal diff and the named transformation; let the developer
+8. Show, don't drive. Present the minimal diff and the named transformation; let the developer
    apply it and run the tests. Never edit the developer's code or run the tests
    unless explicitly asked -- coach, don't drive.
 

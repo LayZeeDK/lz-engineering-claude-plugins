@@ -9,9 +9,10 @@ description: >-
   and confirming it fails for the right reason. Use it whenever a developer asks what test to
   write next, how to write or structure a unit test, whether a test is a good test, or how to
   match the codebase's existing testing stance -- how the codebase already writes its tests and how to stay consistent with that existing test style or convention when adding the next test -- even when they only ask "what should I test
-  here?" or "is this a good test?". Also use it when the developer wants to ADD or CHANGE behavior
-  and no test is failing yet: production code waits for a failing test, so the red step starts here
-  and lz-tpp takes over once that test is red. Do NOT use it to make an existing failing test pass or to
+  here?" or "is this a good test?". Also use it when the developer wants to ADD or CHANGE behavior:
+  production code waits for a failing test, so the red step starts here and lz-tpp takes over once
+  that test is red. A request carrying more than one ask belongs whole to its primary ask. Do NOT
+  use it to make an existing failing test pass or to
   pick the minimal code change that turns the bar green -- that is the green/transformation step;
   use lz-tpp instead. Do NOT use it to restructure, clean up, or de-duplicate working code -- that
   is the refactor step; use lz-refactor instead.

@@ -4,19 +4,19 @@ description: >-
   This skill should be used for the refactor step of red-green-refactor TDD: improving the
   STRUCTURE or READABILITY of existing, working code WITHOUT changing its behavior. Use it whenever
   a developer wants to clean up, tidy, simplify, restructure, or de-duplicate existing working code
-  without changing what it does, or make such code more readable; says a function, class, or module
-  is hard to read, hard to follow, messy, doing too much, or a pain to work with; or mentions a code
-  smell, a refactoring, or a design pattern in existing code (applying one to it, or refactoring
-  away from one / de-patterning) -- even when they only ask "what would you do with this?",
-  "anything you'd refactor?", or "how would you make it easier to read?" and never name a smell or
+  -- including code that lives in a test file -- without changing what it does, or make such code
+  more readable; says a function, class, or module is hard to read, hard to follow, messy, doing too
+  much, or a pain to work with; or mentions a code smell, a refactoring, or a design pattern in
+  existing code (applying one to it, or refactoring away from one / de-patterning) -- even when they
+  only ask "what would you do with this?" or "anything you'd refactor?" and never name a smell or
   say the word refactor. Use it also when a developer has just finished making a test pass and asks
   what now. It recommends the next named Fowler or Kerievsky refactoring and, when the developer
   asks you to apply it, performs it in small behavior-preserving steps; it also explains a
   refactoring, code smell, refactoring principle, or design pattern on request. Do NOT use it to
   make a failing or red test pass -- that is the green/transformation step; use lz-tpp instead.
-  Do NOT use it to ADD or CHANGE behavior when no test is failing yet -- the red step comes first,
-  so use lz-red for the failing test and lz-tpp to pass it. Nor use it for writing new code,
-  adding a feature, or writing a function from scratch.
+  Do NOT use it to ADD or CHANGE behavior -- the red step comes first, so use lz-red for the failing
+  test and lz-tpp to pass it. Nor use it for writing new code from scratch, or for a design question
+  about how to structure something that does not exist yet.
 ---
 
 # lz-refactor: Refactoring coach (Fowler + Kerievsky)
@@ -33,7 +33,9 @@ Law 1 gates production code behind a failing test, and reaches lz-tpp once that 
 
 - Coach mode: the ask is to improve the structure or readability of existing code without changing
   what it does -- clean up, tidy, simplify, restructure, de-duplicate -- or which refactoring
-  applies to a smell in view. Route the smell to a candidate NAMED refactoring and present it via
+  applies to a smell in view, or a developer who has just finished making a test pass asking what
+  comes next, where the answer is which refactoring the code now invites. Route the smell to a
+  candidate NAMED refactoring and present it via
   the coach decision procedure below. A target carrying no tests is still coach mode, not an
   exclusion: step 5 pins its current behavior with characterization tests first, then refactors.
 - Reference mode: the request is "explain this refactoring / smell / principle", a named-refactoring

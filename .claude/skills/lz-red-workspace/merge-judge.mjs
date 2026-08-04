@@ -19,10 +19,14 @@
 //       with a strict boolean `passed`; refuses unknown/duplicate verdict texts; refuses if any
 //       expectation would remain passed:null; refuses a preliminary that is already final.
 //
-//   --verify <iteration-dir>
+//   --verify <dir> [--grade-file <name>] [--eval-prefix <prefix>]
 //       Pre-aggregate GATE. Walks the same run dirs aggregate_benchmark.py globs (eval-*/<config>/run-*)
 //       and ERRORS (exit 1) if ANY run dir lacks a final grading.json -- i.e. missing, still
 //       preliminary, still has judge_required, or still has a passed:null expectation. This is what
+//       Both flags default to the skill-creator shape, so a bare --verify is unchanged. The RGR
+//       routing suite needs both, because its runs live at results/recommend/<arm>/<case-id>/run-N
+//       and its final grade is routing-grade.json:
+//         --verify <suite>/results/recommend --grade-file routing-grade.json --eval-prefix ""
 //       stops aggregate from SILENTLY skipping an unmerged run (aggregate only prints a warning and
 //       drops it from the denominator -- a scored-only false pass). Run this BEFORE aggregate; a
 //       non-zero exit means "do not aggregate".
@@ -159,7 +163,14 @@ const isDir = (p) => {
 };
 
 // Mirror aggregate_benchmark.py globbing: <iter>[/runs]/eval-*/<config>/run-*
-function collectRunDirs(iterationDir) {
+//
+// `evalPrefix` defaults to "eval-", so a bare call globs exactly what it always did. It is a
+// parameter because the two layouts are the SAME DEPTH and differ only in the first level's naming:
+// the skill-creator shape is eval-*/<config>/run-*, and the RGR routing suite's is
+// results/recommend/<arm>/<case-id>/run-N. Pass "" to accept any first-level directory name.
+// Without this the gate reported "no eval-*/<config>/run-* dirs" and checked NOTHING for that suite,
+// which is the same silent-vacuity shape as the tabulator's zero-run no-op.
+function collectRunDirs(iterationDir, evalPrefix = "eval-") {
   const runsDir = path.join(iterationDir, "runs");
   const searchDir = isDir(runsDir) ? runsDir : iterationDir;
   const runDirs = [];
@@ -169,7 +180,7 @@ function collectRunDirs(iterationDir) {
   }
 
   for (const evalName of fs.readdirSync(searchDir)) {
-    if (!evalName.startsWith("eval-")) {
+    if (evalPrefix !== "" && !evalName.startsWith(evalPrefix)) {
       continue;
     }
 
@@ -209,27 +220,32 @@ function readJsonOrNull(p) {
   }
 }
 
-function verify(iterationDir) {
+// `gradeFile` and `evalPrefix` default to the skill-creator shape, so a bare `--verify <dir>` behaves
+// exactly as before. The preliminary sibling is derived from the grade filename rather than
+// hardcoded, so the "merge not run" diagnosis stays accurate for a differently-named grade.
+function verify(iterationDir, gradeFile = "grading.json", evalPrefix = "eval-") {
   if (!isDir(iterationDir)) {
     console.error(`VERIFY ERROR: iteration dir not found: ${iterationDir}`);
     process.exit(1);
   }
 
-  const runDirs = collectRunDirs(iterationDir);
+  const runDirs = collectRunDirs(iterationDir, evalPrefix);
 
   if (runDirs.length === 0) {
-    console.error(`VERIFY ERROR: no eval-*/<config>/run-* dirs under ${iterationDir} -- nothing to aggregate`);
+    const shape = evalPrefix === "" ? "<any>/<config>/run-*" : `${evalPrefix}*/<config>/run-*`;
+    console.error(`VERIFY ERROR: no ${shape} dirs under ${iterationDir} -- nothing to aggregate`);
     process.exit(1);
   }
 
+  const prelimName = gradeFile.replace(/\.json$/, "") + ".preliminary.json";
   const failures = [];
 
   for (const runDir of runDirs) {
-    const gradingPath = path.join(runDir, "grading.json");
-    const prelimPath = path.join(runDir, "grading.preliminary.json");
+    const gradingPath = path.join(runDir, gradeFile);
+    const prelimPath = path.join(runDir, prelimName);
 
     if (!fs.existsSync(gradingPath)) {
-      const reason = fs.existsSync(prelimPath) ? "only grading.preliminary.json present (LLM-judge merge not run)" : "grading.json not found (ungraded run)";
+      const reason = fs.existsSync(prelimPath) ? `only ${prelimName} present (LLM-judge merge not run)` : `${gradeFile} not found (ungraded run)`;
       failures.push({ runDir, reason });
       continue;
     }
@@ -237,7 +253,7 @@ function verify(iterationDir) {
     const grading = readJsonOrNull(gradingPath);
 
     if (grading === null) {
-      failures.push({ runDir, reason: "grading.json is not valid JSON" });
+      failures.push({ runDir, reason: `${gradeFile} is not valid JSON` });
       continue;
     }
 
@@ -258,7 +274,7 @@ function verify(iterationDir) {
     process.exit(1);
   }
 
-  console.log(`VERIFY OK: all ${runDirs.length} run dir(s) have a final grading.json (preliminary:false, judge_required:[], no passed:null)`);
+  console.log(`VERIFY OK: all ${runDirs.length} run dir(s) have a final ${gradeFile} (preliminary:false, judge_required:[], no passed:null)`);
 }
 
 function selfcheck() {
@@ -417,7 +433,18 @@ function main() {
   }
 
   if (args.verify) {
-    verify(args.verify);
+    // Both optional. `--eval-prefix ""` is meaningful (accept any first-level dir name), so test for
+    // presence with `in` rather than truthiness -- an empty string is falsy and would silently fall
+    // back to "eval-", which is exactly the vacuous-pass shape this gate exists to prevent.
+    const gradeFile = "grade-file" in args && args["grade-file"] ? args["grade-file"] : "grading.json";
+    const evalPrefix = "eval-prefix" in args ? String(args["eval-prefix"] ?? "") : "eval-";
+
+    if (gradeFile !== path.basename(gradeFile)) {
+      console.error(`--grade-file must be a bare filename, not a path (got ${JSON.stringify(gradeFile)})`);
+      process.exit(2);
+    }
+
+    verify(args.verify, gradeFile, evalPrefix);
 
     return;
   }
@@ -428,7 +455,9 @@ function main() {
     return;
   }
 
-  console.error("usage: node merge-judge.mjs (--merge ... | --verify <iteration-dir> | --selfcheck)");
+  console.error(
+    "usage: node merge-judge.mjs (--merge ... | --verify <dir> [--grade-file <name>] [--eval-prefix <p>] | --selfcheck)",
+  );
   process.exit(2);
 }
 

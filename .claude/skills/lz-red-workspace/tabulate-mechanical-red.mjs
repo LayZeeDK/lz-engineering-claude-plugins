@@ -35,6 +35,12 @@
 // Usage:
 //   node tabulate-mechanical-red.mjs              # walk the suite's results/apply, print + write mechanical-red.json
 //   node tabulate-mechanical-red.mjs --grade-file <name>  # read <name> instead of red-grade.json as each run's grade
+//   node tabulate-mechanical-red.mjs --mode recommend     # walk results/recommend instead of results/apply
+//   node tabulate-mechanical-red.mjs --suite <dir>        # tabulate ONE named suite, skipping prefix discovery
+//
+// The routing suite needs all three, because it sits outside the `e2e-red-` namespace, is
+// recommend-only, and names its grade differently:
+//   node tabulate-mechanical-red.mjs --suite ./e2e-rgr-routing --mode recommend --grade-file routing-grade.json
 //   node tabulate-mechanical-red.mjs --selfcheck  # offline, zero spend; assert rollup/auto-trigger/Pass@k on fixtures
 
 import fs from 'node:fs';
@@ -336,7 +342,14 @@ function walkRuns(applyRoot, gradeFile = DEFAULT_GRADE_FILE) {
 // The RED instrument is ONE suite dir per target repo (suite.json carries a single repo +
 // applyBase, and run-e2e.mjs is driven one --suite at a time), so tabulating a round means walking
 // all of them rather than the one that happened to be hardcoded here.
-export function discoverSuiteDirs(root = HERE) {
+// `prefixes` defaults to the single `e2e-red-` prefix, so a bare call is byte-for-byte the old
+// behaviour. It is a parameter because not every gated suite lives in that namespace: the RGR routing
+// suite is deliberately named `e2e-rgr-routing`, OUTSIDE the prefix, because selfcheck-red.mjs
+// auto-discovers `e2e-red-*` siblings and bans state-claim tokens in their prompts, while that
+// corpus MUST carry test-state facts by construction. Renaming it to fit this filter would re-import
+// the ban onto a corpus that violates it by design and perturb a file D-22 requires to stay
+// byte-unchanged -- so the DISCOVERY widens instead of the suite name narrowing.
+export function discoverSuiteDirs(root = HERE, prefixes = ['e2e-red-']) {
   let entries;
 
   try {
@@ -345,8 +358,14 @@ export function discoverSuiteDirs(root = HERE) {
     throw new Error(`tabulate-red: cannot list ${root} to discover RED suites (fail closed): ${err.message}`);
   }
 
+  const wanted = Array.isArray(prefixes) ? prefixes.filter((p) => typeof p === 'string' && p !== '') : [];
+
+  if (!wanted.length) {
+    throw new Error('tabulate-red: discoverSuiteDirs needs at least one non-empty name prefix (fail closed)');
+  }
+
   return entries
-    .filter((e) => e.isDirectory() && e.name.startsWith('e2e-red-'))
+    .filter((e) => e.isDirectory() && wanted.some((p) => e.name.startsWith(p)))
     .map((e) => path.join(root, e.name))
     .filter((d) => fs.existsSync(path.join(d, 'suite.json')))
     .sort();
@@ -360,13 +379,21 @@ export function discoverSuiteDirs(root = HERE) {
 // into one cell is a wrong number that looks entirely plausible: the n doubles, the Pass@k is a
 // blend of two different targets, and nothing in the output says so. That is exactly the class of
 // defect this file's fail-closed contract exists to prevent, so it is an error rather than a note.
-export function walkAllSuites(suiteDirs, gradeFile = DEFAULT_GRADE_FILE) {
+// `mode` defaults to 'apply', so a bare call walks exactly the directory it always did. It is a
+// parameter because a recommend-only suite writes to results/recommend and would otherwise be an
+// invisible zero -- the tabulator exited 0 while tabulating nothing, which is the failure shape that
+// looks healthiest.
+export function walkAllSuites(suiteDirs, gradeFile = DEFAULT_GRADE_FILE, mode = 'apply') {
   const owner = new Map();
   const perSuite = [];
   const all = [];
 
+  if (typeof mode !== 'string' || mode !== path.basename(mode) || mode === '') {
+    throw new Error(`tabulate-red: mode must be a bare directory name, got ${JSON.stringify(mode)} (fail closed)`);
+  }
+
   for (const suiteDir of suiteDirs) {
-    const runs = walkRuns(path.join(suiteDir, 'results', 'apply'), gradeFile);
+    const runs = walkRuns(path.join(suiteDir, 'results', mode), gradeFile);
 
     for (const r of runs) {
       const key = `${r.target}:${r.pid}|${r.arm}`;
@@ -489,15 +516,78 @@ function joinFixtures(metas, grades) {
 // Write ONE fake suite dir holding ONE captured run, in the real on-disk layout
 // (results/apply/<arm>/<pid>/run-1/{meta.json,red-grade.json}) so discovery and the walk are
 // exercised against the shape they meet in production rather than against an in-memory stand-in.
-function writeFakeSuite(root, name, meta, grade) {
+function writeFakeSuite(root, name, meta, grade, mode = 'apply', gradeFile = DEFAULT_GRADE_FILE) {
   const suiteDir = path.join(root, name);
-  const runDir = path.join(suiteDir, 'results', 'apply', meta.arm, meta.prompt_id, 'run-1');
+  const runDir = path.join(suiteDir, 'results', mode, meta.arm, meta.prompt_id, 'run-1');
   fs.mkdirSync(runDir, { recursive: true });
   fs.writeFileSync(path.join(suiteDir, 'suite.json'), JSON.stringify({ name }, null, 2));
   fs.writeFileSync(path.join(runDir, 'meta.json'), JSON.stringify(meta, null, 2));
-  fs.writeFileSync(path.join(runDir, 'red-grade.json'), JSON.stringify(grade, null, 2));
+  fs.writeFileSync(path.join(runDir, gradeFile), JSON.stringify(grade, null, 2));
 
   return suiteDir;
+}
+
+// The recommend-only, outside-the-prefix suite shape -- the one the tabulator was a MEASURED silent
+// no-op on. Driven in BOTH directions, because "exits 0 having tabulated nothing" is the failure that
+// looks healthiest and a positive-only assertion cannot see it.
+function checkOutOfNamespaceRecommendSuite(baseMeta, baseGrade) {
+  if (!baseMeta || !baseGrade) {
+    fail('out-of-namespace case: the tabulate fixtures did not yield a meta/grade pair to build from');
+  }
+
+  const root = path.join(os.tmpdir(), `red-tab-rgr-${process.pid}-${Date.now()}`);
+  fs.mkdirSync(root, { recursive: true });
+
+  try {
+    const meta = { ...baseMeta, target: 'RGR' };
+    const grade = { ...baseGrade, target: 'RGR' };
+    writeFakeSuite(root, 'e2e-rgr-routing', meta, grade, 'recommend', 'routing-grade.json');
+
+    // NEGATIVE control 1 -- the DEFAULT prefix must NOT find it. This is the reproduction of the
+    // original defect, so if this ever finds it the widening below is proving nothing.
+    const defaultFound = discoverSuiteDirs(root);
+
+    if (defaultFound.length !== 0) {
+      fail(
+        `out-of-namespace: the default e2e-red- prefix found ${defaultFound.length} suite(s) (${defaultFound.join(', ')}), expected 0 -- the negative control is broken, so the positive case below is meaningless`,
+      );
+    }
+
+    // POSITIVE -- an explicit prefix finds it.
+    const found = discoverSuiteDirs(root, ['e2e-rgr-']);
+
+    if (found.length !== 1) {
+      fail(`out-of-namespace discovery found ${found.length} suite(s), expected exactly 1`);
+    }
+
+    // NEGATIVE control 2 -- the default 'apply' mode must find NO runs in a recommend-only suite.
+    const applyWalk = walkAllSuites(found, 'routing-grade.json');
+
+    if (applyWalk.all.length !== 0) {
+      fail(`out-of-namespace: mode 'apply' yielded ${applyWalk.all.length} run(s) from a recommend-only suite, expected 0`);
+    }
+
+    // POSITIVE -- mode 'recommend' plus the suite's own grade filename reaches the run.
+    const walk = walkAllSuites(found, 'routing-grade.json', 'recommend');
+
+    if (walk.all.length !== 1) {
+      fail(`out-of-namespace: mode 'recommend' yielded ${walk.all.length} run(s), expected exactly 1`);
+    }
+
+    const key = `RGR:${meta.prompt_id}|${meta.arm}`;
+
+    if (!aggregate(walk.all)[key]) {
+      fail(`out-of-namespace: aggregate is missing cell '${key}'`);
+    }
+
+    // Fail-closed argument validation, both parameters.
+    assertThrows(() => discoverSuiteDirs(root, []), 'at least one non-empty name prefix');
+    assertThrows(() => walkAllSuites(found, 'routing-grade.json', 'a/b'), 'bare directory name');
+
+    console.log('  [OK] out-of-namespace recommend-only suite: default prefix finds 0 / explicit finds 1; mode apply finds 0 runs / recommend finds 1');
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
 }
 
 // The multi-suite walk, in BOTH directions, against a throwaway tree under os.tmpdir().
@@ -670,6 +760,10 @@ function runSelfcheck() {
   }, 'pre-fix meta guard');
 
   checkMultiSuiteWalk(metas[0], grades.find((g) => g.arm === metas[0].arm && g.run_idx === metas[0].run_idx));
+  checkOutOfNamespaceRecommendSuite(
+    metas[0],
+    grades.find((g) => g.arm === metas[0].arm && g.run_idx === metas[0].run_idx),
+  );
 
   console.log(
     '  [with_skill] n=5 clean=4 pass=3 fired=0.40 avail=1.00 force=0.00 Pass@1=0.75 Pass^3=0.25 ' +
@@ -720,7 +814,46 @@ function main(argv) {
     gradeFile = value;
   }
 
-  const suiteDirs = discoverSuiteDirs();
+  // --mode <name>: which results/<name> tree to walk. Defaults to apply, so Phase 21's frozen path
+  // is what a bare invocation still walks. A recommend-only suite needs `--mode recommend`.
+  const modeIdx = argv.indexOf('--mode');
+  let mode = 'apply';
+
+  if (modeIdx >= 0) {
+    const value = argv[modeIdx + 1];
+
+    if (!value || value.startsWith('--') || value !== path.basename(value)) {
+      console.error('tabulate-red: --mode needs a bare directory name (e.g. --mode recommend)');
+      process.exit(2);
+    }
+
+    mode = value;
+  }
+
+  // --suite <path>: tabulate ONE named suite dir instead of discovering by name prefix. This is the
+  // path for a suite that deliberately sits outside the `e2e-red-` namespace.
+  const suiteIdx = argv.indexOf('--suite');
+  let suiteDirs;
+
+  if (suiteIdx >= 0) {
+    const value = argv[suiteIdx + 1];
+
+    if (!value || value.startsWith('--')) {
+      console.error('tabulate-red: --suite needs a directory path (e.g. --suite ./e2e-rgr-routing)');
+      process.exit(2);
+    }
+
+    const abs = path.resolve(value);
+
+    if (!fs.existsSync(path.join(abs, 'suite.json'))) {
+      console.error(`tabulate-red: --suite ${value} has no suite.json (fail closed rather than tabulate nothing)`);
+      process.exit(2);
+    }
+
+    suiteDirs = [abs];
+  } else {
+    suiteDirs = discoverSuiteDirs();
+  }
 
   if (!suiteDirs.length) {
     console.log(`no e2e-red-* suite dirs with a suite.json under ${HERE} -- nothing to tabulate.`);
@@ -728,12 +861,12 @@ function main(argv) {
     return;
   }
 
-  const { all, perSuite } = walkAllSuites(suiteDirs, gradeFile);
+  const { all, perSuite } = walkAllSuites(suiteDirs, gradeFile, mode);
 
   if (!all.length) {
     console.log(
-      `no captured runs under any of ${suiteDirs.length} RED suite(s) -- nothing to tabulate (run the gated suites first):\n  ` +
-        suiteDirs.map((d) => path.join(d, 'results', 'apply')).join('\n  '),
+      `no captured runs under any of ${suiteDirs.length} suite(s) in results/${mode} -- nothing to tabulate (run the gated suites first):\n  ` +
+        suiteDirs.map((d) => path.join(d, 'results', mode)).join('\n  '),
     );
 
     return;

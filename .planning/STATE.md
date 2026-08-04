@@ -4,11 +4,11 @@ milestone: lz-tdd@0.0.3
 milestone_name: lz-red Skill
 current_phase: 22
 current_phase_name: three-way-classifier-correctness-lz-refactor-lz-red
-status: executing
-stopped_at: "Resumed at wave 3 of 5. Waves 1 and 2 complete + merged (4/7 plans). Routing gate at 2 FAIL / 52 PASS entering wave 3 -- both survivors are 22-04's targets."
-last_updated: "2026-08-03T18:19:57.108Z"
-last_activity: 2026-08-03
-last_activity_desc: "Phase 22 execution RESUMED at wave 3 (22-04). Waves 1-2 were executed and merged earlier: instrument authored RED (22-01), instrument holes closed (22-02), all three shipped classifiers rewritten (22-03), A/B plumbing built dry-run-only (22-05). Gate went 20 FAIL -> 2."
+status: gap-closure
+stopped_at: "All 7 plans executed + merged, full battery GREEN, zero metered spend -- but the D-18/SC7 acceptance review returned NOT ACCEPTED with one BLOCKER. Phase does NOT close. Owner approved a gap plan covering the body-only findings AND the two description fixes (which reopens the metered EVL-01 round)."
+last_updated: "2026-08-04T00:00:00.000Z"
+last_activity: 2026-08-04
+last_activity_desc: "Phase 22 waves 3-5 executed and merged (7/7 plans): reference-tier classifiers repaired (22-04, routing gate 2 FAIL -> 0), A/B instrument built and self-proven (22-06), phase gate + double HALT authored (22-07). Then the acceptance review BLOCKED the close: lz-refactor/SKILL.md's intro paragraph still omits the two-hop, falsifying SC5 in the file SC5 names by example."
 progress:
   total_phases: 9
   completed_phases: 8
@@ -29,11 +29,16 @@ See: .planning/PROJECT.md (updated 2026-07-18 -- started milestone lz-tdd@0.0.3)
 
 ## Current Position
 
-Phase: 22 (three-way-classifier-correctness-lz-refactor-lz-red) -- EXECUTING, resumed at wave 3 of
-5; waves 1 and 2 are complete and merged. Handoff:
-`.planning/phases/22-three-way-classifier-correctness-lz-refactor-lz-red/.continue-here.md`
-Plan: 4 of 7 complete (22-01, 22-02, 22-03, 22-05). Remaining: 22-04 (wave 3, in progress),
-22-06 (wave 4), 22-07 (wave 5, `autonomous: false`, ends in a blocking human HALT).
+Phase: 22 (three-way-classifier-correctness-lz-refactor-lz-red) -- ALL 7 PLANS EXECUTED AND MERGED,
+but NOT ACCEPTED. The D-18/SC7 acceptance review and the D-26 unprimed review returned one BLOCKER,
+so the phase is in GAP CLOSURE, not complete. Verdict:
+`.planning/phases/22-three-way-classifier-correctness-lz-refactor-lz-red/22-ACCEPTANCE-REVIEW.md`
+Plan: 7 of 7 executed (22-01..22-07). Gap plan pending.
+**THE BLOCKER:** `lz-refactor/SKILL.md:26-27` still says behavior changes belong to `lz-tpp`,
+omitting the two-hop its own frontmatter, narrative and branch (c) all state -- the exact dead end
+ROADMAP SC1 names, surviving in the first prose a model reads. Found independently by an UNPRIMED
+reviewer and a contract-scoped one. `check-rgr-routing.mjs` is GREEN and structurally blind to it:
+every parsed surface is anchored to a `## ` heading and this paragraph sits above the first one.
 **THE INSTRUMENT-FIRST BET PAID OFF AND IS MEASURED:** `check-rgr-routing.mjs` went 20 FAIL / 34
 PASS at the wave-1 RED baseline to 2 FAIL / 52 PASS after wave 2, and the two survivors are exactly
 22-04's targets (`beck-seam` scan floor; `laws-classify` bare catch-all). All nine corpus cases now

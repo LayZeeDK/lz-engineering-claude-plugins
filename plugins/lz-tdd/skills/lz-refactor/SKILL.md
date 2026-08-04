@@ -9,8 +9,9 @@ description: >-
   smell, a refactoring, or a design pattern in existing code (applying one to it, or refactoring
   away from one / de-patterning) -- even when they only ask "what would you do with this?",
   "anything you'd refactor?", or "how would you make it easier to read?" and never name a smell or
-  say the word refactor. It recommends the next named Fowler or Kerievsky refactoring and, when the
-  developer asks you to apply it, performs it in small behavior-preserving steps; it also explains a
+  say the word refactor. Use it also when a developer has just finished making a test pass and asks
+  what now. It recommends the next named Fowler or Kerievsky refactoring and, when the developer
+  asks you to apply it, performs it in small behavior-preserving steps; it also explains a
   refactoring, code smell, refactoring principle, or design pattern on request. Do NOT use it to
   make a failing or red test pass -- that is the green/transformation step; use lz-tpp instead.
   Do NOT use it to ADD or CHANGE behavior when no test is failing yet -- the red step comes first,

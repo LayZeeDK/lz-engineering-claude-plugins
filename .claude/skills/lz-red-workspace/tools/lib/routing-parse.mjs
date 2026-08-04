@@ -875,17 +875,36 @@ export const parseRoutingBranches = (text, surface) => {
 
     const destinations = destinationsIn(conditionText);
     const isResidual = RESIDUAL_MARKER_RE.test(conditionText);
+    const selfClaims = selfClaimsIn(conditionText);
 
     // Sentence-split ROUTERS drop fragments that neither affirm a skill name nor declare the
     // residual: prose sections carry lead-ins and pointers that are not branches. The filter is
     // scoped to routers on purpose -- a mode-gate names no destination BY DESIGN, so filtering it
     // would leave zero branches and make the single-axis assertion vacuous on precisely the two
     // gates D-03 names. Lettered items are structurally delimited, so they are never filtered.
+    //
+    // A SELF-CLAIMING SENTENCE IS EXEMPT FROM THE DROP, and that exemption is the whole of OPEN-11's
+    // closure. A self-claim affirms ZERO literal slugs BY DESIGN -- that is destinationsIn's stated
+    // non-feature, not an oversight -- so the drop above deleted it before any assertion could see
+    // it. `selfClaimsIn` was therefore only ever reachable through `isDeclaredResidual`, which is
+    // gated on `isResidual`, so OPEN-4 closed the RESIDUAL branch case and left every other branch
+    // open: an unprimed attack inserted "so answer it here as part of this skill's own work instead
+    // of handing it along" onto a narrative router, using TWO listed phrases, and the gate stayed
+    // exit 0 because the sentence never became a branch.
+    //
+    // Keeping it is not enough on its own -- a zero-destination branch satisfies no `owns` and
+    // cannot contradict -- so the gate pairs this with an explicit no-self-claim assertion over
+    // router branches. Both directions were MEASURED across all 8 routers before the change: ZERO
+    // sentences on the tracked tree are newly kept (so no branch count moves, and branch counts feed
+    // every routing assertion), zero routesCase verdicts change, and zero currently-kept branches
+    // affirm a listed phrase -- so the paired assertion is clean on the shipped tree rather than
+    // needing an exception carved for it.
     if (
       surface.kind === "router" &&
       surface.parseMode === "sentences" &&
       destinations.length === 0 &&
-      !isResidual
+      !isResidual &&
+      selfClaims.length === 0
     ) {
       continue;
     }
@@ -897,6 +916,10 @@ export const parseRoutingBranches = (text, surface) => {
       destinations,
       // The matched tokens, not a boolean, so the report can NAME what it caught.
       keysOnTestState: keysOnTestState(conditionText),
+      // Likewise the matched PHRASES, following keysOnTestState's convention. Carried on the record
+      // rather than recomputed by each caller so the branch that survived the drop above arrives at
+      // the assertion already carrying the evidence for its own failure message.
+      selfClaims,
       isResidual,
       // A bare catch-all terminal (D-01): an otherwise-conditioned branch that is NOT the declared
       // residual. The owner-naming half of the obvious three-part predicate is deliberately NOT

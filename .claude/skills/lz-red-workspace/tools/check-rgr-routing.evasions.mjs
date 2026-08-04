@@ -79,7 +79,7 @@ const CORPUS = ".claude/skills/lz-red-workspace/tools/rgr-cases.json";
 // THE RATCHET (rule 8). The number of OPEN entries expected at HEAD. Raise it only when a new open
 // evasion is deliberately recorded; LOWER it in the same commit that closes one. Any drift exits 1.
 // A rise is a regression or a newly found hole; a fall is a stale constant hiding future slack.
-const EXPECTED_OPEN = 9;
+const EXPECTED_OPEN = 8;
 
 // `find` may be a string (literal, safest) or a RegExp. `expect` is the substring that must appear in
 // a FAIL line, or null for an entry the gate does not catch. A non-caught entry is OPEN work unless it
@@ -320,25 +320,22 @@ const EVASIONS = [
   },
   {
     id: "F3",
-    open: "OPEN-11",
+    open: "closed",
     what: "a self-claiming sentence on a sentence-parsed router, using LISTED claim phrases",
     claim: "SELF_CLAIM_PHRASES reaches self-claims anywhere, not only on the residual branch",
     file: RED,
     find: "lz-refactor. Anything outside those is not a red-green-refactor-loop request and no skill in this",
     repl:
       "lz-refactor. An ask to make a failing test pass is also structural once the test exists, so answer\nit here as part of this skill's own work instead of handing it along. Anything outside those is not a\nred-green-refactor-loop request and no skill in this",
-    expect: null,
-    ceiling:
-      "STRUCTURAL bypass, not a vocabulary ceiling -- the inserted sentence uses TWO listed phrases " +
-      "(\"answer it here\", \"this skill's\") and they are never evaluated. parseRoutingBranches DROPS any " +
-      "router sentence with zero destinations that is not the residual, and a self-claim resolves to " +
-      "zero literal slugs BY DESIGN, so the sentence is deleted before any check sees it. selfClaimsIn " +
-      "is only ever reached through isDeclaredResidual, which is gated on isResidual. OPEN-4 closed the " +
-      "residual-branch case only. Tracked as OPEN-11; closing it means keeping self-claiming sentences " +
-      "as branches rather than filtering them. STILL OPEN after the [cls-04] contradiction sweep, for " +
-      "the SAME root cause: a self-claim affirms no literal slug by design, so the sweep's sentence " +
-      "filter drops it exactly as the routing parse does. Any fix has to stop filtering, not add " +
-      "another reader.",
+    // CLOSED (was OPEN-11). Two halves, shipped together because either alone is vacuous:
+    // parseRoutingBranches no longer drops a zero-destination sentence that affirms a listed claim
+    // phrase, and `[cls-01] no self-claiming branch` judges the branch that now survives. Keeping
+    // alone would not have caught it -- a zero-destination branch satisfies no `owns` and cannot
+    // contradict, since the contradiction arm requires destinations.length > 0.
+    // Measured over all 8 routers before the change: 0 sentences newly kept on the tracked tree,
+    // 0 routesCase verdict deltas, 0 currently-kept branches affirming a listed phrase.
+    // The mutation lands on red-narrative #s9 and affirms three listed phrases.
+    expect: "no self-claiming branch -- red-narrative",
   },
   {
     id: "F4",
@@ -392,12 +389,27 @@ const EVASIONS = [
     ceiling:
       "The only intro check that reads DESTINATIONS is the two-hop rule, and it is hard-scoped to " +
       "lz-refactor's text; the per-skill loop over SKILLS runs keysOnTestState alone. So M8b/OPEN-7 " +
-      "closed the lz-refactor intro and the lz-red and lz-tpp intros still have no ownership assertion " +
-      "-- a closure that did not generalise across the three files the loop already visits. Tracked as " +
-      "OPEN-14, and it is the cheapest of this batch to close. STILL OPEN after the [cls-04] " +
-      "contradiction sweep, which now reads all three intros: the mutation self-claims AND negates both " +
-      "siblings, so the sentence affirms no destination and is filtered out. Same root cause as " +
-      "OPEN-11, and the two should be closed together by one change to the filter.",
+      "closed the lz-refactor intro and the lz-red and lz-tpp intros still have no ownership " +
+      "assertion -- a closure that did not generalise across the three files the loop already visits. " +
+      "Tracked as OPEN-14. " +
+      "PRIOR MECHANISM RETRACTED, and the retraction is the useful part. This entry used to read " +
+      "\"the mutation self-claims AND negates both siblings, so the sentence affirms no destination " +
+      "and is filtered out. Same root cause as OPEN-11 -- close the two together by one change to " +
+      "the filter.\" That is FALSE and was measured false while closing OPEN-11: the mutated sentence " +
+      "affirms destinationsIn = [lz-tpp, lz-refactor] and is NOT filtered -- the denial (\"never hand " +
+      "a request to either of them\") sits in a LATER clause, and the negation pass is clause-scoped, " +
+      "so both names read as affirmed. The sweep already keeps this sentence and still reports " +
+      "nothing, for a different reason entirely: the only case it covers is c6, and it LEADS with " +
+      "lz-tpp, which IS c6's owner. So it reads consistent while the clause that follows revokes the " +
+      "handoff. " +
+      "MEASURED FAMILY: this belongs with F2/OPEN-10, not F3/OPEN-11 -- both REMOVE correct routing " +
+      "rather than add wrong routing, which is precisely what a contradiction-only sweep cannot see. " +
+      "ALSO MEASURED: the per-region COVERAGE FLOOR named as F2's untried candidate does NOT close " +
+      "this one. The floor on the tracked tree is {lz-red description c6->lz-tpp, lz-red intro " +
+      "c6->lz-tpp, lz-tpp description c3->lz-red + c4->lz-red, lz-refactor intro c4->lz-red} and the " +
+      "mutation loses no pair, because the leading destination is exactly what it leaves intact. " +
+      "Closing this needs an assertion that reads the REVOCATION -- a region may not deny a handoff " +
+      "it also states -- which is a new claim shape, not a wider reader.",
   },
   {
     id: "F7",

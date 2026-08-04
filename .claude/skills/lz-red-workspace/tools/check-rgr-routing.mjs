@@ -597,6 +597,60 @@ for (const surface of ROUTER_SURFACES) {
 console.log("");
 
 // ---------------------------------------------------------------------------------------------
+// [cls-01] NO ROUTER BRANCH SELF-CLAIMS -- the OPEN-11 closure, and the half that gives the parser
+// change teeth.
+//
+// A router branch either routes to a NAMED destination or is the declared residual. A third shape
+// existed and nothing judged it: a branch that takes the request for ITSELF in the house
+// self-reference form, naming no slug at all. `destinationsIn` deliberately does not resolve "this
+// skill" to the owning slug and must not learn to (its DELIBERATE NON-FEATURE note says why), so
+// such a branch parses to zero destinations -- and `parseRoutingBranches` then DROPPED it as a
+// non-branch fragment. `selfClaimsIn` was reachable only through `isDeclaredResidual`, itself gated
+// on `isResidual`, so the whole self-claim vocabulary applied to exactly one branch per surface.
+//
+// An unprimed attack demonstrated the gap on red-narrative, using TWO listed phrases in one inserted
+// sentence -- "so answer it here as part of this skill's own work instead of handing it along" --
+// and the gate stayed exit 0 because the sentence was deleted before any assertion ran.
+//
+// The parser now keeps such a sentence (see its comment there) and this is what judges it. Keeping
+// alone would have been vacuous: a zero-destination branch satisfies no `owns` and, because the
+// contradiction arm requires `destinations.length > 0`, cannot contradict either. So the two halves
+// ship together or not at all.
+//
+// MEASURED IN BOTH DIRECTIONS BEFORE SHIPPING, over all 8 router surfaces: zero sentences on the
+// tracked tree are newly kept by the parser change, zero `routesCase` verdicts move, and zero
+// currently-kept branches affirm a listed phrase -- so this rule is unconditional rather than
+// carved around a live exception. Non-residual branches only: a residual that self-claims is
+// already reported by `routesCase`'s NONE arm, which names the phrases, and double-reporting one
+// defect under two labels sends a reader looking for two.
+//
+// NAMED CEILING, unchanged and inherited: SELF_CLAIM_PHRASES is a LITERAL FAMILY BLOCKLIST. This
+// closes the STRUCTURAL bypass -- listed phrasings are now evaluated wherever they appear on a
+// router -- not the vocabulary axis. An unlisted paraphrase still walks through, which is the
+// permanently-open M2b/OPEN-4 ceiling. Read a clean result as "no LISTED self-claim wording is
+// present on any router branch".
+// ---------------------------------------------------------------------------------------------
+console.log("[cls-01] no self-claiming branch -- no router branch takes the request for itself");
+
+for (const surface of ROUTER_SURFACES) {
+  const offenders = parsed
+    .get(surface.id)
+    .branches.filter((b) => !b.isResidual && b.selfClaims.length > 0);
+
+  report(
+    offenders.length === 0,
+    `[cls-01] no self-claiming branch -- ${surface.id}`,
+    offenders.length === 0
+      ? ""
+      : `branch(es) claim the request in the house self-reference form, naming no destination: ${offenders
+          .map((b) => `#${b.branchId} (${b.selfClaims.join(", ")})`)
+          .join("; ")}`
+  );
+}
+
+console.log("");
+
+// ---------------------------------------------------------------------------------------------
 // [cls-02] at-most-one -- no case is claimed for ITSELF by two step-1 procedures.
 // ---------------------------------------------------------------------------------------------
 console.log("[cls-02] at-most-one -- no case is self-claimed by two step-1 procedures");

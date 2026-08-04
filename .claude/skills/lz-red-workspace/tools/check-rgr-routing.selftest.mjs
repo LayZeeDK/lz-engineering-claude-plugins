@@ -34,9 +34,21 @@
 //
 // SCOPE, stated plainly. The exports under test are the PARSER's. The gate itself is a top-level
 // script by house convention -- it resolves paths, reports, and exits -- so it cannot be imported
-// without running it, and the two coverage predicates below (`covers` / `owns`) are therefore a
-// deliberate minimal restatement of the gate's own, kept identical in shape. The gate's end-to-end
-// wiring is evidenced separately, by its asserted-RED baseline against the tracked tree.
+// without running it.
+//
+// `covers` / `owns` / `isDeclaredResidual` / `routesCase` are now IMPORTED from the parser, not
+// restated. An earlier version of this note called them "a deliberate minimal restatement kept
+// identical in shape", and that was the defect: the restatement DRIFTED, with this file's `coveredBy`
+// quantifying over one surface while the gate pooled three, so this selftest proved a discrimination
+// the gate did not have -- and the gate was duly evaded by deleting one surface's branch. One
+// definition, two callers, is the fix.
+//
+// WHAT THIS FILE STILL DOES NOT EVIDENCE: the gate's own wiring. An earlier note claimed that was
+// covered "by its asserted-RED baseline against the tracked tree" -- but that baseline is CLOSED and
+// the gate now exits 0, so that evidence no longer exists. `corpusFloorOk`, `scanFloorOk`,
+// `hopsOrderedOk` and `flatten` remain hand-restated here, and `corpusFloorOk` does NOT model the
+// gate's own `STEP1_SURFACES.length !== 3` clause, which is therefore unguarded. Treat a GREEN result
+// here as evidence about the PARSER, never as evidence that the gate is wired correctly.
 //
 // No fixture, comment or label in this file contains any email-shaped token other than the project's
 // approved public contact -- and no forbidden value is written even as a search needle, because the
@@ -184,39 +196,20 @@ const check = (label, actual, expected) => {
 };
 
 // ---------------------------------------------------------------------------------------------
-// The gate's coverage predicates, minimally restated (see SCOPE in the header).
+// The gate's coverage predicates -- IMPORTED, no longer restated.
+//
+// These used to be hand-copied here, and the copy DRIFTED in the one way that mattered: `coveredBy`
+// quantified over a single surface's branches while the gate pooled all three. So this selftest was
+// proving a discrimination the gate did not have, and an unprimed review duly evaded the gate by
+// deleting one surface's branch. The leaf predicates had NOT drifted -- they were byte-identical --
+// which is exactly why sharing only the leaves would have missed the defect: the drift was in the
+// QUANTIFICATION. `routesCase` is now the single definition of the per-pair decision, so `coveredBy`
+// below is a thin alias over it rather than a parallel implementation.
 // ---------------------------------------------------------------------------------------------
 
-const covers = (branch, kase) => {
-  const cond = branch.conditionText.toLowerCase();
+const { covers, owns, isDeclaredResidual, routesCase } = parser;
 
-  return kase.matchTokens
-    .filter((t) => typeof t === "string" && t.trim() !== "")
-    .every((t) => cond.includes(t.toLowerCase()));
-};
-
-const owns = (branch, kase) => {
-  if (!covers(branch, kase)) {
-    return false;
-  }
-
-  if (kase.expectedSecondHop) {
-    return (
-      branch.destinations.length === 2 &&
-      branch.destinations[0] === kase.expectedOwner &&
-      branch.destinations[1] === kase.expectedSecondHop
-    );
-  }
-
-  return branch.destinations[0] === kase.expectedOwner;
-};
-
-const isDeclaredResidual = (branch) => branch.isResidual && branch.destinations.length === 0;
-
-const coveredBy = (branches, kase) =>
-  kase.expectedOwner === "NONE"
-    ? branches.some(isDeclaredResidual)
-    : branches.some((b) => owns(b, kase));
+const coveredBy = (branches, kase) => routesCase(branches, kase).ok;
 
 // The two anti-vacuity floors the gate carries, restated the same way.
 const corpusFloorOk = (cases) =>
@@ -630,17 +623,21 @@ console.log("");
 // ---------------------------------------------------------------------------------------------
 console.log("lib/routing-parse.mjs -- export roster");
 
-check("routing-parse.mjs exports exactly the eleven named helpers", Object.keys(parser).sort(), [
+check("routing-parse.mjs exports exactly the fifteen named helpers", Object.keys(parser).sort(), [
   "CATCHALL_CONDITION_RE",
   "RESIDUAL_MARKER_RE",
   "ROUTING_SURFACES",
   "TEST_STATE_TOKENS",
+  "covers",
   "destinationsIn",
   "foldedDescription",
   "introBody",
+  "isDeclaredResidual",
   "keysOnTestState",
   "matchesSkillName",
+  "owns",
   "parseRoutingBranches",
+  "routesCase",
   "step1LeadIn",
 ]);
 check("ROUTING_SURFACES declares the eleven classifier surfaces", parser.ROUTING_SURFACES.length, 11);
@@ -653,6 +650,39 @@ check(
   "foldedDescription returns null rather than throwing when the key is absent",
   parser.foldedDescription("---\nname: fixture\n---\n"),
   null
+);
+
+// foldedDescription MUST consume the whole block scalar. It used to stop at the first line failing
+// /^\s+\S/ -- i.e. at the first BLANK line -- but a blank line inside a YAML folded scalar is VALID
+// and part of the value. An unprimed review turned that into a vacuous pass twice: a blank line right
+// after `description: >-` made the fold return "" and the gate reported "0 chars, 1536 of headroom"
+// and "banned=[]" for an intact description carrying a banned token; a blank line mid-block made it
+// return a PREFIX and report headroom for a value 334 chars OVER the cap. These legs pin both shapes.
+const FOLD_SIMPLE = "---\nname: f\ndescription: >-\n  alpha beta\n  gamma\n---\n";
+const FOLD_LEADING_BLANK = "---\nname: f\ndescription: >-\n\n  alpha beta\n  gamma\n---\n";
+const FOLD_MID_BLANK = "---\nname: f\ndescription: >-\n  alpha beta\n\n  gamma delta\n---\n";
+const FOLD_THEN_KEY = "---\nname: f\ndescription: >-\n  alpha beta\nallowed-tools: []\n---\n";
+
+check("foldedDescription folds a simple block on single spaces", parser.foldedDescription(FOLD_SIMPLE), "alpha beta gamma");
+check(
+  "foldedDescription does NOT stop at a LEADING blank line inside the scalar",
+  parser.foldedDescription(FOLD_LEADING_BLANK),
+  "alpha beta gamma"
+);
+check(
+  "foldedDescription does NOT stop at a MID-BLOCK blank line inside the scalar",
+  parser.foldedDescription(FOLD_MID_BLANK),
+  "alpha beta gamma delta"
+);
+check(
+  "foldedDescription DOES stop at the next mapping key",
+  parser.foldedDescription(FOLD_THEN_KEY),
+  "alpha beta"
+);
+check(
+  "foldedDescription distinguishes an ABSENT key (null) from an empty block (\"\")",
+  [parser.foldedDescription("---\nname: f\n---\n"), parser.foldedDescription("---\nname: f\ndescription: >-\n---\n")],
+  [null, ""]
 );
 check(
   "matchesSkillName is boundary-anchored on both sides",
@@ -705,6 +735,66 @@ check(
   /lz-red|lz-tpp/.test(parser.step1LeadIn(LEAD_IN_FIXTURE, "Fixture procedure")),
   false
 );
+// ---------------------------------------------------------------------------------------------
+// routesCase -- E1 IN MINIATURE, and the E7 negative half.
+//
+// The whole point of the per-surface quantifier: ONE surface losing its branch must fail, even when a
+// sibling still carries an identical one. A pooled quantifier passes this and that is how the real
+// gate was evaded, so this is the assertion that would have caught it.
+// ---------------------------------------------------------------------------------------------
+const mkBranch = (branchId, conditionText, destinations, isResidual = false) => ({
+  surfaceId: "fixture",
+  branchId,
+  conditionText,
+  destinations,
+  isResidual,
+  isBareCatchAll: false,
+});
+
+const KASE_RED = { id: "k1", expectedOwner: "lz-red", expectedSecondHop: null, matchTokens: ["what test"] };
+const KASE_TWOHOP = { id: "k2", expectedOwner: "lz-red", expectedSecondHop: "lz-tpp", matchTokens: ["add a new behavior"] };
+const KASE_NONE = { id: "k9", expectedOwner: "NONE", expectedSecondHop: null, matchTokens: ["argument parsing"] };
+
+const OWNING = mkBranch("1a", "asking what test comes next: that is lz-red", ["lz-red"]);
+const RESIDUAL = mkBranch("1e", "none of the above: no skill owns it", [], true);
+
+check("routesCase: a surface carrying the owning branch passes", routesCase([OWNING, RESIDUAL], KASE_RED).ok, true);
+check(
+  "routesCase: E1 in miniature -- a surface MISSING its own branch fails even though a sibling has one",
+  routesCase([RESIDUAL], KASE_RED).ok,
+  false
+);
+check(
+  "routesCase: the two-hop rule is an ORDER claim -- reversed destinations fail",
+  [
+    routesCase([mkBranch("1c", "asking to add a new behavior: lz-red then lz-tpp", ["lz-red", "lz-tpp"])], KASE_TWOHOP).ok,
+    routesCase([mkBranch("1c", "asking to add a new behavior: lz-tpp then lz-red", ["lz-tpp", "lz-red"])], KASE_TWOHOP).ok,
+  ],
+  [true, false]
+);
+check("routesCase: a NONE case with a residual and no captor passes", routesCase([OWNING, RESIDUAL], KASE_NONE).ok, true);
+check(
+  "routesCase: E7 -- a NONE case CAPTURED by a positive branch fails even though the residual exists",
+  routesCase([RESIDUAL, mkBranch("1f", "asking about argument parsing: that is lz-refactor", ["lz-refactor"])], KASE_NONE).ok,
+  false
+);
+check(
+  "routesCase: a NONE case with NO residual on this surface fails",
+  routesCase([OWNING], KASE_NONE).ok,
+  false
+);
+
+// CATCHALL widening: the house residual vocabulary is matched, and an ordinary sentence is not.
+check(
+  "CATCHALL_CONDITION_RE matches the house residual vocabulary but not ordinary none-of prose",
+  [
+    parser.CATCHALL_CONDITION_RE.test("None of (a) through (d): no skill owns it"),
+    parser.CATCHALL_CONDITION_RE.test("none of the above applies"),
+    parser.CATCHALL_CONDITION_RE.test("none of these smells applies, so route to lz-refactor"),
+  ],
+  [true, true, false]
+);
+
 check(
   "letteredChunks-blind lead-in: a banned token planted there IS caught via step1LeadIn",
   parser.keysOnTestState(

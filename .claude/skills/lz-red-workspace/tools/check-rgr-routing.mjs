@@ -10,9 +10,12 @@
 //                       state; all key on the ask (D-03).
 // Plus two same-file citation checks, a per-skill description budget check, a per-skill description
 // single-axis check, an intro-prose check (two-hop order plus single-axis, over the text between
-// the H1 and the first `## ` heading in each SKILL.md), and a step-1 lead-in single-axis check (over
-// the prose before the first lettered branch, which letteredChunks discards). All are HARD failures
-// (non-zero exit). Node builtins only, plus the two local libs.
+// the H1 and the first `## ` heading in each SKILL.md), a step-1 lead-in single-axis check (over the
+// prose before the first lettered branch, which letteredChunks discards), and a WHOLE-SECTION
+// single-axis check over every declared surface's entire section body, pre-filter -- the only check
+// here quantified over a whole region rather than a sub-region, which is why an earlier version of
+// this inventory omitting it was the wrong thing to leave out. All are HARD failures (non-zero exit).
+// Node builtins only, plus the two local libs.
 //
 // HISTORY -- the wave-1 RED baseline, now CLOSED. This gate was RED against the tree by design when
 // it was authored (instrument-first, modelled on check-red-references.mjs's Wave-0 wording), for six
@@ -24,9 +27,12 @@
 //
 // The standing prohibition still binds: do NOT edit shipped Markdown to make this pass, and do NOT
 // weaken an assertion to make it pass. The description budget check was deliberately GREEN from the
-// start as a live budget guard, and it has since EARNED that role twice -- it caught two separate
-// over-cap description edits (1508 with 28 of headroom, then 1551 at 15 OVER the cap) before either
-// could ship.
+// start as a live budget guard, and it has since earned that role: it caught an edit at 1551 chars,
+// 15 OVER the cap, before it could ship. (A second edit measured 1508 -- 28 of headroom, so UNDER
+// the cap and never a failure; it was tightened on the separate grounds that 28 chars of margin is
+// too thin to live with. An earlier version of this comment called both "over-cap", which was wrong
+// about the 1508 one.) The check is ALSO defeatable, and the fold it depends on had to be repaired
+// after an unprimed review made it return 0 chars -- see the anti-vacuity floor at the check itself.
 //
 // COVERAGE BOUNDARY, stated because conflating the two is a recorded failure mode on this repo. This
 // gate proves that the AUTHORED classifier is exhaustive, disjoint and single-axis OVER THE CORPUS.
@@ -56,6 +62,17 @@
 // for a location the parser could never reach. The `[cls-03] step-1 lead-in` check below closes it.
 // The lesson to carry: closing a blind spot in one region says nothing about its neighbours, and
 // each of these three was found by a human review rather than by this gate.
+//
+// NAMED CEILING, stated rather than left looking closed. `TEST_STATE_TOKENS` is a LITERAL BLOCKLIST,
+// so the single-axis checks above are only as complete as that list. A novel paraphrase evades every
+// one of them: an unprimed review demonstrated it by prefixing a judged mode gate with "nothing in
+// the suite is red, and" -- not a listed phrase, gate GREEN. The whole-section check does not help,
+// because it runs the same list. This has now been hit TWICE (the other was the semantic variant
+// "no test is failing yet" living in two shipped descriptions), so treat the list as a floor that
+// catches known phrasings, never as proof that the axis is clean. The honest complements are the
+// metered placement eval (CLS-05), which measures ROUTING rather than wording, and the human review
+// habit that has found every one of the four blind spots this file records. Do NOT read a GREEN
+// single-axis result as "no test-state framing exists".
 //
 // FAIL-CLOSED CONTRACT (D-17). Every surface file is read with try/catch -> "", and deliberately NOT
 // gated on an existsSync probe -- unlike the SEAM-02 block in check-red-references.mjs, whose own
@@ -90,6 +107,10 @@ import {
   foldedDescription,
   introBody,
   step1LeadIn,
+  covers,
+  owns,
+  isDeclaredResidual,
+  routesCase,
   keysOnTestState,
   parseRoutingBranches,
 } from "./lib/routing-parse.mjs";
@@ -103,10 +124,18 @@ const LZ_REFACTOR_SKILL = path.join(repoRoot, "plugins", "lz-tdd", "skills", "lz
 // Per-entry listing cap for a skill's folded description. Do NOT hard-code a baseline here -- the
 // gate PRINTS all three lengths and their headroom on every run, and a pinned figure in a comment
 // goes stale silently. (It did: an earlier version of this comment claimed lz-red 1233 / lz-tpp 750
-// / lz-refactor 1245, which understated lz-refactor's real remaining budget by 250 chars and
-// contradicted this same file's record of catching a 1508-char edit.) Read the run output instead.
-// This is a LIVE budget guard, not a baseline to flip, and lz-refactor's headroom is the tightest.
+// / lz-refactor 1245. Against a real 1495, that stale 1245 OVERSTATED lz-refactor's remaining budget
+// by 250 chars -- it implied ~291 chars of room where only 41 exist. Overstating is the dangerous
+// direction, and a previous attempt to correct this comment got the direction backwards, which is
+// why it is spelled out.) Read the run output instead. This is a LIVE budget guard, not a baseline
+// to flip, and lz-refactor's headroom is by far the tightest.
 const DESCRIPTION_CHAR_CAP = 1536;
+
+// Anti-vacuity floor for the fold. No real shipped skill description is anywhere near this short --
+// the three tracked ones are 1139-1495 chars -- so a fold below it means the PARSE truncated, not
+// that someone wrote a terse description. Both description checks refuse rather than report a
+// reassuring number over text they could not see.
+const DESCRIPTION_MIN_CHARS = 200;
 const SKILLS = Object.freeze(["lz-red", "lz-tpp", "lz-refactor"]);
 
 // A behavior-change ask, as DATA. The sweep rule cites a step-1 rule in order to EXCLUDE behavior
@@ -254,69 +283,38 @@ console.log("");
 // Coverage predicates.
 // ---------------------------------------------------------------------------------------------
 
-// A branch COVERS a case when its flattened condition contains every one of the case's ask-words.
-// Structural containment, deliberately (see the ponytail note in the header).
-const covers = (branch, kase) => {
-  const cond = branch.conditionText.toLowerCase();
+// covers / owns / isDeclaredResidual and the pair-level quantifier routesCase now live in
+// lib/routing-parse.mjs and are imported. They used to be defined here and RESTATED by hand in the
+// selftest, which is how the selftest's `coveredBy` came to run over one surface while this gate
+// pooled three -- proving a discrimination the gate did not have. One definition, two callers.
 
-  return kase.matchTokens
-    .filter((t) => typeof t === "string" && t.trim() !== "")
-    .every((t) => cond.includes(t.toLowerCase()));
-};
-
-// A branch OWNS a case when it covers it and routes it to the expected owner FIRST. When the case
-// declares a second hop the destination list must be exactly that ordered pair -- D-02's two-hop
-// rule is an ORDER claim, so an unordered or single-name match must not satisfy it.
-const owns = (branch, kase) => {
-  if (!covers(branch, kase)) {
-    return false;
-  }
-
-  if (kase.expectedSecondHop) {
-    return (
-      branch.destinations.length === 2 &&
-      branch.destinations[0] === kase.expectedOwner &&
-      branch.destinations[1] === kase.expectedSecondHop
-    );
-  }
-
-  return branch.destinations[0] === kase.expectedOwner;
-};
-
-// The declared residual terminal claims NOTHING: it must carry the explicit no-owner marker AND
-// affirm zero destinations. Recognition is never by the ABSENCE of a skill name, so a branch that
-// merely forgot to name an owner cannot pass itself off as the residual (D-01).
-const isDeclaredResidual = (branch) => branch.isResidual && branch.destinations.length === 0;
-
-const step1Branches = [];
+// ---------------------------------------------------------------------------------------------
+// [cls-01] exhaustive -- PER SURFACE. Every step-1 procedure must independently route every case.
+//
+// This was quantified over a POOLED list of all three procedures' branches, and an unprimed review
+// evaded it: deleting lz-red's OWN branch (a) -- the branch by which lz-red claims the red step at
+// all -- left the gate GREEN, because the two sibling procedures still carried an identical 1a.
+// Deleting it from all three turned the gate RED. So the gate's primary assertion protected the
+// UNION of the three files and no individual file, which is worthless when they are near-identical:
+// every single-file regression was masked by its siblings.
+//
+// Now one report per (surface, case) pair -- 27 where there were 9 -- with both halves of a NONE
+// assertion folded into the pair's single report, so the count stays exactly one per pair.
+// ---------------------------------------------------------------------------------------------
+console.log("[cls-01] exhaustive -- every step-1 procedure independently routes every corpus case");
 
 for (const surface of STEP1_SURFACES) {
-  step1Branches.push(...parsed.get(surface.id).branches);
-}
+  for (const kase of CASES) {
+    const verdict = routesCase(parsed.get(surface.id).branches, kase);
 
-// ---------------------------------------------------------------------------------------------
-// [cls-01] exhaustive -- every case has a named owner (or IS the declared residual).
-// ---------------------------------------------------------------------------------------------
-console.log("[cls-01] exhaustive -- every corpus case lands on a named owner");
-
-for (const kase of CASES) {
-  const residualCase = kase.expectedOwner === "NONE";
-  const hits = residualCase
-    ? step1Branches.filter(isDeclaredResidual)
-    : step1Branches.filter((b) => owns(b, kase));
-  const want = residualCase
-    ? "a declared residual terminal claiming no owner"
-    : kase.expectedSecondHop
-      ? `${kase.expectedOwner} then ${kase.expectedSecondHop} (ordered)`
-      : kase.expectedOwner;
-
-  report(
-    hits.length > 0,
-    `[cls-01] exhaustive -- ${kase.id} has a named owner`,
-    hits.length > 0
-      ? `${want} via ${hits.map((b) => `${b.surfaceId}#${b.branchId}`).join(", ")}`
-      : `no step-1 branch routes ${kase.id} to ${want}; tokens [${kase.matchTokens.join(" | ")}]`
-  );
+    report(
+      verdict.ok,
+      `[cls-01] exhaustive -- ${surface.id} routes ${kase.id}`,
+      verdict.ok
+        ? `${verdict.why}${verdict.via.length ? ` via #${verdict.via.join(", #")}` : ""}`
+        : `${verdict.why}; tokens [${kase.matchTokens.join(" | ")}]`
+    );
+  }
 }
 
 console.log("");
@@ -352,14 +350,27 @@ for (const kase of CASES) {
       .branches.some((b) => covers(b, kase) && b.destinations[0] === surface.owner)
   ).map((s) => s.id);
 
+  // A NONE case must be claimed by ZERO procedures, not at-most-one. With the at-most-one bound this
+  // check PRINTED `[PASS] ... claimed by refactor-step1` for the residual case under the capture
+  // evasion -- a line asserting the capture was fine, for a case whose whole point is that no skill
+  // owns it. [cls-01] catches the capture, but a reader triaging that run should not meet a PASS
+  // saying otherwise.
+  const residualCase = kase.expectedOwner === "NONE";
+  const bound = residualCase ? 0 : 1;
+  const ok = claimants.length <= bound;
+
   report(
-    claimants.length <= 1,
-    `[cls-02] at-most-one -- ${kase.id} claimed by at most one step-1 procedure`,
-    claimants.length <= 1
+    ok,
+    residualCase
+      ? `[cls-02] at-most-one -- ${kase.id} (no-owner case) claimed by NO step-1 procedure`
+      : `[cls-02] at-most-one -- ${kase.id} claimed by at most one step-1 procedure`,
+    ok
       ? claimants.length === 1
         ? `claimed by ${claimants[0]}`
         : "claimed by no procedure for itself"
-      : `claimed for itself by ${claimants.length} procedures: ${claimants.join(", ")}`
+      : residualCase
+        ? `a no-owner case must be claimed by nobody, but ${claimants.length} procedure(s) claim it for themselves: ${claimants.join(", ")}`
+        : `claimed for itself by ${claimants.length} procedures: ${claimants.join(", ")}`
   );
 }
 
@@ -624,6 +635,21 @@ for (const skill of SKILLS) {
     continue;
   }
 
+  // ANTI-VACUITY FLOOR, and it is load-bearing. An unprimed review made the fold return "" by
+  // inserting one blank line after `description: >-`, and this check then reported
+  // "0 chars, 1536 of headroom" as a PASS for a fully intact description. A cap check that passes
+  // most enthusiastically when it can see nothing is the vacuous-guard class this file refuses. The
+  // fold itself is fixed to consume the whole block scalar; this floor is the belt to that braces,
+  // because the failure mode is silent and the direction of the bug always looks like headroom.
+  if (folded.length < DESCRIPTION_MIN_CHARS) {
+    report(
+      false,
+      `[cls] description char cap -- ${skill}`,
+      `folded to only ${folded.length} chars, below the ${DESCRIPTION_MIN_CHARS}-char plausibility floor -- the fold is truncating, so the cap measurement is not trustworthy`
+    );
+    continue;
+  }
+
   report(
     folded.length <= DESCRIPTION_CHAR_CAP,
     `[cls] description char cap -- ${skill}`,
@@ -652,12 +678,24 @@ for (const skill of SKILLS) {
     continue;
   }
 
+  // Same anti-vacuity floor as the cap check, and for the same measured reason: an emptied fold
+  // reported `banned=[]` for a description that carried a literal banned token. "I found no banned
+  // token" is only meaningful over text the scan could actually see.
+  if (folded.length < DESCRIPTION_MIN_CHARS) {
+    report(
+      false,
+      `[cls-03] description single-axis -- ${skill}`,
+      `folded to only ${folded.length} chars, below the ${DESCRIPTION_MIN_CHARS}-char plausibility floor -- banned=[] over a truncated fold proves nothing`
+    );
+    continue;
+  }
+
   const offenders = keysOnTestState(folded);
 
   report(
     offenders.length === 0,
     `[cls-03] description single-axis -- ${skill}`,
-    offenders.length === 0 ? "banned=[]" : `keys on [${offenders.join(" | ")}]`
+    offenders.length === 0 ? `banned=[] over ${folded.length} folded chars` : `keys on [${offenders.join(" | ")}]`
   );
 }
 

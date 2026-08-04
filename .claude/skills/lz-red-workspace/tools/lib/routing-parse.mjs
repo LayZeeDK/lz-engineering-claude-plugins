@@ -239,8 +239,30 @@ export const RESIDUAL_MARKER_RE = new RegExp(
 // each branch carries exactly one condition, so matching this family means the branch's condition IS
 // the residual; that is the reading, and the regex stays a plain dumb family match because dumb is
 // what keeps it mutation-sensitive.
+// THE HOUSE VOCABULARY IS NOW COVERED TOO. The `none of the above` / `none of (a) through (d)` family
+// was added after an unprimed review EVADED this guard with it: every shipped terminal words itself
+// "None of (a) through (d)", which the otherwise/else family never matched, so a terminal rewritten to
+// claim the request for ITSELF in the house wording passed while the gate stayed GREEN. Measured
+// across all EIGHT router surfaces before and after: the ONLY branches matching either family are the
+// three real `1e` terminals, and they are not flagged, because `isBareCatchAll` is
+// `CATCHALL_CONDITION_RE.test(cond) && !isResidual` and all three satisfy `isResidual`. So the
+// widening has zero delta on the tracked tree, and it closes THAT ONE wording.
+//
+// NAMED CEILING -- this does NOT close the catch-all axis, and an earlier version of this comment
+// wrongly claimed it "closes the evasion". The regex is a LITERAL FAMILY BLOCKLIST, exactly like
+// TEST_STATE_TOKENS, so any unlisted phrasing walks through: a later review defeated it with "In all
+// remaining cases the refactor step takes the request". Read a GREEN bare-catch-all result as "no
+// LISTED catch-all wording is present", never as "no catch-all exists". A SECOND, independent hole
+// lives in `isBareCatchAll`'s `&& !isResidual` conjunct -- a terminal can keep BOTH residual marker
+// halves and still claim the request for itself in the house self-reference form, which
+// `destinationsIn` deliberately does not resolve. Both are recorded as open in the quick-task
+// deferred items rather than papered over here.
+//
+// The `none of` alternatives are ANCHORED rather than a loose `\bnone\s+of\b`. The loose form also
+// measured clean today, but it would flag an ordinary future sentence such as "none of these smells
+// applies, so route to lz-refactor" as a catch-all condition.
 export const CATCHALL_CONDITION_RE =
-  /\botherwise\b|\belse\b|\bin\s+(?:every|all|any)\s+other\s+cases?\b|\bfailing\s+(?:all|any)\s+of\s+(?:those|these|the\s+above)\b/i;
+  /\botherwise\b|\belse\b|\bin\s+(?:every|all|any)\s+other\s+cases?\b|\bfailing\s+(?:all|any)\s+of\s+(?:those|these|the\s+above)\b|\bnone\s+of\s+the\s+above\b|\bnone\s+of\s+\(?[a-z]\)?\s+through\b/i;
 
 // ---------------------------------------------------------------------------------------------
 // Matchers.
@@ -403,6 +425,25 @@ export const keysOnTestState = (conditionText, tokens = TEST_STATE_TOKENS) => {
 // The folded YAML `description:` block, joined with single spaces and trimmed, or null when the
 // key is absent. Used to measure each shipped description against the 1,536-char per-entry listing
 // cap so D-06's rewording budget is ASSERTED, not assumed.
+//
+// IT MUST CONSUME THE WHOLE BLOCK SCALAR, and an earlier version did not. It stopped at the first
+// line failing `/^\s+\S/`, i.e. at the first BLANK line -- but a blank line inside a YAML folded
+// scalar is VALID and its content is part of the value. An unprimed review weaponised that twice:
+//
+//   * insert one blank line right after `description: >-` and the fold returns "" -- the gate then
+//     printed `0 chars, 1536 of headroom` and `banned=[]` for a description that was fully intact
+//     and carried a literal banned token. A vacuous pass on both description checks at once.
+//   * insert a blank line mid-block and the fold returns a PREFIX -- measured 1128 chars against a
+//     true value of 1870, i.e. 334 chars OVER the cap, reported as "408 of headroom".
+//
+// So the block now ends only where YAML says it ends: a line that is neither blank nor indented
+// (the next mapping key, or the closing `---`). Blank lines are KEPT as part of the value, which is
+// what YAML does, and they fold to a space here because every line is trimmed and space-joined.
+//
+// The empty result is returned as "" rather than null on purpose -- null means "no description key
+// at all", and conflating the two is what let the vacuous case slip past the caller's null guard.
+// Callers must additionally refuse an implausibly short fold; the gate does that with an explicit
+// floor rather than trusting this function to distinguish absent from empty.
 export const foldedDescription = (text) => {
   const lines = String(text == null ? "" : text).split("\n");
   const start = lines.findIndex((l) => /^description:\s*>-?\s*$/.test(l));
@@ -414,11 +455,23 @@ export const foldedDescription = (text) => {
   const body = [];
 
   for (let i = start + 1; i < lines.length; i++) {
-    if (!/^\s+\S/.test(lines[i])) {
+    const line = lines[i];
+
+    // A blank line is INSIDE the scalar, so CONTINUE rather than break -- that is the whole repair.
+    // It contributes no text of its own: YAML folds it to a paragraph break, and this function's
+    // convention is single-space flattening. Emitting an empty entry here instead would join to a
+    // DOUBLE space and inflate every measured length by one char per blank line -- caught by the
+    // selftest's mid-block leg, which is why that leg exists.
+    if (line.trim() === "") {
+      continue;
+    }
+
+    // Any non-blank, non-indented line ends the block: the next key, or the `---` terminator.
+    if (!/^\s/.test(line)) {
       break;
     }
 
-    body.push(lines[i].trim());
+    body.push(line.trim());
   }
 
   return body.join(" ").trim();
@@ -490,28 +543,121 @@ const letteredChunks = (body) => {
   return out;
 };
 
+// ---------------------------------------------------------------------------------------------
+// Corpus-binding predicates, and the ONE pair-level quantifier built from them.
+//
+// These lived in check-rgr-routing.mjs and were RESTATED by hand in the selftest. That restatement is
+// how the selftest came to prove a discrimination the gate did not have: its `coveredBy` ran over ONE
+// surface while the gate pooled three. The three leaf predicates had NOT drifted -- they were
+// byte-identical -- so exporting only the leaves would have left the thing that actually drifted, the
+// QUANTIFICATION, hand-written in both places. `routesCase` is therefore exported as well, and it is
+// the single definition both the gate and the selftest call.
+// ---------------------------------------------------------------------------------------------
+
+// A branch COVERS a case when its flattened condition contains every one of the case's ask-words.
+// Structural containment, deliberately.
+export const covers = (branch, kase) => {
+  const cond = branch.conditionText.toLowerCase();
+
+  return kase.matchTokens
+    .filter((t) => typeof t === "string" && t.trim() !== "")
+    .every((t) => cond.includes(t.toLowerCase()));
+};
+
+// A branch OWNS a case when it covers it and routes it to the expected owner FIRST. When the case
+// declares a second hop the destination list must be exactly that ordered pair -- D-02's two-hop
+// rule is an ORDER claim, so an unordered or single-name match must not satisfy it.
+export const owns = (branch, kase) => {
+  if (!covers(branch, kase)) {
+    return false;
+  }
+
+  if (kase.expectedSecondHop) {
+    return (
+      branch.destinations.length === 2 &&
+      branch.destinations[0] === kase.expectedOwner &&
+      branch.destinations[1] === kase.expectedSecondHop
+    );
+  }
+
+  return branch.destinations[0] === kase.expectedOwner;
+};
+
+// The declared residual terminal claims NOTHING: it must carry the explicit no-owner marker AND
+// affirm zero destinations. Recognition is never by the ABSENCE of a skill name, so a branch that
+// merely forgot to name an owner cannot pass itself off as the residual (D-01).
+export const isDeclaredResidual = (branch) => branch.isResidual && branch.destinations.length === 0;
+
+// Does ONE surface's own branch list route ONE case correctly? Returns { ok, why, via }.
+//
+// Quantified over a SINGLE surface's branches on purpose. The pooled version of this decision is what
+// an unprimed review evaded: with three near-identical procedures, deleting lz-red's own branch (a)
+// left the gate GREEN because its two siblings still carried an identical 1a. A skill that cannot
+// route a case is broken whatever its siblings say.
+//
+// For a NONE case BOTH halves are required -- a declared residual must exist AND no non-residual
+// branch may positively cover the case. Asserting only the first half is what let a branch capturing
+// the residual case read as a pass.
+export const routesCase = (branches, kase) => {
+  const list = Array.isArray(branches) ? branches : [];
+
+  if (kase.expectedOwner === "NONE") {
+    const residuals = list.filter(isDeclaredResidual);
+    const captors = list.filter((b) => !isDeclaredResidual(b) && covers(b, kase));
+
+    if (residuals.length === 0) {
+      return { ok: false, why: "no declared residual terminal on this surface", via: [] };
+    }
+
+    if (captors.length > 0) {
+      return {
+        ok: false,
+        why: `CAPTURED by non-residual branch(es) ${captors.map((b) => b.branchId).join(", ")} -- a no-owner case must reach the residual`,
+        via: residuals.map((b) => b.branchId),
+      };
+    }
+
+    return { ok: true, why: "declared residual claims no owner, and nothing captures it", via: residuals.map((b) => b.branchId) };
+  }
+
+  const hits = list.filter((b) => owns(b, kase));
+  const want = kase.expectedSecondHop ? `${kase.expectedOwner} then ${kase.expectedSecondHop} (ordered)` : kase.expectedOwner;
+
+  if (hits.length === 0) {
+    return { ok: false, why: `no branch on this surface routes it to ${want}`, via: [] };
+  }
+
+  return { ok: true, why: want, via: hits.map((b) => b.branchId) };
+};
+
+// ---------------------------------------------------------------------------------------------
 // The LEAD-IN prose of numbered item 1 -- everything before the first `a.` sub-item -- flattened.
 // Returns null when item 1 is absent, and "" when item 1 has no lettered sub-items (the degenerate
 // shape letteredChunks already returns whole, so there is no separate lead-in to judge).
 //
-// WHY THIS EXISTS, and why it is NOT folded into letteredChunks. The loop above starts at i = 1 and
-// therefore DISCARDS parts[0], which is exactly this lead-in. An unprimed review found the literal
-// banned token `all prior tests green` living there in lz-tpp step 1, one sentence after the same
-// step forbids that axis -- invisible to all eleven parsed surfaces. The TEST_STATE_TOKENS seed
-// comment above had even named that site as a source, so the token was listed for a location the
-// parser could never reach.
+// WHY THIS EXISTS, and why it is NOT folded into letteredChunks. `letteredChunks` starts its loop at
+// i = 1 and therefore DISCARDS parts[0], which is exactly this lead-in. An unprimed review found the
+// literal banned token `all prior tests green` living there in lz-tpp step 1, one sentence after the
+// same step forbids that axis -- invisible to all eleven parsed surfaces. The TEST_STATE_TOKENS seed
+// comment had even named that site as a source, so the token was listed for a location the parser
+// could never reach.
 //
 // This is the SAME SHAPE as the intro-prose hole Phase 22 closed (prose above the first `## `
-// heading, outside every surface). Closing that one did not close this one: there, the blind region
-// was above the first heading; here, it is before the first lettered branch.
+// heading, outside every surface). Closing that one did not close this one: there the blind region is
+// above the first heading, here it is before the first lettered branch. A later review then found it
+// AGAIN one level out -- prose BETWEEN the `## ` heading and item `1.`, which numberedItem also
+// discards -- which is why the gate additionally runs a coarse whole-section scan. Three instances of
+// one shape, each found by a human reading the file rather than by the gate.
 //
 // Deliberately a separate surface rather than an extra BRANCH: the exhaustiveness, at-most-one and
 // bare-catch-all assertions all judge routing branches, and a lead-in is not a branch -- feeding it
 // in would make a non-branch answerable for owning corpus cases. introBody set the precedent of a
 // dedicated surface with a dedicated single-axis check; this follows it.
-// Takes the FULL file text plus the surface heading, mirroring introBody's shape, so the caller
-// needs no access to sectionBody. `null` is UNREACHABLE (heading absent or item 1 absent) and is a
-// FAILURE for the caller to report, never a skip -- same contract as parseRoutingBranches.
+//
+// Takes the FULL file text plus the surface heading, mirroring introBody's shape, so the caller needs
+// no access to sectionBody. `null` is UNREACHABLE (heading absent or item 1 absent) and is a FAILURE
+// for the caller to report, never a skip -- same contract as parseRoutingBranches.
+// ---------------------------------------------------------------------------------------------
 export const step1LeadIn = (text, heading) => {
   const body = sectionBody(String(text == null ? "" : text), heading);
 
@@ -605,13 +751,24 @@ export const parseRoutingBranches = (text, surface) => {
       isResidual,
       // A bare catch-all terminal (D-01): an otherwise-conditioned branch that is NOT the declared
       // residual. The owner-naming half of the obvious three-part predicate is deliberately NOT
-      // required, and that is a correction rather than a loosening: today's four shipped catch-alls
-      // say "otherwise ... is this skill's work" in the house SELF-REFERENCE form, which a
-      // literal-slug parser cannot see as the owner (and must not learn to -- see destinationsIn).
-      // Requiring the owner slug would therefore make this check un-failable against exactly the
-      // branches it exists to catch: the guard-that-cannot-fail class. In the TARGET shape the
-      // residual terminal DOES match RESIDUAL_MARKER_RE and every positive branch carries a
-      // positive condition, so this stays GREEN on the shape waves 22-03/22-04 author.
+      // required, because a self-claim written in the house SELF-REFERENCE form ("...is this skill's
+      // work") is invisible to a literal-slug parser, which destinationsIn must not learn to resolve.
+      // Requiring the owner slug would make this check un-failable against exactly the branches it
+      // exists to catch: the guard-that-cannot-fail class.
+      //
+      // HISTORY CORRECTED. An earlier version of this comment justified that by asserting "today's
+      // FOUR shipped catch-alls say 'otherwise ... is this skill's work'". That is false and was
+      // measured false: `is this skill's work` appears nowhere under plugins/, `otherwise` appears
+      // once in the three SKILL.md files and not as a terminal, and every shipped terminal words
+      // itself "None of (a) through (d)" -- which is what CATCHALL_CONDITION_RE was later widened to
+      // cover. The old wording also directly contradicted the widening note at that regex, 460 lines
+      // above. The PREDICATE is still right for the reason in the paragraph above; only its stated
+      // evidence was stale.
+      //
+      // KNOWN HOLE, recorded rather than hidden: because `isDeclaredResidual` demands only zero
+      // literal-slug destinations, a terminal can carry BOTH halves of the residual marker AND claim
+      // the request for itself in that same self-reference form, and `!isResidual` then suppresses
+      // this flag. A review demonstrated it. Open in the quick-task deferred items.
       isBareCatchAll: CATCHALL_CONDITION_RE.test(conditionText) && !isResidual,
     });
   }

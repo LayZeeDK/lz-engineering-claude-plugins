@@ -20,11 +20,13 @@ description: >-
 
 # lz-refactor: Refactoring coach (Fowler + Kerievsky)
 
-This skill drives the refactor step of red-green-refactor TDD: with the tests green, it recommends
-the next NAMED refactoring for a detected code smell (Fowler mechanical refactorings and Kerievsky
+This skill drives the refactor step of red-green-refactor TDD: when the ask is to improve the
+structure or readability of existing code without changing what it does, it recommends the next
+NAMED refactoring for a detected code smell (Fowler mechanical refactorings and Kerievsky
 pattern-directed refactorings), and explains refactorings, smells, and refactoring principles on
-demand. It runs in two modes and routes by intent, and it never changes behavior. Behavior
-changes belong to the green step and its sibling skill lz-tpp.
+demand. It runs in two modes and routes by intent, and it never changes behavior. An ask to add a
+new behavior, or to change what working code does, opens the red step first in lz-red, because
+Law 1 gates production code behind a failing test, and reaches lz-tpp once that test is red.
 
 ## Two modes
 

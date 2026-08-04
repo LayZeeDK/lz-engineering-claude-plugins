@@ -309,11 +309,55 @@ if (tokenlessCases.length > 0) {
   floorReasons.push(`case(s) with no usable matchTokens: ${tokenlessCases.join(", ")}`);
 }
 
+// THE CORPUS'S OWN SHAPE IS PART OF THE FLOOR, because the corpus is an INPUT to every assertion
+// below and editing it silently retires them. Measured: flipping c4's `expectedSecondHop` from
+// "lz-tpp" to null -- ONE word, in a data file -- deletes the only ordered-pair case, so `owns`
+// never takes its two-hop arm again and D-02's ORDER claim stops being tested anywhere, while the
+// gate reports GREEN over a corpus that now looks entirely well-formed. Every other check here
+// judges authored PROSE against the corpus; nothing judged the corpus.
+//
+// The three shape claims are exactly the ones the assertions depend on and cannot restate for
+// themselves: one residual case (the D-01 terminal), one ordered pair (the D-02 two-hop), and owners
+// drawn only from the real vocabulary. Counts are pinned at ONE rather than at-least-one because
+// c8's rationale makes the single ordered pair load-bearing -- a second two-hop would leave which
+// case pins D-02 ambiguous.
+const OWNER_VOCABULARY = Object.freeze([...SKILLS, "NONE"]);
+const noneCases = CASES.filter((c) => c.expectedOwner === "NONE").map((c) => c.id);
+const twoHopCases = CASES.filter((c) => c.expectedSecondHop).map((c) => c.id);
+const badOwners = CASES.filter((c) => !OWNER_VOCABULARY.includes(c.expectedOwner)).map(
+  (c) => `${c.id}:${c.expectedOwner}`
+);
+const badSecondHops = CASES.filter((c) => c.expectedSecondHop && !SKILLS.includes(c.expectedSecondHop)).map(
+  (c) => `${c.id}:${c.expectedSecondHop}`
+);
+
+if (noneCases.length !== 1) {
+  floorReasons.push(
+    `expected exactly 1 no-owner case (D-01's declared residual), found ${noneCases.length}${noneCases.length ? ` [${noneCases.join(", ")}]` : ""}`
+  );
+}
+
+if (twoHopCases.length !== 1) {
+  floorReasons.push(
+    `expected exactly 1 ordered two-hop case (D-02), found ${twoHopCases.length}${twoHopCases.length ? ` [${twoHopCases.join(", ")}]` : ""} -- the ordered-pair arm of owns() is untested without it`
+  );
+}
+
+if (badOwners.length > 0) {
+  floorReasons.push(
+    `expectedOwner outside [${OWNER_VOCABULARY.join(" | ")}]: ${badOwners.join(", ")}`
+  );
+}
+
+if (badSecondHops.length > 0) {
+  floorReasons.push(`expectedSecondHop outside [${SKILLS.join(" | ")}]: ${badSecondHops.join(", ")}`);
+}
+
 report(
   floorReasons.length === 0,
-  "[cls] corpus floor -- cases loaded with non-empty matchTokens over a non-empty surface list",
+  "[cls] corpus floor -- cases loaded with non-empty matchTokens, declared shape intact, over a non-empty surface list",
   floorReasons.length === 0
-    ? `${CASES.length} cases, ${ROUTING_SURFACES.length} surfaces, ${STEP1_SURFACES.length} step-1 procedures`
+    ? `${CASES.length} cases, ${ROUTING_SURFACES.length} surfaces, ${STEP1_SURFACES.length} step-1 procedures, 1 no-owner case (${noneCases[0]}), 1 ordered two-hop (${twoHopCases[0]})`
     : floorReasons.join("; ")
 );
 

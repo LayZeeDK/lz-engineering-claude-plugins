@@ -1,10 +1,11 @@
 # Test-Driven Development (Beck, TDD by Example)
 
 Scope: the core of the test-first loop that all three lz-tdd skills sit inside, distilled from Beck's
-Test-Driven Development by Example. This is a plugin-wide reference, shared so any of the three can
-name the seams it owns and the seams it hands off. The red step is lz-red's concern, the green step
-is lz-tpp's, and the refactor step begins where lz-refactor takes over. The two-hats framing for the
-same boundary from Fowler's side lives in lz-refactor's principles.md reference.
+Test-Driven Development by Example. This is a plugin-wide reference; its inbound citations today are
+lz-red's SKILL.md and lz-refactor's principles.md, and it names the seams each of the three steps
+owns and the seams it hands off. The red step is lz-red's concern, the green step is lz-tpp's, and
+the refactor step begins where lz-refactor takes over. The two-hats framing for the same boundary
+from Fowler's side lives in lz-refactor's principles.md reference.
 
 > No-oracle reference: high-confidence CORE only (no owned book to verify against). Original prose, no
 > verbatim Beck prose or code (DST-04). NAMES of techniques are kept verbatim as facts; every
@@ -46,14 +47,14 @@ Beck compresses the practice into two rules, paraphrased here:
 - Once the bar is green, drive out duplication (including duplication between the test and the code
   it exercises) before writing the next test.
 
-The second rule is where this skill lives: removing that duplication is a refactoring, done under a
-green bar.
+The second rule is where lz-refactor lives: removing that duplication is a refactoring, and the
+refactor step is lz-refactor's.
 
 ## Green-bar strategies
 
-Beck names three ways to get from red to green. They belong to the green step (lz-tpp / TPP chooses
-among them); the coach mentions them only to locate the seam. The NAMES are kept as facts; the
-descriptions are original:
+Beck names three ways to get from red to green. They belong to the green step, and lz-tpp is the
+skill that ranks among them; lz-red and lz-refactor meet them here only to locate the seam. The
+NAMES are kept as facts; the descriptions are original:
 
 - Fake It: return a hard-coded constant that satisfies the failing test immediately, then generalize
   the constant into real logic as later tests demand it. It gets you to green in seconds so refactoring

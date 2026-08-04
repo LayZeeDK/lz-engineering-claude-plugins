@@ -3,14 +3,14 @@ name: lz-refactor
 description: >-
   This skill should be used for the refactor step of red-green-refactor TDD: improving the
   STRUCTURE or READABILITY of existing, working code WITHOUT changing its behavior. Use it whenever
-  a developer wants to clean up, tidy, simplify, restructure, or de-duplicate code whose tests
-  already pass, or make such code more readable; says a function, class, or module is hard to read,
-  hard to follow, messy, doing too much, or a pain to work with; or mentions a code smell, a
-  refactoring, or a design pattern in existing code (applying one to it, or refactoring away from
-  one / de-patterning) -- even when they only ask "what would you do with this?", "anything you'd
-  refactor?", or "how would you make it easier to read?" and never name a smell or say the word
-  refactor. It recommends the next named Fowler or Kerievsky refactoring and, when the developer
-  asks you to apply it, performs it in small behavior-preserving steps; it also explains a
+  a developer wants to clean up, tidy, simplify, restructure, or de-duplicate existing working code
+  without changing what it does, or make such code more readable; says a function, class, or module
+  is hard to read, hard to follow, messy, doing too much, or a pain to work with; or mentions a code
+  smell, a refactoring, or a design pattern in existing code (applying one to it, or refactoring
+  away from one / de-patterning) -- even when they only ask "what would you do with this?",
+  "anything you'd refactor?", or "how would you make it easier to read?" and never name a smell or
+  say the word refactor. It recommends the next named Fowler or Kerievsky refactoring and, when the
+  developer asks you to apply it, performs it in small behavior-preserving steps; it also explains a
   refactoring, code smell, refactoring principle, or design pattern on request. Do NOT use it to
   make a failing or red test pass -- that is the green/transformation step; use lz-tpp instead.
   Do NOT use it to ADD or CHANGE behavior when no test is failing yet -- the red step comes first,
@@ -20,11 +20,13 @@ description: >-
 
 # lz-refactor: Refactoring coach (Fowler + Kerievsky)
 
-This skill drives the refactor step of red-green-refactor TDD: with the tests green, it recommends
-the next NAMED refactoring for a detected code smell (Fowler mechanical refactorings and Kerievsky
+This skill drives the refactor step of red-green-refactor TDD: when the ask is to improve the
+structure or readability of existing code without changing what it does, it recommends the next
+NAMED refactoring for a detected code smell (Fowler mechanical refactorings and Kerievsky
 pattern-directed refactorings), and explains refactorings, smells, and refactoring principles on
-demand. It runs in two modes and routes by intent, and it never changes behavior. Behavior
-changes belong to the green step and its sibling skill lz-tpp.
+demand. It runs in two modes and routes by intent, and it never changes behavior. An ask to add a
+new behavior, or to change what working code does, opens the red step first in lz-red, because
+Law 1 gates production code behind a failing test, and reaches lz-tpp once that test is red.
 
 ## Two modes
 
@@ -57,6 +59,10 @@ request and no skill in this loop owns it; say so plainly and answer directly.
 1. Classify the request by what the developer is asking for, never by the state of the suite. See
    "Refactoring vs the red step (lz-red) and the green step (lz-tpp)" above; do not restate it.
    Take the FIRST branch that matches:
+   A developer's own report of where they are in the loop is context for the ask, not a condition
+   to route on, so classify from what they are asking for next. A request carrying more than one
+   ask is owned whole by its primary ask, and the secondary ask is named as a next step in the
+   answer rather than routed as a second hop.
    a. Asking which test to write next -- what test comes next, what a test should assert, how to
       name it, or whether this is a good test: that is the red step, and the red step is lz-red.
    b. Asking to make a failing test pass -- which minimal change turns this red test green: that

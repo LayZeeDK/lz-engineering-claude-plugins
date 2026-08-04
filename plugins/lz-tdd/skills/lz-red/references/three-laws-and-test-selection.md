@@ -121,9 +121,13 @@ triangulation all operate inside the discipline these laws impose.
   handoff is the lz-red orchestration reframe, not a restatement of the law's source.
 
 Classify first: before writing or selecting any test, sort the request by what the developer is
-asking for, never by the state of the suite, and take the first branch that fits. An ask about which
-test comes next -- what a test should assert, how to name it, whether this is a good test -- is the
-red step, and the red step is lz-red: apply the selection moves above under the Three Laws. An ask to
+asking for, never by the state of the suite, and take the first branch that fits. A developer's own
+report of where they are in the loop is context for the ask, not a condition to route on, so
+classify from what they are asking for next. A request carrying more than one ask is owned whole by
+its primary ask, and the secondary ask is named as a next step in the answer rather than routed as
+a second hop. An ask about which test comes next -- what a test should assert, how to name it,
+whether this is a good test -- is the red step, and the red step is lz-red: apply the selection
+moves above under the Three Laws. An ask to
 make a failing test pass is the green step, and the green step is lz-tpp: hand it off and stop. An
 ask to add a new behavior, or to change what working code does, before any test covers it starts in
 lz-red, because Law 1 gates production code behind a failing test, and moves on to lz-tpp once that

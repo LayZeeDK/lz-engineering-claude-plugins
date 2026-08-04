@@ -221,3 +221,43 @@ are ALREADY exported, so the reuse path exists -- plus either a `--grade-file`-e
 directory-shape argument on `merge-judge --verify`, or an explicit hand-verification step recorded in
 the writeup. Either way the fix needs its own selfcheck: a rollup that silently tabulates zero runs is
 the same vacuity class this repo's instruments exist to refuse.
+
+## From plan 22-08
+
+### Q-3: the router is restated in five places with no single normative source -- OPEN, NOT A DEFECT TODAY
+
+**Status:** OPEN, and deliberately not closed by plan 22-08. Recorded so it survives this phase as a
+named design question rather than as an unwritten worry.
+
+**The question** (22-ACCEPTANCE-REVIEW `### Q-3`, raised by two independent reviewers). The
+red-vs-green-vs-refactor router is restated in FIVE places: the step-1 branch list in each of the
+three `SKILL.md` files, the `Classify first:` paragraph in
+`lz-red/references/three-laws-and-test-selection.md`, and the `## The seam across the three steps`
+section in `references/beck-tdd-by-example.md`. Each restates the whole table; none defers to
+another as normative. The untested-target carve-out in branch (d) has ALREADY begun to drift on
+exactly that seam -- it is present in all three `SKILL.md` copies and absent from both reference
+copies.
+
+**Why it is not a defect today.** The outcome for corpus case c7 is unaffected: every copy routes it
+to the same owner, so `check-rgr-routing.mjs` is GREEN on the substance and not merely blind to it.
+The drift is a maintenance hazard, not a mis-route.
+
+**Why it is not closed here.** The designed answer already exists and is unrun. Variant C of the
+D-08 placement A/B replaces the three per-skill narrative sections with one shared routing table and
+rewrites step 1's pointer to link out to it -- that IS the single normative source Q-3 asks for.
+Choosing it by hand now would pre-empt the measurement the A/B exists to make. The A/B remains
+HALT-gated on fresh explicit owner approval at run time per D-14, and no placement variant is
+selected by this plan (D-24).
+
+**This plan added a sixth instance of the same duplication, knowingly.** Task 4's two design-ruling
+sentences are written into all four classify lead-ins in identical wording. That is another copy of
+shared routing prose, accepted deliberately: the alternative -- putting the rulings in one normative
+place the other surfaces defer to -- is precisely the design choice the unrun A/B is meant to
+decide, and reference-file retrieval has a MEASURED zero-of-six rate on this repo, so a
+single-source-of-truth placement would move a load-bearing rule to a tier that may never be read
+(D-10). Identical wording in all four copies is the cheapest available guard against the drift Q-3
+names, and it is why Task 4 mandated one wording rather than four paraphrases.
+
+**To resolve:** run the D-08 placement A/B once the owner approves the metered round, then adopt or
+reject variant C on the measurement. If the A/B is abandoned, Q-3 returns as an open design decision
+to be made on judgment instead.

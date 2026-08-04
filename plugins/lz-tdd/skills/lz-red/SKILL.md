@@ -13,8 +13,8 @@ description: >-
   and no test is failing yet: production code waits for a failing test, so the red step starts here
   and lz-tpp takes over once that test is red. Do NOT use it to make an existing failing test pass or to
   pick the minimal code change that turns the bar green -- that is the green/transformation step;
-  use lz-tpp instead. Do NOT use it to restructure, clean up, or de-duplicate code whose tests
-  already pass -- that is the refactor step; use lz-refactor instead.
+  use lz-tpp instead. Do NOT use it to restructure, clean up, or de-duplicate working code -- that
+  is the refactor step; use lz-refactor instead.
 ---
 
 # lz-red: RED-phase TDD coach

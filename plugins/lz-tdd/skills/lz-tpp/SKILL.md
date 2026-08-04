@@ -9,9 +9,10 @@ description: >-
   list, the next transformation, or asks what a transformation such as (constant -> scalar) or
   ({} -> nil) means or why the ordering is what it is. Do not use it to choose or write the next
   failing test, or to judge whether a test is a good test -- that is the red step; use lz-red
-  instead. Do not use it for generic
-  write-a-function, write-code, add-a-feature, or plain refactoring requests that are not about
-  choosing the next transformation during TDD.
+  instead. Do not use it to clean up, tidy, restructure, or de-duplicate working code without
+  changing what it does -- that is the refactor step; use lz-refactor instead. Do not use it for
+  generic write-a-function, write-code, add-a-feature, or plain refactoring requests that are not
+  about choosing the next transformation during TDD.
 ---
 
 # lz-tpp: Transformation Priority Premise coach

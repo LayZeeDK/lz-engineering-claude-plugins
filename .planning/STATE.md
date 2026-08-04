@@ -6,9 +6,9 @@ current_phase: 22
 current_phase_name: three-way-classifier-correctness-lz-refactor-lz-red
 status: verified
 stopped_at: "Phase 22 VERIFIED passed 8/8 after gap closure; secured (0 threats open), validated (blind spot instrumented + mutation-proven), learnings extracted and bridged to the global store. 8 of 8 plans merged, full battery GREEN, zero metered spend. D-19 DISCHARGED 2026-08-04: the owner ran /reload-plugins, so the three edited descriptions are LIVE. HALTED awaiting the only remaining decision: separate approval for TWO metered rounds (Round A the placement A/B, Round B the now-owed EVL-01 reciprocal trigger regression). Neither is approved; nothing metered has run."
-last_updated: "2026-08-04T12:30:00.000Z"
+last_updated: "2026-08-04T20:30:00.000Z"
 last_activity: 2026-08-04
-last_activity_desc: "Phase 22 waves 3-6: reference-tier classifiers repaired (22-04, routing gate 2 FAIL -> 0), A/B instrument built and self-proven (22-06), phase gate + double HALT authored (22-07), then gap closure (22-08) after the acceptance review BLOCKED the close. gsd-verifier now passed 8/8."
+last_activity_desc: "quick-260804-kvh resumed: the evasion suite gained a third reporting state plus a count ratchet (febb9a1), then F3/OPEN-11 closed and F6/OPEN-14's recorded mechanism was RETRACTED as measurably false (dcb56c5). Battery 19 CAUGHT / 8 OPEN (baseline 8) / 3 unclosable CEILING, zero metered spend, no shipped file touched."
 progress:
   total_phases: 9
   completed_phases: 8
@@ -28,6 +28,26 @@ See: .planning/PROJECT.md (updated 2026-07-18 -- started milestone lz-tdd@0.0.3)
 **Milestone:** lz-tdd@0.0.3 (lz-red Skill, RED phase) -- planning (started 2026-07-18)
 
 ## Current Position
+
+**LATEST (2026-08-04, quick-260804-kvh, commits febb9a1 + dcb56c5).** Two instrument items closed
+against the owner's pick, both proven by the arbiter rather than asserted. (1) The evasion suite
+printed all twelve non-caught entries as "evading by design", which was true of THREE; it now
+separates unclosable CEILING from OPEN work and RATCHETS the open count, so drift in either
+direction exits 1 and the battery can no longer read green over unaccounted work. Deliberately not
+hard-red on open work -- F2 sits behind an unapproved metered round. (2) F3/OPEN-11 closed: the
+parser stopped dropping self-claiming router sentences and a paired `[cls-01] no self-claiming
+branch` assertion judges what survives; an out-of-tree ABLATION proved the assertion load-bearing
+rather than decorative. **THE FINDING THAT MATTERS IS A RETRACTION.** The previous handoff stated
+F3 and F6 shared one root cause and prescribed one change for both. Measuring the two mutations
+BEFORE touching the filter showed F6's recorded mechanism ("affirms no destination and is filtered
+out") is FALSE -- the sentence affirms both sibling slugs and IS kept; the sweep stays silent only
+because the one case it covers leads with that case's own owner while the NEXT clause revokes the
+handoff. Executing the stated plan verbatim would have closed F3, declared F6 closed beside it on
+the author's reading, and recorded a live blind spot as shut. F6 is refiled into F2's family
+(removes correct routing rather than adding wrong routing), and the coverage-floor candidate was
+measured against it and does NOT catch it. The standing lesson now extends one level out: a handoff
+written by a previous session is the author's reading too, so measure the PREMISE, not just the fix.
+
 
 Phase: 22 (three-way-classifier-correctness-lz-refactor-lz-red) -- 8 of 8 plans executed and merged;
 `gsd-verifier` passed 8/8. HALTED at the blocking-human gate; PR #3 stays held (D-24).

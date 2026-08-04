@@ -480,6 +480,90 @@ for (const surface of FREE_ROUTERS) {
 console.log("");
 
 // ---------------------------------------------------------------------------------------------
+// [cls-03] mode gates -- ADMISSION, not merely single-axis.
+//
+// Mode gates were reached by exactly one assertion, keysOnTestState, so nothing checked WHAT a gate
+// admits. Measured before this section existed: tpp-modes admitted 0 of the 9 corpus asks including
+// c6, the one case it owns; red-modes admitted 0 while owning c2/c3/c4/c8; refactor-modes admitted
+// only c7 of its c1/c5/c7. A gate narrower than its own skill's ownership is a live defect, because
+// the gate runs BEFORE step 1 -- lz-tpp step 2 says "Once branch (b) has settled this as the green
+// step", so step 1 is what settles ownership and it only runs on a request the gate admitted. A gate
+// that declines first makes its own step 1's route-away branches unreachable.
+//
+// SETTLED SEMANTICS (owner decision): the gate decides coach versus reference ONLY; ownership is
+// step 1's job. So each gate is held to two things -- it admits every case its own skill owns, and it
+// DELEGATES the rest to step 1 rather than declining them itself. It is deliberately NOT required to
+// enumerate all nine asks: three gates each restating the full corpus would duplicate step 1 and
+// bloat three shipped sections, and the delegation sentence is what carries the other cases.
+//
+// The coach clause is read ALONE, never the whole section. Pooling would let a token sitting in the
+// reference-mode bullet satisfy a coach-mode admission claim -- the vacuity shape this file keeps
+// finding.
+// ---------------------------------------------------------------------------------------------
+console.log("[cls-03] mode gates -- each admits what its own skill owns and delegates the rest");
+
+// ALLOWLIST, and it fails CLOSED like the intro two-hop claim family: rewording the delegation turns
+// the gate RED until the new wording is listed.
+const DELEGATION_PHRASES = Object.freeze([
+  "step 1 classifies the ask",
+  "step 1 classifies the request",
+  "step 1 decides which skill owns",
+]);
+
+const MODE_GATES = ROUTING_SURFACES.filter((s) => s.kind === "mode-gate");
+
+for (const surface of MODE_GATES) {
+  const body = sectionBody(readOrEmpty(path.join(repoRoot, surface.file)), surface.heading);
+
+  if (body === null) {
+    report(false, `[cls-03] mode gate admission -- ${surface.id}`, `heading "## ${surface.heading}" absent`);
+    continue;
+  }
+
+  // The coach bullet only: from `- Coach mode:` up to the `- Reference mode:` bullet.
+  const coachRaw = body.split(/^-\s+Reference mode:/m)[0] ?? "";
+  const coach = flatten(coachRaw.replace(/^-\s+Coach mode:/m, ""));
+  const ownedCases = CASES.filter((k) => k.expectedOwner === surface.owner);
+  const fakeBranch = { conditionText: coach, destinations: [], isResidual: false };
+  const notAdmitted = ownedCases.filter((k) => !covers(fakeBranch, k)).map((k) => k.id);
+  const delegates = DELEGATION_PHRASES.filter((p) => coach.toLowerCase().includes(p));
+  const reasons = [];
+
+  // Anti-vacuity: an empty or near-empty coach clause would admit nothing and fail below, but a
+  // MISSING bullet would make `coach` empty and the owned-case list is never empty, so the failure is
+  // attributable either way. The explicit floor keeps the reason readable.
+  if (coach === "") {
+    reasons.push("no `- Coach mode:` bullet found in this section");
+  }
+
+  if (ownedCases.length === 0) {
+    reasons.push(`no corpus case is owned by ${surface.owner}, so this assertion would be vacuous`);
+  }
+
+  if (notAdmitted.length > 0) {
+    reasons.push(
+      `coach clause does not admit [${notAdmitted.join(", ")}], which ${surface.owner} OWNS -- the gate runs before step 1, so an ask it excludes never reaches the routing branches`
+    );
+  }
+
+  if (delegates.length === 0) {
+    reasons.push(
+      `coach clause does not DELEGATE classification to step 1; expected one of [${DELEGATION_PHRASES.join(" | ")}]`
+    );
+  }
+
+  report(
+    reasons.length === 0,
+    `[cls-03] mode gate admission -- ${surface.id} admits ${surface.owner}'s own cases and delegates`,
+    reasons.length === 0
+      ? `admits [${ownedCases.map((k) => k.id).join(", ")}] and delegates via "${delegates.join('", "')}"`
+      : reasons.join("; ")
+  );
+}
+
+console.log("");
+
+// ---------------------------------------------------------------------------------------------
 // [cls-01] no bare catch-all terminal -- the shape D-01 removes.
 // ---------------------------------------------------------------------------------------------
 console.log("[cls-01] no bare catch-all terminal -- no router keeps an otherwise-is-this-skill branch");

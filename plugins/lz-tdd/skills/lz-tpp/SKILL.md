@@ -24,8 +24,12 @@ the current failing test pass. It runs in two modes and routes by intent.
 
 ## Two modes
 
-- Coach mode: the ask is which minimal change makes a failing (red) test pass. Run the coach
-  decision procedure below and recommend a NAMED next transformation.
+- Coach mode: a codebase is in view and the request concerns the red-green-refactor loop -- most
+  often which minimal change makes a failing test pass, the green step this skill owns. Run the
+  coach decision procedure below and recommend a NAMED next transformation. This gate decides coach
+  versus reference only: step 1 classifies the ask and routes it, handing the request to a sibling
+  skill when the ask turns out to be the red step or the refactor step, rather than declining it
+  here.
 - Reference mode: the request is "explain TPP", "why this order", "what does (X) mean", or an
   explicit `/lz-tdd:lz-tpp` invocation with no test to coach. Explain the transformations and
   their ordering rationale FROM references/transformations.md; do not restate the list here.

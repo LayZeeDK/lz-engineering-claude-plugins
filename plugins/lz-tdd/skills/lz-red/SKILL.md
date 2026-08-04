@@ -28,9 +28,12 @@ and its sibling skill lz-refactor.
 
 ## Two modes
 
-- Coach mode: a codebase is in view and the question is which failing test to write next or how
-  to shape it. Pick and structure the next failing (red) test via the coach decision procedure
-  below.
+- Coach mode: a codebase is in view and the request concerns the red-green-refactor loop -- most
+  often what test comes next, which failing test to write next, whether this is a good test, or an
+  ask to add a new behavior, which are the red step this skill owns. Pick and structure the next
+  failing (red) test via the coach decision procedure below. This gate decides coach versus
+  reference only: step 1 classifies the ask and routes it, handing the request to a sibling skill
+  when the ask turns out to be the green step or the refactor step, rather than declining it here.
 - Reference mode: the request is "explain this RED concept" (test selection, triangulation, test
   structure, naming, the testing stance, an anti-pattern), or an explicit `/lz-tdd:lz-red`
   invocation with nothing to coach. Answer from the reference files listed below; do not restate

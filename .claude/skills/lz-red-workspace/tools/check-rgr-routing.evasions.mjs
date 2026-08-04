@@ -276,8 +276,10 @@ const EVASIONS = [
     what: "a NOVEL PARAPHRASE of test-state framing on a fully judged mode gate",
     claim: "[cls-03] single-axis -- LITERAL BLOCKLIST ceiling",
     file: REFACTOR,
-    find: "- Coach mode: the ask is to improve",
-    repl: "- Coach mode: nothing in the suite is red, and the ask is to improve",
+    // RE-ANCHORED after the OPEN-6 mode-gate rewrite moved this bullet's opening words. The claim is
+    // unchanged: plant an UNLISTED test-state paraphrase in a fully judged coach clause.
+    find: "- Coach mode: a codebase is in view and the request concerns",
+    repl: "- Coach mode: nothing in the suite is red, and the request concerns",
     expect: null,
     ceiling:
       "TEST_STATE_TOKENS is a literal blocklist. This paraphrase is not a listed phrase. Tracked as " +
@@ -308,10 +310,13 @@ const EVASIONS = [
     what: "a `## Two modes` gate that admits work belonging to a sibling skill",
     claim: "a mode gate classifies what its own skill claims",
     file: RED,
-    find: "- Coach mode: a codebase is in view and the question is which failing test to write next or how",
-    repl:
-      "- Coach mode: a codebase is in view and the question is which refactoring to apply to it, or\n" +
-      "  which minimal change makes a red test pass, or how",
+    // RE-ANCHORED after the OPEN-6 rewrite. The claim is unchanged and now MEASURABLE rather than
+    // merely recorded: narrow the coach clause back to a sibling's work so it no longer admits the
+    // cases lz-red owns, which the new mode-gate admission assertion reads.
+    // Anchored WITHIN one physical line: this file hard-wraps near 100 columns, and "most often"
+    // straddles the wrap, so the obvious phrase-spanning anchor silently would not match.
+    find: "often what test comes next, which failing test to write next, whether this is a good test, or an",
+    repl: "often which refactoring to apply to code in view, or which minimal change makes a red test pass, or an",
     expect: "red-modes",
   },
   {

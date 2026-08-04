@@ -22,7 +22,7 @@ description: >-
 This skill drives the red step of red-green-refactor TDD: it helps choose and write the next
 FAILING (red) unit test well, and explains RED-step concepts on demand. It runs in two modes and
 routes by intent. Making that failing test pass by changing behavior is the green step and its
-sibling skill lz-tpp; restructuring passing code without changing behavior is the refactor step
+sibling skill lz-tpp; restructuring working code without changing behavior is the refactor step
 and its sibling skill lz-refactor.
 
 ## Two modes
@@ -71,8 +71,8 @@ reference leaf that carries the detail; do not restate a leaf's content here.
    b. Asking to make a failing test pass -- which minimal change turns this red test green: that
       is the green step, and the green step is lz-tpp.
    c. Asking to add a new behavior, or to change what working code does, before any test covers
-      it: hand off to lz-red first, because Law 1 gates production code behind a failing test;
-      then lz-tpp ranks the transformation that turns that test green.
+      it: the red step starts here in lz-red, because Law 1 gates production code behind a
+      failing test; then lz-tpp ranks the transformation that turns that test green.
    d. Asking to improve structure or readability without changing behavior -- clean up this
       function, tidy this test file, de-duplicate this module -- or saying "I just finished making
       a test pass, what now?": that is the refactor step, and the refactor step is lz-refactor. A

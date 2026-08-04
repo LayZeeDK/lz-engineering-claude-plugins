@@ -413,6 +413,26 @@ export const foldedDescription = (text) => {
   return body.join(" ").trim();
 };
 
+// Prose between the H1 title and the first `## ` heading, or null when no H1 line is found. This is
+// the "intro paragraph" blind spot: every ROUTING_SURFACES entry anchors to a `## ` heading (Stage 1
+// above), so text here is outside all eleven parsed surfaces. This is exactly where the review that
+// opened this phase found lz-refactor's two-hop BLOCKER (the intro named only the second hop) and
+// lz-red's stale "restructuring passing code" vocabulary -- both invisible to the routing gate until
+// an unprimed human review caught them by reading the file, never by running the checker. Added by
+// gap-closure follow-up after 22-08-SUMMARY.md recorded, in its own words, that "every gap this plan
+// closes sits OUTSIDE the 11 surfaces check-rgr-routing.mjs parses, so the gate is structurally blind
+// to all of them."
+export const introBody = (text) => {
+  const raw = String(text == null ? "" : text);
+  const afterH1 = raw.split(/^#[ \t]+.+$/m);
+
+  if (afterH1.length < 2) {
+    return null;
+  }
+
+  return afterH1[1].split(/^##[ \t]+/m)[0];
+};
+
 // ---------------------------------------------------------------------------------------------
 // The parse.
 // ---------------------------------------------------------------------------------------------

@@ -24,6 +24,13 @@
 //                   branch in different words while keeping the same ask-words must not break it, and
 //                   naming a sibling skill outside any branch must not satisfy it. This is the D-12
 //                   grader-trap lesson applied to the CHECKER itself.
+//   6. INTRO PROSE -> mutation 9, added in a gap-closure follow-up after 22-08. Covers the blind spot
+//                   ABOVE the first `## ` heading (introBody), which is where the phase's own BLOCKER
+//                   and a banned description phrase both lived, invisible to categories 1-5. Same
+//                   should-fail / should-stay-green shape: a missing or reordered hop must FAIL, a
+//                   reworded-but-correct hop must STAY GREEN, and a test-state phrase wrapped across a
+//                   source line is proven caught only AFTER flattening (the Pitfall-2 wrap-tolerance
+//                   class this repo has recorded elsewhere).
 //
 // SCOPE, stated plainly. The exports under test are the PARSER's. The gate itself is a top-level
 // script by house convention -- it resolves paths, reports, and exits -- so it cannot be imported
@@ -39,9 +46,15 @@ import * as parser from "./lib/routing-parse.mjs";
 import {
   RESIDUAL_MARKER_RE,
   destinationsIn,
+  introBody,
   keysOnTestState,
   parseRoutingBranches,
 } from "./lib/routing-parse.mjs";
+
+// Restated identically to check-rgr-routing.mjs's own local helper (see SCOPE in the header): the
+// gate flattens intro text before calling keysOnTestState on it, so this file drives that same
+// flatten-then-check shape rather than the raw multi-line text.
+const flatten = (s) => String(s == null ? "" : s).replace(/\s+/g, " ").trim();
 
 // ---------------------------------------------------------------------------------------------
 // Fixture builders. Lines are assembled from an ARRAY of double-quoted strings rather than a template
@@ -453,6 +466,126 @@ check("mutation 8 a surface whose text vanished fails the scan floor", scanFloor
 console.log("");
 
 // ---------------------------------------------------------------------------------------------
+// Mutation 9 -- intro prose: the blind spot ABOVE the first `## ` heading. Added in the gap-closure
+// follow-up after 22-08, whose own SUMMARY recorded "the gate is structurally blind" to exactly this
+// region -- lz-refactor's two-hop BLOCKER and a folded-description test-state phrase both lived here,
+// invisible to every mutation above. Same five-category shape as the rest of this file: PRISTINE,
+// EVASION (should-fail), REWORDED-BUT-CORRECT (should-STAY-GREEN), and a wrap-tolerance control.
+// ---------------------------------------------------------------------------------------------
+console.log("mutation 9 -- intro prose: the blind spot above the first heading");
+
+// The gate's two-hop-order predicate, restated identically (see SCOPE in the header).
+const hopsOrderedOk = (hops) =>
+  hops.includes("lz-red") && hops.includes("lz-tpp") && hops.indexOf("lz-red") < hops.indexOf("lz-tpp");
+
+const INTRO_LINES = [
+  "# lz-fixture: Fixture coach",
+  "",
+  "This skill drives the fixture step. An ask to add a new behavior opens the red step first in",
+  "lz-red, because Law 1 gates production code behind a failing test, and reaches lz-tpp once that",
+  "test is red.",
+  "",
+  "## Two modes",
+  "",
+  "- Coach mode: the fixture request is handled here.",
+].join("\n");
+
+const INTRO_HOP_SPAN =
+  "opens the red step first in\nlz-red, because Law 1 gates production code behind a failing test, and reaches lz-tpp once that\ntest is red.";
+
+check("introBody returns null when no H1 line exists", introBody("## Two modes\n\nsome body\n"), null);
+check("introBody returns null on empty or null text", [introBody(""), introBody(null)], [null, null]);
+
+const introPristine = introBody(INTRO_LINES);
+
+check("introBody finds the H1 and stops before the first ## heading", introPristine.includes("## Two modes"), false);
+
+const introHops = destinationsIn(flatten(introPristine));
+
+check("PRISTINE intro affirms lz-red before lz-tpp (the two-hop order)", introHops, ["lz-red", "lz-tpp"]);
+check("PRISTINE intro hop-order predicate passes", hopsOrderedOk(introHops), true);
+check("PRISTINE intro keys on the ask only", keysOnTestState(flatten(introPristine)), []);
+
+// Mutation 9a -- the historical BLOCKER: the intro states only the second hop (should FAIL).
+const introMissingFirstHop = destinationsIn(
+  flatten(introBody(mutate(INTRO_LINES, INTRO_HOP_SPAN, "reaches lz-tpp once that test is red.")))
+);
+
+check("mutation 9a the first hop is gone from the extracted hops", introMissingFirstHop, ["lz-tpp"]);
+check("mutation 9a the hop-order predicate FAILS -- this is the phase's own BLOCKER shape", hopsOrderedOk(introMissingFirstHop), false);
+
+// Mutation 9b -- the hops appear in the WRONG order (should FAIL).
+const introReordered = destinationsIn(
+  flatten(
+    introBody(
+      mutate(
+        INTRO_LINES,
+        INTRO_HOP_SPAN,
+        "reaches lz-tpp once a test is red, tracing back to\nlz-red, because Law 1 gates production code behind a failing test."
+      )
+    )
+  )
+);
+
+check("mutation 9b both hops are still present", [introReordered.includes("lz-red"), introReordered.includes("lz-tpp")], [true, true]);
+check("mutation 9b the hop-order predicate FAILS -- lz-tpp now precedes lz-red", hopsOrderedOk(introReordered), false);
+
+// Mutation 9c -- REWORDED but correct, same order (should STAY GREEN). The D-12 vocabulary-proxy
+// lesson applied to the intro-prose check specifically.
+const introReworded = destinationsIn(
+  flatten(
+    introBody(
+      mutate(
+        INTRO_LINES,
+        INTRO_HOP_SPAN,
+        "starts in lz-red first -- Law 1 forbids production code before a failing test -- and moves on to\nlz-tpp once that test is red."
+      )
+    )
+  )
+);
+
+check("mutation 9c reworded-but-correct still affirms the ordered pair", introReworded, ["lz-red", "lz-tpp"]);
+check("mutation 9c the hop-order predicate still PASSES", hopsOrderedOk(introReworded), true);
+
+// Mutation 9d -- a test-state clause smuggled into the intro (should FAIL).
+const introTestState = keysOnTestState(
+  flatten(
+    introBody(
+      mutate(
+        INTRO_LINES,
+        "This skill drives the fixture step.",
+        "This skill drives the fixture step, and only once the tests are green does it reconsider scope."
+      )
+    )
+  )
+);
+
+check("mutation 9d the smuggled test-state clause is caught", introTestState, ["tests are green"]);
+
+// Mutation 9e -- wrap-tolerance control. A test-state phrase wrapped across a source line break is
+// MISSED by keysOnTestState on the RAW (non-flattened) intro text, and CAUGHT once flattened -- the
+// same Pitfall-2 class this repo has recorded three times elsewhere, now proven for the intro check.
+const INTRO_WRAPPED_TEST_STATE = [
+  "# lz-fixture: Fixture coach",
+  "",
+  "This skill drives the fixture step, and the tests are",
+  "green before it reconsiders scope. An ask to add a new behavior opens the red step first in",
+  "lz-red, because Law 1 gates production code behind a failing test, and reaches lz-tpp once that",
+  "test is red.",
+  "",
+  "## Two modes",
+  "",
+  "- Coach mode: the fixture request is handled here.",
+].join("\n");
+
+const wrappedIntro = introBody(INTRO_WRAPPED_TEST_STATE);
+
+check("mutation 9e wrap-tolerance -- RAW (non-flattened) text MISSES the wrapped phrase", keysOnTestState(wrappedIntro), []);
+check("mutation 9e wrap-tolerance -- the SAME phrase is CAUGHT once flattened (the check's actual behavior)", keysOnTestState(flatten(wrappedIntro)), ["tests are green"]);
+
+console.log("");
+
+// ---------------------------------------------------------------------------------------------
 // OLD NEEDLE -- the committed measurement of the ceiling this guard closes.
 // ---------------------------------------------------------------------------------------------
 console.log("OLD NEEDLE -- a bare skill-name presence test PASSES fixtures the new predicates FAIL");
@@ -497,13 +630,14 @@ console.log("");
 // ---------------------------------------------------------------------------------------------
 console.log("lib/routing-parse.mjs -- export roster");
 
-check("routing-parse.mjs exports exactly the nine named helpers", Object.keys(parser).sort(), [
+check("routing-parse.mjs exports exactly the ten named helpers", Object.keys(parser).sort(), [
   "CATCHALL_CONDITION_RE",
   "RESIDUAL_MARKER_RE",
   "ROUTING_SURFACES",
   "TEST_STATE_TOKENS",
   "destinationsIn",
   "foldedDescription",
+  "introBody",
   "keysOnTestState",
   "matchesSkillName",
   "parseRoutingBranches",

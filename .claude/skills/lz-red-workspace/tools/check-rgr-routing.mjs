@@ -8,8 +8,10 @@
 //                       procedures (D-02, SC2's literal wording).
 //   (c) single-axis  -- no branch in ANY surface, router or mode-selection gate alike, keys on test
 //                       state; all key on the ask (D-03).
-// Plus two same-file citation checks and a per-skill description budget check. All are HARD
-// failures (non-zero exit). Node builtins only, plus the two local libs.
+// Plus two same-file citation checks, a per-skill description budget check, a per-skill description
+// single-axis check, and an intro-prose check (two-hop order plus single-axis, over the text between
+// the H1 and the first `## ` heading in each SKILL.md). All are HARD failures (non-zero exit). Node
+// builtins only, plus the two local libs.
 //
 // RED AGAINST TODAY'S TREE BY DESIGN -- this is the instrument-first baseline, NOT a failure, and it
 // is modelled on check-red-references.mjs's own Wave-0 baseline wording. The classifier that turns
@@ -28,6 +30,16 @@
 // is a floor, never an acceptance verdict: this phase EXISTS because a 125-check battery went GREEN
 // while the classifier was non-exhaustive, and the reviewer measured that ceiling by reverting both
 // routing sites while keeping a renamed heading.
+//
+// A SECOND coverage boundary, closed in a gap-closure follow-up after plan 22-08: every
+// ROUTING_SURFACES entry anchors to a `## ` heading, so prose ABOVE the first heading in each
+// SKILL.md was, until the intro-prose checks below existed, invisible to every assertion above --
+// exactly where an unprimed human review (never this gate) found lz-refactor's two-hop BLOCKER and
+// a folded-description test-state phrase that survived two shipped descriptions until 22-08. The
+// intro-prose and description-single-axis checks close THAT one blind spot; they do not claim to
+// close every blind spot that could exist, and they deliberately do NOT require every skill's intro
+// to name both siblings -- lz-tpp's intro names neither, and 22-VERIFICATION.md already ruled that
+// omission non-blocking (an incompleteness, not a contradiction).
 //
 // FAIL-CLOSED CONTRACT (D-17). Every surface file is read with try/catch -> "", and deliberately NOT
 // gated on an existsSync probe -- unlike the SEAM-02 block in check-red-references.mjs, whose own
@@ -60,6 +72,8 @@ import {
   ROUTING_SURFACES,
   destinationsIn,
   foldedDescription,
+  introBody,
+  keysOnTestState,
   parseRoutingBranches,
 } from "./lib/routing-parse.mjs";
 
@@ -434,6 +448,54 @@ report(
 console.log("");
 
 // ---------------------------------------------------------------------------------------------
+// [cls-03] intro prose -- the blind spot ABOVE the first `## ` heading. See the SECOND COVERAGE
+// BOUNDARY note in the header for why this exists. Two checks: single-axis over every skill's intro
+// (extends D-03 to the blind spot), and the two-hop ORDER on lz-refactor's intro specifically (the
+// exact surface the phase's BLOCKER lived on). This does not require every intro to name both
+// siblings -- lz-tpp's does not, and that omission is already ruled non-blocking.
+// ---------------------------------------------------------------------------------------------
+console.log("[cls-03] intro prose -- the blind spot above the first heading");
+
+for (const skill of SKILLS) {
+  const text = readOrEmpty(path.join(repoRoot, "plugins", "lz-tdd", "skills", skill, "SKILL.md"));
+  const intro = introBody(text);
+
+  if (intro === null) {
+    report(false, `[cls-03] intro single-axis -- ${skill}`, "no H1 heading found; intro is unreachable");
+    continue;
+  }
+
+  const offenders = keysOnTestState(flatten(intro));
+
+  report(
+    offenders.length === 0,
+    `[cls-03] intro single-axis -- ${skill}'s intro keys on the ask only`,
+    offenders.length === 0 ? "no test-state token in the intro paragraph" : `keys on [${offenders.join(" | ")}]`
+  );
+}
+
+console.log("");
+
+const refactorIntro = introBody(refactorText);
+const refactorIntroHops = refactorIntro === null ? [] : destinationsIn(flatten(refactorIntro));
+const hopsOrdered =
+  refactorIntroHops.includes("lz-red") &&
+  refactorIntroHops.includes("lz-tpp") &&
+  refactorIntroHops.indexOf("lz-red") < refactorIntroHops.indexOf("lz-tpp");
+
+report(
+  refactorIntro !== null && hopsOrdered,
+  "[cls-03] intro two-hop rule -- lz-refactor's intro names lz-red before lz-tpp",
+  refactorIntro === null
+    ? "intro unreachable -- no H1 heading found in lz-refactor/SKILL.md"
+    : hopsOrdered
+      ? `hops [${refactorIntroHops.join(", ")}] -- D-02's two-hop rule (the surface the phase's BLOCKER lived on)`
+      : `hops [${refactorIntroHops.join(", ")}] -- expected lz-red before lz-tpp`
+);
+
+console.log("");
+
+// ---------------------------------------------------------------------------------------------
 // [cls] description char cap -- D-06's rewording budget, ASSERTED rather than assumed.
 // ---------------------------------------------------------------------------------------------
 console.log(`[cls] description char cap -- each folded description within ${DESCRIPTION_CHAR_CAP} chars`);
@@ -456,9 +518,39 @@ for (const skill of SKILLS) {
 
 console.log("");
 
+// ---------------------------------------------------------------------------------------------
+// [cls-03] description single-axis -- the same D-03 test-state axis applied to the frontmatter
+// tier. keysOnTestState and foldedDescription have been exported since Wave 0, but until this check
+// they were only ever driven by a throwaway scratch script (22-08-PLAN.md's own instruction: "Write
+// a throwaway script OUTSIDE the repo... never a tracked path") -- never wired into an executable
+// gate. The folded description is the one surface every caller sees before any body text loads, so a
+// test-state phrase here is a direct D-03 violation regardless of what the body says.
+// ---------------------------------------------------------------------------------------------
+console.log("[cls-03] description single-axis -- no folded description keys on test state");
+
+for (const skill of SKILLS) {
+  const text = readOrEmpty(path.join(repoRoot, "plugins", "lz-tdd", "skills", skill, "SKILL.md"));
+  const folded = foldedDescription(text);
+
+  if (folded === null) {
+    report(false, `[cls-03] description single-axis -- ${skill}`, "no folded description block found");
+    continue;
+  }
+
+  const offenders = keysOnTestState(folded);
+
+  report(
+    offenders.length === 0,
+    `[cls-03] description single-axis -- ${skill}`,
+    offenders.length === 0 ? "banned=[]" : `keys on [${offenders.join(" | ")}]`
+  );
+}
+
+console.log("");
+
 if (failures === 0) {
   console.log(
-    `SUMMARY: RGR-ROUTING GREEN -- ${CASES.length} corpus cases exhaustive and at-most-one over ${STEP1_SURFACES.length} step-1 procedures, no bare catch-all terminal, no test-state key in any of ${ROUTING_SURFACES.length} surfaces, citations resolve, descriptions within the ${DESCRIPTION_CHAR_CAP}-char cap`
+    `SUMMARY: RGR-ROUTING GREEN -- ${CASES.length} corpus cases exhaustive and at-most-one over ${STEP1_SURFACES.length} step-1 procedures, no bare catch-all terminal, no test-state key in any of ${ROUTING_SURFACES.length} surfaces or in any intro paragraph, citations resolve, descriptions within the ${DESCRIPTION_CHAR_CAP}-char cap and single-axis`
   );
   process.exit(0);
 }

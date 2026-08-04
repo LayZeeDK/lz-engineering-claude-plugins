@@ -669,7 +669,10 @@ gate evasions (6587d65, 53188cb, 94dbb3b); (3) the Round-A ROLLUP gap is CLOSED 
 tabulator and `merge-judge --verify` now both reach `e2e-rgr-routing`, each proven in BOTH directions
 with negative controls, and RUN-GATE.md's KNOWN GAPS now carries a CLOSED banner with corrected
 commands. So Round A can now be tabulated mechanically rather than by hand.
-`/reload-plugins` is OWED -- four shipped SKILL.md edits across two tasks are committed but NOT live.
+`/reload-plugins` DISCHARGED 2026-08-04 -- the owner ran it (15 plugins / 73 skills / 97 agents
+reloaded), so all four shipped SKILL.md edits across the two tasks are LIVE, not merely committed.
+That also means the three edited `description` fields the owed EVL-01 Round B measures are now the
+ones actually loaded, so Round B is measurable whenever it is approved.
 OPEN by deliberate decision: four PROVEN gate evasions in `260804-hwy-deferred-items.md` (E1 pooled
 branch deletion, E2 house-vocabulary catch-all, E7 captured residual printed as PASS -- all one root
 cause, assertions quantified over a pooled list instead of per surface -- plus E5, the inherent

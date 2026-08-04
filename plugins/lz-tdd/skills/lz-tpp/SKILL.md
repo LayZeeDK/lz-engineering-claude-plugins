@@ -64,6 +64,10 @@ plainly and answer directly.
    cleanup ask is a structure-only refactoring that belongs to lz-refactor, so it is never
    priority-ranked here. See "The green step vs the red step (lz-red) and the refactor step
    (lz-refactor)" above; do not restate it. Take the FIRST branch that matches:
+   A developer's own report of where they are in the loop is context for the ask, not a condition
+   to route on, so classify from what they are asking for next. A request carrying more than one
+   ask is owned whole by its primary ask, and the secondary ask is named as a next step in the
+   answer rather than routed as a second hop.
    a. Asking which test to write next -- what test comes next, what a test should assert, how to
       name it, or whether this is a good test: that is the red step, and the red step is lz-red.
    b. Asking to make a failing test pass -- which minimal change turns this red test green: that

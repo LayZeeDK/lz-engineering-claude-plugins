@@ -204,9 +204,34 @@ const EVASIONS = [
     what: "flip the green step in the plugin-wide seam (beck-seam)",
     claim: "every router surface routes each case correctly",
     file: BECK,
-    find: "green step is lz-tpp",
-    repl: "green step is lz-refactor",
+    // RE-ANCHORED. The old anchor was the bare "green step is lz-tpp", and `original.replace(string,
+    // ...)` substitutes only the FIRST occurrence -- which is this file's own intro line ("the green
+    // step is lz-tpp's"), 60-odd lines ABOVE the `## The seam across the three steps` heading and
+    // therefore outside every parsed surface. So the mutation landed, the suite's landed-check passed,
+    // and the entry proved nothing about the surface it names. A mutation must land in the REGION the
+    // entry claims, not merely somewhere in the file; the landed-check cannot see the difference,
+    // which is why this anchor now carries enough context to be unique to the seam sentence.
+    // The region the old anchor hit is recorded separately as M14b.
+    find: "green step is lz-tpp. An ask to add a new behavior",
+    repl: "green step is lz-refactor. An ask to add a new behavior",
     expect: "beck-seam",
+  },
+  {
+    id: "M14b",
+    open: "OPEN-9",
+    what: "flip the plugin-wide reference's INTRO seam claim (above its first `## ` heading)",
+    claim: "no assertion reads the plugin-wide reference's intro prose",
+    file: BECK,
+    find: "The red step is lz-red's concern, the green step is lz-tpp's",
+    repl: "The red step is lz-red's concern, the green step is lz-refactor's",
+    expect: null,
+    ceiling:
+      "FOUND while re-anchoring M14, which had been hitting this line by accident. The intro " +
+      "single-axis check runs over the three SKILL.md files only, and every ROUTING_SURFACES entry " +
+      "anchors to a `## ` heading, so prose above the first heading of plugins/lz-tdd/references/ " +
+      "is read by nothing -- the same shape as the SKILL.md intro hole Phase 22 closed, one file " +
+      "further out. Tracked as OPEN-9; closing it means extending introBody's single-axis and " +
+      "two-hop checks to the plugin-wide references.",
   },
   {
     id: "M4",

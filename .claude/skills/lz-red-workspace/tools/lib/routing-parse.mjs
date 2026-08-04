@@ -735,6 +735,32 @@ export const routesCase = (branches, kase) => {
     return { ok: false, why: `no branch on this surface routes it to ${want}`, via: [] };
   }
 
+  // EXISTENTIAL IS NOT ENOUGH, and finding one owning branch used to be the whole test. A surface can
+  // carry TWO branches covering the same case -- prose surfaces routinely do, e.g. red-narrative
+  // covers c6 at both #s2 and #s6 -- so flipping ONE of them to a sibling left the other satisfying
+  // the existential and the gate stayed GREEN on a surface now contradicting itself. Measured: that
+  // is exactly how the recorded red-narrative evasion survived a per-surface correctness assertion.
+  //
+  // So no branch that COVERS the case may send it somewhere else FIRST. Scoped to the FIRST
+  // destination on purpose, and this was measured across all eight router surfaces before the change:
+  // a sentence legitimately names a second skill while routing to the first (refactor-narrative #s2
+  // affirms [lz-tpp, lz-red] for c6, beck-seam #s7 affirms [lz-refactor, lz-red] for c5), so
+  // demanding full `owns` of every covering branch would turn correct prose red. Requiring only that
+  // no covering branch LEADS with a different skill flags the contradiction and leaves the prose
+  // alone -- zero verdict deltas on the tracked tree, 0 contradicting branches over 8 routers x 9
+  // cases.
+  const contradicting = list.filter(
+    (b) => covers(b, kase) && b.destinations.length > 0 && b.destinations[0] !== kase.expectedOwner
+  );
+
+  if (contradicting.length > 0) {
+    return {
+      ok: false,
+      why: `branch(es) ${contradicting.map((b) => `#${b.branchId} -> ${b.destinations[0]}`).join(", ")} cover this case but route it elsewhere FIRST, contradicting #${hits.map((b) => b.branchId).join(", #")}`,
+      via: hits.map((b) => b.branchId),
+    };
+  }
+
   return { ok: true, why: want, via: hits.map((b) => b.branchId) };
 };
 

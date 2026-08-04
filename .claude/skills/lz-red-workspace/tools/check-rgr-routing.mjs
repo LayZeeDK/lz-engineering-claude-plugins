@@ -404,6 +404,82 @@ for (const surface of STEP1_SURFACES) {
 console.log("");
 
 // ---------------------------------------------------------------------------------------------
+// [cls-01] NON-STEP-1 router surfaces -- correctness over what each surface actually CLAIMS.
+//
+// THE HOLE THIS CLOSES. The assertion above quantifies over STEP1_SURFACES, i.e. the three lettered
+// coach procedures. Five of the eight router surfaces were therefore reached only by the scan floor,
+// the catch-all check and the single-axis check -- none of which reads a destination. Flipping a
+// routing destination in any of them was undetected, which matters because each step-1 procedure
+// DELEGATES to its narrative ("See ... above; do not restate it"), making the narrative the
+// authoritative text a reader lands on.
+//
+// WHY THIS IS A COVERED-ONLY CLAIM, and why that is not a weakening. MEASURED FIRST, all 8 routers x
+// all 9 cases (45 free-surface pairs), BEFORE any assertion changed: 18 pairs fail, and every single
+// failure is `no branch on this surface routes it to X` where the case's ask-words are ABSENT from
+// the whole surface -- zero failures are a wrong destination. These five are PROSE, and a narrative
+// legitimately does not restate every case the lettered procedure enumerates: the three narratives
+// carry c3/c4/c5/c6, laws-classify and beck-seam add c1. So demanding all nine here would encode a
+// false claim about what the prose says and would pressure someone to weaken routesCase to make it
+// pass. Asserting what the surface DOES claim keeps routesCase untouched at full strength.
+//
+// The residual case is asserted on every surface regardless of coverage, because a NONE verdict is
+// decided by the explicit no-owner marker rather than by ask-words, so it is meaningful everywhere.
+//
+// ANTI-VACUITY IS MANDATORY HERE. A covered-only assertion is trivially escaped by DELETING the
+// ask-words -- the guard-that-cannot-fail shape this gate exists to prevent. So the measured coverage
+// SET is pinned as a floor below. Without that floor this section would be worse than no section.
+// ---------------------------------------------------------------------------------------------
+console.log("[cls-01] non-step-1 routers -- every case a surface CLAIMS, it routes correctly");
+
+const FREE_ROUTERS = ROUTER_SURFACES.filter((s) => !STEP1_SURFACES.includes(s));
+
+// MEASURED on the tracked tree 2026-08-04. Recorded as SETS rather than counts so that swapping
+// which cases a surface covers fails too, not only losing one. A surface may cover MORE than its
+// floor (a legitimate widening); it may never cover less.
+const COVERAGE_FLOOR = Object.freeze({
+  "refactor-narrative": ["c3", "c4", "c5", "c6"],
+  "red-narrative": ["c3", "c4", "c5", "c6"],
+  "tpp-narrative": ["c3", "c4", "c5", "c6"],
+  "laws-classify": ["c1", "c3", "c4", "c5", "c6"],
+  "beck-seam": ["c1", "c3", "c4", "c5", "c6"],
+});
+
+for (const surface of FREE_ROUTERS) {
+  const branches = parsed.get(surface.id).branches;
+  const covered = CASES.filter((k) => branches.some((b) => covers(b, k))).map((k) => k.id);
+  const floor = COVERAGE_FLOOR[surface.id] ?? [];
+  const missing = floor.filter((id) => !covered.includes(id));
+
+  report(
+    missing.length === 0,
+    `[cls-01] coverage floor -- ${surface.id} still claims its measured cases`,
+    missing.length === 0
+      ? `covers [${covered.join(", ")}] (floor [${floor.join(", ")}])`
+      : `ask-words for [${missing.join(", ")}] have gone MISSING from this surface, which would silently exempt them from the routing assertion below`
+  );
+
+  for (const kase of CASES) {
+    const claimsIt = kase.expectedOwner === "NONE" || branches.some((b) => covers(b, kase));
+
+    if (!claimsIt) {
+      continue;
+    }
+
+    const verdict = routesCase(branches, kase);
+
+    report(
+      verdict.ok,
+      `[cls-01] non-step-1 router -- ${surface.id} routes ${kase.id}`,
+      verdict.ok
+        ? `${verdict.why}${verdict.via.length ? ` via #${verdict.via.join(", #")}` : ""}`
+        : `${verdict.why}; tokens [${kase.matchTokens.join(" | ")}]`
+    );
+  }
+}
+
+console.log("");
+
+// ---------------------------------------------------------------------------------------------
 // [cls-01] no bare catch-all terminal -- the shape D-01 removes.
 // ---------------------------------------------------------------------------------------------
 console.log("[cls-01] no bare catch-all terminal -- no router keeps an otherwise-is-this-skill branch");

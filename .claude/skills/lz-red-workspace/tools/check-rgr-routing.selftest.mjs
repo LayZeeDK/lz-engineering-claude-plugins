@@ -630,7 +630,7 @@ console.log("");
 // ---------------------------------------------------------------------------------------------
 console.log("lib/routing-parse.mjs -- export roster");
 
-check("routing-parse.mjs exports exactly the ten named helpers", Object.keys(parser).sort(), [
+check("routing-parse.mjs exports exactly the eleven named helpers", Object.keys(parser).sort(), [
   "CATCHALL_CONDITION_RE",
   "RESIDUAL_MARKER_RE",
   "ROUTING_SURFACES",
@@ -641,6 +641,7 @@ check("routing-parse.mjs exports exactly the ten named helpers", Object.keys(par
   "keysOnTestState",
   "matchesSkillName",
   "parseRoutingBranches",
+  "step1LeadIn",
 ]);
 check("ROUTING_SURFACES declares the eleven classifier surfaces", parser.ROUTING_SURFACES.length, 11);
 check(
@@ -657,6 +658,62 @@ check(
   "matchesSkillName is boundary-anchored on both sides",
   [parser.matchesSkillName("fixture:lz-red here", "lz-red"), parser.matchesSkillName("lz-redux here", "lz-red")],
   [true, false]
+);
+
+// ---------------------------------------------------------------------------------------------
+// step1LeadIn -- the surface that closes the lettered-lead-in blind spot. letteredChunks starts its
+// loop at index 1 and so DISCARDS parts[0]; this helper is what makes that prose answerable.
+//
+// The last assertion is the one that matters: it reproduces the ACTUAL defect shape, a banned token
+// sitting in the lead-in, and proves the pairing of step1LeadIn + keysOnTestState catches it. A
+// reachability assertion without that pairing would prove only that a string was returned.
+// ---------------------------------------------------------------------------------------------
+const LEAD_IN_FIXTURE = [
+  "## Fixture procedure",
+  "",
+  "1. Classify by the ask. Lead-in prose sits here, before any lettered branch.",
+  "   a. First branch: that is the red step, and the red step is lz-red.",
+  "   b. Second branch: that is the green step, and the green step is lz-tpp.",
+  "2. A later numbered step.",
+  "",
+].join("\n");
+
+check(
+  "step1LeadIn returns null when the heading is absent",
+  parser.step1LeadIn(LEAD_IN_FIXTURE, "No Such Heading"),
+  null
+);
+check(
+  "step1LeadIn returns null when numbered item 1 is absent",
+  parser.step1LeadIn("## Fixture procedure\n\n2. Only a second item.\n", "Fixture procedure"),
+  null
+);
+check(
+  "step1LeadIn returns empty string when item 1 has no lettered sub-items",
+  parser.step1LeadIn("## Fixture procedure\n\n1. One prose blob, no letters.\n", "Fixture procedure"),
+  ""
+);
+// numberedItem splits on `^(\d+)\.[ \t]+`, so the "1. " marker is consumed and never part of the
+// returned text. Asserted explicitly because the obvious expectation includes it and is wrong.
+check(
+  "step1LeadIn returns the flattened prose BEFORE the first lettered branch, marker consumed",
+  parser.step1LeadIn(LEAD_IN_FIXTURE, "Fixture procedure"),
+  "Classify by the ask. Lead-in prose sits here, before any lettered branch."
+);
+check(
+  "step1LeadIn excludes the lettered branches themselves",
+  /lz-red|lz-tpp/.test(parser.step1LeadIn(LEAD_IN_FIXTURE, "Fixture procedure")),
+  false
+);
+check(
+  "letteredChunks-blind lead-in: a banned token planted there IS caught via step1LeadIn",
+  parser.keysOnTestState(
+    parser.step1LeadIn(
+      LEAD_IN_FIXTURE.replace("Lead-in prose sits here", "Confirm all prior tests green first"),
+      "Fixture procedure"
+    )
+  ),
+  ["all prior tests green"]
 );
 
 console.log("");

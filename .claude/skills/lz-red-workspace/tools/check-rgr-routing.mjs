@@ -9,19 +9,24 @@
 //   (c) single-axis  -- no branch in ANY surface, router or mode-selection gate alike, keys on test
 //                       state; all key on the ask (D-03).
 // Plus two same-file citation checks, a per-skill description budget check, a per-skill description
-// single-axis check, and an intro-prose check (two-hop order plus single-axis, over the text between
-// the H1 and the first `## ` heading in each SKILL.md). All are HARD failures (non-zero exit). Node
-// builtins only, plus the two local libs.
+// single-axis check, an intro-prose check (two-hop order plus single-axis, over the text between
+// the H1 and the first `## ` heading in each SKILL.md), and a step-1 lead-in single-axis check (over
+// the prose before the first lettered branch, which letteredChunks discards). All are HARD failures
+// (non-zero exit). Node builtins only, plus the two local libs.
 //
-// RED AGAINST TODAY'S TREE BY DESIGN -- this is the instrument-first baseline, NOT a failure, and it
-// is modelled on check-red-references.mjs's own Wave-0 baseline wording. The classifier that turns
-// this gate GREEN is authored in waves 22-03 and 22-04. Concretely RED today because: the beck-seam
-// surface still carries its stale two-way heading, so its post-repair heading is absent; four router
-// surfaces still end in a bare catch-all terminal; two mode gates plus lz-tpp step 1 still key on
-// test state; no branch covers the post-green "what now?" case; and the QUESTION/COMMAND paragraph
-// still carries no heading. Do NOT edit shipped Markdown to make this pass, and do NOT weaken an
-// assertion to make it pass. The description budget check is the one part GREEN today, on purpose --
-// it is a live budget guard for the wave-2 rewording, not a baseline to flip.
+// HISTORY -- the wave-1 RED baseline, now CLOSED. This gate was RED against the tree by design when
+// it was authored (instrument-first, modelled on check-red-references.mjs's Wave-0 wording), for six
+// concrete reasons: beck-seam's post-repair heading was absent; four router surfaces ended in a bare
+// catch-all terminal; two mode gates plus lz-tpp step 1 keyed on test state; no branch covered the
+// post-green "what now?" case; and the QUESTION/COMMAND paragraph carried no heading. Waves 22-03
+// and 22-04 closed the classifier half, and a later gap-closure round closed the last of it. The
+// gate is GREEN against the tracked tree now, so a FAILURE here is a REGRESSION, not a baseline.
+//
+// The standing prohibition still binds: do NOT edit shipped Markdown to make this pass, and do NOT
+// weaken an assertion to make it pass. The description budget check was deliberately GREEN from the
+// start as a live budget guard, and it has since EARNED that role twice -- it caught two separate
+// over-cap description edits (1508 with 28 of headroom, then 1551 at 15 OVER the cap) before either
+// could ship.
 //
 // COVERAGE BOUNDARY, stated because conflating the two is a recorded failure mode on this repo. This
 // gate proves that the AUTHORED classifier is exhaustive, disjoint and single-axis OVER THE CORPUS.
@@ -40,6 +45,17 @@
 // close every blind spot that could exist, and they deliberately do NOT require every skill's intro
 // to name both siblings -- lz-tpp's intro names neither, and 22-VERIFICATION.md already ruled that
 // omission non-blocking (an incompleteness, not a contradiction).
+//
+// A THIRD coverage boundary, and the proof that the previous paragraph's caveat was warranted. The
+// SECOND boundary was closed by reasoning about `## ` headings -- yet the very next unprimed review
+// found the SAME SHAPE one level down: letteredChunks splits numbered item 1 on `a.`/`b.`/... and its
+// loop starts at index 1, so the LEAD-IN prose before the first lettered branch was discarded and
+// answerable to nothing. The literal banned token `all prior tests green` was living there, in
+// lz-tpp step 1, one sentence after that same step forbids routing on suite state -- and the
+// TEST_STATE_TOKENS seed comment had already NAMED that site as a source, so the token was listed
+// for a location the parser could never reach. The `[cls-03] step-1 lead-in` check below closes it.
+// The lesson to carry: closing a blind spot in one region says nothing about its neighbours, and
+// each of these three was found by a human review rather than by this gate.
 //
 // FAIL-CLOSED CONTRACT (D-17). Every surface file is read with try/catch -> "", and deliberately NOT
 // gated on an existsSync probe -- unlike the SEAM-02 block in check-red-references.mjs, whose own
@@ -73,6 +89,7 @@ import {
   destinationsIn,
   foldedDescription,
   introBody,
+  step1LeadIn,
   keysOnTestState,
   parseRoutingBranches,
 } from "./lib/routing-parse.mjs";
@@ -83,9 +100,12 @@ const repoRoot = path.resolve(here, "..", "..", "..", "..");
 const CORPUS_PATH = path.join(here, "rgr-cases.json");
 const LZ_REFACTOR_SKILL = path.join(repoRoot, "plugins", "lz-tdd", "skills", "lz-refactor", "SKILL.md");
 
-// Per-entry listing cap for a skill's folded description. Measured baseline today: lz-red 1233,
-// lz-tpp 750, lz-refactor 1245 -- so this check is GREEN now and stays a LIVE budget guard after
-// D-06's rewording names a second destination in lz-refactor's tightest-headroom description.
+// Per-entry listing cap for a skill's folded description. Do NOT hard-code a baseline here -- the
+// gate PRINTS all three lengths and their headroom on every run, and a pinned figure in a comment
+// goes stale silently. (It did: an earlier version of this comment claimed lz-red 1233 / lz-tpp 750
+// / lz-refactor 1245, which understated lz-refactor's real remaining budget by 250 chars and
+// contradicted this same file's record of catching a 1508-char edit.) Read the run output instead.
+// This is a LIVE budget guard, not a baseline to flip, and lz-refactor's headroom is the tightest.
 const DESCRIPTION_CHAR_CAP = 1536;
 const SKILLS = Object.freeze(["lz-red", "lz-tpp", "lz-refactor"]);
 
@@ -496,6 +516,101 @@ report(
 console.log("");
 
 // ---------------------------------------------------------------------------------------------
+// [cls-03] step-1 lead-in -- the blind spot BEFORE the first lettered branch.
+//
+// A THIRD coverage boundary, the same shape as the intro-prose one above. `letteredChunks` splits
+// item 1 on `a.` / `b.` / ... and its loop starts at index 1, so the prose BEFORE `a.` is discarded
+// and was answerable to nothing. An unprimed review found the LITERAL banned token
+// `all prior tests green` living exactly there, in lz-tpp step 1, one sentence after the same step
+// forbids routing on suite state -- and the TEST_STATE_TOKENS seed comment had already NAMED that
+// site as a source, so the token was listed for a location the parser could never reach.
+//
+// Closing the intro-prose hole did not close this one: there the blind region is above the first
+// `## ` heading, here it is before the first lettered branch. Asserted as its own surface rather
+// than as an extra branch, because the exhaustiveness / at-most-one / bare-catch-all assertions all
+// judge routing BRANCHES and a lead-in is not one.
+// ---------------------------------------------------------------------------------------------
+console.log("[cls-03] step-1 lead-in -- the blind spot before the first lettered branch");
+
+for (const surface of STEP1_SURFACES) {
+  const abs = path.join(repoRoot, ...surface.file.split("/"));
+  const leadIn = step1LeadIn(fileCache.has(abs) ? fileCache.get(abs) : readOrEmpty(abs), surface.heading);
+
+  if (leadIn === null) {
+    report(
+      false,
+      `[cls-03] step-1 lead-in single-axis -- ${surface.id}`,
+      `lead-in unreachable -- no "## ${surface.heading}" section or no numbered item 1 in ${surface.file}`
+    );
+    continue;
+  }
+
+  const offenders = keysOnTestState(leadIn);
+
+  report(
+    offenders.length === 0,
+    `[cls-03] step-1 lead-in single-axis -- ${surface.id}`,
+    offenders.length === 0
+      ? leadIn === ""
+        ? "no lettered sub-items, so the whole item is one branch and already judged above"
+        : "no test-state token in the lead-in prose"
+      : `keys on [${offenders.join(" | ")}]`
+  );
+}
+
+console.log("");
+
+// ---------------------------------------------------------------------------------------------
+// [cls-03] whole-section single-axis -- the UNFILTERED complement to the branch-level check.
+//
+// Why this exists, and why the branch-level check alone was not enough. Everything above judges the
+// PARSED BRANCH LIST, which is narrowed three separate times before any assertion sees it:
+//   1. `letteredChunks`/`numberedItem` keep only numbered item 1, so items 2..N are dropped;
+//   2. `numberedItem` also drops the prose BETWEEN the heading and item 1;
+//   3. the router/sentences filter drops any sentence naming neither a slug nor the residual.
+// So a banned token could sit in a surface's section and be answerable to nothing, and an unprimed
+// review demonstrated exactly that with three separate one-line insertions that each left the gate
+// GREEN: a narrative sentence naming no slug, a later numbered step, and prose before item 1.
+//
+// This check takes the WHOLE section body, pre-filter and pre-chunking, flattens it and runs the
+// same D-03 token set over it. It is deliberately COARSE: it cannot say which branch offended, and
+// it does not replace the per-branch reports, which are what make a failure legible. It exists so
+// that no region of a declared surface is outside every assertion.
+//
+// The lesson this encodes: the intro-prose hole, the lettered-lead-in hole and these three were the
+// SAME defect found four times, each time one level out from the last, and each time by a human
+// review rather than by this gate. Prefer a check quantified over a whole region to another check
+// quantified over one more sub-region.
+// ---------------------------------------------------------------------------------------------
+console.log("[cls-03] whole-section single-axis -- no test-state token anywhere in a declared surface");
+
+for (const surface of ROUTING_SURFACES) {
+  const abs = path.join(repoRoot, ...surface.file.split("/"));
+  const body = sectionBody(fileCache.has(abs) ? fileCache.get(abs) : readOrEmpty(abs), surface.heading);
+
+  if (body === null) {
+    report(
+      false,
+      `[cls-03] whole-section single-axis -- ${surface.id}`,
+      `section unreachable -- no "## ${surface.heading}" line in ${surface.file}`
+    );
+    continue;
+  }
+
+  const offenders = keysOnTestState(flatten(body));
+
+  report(
+    offenders.length === 0,
+    `[cls-03] whole-section single-axis -- ${surface.id}`,
+    offenders.length === 0
+      ? "no test-state token anywhere in the section, filtered or not"
+      : `keys on [${offenders.join(" | ")}] somewhere in the section (may be outside any parsed branch)`
+  );
+}
+
+console.log("");
+
+// ---------------------------------------------------------------------------------------------
 // [cls] description char cap -- D-06's rewording budget, ASSERTED rather than assumed.
 // ---------------------------------------------------------------------------------------------
 console.log(`[cls] description char cap -- each folded description within ${DESCRIPTION_CHAR_CAP} chars`);
@@ -550,7 +665,7 @@ console.log("");
 
 if (failures === 0) {
   console.log(
-    `SUMMARY: RGR-ROUTING GREEN -- ${CASES.length} corpus cases exhaustive and at-most-one over ${STEP1_SURFACES.length} step-1 procedures, no bare catch-all terminal, no test-state key in any of ${ROUTING_SURFACES.length} surfaces or in any intro paragraph, citations resolve, descriptions within the ${DESCRIPTION_CHAR_CAP}-char cap and single-axis`
+    `SUMMARY: RGR-ROUTING GREEN -- ${CASES.length} corpus cases exhaustive and at-most-one over ${STEP1_SURFACES.length} step-1 procedures, no bare catch-all terminal, no test-state key in any of ${ROUTING_SURFACES.length} surfaces, in any intro paragraph, or in any of ${STEP1_SURFACES.length} step-1 lead-ins, citations resolve, descriptions within the ${DESCRIPTION_CHAR_CAP}-char cap and single-axis`
   );
   process.exit(0);
 }

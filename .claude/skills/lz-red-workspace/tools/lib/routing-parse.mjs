@@ -58,9 +58,12 @@ const SKILL_NAMES = Object.freeze(["lz-red", "lz-tpp", "lz-refactor"]);
 // describes the TRACKED tree, and only an owner-approved A/B that selects variant B or C changes
 // these three entries. No placement variant is selected inside Phase 22.
 //
-// `beck-seam`'s heading is the POST-REPAIR name authored in 22-04. Today's file carries a different,
-// two-way heading, so this entry is one of the DELIBERATE RED baselines of the instrument-first
-// wave -- not a typo to be "fixed" by pointing the entry at the stale heading.
+// HISTORY, no longer live: `beck-seam`'s heading was authored in 22-04, and during the
+// instrument-first wave this entry was one of the DELIBERATE RED baselines because the file still
+// carried the older two-way heading. That baseline is CLOSED. The file now carries
+// `## The seam across the three steps` (beck-tdd-by-example.md:68), matching the entry below
+// exactly, and the gate reports beck-seam PASS on the scan floor, the catch-all check and the
+// single-axis check. Do not "repair" this entry -- it is already correct.
 export const ROUTING_SURFACES = Object.freeze(
   [
     {
@@ -198,6 +201,14 @@ export const TEST_STATE_TOKENS = Object.freeze([
   "code whose tests already pass",
   "nothing failing yet",
   "nothing is failing yet",
+  // The SEMANTIC variant of the two above. Added after an unprimed review found it live in TWO
+  // shipped descriptions (lz-red, lz-refactor) while `[cls-03] description single-axis` reported
+  // banned=[] on both -- the wording is a member of this set by meaning and was not a member by
+  // literal, so the guard passed a live D-03 violation on the one surface the skill selector reads.
+  // Both directions were measured before the widening: keysOnTestState returned [] on the shipped
+  // wording and ["nothing is failing yet"] on the token-list variant.
+  "no test is failing yet",
+  "no tests are failing",
   "has a smell",
   "the bar is green",
   "once the bar is green",
@@ -477,6 +488,50 @@ const letteredChunks = (body) => {
   }
 
   return out;
+};
+
+// The LEAD-IN prose of numbered item 1 -- everything before the first `a.` sub-item -- flattened.
+// Returns null when item 1 is absent, and "" when item 1 has no lettered sub-items (the degenerate
+// shape letteredChunks already returns whole, so there is no separate lead-in to judge).
+//
+// WHY THIS EXISTS, and why it is NOT folded into letteredChunks. The loop above starts at i = 1 and
+// therefore DISCARDS parts[0], which is exactly this lead-in. An unprimed review found the literal
+// banned token `all prior tests green` living there in lz-tpp step 1, one sentence after the same
+// step forbids that axis -- invisible to all eleven parsed surfaces. The TEST_STATE_TOKENS seed
+// comment above had even named that site as a source, so the token was listed for a location the
+// parser could never reach.
+//
+// This is the SAME SHAPE as the intro-prose hole Phase 22 closed (prose above the first `## `
+// heading, outside every surface). Closing that one did not close this one: there, the blind region
+// was above the first heading; here, it is before the first lettered branch.
+//
+// Deliberately a separate surface rather than an extra BRANCH: the exhaustiveness, at-most-one and
+// bare-catch-all assertions all judge routing branches, and a lead-in is not a branch -- feeding it
+// in would make a non-branch answerable for owning corpus cases. introBody set the precedent of a
+// dedicated surface with a dedicated single-axis check; this follows it.
+// Takes the FULL file text plus the surface heading, mirroring introBody's shape, so the caller
+// needs no access to sectionBody. `null` is UNREACHABLE (heading absent or item 1 absent) and is a
+// FAILURE for the caller to report, never a skip -- same contract as parseRoutingBranches.
+export const step1LeadIn = (text, heading) => {
+  const body = sectionBody(String(text == null ? "" : text), heading);
+
+  if (body === null) {
+    return null;
+  }
+
+  const item = numberedItem(body, 1);
+
+  if (item === null) {
+    return null;
+  }
+
+  const parts = item.split(/^[ \t]*([a-z])\.[ \t]+/m);
+
+  if (parts.length < 3) {
+    return "";
+  }
+
+  return flatten(parts[0]);
 };
 
 // Flatten the whole section, then split on sentence boundaries.

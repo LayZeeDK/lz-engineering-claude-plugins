@@ -400,7 +400,9 @@ and `22-DISCUSSION-LOG.md`.
 `description` frontmatter. The EVL-01 reciprocal trigger round is therefore REQUIRED, not optional,
 as the regression check, and `/reload-plugins` must follow -- committed is not live.
 
-**Plans:** 7/7 plans complete
+**Plans:** 8/8 plans complete
+
+- [x] 22-08-PLAN.md
 
 **Wave 1** (instrument-first; the routing gate is ASSERTED RED against today's tree)
 

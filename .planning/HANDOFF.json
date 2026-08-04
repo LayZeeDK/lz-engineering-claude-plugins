@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-08-04T12:00:00.000Z",
+  "timestamp": "2026-08-04T13:13:35.495Z",
   "context": "quick-260804-kvh-instrument-hardening-wave-1-and-OPEN-1-done",
   "supersedes_handoff": "2026-08-04T10:19:50.378Z phase-22-complete-halted-on-two-metered-rounds",
   "supersedes_note": "That handoff described Phase 22 halted on two metered rounds. Both remain HALT-gated and unapproved -- that part still stands. What changed since: BOTH of its zero-spend remaining_tasks ('optional-description-completeness' and 'optional-rollup-fix') are DONE, and four quick tasks have run (260804-hbv, -hwy, -jay, and -kvh in progress).",

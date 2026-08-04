@@ -1,146 +1,136 @@
 {
   "version": "1.0",
-  "timestamp": "2026-08-03T14:57:12.412Z",
-  "context": "phase-22-paused-before-wave-3",
-  "supersedes_handoff": "2026-08-03T12:17:54.610Z phase-22-execution-not-yet-started",
-  "supersedes_note": "That handoff described a phase with ZERO plans executed. Four are now executed and merged. Its EXPECTED_BASE (ccf2c80) was already stale then and is doubly stale now.",
+  "timestamp": "2026-08-04T10:19:50.378Z",
+  "context": "phase-22-complete-halted-on-two-metered-rounds",
+  "supersedes_handoff": "2026-08-03T14:57:12.412Z phase-22-paused-before-wave-3",
+  "supersedes_note": "That handoff described a phase paused at 4/7 plans before wave 3. All 8 plans are now executed, merged, verified, secured, validated and learned-from. Its EXPECTED_BASE (0c883ab) is long stale.",
   "phase": "22",
   "phase_name": "three-way-classifier-correctness-lz-refactor-lz-red",
   "phase_dir": ".planning/phases/22-three-way-classifier-correctness-lz-refactor-lz-red",
-  "plan": 4,
+  "plan": 8,
   "task": null,
-  "total_tasks": 7,
+  "total_tasks": 8,
   "status": "paused",
-  "autonomous": false,
-  "paused_before": "wave 3 dispatch (22-04). Owner requested the pause and asked that 22-05 finish first; it did, and wave 2 is fully merged. No agent is running and no worktree exists.",
-  "head_sha": "0c883ab",
+  "phase_state": "BUILD-complete and HALTED by design. Not an incomplete phase.",
+  "head_sha": "9ee45f9",
   "branch": "gsd/lz-tdd-0.0.3-lz-red",
-  "summary": "Waves 1 and 2 complete and merged: 4 of 7 plans (22-01, 22-02, 22-03, 22-05). The routing gate went from 20 FAIL / 34 PASS at the deliberate wave-1 RED baseline to 2 FAIL / 52 PASS, and the two survivors are exactly plan 22-04's wave-3 targets. Full post-merge battery green apart from that intentional gate. Zero metered spend; both eval rounds still HALT-gated and unrun.",
+  "metered_spend": "ZERO across all eight plans. Nothing metered has run.",
+  "summary": "Phase 22 is fully closed out except for the owner's spend decision. 8 of 8 plans executed and merged; gsd-verifier passed 8/8; security 60/60 threats verified with 0 open; nyquist validation filled the coverage gap that produced the phase's own BLOCKER; learnings extracted and bridged (13 items) to the global store. The routing gate went 20 FAIL at the wave-1 RED baseline to 0 FAIL. D-19 is DISCHARGED -- the owner ran /reload-plugins, so the three edited descriptions are live, not merely committed.",
   "completed_this_session": [
     {
-      "id": "wave-1",
+      "id": "wave-3",
       "status": "done",
-      "commits": ["127992f", "2113432", "9e853a0", "3f4a07d", "e36a2cd", "fee764b", "19b1b98", "c894a48"],
-      "name": "22-01 authored routing-parse.mjs + the 9-case corpus + check-rgr-routing.mjs and ASSERTED IT RED (20 FAIL / 34 PASS) touching zero shipped Markdown, with a GREEN 8-mutation both-directions selftest. 22-02 widened check-hygiene.mjs to the plugin-wide references dir + README (197/190 -> 199/192), AUTHORED the missing non-vacuity count assertion keyed on paths rather than a literal, widened check-evals.mjs clause 8 past its e2e-red- anchor, and wrote CLS-01..CLS-05 into REQUIREMENTS.md."
+      "commits": ["ff85aec", "c222a5c", "26888ba", "da4a09c", "c9c2c63"],
+      "name": "22-04 repaired the two reference-tier classifier surfaces. Routing gate 2 FAIL -> 0. Every Sources row and Law provenance parenthetical verified byte-unchanged by hunk placement, not by claim."
     },
     {
-      "id": "wave-1-corrections",
+      "id": "wave-4",
       "status": "done",
-      "commits": ["b7a298f"],
-      "name": "Orchestrator spot-check found two defects the executors' own self-checks passed over: a verbatim duplicated comment block in check-hygiene.mjs, and a deferred item filed against selfcheck-red.mjs on FALSE stated evidence. Both closed."
+      "commits": ["b22dc0e", "41bf593", "4cad918", "d9d5022", "570bc88", "f8643eb"],
+      "name": "22-06 built the A/B instrument: shared routing table as a workspace source, fail-closed variant builder, sibling selfcheck at 6/6 cruxes. It also caught a plan defect that would have shipped a staging note INTO both treatment trees, telling the model it was inside an A/B."
     },
     {
-      "id": "wave-2",
+      "id": "wave-5",
       "status": "done",
-      "commits": ["5be1bf3", "86e2d17", "46c0c8e", "e5051ed", "4604455", "f06fad4", "f75977f", "a81a7c5"],
-      "name": "22-03 rewrote all three shipped SKILL.md classifiers under ONE executor (at-most-one is a cross-file property) and drove the gate 20 FAIL -> 2, hitting the falsifiable target exactly. 22-05 built the A/B plumbing dry-run-only: three placement arms in run-e2e.mjs, tabulate --grade-file, the e2e-rgr-routing suite with nine derived prompts, and grade-routing.mjs with 8 fixtures."
+      "commits": ["5d406f6", "774b5ca", "90f1737", "c4f9e8c", "c33a3eb"],
+      "name": "22-07 authored the phase gate, RUN-GATE.md with two separately-approvable HALTs, and the blank-figure ROUTING-AB-RESULTS.md scaffold. Reached the blocking-human checkpoint and stopped."
     },
     {
-      "id": "merges-and-tracking",
+      "id": "acceptance-review-BLOCKED-the-close",
       "status": "done",
-      "commits": ["a5248c1", "1d4673f", "b5beda6", "0c883ab", "c071b53"],
-      "name": "Both waves merged via the bounded manifest helper, worktrees and agent branches cleared, tracking updated to 4/7."
+      "commits": ["b31083b", "684cbf6", "039f252"],
+      "name": "Three orchestrator-spawned reviewers (two UNPRIMED) found the phase's own headline defect still live in lz-refactor/SKILL.md's intro. gsd-verifier independently confirmed and returned gaps_found. Phase did NOT close."
+    },
+    {
+      "id": "wave-6-gap-closure",
+      "status": "done",
+      "commits": ["287e2ba", "1006c9f", "5136974", "be2a09a", "0cf46b0", "6be5376", "bbb7200", "63e50d7", "c5416f3"],
+      "name": "22-08 closed all 8 gaps. The plan-checker found TWO BLOCKERS IN THE PLAN before any code was touched. Re-review (unprimed) confirmed every item fixed; gsd-verifier returned passed 8/8."
+    },
+    {
+      "id": "closeout",
+      "status": "done",
+      "commits": ["3aabd49", "0b684e8", "d5172f8", "48ed3c2", "9ee45f9"],
+      "name": "Security 60/60 / 0 open. Nyquist validation INSTRUMENTED the intro-prose and description-content blind spots, mutation-proven both directions. Learnings extracted and bridged (13 items, 0 skipped). D-19 discharged."
     }
   ],
   "remaining_tasks": [
     {
-      "id": "wave-3",
+      "id": "owner-decision-round-B",
       "status": "not_started",
-      "parallel": false,
-      "name": "22-04 alone: repair the two reference-tier surfaces that are the ONLY remaining gate failures -- the three-laws leaf's own three-way classifier (bare catch-all at #s19, needs the explicit no-owner marker) and beck-tdd-by-example.md's missing '## The seam across the three steps' heading. Success is mechanically checkable: check-rgr-routing.mjs must reach 0 FAIL."
+      "blocking": true,
+      "name": "EVL-01 reciprocal trigger regression. NOW OWED -- the 22-08 description edits force it (D-06). Pre-edit baseline is clean (both siblings 12/12 quiet), so any firing is unambiguous. Measurable now that the reload landed."
     },
     {
-      "id": "wave-4",
+      "id": "owner-decision-round-A",
       "status": "not_started",
-      "name": "22-06: variants/build-variants.mjs, variants/rgr-routing.md, selfcheck-routing.mjs. Dry-run only."
+      "blocking": true,
+      "name": "The 3-arm placement A/B. Instrument built and proven offline at 6/6 cruxes. Stage 2 needs its OWN approval; a stage-1 approval does not cover it."
     },
     {
-      "id": "wave-5",
+      "id": "optional-description-completeness",
       "status": "not_started",
-      "autonomous": false,
-      "name": "22-07 phase gate: full battery + claude plugin validate . + widened hygiene proven non-vacuous, the ROUTING-AB-RESULTS.md scaffold with EVERY figure left blank, and the blocking human HALT before any metered run."
+      "name": "Bring the three descriptions level with the four-times-replicated router. Ruled OMISSION not contradiction by gsd-verifier, so NOT a gap and SC5 holds. Cheapest BEFORE Round B (rides the same round); costs a second round after."
     },
     {
-      "id": "post-execution",
+      "id": "optional-rollup-fix",
       "status": "not_started",
-      "name": "Orchestrator-owned: verify_phase_goal via gsd-verifier, the D-18/SC7 acceptance review with >= 1 from-scratch UNPRIMED reviewer (MUST be handed the OPEN lz-refactor intro-paragraph item from deferred-items.md), the D-26 unprimed review of the beck seam repair, then /gsd-secure-phase 22, /gsd-validate-phase 22, and /gsd-extract-learnings 22 LAST plus the global-learnings bridge."
+      "name": "tabulate-mechanical-red.mjs and merge-judge --verify cannot reach the routing suite. Blocks Round A's ROLLUP, not its capture. Full reproduction in deferred-items.md and RUN-GATE.md KNOWN GAPS."
     }
   ],
   "blockers": [
     {
-      "type": "technical",
-      "description": "WORKTREE RESCUE MUST USE `git diff --cached`, NOT `git diff`. When 22-05 was killed by the spend limit, its pending work was STAGED (git status --short showed `A `). Plain `git diff` returned 0 bytes and `git ls-files --others --exclude-standard` returned nothing, so the insurance patch was EMPTY while 52 KB across 10 files sat in the index. Acting on that empty patch would have silently destroyed real work on worktree removal.",
-      "workaround": "On any worktree rescue: read `git status --short` first. `A ` means staged. Capture with `git diff --cached`, and additionally take a physical `cp -r` of new directories. Verify the patch is non-empty before trusting it."
+      "type": "human_action",
+      "description": "Both metered rounds are HALT-gated on fresh explicit owner approval. Neither is approved. Running /reload-plugins discharged D-19 but is NOT approval to spend -- these are separate gates by design.",
+      "workaround": "Resume signal: 'approved -- round B' and/or 'approved -- round A at k=N'."
     },
     {
       "type": "technical",
-      "description": "STATE.md state verbs corrupt the file. `state.begin-phase` fired again this session exactly as the prior handoff predicted: three U+2014 em dashes into an ASCII-only public repo, plus first-line-only replacement of two multi-line body fields orphaning both tails mid-sentence. Its own JSON reported only four tidy field updates.",
-      "workaround": "Snapshot to scratchpad, run the verb ONCE, diff against the snapshot, repair by hand, then assert `LC_ALL=C rg -c -N '[^\\x00-\\x7F]' .planning/STATE.md` (exit 1 = zero matches = clean). Never trust the verb's report; the diff is the evidence. NOTE: roadmap.update-plan-progress was clean both times this session."
-    },
-    {
-      "type": "technical",
-      "description": "worktree.cleanup-wave reports ok=false with `worktree_remove_failed -- is not a working tree` for the LAST-completing agent in each wave. Happened in BOTH waves. The MERGE succeeds; only the already-reaped directory's removal fails, which then skips the branch delete.",
-      "workaround": "Cosmetic. Verify with `git merge-base --is-ancestor <each plan commit> HEAD` before concluding anything is lost, then `git worktree prune`, `git branch -d <branch>` (safe -d refuses if unmerged -- a free check), and rmdir the empty directory."
+      "description": "Round A's ROLLUP steps cannot reach this suite. tabulate-mechanical-red.mjs exits 0 while tabulating NOTHING (it discovers e2e-red-* dirs and walks results/apply; this suite is deliberately named outside that namespace per D-22 and is recommend-only). merge-judge --verify globs a different directory shape for a differently-named grade file.",
+      "workaround": "Capture and per-run grading are unaffected -- only the numbers. Fix before Round A's rollup, or tabulate by hand. discoverSuiteDirs and walkAllSuites are ALREADY exported, so the reuse path exists."
     },
     {
       "type": "external",
-      "description": "Provider monthly spend limit terminated an executor TWICE (22-02 mid-task-2, 22-05 mid-task-3). Both recovered without loss.",
-      "workaround": "Classify as quota-exceeded and do NOT blind re-dispatch. Inspect the worktree first; resume the SAME agent via SendMessage so it keeps both its worktree and its context. A fresh agent forks a NEW worktree, and wave cleanup then force-removes the old one with its uncommitted work."
-    },
-    {
-      "type": "external",
-      "description": "PR #3 stays held after this phase closes (D-24). Closing phase 22 does NOT by itself unblock it.",
+      "description": "PR #3 stays held after this phase closes (D-24). Closing phase 22 does NOT by itself unblock it -- the owner-approved A/B run does. The tracked tree remains variant A, which is a legitimate variant, not a half-migration.",
       "workaround": "None needed -- recorded intent, not a defect."
     }
   ],
   "async_jobs": [],
   "human_actions_pending": [
     {
-      "action": "Approve or decline the two metered eval rounds when wave 5 HALTs",
+      "action": "Approve or decline Round B (EVL-01 reciprocal trigger regression)",
       "blocking": true,
-      "context": "The 3-arm placement A/B (CLS-05) and the EVL-01 reciprocal trigger regression forced by the description edits (D-06). Both are now BUILT (22-05 landed the plumbing, grader and fixtures) but neither has been executed. Zero metered spend so far. Note the descriptions CHANGED in 22-03 -- lz-red 1233 -> 1439 chars, lz-refactor 1245 -> 1369 -- so the EVL-01 round now runs against materially different frontmatter than was last measured."
+      "context": "Mandatory as a CHECK because descriptions changed, but the SPEND is the owner's call. Now believable because the reload landed."
     },
     {
-      "action": "Run /reload-plugins after the description edits land",
-      "blocking": false,
-      "context": "D-19. Committed is not live, and no trigger measurement is believable until the plugin tree reloads. Claude cannot run this. The descriptions were edited by 22-03 and are merged."
+      "action": "Approve or decline Round A (placement A/B), and its stage-1 k",
+      "blocking": true,
+      "context": "A null is a likely and legitimate outcome -- five prior placement and passive-content probes on this project came back null. Stage 2 needs separate approval. Consider fixing the rollup first."
     }
   ],
   "decisions": [
     {
       "phase": "22",
-      "decision": "mechanical-routing.json is the FIXED routing rollup filename; 22-02 is the naming authority.",
-      "rationale": "22-02's plan deferred the name to 22-05 and 22-05's plan deferred it back to 22-02's ignore lines -- a circular deferral neither plan resolved. Wave 1 broke the cycle. It is live in check-evals.mjs SUITE_SKIP_FILES and .gitignore:89. Distinct from routing-grade.json, which is the per-run verdict file --grade-file points at."
+      "decision": "Owner approved the FULL gap-closure scope including the description edits, knowing it forces the metered EVL-01 round.",
+      "rationale": "Presented with the cost explicitly via AskUserQuestion. The body-only alternative would have left the banned test-state phrase in the surface that actually decides which skill loads."
     },
     {
       "phase": "22",
-      "decision": "22-01 dropped the plan's owner-naming conjunct from isBareCatchAll.",
-      "rationale": "As literally specified the predicate could not fail against the tracked tree. The implemented form (CATCHALL_CONDITION_RE && !isResidual, with isResidual driven by an explicit RESIDUAL_MARKER_RE) is strictly stronger AND is what D-01 actually mandates: the residual is recognized by an explicit marker, never by absence of a skill name, so a branch that merely forgets an owner FAILS. Verified in code by the orchestrator."
+      "decision": "The late description-completeness findings are OMISSIONS, not contradictions, so SC5 is not falsified and the phase closes.",
+      "rationale": "Same standard the original contract reviewer applied to the structurally identical F-9. Deciding it consistently mattered more than deciding it strictly -- an inconsistent bar is how a phase never closes."
     },
     {
       "phase": "22",
-      "decision": "22-03 shipped five step-1 branches where the plan specified four.",
-      "rationale": "Branch (b) could not carry both the green-step ask and the two-hop: owns() needs destinations[0] === 'lz-tpp' for c6 but the ordered pair ['lz-red','lz-tpp'] for c4, and destinationsIn() returns first-occurrence order. No single wording satisfies both. Split into (b) green-step and (c) two-hop."
+      "decision": "Removed a stranded grading worktree inside the borrowed radix-ng/primitives-pin repo, on explicit owner approval after the auto-mode classifier denied it.",
+      "rationale": "It was residue from a killed selfcheck-red run, not a regression -- proven by byte-unchanged instruments and a matching timestamp. Its patch was captured to the scratchpad first."
     },
     {
       "phase": "22",
-      "decision": "22-03 moved the `See \"<heading>\"` pointer from the end of step 1 to its lead-in.",
-      "rationale": "A trailing pointer parses INSIDE the residual branch, and those headings name sibling slugs, so the residual would report affirmed destinations and fail isDeclaredResidual(). Pointer form and heading strings are byte-identical, only relocated."
-    },
-    {
-      "phase": "22",
-      "decision": "22-05 declined the plan's offered repo-root cwd for the eval suite.",
-      "rationale": "`cwd = args.cwd || REPO` goes straight to the spawn. A repo-root cwd puts this phase's planning docs (which state the expected owner per case) and variant A's own SKILL.md bodies one Read away, so a variant_c session could recover exactly the sections variant C removes. Used the prompts dir instead; reasoning and residual walk-up risk recorded in suite.json's repo_note. This is an eval-integrity decision, not a style one."
-    },
-    {
-      "phase": "22",
-      "decision": "The lz-refactor intro-paragraph defect was RAISED, not absorbed.",
-      "rationale": "It is a genuine SC5 violation (test-state framing plus an omitted two-hop) but sits above the first `## ` heading, so it is outside all eleven parsed surfaces and no mechanical check in this phase can see it. The executor declined to widen its own diff; the orchestrator declined to expand a plan's scope mid-wave. Recorded in deferred-items.md as a NAMED required input to the D-18/SC7 review so it cannot depend on a reviewer happening to read five particular lines."
+      "decision": "Re-dispatched 22-07 fresh after a quota kill rather than resuming the agent via SendMessage.",
+      "rationale": "The resume premise did not hold: zero commits, no documents, no surviving worktree. A resumed agent whose worktree is gone could edit the primary checkout, and its worktree_branch_check had already passed."
     }
   ],
-  "uncommitted_files": [
-    ".planning/config.json"
-  ],
-  "next_action": "Run /gsd-core:execute-phase 22 --auto in a fresh session. It resumes at wave 3 (22-04 alone, worktree isolation) because 22-01/02/03/05 all have SUMMARY.md and are skipped automatically. RE-CAPTURE EXPECTED_BASE=$(git rev-parse HEAD) at dispatch time -- 0c883ab goes stale the moment this WIP handoff commit lands -- and create a FRESH WAVE_WORKTREE_MANIFEST; the wave-1 and wave-2 manifests are spent.",
-  "context_notes": "NO AGENT IS RUNNING AND NO WORKTREE EXISTS. Verified, not assumed: `git worktree list` shows only the main checkout, zero worktree-agent-* branches, four SUMMARY.md files on disk, and the only dirty file is .planning/config.json (the ephemeral workflow._auto_chain_active flag, which by standing rule never enters a phase commit). THE METHODOLOGICAL HEADLINE IS THAT INSTRUMENT-FIRST SEQUENCING CONVERTED A JUDGMENT CALL INTO A MEASUREMENT. Wave 1 authored the gate and asserted it RED against today's tree while touching zero shipped Markdown; that RED baseline then let wave 2's acceptance be stated as a falsifiable target rather than a review opinion -- 22-03 was handed its 18 owned failures verbatim, told which 2 belonged to 22-04, and told that c6 already passes and must not regress. It landed exactly that. Wave 3's success condition is equally mechanical: 0 FAIL. SECOND, EVERY SUBSTANTIVE FINDING THIS SESSION CAME FROM CHECKING EVIDENCE RATHER THAN VERDICTS. Both executors reported success truthfully in outline, but 22-02 justified a deferral on a claim (node_modules absent from the main working copy) that was simply false -- the real mechanism is that worktrees do not carry gitignored files, and selfcheck-red.mjs exits 0 post-merge. Its conclusion survived on independent evidence; its stated reasoning did not. The same discipline caught a duplicated comment block and confirmed, rather than assumed, that 22-01's deviations were D-01/D-03-faithful and that D-17's fail-closed read shape was really implemented (readOrEmpty is try/catch -> empty string, and the only existsSync tokens in the new checker are comments CONDEMNING the SEAM-02 shape). THIRD, THE WORKTREE-RESCUE NEAR-MISS IS THE MOST TRANSFERABLE LESSON: a staged-but-uncommitted worktree yields an EMPTY `git diff`, so an insurance patch taken that way is silently worthless. TWO WATCH ITEMS FOR LATER: lz-red's description is now 1439 chars with only 97 of headroom under the 1536 cap, so future edits there have little room and the mandatory EVL-01 round runs against frontmatter 17% longer than last measured; and the ROUTING-AB-RESULTS.md blank figures that 22-07 will scaffold are the D-24 honesty requirement asserted mechanically -- they must NOT be 'fixed'."
+  "uncommitted_files": [".planning/config.json"],
+  "next_action": "Nothing runs without an owner decision. If approving spend, read .claude/skills/lz-red-workspace/e2e-rgr-routing/RUN-GATE.md first -- it carries both rounds' exact commands, the pre-run checklist, and the read-rate gate. Recommended sequencing: close the description-completeness item and the rollup gap FIRST (both zero-spend), then approve both rounds together so Round B covers all description edits in one run.",
+  "context_notes": "THE HEADLINE IS THAT EVERY REAL DEFECT THIS SESSION CAME FROM CHECKING EVIDENCE RATHER THAN VERDICTS, AND THE GATE WAS GREEN THE WHOLE TIME. check-rgr-routing.mjs reported 0 FAIL over eleven surfaces and nine corpus cases while the phase's own headline defect sat live in a shipped file -- lz-refactor/SKILL.md's intro routed behavior changes straight to lz-tpp, the exact dead end the phase exists to fix, in the first prose a model reads. Cause: every parsed surface anchors to a '## ' heading, so intro prose was outside all eleven; and descriptions were checked for character cap only, never content. THE MOST DURABLE OUTCOME IS THAT THIS BLIND SPOT IS NOW INSTRUMENTED AND MUTATION-PROVEN: restoring the original defect makes the checker fail with 'hops [lz-tpp] -- expected lz-red before lz-tpp', then goes green on a sha256-identical restore. What took three human-brief reviewers is now mechanical. SECOND, THE REVIEW THAT PAID BEST RAN EARLIEST: the plan-checker found two blockers inside the gap PLAN before any file was touched -- a placement instruction that would have broken build-variants.mjs's byte-exact C_POINTER anchor and taken the D-11 precondition RED (and would not have surfaced until a later task, after the earlier ones were committed, in a file the plan forbade editing), and an acceptance criterion that already passed at HEAD pre-edit because its phrase is line-wrapped. THIRD, THE NEGATIVE-CHECK TRAP FIRED FOUR TIMES IN FOUR DISGUISES and is the single most transferable lesson: a wrapped-phrase grep reading clean before any fix existed; 'rg -E' exiting 2 with no output while a '|| echo NONE' fallback reported absence; an rg piped into sort capturing sort's exit code; and a wrap-tolerant pattern whose \\s+ sat at the wrong word join. Always check the exit code (0 hits / 1 genuine absence / 2 command failed) and run a positive control on the same path. FOURTH, WATCH THE DESCRIPTION HEADROOM: lz-red is now 1422 chars with 114 free under the 1536 cap -- 22-08 made it SHORTER, which was required, but the margin stays thin."
 }

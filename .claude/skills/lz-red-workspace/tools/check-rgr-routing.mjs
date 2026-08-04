@@ -623,21 +623,57 @@ for (const skill of SKILLS) {
 
 console.log("");
 
+// MENTION ORDER IS NOT A HOP, and for one release this check believed it was. It asserted only that
+// lz-red is affirmed at a lower index than lz-tpp, so an intro naming them in that order while
+// DENYING both hops passed: a review rewrote the sentence to "is this skill's own work start to
+// finish: lz-red and lz-tpp cover the loop's other two beats, so continue here and change the code
+// directly" and the gate stayed GREEN on an intro that had reversed D-02 outright. Order plus two
+// names is satisfiable by prose that merely mentions the siblings while claiming the request.
+//
+// So the sentence that affirms lz-red must additionally CLAIM the first hop. Scoped to that sentence
+// rather than to the whole intro, because a claim phrase elsewhere in the paragraph says nothing
+// about the branch that names lz-red.
+//
+// This family is an ALLOWLIST, the inverse of the parser's three literal blocklists, and it FAILS
+// CLOSED: rewording the claim turns the gate RED until the new wording is listed here. That is noise
+// in the safe direction and it is the intended trade -- a missing entry costs a false failure, where
+// a blocklist's missing entry costs a false pass. Seeded from the shipped wording plus its nearest
+// neighbours.
+const FIRST_HOP_CLAIM_PHRASES = Object.freeze([
+  "opens the red step",
+  "red step first",
+  "starts in the red step",
+  "starts with the red step",
+  "goes to the red step first",
+]);
+
 const refactorIntro = introBody(refactorText);
-const refactorIntroHops = refactorIntro === null ? [] : destinationsIn(flatten(refactorIntro));
+const refactorIntroFlat = refactorIntro === null ? "" : flatten(refactorIntro);
+const refactorIntroHops = destinationsIn(refactorIntroFlat);
 const hopsOrdered =
   refactorIntroHops.includes("lz-red") &&
   refactorIntroHops.includes("lz-tpp") &&
   refactorIntroHops.indexOf("lz-red") < refactorIntroHops.indexOf("lz-tpp");
 
+// The first sentence that AFFIRMS lz-red -- destinationsIn is negation-aware, so an exclusion
+// clause naming lz-red does not select the sentence.
+const redSentence =
+  refactorIntroFlat
+    .split(/(?<=[.!?])\s+/)
+    .find((s) => destinationsIn(s).includes("lz-red")) ?? "";
+const claimed = FIRST_HOP_CLAIM_PHRASES.filter((p) => redSentence.toLowerCase().includes(p));
+const twoHopOk = refactorIntro !== null && hopsOrdered && claimed.length > 0;
+
 report(
-  refactorIntro !== null && hopsOrdered,
-  "[cls-03] intro two-hop rule -- lz-refactor's intro names lz-red before lz-tpp",
+  twoHopOk,
+  "[cls-03] intro two-hop rule -- lz-refactor's intro routes the first hop to lz-red before lz-tpp",
   refactorIntro === null
     ? "intro unreachable -- no H1 heading found in lz-refactor/SKILL.md"
-    : hopsOrdered
-      ? `hops [${refactorIntroHops.join(", ")}] -- D-02's two-hop rule (the surface the phase's BLOCKER lived on)`
-      : `hops [${refactorIntroHops.join(", ")}] -- expected lz-red before lz-tpp`
+    : !hopsOrdered
+      ? `hops [${refactorIntroHops.join(", ")}] -- expected lz-red before lz-tpp`
+      : claimed.length > 0
+        ? `hops [${refactorIntroHops.join(", ")}] claimed via "${claimed.join('", "')}" -- D-02's two-hop rule (the surface the phase's BLOCKER lived on)`
+        : `hops [${refactorIntroHops.join(", ")}] are named in order but the sentence affirming lz-red CLAIMS no first hop -- mention order is not a hop; expected one of [${FIRST_HOP_CLAIM_PHRASES.join(" | ")}]`
 );
 
 console.log("");

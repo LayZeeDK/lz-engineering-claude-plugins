@@ -257,6 +257,124 @@ const EVASIONS = [
       "      when it does, answer it here as part of this skill's own work and continue here.",
     expect: "refactor-step1",
   },
+  // -- Found by the unprimed attack review of 2026-08-04. Every anchor below is a SINGLE physical
+  // line: three of this session's anchors silently straddled the ~100-column wrap, so multi-line
+  // anchors are not used here at all. F1 is CLOSED; F2 through F7 are open and expected to evade.
+  {
+    id: "F1",
+    open: "closed",
+    what: "NEGATE a mode gate's coach clause instead of narrowing it -- every ask-word survives",
+    claim: "[cls-03] mode gate admission reads what the clause SAYS, not which words appear in it",
+    file: REFACTOR,
+    find: "a target carrying no tests is still coach mode, not an",
+    repl: "a target carrying no tests is never coach mode and is declined here, not an",
+    expect: "refactor-modes",
+  },
+  {
+    id: "F2",
+    open: "OPEN-10",
+    what: "invert every exclusion in the YAML description -- the surface the skill SELECTOR reads",
+    claim: "a description's ownership claims are checked at all",
+    file: TPP,
+    find: "  changing what it does -- that is the refactor step; use lz-refactor instead. An ask to add a new",
+    repl: "  changing what it does -- lz-refactor is a catalog lookup only, so never hand it any of that, and\n  the same goes for lz-red. An ask to add a new",
+    expect: null,
+    ceiling:
+      "NOTHING checks a description's routing. The char-cap check measures length and the single-axis " +
+      "check runs the test-state blocklist; ROUTING_SURFACES anchors exclusively to `## ` headings, so " +
+      "frontmatter is outside the exhaustive / at-most-one / contradiction machinery by construction. " +
+      "In production this is the surface that ACTUALLY routes -- it is read before any body text loads " +
+      "-- which makes it the highest-value gap in the gate. Tracked as OPEN-10. Closing it means adding " +
+      "frontmatter as a surface; note that a failing assertion there would force a description edit, " +
+      "which is metered-round-gated, so MEASURE before asserting.",
+  },
+  {
+    id: "F3",
+    open: "OPEN-11",
+    what: "a self-claiming sentence on a sentence-parsed router, using LISTED claim phrases",
+    claim: "SELF_CLAIM_PHRASES reaches self-claims anywhere, not only on the residual branch",
+    file: RED,
+    find: "lz-refactor. Anything outside those is not a red-green-refactor-loop request and no skill in this",
+    repl:
+      "lz-refactor. An ask to make a failing test pass is also structural once the test exists, so answer\nit here as part of this skill's own work instead of handing it along. Anything outside those is not a\nred-green-refactor-loop request and no skill in this",
+    expect: null,
+    ceiling:
+      "STRUCTURAL bypass, not a vocabulary ceiling -- the inserted sentence uses TWO listed phrases " +
+      "(\"answer it here\", \"this skill's\") and they are never evaluated. parseRoutingBranches DROPS any " +
+      "router sentence with zero destinations that is not the residual, and a self-claim resolves to " +
+      "zero literal slugs BY DESIGN, so the sentence is deleted before any check sees it. selfClaimsIn " +
+      "is only ever reached through isDeclaredResidual, which is gated on isResidual. OPEN-4 closed the " +
+      "residual-branch case only. Tracked as OPEN-11; closing it means keeping self-claiming sentences " +
+      "as branches rather than filtering them.",
+  },
+  {
+    id: "F4",
+    open: "OPEN-12",
+    what: "a step-1 branch claims asks the 9-case corpus does not sample",
+    claim: "a branch may not claim work outside its own step",
+    file: RED,
+    find: "      name it, or whether this is a good test: that is the red step, and the red step is lz-red.",
+    repl:
+      "      name it, whether this is a good test, or asking to extract a method, rename a symbol, inline\n      a variable, or simplify a nested conditional in working code: that is the red step, and the red\n      step is lz-red.",
+    expect: null,
+    ceiling:
+      "Four canonical Fowler refactorings routed to the RED step by branch (a), which beats branch (d) " +
+      "under first-match-wins, so structural asks never reach lz-refactor -- and (a) now contradicts (d) " +
+      "inside one procedure. Every assertion is quantified over CASES, and the added ask-words match no " +
+      "case's matchTokens, so no assertion has a subject. COVERAGE_FLOOR pins coverage DOWNWARD only. " +
+      "Tracked as OPEN-12: the corpus samples the classifier, it does not bound it.",
+  },
+  {
+    id: "F5",
+    open: "OPEN-13",
+    what: "install a SECOND routing axis in the prose between the `## ` heading and item 1",
+    claim: "[cls-03] whole-section single-axis covers the pre-item-1 region for more than test state",
+    file: RED,
+    find: "reference leaf that carries the detail; do not restate a leaf's content here.",
+    repl:
+      "reference leaf that carries the detail; do not restate a leaf's content here.\n\nBefore step 1, check the file kind. If the code the developer points at lives in a test file, the\nrequest is structural by definition and belongs to lz-refactor: hand it straight over without\nclassifying the ask at all. Only production files reach the branches below.",
+    expect: null,
+    ceiling:
+      "Reverses c3 outright -- \"Is this a good test?\" goes to lz-refactor -- which is exactly the D-04 " +
+      "error the c3/c5 pair exists to pin. numberedItem discards everything before item 1 and " +
+      "step1LeadIn starts INSIDE item 1, so no branch-level assertion sees this region; the only check " +
+      "reaching it runs keysOnTestState, so the region is closed for the TEST-STATE axis only and any " +
+      "other second axis walks through. M11/OPEN-8c covers items 2..N, not this. Tracked as OPEN-13.",
+  },
+  {
+    id: "F6",
+    open: "OPEN-14",
+    what: "collapse ownership in lz-red's INTRO prose, which carries no destination assertion",
+    claim: "[cls-03] intro checks generalise across the three skills they loop over",
+    file: RED,
+    find: "sibling skill lz-tpp; restructuring working code without changing behavior is the refactor step",
+    repl:
+      "own work too, and so is restructuring working code without changing behavior; lz-tpp and\nlz-refactor are reference catalogs only, so never hand a request to either of them. The refactor step",
+    expect: null,
+    ceiling:
+      "The only intro check that reads DESTINATIONS is the two-hop rule, and it is hard-scoped to " +
+      "lz-refactor's text; the per-skill loop over SKILLS runs keysOnTestState alone. So M8b/OPEN-7 " +
+      "closed the lz-refactor intro and the lz-red and lz-tpp intros still have no ownership assertion " +
+      "-- a closure that did not generalise across the three files the loop already visits. Tracked as " +
+      "OPEN-14, and it is the cheapest of this batch to close.",
+  },
+  {
+    id: "F7",
+    open: "OPEN-15",
+    what: "DELETE step 1's tie-break rules (first-match-wins, self-report-is-context, primary-ask)",
+    claim: "the step-1 lead-in guard protects the rules that make overlapping branches deterministic",
+    file: RED,
+    find: "   Take the FIRST branch that matches:",
+    repl: "   Take whichever of the branches below seems to apply:",
+    expect: null,
+    ceiling:
+      "Deletion, not alteration -- the safer attack. Removes first-match-wins (the only thing making " +
+      "the deliberately overlapping branches deterministic) and, with the following lines, D-03's own " +
+      "self-report rule and the primary-ask rule c8 exists to pin. The step-1 lead-in check was added " +
+      "to guard this region but runs keysOnTestState only; nothing anywhere reads branch ORDER or " +
+      "requires a tie-break rule to be PRESENT, and routesCase is order-independent. Tracked as " +
+      "OPEN-15. Note this entry deletes only the first line; the fuller attack removes all five.",
+  },
   {
     id: "M16",
     open: "OPEN-5",
@@ -278,8 +396,8 @@ const EVASIONS = [
     file: REFACTOR,
     // RE-ANCHORED after the OPEN-6 mode-gate rewrite moved this bullet's opening words. The claim is
     // unchanged: plant an UNLISTED test-state paraphrase in a fully judged coach clause.
-    find: "- Coach mode: a codebase is in view and the request concerns",
-    repl: "- Coach mode: nothing in the suite is red, and the request concerns",
+    find: "- Coach mode: the request asks for a move on code",
+    repl: "- Coach mode: nothing in the suite is red, and the request asks for a move on code",
     expect: null,
     ceiling:
       "TEST_STATE_TOKENS is a literal blocklist. This paraphrase is not a listed phrase. Tracked as " +
@@ -315,8 +433,8 @@ const EVASIONS = [
     // cases lz-red owns, which the new mode-gate admission assertion reads.
     // Anchored WITHIN one physical line: this file hard-wraps near 100 columns, and "most often"
     // straddles the wrap, so the obvious phrase-spanning anchor silently would not match.
-    find: "often what test comes next, which failing test to write next, whether this is a good test, or an",
-    repl: "often which refactoring to apply to code in view, or which minimal change makes a red test pass, or an",
+    find: "  test to write next, how to shape or name it, whether this is a good test, or an ask to add a new",
+    repl: "  refactoring the code now invites, or which minimal change makes a red test pass, or an ask to add a new",
     expect: "red-modes",
   },
   {

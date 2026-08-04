@@ -112,6 +112,7 @@ import {
   isDeclaredResidual,
   routesCase,
   keysOnTestState,
+  affirmedPhrasesIn,
   parseRoutingBranches,
 } from "./lib/routing-parse.mjs";
 
@@ -524,9 +525,21 @@ for (const surface of MODE_GATES) {
   const coachRaw = body.split(/^-\s+Reference mode:/m)[0] ?? "";
   const coach = flatten(coachRaw.replace(/^-\s+Coach mode:/m, ""));
   const ownedCases = CASES.filter((k) => k.expectedOwner === surface.owner);
-  const fakeBranch = { conditionText: coach, destinations: [], isResidual: false };
-  const notAdmitted = ownedCases.filter((k) => !covers(fakeBranch, k)).map((k) => k.id);
-  const delegates = DELEGATION_PHRASES.filter((p) => coach.toLowerCase().includes(p));
+
+  // AFFIRMED, not merely PRESENT. This used `covers()`, which is a bare substring test, and a review
+  // defeated the whole assertion with it: inverting the clause ("a target carrying no tests is NEVER
+  // coach mode -- decline it here") keeps every ask-word, so admission still read as satisfied while
+  // the gate now excluded the very case its own step 5 handles. Narrowing a clause deletes tokens and
+  // WAS caught; negating one keeps them. A guard that cannot tell an assertion from its inversion is
+  // measuring vocabulary, not meaning.
+  //
+  // The delegation phrase runs through the same pass for the same reason -- "step 1 classifies the
+  // ask" is equally invertible.
+  const admits = (kase) =>
+    affirmedPhrasesIn(coach, kase.matchTokens).length ===
+    kase.matchTokens.filter((t) => typeof t === "string" && t.trim() !== "").length;
+  const notAdmitted = ownedCases.filter((k) => !admits(k)).map((k) => k.id);
+  const delegates = affirmedPhrasesIn(coach, DELEGATION_PHRASES);
   const reasons = [];
 
   // Anti-vacuity: an empty or near-empty coach clause would admit nothing and fail below, but a

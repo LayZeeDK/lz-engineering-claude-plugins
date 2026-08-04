@@ -455,19 +455,34 @@ const phraseRe = (phrase) => {
   return new RegExp(`(?<![a-z0-9-])${esc}`, "gi");
 };
 
-// The self-claim phrases AFFIRMED in `branchText`, in list order. Returns the matched phrases rather
+// The phrases from `phrases` AFFIRMED in `text`, in list order. Returns the matched phrases rather
 // than a boolean, so a report can NAME what it caught -- the keysOnTestState convention.
 //
 // Affirmation runs through firstAffirmedIndex, so a phrase inside a negated or hedged-and-retracted
 // clause does not count. That is load-bearing rather than defensive: the live wording that would
 // otherwise false-positive is already in the tree.
-export const selfClaimsIn = (branchText, phrases = SELF_CLAIM_PHRASES) => {
-  const text = String(branchText == null ? "" : branchText);
+//
+// GENERALISED because a review defeated a caller that used bare `includes`. Any check asking "does
+// this clause SAY x" needs the negation pass; a substring test answers the different and much weaker
+// question "does the word x appear", which an inversion satisfies just as well as an assertion does.
+// If a new guard matches a phrase list against authored prose, route it through here.
+//
+// KNOWN CONFOUND, and the selftest pins it: NEG is clause-scoped and fires on a negation word
+// ANYWHERE in the clause, so an unrelated one suppresses affirmation -- "carrying no tests is still
+// coach mode" reads as not-affirmed even though it asserts. Measured as harmless on the tracked tree,
+// and the failure direction is a false FAIL, which is the safe one for a gate. Punctuation ends the
+// clause and clears it. Do not "fix" this with a looser NEG: losing negation-awareness is what the
+// bare-includes caller was defeated for.
+export const affirmedPhrasesIn = (text, phrases) => {
+  const s = String(text == null ? "" : text);
 
   return (Array.isArray(phrases) ? phrases : [])
     .filter((p) => typeof p === "string" && p.trim() !== "")
-    .filter((p) => firstAffirmedIndex(text, phraseRe(p)) >= 0);
+    .filter((p) => firstAffirmedIndex(s, phraseRe(p)) >= 0);
 };
+
+export const selfClaimsIn = (branchText, phrases = SELF_CLAIM_PHRASES) =>
+  affirmedPhrasesIn(branchText, phrases);
 
 // The tokens from `tokens` that appear in `conditionText`, case-insensitively. PURE, and exported so
 // it can be driven in BOTH directions -- the selftest feeds it a live-shaped test-state gate

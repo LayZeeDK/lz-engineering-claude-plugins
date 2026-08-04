@@ -623,12 +623,13 @@ console.log("");
 // ---------------------------------------------------------------------------------------------
 console.log("lib/routing-parse.mjs -- export roster");
 
-check("routing-parse.mjs exports exactly the seventeen named helpers", Object.keys(parser).sort(), [
+check("routing-parse.mjs exports exactly the eighteen named helpers", Object.keys(parser).sort(), [
   "CATCHALL_CONDITION_RE",
   "RESIDUAL_MARKER_RE",
   "ROUTING_SURFACES",
   "SELF_CLAIM_PHRASES",
   "TEST_STATE_TOKENS",
+  "affirmedPhrasesIn",
   "covers",
   "destinationsIn",
   "foldedDescription",
@@ -651,6 +652,40 @@ check(
 check(
   "SELF_CLAIM_PHRASES carries no empty or whitespace-only entry",
   parser.SELF_CLAIM_PHRASES.filter((p) => typeof p !== "string" || p.trim() === ""),
+  []
+);
+
+// affirmedPhrasesIn is the generalised affirmation pass, and it exists because an unprimed attack
+// defeated a caller that used bare `includes`: INVERTING a mode gate's coach clause ("a target
+// carrying no tests is NEVER coach mode") keeps every ask-word, so a substring test scored the
+// inversion exactly like the assertion. Narrowing a clause deletes tokens and was caught; negating
+// one does not. This leg pins the distinction that matters: same phrase, asserted vs denied.
+check(
+  "affirmedPhrasesIn separates an ASSERTED phrase from its NEGATION",
+  [
+    parser.affirmedPhrasesIn("the request is still coach mode", ["coach mode"]),
+    parser.affirmedPhrasesIn("the request is never coach mode", ["coach mode"]),
+  ],
+  [["coach mode"], []]
+);
+// KNOWN CONFOUND, pinned rather than left to surprise someone. The negation test is clause-scoped and
+// keys on a NEG word anywhere in the clause, so an unrelated "no" in the same clause suppresses
+// affirmation -- "carrying no tests is still coach mode" scores as NOT affirmed even though it
+// asserts. Measured; it does NOT affect the tracked tree (lz-refactor's real coach clause affirms
+// both of c7's tokens, "clean up" and "no tests"), and the failure direction is a false FAIL, which
+// is the safe one for a gate. Punctuation ends the clause and clears it, as the second leg shows.
+// Upgrade to a real clause splitter only when an AUTHORED clause is provably mis-scored.
+check(
+  "affirmedPhrasesIn: an unrelated NEG word in the same clause suppresses affirmation (heuristic limit)",
+  [
+    parser.affirmedPhrasesIn("a target carrying no tests is still coach mode", ["coach mode"]),
+    parser.affirmedPhrasesIn("a target carrying no tests; this is still coach mode", ["coach mode"]),
+  ],
+  [[], ["coach mode"]]
+);
+check(
+  "affirmedPhrasesIn drops empty tokens rather than matching everything",
+  parser.affirmedPhrasesIn("anything at all", ["", "   "]),
   []
 );
 

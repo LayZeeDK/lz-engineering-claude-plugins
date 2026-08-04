@@ -31,19 +31,20 @@ Law 1 gates production code behind a failing test, and reaches lz-tpp once that 
 
 ## Two modes
 
-- Coach mode: a codebase is in view and the request concerns the red-green-refactor loop -- most
-  often to improve the structure or readability of existing code without changing what it does:
-  clean up, tidy, simplify, restructure, de-duplicate, or which refactoring applies to a smell in
-  view, or a developer who has just finished making a test pass and asks what now, where the answer
-  is which refactoring the code now invites. The code in view may be a test file, and a target
-  carrying no tests is still coach mode, not an exclusion: step 5 pins its current behavior with
-  characterization tests first, then refactors. Route the smell to a candidate NAMED refactoring and
-  present it via the coach decision procedure below. This gate decides coach versus reference only:
-  step 1 classifies the ask and routes it, handing the request to a sibling skill when the ask turns
-  out to be the red step or the green step, rather than declining it here.
-- Reference mode: the request is "explain this refactoring / smell / principle", a named-refactoring
-  lookup, or an explicit `/lz-tdd:lz-refactor` invocation with nothing to coach. Answer from the
-  reference files listed below; do not restate their content here.
+- Coach mode: the request asks for a move on code -- most often to improve the structure or
+  readability of existing code without changing what it does: clean up, tidy, simplify, restructure,
+  de-duplicate, or which refactoring applies to a smell in view, or a developer who has just
+  finished making a test pass and asks what now, where the answer is which refactoring the code now
+  invites. The code may be a test file, and a target carrying no tests is still coach mode, not an
+  exclusion: step 5 pins its current behavior with characterization tests first, then refactors.
+  Run the coach decision procedure below; step 1 classifies the ask. When step 1 settles the ask as
+  the refactor step, route the smell to a candidate NAMED refactoring and present it. When it routes
+  the ask to the red step or the green step instead, hand the request to that sibling skill. When it
+  finds no skill in the loop owns the request, its branch (e) answers directly. This gate chooses
+  coach versus reference only: it never decides ownership and never declines a request itself.
+- Reference mode: otherwise -- the request is "explain this refactoring / smell / principle", a
+  named-refactoring lookup, or an explicit `/lz-tdd:lz-refactor` invocation with nothing to coach.
+  Answer from the reference files listed below; do not restate their content here.
 
 ## Refactoring vs the red step (lz-red) and the green step (lz-tpp)
 

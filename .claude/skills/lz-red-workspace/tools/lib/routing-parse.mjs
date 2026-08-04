@@ -356,10 +356,15 @@ const hedgedContrastive = (text, idx, end) => {
   return HEDGE.test(before) && CONTRAST_FWD.test(after);
 };
 
-// Index of the first AFFIRMED occurrence of `name` in `text`, or -1. Affirmed = present, negated in
+// Index of the first AFFIRMED occurrence of `re` in `text`, or -1. Affirmed = present, negated in
 // neither direction, and not a hedged-then-retracted hypothetical.
-const firstAffirmedIndex = (text, name) => {
-  const re = skillNameRe(name, "gi");
+//
+// Takes a PRE-BUILT global RegExp rather than a skill name, so the same negation and hedge logic
+// serves both consumers: destinationsIn passes a bare-slug matcher, selfClaimsIn passes a literal
+// phrase matcher. Reusing it is not tidiness -- the tree contains "it is lz-tpp's job, not this
+// skill's", so a self-claim scan without this bidirectional negation awareness would score that
+// DECLINE as a claim. Must be global; the loop advances lastIndex.
+const firstAffirmedIndex = (text, re) => {
   let m;
 
   while ((m = re.exec(text)) !== null) {
@@ -398,7 +403,7 @@ export const destinationsIn = (branchText) => {
   const hits = [];
 
   for (const name of SKILL_NAMES) {
-    const idx = firstAffirmedIndex(text, name);
+    const idx = firstAffirmedIndex(text, skillNameRe(name, "gi"));
 
     if (idx >= 0) {
       hits.push({ name, idx });
@@ -406,6 +411,62 @@ export const destinationsIn = (branchText) => {
   }
 
   return hits.sort((a, b) => a.idx - b.idx).map((h) => h.name);
+};
+
+// ---------------------------------------------------------------------------------------------
+// The SELF-CLAIM vocabulary (D-01, the second hole at isBareCatchAll).
+//
+// `destinationsIn` deliberately does not resolve "this skill" to the owning slug, and it must not
+// start (see its DELIBERATE NON-FEATURE note). The cost of that choice is that a terminal can carry
+// BOTH halves of the residual marker -- so `isResidual` is true and `isBareCatchAll` is suppressed --
+// while the same sentence hands the request to itself in the house self-reference form. A review
+// demonstrated it: "no skill in this loop owns it. In practice almost every request that mentions
+// code at all lands here, and when it does, answer it here as part of this skill's own work and
+// continue here." Zero literal slugs, both marker halves, and a total self-claim.
+//
+// So the claim is recognised WITHOUT teaching the parser to resolve self-reference: match the claim
+// PHRASES directly, and only ever ask this of a branch already marked residual.
+//
+// Seeded from the forms this codebase's own comments name as the house self-reference vocabulary --
+// "this skill", "this skill's work", "continue here" at destinationsIn, "is this skill's work" at
+// isBareCatchAll -- plus the two here-anchored forms the demonstrated evasion used. The possessive
+// "this skill's" is preferred over a bare "this skill" because the bare form appears live in an
+// EXCLUSION ("it is lz-tpp's job, not this skill's", laws-classify #s13) where the claim is being
+// denied; the possessive plus negation-awareness scores that correctly as no claim.
+//
+// NAMED CEILING, stated plainly because two sibling guards here learned it the hard way: this is a
+// LITERAL FAMILY BLOCKLIST, exactly like TEST_STATE_TOKENS and CATCHALL_CONDITION_RE. An unlisted
+// paraphrase walks through. Read a clean result as "no LISTED self-claim wording is present", never
+// as "this terminal claims nothing". The evasion suite records that residual as a permanent ceiling
+// rather than letting this comment imply a closure it does not have.
+export const SELF_CLAIM_PHRASES = Object.freeze([
+  "this skill's",
+  "continue here",
+  "answer it here",
+  "here as part of",
+  "handle it here",
+]);
+
+// Literal phrase matcher, whitespace-tolerant so it works on raw text as well as flattened branch
+// text, and left-boundaried so "handle it here" cannot match inside a longer word.
+const phraseRe = (phrase) => {
+  const esc = phrase.replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace(/\s+/g, "\\s+");
+
+  return new RegExp(`(?<![a-z0-9-])${esc}`, "gi");
+};
+
+// The self-claim phrases AFFIRMED in `branchText`, in list order. Returns the matched phrases rather
+// than a boolean, so a report can NAME what it caught -- the keysOnTestState convention.
+//
+// Affirmation runs through firstAffirmedIndex, so a phrase inside a negated or hedged-and-retracted
+// clause does not count. That is load-bearing rather than defensive: the live wording that would
+// otherwise false-positive is already in the tree.
+export const selfClaimsIn = (branchText, phrases = SELF_CLAIM_PHRASES) => {
+  const text = String(branchText == null ? "" : branchText);
+
+  return (Array.isArray(phrases) ? phrases : [])
+    .filter((p) => typeof p === "string" && p.trim() !== "")
+    .filter((p) => firstAffirmedIndex(text, phraseRe(p)) >= 0);
 };
 
 // The tokens from `tokens` that appear in `conditionText`, case-insensitively. PURE, and exported so
@@ -602,10 +663,24 @@ export const owns = (branch, kase) => {
   return branch.destinations.length === 1 && branch.destinations[0] === kase.expectedOwner;
 };
 
-// The declared residual terminal claims NOTHING: it must carry the explicit no-owner marker AND
-// affirm zero destinations. Recognition is never by the ABSENCE of a skill name, so a branch that
-// merely forgot to name an owner cannot pass itself off as the residual (D-01).
-export const isDeclaredResidual = (branch) => branch.isResidual && branch.destinations.length === 0;
+// The declared residual terminal claims NOTHING: it must carry the explicit no-owner marker, affirm
+// zero destinations, AND affirm no self-claim. Recognition is never by the ABSENCE of a skill name,
+// so a branch that merely forgot to name an owner cannot pass itself off as the residual (D-01).
+//
+// The self-claim conjunct is what closes the second hole recorded at isBareCatchAll: zero LITERAL
+// destinations was the whole test, and a terminal keeping both marker halves while handing the
+// request to itself in the house self-reference form satisfied it. Both directions were MEASURED
+// over all eleven surfaces first: no shipped residual affirms any listed phrase, and the one live
+// "this skill" is a negated exclusion on a NON-residual branch, so this moves no shipped verdict.
+//
+// Computed from `conditionText` rather than read off a precomputed branch field, so the predicate
+// stays self-contained and drivable over any branch-shaped object -- the selftest's fixtures need no
+// new plumbing to exercise it. `isResidual` gates the call, so a non-residual branch's phrasing is
+// never judged here.
+export const isDeclaredResidual = (branch) =>
+  branch.isResidual &&
+  branch.destinations.length === 0 &&
+  selfClaimsIn(branch.conditionText).length === 0;
 
 // Does ONE surface's own branch list route ONE case correctly? Returns { ok, why, via }.
 //
@@ -625,7 +700,21 @@ export const routesCase = (branches, kase) => {
     const captors = list.filter((b) => !isDeclaredResidual(b) && covers(b, kase));
 
     if (residuals.length === 0) {
-      return { ok: false, why: "no declared residual terminal on this surface", via: [] };
+      // Distinguish "there is no terminal" from "the terminal SELF-CLAIMS", because they are
+      // different defects and the second one is invisible in the file: the branch still reads as a
+      // well-formed residual. Reporting the generic message for it would send a reader looking for a
+      // missing section that is right there.
+      const selfClaiming = list
+        .filter((b) => b.isResidual && selfClaimsIn(b.conditionText).length > 0)
+        .map((b) => `#${b.branchId} (${selfClaimsIn(b.conditionText).join(", ")})`);
+
+      return {
+        ok: false,
+        why: selfClaiming.length
+          ? `residual-marked branch(es) ${selfClaiming.join("; ")} SELF-CLAIM the request, so this surface declares no no-owner terminal`
+          : "no declared residual terminal on this surface",
+        via: [],
+      };
     }
 
     if (captors.length > 0) {

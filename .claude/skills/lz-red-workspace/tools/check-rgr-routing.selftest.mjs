@@ -623,10 +623,11 @@ console.log("");
 // ---------------------------------------------------------------------------------------------
 console.log("lib/routing-parse.mjs -- export roster");
 
-check("routing-parse.mjs exports exactly the fifteen named helpers", Object.keys(parser).sort(), [
+check("routing-parse.mjs exports exactly the seventeen named helpers", Object.keys(parser).sort(), [
   "CATCHALL_CONDITION_RE",
   "RESIDUAL_MARKER_RE",
   "ROUTING_SURFACES",
+  "SELF_CLAIM_PHRASES",
   "TEST_STATE_TOKENS",
   "covers",
   "destinationsIn",
@@ -638,6 +639,7 @@ check("routing-parse.mjs exports exactly the fifteen named helpers", Object.keys
   "owns",
   "parseRoutingBranches",
   "routesCase",
+  "selfClaimsIn",
   "step1LeadIn",
 ]);
 check("ROUTING_SURFACES declares the eleven classifier surfaces", parser.ROUTING_SURFACES.length, 11);
@@ -645,6 +647,58 @@ check(
   "TEST_STATE_TOKENS carries no empty or whitespace-only entry",
   parser.TEST_STATE_TOKENS.filter((t) => typeof t !== "string" || t.trim() === ""),
   []
+);
+check(
+  "SELF_CLAIM_PHRASES carries no empty or whitespace-only entry",
+  parser.SELF_CLAIM_PHRASES.filter((p) => typeof p !== "string" || p.trim() === ""),
+  []
+);
+
+// ---------------------------------------------------------------------------------------------
+// selfClaimsIn / isDeclaredResidual -- the D-01 self-claim hole (evasion-suite entry M2).
+//
+// A terminal can keep BOTH residual marker halves, affirm zero literal slugs, and still hand the
+// request to itself in the house self-reference form. `isResidual` is then true and `isBareCatchAll`
+// is suppressed by its `&& !isResidual` conjunct, so the old two-conjunct isDeclaredResidual scored
+// it as a clean no-owner terminal. These legs pin the positive AND both negatives.
+//
+// The negation leg is not defensive padding: "it is lz-tpp's job, not this skill's" is LIVE in
+// laws-classify #s13, so a self-claim scan without bidirectional negation awareness would score that
+// DECLINE as a claim and turn a correct surface red.
+// ---------------------------------------------------------------------------------------------
+const SELF_CLAIMING_TERMINAL =
+  "None of (a) through (d): this is not a red-green-refactor-loop request and no skill in this " +
+  "loop owns it. In practice almost every request that mentions code at all lands here, and when " +
+  "it does, answer it here as part of this skill's own work and continue here.";
+const CLEAN_TERMINAL =
+  "None of (a) through (d): this is not a red-green-refactor-loop request and no skill in this " +
+  "loop owns it. Say so plainly, answer the question directly, and claim nothing.";
+
+check(
+  "selfClaimsIn NAMES the affirmed claim phrases rather than returning a boolean",
+  parser.selfClaimsIn(SELF_CLAIMING_TERMINAL),
+  ["this skill's", "continue here", "answer it here", "here as part of"]
+);
+check("selfClaimsIn finds no claim in the shipped terminal wording", parser.selfClaimsIn(CLEAN_TERMINAL), []);
+check(
+  "selfClaimsIn does NOT count a phrase inside a NEGATED clause -- the live laws-classify wording",
+  parser.selfClaimsIn("That is the green step, and it is lz-tpp's job, not this skill's."),
+  []
+);
+check(
+  "isDeclaredResidual rejects a marker-bearing terminal that SELF-CLAIMS, and accepts the clean one",
+  [
+    isDeclaredResidual({ isResidual: true, destinations: [], conditionText: SELF_CLAIMING_TERMINAL }),
+    isDeclaredResidual({ isResidual: true, destinations: [], conditionText: CLEAN_TERMINAL }),
+  ],
+  [false, true]
+);
+// The self-claim conjunct must not become a back door around the both-halves marker requirement: a
+// branch that merely forgot to name an owner still fails as unowned, never as the residual (D-01).
+check(
+  "isDeclaredResidual still requires the residual MARKER, not merely the absence of a claim",
+  isDeclaredResidual({ isResidual: false, destinations: [], conditionText: "Some branch with no owner named." }),
+  false
 );
 check(
   "foldedDescription returns null rather than throwing when the key is absent",

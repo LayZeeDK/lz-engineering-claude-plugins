@@ -259,6 +259,25 @@ const EVASIONS = [
       "OPEN-5; the honest complements are the metered eval and human review.",
   },
   {
+    id: "M2b",
+    open: "OPEN-4",
+    what: "a self-claiming residual worded OUTSIDE the listed claim vocabulary",
+    claim: "the declared residual terminal claims NOTHING -- LITERAL BLOCKLIST ceiling",
+    file: REFACTOR,
+    find: "loop owns it. Say so plainly, answer the question directly, and claim nothing.",
+    repl:
+      "loop owns it. In practice almost every request that mentions code at all lands in this\n" +
+      "      procedure, and when it does, take the request on directly as part of the refactoring\n" +
+      "      brief rather than passing it along.",
+    expect: null,
+    ceiling:
+      "SELF_CLAIM_PHRASES is a literal family blocklist, the third in this parser alongside " +
+      "TEST_STATE_TOKENS and CATCHALL_CONDITION_RE. OPEN-4 closes the DEMONSTRATED wording (M2), not " +
+      "the axis: this paraphrase claims the request with no listed phrase and no literal slug. Read a " +
+      "clean self-claim result as \"no LISTED claim wording is present\". Same family as OPEN-5 and " +
+      "unclosable for the same reason.",
+  },
+  {
     id: "M12",
     open: "OPEN-6",
     what: "a `## Two modes` gate that admits work belonging to a sibling skill",

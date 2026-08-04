@@ -114,6 +114,7 @@ import {
   keysOnTestState,
   affirmedPhrasesIn,
   parseRoutingBranches,
+  RESIDUAL_MARKER_RE,
 } from "./lib/routing-parse.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -892,6 +893,160 @@ report(
         ? `hops [${refactorIntroHops.join(", ")}] claimed via "${claimed.join('", "')}" -- D-02's two-hop rule (the surface the phase's BLOCKER lived on)`
         : `hops [${refactorIntroHops.join(", ")}] are named in order but the sentence affirming lz-red CLAIMS no first hop -- mention order is not a hop; expected one of [${FIRST_HOP_CLAIM_PHRASES.join(" | ")}]`
 );
+
+console.log("");
+
+// ---------------------------------------------------------------------------------------------
+// [cls-04] CONTRADICTION SWEEP over every prose region no routing assertion reaches.
+//
+// Four separate holes an unprimed attack walked through, all the same shape: a region of authored
+// prose that names skills, decides ownership in a reader's mind, and is read by NO destination-level
+// assertion. Each was demonstrated with a verified mutation that left the gate exit 0:
+//
+//   * the YAML `description` -- the surface the skill SELECTOR reads, BEFORE any body text loads, so
+//     in production it is the surface that actually routes. Only the char cap and the test-state
+//     blocklist touched it. Inverting every exclusion in it passed.
+//   * lz-red's and lz-tpp's INTRO prose. The intro two-hop rule reads destinations but is hard-scoped
+//     to lz-refactor, and the per-skill loop runs the test-state check only, so closing the
+//     lz-refactor intro did not generalise to the two files the loop already visits.
+//   * the plugin-wide reference's intro, above its first `## ` heading -- outside every surface, and
+//     found only because a mis-anchored evasion entry had been hitting it by accident.
+//   * the prose BETWEEN a `## ` heading and item `1.`, where a whole SECOND routing axis (dispatch on
+//     file kind, reversing D-04) can be installed above the branches that would otherwise decide.
+//
+// WHY CONTRADICTION-ONLY, and it is a measured limit rather than a preference. Requiring these
+// regions to ROUTE every case they mention fails on the SHIPPED tree: lz-tpp's description carries
+// c4's two-hop across a sentence boundary, so its sentence names lz-red alone and the ordered-pair arm
+// rejects it. Repairing that means editing a `description`, which is gated behind a metered
+// re-evaluation round. So the assertion keeps the half that needs no edit -- no region may COVER a
+// case and lead with a skill that does not own it -- which is exactly the half every one of the four
+// attacks tripped. Measured over all three descriptions, all three intros, the plugin reference intro
+// and all three pre-item-1 regions: zero contradictions on the tracked tree.
+//
+// Read a clean result as "no region CONTRADICTS the corpus", never as "every region routes correctly".
+// The positive-routing half remains unasserted here and is recorded as open.
+// ---------------------------------------------------------------------------------------------
+console.log("[cls-04] contradiction sweep -- no unasserted prose region routes a case to the wrong skill");
+
+// Sentences of a prose region that name a destination or declare the residual, shaped like branches
+// so the same `covers` / destination logic applies.
+const proseBranches = (regionText, label) =>
+  flatten(regionText)
+    .split(/(?<=[.!?])\s+/)
+    .map((t, i) => ({
+      surfaceId: label,
+      branchId: `p${i + 1}`,
+      conditionText: t,
+      destinations: destinationsIn(t),
+      isResidual: RESIDUAL_MARKER_RE.test(t),
+    }))
+    .filter((b) => b.destinations.length > 0 || b.isResidual);
+
+// A region CONTRADICTS when one of its sentences contains every ask-word of a case and then leads with
+// a skill that is not that case's owner. Scoped to the FIRST destination for the reason routesCase
+// records: prose legitimately names a second skill while routing to the first.
+const contradictionsIn = (regionText, label) => {
+  const branches = proseBranches(regionText, label);
+  const bad = [];
+
+  for (const kase of CASES) {
+    if (kase.expectedOwner === "NONE") {
+      continue;
+    }
+
+    for (const b of branches) {
+      if (covers(b, kase) && b.destinations.length > 0 && b.destinations[0] !== kase.expectedOwner) {
+        bad.push(`#${b.branchId} covers ${kase.id} but leads with ${b.destinations[0]} (${kase.id} is owned by ${kase.expectedOwner})`);
+      }
+    }
+  }
+
+  return bad;
+};
+
+const sweepRegions = [];
+
+for (const skill of SKILLS) {
+  const text = readOrEmpty(path.join(repoRoot, "plugins", "lz-tdd", "skills", skill, "SKILL.md"));
+  const folded = foldedDescription(text);
+  const intro = introBody(text);
+  // Prose between the `## Coach decision procedure` heading and item 1. numberedItem discards it and
+  // step1LeadIn starts inside item 1, so nothing else reaches it.
+  const body = sectionBody(text, "Coach decision procedure");
+  const preItem1 = body === null ? null : body.split(/^1\.[ \t]+/m)[0];
+
+  sweepRegions.push(
+    { id: `${skill} description`, text: folded },
+    { id: `${skill} intro`, text: intro },
+    { id: `${skill} pre-item-1`, text: preItem1 }
+  );
+}
+
+sweepRegions.push({
+  id: "beck reference intro",
+  text: introBody(readOrEmpty(path.join(repoRoot, "plugins", "lz-tdd", "references", "beck-tdd-by-example.md"))),
+});
+
+for (const region of sweepRegions) {
+  if (region.text === null) {
+    report(false, `[cls-04] contradiction sweep -- ${region.id}`, "region unreachable -- absent heading, absent H1, or unreadable file");
+    continue;
+  }
+
+  const bad = contradictionsIn(region.text, region.id);
+
+  report(
+    bad.length === 0,
+    `[cls-04] contradiction sweep -- ${region.id}`,
+    bad.length === 0 ? "no sentence routes a case to a non-owner" : bad.join("; ")
+  );
+}
+
+console.log("");
+
+// ---------------------------------------------------------------------------------------------
+// [cls-04] step-1 TIE-BREAK RULES must be PRESENT.
+//
+// The branches of step 1 deliberately overlap -- c8 ("what test comes next, and can you also tidy the
+// helper?") is covered by more than one -- so three lead-in rules are what make the procedure
+// deterministic: take the FIRST branch that matches, a developer's self-report is context rather than
+// a routing condition (D-03's own statement), and a multi-ask request is owned whole by its PRIMARY
+// ask (the rule c8 exists to pin). An attack simply DELETED all three and the gate stayed exit 0:
+// nothing anywhere read branch order or required a tie-break rule to exist, and routesCase is
+// order-independent by construction, so it cannot notice.
+//
+// Deletion is the cheaper attack than alteration, and an ALLOWLIST is the answer that fails closed:
+// rewording a rule turns this RED until the new wording is listed, which is the safe direction.
+// Matched through affirmedPhrasesIn, so "do NOT take the first branch that matches" does not satisfy
+// the requirement that the rule be asserted.
+// ---------------------------------------------------------------------------------------------
+console.log("[cls-04] step-1 tie-break rules -- the three rules that make overlapping branches deterministic");
+
+const TIE_BREAK_RULES = Object.freeze([
+  "first branch that matches",
+  "report of where they are",
+  "primary ask",
+]);
+
+for (const surface of STEP1_SURFACES) {
+  const leadIn = step1LeadIn(readOrEmpty(path.join(repoRoot, surface.file)), surface.heading);
+
+  if (leadIn === null) {
+    report(false, `[cls-04] tie-break rules -- ${surface.id}`, "lead-in unreachable -- heading or item 1 absent");
+    continue;
+  }
+
+  const present = affirmedPhrasesIn(leadIn, TIE_BREAK_RULES);
+  const missing = TIE_BREAK_RULES.filter((p) => !present.includes(p));
+
+  report(
+    missing.length === 0,
+    `[cls-04] tie-break rules -- ${surface.id} states first-match, self-report-is-context and primary-ask`,
+    missing.length === 0
+      ? `all three present`
+      : `MISSING [${missing.join(" | ")}] -- without these the overlapping branches are non-deterministic and c8 has no single owner`
+  );
+}
 
 console.log("");
 

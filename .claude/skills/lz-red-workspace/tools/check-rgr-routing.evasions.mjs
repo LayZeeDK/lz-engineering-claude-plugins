@@ -231,7 +231,9 @@ const EVASIONS = [
       "anchors to a `## ` heading, so prose above the first heading of plugins/lz-tdd/references/ " +
       "is read by nothing -- the same shape as the SKILL.md intro hole Phase 22 closed, one file " +
       "further out. Tracked as OPEN-9; closing it means extending introBody's single-axis and " +
-      "two-hop checks to the plugin-wide references.",
+      "two-hop checks to the plugin-wide references. PARTIALLY addressed: the [cls-04] contradiction " +
+      "sweep now READS this intro, but the entry still evades because the mutated sentence carries no " +
+      "corpus ask-words, so covers() matches nothing. Same mechanism as OPEN-13.",
   },
   {
     id: "M4",
@@ -286,7 +288,14 @@ const EVASIONS = [
       "In production this is the surface that ACTUALLY routes -- it is read before any body text loads " +
       "-- which makes it the highest-value gap in the gate. Tracked as OPEN-10. Closing it means adding " +
       "frontmatter as a surface; note that a failing assertion there would force a description edit, " +
-      "which is metered-round-gated, so MEASURE before asserting.",
+      "which is metered-round-gated, so MEASURE before asserting. STILL OPEN after the [cls-04] " +
+      "contradiction sweep, which now READS this region -- and the measured reason is the point: this " +
+      "attack REMOVES correct routing (it negates the exclusion) rather than adding wrong routing, so " +
+      "destinationsIn returns [] for the edited sentence, the sentence is filtered out, and no " +
+      "contradiction remains to find. Closing it needs the POSITIVE half, and a full router-style " +
+      "assertion over descriptions FAILS on the shipped tree (lz-tpp carries c4's two-hop across a " +
+      "sentence boundary, so its sentence names lz-red alone). A description-level COVERAGE FLOOR, " +
+      "pinning what each description routes today, is the untried candidate that needs no edit.",
   },
   {
     id: "F3",
@@ -305,7 +314,10 @@ const EVASIONS = [
       "zero literal slugs BY DESIGN, so the sentence is deleted before any check sees it. selfClaimsIn " +
       "is only ever reached through isDeclaredResidual, which is gated on isResidual. OPEN-4 closed the " +
       "residual-branch case only. Tracked as OPEN-11; closing it means keeping self-claiming sentences " +
-      "as branches rather than filtering them.",
+      "as branches rather than filtering them. STILL OPEN after the [cls-04] contradiction sweep, for " +
+      "the SAME root cause: a self-claim affirms no literal slug by design, so the sweep's sentence " +
+      "filter drops it exactly as the routing parse does. Any fix has to stop filtering, not add " +
+      "another reader.",
   },
   {
     id: "F4",
@@ -339,7 +351,12 @@ const EVASIONS = [
       "error the c3/c5 pair exists to pin. numberedItem discards everything before item 1 and " +
       "step1LeadIn starts INSIDE item 1, so no branch-level assertion sees this region; the only check " +
       "reaching it runs keysOnTestState, so the region is closed for the TEST-STATE axis only and any " +
-      "other second axis walks through. M11/OPEN-8c covers items 2..N, not this. Tracked as OPEN-13.",
+      "other second axis walks through. M11/OPEN-8c covers items 2..N, not this. Tracked as OPEN-13. " +
+      "STILL OPEN after the [cls-04] contradiction sweep, which now reads this region: the mutation " +
+      "reverses c3 SEMANTICALLY (\"lives in a test file\" -> lz-refactor) without containing c3's " +
+      "ask-words (\"good test\"), so covers() matches no case and there is no contradiction to report. " +
+      "Closing it needs a rule that this region may not route AT ALL, rather than a rule about what it " +
+      "routes -- a second axis is defined by dispatching here, not by which case it names.",
   },
   {
     id: "F6",
@@ -356,24 +373,20 @@ const EVASIONS = [
       "lz-refactor's text; the per-skill loop over SKILLS runs keysOnTestState alone. So M8b/OPEN-7 " +
       "closed the lz-refactor intro and the lz-red and lz-tpp intros still have no ownership assertion " +
       "-- a closure that did not generalise across the three files the loop already visits. Tracked as " +
-      "OPEN-14, and it is the cheapest of this batch to close.",
+      "OPEN-14, and it is the cheapest of this batch to close. STILL OPEN after the [cls-04] " +
+      "contradiction sweep, which now reads all three intros: the mutation self-claims AND negates both " +
+      "siblings, so the sentence affirms no destination and is filtered out. Same root cause as " +
+      "OPEN-11, and the two should be closed together by one change to the filter.",
   },
   {
     id: "F7",
-    open: "OPEN-15",
+    open: "closed",
     what: "DELETE step 1's tie-break rules (first-match-wins, self-report-is-context, primary-ask)",
-    claim: "the step-1 lead-in guard protects the rules that make overlapping branches deterministic",
+    claim: "[cls-04] the three tie-break rules are PRESENT, not merely free of test-state tokens",
     file: RED,
     find: "   Take the FIRST branch that matches:",
     repl: "   Take whichever of the branches below seems to apply:",
-    expect: null,
-    ceiling:
-      "Deletion, not alteration -- the safer attack. Removes first-match-wins (the only thing making " +
-      "the deliberately overlapping branches deterministic) and, with the following lines, D-03's own " +
-      "self-report rule and the primary-ask rule c8 exists to pin. The step-1 lead-in check was added " +
-      "to guard this region but runs keysOnTestState only; nothing anywhere reads branch ORDER or " +
-      "requires a tie-break rule to be PRESENT, and routesCase is order-independent. Tracked as " +
-      "OPEN-15. Note this entry deletes only the first line; the fuller attack removes all five.",
+    expect: "tie-break rules",
   },
   {
     id: "M16",

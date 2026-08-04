@@ -5,7 +5,7 @@ milestone_name: lz-red Skill
 current_phase: 22
 current_phase_name: three-way-classifier-correctness-lz-refactor-lz-red
 status: verified
-stopped_at: "Phase 22 VERIFIED passed 8/8 after gap closure. 8 of 8 plans executed + merged, full battery GREEN, zero metered spend. HALTED at the blocking-human gate: the owner owes /reload-plugins (D-19, mandatory -- descriptions changed) and must separately approve TWO metered rounds (the placement A/B and the now-owed EVL-01 reciprocal trigger regression). Still to run: /gsd-secure-phase 22, /gsd-validate-phase 22, /gsd-extract-learnings 22."
+stopped_at: "Phase 22 VERIFIED passed 8/8 after gap closure; secured (0 threats open), validated (blind spot instrumented + mutation-proven), learnings extracted and bridged to the global store. 8 of 8 plans merged, full battery GREEN, zero metered spend. D-19 DISCHARGED 2026-08-04: the owner ran /reload-plugins, so the three edited descriptions are LIVE. HALTED awaiting the only remaining decision: separate approval for TWO metered rounds (Round A the placement A/B, Round B the now-owed EVL-01 reciprocal trigger regression). Neither is approved; nothing metered has run."
 last_updated: "2026-08-04T12:30:00.000Z"
 last_activity: 2026-08-04
 last_activity_desc: "Phase 22 waves 3-6: reference-tier classifiers repaired (22-04, routing gate 2 FAIL -> 0), A/B instrument built and self-proven (22-06), phase gate + double HALT authored (22-07), then gap closure (22-08) after the acceptance review BLOCKED the close. gsd-verifier now passed 8/8."

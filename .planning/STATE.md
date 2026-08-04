@@ -4,11 +4,11 @@ milestone: lz-tdd@0.0.3
 milestone_name: lz-red Skill
 current_phase: 22
 current_phase_name: three-way-classifier-correctness-lz-refactor-lz-red
-status: gap-closure
-stopped_at: "All 7 plans executed + merged, full battery GREEN, zero metered spend -- but the D-18/SC7 acceptance review returned NOT ACCEPTED with one BLOCKER. Phase does NOT close. Owner approved a gap plan covering the body-only findings AND the two description fixes (which reopens the metered EVL-01 round)."
-last_updated: "2026-08-04T00:00:00.000Z"
+status: verified
+stopped_at: "Phase 22 VERIFIED passed 8/8 after gap closure. 8 of 8 plans executed + merged, full battery GREEN, zero metered spend. HALTED at the blocking-human gate: the owner owes /reload-plugins (D-19, mandatory -- descriptions changed) and must separately approve TWO metered rounds (the placement A/B and the now-owed EVL-01 reciprocal trigger regression). Still to run: /gsd-secure-phase 22, /gsd-validate-phase 22, /gsd-extract-learnings 22."
+last_updated: "2026-08-04T12:30:00.000Z"
 last_activity: 2026-08-04
-last_activity_desc: "Phase 22 waves 3-5 executed and merged (7/7 plans): reference-tier classifiers repaired (22-04, routing gate 2 FAIL -> 0), A/B instrument built and self-proven (22-06), phase gate + double HALT authored (22-07). Then the acceptance review BLOCKED the close: lz-refactor/SKILL.md's intro paragraph still omits the two-hop, falsifying SC5 in the file SC5 names by example."
+last_activity_desc: "Phase 22 waves 3-6: reference-tier classifiers repaired (22-04, routing gate 2 FAIL -> 0), A/B instrument built and self-proven (22-06), phase gate + double HALT authored (22-07), then gap closure (22-08) after the acceptance review BLOCKED the close. gsd-verifier now passed 8/8."
 progress:
   total_phases: 9
   completed_phases: 8
@@ -29,16 +29,24 @@ See: .planning/PROJECT.md (updated 2026-07-18 -- started milestone lz-tdd@0.0.3)
 
 ## Current Position
 
-Phase: 22 (three-way-classifier-correctness-lz-refactor-lz-red) -- ALL 7 PLANS EXECUTED AND MERGED,
-but NOT ACCEPTED. The D-18/SC7 acceptance review and the D-26 unprimed review returned one BLOCKER,
-so the phase is in GAP CLOSURE, not complete. Verdict:
-`.planning/phases/22-three-way-classifier-correctness-lz-refactor-lz-red/22-ACCEPTANCE-REVIEW.md`
-Plan: 7 of 7 executed (22-01..22-07). Gap plan pending.
-**THE BLOCKER:** `lz-refactor/SKILL.md:26-27` still says behavior changes belong to `lz-tpp`,
-omitting the two-hop its own frontmatter, narrative and branch (c) all state -- the exact dead end
-ROADMAP SC1 names, surviving in the first prose a model reads. Found independently by an UNPRIMED
-reviewer and a contract-scoped one. `check-rgr-routing.mjs` is GREEN and structurally blind to it:
-every parsed surface is anchored to a `## ` heading and this paragraph sits above the first one.
+Phase: 22 (three-way-classifier-correctness-lz-refactor-lz-red) -- 8 of 8 plans executed and merged;
+`gsd-verifier` passed 8/8. HALTED at the blocking-human gate; PR #3 stays held (D-24).
+Plan: 8 of 8 (22-01..22-07 plus the gap-closure 22-08).
+**THE ROUND THAT MATTERED:** the acceptance review BLOCKED the first close. `lz-refactor/SKILL.md`'s
+intro paragraph still routed behavior changes straight to `lz-tpp`, omitting the two-hop its own
+frontmatter, narrative and branch (c) all state -- the exact dead end ROADMAP SC1 names, surviving in
+the first prose a model reads. Found independently by an UNPRIMED reviewer and a contract-scoped one.
+`check-rgr-routing.mjs` was GREEN throughout and is structurally blind to it: every parsed surface is
+anchored to a `## ` heading and that paragraph sits above the first one. Closed by 22-08.
+**THE PLAN-CHECKER EARNED ITS KEEP:** it found TWO BLOCKERS IN THE GAP PLAN before any code was
+touched -- a placement instruction that would have broken `build-variants.mjs`'s byte-exact
+`C_POINTER` anchor and taken the D-11 precondition RED, and an acceptance criterion that already
+passed at HEAD pre-edit because its phrase is line-wrapped. The replacement criterion is
+demonstrably discriminating: 4 banned tokens at the pre-edit commit, 0 now.
+**OPEN, NOT A GAP:** the a-through-e router is replicated in four files while the three
+`description` fields were never brought level with it, so corpus case c1 reaches its owner only
+because `lz-tpp` mis-loads on "test pass" and hands off. Ruled OMISSION not contradiction, so SC5
+holds. Cheapest to close BEFORE the owed EVL-01 round, which would otherwise need a second run.
 **THE INSTRUMENT-FIRST BET PAID OFF AND IS MEASURED:** `check-rgr-routing.mjs` went 20 FAIL / 34
 PASS at the wave-1 RED baseline to 2 FAIL / 52 PASS after wave 2, and the two survivors are exactly
 22-04's targets (`beck-seam` scan floor; `laws-classify` bare catch-all). All nine corpus cases now

@@ -2,7 +2,40 @@
 
 **Date:** 2026-08-04
 **Reviewed at:** `c33a3eb` (all 7 plans executed and merged; full battery GREEN; zero metered spend)
-**Verdict: NOT ACCEPTED -- one BLOCKER. Phase 22 does not close on this report.**
+**Verdict at the time: NOT ACCEPTED -- one BLOCKER. Phase 22 did not close on this report.**
+
+> ## SUPERSEDED 2026-08-04 -- ALL FINDINGS CLOSED BY PLAN 22-08
+>
+> This report is retained as the historical record of the round that BLOCKED the close. Every
+> finding below was closed by the gap-closure plan `22-08-PLAN.md`, merged at `63e50d7`. Do not
+> read the NOT ACCEPTED verdict above as the current state.
+>
+> **What closed it.** Plan 22-08 ran through a plan-checker loop that found and fixed TWO BLOCKERS
+> IN THE PLAN ITSELF before any code was touched -- a placement instruction that would have broken
+> `build-variants.mjs`'s byte-exact `C_POINTER` anchor and taken the D-11 precondition RED, and an
+> acceptance criterion that already passed at HEAD pre-edit because the phrase it grepped for is
+> line-wrapped. The second is the same vacuity class this whole phase exists to refuse.
+>
+> **Independent confirmation.** A fresh UNPRIMED reviewer, told nothing about what had changed,
+> re-traced the nine corpus requests at the new HEAD and confirmed every item here fixed: the
+> plugin-wide file now sweeps clean for skill-relative vantage, its self-description matches
+> `git grep` exactly, and the BLOCKER does not appear. `gsd-verifier` then returned `status: passed`,
+> 8/8, with all eight structured gaps closed.
+>
+> **The description criterion is now demonstrably discriminating**, not merely green: measured at
+> the pre-edit commit it reports 4 banned tokens across lz-red and lz-refactor; at HEAD it reports 0.
+>
+> **What the re-review raised that is NOT closed here.** It surfaced a new cluster with one root
+> cause -- the a-through-e router was replicated into four files while the three `description`
+> fields were never brought level with it. The sharpest instance is that corpus case c1
+> ("I just finished making a test pass. What now?") is quoted verbatim as `lz-refactor`'s trigger in
+> four files, yet `lz-refactor`'s description never mentions the post-green moment, so the request
+> reaches its owner only because `lz-tpp` lexically mis-loads on "test pass" and then hands off.
+> `gsd-verifier` ruled these OMISSIONS rather than contradictions, so SC5 is not falsified and they
+> are not gaps -- applying the same standard this report used for F-9. They are recorded in
+> `22-VERIFICATION.md` as optional improvements. **Timing note: the descriptions were already edited
+> by 22-08, so the EVL-01 reciprocal round is already owed; closing these BEFORE that round runs
+> costs no additional metered round, whereas closing them after would force a second one.**
 
 Per `22-07-PLAN.md`'s objective ("Escalation on findings"): a BLOCKER from either review is a
 gap-closure loop, not a note. Route through `/gsd-plan-phase 22 --gaps` ->

@@ -564,9 +564,28 @@ export const covers = (branch, kase) => {
     .every((t) => cond.includes(t.toLowerCase()));
 };
 
-// A branch OWNS a case when it covers it and routes it to the expected owner FIRST. When the case
-// declares a second hop the destination list must be exactly that ordered pair -- D-02's two-hop
+// A branch OWNS a case when it covers it and its destination list is EXACTLY what the case declares.
+// When the case declares a second hop that list must be exactly that ordered pair -- D-02's two-hop
 // rule is an ORDER claim, so an unordered or single-name match must not satisfy it.
+//
+// THE SINGLE-HOP ARM CHECKS THE WHOLE LIST TOO, and an earlier version did not: it read only
+// `destinations[0]`, so everything after the correct first name was unexamined. An unprimed review
+// weaponised that by appending a CONTRADICTING second destination to lz-tpp step 1's own green-step
+// branch -- "the green step is lz-tpp, so do not answer it here; hand the whole request over to
+// lz-refactor" -- which routes c6 to the wrong skill while `destinations[0]` still reads `lz-tpp`.
+// The gate stayed GREEN on a branch that had been turned into a handoff to a sibling.
+//
+// Length equality is the assertion, not a scan for contradicting names, because a single-hop case
+// declares a COMPLETE destination list of one: any second name is either a contradiction or an
+// undeclared hop, and both are the corpus's business to declare rather than the parser's to
+// interpret. Both directions were MEASURED over all three step-1 surfaces x all eight owned cases
+// before the change: zero verdict deltas on the tracked tree (every covering branch already affirms
+// exactly one destination, and c4's two-hop branch affirms exactly two), so this tightens what the
+// gate can catch without moving a single shipped verdict.
+//
+// This is also why c8's second ask is a NAMED SECOND STEP inside one skill's answer rather than a
+// second routing hop (see its rationale in rgr-cases.json): a branch that literally affirmed a
+// sibling slug there would now have to declare that hop in the corpus.
 export const owns = (branch, kase) => {
   if (!covers(branch, kase)) {
     return false;
@@ -580,7 +599,7 @@ export const owns = (branch, kase) => {
     );
   }
 
-  return branch.destinations[0] === kase.expectedOwner;
+  return branch.destinations.length === 1 && branch.destinations[0] === kase.expectedOwner;
 };
 
 // The declared residual terminal claims NOTHING: it must carry the explicit no-owner marker AND

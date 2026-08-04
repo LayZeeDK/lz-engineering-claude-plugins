@@ -772,6 +772,22 @@ check(
   ],
   [true, false]
 );
+// The single-hop arm judges the WHOLE destination list, not just its head. Driven in BOTH directions
+// from one branch text so the pair isolates the length clause: the same correct first destination
+// passes alone and fails once a contradicting sibling is affirmed after it. This is evasion-suite
+// entry M4 in miniature -- there it appends a real handoff to lz-refactor inside lz-tpp step 1's own
+// green-step branch, which the head-only read scored as a pass.
+check(
+  "owns: a single-hop case rejects a CONTRADICTING second destination after the correct first",
+  [
+    routesCase([mkBranch("1a", "asking what test comes next: that is lz-red", ["lz-red"])], KASE_RED).ok,
+    routesCase(
+      [mkBranch("1a", "asking what test comes next: that is lz-red, so hand it to lz-refactor", ["lz-red", "lz-refactor"])],
+      KASE_RED
+    ).ok,
+  ],
+  [true, false]
+);
 check("routesCase: a NONE case with a residual and no captor passes", routesCase([OWNING, RESIDUAL], KASE_NONE).ok, true);
 check(
   "routesCase: E7 -- a NONE case CAPTURED by a positive branch fails even though the residual exists",

@@ -29,9 +29,21 @@
 //      produced a false "exit 0" reading for a command that exits 1.
 //   5. REFUSE TO RUN if the baseline gate is not already GREEN. Every verdict below would be
 //      meaningless against a red baseline.
-//   6. A DOCUMENTED CEILING is recorded as `expect: null` and is EXPECTED to stay GREEN. That is an
-//      honest record of a known-open hole, not a pass. Ceilings are printed separately in the summary
-//      so a reader cannot mistake the count of caught evasions for the count of entries.
+//   6. A NON-CAUGHT ENTRY is recorded as `expect: null` and is EXPECTED to stay GREEN. That is an
+//      honest record of a known-open hole, not a pass. Such entries are printed separately in the
+//      summary so a reader cannot mistake the count of caught evasions for the count of entries.
+//   7. NON-CAUGHT ENTRIES HAVE TWO KINDS AND MUST NOT SHARE A LABEL. This was the honest caveat the
+//      2026-08-04 session recorded against itself: the summary called all twelve "evading by design",
+//      which was true of three of them. A `ceiling` is UNCLOSABLE -- a literal blocklist whose axis
+//      cannot be closed by construction (`unclosable: true`, an ALLOWLIST). Everything else is OPEN:
+//      real work not yet done, printed as OPEN and counted apart. The allowlist fails in the safe
+//      direction -- a new entry that forgets the flag reads OPEN, which is the louder verdict.
+//   8. THE OPEN COUNT IS RATCHETED against EXPECTED_OPEN below. Any change in either direction exits
+//      1: a RISE means a new evasion landed or a closed guard regressed; a FALL means an item was
+//      closed and the constant was not updated, which would let the next rise hide inside the slack.
+//      This is what stops the battery reading GREEN over unfinished work -- the property `npm run
+//      check` was wired up for. It does NOT hard-red on open work, because that would block the
+//      battery on items (F2) gated behind an unapproved metered round.
 //
 // ASCII only. No email-shaped token other than the project's approved public contact appears here, and
 // no forbidden value is written even as a search needle -- the needle IS the leak.
@@ -64,8 +76,14 @@ const REFACTOR = "plugins/lz-tdd/skills/lz-refactor/SKILL.md";
 const BECK = "plugins/lz-tdd/references/beck-tdd-by-example.md";
 const CORPUS = ".claude/skills/lz-red-workspace/tools/rgr-cases.json";
 
+// THE RATCHET (rule 8). The number of OPEN entries expected at HEAD. Raise it only when a new open
+// evasion is deliberately recorded; LOWER it in the same commit that closes one. Any drift exits 1.
+// A rise is a regression or a newly found hole; a fall is a stale constant hiding future slack.
+const EXPECTED_OPEN = 9;
+
 // `find` may be a string (literal, safest) or a RegExp. `expect` is the substring that must appear in
-// a FAIL line, or null for a documented ceiling.
+// a FAIL line, or null for an entry the gate does not catch. A non-caught entry is OPEN work unless it
+// carries `unclosable: true`, which marks the axis as closed by construction (rule 7).
 const EVASIONS = [
   // -- closed: per-surface quantification -----------------------------------------------------
   {
@@ -138,7 +156,10 @@ const EVASIONS = [
   },
   {
     id: "M6",
-    open: "closed",
+    // Was labelled "closed" while its own ceiling text tracks it as OPEN-8c -- harmless while every
+    // non-caught entry printed the same CEILING label, actively misleading now that the line reads
+    // `[OPEN    ] M6 (closed)`. The tracking id is the one its ceiling text names.
+    open: "OPEN-8c",
     what: "literal banned token in a `## ` section that is NOT a declared surface (lz-tpp Transformations vs refactorings)",
     claim: "no test-state framing anywhere -- NOTE: this section is outside ROUTING_SURFACES by design",
     file: TPP,
@@ -397,6 +418,7 @@ const EVASIONS = [
     find: /^( {3}e\. None of \(a\) through \(d\))/m,
     repl: "      In all remaining cases the refactor step takes the request, and that is lz-refactor.\n$1",
     expect: null,
+    unclosable: true,
     ceiling:
       "CATCHALL_CONDITION_RE is a literal family blocklist, exactly like TEST_STATE_TOKENS. No unlisted " +
       "phrasing can be caught. Tracked as OPEN-5, deliberately unclosable.",
@@ -412,6 +434,7 @@ const EVASIONS = [
     find: "- Coach mode: the request asks for a move on code",
     repl: "- Coach mode: nothing in the suite is red, and the request asks for a move on code",
     expect: null,
+    unclosable: true,
     ceiling:
       "TEST_STATE_TOKENS is a literal blocklist. This paraphrase is not a listed phrase. Tracked as " +
       "OPEN-5; the honest complements are the metered eval and human review.",
@@ -428,6 +451,7 @@ const EVASIONS = [
       "      procedure, and when it does, take the request on directly as part of the refactoring\n" +
       "      brief rather than passing it along.",
     expect: null,
+    unclosable: true,
     ceiling:
       "SELF_CLAIM_PHRASES is a literal family blocklist, the third in this parser alongside " +
       "TEST_STATE_TOKENS and CATCHALL_CONDITION_RE. OPEN-4 closes the DEMONSTRATED wording (M2), not " +
@@ -509,19 +533,25 @@ const args = process.argv.slice(2);
 const only = args.includes("--only") ? args[args.indexOf("--only") + 1] : null;
 const listOnly = args.includes("--list");
 
+// Rule 7 -- the three states. `unclosable` is an ALLOWLIST, so a new entry that forgets it reads OPEN.
+const stateOf = (ev) => (ev.expect !== null ? "must-catch" : ev.unclosable ? "ceiling" : "open");
+
 if (listOnly) {
   console.log("rgr-routing evasion suite -- recorded reproductions\n");
 
   for (const ev of EVASIONS) {
-    console.log(`  ${ev.id.padEnd(5)} ${ev.open.padEnd(9)} ${ev.expect === null ? "ceiling" : "must-catch"}  ${ev.what}`);
+    console.log(`  ${ev.id.padEnd(5)} ${ev.open.padEnd(9)} ${stateOf(ev).padEnd(10)}  ${ev.what}`);
   }
 
-  console.log(`\n${EVASIONS.length} entries.`);
+  const n = (s) => EVASIONS.filter((e) => stateOf(e) === s).length;
+  console.log(`\n${EVASIONS.length} entries -- ${n("must-catch")} must-catch, ${n("open")} OPEN (real work), ${n("ceiling")} unclosable ceiling.`);
   process.exit(0);
 }
 
+const countOf = (s) => EVASIONS.filter((e) => stateOf(e) === s).length;
+
 console.log("rgr-routing EVASION suite -- each recorded evasion applied against the real gate");
-console.log(`  entries: ${EVASIONS.length} (${EVASIONS.filter((e) => e.expect !== null).length} must-catch, ${EVASIONS.filter((e) => e.expect === null).length} documented ceilings)`);
+console.log(`  entries: ${EVASIONS.length} (${countOf("must-catch")} must-catch, ${countOf("open")} OPEN work, ${countOf("ceiling")} unclosable ceilings)`);
 console.log("");
 
 // RULE 5 -- refuse to run against a red baseline.
@@ -537,6 +567,7 @@ console.log("  baseline gate: exit 0 (verified before any mutation)\n");
 let failures = 0;
 let caught = 0;
 let ceilings = 0;
+let opens = 0;
 
 for (const ev of EVASIONS) {
   if (only && ev.id !== only) {
@@ -570,10 +601,17 @@ for (const ev of EVASIONS) {
   const failLines = result.out.split("\n").filter((l) => l.includes("[FAIL]"));
 
   if (ev.expect === null) {
-    // RULE 6 -- a ceiling is an honest record of an open hole, not a pass.
-    ceilings++;
+    // RULES 6 + 7 -- a non-caught entry is an honest record of a hole, not a pass, and its KIND is
+    // reported: `unclosable` really does evade by design, everything else is work not yet done.
+    const unclosable = stateOf(ev) === "ceiling";
+    unclosable ? ceilings++ : opens++;
     const stillGreen = result.code === 0;
-    console.log(`  [CEILING ] ${ev.id} (${ev.open}) -- gate exit ${result.code}${stillGreen ? " (EVADES, as documented)" : " (now caught -- update this entry to must-catch)"}`);
+    const verdict = stillGreen
+      ? unclosable
+        ? " (EVADES, unclosable by construction)"
+        : " (EVADES -- OPEN WORK, not by design)"
+      : " (now caught -- update this entry to must-catch)";
+    console.log(`  [${unclosable ? "CEILING " : "OPEN    "}] ${ev.id} (${ev.open}) -- gate exit ${result.code}${verdict}`);
     console.log(`             ${ev.ceiling}`);
 
     if (!restored) {
@@ -615,12 +653,29 @@ if (final.code !== 0) {
   failures++;
 }
 
+// RULE 8 -- the ratchet. Skipped on a partial run: `--only` visits one entry, so its counts say
+// nothing about the tree and applying the ratchet there would be noise, not a signal.
+if (!only && opens !== EXPECTED_OPEN) {
+  const direction =
+    opens > EXPECTED_OPEN
+      ? `OPEN COUNT ROSE ${EXPECTED_OPEN} -> ${opens}. A new evasion landed, or a closed guard regressed. ` +
+        "Close it, or record it deliberately and raise EXPECTED_OPEN in the same commit."
+      : `OPEN COUNT FELL ${EXPECTED_OPEN} -> ${opens}. Something was closed and EXPECTED_OPEN was not ` +
+        "lowered with it. Lower it now -- stale slack is where the next rise hides.";
+  console.log(`  [RATCHET ] ${direction}`);
+  failures++;
+}
+
 console.log("");
 
+const tally = `${caught} CAUGHT, ${opens} OPEN (baseline ${EXPECTED_OPEN}), ${ceilings} unclosable CEILING`;
+
 if (failures === 0) {
-  console.log(`SUMMARY: EVASIONS GREEN -- ${caught} evasion(s) CAUGHT with their named label, ${ceilings} documented ceiling(s) still evading by design, 0 unexplained`);
+  // GREEN means "nothing unaccounted", NOT "nothing left to do" -- the OPEN count is the backlog and
+  // it is printed on the same line so the word GREEN can never be read as covering it.
+  console.log(`SUMMARY: EVASIONS GREEN -- ${tally}, 0 unexplained`);
   process.exit(0);
 }
 
-console.log(`SUMMARY: EVASIONS RED -- ${failures} problem(s); ${caught} caught, ${ceilings} ceiling(s)`);
+console.log(`SUMMARY: EVASIONS RED -- ${failures} problem(s); ${tally}`);
 process.exit(1);

@@ -1,136 +1,161 @@
 {
   "version": "1.0",
-  "timestamp": "2026-08-04T10:19:50.378Z",
-  "context": "phase-22-complete-halted-on-two-metered-rounds",
-  "supersedes_handoff": "2026-08-03T14:57:12.412Z phase-22-paused-before-wave-3",
-  "supersedes_note": "That handoff described a phase paused at 4/7 plans before wave 3. All 8 plans are now executed, merged, verified, secured, validated and learned-from. Its EXPECTED_BASE (0c883ab) is long stale.",
-  "phase": "22",
-  "phase_name": "three-way-classifier-correctness-lz-refactor-lz-red",
-  "phase_dir": ".planning/phases/22-three-way-classifier-correctness-lz-refactor-lz-red",
-  "plan": 8,
-  "task": null,
-  "total_tasks": 8,
-  "status": "paused",
-  "phase_state": "BUILD-complete and HALTED by design. Not an incomplete phase.",
-  "head_sha": "9ee45f9",
+  "timestamp": "2026-08-04T12:00:00.000Z",
+  "context": "quick-260804-kvh-instrument-hardening-wave-1-and-OPEN-1-done",
+  "supersedes_handoff": "2026-08-04T10:19:50.378Z phase-22-complete-halted-on-two-metered-rounds",
+  "supersedes_note": "That handoff described Phase 22 halted on two metered rounds. Both remain HALT-gated and unapproved -- that part still stands. What changed since: BOTH of its zero-spend remaining_tasks ('optional-description-completeness' and 'optional-rollup-fix') are DONE, and four quick tasks have run (260804-hbv, -hwy, -jay, and -kvh in progress).",
+  "quick_task": "260804-kvh",
+  "quick_dir": ".planning/quick/260804-kvh-instrument-hardening-all-evasions",
   "branch": "gsd/lz-tdd-0.0.3-lz-red",
-  "metered_spend": "ZERO across all eight plans. Nothing metered has run.",
-  "summary": "Phase 22 is fully closed out except for the owner's spend decision. 8 of 8 plans executed and merged; gsd-verifier passed 8/8; security 60/60 threats verified with 0 open; nyquist validation filled the coverage gap that produced the phase's own BLOCKER; learnings extracted and bridged (13 items) to the global store. The routing gate went 20 FAIL at the wave-1 RED baseline to 0 FAIL. D-19 is DISCHARGED -- the owner ran /reload-plugins, so the three edited descriptions are live, not merely committed.",
+  "head_sha": "c40c0bc",
+  "status": "paused",
+  "task_state": "Wave 1 COMPLETE and committed. OPEN-1 CLOSED and committed. Waves 2-6 NOT STARTED. Nothing half-applied: tree clean, batteries green, no shipped SKILL.md modified.",
+  "metered_spend": "ZERO this whole session. Both metered rounds remain HALT-gated and UNAPPROVED.",
+  "why_paused": "Checkpoint discipline from the plan's own Gates section. Three consecutive patching rounds earlier in this session each introduced a defect (two false comment claims, a double-space bug inside a fold repair), every one caught by a plan-checker, an unprimed reviewer or a selftest leg -- never by the author. Context is long; a clean handoff beats a fourth push.",
+
+  "THE_KEY_THING_FOR_WHOEVER_RESUMES": "The remaining backlog is now MECHANICAL. Run `node .claude/skills/lz-red-workspace/tools/check-rgr-routing.evasions.mjs`. Every open item is a line reading EVADED; close it and the line flips to CAUGHT. You do not need to re-derive anything from prose, and you must NOT trust your own reading that something is fixed -- the suite is the arbiter. `--list` prints all entries, `--only <ID>` runs one.",
+
+  "suite_baseline_at_head": {
+    "command": "node .claude/skills/lz-red-workspace/tools/check-rgr-routing.evasions.mjs",
+    "exit": 1,
+    "caught": 9,
+    "still_evading": 7,
+    "documented_ceilings": 5,
+    "note": "exit 1 is EXPECTED until the 7 are closed. The 5 ceilings evade BY DESIGN and print separately so the caught count cannot be mistaken for the entry count."
+  },
+
   "completed_this_session": [
     {
-      "id": "wave-3",
+      "id": "wave-1-evasion-suite",
       "status": "done",
-      "commits": ["ff85aec", "c222a5c", "26888ba", "da4a09c", "c9c2c63"],
-      "name": "22-04 repaired the two reference-tier classifier surfaces. Routing gate 2 FAIL -> 0. Every Sources row and Law provenance parenthetical verified byte-unchanged by hunk placement, not by claim."
+      "commits": ["738c250"],
+      "name": "Committed tools/check-rgr-routing.evasions.mjs (21 entries), wired into `npm run check` plus a `check:evasions` script. The loop-closing move: acceptance criteria are runnable instead of prose in deferred-items files. Six hard rules, each from a specific failure today -- assert the mutation LANDED (a non-matching anchor is a BAD TEST, which fired twice), restore in a finally and verify by checksum, require the expected NAMED label not merely a red gate, measure exit codes without pipes, refuse to run against a non-green baseline, and report ceilings separately from catches."
     },
     {
-      "id": "wave-4",
+      "id": "OPEN-1",
       "status": "done",
-      "commits": ["b22dc0e", "41bf593", "4cad918", "d9d5022", "570bc88", "f8643eb"],
-      "name": "22-06 built the A/B instrument: shared routing table as a workspace source, fail-closed variant builder, sibling selfcheck at 6/6 cruxes. It also caught a plan defect that would have shipped a staging note INTO both treatment trees, telling the model it was inside an A/B."
-    },
-    {
-      "id": "wave-5",
-      "status": "done",
-      "commits": ["5d406f6", "774b5ca", "90f1737", "c4f9e8c", "c33a3eb"],
-      "name": "22-07 authored the phase gate, RUN-GATE.md with two separately-approvable HALTs, and the blank-figure ROUTING-AB-RESULTS.md scaffold. Reached the blocking-human checkpoint and stopped."
-    },
-    {
-      "id": "acceptance-review-BLOCKED-the-close",
-      "status": "done",
-      "commits": ["b31083b", "684cbf6", "039f252"],
-      "name": "Three orchestrator-spawned reviewers (two UNPRIMED) found the phase's own headline defect still live in lz-refactor/SKILL.md's intro. gsd-verifier independently confirmed and returned gaps_found. Phase did NOT close."
-    },
-    {
-      "id": "wave-6-gap-closure",
-      "status": "done",
-      "commits": ["287e2ba", "1006c9f", "5136974", "be2a09a", "0cf46b0", "6be5376", "bbb7200", "63e50d7", "c5416f3"],
-      "name": "22-08 closed all 8 gaps. The plan-checker found TWO BLOCKERS IN THE PLAN before any code was touched. Re-review (unprimed) confirmed every item fixed; gsd-verifier returned passed 8/8."
-    },
-    {
-      "id": "closeout",
-      "status": "done",
-      "commits": ["3aabd49", "0b684e8", "d5172f8", "48ed3c2", "9ee45f9"],
-      "name": "Security 60/60 / 0 open. Nyquist validation INSTRUMENTED the intro-prose and description-content blind spots, mutation-proven both directions. Learnings extracted and bridged (13 items, 0 skipped). D-19 discharged."
+      "commits": ["c40c0bc"],
+      "name": "Sweep-rule citation check now discriminates. TWO causes, the second NOT previously identified: the negation bug ('changing behavior' matched 'WITHOUT changing behavior', putting all three slugs in the set so the check could not fail) AND set-membership-instead-of-pairing (even un-degenerated, swapping two slugs both in the set still passed -- measured). Added a preceding-negation guard, an anti-tautology strict-subset assertion, and per-ask pairing resolved against step 1's own routing."
     }
   ],
+
   "remaining_tasks": [
     {
-      "id": "owner-decision-round-B",
-      "status": "not_started",
-      "blocking": true,
-      "name": "EVL-01 reciprocal trigger regression. NOW OWED -- the 22-08 description edits force it (D-06). Pre-edit baseline is clean (both siblings 12/12 quiet), so any firing is unambiguous. Measurable now that the reload landed."
+      "id": "OPEN-3",
+      "priority": 1,
+      "suite_entry": "M4",
+      "expected_label": "tpp-step1 routes c6",
+      "where": "tools/lib/routing-parse.mjs -- owns()",
+      "name": "owns() inspects only destinations[0], so a single-hop branch may name a CONTRADICTING second destination. Fix: when expectedSecondHop is null, require destinations.length === 1. Smallest remaining item and fully self-contained.",
+      "caution": "routesCase and the selftest's two-hop ORDER legs both call owns(). Re-run the selftest AND the full suite, not just M4."
     },
     {
-      "id": "owner-decision-round-A",
-      "status": "not_started",
-      "blocking": true,
-      "name": "The 3-arm placement A/B. Instrument built and proven offline at 6/6 cruxes. Stage 2 needs its OWN approval; a stage-1 approval does not cover it."
+      "id": "OPEN-4",
+      "priority": 2,
+      "suite_entry": "M2",
+      "expected_label": "refactor-step1",
+      "where": "tools/lib/routing-parse.mjs -- isDeclaredResidual / isBareCatchAll",
+      "name": "A declared residual can keep BOTH residual-marker halves AND claim the request for itself in the house self-reference form, because isDeclaredResidual demands only zero LITERAL-slug destinations and destinationsIn deliberately does not resolve 'this skill'. Fix: flag a declared residual whose text also self-claims ('this skill', 'continue here', 'answer it here', 'here as part of').",
+      "caution": "Do NOT touch RESIDUAL_MARKER_RE's both-halves requirement -- that is what stops a forgot-to-name-an-owner branch passing as the residual. The hole is already documented in-code at isBareCatchAll."
     },
     {
-      "id": "optional-description-completeness",
-      "status": "not_started",
-      "name": "Bring the three descriptions level with the four-times-replicated router. Ruled OMISSION not contradiction by gsd-verifier, so NOT a gap and SC5 holds. Cheapest BEFORE Round B (rides the same round); costs a second round after."
+      "id": "OPEN-7",
+      "priority": 3,
+      "suite_entry": "M8b",
+      "expected_label": "intro two-hop",
+      "where": "tools/check-rgr-routing.mjs -- the intro two-hop block",
+      "name": "The check requires only that lz-red is affirmed at a lower index than lz-tpp, so an intro that MENTIONS them in order while DENYING both hops passes. Fix: additionally require a first-hop CLAIM phrase ('red step first', 'opens the red step') in the same sentence as lz-red."
     },
     {
-      "id": "optional-rollup-fix",
-      "status": "not_started",
-      "name": "tabulate-mechanical-red.mjs and merge-judge --verify cannot reach the routing suite. Blocks Round A's ROLLUP, not its capture. Full reproduction in deferred-items.md and RUN-GATE.md KNOWN GAPS."
+      "id": "OPEN-8d",
+      "priority": 4,
+      "suite_entry": "M9",
+      "expected_label": "corpus",
+      "where": "tools/check-rgr-routing.mjs -- corpus floor",
+      "name": "The corpus's own shape is unasserted, so changing ONE word (c4's expectedSecondHop from 'lz-tpp' to null) silently RETIRES the D-02 ordered-pair assertion. Fix: assert exactly one NONE case, exactly one case with expectedSecondHop, and every expectedOwner drawn from the three slugs plus NONE."
+    },
+    {
+      "id": "OPEN-2",
+      "priority": 5,
+      "suite_entries": ["M5", "M14"],
+      "expected_labels": ["red-narrative", "beck-seam"],
+      "where": "tools/check-rgr-routing.mjs -- the STEP1_SURFACES filter",
+      "name": "Five of eight router surfaces (three narratives, laws-classify, beck-seam) get only scan-floor + catch-all + single-axis, no correctness assertion -- yet each step-1 procedure DELEGATES to its narrative ('See ... above; do not restate it'), so the narrative is authoritative. Flipping a destination there is undetected.",
+      "MEASURE_FIRST": "MANDATORY. Write a read-only probe (matrix of every kind:'router' surface x every case under routesCase) BEFORE changing the assertion, exactly as the 0-of-27 probe de-risked the per-surface refactor. These five are PROSE parsed by sentence and may legitimately not carry every case's ask-words. If some fail for a real reason, assert only what the surface CLAIMS and record the measured reason -- do NOT weaken routesCase."
+    },
+    {
+      "id": "OPEN-6",
+      "priority": 6,
+      "suite_entry": "M12",
+      "expected_label": "red-modes",
+      "where": "all three plugins/lz-tdd/skills/*/SKILL.md `## Two modes` sections, plus a new assertion",
+      "name": "The only remaining item touching SHIPPED PROSE and the only one that can affect real behavior. Every `## Two modes` gate fails to classify most of what its own description and step-1 branches claim: lz-tpp fails 7 of 9 corpus requests, lz-red fails c3 (claimed VERBATIM by its own description), lz-refactor fails c2/c3/c4/c6/c9. lz-tpp step 2 reads 'Once branch (b) has settled this as the green step', so its gate must admit a request before step 1 can decline it. Then ADD the assertion that would have caught it -- mode gates are currently token-scanned only.",
+      "HARD_CONSTRAINT": "BODY ONLY. Do NOT edit any `description:` frontmatter -- that forces a SECOND metered EVL-01 round. Verify with an explicit frontmatter diff, not just the changed-file list."
+    },
+    {
+      "id": "OPEN-8b-8c-8e-8f",
+      "priority": 7,
+      "suite_entries": ["M10", "M11", "M6"],
+      "name": "8b/8c: the QUESTION-vs-COMMAND and whole-package-sweeps sections are cited but are not ROUTING_SURFACES entries, so no single-axis check reaches them, and the QUESTION/COMMAND check asserts only that the heading EXISTS -- its body is read by nothing. Either add them as surfaces or record the measured decision not to, stating the residual inventory of unanchored `## ` sections either way. 8e: the selftest still hand-restates corpusFloorOk / scanFloorOk / hopsOrderedOk / flatten, and corpusFloorOk does NOT model the gate's `STEP1_SURFACES.length !== 3` clause, so that clause is unguarded; also no numberedItem n!=1 leg. 8f: two stale comments in routing-parse.mjs -- the TEST_STATE_TOKENS seed comment's four 'MEASURED live sites' (all absent from plugins/, so re-verify with a positive control before rewriting) and the destinationsIn note claiming shipped self-owning branches parse to zero destinations for their own owner (false: 1a/1b/1d name literal slugs)."
+    },
+    {
+      "id": "OPEN-5",
+      "priority": "none -- NOT CLOSEABLE",
+      "name": "Already correctly documented at both TEST_STATE_TOKENS and CATCHALL_CONDITION_RE. A literal blocklist cannot be exhaustive. Suite entries M16 and E5 are its permanent ceilings: leave them evading, do NOT try to close them, and do NOT let the comments be re-worded into a closure claim -- one such overclaim was already corrected today.",
+      "verify": "git grep -c -i \"literal blocklist\" -- <gate>   (the -i is REQUIRED; the case-sensitive form reported the documentation missing today when it was present)"
     }
   ],
+
   "blockers": [
     {
       "type": "human_action",
-      "description": "Both metered rounds are HALT-gated on fresh explicit owner approval. Neither is approved. Running /reload-plugins discharged D-19 but is NOT approval to spend -- these are separate gates by design.",
-      "workaround": "Resume signal: 'approved -- round B' and/or 'approved -- round A at k=N'."
+      "description": "Both metered rounds remain HALT-gated on fresh explicit owner approval, and neither is approved. Nothing metered has run in this entire session.",
+      "workaround": "Resume signal: 'approved -- round B' and/or 'approved -- round A at k=N'. Read .claude/skills/lz-red-workspace/e2e-rgr-routing/RUN-GATE.md first; its KNOWN GAPS section now carries a CLOSED banner with corrected commands."
     },
     {
       "type": "technical",
-      "description": "Round A's ROLLUP steps cannot reach this suite. tabulate-mechanical-red.mjs exits 0 while tabulating NOTHING (it discovers e2e-red-* dirs and walks results/apply; this suite is deliberately named outside that namespace per D-22 and is recommend-only). merge-judge --verify globs a different directory shape for a differently-named grade file.",
-      "workaround": "Capture and per-run grading are unaffected -- only the numbers. Fix before Round A's rollup, or tabulate by hand. discoverSuiteDirs and walkAllSuites are ALREADY exported, so the reuse path exists."
+      "description": "The offline gate is meaningfully weaker than its GREEN output suggests: 7 recorded evasions still land, the most consequential being that five of eight router surfaces carry no correctness assertion. None of it affects Round A's CAPTURE or GRADING, only what the gate would catch in future.",
+      "workaround": "The evasion suite makes the exact scope of that weakness runnable and countable."
     },
     {
       "type": "external",
-      "description": "PR #3 stays held after this phase closes (D-24). Closing phase 22 does NOT by itself unblock it -- the owner-approved A/B run does. The tracked tree remains variant A, which is a legitimate variant, not a half-migration.",
-      "workaround": "None needed -- recorded intent, not a defect."
+      "description": "PR #3 stays held (D-24). Closing these instrument items does NOT unblock it -- the owner-approved placement A/B does.",
+      "workaround": "None needed; recorded intent."
     }
   ],
-  "async_jobs": [],
+
   "human_actions_pending": [
     {
       "action": "Approve or decline Round B (EVL-01 reciprocal trigger regression)",
       "blocking": true,
-      "context": "Mandatory as a CHECK because descriptions changed, but the SPEND is the owner's call. Now believable because the reload landed."
+      "context": "Owed because four shipped description edits landed this session and /reload-plugins made them live, so they are what a trigger eval would now measure. Pre-edit baseline was clean (both siblings 12/12 quiet), so any firing is unambiguous."
     },
     {
-      "action": "Approve or decline Round A (placement A/B), and its stage-1 k",
+      "action": "Approve or decline Round A (placement A/B) and its stage-1 k",
       "blocking": true,
-      "context": "A null is a likely and legitimate outcome -- five prior placement and passive-content probes on this project came back null. Stage 2 needs separate approval. Consider fixing the rollup first."
+      "context": "This is what actually unblocks PR #3. Its rollup chain now works end to end (both halves fixed and proven this session), so it can be tabulated mechanically rather than by hand."
+    },
+    {
+      "action": "Decide the two DESCRIPTION-tier items, or drop them permanently",
+      "blocking": false,
+      "context": "The primary-ask tiebreak for lz-tpp/lz-refactor, and widening c9's design-question exclusion. Both are description edits, so each must land BEFORE Round B or it forces a second metered round. lz-refactor has only 41 chars of headroom, which effectively forecloses the second without a trim. Decide-now-or-drop, not defer."
     }
   ],
-  "decisions": [
-    {
-      "phase": "22",
-      "decision": "Owner approved the FULL gap-closure scope including the description edits, knowing it forces the metered EVL-01 round.",
-      "rationale": "Presented with the cost explicitly via AskUserQuestion. The body-only alternative would have left the banned test-state phrase in the surface that actually decides which skill loads."
-    },
-    {
-      "phase": "22",
-      "decision": "The late description-completeness findings are OMISSIONS, not contradictions, so SC5 is not falsified and the phase closes.",
-      "rationale": "Same standard the original contract reviewer applied to the structurally identical F-9. Deciding it consistently mattered more than deciding it strictly -- an inconsistent bar is how a phase never closes."
-    },
-    {
-      "phase": "22",
-      "decision": "Removed a stranded grading worktree inside the borrowed radix-ng/primitives-pin repo, on explicit owner approval after the auto-mode classifier denied it.",
-      "rationale": "It was residue from a killed selfcheck-red run, not a regression -- proven by byte-unchanged instruments and a matching timestamp. Its patch was captured to the scratchpad first."
-    },
-    {
-      "phase": "22",
-      "decision": "Re-dispatched 22-07 fresh after a quota kill rather than resuming the agent via SendMessage.",
-      "rationale": "The resume premise did not hold: zero commits, no documents, no surviving worktree. A resumed agent whose worktree is gone could edit the primary checkout, and its worktree_branch_check had already passed."
-    }
-  ],
-  "uncommitted_files": [".planning/config.json"],
-  "next_action": "Nothing runs without an owner decision. If approving spend, read .claude/skills/lz-red-workspace/e2e-rgr-routing/RUN-GATE.md first -- it carries both rounds' exact commands, the pre-run checklist, and the read-rate gate. Recommended sequencing: close the description-completeness item and the rollup gap FIRST (both zero-spend), then approve both rounds together so Round B covers all description edits in one run.",
-  "context_notes": "THE HEADLINE IS THAT EVERY REAL DEFECT THIS SESSION CAME FROM CHECKING EVIDENCE RATHER THAN VERDICTS, AND THE GATE WAS GREEN THE WHOLE TIME. check-rgr-routing.mjs reported 0 FAIL over eleven surfaces and nine corpus cases while the phase's own headline defect sat live in a shipped file -- lz-refactor/SKILL.md's intro routed behavior changes straight to lz-tpp, the exact dead end the phase exists to fix, in the first prose a model reads. Cause: every parsed surface anchors to a '## ' heading, so intro prose was outside all eleven; and descriptions were checked for character cap only, never content. THE MOST DURABLE OUTCOME IS THAT THIS BLIND SPOT IS NOW INSTRUMENTED AND MUTATION-PROVEN: restoring the original defect makes the checker fail with 'hops [lz-tpp] -- expected lz-red before lz-tpp', then goes green on a sha256-identical restore. What took three human-brief reviewers is now mechanical. SECOND, THE REVIEW THAT PAID BEST RAN EARLIEST: the plan-checker found two blockers inside the gap PLAN before any file was touched -- a placement instruction that would have broken build-variants.mjs's byte-exact C_POINTER anchor and taken the D-11 precondition RED (and would not have surfaced until a later task, after the earlier ones were committed, in a file the plan forbade editing), and an acceptance criterion that already passed at HEAD pre-edit because its phrase is line-wrapped. THIRD, THE NEGATIVE-CHECK TRAP FIRED FOUR TIMES IN FOUR DISGUISES and is the single most transferable lesson: a wrapped-phrase grep reading clean before any fix existed; 'rg -E' exiting 2 with no output while a '|| echo NONE' fallback reported absence; an rg piped into sort capturing sort's exit code; and a wrap-tolerant pattern whose \\s+ sat at the wrong word join. Always check the exit code (0 hits / 1 genuine absence / 2 command failed) and run a positive control on the same path. FOURTH, WATCH THE DESCRIPTION HEADROOM: lz-red is now 1422 chars with 114 free under the 1536 cap -- 22-08 made it SHORTER, which was required, but the margin stays thin."
+
+  "verification_at_this_head": {
+    "check-rgr-routing.mjs": 0,
+    "check-rgr-routing.selftest.mjs": 0,
+    "check-rgr-routing.evasions.mjs": "1 (expected -- 7 open)",
+    "npm run check (lz-red-workspace)": "1 (expected -- the evasion suite is wired into it and 7 are open)",
+    "npm run check (lz-refactor-workspace)": 0,
+    "check-evals.mjs": 0,
+    "claude plugin validate . / --strict": 0,
+    "git diff --stat -- plugins/": "empty -- no shipped skill modified",
+    "IMPORTANT": "lz-red-workspace's `npm run check` now exits 1 BY DESIGN, because the evasion suite is wired into it and 7 evasions are open. That is the intended forcing function: the battery stays red until the backlog is closed. If that is unwanted, run `npm run check:evasions` separately and unwire it -- but the whole point is that an open evasion should not read as a green battery."
+  },
+
+  "uncommitted_files": [],
+  "next_action": "Run the evasion suite to see the 7 EVADED lines, then close OPEN-3 first (suite entry M4, smallest and self-contained). Work down the priority order. Re-run the FULL suite after EACH fix, not once at the end, because OPEN-3 and OPEN-4 both touch how destinations are counted and OPEN-4's self-claim vocabulary overlaps text OPEN-1's negation logic reads. End with a from-scratch UNPRIMED review briefed to ATTACK; if it finds NEW evasions, ADD them to the suite even if they are not fixed -- the suite is the durable record and growing it is the point.",
+
+  "context_notes": "THE ONE STRUCTURAL LESSON OF THIS SESSION: prose acceptance criteria let the author grade their own work, and in this repo the author was wrong every single time. Three patching rounds, three fresh defects -- a false 'understated by 250 chars' when it OVERSTATED, a '1508 was over-cap' when 1508 is UNDER the 1536 cap, and a double-space bug in the fold repair that inflated every measured length. Each was caught by a plan-checker, an unprimed reviewer, or a selftest leg. Wave 1 exists to end that: the criteria are executable now. TRUST THE SUITE OVER YOUR READING. SECOND LESSON, which cost two false GREENs today: a mutation you did not verify LANDED is not a test -- these files hard-wrap near 100 columns so any multi-line anchor silently fails to match, and a pipeline's exit code is the LAST stage's, so `rg pattern file | head` reports head's status. Check exit codes directly: 0 hits, 1 genuine absence, 2 the command FAILED and tells you nothing. THIRD: `git grep` is case-sensitive; a documentation check reported text missing today when it was present. FOURTH, on scope: two unprimed reviews have now confirmed the SHIPPED routing text is correct at both tiers on all nine corpus cases, so everything remaining buys protection against FUTURE regression, not correctness today -- if the owner would rather close the milestone, stopping here is defensible and the suite preserves the backlog exactly."
 }

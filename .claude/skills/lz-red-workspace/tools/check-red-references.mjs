@@ -78,7 +78,6 @@
 // coach procedure + a tsc-strict Vitest fence, fill the four slices, remove every deferral marker,
 // and add both lz-tpp reverse pointers. The Phase-17.1 D-05 honesty gate stays intact.
 //   node .claude/skills/lz-red-workspace/tools/check-red-references.mjs
-import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -86,7 +85,7 @@ import { SCAFFOLD_RES } from "./lib/scaffold-phrases.mjs";
 import { findBookCitedAsOwned } from "./lib/provenance-honesty.mjs";
 import { ROW_SCOPED_GUARDS, RETIRED_LABELS } from "./lib/row-guards.mjs";
 import { scanTables, findLinkTargets } from "./lib/pipe-table.mjs";
-import { packageLinkProblems } from "./lib/package-links.mjs";
+import { packageLinkProblems, trackedFiles } from "./lib/package-links.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 // tools -> lz-red-workspace -> skills -> .claude -> repo root
@@ -828,8 +827,7 @@ let relativeLinksResolved = 0;
 let trackedPluginFiles = new Set();
 
 try {
-  const listed = execFileSync("git", ["ls-files", "-z", "--", "plugins"], { cwd: repoRoot, encoding: "utf8" });
-  trackedPluginFiles = new Set(listed.split("\0").filter((entry) => entry !== ""));
+  trackedPluginFiles = trackedFiles(repoRoot);
 } catch (err) {
   deadLinkHits.push(`git ls-files FAILED (${err.code ?? err.message}), so no link target could be looked up`);
 }
@@ -857,8 +855,7 @@ for (const file of pluginsMarkdown) {
     }
 
     for (const problem of packageLinkProblems(target, sourceRel, trackedPluginFiles)) {
-      const hit = `${shown}:${target.line} -> ${target.raw}`;
-      deadLinkHits.push(problem === "LEAVES PACKAGE" ? `${hit} LEAVES PACKAGE` : hit);
+      deadLinkHits.push(`${shown}:${target.line} -> ${target.raw} ${problem}`);
     }
   }
 }

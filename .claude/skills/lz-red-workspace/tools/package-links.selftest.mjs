@@ -2,12 +2,19 @@
 // Self-test for lib/package-links.mjs, the per-link core of the relative-link gate in
 // check-red-references.mjs. Plain node:assert, matching this workspace's other self-tests. Each target
 // goes through findLinkTargets first, so the kind classification is exercised together with the core.
-// The tracked set is an in-memory fixture; no git repo or fixture tree is needed.
+// The core cases use an in-memory tracked set; the tracked-set builder runs against a throwaway git repo
+// in the OS temp folder, deleted afterwards.
 //   node .claude/skills/lz-red-workspace/tools/package-links.selftest.mjs
 import assert from "node:assert/strict";
-import fs from "node:fs";
+import { execFileSync } from "node:child_process";
+import fs, { existsSync } from "node:fs";
+import { syncBuiltinESMExports } from "node:module";
+import os from "node:os";
+import path from "node:path";
 import { findLinkTargets } from "./lib/pipe-table.mjs";
-import { packageLinkProblems } from "./lib/package-links.mjs";
+import * as packageLinks from "./lib/package-links.mjs";
+
+const { packageLinkProblems } = packageLinks;
 
 const README = "plugins/lz-tdd/README.md";
 const LZ_RED_SKILL = "plugins/lz-tdd/skills/lz-red/SKILL.md";
@@ -44,12 +51,17 @@ const withFsRecorder = (run) => {
     };
   }
 
+  // Propagates the patched default-export properties to every `import { name } from "node:fs"` binding.
+  syncBuiltinESMExports();
+
   try {
     return { result: run(), fsCalls: calls };
   } finally {
     for (const name of FS_ENTRY_POINTS) {
       fs[name] = saved[name];
     }
+
+    syncBuiltinESMExports();
   }
 };
 
@@ -107,6 +119,67 @@ for (const raw of ["C:/Windows/win.ini", "C:\\x.md", "c:..\\..\\README.md"]) {
   check(`F3: drive-letter target \`${raw}\` classifies absolute`, targetOf(raw).kind, "absolute");
   leavesWithoutFs(`F3: drive-letter target \`${raw}\` -> LEAVES PACKAGE with zero fs calls`, raw);
 }
+
+// The installed package root is not named after the plugin, so a `..` that climbs above the root and
+// comes back in through its folder name is broken in the package even though it normalises inside.
+check("H1: `../lz-tdd/...` re-enters through the plugin folder name -> LEAVES PACKAGE", shapeOf(problemsOf("../lz-tdd/skills/lz-red/SKILL.md", README)).leavesPackage, true);
+check("H1: `../../plugins/lz-tdd/README.md` re-enters from the repo root -> LEAVES PACKAGE", shapeOf(problemsOf("../../plugins/lz-tdd/README.md", README)).leavesPackage, true);
+check("H1: `../../../lz-tdd/README.md` from a nested file re-enters -> LEAVES PACKAGE", shapeOf(problemsOf("../../../lz-tdd/README.md", LZ_RED_SKILL)).leavesPackage, true);
+
+check(
+  "M1: backslash-separated in-package target -> one backslash problem",
+  ((problems) => ({ count: problems.length, backslash: problems.some((problem) => problem.includes("backslash")) }))(problemsOf("skills\\lz-red\\SKILL.md", README)),
+  { count: 1, backslash: true }
+);
+
+check("M3: directory link with a trailing slash -> fine", problemsOf("skills/lz-red/", README), []);
+check("M3: directory link without a trailing slash -> fine", problemsOf("skills", README), []);
+check("M3: `.` names the plugin root -> fine", problemsOf(".", README), []);
+check("M3: directory that holds no tracked file -> one dead problem", shapeOf(problemsOf("skills/no-such-dir/", README)), { count: 1, dead: true, leavesPackage: false });
+check("M3: a name that is only a prefix of a tracked directory -> one dead problem", shapeOf(problemsOf("skills/lz-re", README)), { count: 1, dead: true, leavesPackage: false });
+
+for (const raw of ["file:///C:/x.md", "file:../../README.md"]) {
+  check(`L2: \`${raw}\` classifies absolute`, targetOf(raw).kind, "absolute");
+  leavesWithoutFs(`L2: \`${raw}\` -> LEAVES PACKAGE with zero fs calls`, raw);
+}
+
+// A core that switched to `import { existsSync } from "node:fs"` keeps its own binding, so the recorder
+// must reach named imports too, or the zero-fs-calls cases above could pass while the core touches disk.
+check(
+  "L1: the fs recorder records a call made through a named import",
+  withFsRecorder(() => existsSync("lzjfm-recorder-probe.md")).fsCalls,
+  ["existsSync(lzjfm-recorder-probe.md)"]
+);
+
+// The tracked-set builder, against a real git repo: only the git-tracked files under plugins/ belong to
+// the package, and a non-ASCII name comes back unquoted.
+let trackedActual;
+const scratchRepo = fs.mkdtempSync(path.join(os.tmpdir(), "lzjfm-tracked-"));
+
+try {
+  const git = (...args) => execFileSync("git", args, { cwd: scratchRepo, stdio: "pipe" });
+  const pluginDir = path.join(scratchRepo, "plugins", "p");
+  git("init", "-q");
+  fs.mkdirSync(pluginDir, { recursive: true });
+  fs.writeFileSync(path.join(scratchRepo, ".gitignore"), "plugins/p/ignored.md\n");
+
+  for (const name of ["tracked.md", "spaced \u00f8.md", "untracked.md", "ignored.md"]) {
+    fs.writeFileSync(path.join(pluginDir, name), "x\n");
+  }
+
+  git("add", "--", ".gitignore", "plugins/p/tracked.md", "plugins/p/spaced \u00f8.md");
+  trackedActual = [...packageLinks.trackedFiles(scratchRepo)].sort();
+} catch (err) {
+  trackedActual = `threw: ${err.message.split("\n")[0]}`;
+} finally {
+  fs.rmSync(scratchRepo, { recursive: true, force: true });
+}
+
+check(
+  "M2: trackedFiles lists only the git-tracked files under plugins/, non-ASCII names unquoted",
+  trackedActual,
+  ["plugins/p/spaced \u00f8.md", "plugins/p/tracked.md"]
+);
 
 console.log("");
 

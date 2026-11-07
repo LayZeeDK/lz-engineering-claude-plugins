@@ -70,9 +70,11 @@ const SEPARATOR_CELL_RE = /^:?-{3,}:?$/;
 // drift apart about what counts as a row.
 const TABLE_ROW_RE = /^ {0,3}\|/;
 
-// A fence open or close: up to three leading spaces, then three or more backticks or tildes. The
-// CHARACTER has to match for a fence to close, so a tilde fence inside a backtick fence does not end it.
-const FENCE_RE = /^\s{0,3}(`{3,}|~{3,})/;
+// A fence open or close: up to three leading SPACES (a tab is indented code), then three or more
+// backticks or tildes, then the rest of the line. A fence closes only on the opener's character, a run at
+// least as long as the opener's, and nothing but whitespace after it, so a shorter inner fence, a tilde
+// fence inside a backtick fence, or a line with an info string does not end it.
+const FENCE_RE = /^ {0,3}(`{3,}|~{3,})(.*)$/;
 
 // One inline link. The target excludes whitespace and `)`, and an optional quoted title is consumed so
 // it never lands in the captured target.
@@ -136,21 +138,23 @@ const splitCells = (line) => {
  * @param {(line: string, lineNumber: number, fenced: boolean) => void} visit
  */
 const scanLines = (text, visit) => {
-  let fenceChar = null;
+  let open = null;
 
   text.split(/\r?\n/).forEach((line, index) => {
     const fence = FENCE_RE.exec(line);
 
     if (!fence) {
-      visit(line, index + 1, fenceChar !== null);
+      visit(line, index + 1, open !== null);
 
       return;
     }
 
-    if (fenceChar === null) {
-      fenceChar = fence[1][0];
-    } else if (fence[1][0] === fenceChar) {
-      fenceChar = null;
+    const [, run, rest] = fence;
+
+    if (open === null) {
+      open = { char: run[0], length: run.length };
+    } else if (run[0] === open.char && run.length >= open.length && rest.trim() === "") {
+      open = null;
     }
 
     visit(line, index + 1, true);
@@ -292,7 +296,8 @@ export function findLinkTargets(text) {
 
 /**
  * Every link form in a document that `findLinkTargets` does not extract: reference-style definitions,
- * angle-bracket destinations, single-quoted titles and HTML `href`/`src` attributes. This is the loud
+ * angle-bracket destinations, single-quoted titles, HTML `href`/`src` attributes, and, on a line with
+ * none of those, any `](` the extractor did not consume (an "unparsed link"). This is the loud
  * partner of `findLinkTargets`: a form listed here is never extracted, so the caller must fail on it.
  *
  * Fence-aware like `findLinkTargets`. Inline code is NOT stripped, on purpose, so a form inside
@@ -309,11 +314,15 @@ export function findUnsupportedLinkForms(text) {
       return;
     }
 
-    for (const { form, re } of UNSUPPORTED_LINK_FORMS) {
-      if (re.test(line)) {
-        found.push({ line: lineNumber, form });
-      }
+    const forms = UNSUPPORTED_LINK_FORMS.filter(({ re }) => re.test(line)).map(({ form }) => form);
+
+    // Any `](` left after removing the links LINK_RE reads is a link it could not read: nested or
+    // escaped brackets, a parenthesised title, or link text that started on an earlier line.
+    if (forms.length === 0 && line.replace(LINK_RE, "").includes("](")) {
+      forms.push("unparsed link");
     }
+
+    forms.forEach((form) => found.push({ line: lineNumber, form }));
   });
 
   return found;

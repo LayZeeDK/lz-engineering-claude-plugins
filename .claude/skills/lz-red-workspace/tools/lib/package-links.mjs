@@ -18,6 +18,8 @@ import { findLinkTargets, findUnsupportedLinkForms } from "./pipe-table.mjs";
 const DEAD = "dead (target is not in the package)";
 const LEAVES_PACKAGE = "LEAVES PACKAGE";
 const BACKSLASH = "uses backslash separators (no such path on a POSIX install)";
+const NOT_IN_A_PLUGIN = "NOT IN A PLUGIN (a file directly under plugins/ ships in no package)";
+const MARKDOWN_RE = /\.(md|markdown)$/i;
 
 /**
  * Repo-relative posix paths of the git-tracked files under plugins/. Reads the index, so a staged file
@@ -103,12 +105,6 @@ export function packageLinkProblems(target, sourceRel, tracked) {
   }
 
   const resolvedPath = resolved.join("/");
-  const last = segments.at(-1);
-
-  // Every directory on the way was proven tracked, and so was the source file's own directory.
-  if (last === "." || last === "..") {
-    return [];
-  }
 
   if (filePart.endsWith("/")) {
     return isTrackedDir(resolvedPath) ? [] : [DEAD];
@@ -130,7 +126,13 @@ export function packageLinkGate(tracked, readText) {
   const hits = [];
   let resolved = 0;
 
-  for (const rel of [...tracked].filter((file) => file.endsWith(".md")).sort()) {
+  for (const rel of [...tracked].filter((file) => MARKDOWN_RE.test(file)).sort()) {
+    // The package boundary is plugins/<plugin>/, so a file above it has no package to resolve against.
+    if (rel.split("/").length < 3) {
+      hits.push(`${rel}: ${NOT_IN_A_PLUGIN}`);
+      continue;
+    }
+
     let text;
 
     try {

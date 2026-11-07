@@ -190,6 +190,26 @@ check(
   [2]
 );
 
+// A fence closes only on the opener's character, a run at least as long, and nothing else on the line;
+// a tab indent is indented code, not a fence. Either mistake hides every later link.
+const rawTargetsOf = (text) => findLinkTargets(text).map(({ raw }) => raw);
+
+check("X1: a link after a 4-backtick fence holding a 3-backtick line -> extracted", rawTargetsOf("````md\n```\n````\n[a](dead.md)"), ["dead.md"]);
+check("X2: a link after the inner 3-backtick line, inside the 4-backtick fence -> not extracted", rawTargetsOf("````md\n```\n[a](dead.md)\n````"), []);
+check("X3: a tab-indented backtick run is not a fence -> the link after it is extracted", rawTargetsOf("\t```\n[a](dead.md)"), ["dead.md"]);
+
+// Any `](` the extractor did not consume is a link nobody resolves.
+check("X4: nested brackets in link text -> unparsed link", formsOf("[a [b] c](dead.md)"), ["unparsed link"]);
+check("X5: escaped bracket in link text -> unparsed link", formsOf("[a\\]b](dead.md)"), ["unparsed link"]);
+check("X6: parenthesised link title -> unparsed link", formsOf("[a](dead.md (t))"), ["unparsed link"]);
+check(
+  "X7: link text broken across lines -> unparsed link on the second line",
+  attempt(() => pipeTable.findUnsupportedLinkForms("[a\nb](dead.md)")),
+  [{ line: 2, form: "unparsed link" }]
+);
+check("X9: reference definition indented three spaces -> reported", formsOf("   [r]: skills/lz-red/SKILL.md"), ["reference-style definition"]);
+check("X10: uppercase HREF attribute -> reported", formsOf('<a HREF="skills/lz-red/SKILL.md">p</a>'), ["HTML href/src attribute"]);
+
 for (const raw of ["file:///C:/x.md", "file:../../README.md"]) {
   check(`L2: \`${raw}\` classifies absolute`, targetOf(raw).kind, "absolute");
   leavesWithoutFs(`L2: \`${raw}\` -> LEAVES PACKAGE with zero fs calls`, raw);
@@ -242,6 +262,18 @@ check(
     })
   ),
   { hits: ["plugins/p/a.md: UNREADABLE (EACCES)"], resolved: 1 }
+);
+
+check(
+  "X8: tracked `.MD` and `.markdown` files are read and their dead links reported",
+  attempt(() => packageLinks.packageLinkGate(new Set(["plugins/p/Docs.MD", "plugins/p/n.markdown"]), () => "[a](dead.md)\n").hits),
+  ["plugins/p/Docs.MD:1 -> dead.md dead (target is not in the package)", "plugins/p/n.markdown:1 -> dead.md dead (target is not in the package)"]
+);
+
+check(
+  "X11: a Markdown file directly under plugins/ -> one hit naming the file",
+  attempt(() => packageLinks.packageLinkGate(new Set(["plugins/README.md", "plugins/p/a.md"]), () => "[a](a.md)\n").hits),
+  ["plugins/README.md: NOT IN A PLUGIN (a file directly under plugins/ ships in no package)"]
 );
 
 // The tracked-set builder, against a real git repo: only the git-tracked files under plugins/ belong to

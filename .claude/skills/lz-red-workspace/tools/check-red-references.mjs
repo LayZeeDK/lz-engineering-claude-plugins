@@ -85,6 +85,7 @@ import { SCAFFOLD_RES } from "./lib/scaffold-phrases.mjs";
 import { findBookCitedAsOwned } from "./lib/provenance-honesty.mjs";
 import { ROW_SCOPED_GUARDS, RETIRED_LABELS } from "./lib/row-guards.mjs";
 import { scanTables, findLinkTargets } from "./lib/pipe-table.mjs";
+import { packageLinkProblems } from "./lib/package-links.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 // tools -> lz-red-workspace -> skills -> .claude -> repo root
@@ -821,9 +822,11 @@ const LINK_RESOLVES_LABEL =
 const deadLinkHits = pluginsWalkError === "" ? [] : [pluginsWalkError];
 let relativeLinksResolved = 0;
 
+const trackedPluginFiles = new Set();
+
 for (const file of pluginsMarkdown) {
   const shown = path.relative(repoRoot, file);
-  const pluginRoot = path.join(PLUGINS_DIR, path.relative(PLUGINS_DIR, file).split(path.sep)[0]);
+  const sourceRel = shown.split(path.sep).join("/");
   let linkText;
 
   try {
@@ -834,30 +837,15 @@ for (const file of pluginsMarkdown) {
   }
 
   for (const target of findLinkTargets(linkText)) {
-    if (target.kind !== "relative") {
-      continue;
+    // Counted only for the targets the core resolves, so the count equals the work this gate actually
+    // did. Incrementing before the kind filter counted work the gate never did.
+    if (target.kind === "relative" && target.raw.split("#")[0] !== "") {
+      relativeLinksResolved++;
     }
 
-    const [filePart] = target.raw.split("#");
-
-    if (filePart === "") {
-      continue;
-    }
-
-    // Counted HERE, after both skips, so the count equals the number of targets this gate actually
-    // resolved against the disk. Incrementing before the kind filter counted work the gate never did.
-    relativeLinksResolved++;
-
-    const resolved = path.resolve(path.dirname(file), filePart);
-
-    if (!fs.existsSync(resolved)) {
-      deadLinkHits.push(`${shown}:${target.line} -> ${target.raw}`);
-    }
-
-    const insidePackage = path.relative(pluginRoot, resolved);
-
-    if (insidePackage === ".." || insidePackage.startsWith(`..${path.sep}`) || path.isAbsolute(insidePackage)) {
-      deadLinkHits.push(`${shown}:${target.line} -> ${target.raw} LEAVES PACKAGE`);
+    for (const problem of packageLinkProblems(target, sourceRel, trackedPluginFiles)) {
+      const hit = `${shown}:${target.line} -> ${target.raw}`;
+      deadLinkHits.push(problem === "LEAVES PACKAGE" ? `${hit} LEAVES PACKAGE` : hit);
     }
   }
 }

@@ -1,5 +1,6 @@
-// quick-260729-2ig ROW PARSER, widened by quick-260729-lc9. THREE exported pure functions over a
-// GitHub pipe table and the inline links around it -- parseRows, scanTables, findLinkTargets -- plus
+// quick-260729-2ig ROW PARSER, widened by quick-260729-lc9. FOUR exported pure functions over a
+// GitHub pipe table and the links around it -- parseRows, scanTables, findLinkTargets,
+// findUnsupportedLinkForms -- plus
 // ONE shared cell splitter behind all of them. Node builtins only, no deps, deliberately mirroring
 // lib/provenance-honesty.mjs (which stays byte-unchanged).
 //
@@ -50,7 +51,10 @@
 // document -- so each caller in check-red-references.mjs carries its own anti-vacuity leg on the count
 // of things it actually saw.
 //
-// Exported for the self-test in tools/row-guards.selftest.mjs.
+// A third scanner, `findUnsupportedLinkForms`, reports the link forms `findLinkTargets` cannot extract,
+// so the package-link gate fails on them instead of passing them unchecked.
+//
+// Exported for the self-tests in tools/row-guards.selftest.mjs and tools/package-links.selftest.mjs.
 
 // A separator cell: three or more dashes, optionally colon-aligned on either side.
 const SEPARATOR_CELL_RE = /^:?-{3,}:?$/;
@@ -66,13 +70,23 @@ const SEPARATOR_CELL_RE = /^:?-{3,}:?$/;
 // drift apart about what counts as a row.
 const TABLE_ROW_RE = /^ {0,3}\|/;
 
-// A fence open or close: up to three leading spaces, then three or more backticks or tildes. The
-// CHARACTER has to match for a fence to close, so a tilde fence inside a backtick fence does not end it.
-const FENCE_RE = /^\s{0,3}(`{3,}|~{3,})/;
+// A fence open or close: up to three leading SPACES (a tab is indented code), then three or more
+// backticks or tildes, then the rest of the line. A fence closes only on the opener's character, a run at
+// least as long as the opener's, and nothing but whitespace after it, so a shorter inner fence, a tilde
+// fence inside a backtick fence, or a line with an info string does not end it.
+const FENCE_RE = /^ {0,3}(`{3,}|~{3,})(.*)$/;
 
 // One inline link. The target excludes whitespace and `)`, and an optional quoted title is consumed so
 // it never lands in the captured target.
 const LINK_RE = /\[[^\]]*\]\(([^)\s]+)(?:\s+"[^"]*")?\)/g;
+
+// Link forms LINK_RE does not extract. A line matching one of these carries a link nobody resolves.
+const UNSUPPORTED_LINK_FORMS = [
+  { form: "reference-style definition", re: /^ {0,3}\[[^\]]+\]:/ },
+  { form: "angle-bracket destination", re: /\]\(\s*</ },
+  { form: "single-quoted link title", re: /\]\([^)\s]+\s+'/ },
+  { form: "HTML href/src attribute", re: /\b(?:href|src)\s*=/i },
+];
 
 /**
  * THE one cell splitter. Trimmed cells of a pipe-table line, with the two empty ends produced by the
@@ -118,31 +132,44 @@ const splitCells = (line) => {
  *
  * The visitor receives the line, its ONE-BASED number, and whether the line is fenced -- true for a
  * fence delimiter itself as well as for the lines between delimiters. An unterminated fence leaves
- * every following line fenced, which fails closed: content is skipped rather than mis-scanned.
+ * every following line fenced, and skipped content is the SILENT direction for a link gate, so the open
+ * fence is returned for the caller to report. Fences inside list items and blockquotes are not modelled:
+ * a list-item fence usually ends up unterminated (returned, loud), and a blockquote fence's content is
+ * scanned (loud).
  *
  * @param {string} text
  * @param {(line: string, lineNumber: number, fenced: boolean) => void} visit
+ * @returns {{ line: number } | null} the opener of a fence still open at the end, or null
  */
 const scanLines = (text, visit) => {
-  let fenceChar = null;
+  let open = null;
 
   text.split(/\r?\n/).forEach((line, index) => {
     const fence = FENCE_RE.exec(line);
 
-    if (!fence) {
-      visit(line, index + 1, fenceChar !== null);
+    if (fence !== null) {
+      const [, run, rest] = fence;
 
-      return;
+      // A backtick opener's info string may not hold a backtick, so such a line is not a fence.
+      if (open === null && (run[0] !== "`" || !rest.includes("`"))) {
+        open = { char: run[0], length: run.length, line: index + 1 };
+        visit(line, index + 1, true);
+
+        return;
+      }
+
+      if (open !== null && run[0] === open.char && run.length >= open.length && rest.trim() === "") {
+        open = null;
+        visit(line, index + 1, true);
+
+        return;
+      }
     }
 
-    if (fenceChar === null) {
-      fenceChar = fence[1][0];
-    } else if (fence[1][0] === fenceChar) {
-      fenceChar = null;
-    }
-
-    visit(line, index + 1, true);
+    visit(line, index + 1, open !== null);
   });
+
+  return open === null ? null : { line: open.line };
 };
 
 /**
@@ -276,6 +303,46 @@ export function findLinkTargets(text) {
   });
 
   return targets;
+}
+
+/**
+ * Every link form in a document that `findLinkTargets` does not extract: reference-style definitions,
+ * angle-bracket destinations, single-quoted titles, HTML `href`/`src` attributes, and, on a line with
+ * none of those, any `](` the extractor did not consume (an "unparsed link"), plus a fence still open
+ * at the end of the file (an "unterminated fence", at its opener), which hid every later line. This is the loud
+ * partner of `findLinkTargets`: a form listed here is never extracted, so the caller must fail on it.
+ *
+ * Fence-aware like `findLinkTargets`. Inline code is NOT stripped, on purpose, so a form inside
+ * backticks also reports: the error is a loud false failure, never a silent pass.
+ *
+ * @param {string} text
+ * @returns {{ line: number, form: string }[]} one entry per form found per line, in document order
+ */
+export function findUnsupportedLinkForms(text) {
+  const found = [];
+
+  const unterminated = scanLines(text, (line, lineNumber, fenced) => {
+    if (fenced) {
+      return;
+    }
+
+    const forms = UNSUPPORTED_LINK_FORMS.filter(({ re }) => re.test(line)).map(({ form }) => form);
+
+    // Any `](` left after removing the links LINK_RE reads is a link it could not read: nested or
+    // escaped brackets, a parenthesised title, or link text that started on an earlier line.
+    if (forms.length === 0 && line.replace(LINK_RE, "").includes("](")) {
+      forms.push("unparsed link");
+    }
+
+    forms.forEach((form) => found.push({ line: lineNumber, form }));
+  });
+
+  // Every line after an unterminated fence was skipped, so its links went unchecked.
+  if (unterminated !== null) {
+    found.push({ line: unterminated.line, form: "unterminated fence" });
+  }
+
+  return found;
 }
 
 const linkKind = (raw) => {

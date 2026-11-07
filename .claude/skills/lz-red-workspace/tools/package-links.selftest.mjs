@@ -12,6 +12,7 @@ import { syncBuiltinESMExports } from "node:module";
 import os from "node:os";
 import path from "node:path";
 import { findLinkTargets } from "./lib/pipe-table.mjs";
+import * as pipeTable from "./lib/pipe-table.mjs";
 import * as packageLinks from "./lib/package-links.mjs";
 
 const { packageLinkProblems } = packageLinks;
@@ -80,6 +81,15 @@ const check = (label, actual, expected) => {
   }
 };
 
+// Reports a throw as a value, so a missing export fails its own checks instead of ending the run.
+const attempt = (run) => {
+  try {
+    return run();
+  } catch (err) {
+    return `threw: ${err.message.split("\n")[0]}`;
+  }
+};
+
 const leavesWithoutFs = (label, raw) => {
   const { result, fsCalls } = withFsRecorder(() => shapeOf(problemsOf(raw, README)));
   check(label, { leavesPackage: result.leavesPackage, fsCalls }, { leavesPackage: true, fsCalls: [] });
@@ -138,6 +148,79 @@ check("M3: `.` names the plugin root -> fine", problemsOf(".", README), []);
 check("M3: directory that holds no tracked file -> one dead problem", shapeOf(problemsOf("skills/no-such-dir/", README)), { count: 1, dead: true, leavesPackage: false });
 check("M3: a name that is only a prefix of a tracked directory -> one dead problem", shapeOf(problemsOf("skills/lz-re", README)), { count: 1, dead: true, leavesPackage: false });
 
+// On a POSIX install a path through a file or a missing directory fails with ENOTDIR or ENOENT, even
+// when `..` would cancel the segment lexically.
+check("K1: trailing slash after a tracked file -> one dead problem", shapeOf(problemsOf("README.md/", README)), { count: 1, dead: true, leavesPackage: false });
+check("K2: trailing slash after a nested tracked file -> one dead problem", shapeOf(problemsOf("skills/lz-red/SKILL.md/", README)), { count: 1, dead: true, leavesPackage: false });
+check("K3: `..` out of a missing directory -> one dead problem", shapeOf(problemsOf("no-such-dir/..", README)), { count: 1, dead: true, leavesPackage: false });
+check("K4: a path through a missing directory -> one dead problem", shapeOf(problemsOf("no-such-dir/../skills/lz-red/SKILL.md", README)), { count: 1, dead: true, leavesPackage: false });
+check("K5: a path through a file used as a directory -> one dead problem", shapeOf(problemsOf("skills/lz-red/SKILL.md/../SKILL.md", README)), { count: 1, dead: true, leavesPackage: false });
+check("K6: `..` out of a tracked directory -> fine", problemsOf("skills/lz-red/../lz-refactor/SKILL.md", README), []);
+
+// Link forms findLinkTargets does not extract must be reported, so the gate fails on them instead of
+// passing them unchecked.
+const unsupported = (text) => attempt(() => pipeTable.findUnsupportedLinkForms(text));
+const formsOf = (text) => ((found) => (Array.isArray(found) ? found.map(({ form }) => form) : found))(unsupported(text));
+
+const referenceLine = "[r]: skills/lz-red/SKILL.md";
+const angleLine = "see [p](<skills/lz-red/SKILL.md>)";
+const singleQuoteLine = "see [p](skills/lz-red/SKILL.md 'title')";
+const hrefLine = '<a href="skills/lz-red/SKILL.md">p</a>';
+const srcLine = '<img src="x.png">';
+const unsupportedLines = [referenceLine, angleLine, singleQuoteLine, hrefLine, srcLine];
+
+check("U1: reference-style definition -> reported", formsOf(referenceLine), ["reference-style definition"]);
+check("U2: angle-bracket destination -> reported", formsOf(angleLine), ["angle-bracket destination"]);
+check("U3: single-quoted link title -> reported", formsOf(singleQuoteLine), ["single-quoted link title"]);
+check("U4: HTML href attribute -> reported", formsOf(hrefLine), ["HTML href/src attribute"]);
+check("U5: HTML src attribute -> reported", formsOf(srcLine), ["HTML href/src attribute"]);
+check(
+  "U6: every unsupported form inside a backtick fence and a tilde fence -> nothing reported",
+  unsupported(["```", ...unsupportedLines, "```", "~~~", ...unsupportedLines, "~~~"].join("\n")),
+  []
+);
+check(
+  "U7: double-quoted title, scheme and anchor links -> nothing reported",
+  unsupported('[p](skills/lz-red/SKILL.md "title") and [q](https://example.com) and [r](#anchor)'),
+  []
+);
+check(
+  "U8: a form on line 2 -> reported at line 2",
+  attempt(() => pipeTable.findUnsupportedLinkForms(`intro\n${referenceLine}`).map(({ line }) => line)),
+  [2]
+);
+
+// A fence closes only on the opener's character, a run at least as long, and nothing else on the line;
+// a tab indent is indented code, not a fence. Either mistake hides every later link.
+const rawTargetsOf = (text) => findLinkTargets(text).map(({ raw }) => raw);
+
+check("X1: a link after a 4-backtick fence holding a 3-backtick line -> extracted", rawTargetsOf("````md\n```\n````\n[a](dead.md)"), ["dead.md"]);
+check("X2: a link after the inner 3-backtick line, inside the 4-backtick fence -> not extracted", rawTargetsOf("````md\n```\n[a](dead.md)\n````"), []);
+check("X3: a tab-indented backtick run is not a fence -> the link after it is extracted", rawTargetsOf("\t```\n[a](dead.md)"), ["dead.md"]);
+
+// Any `](` the extractor did not consume is a link nobody resolves.
+check("X4: nested brackets in link text -> unparsed link", formsOf("[a [b] c](dead.md)"), ["unparsed link"]);
+check("X5: escaped bracket in link text -> unparsed link", formsOf("[a\\]b](dead.md)"), ["unparsed link"]);
+check("X6: parenthesised link title -> unparsed link", formsOf("[a](dead.md (t))"), ["unparsed link"]);
+check(
+  "X7: link text broken across lines -> unparsed link on the second line",
+  attempt(() => pipeTable.findUnsupportedLinkForms("[a\nb](dead.md)")),
+  [{ line: 2, form: "unparsed link" }]
+);
+check("X12: a closing run with trailing text does not close the fence", rawTargetsOf("```\nx\n``` foo\n[a](dead.md)\n```\n[b](dead2.md)"), ["dead2.md"]);
+
+// A fence still open at the end of the file hides every later link, so it is reported at its opener.
+check("Y1: a fence opened on a list-marker line -> unterminated fence at the indented closer", unsupported("- ```js\n  x\n  ```\n\n[a](dead.md)"), [{ line: 3, form: "unterminated fence" }]);
+check("Y2: a fence opened on an ordered-list line -> unterminated fence at the indented closer", unsupported("1. ```\n   code\n   ```\n[a](dead.md)"), [{ line: 3, form: "unterminated fence" }]);
+check("Y3: a fence inside a list item left open -> unterminated fence at its opener", unsupported("- item\n  ```\n  x\n\npara\n[a](dead.md)"), [{ line: 2, form: "unterminated fence" }]);
+
+// A backtick run whose info string holds a backtick is not a fence opener.
+check("Y4: backtick info string holding a backtick -> the link after it is extracted", rawTargetsOf("```a`b\n[a](dead.md)"), ["dead.md"]);
+check("Y5: backtick info string holding a backtick, then a fence line -> the link between is extracted", rawTargetsOf("```a`b\n[a](dead.md)\n```"), ["dead.md"]);
+
+check("X9: reference definition indented three spaces -> reported", formsOf("   [r]: skills/lz-red/SKILL.md"), ["reference-style definition"]);
+check("X10: uppercase HREF attribute -> reported", formsOf('<a HREF="skills/lz-red/SKILL.md">p</a>'), ["HTML href/src attribute"]);
+
 for (const raw of ["file:///C:/x.md", "file:../../README.md"]) {
   check(`L2: \`${raw}\` classifies absolute`, targetOf(raw).kind, "absolute");
   leavesWithoutFs(`L2: \`${raw}\` -> LEAVES PACKAGE with zero fs calls`, raw);
@@ -151,9 +234,63 @@ check(
   ["existsSync(lzjfm-recorder-probe.md)"]
 );
 
+// The gate reads exactly the tracked `.md` files, reports a dead link and an unsupported form as hits,
+// and counts only the targets it resolved.
+const gateTexts = { "plugins/p/a.md": "[ok](b.md)\n[gone](nope.md)\n", "plugins/p/b.md": "[r]: a.md\n" };
+const gateTracked = new Set(["plugins/p/a.md", "plugins/p/b.md", "plugins/p/plugin.json"]);
+
+check(
+  "W1: packageLinkGate reads only the tracked .md files and reports a dead link and an unsupported form",
+  attempt(() => {
+    const reads = [];
+    const { hits, resolved } = packageLinks.packageLinkGate(gateTracked, (rel) => {
+      reads.push(rel);
+
+      return gateTexts[rel];
+    });
+
+    return { reads, resolved, hits };
+  }),
+  {
+    reads: ["plugins/p/a.md", "plugins/p/b.md"],
+    resolved: 2,
+    hits: [
+      "plugins/p/a.md:2 -> nope.md dead (target is not in the package)",
+      "plugins/p/b.md:1 -> unsupported link form (reference-style definition), not checked",
+    ],
+  }
+);
+
+check(
+  "W3: an unreadable tracked file is one hit and the gate continues",
+  attempt(() =>
+    packageLinks.packageLinkGate(new Set(["plugins/p/a.md", "plugins/p/b.md"]), (rel) => {
+      if (rel === "plugins/p/a.md") {
+        throw Object.assign(new Error("EACCES: denied"), { code: "EACCES" });
+      }
+
+      return "[ok](a.md)\n";
+    })
+  ),
+  { hits: ["plugins/p/a.md: UNREADABLE (EACCES)"], resolved: 1 }
+);
+
+check(
+  "X8: tracked `.MD` and `.markdown` files are read and their dead links reported",
+  attempt(() => packageLinks.packageLinkGate(new Set(["plugins/p/Docs.MD", "plugins/p/n.markdown"]), () => "[a](dead.md)\n").hits),
+  ["plugins/p/Docs.MD:1 -> dead.md dead (target is not in the package)", "plugins/p/n.markdown:1 -> dead.md dead (target is not in the package)"]
+);
+
+check(
+  "X11: a Markdown file directly under plugins/ -> one hit naming the file",
+  attempt(() => packageLinks.packageLinkGate(new Set(["plugins/README.md", "plugins/p/a.md"]), () => "[a](a.md)\n").hits),
+  ["plugins/README.md: NOT IN A PLUGIN (a file directly under plugins/ ships in no package)"]
+);
+
 // The tracked-set builder, against a real git repo: only the git-tracked files under plugins/ belong to
 // the package, and a non-ASCII name comes back unquoted.
 let trackedActual;
+let gateReadsActual;
 const scratchRepo = fs.mkdtempSync(path.join(os.tmpdir(), "lzjfm-tracked-"));
 
 try {
@@ -169,6 +306,20 @@ try {
 
   git("add", "--", ".gitignore", "plugins/p/tracked.md", "plugins/p/spaced \u00f8.md");
   trackedActual = [...packageLinks.trackedFiles(scratchRepo)].sort();
+
+  // A symlink index entry, staged without a filesystem symlink, so no Windows privilege is needed.
+  gateReadsActual = attempt(() => {
+    const blob = execFileSync("git", ["hash-object", "-w", "--stdin"], { cwd: scratchRepo, input: "tracked.md", encoding: "utf8" }).trim();
+    git("update-index", "--add", "--cacheinfo", `120000,${blob},plugins/p/linked.md`);
+    const reads = [];
+    packageLinks.packageLinkGate(packageLinks.trackedFiles(scratchRepo), (rel) => {
+      reads.push(rel);
+
+      return "";
+    });
+
+    return reads;
+  });
 } catch (err) {
   trackedActual = `threw: ${err.message.split("\n")[0]}`;
 } finally {
@@ -179,6 +330,12 @@ check(
   "M2: trackedFiles lists only the git-tracked files under plugins/, non-ASCII names unquoted",
   trackedActual,
   ["plugins/p/spaced \u00f8.md", "plugins/p/tracked.md"]
+);
+
+check(
+  "W2: packageLinkGate over trackedFiles reads a tracked symlink and skips untracked and ignored files",
+  gateReadsActual,
+  ["plugins/p/linked.md", "plugins/p/spaced \u00f8.md", "plugins/p/tracked.md"]
 );
 
 console.log("");

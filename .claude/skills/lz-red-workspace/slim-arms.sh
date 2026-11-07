@@ -1,5 +1,6 @@
 # Shared by the lz-red-workspace eval runners; source it, do not run it.
-# Sets slim_root, and offers ensure_pkg (sets pkg_dir) and ensure_rules_b (sets rules_b).
+# Sets slim_root, and offers ensure_pkg (sets pkg_dir), ensure_rules_b (sets rules_b) and the cycle-log pair
+# begin_cycle_logs / collect_cycle_logs.
 # SLIM_ROOT must stay outside the home folder: run-slim.ts refuses a cwd inside it.
 slim_root="${SLIM_ROOT:-D:/tmp/slim-claude-p}"
 slim_arms_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -47,8 +48,29 @@ ensure_pkg() {
   echo "[OK] packaged lz-tdd at $ref into $pkg_dir"
 }
 
+# A session may write its cycle log into the rules folder or SLIM_ROOT, which every run reuses, so a later run can
+# overwrite an earlier run's log. Call begin_cycle_logs <run dir> right before the session and collect_cycle_logs
+# <run dir> right after it: the files changed in between, in rules-b and directly in SLIM_ROOT, are copied with their
+# times into <run dir>.cycle-logs, where ../cycle-logs.mjs reads them.
+begin_cycle_logs() {
+  rm -rf "$1.cycle-logs"
+  touch "$1.cycle-start"
+}
+
+collect_cycle_logs() {
+  local marker="$1.cycle-start" dest="$1.cycle-logs"
+  mkdir -p "$dest/rules-b" "$dest/slim-root"
+
+  if [ -d "$slim_root/rules-b" ]; then
+    (cd "$slim_root/rules-b" && find . -type f -newer "$marker" -exec cp -p --parents {} "$dest/rules-b" \;)
+  fi
+
+  find "$slim_root" -maxdepth 1 -type f -newer "$marker" -exec cp -p {} "$dest/slim-root" \;
+  rm -f "$marker"
+}
+
 # Generates arm b's rules folder: the owner's lars-mode test-first.md plus a CLAUDE.md with the Test-first bullet.
-# The folder is never deleted: B sessions write cycle logs there and the grader reads them after the run.
+# The folder is never deleted; collect_cycle_logs copies each run's logs out of it.
 ensure_rules_b() {
   local source="$HOME/.claude/skills/lars-mode/references/test-first.md"
   rules_b="$slim_root/rules-b"

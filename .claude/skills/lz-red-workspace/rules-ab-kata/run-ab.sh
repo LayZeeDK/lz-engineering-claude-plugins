@@ -33,10 +33,12 @@ while [ $# -ge 2 ]; do
     rules=none
   fi
 
+  begin_cycle_logs "$dir"
   node "$HOME/.claude/references/slim-claude-p/run-slim.ts" --cwd "$dir" --prompt-file "$here/task.md" \
     --out "$here/out/run-$arm-$k.json" --plugin-dir "$pkg_dir" --rules "$rules" --model opus --timeout-min 25 \
     --allow "$ALLOW" --deny "$DENY" "${dry[@]}"
   status=$?
+  collect_cycle_logs "$dir"
   echo "== $arm $k exit=$status"
 
   # A spend-limit hit fails in seconds; stop the queue rather than turn one failure into many.

@@ -1,17 +1,16 @@
-// Usage: node grade.mjs <arm-k> [...]                                 grade finished runs
-//        node grade.mjs --cycle-logs <sinceMs> <untilMs> <project>   list the cycle logs a run would be credited
+// Usage: node grade.mjs <arm-k> [...]                       grade finished runs
+//        node grade.mjs --cycle-logs <sinceMs> <project>   list the cycle logs a run would be credited
 // Process metrics from the session transcript (main + subagents), outcome metrics from the produced project.
 import { readFileSync, readdirSync, existsSync, copyFileSync, rmSync, statSync } from 'node:fs';
-import { dirname, join } from 'node:path';
+import { join } from 'node:path';
 import { homedir } from 'node:os';
 import { spawnSync } from 'node:child_process';
+import { cycleLogs } from '../cycle-logs.mjs';
 
 const ids = process.argv.slice(2);
 const outDir = join(import.meta.dirname, 'out');
 const hiddenSpec = join(import.meta.dirname, 'hidden', 'acceptance.spec.ts');
-const slimRoot = process.env.SLIM_ROOT ?? 'D:/tmp/slim-claude-p';
-const rulesDir = join(slimRoot, 'rules-b');
-const runsRoot = join(slimRoot, 'rules-ab', 'runs');
+const runsRoot = join(process.env.SLIM_ROOT ?? 'D:/tmp/slim-claude-p', 'rules-ab', 'runs');
 const projects = join(homedir(), '.claude', 'projects');
 
 const transcriptsOf = (sessionId) => {
@@ -41,29 +40,15 @@ const run = (cwd, args) => {
   return { code: result.status, out: `${result.stdout}\n${result.stderr}` };
 };
 
-// An arm-b run may write its cycle log in the rules folder, in SLIM_ROOT, beside the run folder or inside it.
-// Runs are sequential and share rules-b, so `until` keeps a later run's log off an earlier run.
-function cycleLogs(since, until, project) {
-  const places = [
-    ...[rulesDir, dirname(rulesDir), dirname(project)].map((place) => ({ place, recursive: false })),
-    { place: project, recursive: true },
-  ].filter(({ place }) => existsSync(place));
-
-  return places.flatMap(({ place, recursive }) =>
-    readdirSync(place, { recursive })
-      .map(String)
-      .filter((rel) => /cycle|log/i.test(rel) && !rel.split(/[\\/]/).includes('node_modules'))
-      .map((rel) => join(place, rel))
-      .filter((file) => {
-        const stat = statSync(file);
-
-        return stat.isFile() && stat.mtimeMs >= since && stat.mtimeMs <= until;
-      }),
-  );
-}
-
 if (ids[0] === '--cycle-logs') {
-  console.log(JSON.stringify(cycleLogs(Number(ids[1]), Number(ids[2]), ids[3])));
+  const since = Number(ids[1]);
+
+  if (ids.length !== 3 || ids[1].trim() === '' || !Number.isFinite(since) || ids[2] === '') {
+    console.error('Usage: node grade.mjs --cycle-logs <sinceMs> <project>');
+    process.exit(2);
+  }
+
+  console.log(JSON.stringify(cycleLogs(since, ids[2])));
   process.exit(0);
 }
 
@@ -159,8 +144,8 @@ for (const id of ids) {
   const hiddenPassed = /Tests\s+(?:\S+\s+)?(\d+) passed/.exec(hidden.out.replace(/\x1b\[[0-9;]*m/g, ''));
   const hiddenFailed = /(\d+) failed/.exec(hidden.out.replace(/\x1b\[[0-9;]*m/g, ''));
   const tsc = run(project, ['tsc', '--noEmit', '-p', '.']);
-  const until = statSync(resultFile).mtimeMs;
-  const cycleLog = Number.isFinite(result.ms) ? cycleLogs(until - result.ms, until, project).join(',') || '-' : 'unknown (no ms in result)';
+  const since = statSync(resultFile).mtimeMs - result.ms;
+  const cycleLog = Number.isFinite(since) ? cycleLogs(since, project).join(',') || '-' : 'unknown (no ms in result)';
 
   console.log(
     [

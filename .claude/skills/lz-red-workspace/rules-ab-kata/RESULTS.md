@@ -19,7 +19,8 @@ user skill or command in any listing.
 | b-3 | $2.29 | 4.0 | 113 | 7/7/7 | 9 | 3 | 9 lines | 15/15 | clean |
 
 B's cycle logs were written to the harness folder and its rules folder, not beside the run folder; grade.mjs
-reported "-" for them, corrected by hand. grade.mjs now searches the rules folder and its parent as well.
+reported "-" for them, corrected by hand. run-ab.sh now copies the files a session changes in the rules folder and
+directly in SLIM_ROOT into `<run folder>.cycle-logs`, and grade.mjs reads cycle logs from there and the run folder.
 B's max of 3 is one edit per run adding 3 `test-after` tests that passed on first run (logged as test-after);
 A's 2s are two failing tests landing in one edit.
 

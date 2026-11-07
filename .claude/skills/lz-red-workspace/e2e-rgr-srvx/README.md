@@ -70,4 +70,9 @@ node grade-rgr.mjs T1-a-1 T1-b-1
 session. `--dry-run` sets up each run folder and prints the arguments run-slim would pass, without starting a session.
 Results go to `out/run-TASK-ARM-K.json`. These files hold local paths and prompts, so `out/` stays git-ignored.
 
+Every run shares the rules folder and `SLIM_ROOT`, so right after each session `run-rgr.sh` copies the files the
+session changed there (the rules folder, and the files directly in `SLIM_ROOT`) into `runs/ARM-K.cycle-logs/` beside
+the run folder. `grade-rgr.mjs` reports as `cycleLog` the files in that folder and in the run folder whose path
+contains `cycle` or `log`.
+
 The metered Opus run (3 tasks x 2 arms x k=3, one session at a time) is blocked until Lars gives the go-ahead.

@@ -3,13 +3,12 @@
 // Outcome metrics come from the produced code; process metrics from the session transcript (main + subagents).
 import { copyFileSync, existsSync, readdirSync, readFileSync, rmSync, statSync } from 'node:fs';
 import { homedir } from 'node:os';
-import { dirname, join, relative } from 'node:path';
+import { join, relative } from 'node:path';
 import { spawnSync } from 'node:child_process';
+import { cycleLogs } from '../cycle-logs.mjs';
 
 const evalDir = import.meta.dirname;
-const slimRoot = process.env.SLIM_ROOT ?? 'D:/tmp/slim-claude-p';
-const rulesDir = join(slimRoot, 'rules-b');
-const tasksRoot = join(slimRoot, 'rgr-eval');
+const tasksRoot = join(process.env.SLIM_ROOT ?? 'D:/tmp/slim-claude-p', 'rgr-eval');
 const projects = join(homedir(), '.claude', 'projects');
 const testCall = /^\+\s*(it|test)(\.each\([^)]*\))?\s*\(/gm;
 
@@ -163,17 +162,6 @@ function processMetrics(sessionId) {
   return { skills, maxTestsPerTestEdit, testRuns, redRuns, readTestFirst, timeline, denials };
 }
 
-function cycleLogs(since, project) {
-  const places = [rulesDir, dirname(rulesDir), dirname(project), project].filter((place) => existsSync(place));
-
-  return places.flatMap((place) =>
-    readdirSync(place)
-      .filter((name) => /cycle|log/i.test(name) && statSync(join(place, name)).isFile())
-      .filter((name) => statSync(join(place, name)).mtimeMs >= since)
-      .map((name) => join(place, name)),
-  );
-}
-
 const args = process.argv.slice(2);
 
 if (args[0] === '--outcome-only') {
@@ -207,7 +195,7 @@ for (const id of args) {
       `testRuns=${p.testRuns}`,
       `redRuns=${p.redRuns}`,
       `readTestFirst=${p.readTestFirst}`,
-      `cycleLog=${cycleLogs(since, project).join(',') || '-'}`,
+      `cycleLog=${Number.isFinite(since) ? cycleLogs(since, project).join(',') || '-' : 'unknown (no ms in result)'}`,
       `models=${Object.keys(session.modelUsage ?? {}).join(',') || '?'}`,
       `denials=${p.denials.join(' | ') || 0}`,
       `diff=${o.diff}`,

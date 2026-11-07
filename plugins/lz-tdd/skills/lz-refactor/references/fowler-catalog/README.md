@@ -89,7 +89,7 @@ Provenance legend:
 | [Replace Constructor with Factory Function](replace-constructor-with-factory-function.md) | Replace Constructor with Factory Method | a constructor's limits get in the way (you want a name that says intent, to return a subtype, or to avoid forcing callers to use `new`). |
 | [Replace Function with Command](replace-function-with-command.md) | Replace Method with Method Object | a function is complex enough (lots of local state, or wanting to be broken up) that turning it into an object would help. |
 | [Replace Command with Function](replace-command-with-function.md) | none | a command object does little more than run one function, so the class is just overhead. |
-| [Return Modified Value [web-only]](return-modified-value.md) | none | a function updates a value by mutating it in place, and the code would read more clearly if it returned the new value instead. |
+| [Return Modified Value](return-modified-value.md) [web-only] | none | a function updates a value by mutating it in place, and the code would read more clearly if it returned the new value instead. |
 
 ## Ch.12: dealing with inheritance
 

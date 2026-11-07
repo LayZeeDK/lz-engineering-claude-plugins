@@ -787,10 +787,17 @@ report(
 // by KIND rather than by an allowlist.
 //
 // An allowlist was MEASURED unnecessary rather than forgotten, and only the ZEROES are recorded here
-// because they are the load-bearing facts and they are invariant across the deletion: 0 external-scheme
-// links, 0 absolute links, 0 reference-style link definitions, 0 links inside code fences. Those four
-// zeroes are the whole reason no allowlist is needed. The link, file and anchor TOTALS are deliberately
-// NOT written down -- every one of them moves when the taxonomy copies go.
+// because they are the facts the no-allowlist decision rests on: 0 absolute links, 0 reference-style
+// link definitions, 0 links inside code fences. The shipped tree DOES carry https links now (the plugin
+// README and the functional-catalog Sources cite the repository by URL), but a scheme URL is skipped by
+// KIND, so it needs no allowlist either. The link, file and anchor TOTALS are deliberately NOT written
+// down -- every one of them moves when a reference is added or removed.
+//
+// PACKAGING BOUNDARY. A packaged plugin is the git-tracked files of plugins/<plugin>/ copied to their own
+// root, so a relative link that leaves that root is broken in the package even when its target exists
+// in the repo (Lars's ruling, 2026-11-07: links broken by packaging the plugin must be resolved). Each
+// resolved target is therefore also checked against the plugin root its file lives under, and one that
+// escapes is a hit labelled LEAVES PACKAGE whether or not the file exists.
 //
 // The fragment split is REQUIRED, not optional: the lz-refactor catalogs carry file-plus-fragment
 // links, and resolving `foo.md#bar` as a path would report every one of them dead.
@@ -809,12 +816,14 @@ report(
 // root-absolute IS relative and IS existsSync-checked -- which is why a plugin-wide shared reference is
 // cited as INLINE CODE carrying a plugin-root variable path and never as a Markdown link: as a link it
 // would classify relative and fail here, correctly.
-const LINK_RESOLVES_LABEL = "[lc9] every relative markdown link in the shipped tree resolves";
+const LINK_RESOLVES_LABEL =
+  "[lc9] every relative markdown link in the shipped tree resolves inside its plugin package";
 const deadLinkHits = pluginsWalkError === "" ? [] : [pluginsWalkError];
 let relativeLinksResolved = 0;
 
 for (const file of pluginsMarkdown) {
   const shown = path.relative(repoRoot, file);
+  const pluginRoot = path.join(PLUGINS_DIR, path.relative(PLUGINS_DIR, file).split(path.sep)[0]);
   let linkText;
 
   try {
@@ -839,8 +848,16 @@ for (const file of pluginsMarkdown) {
     // resolved against the disk. Incrementing before the kind filter counted work the gate never did.
     relativeLinksResolved++;
 
-    if (!fs.existsSync(path.resolve(path.dirname(file), filePart))) {
+    const resolved = path.resolve(path.dirname(file), filePart);
+
+    if (!fs.existsSync(resolved)) {
       deadLinkHits.push(`${shown}:${target.line} -> ${target.raw}`);
+    }
+
+    const insidePackage = path.relative(pluginRoot, resolved);
+
+    if (insidePackage === ".." || insidePackage.startsWith(`..${path.sep}`) || path.isAbsolute(insidePackage)) {
+      deadLinkHits.push(`${shown}:${target.line} -> ${target.raw} LEAVES PACKAGE`);
     }
   }
 }

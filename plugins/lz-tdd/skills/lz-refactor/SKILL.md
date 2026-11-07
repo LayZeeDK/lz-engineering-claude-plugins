@@ -97,6 +97,11 @@ request and no skill in this loop owns it; say so plainly and answer directly.
      [GoF](references/gof-catalog/README.md) or
      [extra-patterns](references/extra-patterns-catalog/README.md) catalog). Route to the candidate
      but do not present it as chosen; step 4 decides whether it earns its keep.
+   - OPEN the candidate refactoring's leaf and read it in full before step 4; its mechanics and
+     when-not-to-apply notes live only there. Every leaf is addressable without its index:
+     `references/<catalog>/<kebab-case-name>.md` (`fowler-catalog`, `kerievsky-catalog`, `gof-catalog`,
+     `extra-patterns-catalog`, `functional-catalog`) and `references/smells/<kebab-case-name>.md`.
+     Three Kerievsky leaves also have a `<kebab-case-name>-walkthrough.md` worked example beside them.
 4. Decide whether the pattern earns its keep by one net-cost count, and STATE the verdict before any
    code. Count what it REMOVES (duplication sites collapsed, obscurity clarified)
    against what it ADDS (new classes, types, files, indirection). A branch relocated into its own

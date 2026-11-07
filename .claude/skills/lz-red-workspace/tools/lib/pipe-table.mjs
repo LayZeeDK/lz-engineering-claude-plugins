@@ -1,5 +1,6 @@
-// quick-260729-2ig ROW PARSER, widened by quick-260729-lc9. THREE exported pure functions over a
-// GitHub pipe table and the inline links around it -- parseRows, scanTables, findLinkTargets -- plus
+// quick-260729-2ig ROW PARSER, widened by quick-260729-lc9. FOUR exported pure functions over a
+// GitHub pipe table and the links around it -- parseRows, scanTables, findLinkTargets,
+// findUnsupportedLinkForms -- plus
 // ONE shared cell splitter behind all of them. Node builtins only, no deps, deliberately mirroring
 // lib/provenance-honesty.mjs (which stays byte-unchanged).
 //
@@ -50,7 +51,10 @@
 // document -- so each caller in check-red-references.mjs carries its own anti-vacuity leg on the count
 // of things it actually saw.
 //
-// Exported for the self-test in tools/row-guards.selftest.mjs.
+// A third scanner, `findUnsupportedLinkForms`, reports the link forms `findLinkTargets` cannot extract,
+// so the package-link gate fails on them instead of passing them unchecked.
+//
+// Exported for the self-tests in tools/row-guards.selftest.mjs and tools/package-links.selftest.mjs.
 
 // A separator cell: three or more dashes, optionally colon-aligned on either side.
 const SEPARATOR_CELL_RE = /^:?-{3,}:?$/;
@@ -73,6 +77,14 @@ const FENCE_RE = /^\s{0,3}(`{3,}|~{3,})/;
 // One inline link. The target excludes whitespace and `)`, and an optional quoted title is consumed so
 // it never lands in the captured target.
 const LINK_RE = /\[[^\]]*\]\(([^)\s]+)(?:\s+"[^"]*")?\)/g;
+
+// Link forms LINK_RE does not extract. A line matching one of these carries a link nobody resolves.
+const UNSUPPORTED_LINK_FORMS = [
+  { form: "reference-style definition", re: /^ {0,3}\[[^\]]+\]:/ },
+  { form: "angle-bracket destination", re: /\]\(\s*</ },
+  { form: "single-quoted link title", re: /\]\([^)\s]+\s+'/ },
+  { form: "HTML href/src attribute", re: /\b(?:href|src)\s*=/i },
+];
 
 /**
  * THE one cell splitter. Trimmed cells of a pipe-table line, with the two empty ends produced by the
@@ -276,6 +288,35 @@ export function findLinkTargets(text) {
   });
 
   return targets;
+}
+
+/**
+ * Every link form in a document that `findLinkTargets` does not extract: reference-style definitions,
+ * angle-bracket destinations, single-quoted titles and HTML `href`/`src` attributes. This is the loud
+ * partner of `findLinkTargets`: a form listed here is never extracted, so the caller must fail on it.
+ *
+ * Fence-aware like `findLinkTargets`. Inline code is NOT stripped, on purpose, so a form inside
+ * backticks also reports: the error is a loud false failure, never a silent pass.
+ *
+ * @param {string} text
+ * @returns {{ line: number, form: string }[]} one entry per form found per line, in document order
+ */
+export function findUnsupportedLinkForms(text) {
+  const found = [];
+
+  scanLines(text, (line, lineNumber, fenced) => {
+    if (fenced) {
+      return;
+    }
+
+    for (const { form, re } of UNSUPPORTED_LINK_FORMS) {
+      if (re.test(line)) {
+        found.push({ line: lineNumber, form });
+      }
+    }
+  });
+
+  return found;
 }
 
 const linkKind = (raw) => {

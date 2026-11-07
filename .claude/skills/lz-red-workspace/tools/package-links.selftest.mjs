@@ -12,6 +12,7 @@ import { syncBuiltinESMExports } from "node:module";
 import os from "node:os";
 import path from "node:path";
 import { findLinkTargets } from "./lib/pipe-table.mjs";
+import * as pipeTable from "./lib/pipe-table.mjs";
 import * as packageLinks from "./lib/package-links.mjs";
 
 const { packageLinkProblems } = packageLinks;
@@ -77,6 +78,15 @@ const check = (label, actual, expected) => {
   } catch (err) {
     failures++;
     console.log(`  [FAIL] ${label} -- expected ${JSON.stringify(expected)}, got ${JSON.stringify(actual)}: ${err.message.split("\n")[0]}`);
+  }
+};
+
+// Reports a throw as a value, so a missing export fails its own checks instead of ending the run.
+const attempt = (run) => {
+  try {
+    return run();
+  } catch (err) {
+    return `threw: ${err.message.split("\n")[0]}`;
   }
 };
 
@@ -146,6 +156,39 @@ check("K3: `..` out of a missing directory -> one dead problem", shapeOf(problem
 check("K4: a path through a missing directory -> one dead problem", shapeOf(problemsOf("no-such-dir/../skills/lz-red/SKILL.md", README)), { count: 1, dead: true, leavesPackage: false });
 check("K5: a path through a file used as a directory -> one dead problem", shapeOf(problemsOf("skills/lz-red/SKILL.md/../SKILL.md", README)), { count: 1, dead: true, leavesPackage: false });
 check("K6: `..` out of a tracked directory -> fine", problemsOf("skills/lz-red/../lz-refactor/SKILL.md", README), []);
+
+// Link forms findLinkTargets does not extract must be reported, so the gate fails on them instead of
+// passing them unchecked.
+const unsupported = (text) => attempt(() => pipeTable.findUnsupportedLinkForms(text));
+const formsOf = (text) => ((found) => (Array.isArray(found) ? found.map(({ form }) => form) : found))(unsupported(text));
+
+const referenceLine = "[r]: skills/lz-red/SKILL.md";
+const angleLine = "see [p](<skills/lz-red/SKILL.md>)";
+const singleQuoteLine = "see [p](skills/lz-red/SKILL.md 'title')";
+const hrefLine = '<a href="skills/lz-red/SKILL.md">p</a>';
+const srcLine = '<img src="x.png">';
+const unsupportedLines = [referenceLine, angleLine, singleQuoteLine, hrefLine, srcLine];
+
+check("U1: reference-style definition -> reported", formsOf(referenceLine), ["reference-style definition"]);
+check("U2: angle-bracket destination -> reported", formsOf(angleLine), ["angle-bracket destination"]);
+check("U3: single-quoted link title -> reported", formsOf(singleQuoteLine), ["single-quoted link title"]);
+check("U4: HTML href attribute -> reported", formsOf(hrefLine), ["HTML href/src attribute"]);
+check("U5: HTML src attribute -> reported", formsOf(srcLine), ["HTML href/src attribute"]);
+check(
+  "U6: every unsupported form inside a backtick fence and a tilde fence -> nothing reported",
+  unsupported(["```", ...unsupportedLines, "```", "~~~", ...unsupportedLines, "~~~"].join("\n")),
+  []
+);
+check(
+  "U7: double-quoted title, scheme and anchor links -> nothing reported",
+  unsupported('[p](skills/lz-red/SKILL.md "title") and [q](https://example.com) and [r](#anchor)'),
+  []
+);
+check(
+  "U8: a form on line 2 -> reported at line 2",
+  attempt(() => pipeTable.findUnsupportedLinkForms(`intro\n${referenceLine}`).map(({ line }) => line)),
+  [2]
+);
 
 for (const raw of ["file:///C:/x.md", "file:../../README.md"]) {
   check(`L2: \`${raw}\` classifies absolute`, targetOf(raw).kind, "absolute");

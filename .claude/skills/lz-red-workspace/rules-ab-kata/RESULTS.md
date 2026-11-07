@@ -19,8 +19,9 @@ user skill or command in any listing.
 | b-3 | $2.29 | 4.0 | 113 | 7/7/7 | 9 | 3 | 9 lines | 15/15 | clean |
 
 B's cycle logs were written to the harness folder and its rules folder, not beside the run folder; grade.mjs
-reported "-" for them, corrected by hand. B's max of 3 is one edit per run adding 3 `test-after` tests that passed on
-first run (logged as test-after); A's 2s are two failing tests landing in one edit.
+reported "-" for them, corrected by hand. grade.mjs now searches the rules folder and its parent as well.
+B's max of 3 is one edit per run adding 3 `test-after` tests that passed on first run (logged as test-after);
+A's 2s are two failing tests landing in one edit.
 
 ## Verdict
 

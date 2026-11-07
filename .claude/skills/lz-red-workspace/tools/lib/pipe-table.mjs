@@ -251,9 +251,10 @@ export function scanTables(text) {
  * classification is the part worth a fixture, and resolving a path against a real tree is the caller's
  * job.
  *
- * Kinds: `anchor` for a same-document fragment, `scheme` for anything carrying a URI scheme,
- * `absolute` for a root-relative path, `relative` for everything else. Only `relative` is resolvable
- * against a directory, so only `relative` can be a dead link on disk.
+ * Kinds: `anchor` for a same-document fragment, `absolute` for a drive-letter, root, UNC or `file:`
+ * path, `scheme` for any other URI scheme, `relative` for everything else. Only `relative` is resolvable
+ * against a directory; an `absolute` target can never be inside a package, so a caller checking package
+ * links fails it.
  *
  * @param {string} text
  * @returns {{ line: number, raw: string, kind: string }[]} one entry per link, in document order
@@ -282,12 +283,13 @@ const linkKind = (raw) => {
     return "anchor";
   }
 
-  if (/^[a-z][a-z0-9+.-]*:/i.test(raw)) {
-    return "scheme";
+  // A drive letter and `file:` are tested before the scheme, which would otherwise match them.
+  if (/^([a-z]|file):/i.test(raw) || raw.startsWith("/") || raw.startsWith("\\")) {
+    return "absolute";
   }
 
-  if (raw.startsWith("/")) {
-    return "absolute";
+  if (/^[a-z][a-z0-9+.-]*:/i.test(raw)) {
+    return "scheme";
   }
 
   return "relative";

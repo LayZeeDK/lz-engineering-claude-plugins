@@ -138,6 +138,15 @@ check("M3: `.` names the plugin root -> fine", problemsOf(".", README), []);
 check("M3: directory that holds no tracked file -> one dead problem", shapeOf(problemsOf("skills/no-such-dir/", README)), { count: 1, dead: true, leavesPackage: false });
 check("M3: a name that is only a prefix of a tracked directory -> one dead problem", shapeOf(problemsOf("skills/lz-re", README)), { count: 1, dead: true, leavesPackage: false });
 
+// On a POSIX install a path through a file or a missing directory fails with ENOTDIR or ENOENT, even
+// when `..` would cancel the segment lexically.
+check("K1: trailing slash after a tracked file -> one dead problem", shapeOf(problemsOf("README.md/", README)), { count: 1, dead: true, leavesPackage: false });
+check("K2: trailing slash after a nested tracked file -> one dead problem", shapeOf(problemsOf("skills/lz-red/SKILL.md/", README)), { count: 1, dead: true, leavesPackage: false });
+check("K3: `..` out of a missing directory -> one dead problem", shapeOf(problemsOf("no-such-dir/..", README)), { count: 1, dead: true, leavesPackage: false });
+check("K4: a path through a missing directory -> one dead problem", shapeOf(problemsOf("no-such-dir/../skills/lz-red/SKILL.md", README)), { count: 1, dead: true, leavesPackage: false });
+check("K5: a path through a file used as a directory -> one dead problem", shapeOf(problemsOf("skills/lz-red/SKILL.md/../SKILL.md", README)), { count: 1, dead: true, leavesPackage: false });
+check("K6: `..` out of a tracked directory -> fine", problemsOf("skills/lz-red/../lz-refactor/SKILL.md", README), []);
+
 for (const raw of ["file:///C:/x.md", "file:../../README.md"]) {
   check(`L2: \`${raw}\` classifies absolute`, targetOf(raw).kind, "absolute");
   leavesWithoutFs(`L2: \`${raw}\` -> LEAVES PACKAGE with zero fs calls`, raw);

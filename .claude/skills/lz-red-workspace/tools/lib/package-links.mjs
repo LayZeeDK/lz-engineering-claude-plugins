@@ -2,11 +2,12 @@
 // package-links.selftest.mjs.
 //
 // A packaged plugin is the git-tracked files of plugins/<plugin>/ copied to a root that is NOT named
-// after the plugin. trackedFiles reads that set from git; packageLinkProblems is pure and lexical: a target
-// is resolved as a path string and looked up in the set, never on the disk. The disk would accept
-// untracked, git-ignored and junction-reached files, and on Windows it ignores letter case. The boundary
-// test walks the target's own segments before any lookup, so a `..` that climbs above the plugin root
-// fails even when it comes back in through the plugin's folder name.
+// after the plugin. trackedFiles reads that set from git; packageLinkProblems is pure: a target is
+// resolved segment by segment against the set, never on the disk. The disk would accept untracked,
+// git-ignored and junction-reached files, and on Windows it ignores letter case. The boundary test walks
+// the target's own segments before any lookup, so a `..` that climbs above the plugin root fails even
+// when it comes back in through the plugin's folder name. The lookup walk then requires every segment
+// before the last, and a trailing-slash target, to be a tracked directory, as a POSIX install would.
 import { execFileSync } from "node:child_process";
 import path from "node:path";
 
@@ -29,7 +30,8 @@ export function trackedFiles(repoRoot) {
 }
 
 /**
- * Problems with one link target, judged against the plugin package its source file lives in.
+ * Problems with one link target, judged against the plugin package its source file lives in. The target
+ * is walked segment by segment against the tracked set rather than normalised lexically.
  *
  * @param {{ raw: string, kind: string }} target one entry from findLinkTargets
  * @param {string} sourceRel repo-relative posix path of the file carrying the link
@@ -72,12 +74,41 @@ export function packageLinkProblems(target, sourceRel, tracked) {
     return [BACKSLASH];
   }
 
-  const resolved = path.posix.normalize(path.posix.join(sourceDir, filePart)).replace(/\/$/, "");
+  // A directory is tracked when it holds at least one tracked file.
+  const isTrackedDir = (dir) => [...tracked].some((file) => file.startsWith(`${dir}/`));
+  const segments = filePart.split("/").filter((segment) => segment !== "");
+  const resolved = sourceDir.split("/");
 
-  // A directory link is fine when the directory holds at least one tracked file.
-  if (tracked.has(resolved) || [...tracked].some((file) => file.startsWith(`${resolved}/`))) {
+  for (const [index, segment] of segments.entries()) {
+    if (segment === ".") {
+      continue;
+    }
+
+    if (segment === "..") {
+      resolved.pop();
+      continue;
+    }
+
+    resolved.push(segment);
+
+    // POSIX resolves every segment before the last against a real directory, so a file or a missing
+    // directory there breaks the path even when a later `..` would cancel it lexically.
+    if (index < segments.length - 1 && !isTrackedDir(resolved.join("/"))) {
+      return [DEAD];
+    }
+  }
+
+  const resolvedPath = resolved.join("/");
+  const last = segments.at(-1);
+
+  // Every directory on the way was proven tracked, and so was the source file's own directory.
+  if (last === "." || last === "..") {
     return [];
   }
 
-  return [DEAD];
+  if (filePart.endsWith("/")) {
+    return isTrackedDir(resolvedPath) ? [] : [DEAD];
+  }
+
+  return tracked.has(resolvedPath) || isTrackedDir(resolvedPath) ? [] : [DEAD];
 }

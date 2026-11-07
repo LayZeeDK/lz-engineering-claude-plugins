@@ -197,5 +197,3 @@ not caution.
     [references/testing-stance/message-matrix.md](references/testing-stance/message-matrix.md)
   - Seams and legacy code (Feathers):
     [references/testing-stance/seams-and-legacy.md](references/testing-stance/seams-and-legacy.md)
-  - Seam techniques for code with no tests yet (lz-refactor's leaf, same plugin):
-    [../lz-refactor/references/refactoring-without-tests.md](../lz-refactor/references/refactoring-without-tests.md)

@@ -101,7 +101,8 @@ request and no skill in this loop owns it; say so plainly and answer directly.
      when-not-to-apply notes live only there. Every leaf is addressable without its index:
      `references/<catalog>/<kebab-case-name>.md` (`fowler-catalog`, `kerievsky-catalog`, `gof-catalog`,
      `extra-patterns-catalog`, `functional-catalog`) and `references/smells/<kebab-case-name>.md`.
-     Three Kerievsky leaves also have a `<kebab-case-name>-walkthrough.md` worked example beside them.
+     For a Kerievsky candidate, that is its kerievsky-catalog leaf. If a built path does not exist,
+     follow the link in the smell leaf or the catalog README instead of guessing another name.
 4. Decide whether the pattern earns its keep by one net-cost count, and STATE the verdict before any
    code. Count what it REMOVES (duplication sites collapsed, obscurity clarified)
    against what it ADDS (new classes, types, files, indirection). A branch relocated into its own

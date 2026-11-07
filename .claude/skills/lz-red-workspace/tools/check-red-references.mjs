@@ -85,7 +85,7 @@ import { SCAFFOLD_RES } from "./lib/scaffold-phrases.mjs";
 import { findBookCitedAsOwned } from "./lib/provenance-honesty.mjs";
 import { ROW_SCOPED_GUARDS, RETIRED_LABELS } from "./lib/row-guards.mjs";
 import { scanTables } from "./lib/pipe-table.mjs";
-import { packageLinkGate, trackedFiles } from "./lib/package-links.mjs";
+import { packageLinkGate, trackedFiles, trackedSymlinks } from "./lib/package-links.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 // tools -> lz-red-workspace -> skills -> .claude -> repo root
@@ -646,7 +646,8 @@ const collectFiles = (dir) => {
 
 
 // THE ONE WALK of the shipped tree, declared here because THREE gates below consume it (G17, N1, N3);
-// N2 reads its sources from the git-tracked set instead.
+// N2 reads its sources from the git-tracked set instead, and fails on any tracked symlink under plugins/,
+// so this walk skipping symlinked files cannot hide a shipped file.
 // A MISSING or unreadable tree is recorded as an error string and pushed as a HIT by every consumer,
 // never filtered away: an existsSync FILTER would silently narrow the scope and hand each gate a vacuous
 // pass, which is the whole defect this arrangement exists to close.
@@ -837,6 +838,14 @@ try {
   trackedPluginFiles = trackedFiles(repoRoot);
 } catch (err) {
   deadLinkHits.push(`git ls-files FAILED (${err.code ?? err.message}), so no link target could be looked up`);
+}
+
+try {
+  for (const rel of trackedSymlinks(repoRoot)) {
+    deadLinkHits.push(`${rel}: TRACKED SYMLINK (mode 120000; the G17, N1 and N3 disk walk skips symlinked files, so none may ship)`);
+  }
+} catch (err) {
+  deadLinkHits.push(`git ls-files -s FAILED (${err.code ?? err.message}), so a tracked symlink could not be ruled out`);
 }
 
 if (trackedPluginFiles.size === 0) {

@@ -10,7 +10,9 @@
 // before the last, and a trailing-slash target, to be a tracked directory, as a POSIX install would.
 //
 // packageLinkGate takes its source files from the same tracked set, so a tracked symlink is checked and
-// an untracked or git-ignored file is not: exactly the files that ship.
+// an untracked or git-ignored file is not: exactly the files that ship. A tracked symlink under plugins/
+// is also a hit of its own (trackedSymlinks), because the disk walk the other gates use skips symlinked
+// files.
 import { execFileSync } from "node:child_process";
 import path from "node:path";
 import { findLinkTargets, findUnsupportedLinkForms } from "./pipe-table.mjs";
@@ -33,6 +35,45 @@ export function trackedFiles(repoRoot) {
   const listed = execFileSync("git", ["ls-files", "-z", "--", "plugins"], { cwd: repoRoot, encoding: "utf8" });
 
   return new Set(listed.split("\0").filter((entry) => entry !== ""));
+}
+
+/**
+ * The mode-120000 (symlink) paths in raw `git ls-files -s -z` output, in listing order. Each record is
+ * `<mode> <object> <stage>TAB<path>`. Throws on a non-empty record of any other shape.
+ *
+ * @param {string} listing
+ * @returns {string[]}
+ */
+export function symlinkEntries(listing) {
+  const symlinks = [];
+
+  for (const record of listing.split("\0").filter((entry) => entry !== "")) {
+    const tab = record.indexOf("\t");
+    const head = tab === -1 ? null : /^([0-7]{6}) [0-9a-f]+ [0-9]$/.exec(record.slice(0, tab));
+
+    if (head === null) {
+      throw new Error(`malformed git ls-files -s record: ${record}`);
+    }
+
+    if (head[1] === "120000") {
+      symlinks.push(record.slice(tab + 1));
+    }
+  }
+
+  return symlinks;
+}
+
+/**
+ * Repo-relative posix paths of the git-tracked symlinks under plugins/. Reads the index, so a staged
+ * entry counts. Throws when git fails; the caller fails closed.
+ *
+ * @param {string} repoRoot
+ * @returns {string[]}
+ */
+export function trackedSymlinks(repoRoot) {
+  const listed = execFileSync("git", ["ls-files", "-s", "-z", "--", "plugins"], { cwd: repoRoot, encoding: "utf8" });
+
+  return symlinkEntries(listed);
 }
 
 /**

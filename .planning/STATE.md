@@ -8,7 +8,7 @@ status: verified
 stopped_at: "Phase 22 VERIFIED passed 8/8 after gap closure; secured (0 threats open), validated (blind spot instrumented + mutation-proven), learnings extracted and bridged to the global store. 8 of 8 plans merged, full battery GREEN, zero metered spend. D-19 DISCHARGED 2026-08-04: the owner ran /reload-plugins, so the three edited descriptions are LIVE. HALTED awaiting the only remaining decision: separate approval for TWO metered rounds (Round A the placement A/B, Round B the now-owed EVL-01 reciprocal trigger regression). Neither is approved; nothing metered has run."
 last_updated: "2026-08-04T20:30:00.000Z"
 last_activity: 2026-11-07
-last_activity_desc: "quick-261107-jfm complete: package-link gate checks the git-tracked set case-sensitively and rejects absolute and re-entering paths without touching the filesystem (two reviews, low findings only). Previous: quick-261107-isy complete: e2e-rgr-srvx and rules-ab-kata eval harnesses landed under lz-red-workspace (dry runs + selfcheck only; metered Opus round gated on Lars). Previous: quick-261107-ft7 complete: lz-refactor step 3 now opens the candidate leaf (0/5 -> 11/11, packaged slim Opus 5.5), package-breaking links fixed and gated, lz-red Sources link reverted on review. Previous: quick-260804-kvh resumed: the evasion suite gained a third reporting state plus a count ratchet (febb9a1), then F3/OPEN-11 closed and F6/OPEN-14's recorded mechanism was RETRACTED as measurably false (dcb56c5). Battery 19 CAUGHT / 8 OPEN (baseline 8) / 3 unclosable CEILING, zero metered spend, no shipped file touched."
+last_activity_desc: "quick-261107-kd7 complete: package-link gate silent passes closed (tracked-file walk, segment walk, loud unsupported link forms and unterminated fences); lz-refactor tags as code spans. Previous: quick-261107-jfm complete: package-link gate checks the git-tracked set case-sensitively and rejects absolute and re-entering paths without touching the filesystem (two reviews, low findings only). Previous: quick-261107-isy complete: e2e-rgr-srvx and rules-ab-kata eval harnesses landed under lz-red-workspace (dry runs + selfcheck only; metered Opus round gated on Lars). Previous: quick-261107-ft7 complete: lz-refactor step 3 now opens the candidate leaf (0/5 -> 11/11, packaged slim Opus 5.5), package-breaking links fixed and gated, lz-red Sources link reverted on review. Previous: quick-260804-kvh resumed: the evasion suite gained a third reporting state plus a count ratchet (febb9a1), then F3/OPEN-11 closed and F6/OPEN-14's recorded mechanism was RETRACTED as measurably false (dcb56c5). Battery 19 CAUGHT / 8 OPEN (baseline 8) / 3 unclosable CEILING, zero metered spend, no shipped file touched."
 progress:
   total_phases: 9
   completed_phases: 8
@@ -351,7 +351,17 @@ Recent decisions affecting current work:
 
 ### Pending Todos
 
-None yet.
+Package-link gate follow-ups from quick 261107-jfm, triaged 2026-11-07. Lars, verbatim: "1-2: Approve recommendations."
+(fix the three silent-pass items in one quick task, decline the inline-code one, and record all four here). The
+three fixes landed in quick 261107-kd7 (merge 71289b3); review rounds found and closed further silent passes (fence
+matching, unparsed link shapes, unterminated fences). Nothing from this table remains open.
+
+| Item | Failure | In tree today | Price | Disposition |
+|------|---------|---------------|-------|-------------|
+| Shipped-tree walk reads the disk: symlinked Markdown skipped, untracked Markdown checked | silent pass | none (measured) | small: walk the git-tracked set | done (261107-kd7) |
+| `README.md/` and `x/..` with untracked `x` pass lexically | silent pass | none (measured) | small: one change + 2 selftest cases | done (261107-kd7) |
+| Unextracted link forms (angle-bracket destinations, reference-style, single-quoted titles, HTML `href`/`src`) | silent pass | none (measured) | small for a fail-on-unsupported-form check; medium for a CommonMark parser | loud check done (261107-kd7); parser deferred until such a link is wanted |
+| Links inside inline code are extracted and checked | loud false fail | none | small | declined: fails loudly, cannot ship a broken link |
 
 ### Blockers/Concerns
 
@@ -376,6 +386,7 @@ None open. lz-tdd@0.0.1 shipped with all prior concerns resolved:
 | 261107-ft7 | lz-tdd reference-depth and packaging-link fixes: lz-refactor step 3 opens the candidate leaf (packaged slim Opus 5.5: 0/5 -> 11/11), package-breaking links fixed, N2 link gate fails links that leave the plugin; lz-red Sources link added then reverted on review | 2026-11-07 | d02204d | Reviewed (2 + scoped, cosmetic only) | [261107-ft7-lz-tdd-reference-depth-and-packaging-lin](./quick/261107-ft7-lz-tdd-reference-depth-and-packaging-lin/) |
 | 261107-isy | Land the e2e-rgr-srvx red-green-refactor outcome eval (post-cutoff h3js/srvx T1-T3) and the rules-ab shippingCost kata A/B under lz-red-workspace, with a shared slim-arms.sh that packages lz-tdd and generates the arm-b rules folder at run time; dry runs and grader self-check only, the metered Opus round stays with Lars | 2026-11-07 | 5ba0854 | Dry-run + selfcheck verified by orchestrator | [261107-isy-land-rgr-srvx-and-rules-ab-kata-eval-har](./quick/261107-isy-land-rgr-srvx-and-rules-ab-kata-eval-har/) |
 | 261107-jfm | Harden the package-link gate in check-red-references: links checked against the git-tracked set, case-sensitive, absolute/drive/UNC/`file:` targets rejected with no filesystem access, leaving-and-re-entering `../` paths caught (found by review), backslash and folder links handled; new package-links selftest (32 assertions, every fix red first) joins `npm run check` | 2026-11-07 | f09090d | Reviewed (full + scoped, low only) | [261107-jfm-harden-check-red-references-link-checker](./quick/261107-jfm-harden-check-red-references-link-checker/) |
+| 261107-kd7 | Close the package-link gate's silent passes: links checked in exactly the git-tracked Markdown, segment walk against tracked directories, loud failure on link forms the extractor cannot read (incl. unterminated fences), CommonMark fence matching; lz-refactor attached tags (`[both]`, `[Kerievsky]`, `[web-only]`) written as code spans per Lars | 2026-11-07 | 71289b3 | Reviewed (3 scoped rounds, last low/cosmetic only) | [261107-kd7-close-the-package-link-gate-silent-passe](./quick/261107-kd7-close-the-package-link-gate-silent-passe/) |
 
 **Status basis, stated because "Verified" is doing real work here.** gsd-verifier returned `passed` at
 12/12 must-haves, re-measuring independently rather than reading the SUMMARY. But that verdict alone did

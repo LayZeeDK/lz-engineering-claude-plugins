@@ -10,9 +10,9 @@
 // before the last, and a trailing-slash target, to be a tracked directory, as a POSIX install would.
 //
 // packageLinkGate takes its source files from the same tracked set, so a tracked symlink is checked and
-// an untracked or git-ignored file is not: exactly the files that ship. A tracked symlink under plugins/
-// is also a hit of its own (trackedSymlinks), because the disk walk the other gates use skips symlinked
-// files.
+// an untracked or git-ignored file is not: exactly the files that ship. A tracked entry under plugins/
+// that is not a regular file is also a hit of its own (trackedNonFiles): the disk walk the other gates use
+// skips symlinked files, and it reads a submodule's checked-out files, which do not ship.
 import { execFileSync } from "node:child_process";
 import path from "node:path";
 import { findLinkTargets, findUnsupportedLinkForms } from "./pipe-table.mjs";
@@ -38,42 +38,44 @@ export function trackedFiles(repoRoot) {
 }
 
 /**
- * The mode-120000 (symlink) paths in raw `git ls-files -s -z` output, in listing order. Each record is
- * `<mode> <object> <stage>TAB<path>`. Throws on a non-empty record of any other shape.
+ * The entries in raw `git ls-files -s -z` output that are not regular files (any mode other than 100644 and
+ * 100755, such as a 120000 symlink or a 160000 gitlink), in listing order. Each record is
+ * `<mode> <object> <stage>TAB<path>`. Throws on a non-empty record of any other shape or with an empty path.
  *
  * @param {string} listing
- * @returns {string[]}
+ * @returns {{ mode: string, path: string }[]}
  */
-export function symlinkEntries(listing) {
-  const symlinks = [];
+export function nonFileEntries(listing) {
+  const entries = [];
 
   for (const record of listing.split("\0").filter((entry) => entry !== "")) {
     const tab = record.indexOf("\t");
     const head = tab === -1 ? null : /^([0-7]{6}) [0-9a-f]+ [0-9]$/.exec(record.slice(0, tab));
+    const entryPath = record.slice(tab + 1);
 
-    if (head === null) {
+    if (head === null || entryPath === "") {
       throw new Error(`malformed git ls-files -s record: ${record}`);
     }
 
-    if (head[1] === "120000") {
-      symlinks.push(record.slice(tab + 1));
+    if (head[1] !== "100644" && head[1] !== "100755") {
+      entries.push({ mode: head[1], path: entryPath });
     }
   }
 
-  return symlinks;
+  return entries;
 }
 
 /**
- * Repo-relative posix paths of the git-tracked symlinks under plugins/. Reads the index, so a staged
- * entry counts. Throws when git fails; the caller fails closed.
+ * The git-tracked entries under plugins/ that are not regular files. Reads the index, so a staged entry
+ * counts. Throws when git fails; the caller fails closed.
  *
  * @param {string} repoRoot
- * @returns {string[]}
+ * @returns {{ mode: string, path: string }[]}
  */
-export function trackedSymlinks(repoRoot) {
+export function trackedNonFiles(repoRoot) {
   const listed = execFileSync("git", ["ls-files", "-s", "-z", "--", "plugins"], { cwd: repoRoot, encoding: "utf8" });
 
-  return symlinkEntries(listed);
+  return nonFileEntries(listed);
 }
 
 /**

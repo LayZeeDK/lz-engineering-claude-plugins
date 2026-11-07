@@ -287,27 +287,34 @@ check(
   ["plugins/README.md: NOT IN A PLUGIN (a file directly under plugins/ ships in no package)"]
 );
 
-// The disk walk skips symlinked files, so a tracked symlink is found from the index modes instead.
+// The disk walk skips symlinked files and reads a submodule's checkout, so an index entry that is not a regular
+// file is found from the index modes instead.
 const objectId = "a".repeat(40);
 const lsRecord = (mode, rel) => `${mode} ${objectId} 0\t${rel}\0`;
-const symlinksOf = (listing) => attempt(() => packageLinks.symlinkEntries(listing));
+const nonFilesOf = (listing) => attempt(() => packageLinks.nonFileEntries(listing));
 
 check(
-  "T1: symlinkEntries returns the one mode-120000 path among regular files",
-  symlinksOf(lsRecord("100644", "plugins/p/a.md") + lsRecord("120000", "plugins/p/link.md") + lsRecord("100644", "plugins/p/b.md")),
-  ["plugins/p/link.md"]
+  "T1: nonFileEntries returns the one mode-120000 entry among regular files",
+  nonFilesOf(lsRecord("100644", "plugins/p/a.md") + lsRecord("120000", "plugins/p/link.md") + lsRecord("100644", "plugins/p/b.md")),
+  [{ mode: "120000", path: "plugins/p/link.md" }]
 );
-check("T2: symlinkEntries over regular and executable files -> none", symlinksOf(lsRecord("100644", "plugins/p/a.md") + lsRecord("100755", "plugins/p/run.sh")), []);
-check("T3: a symlink path with a space and a non-ASCII name comes back verbatim", symlinksOf(lsRecord("120000", "plugins/p/spaced ø.md")), ["plugins/p/spaced ø.md"]);
-check("T4: an empty listing -> none", symlinksOf(""), []);
-check("T5: a record with no tab -> throws malformed", String(symlinksOf("120000 x\0")).startsWith("threw: malformed git ls-files -s record"), true);
+check("T2: nonFileEntries over regular and executable files -> none", nonFilesOf(lsRecord("100644", "plugins/p/a.md") + lsRecord("100755", "plugins/p/run.sh")), []);
+check(
+  "T3: a symlink path with a space and a non-ASCII name comes back verbatim",
+  nonFilesOf(lsRecord("120000", "plugins/p/spaced ø.md")),
+  [{ mode: "120000", path: "plugins/p/spaced ø.md" }]
+);
+check("T4: an empty listing -> none", nonFilesOf(""), []);
+check("T5: a record with no tab -> throws malformed", String(nonFilesOf("120000 x\0")).startsWith("threw: malformed git ls-files -s record"), true);
+check("T8: a mode-160000 gitlink -> reported", nonFilesOf(lsRecord("100644", "plugins/p/a.md") + lsRecord("160000", "plugins/p/sub")), [{ mode: "160000", path: "plugins/p/sub" }]);
+check("T9: a record with an empty path -> throws malformed", String(nonFilesOf(lsRecord("120000", ""))).startsWith("threw: malformed git ls-files -s record"), true);
 
 // The tracked-set builder, against a real git repo: only the git-tracked files under plugins/ belong to
 // the package, and a non-ASCII name comes back unquoted.
 let trackedActual;
 let gateReadsActual;
-let symlinksActual;
-let symlinksFailClosed;
+let nonFilesActual;
+let nonFilesFailClosed;
 const scratchRepo = fs.mkdtempSync(path.join(os.tmpdir(), "lzjfm-tracked-"));
 
 try {
@@ -338,10 +345,10 @@ try {
     return reads;
   });
 
-  symlinksActual = attempt(() => packageLinks.trackedSymlinks(scratchRepo));
-  symlinksFailClosed =
-    typeof packageLinks.trackedSymlinks === "function" &&
-    String(attempt(() => packageLinks.trackedSymlinks(path.join(scratchRepo, "no-such-dir")))).startsWith("threw:");
+  nonFilesActual = attempt(() => packageLinks.trackedNonFiles(scratchRepo));
+  nonFilesFailClosed =
+    typeof packageLinks.trackedNonFiles === "function" &&
+    String(attempt(() => packageLinks.trackedNonFiles(path.join(scratchRepo, "no-such-dir")))).startsWith("threw:");
 } catch (err) {
   trackedActual = `threw: ${err.message.split("\n")[0]}`;
 } finally {
@@ -360,8 +367,8 @@ check(
   ["plugins/p/linked.md", "plugins/p/spaced \u00f8.md", "plugins/p/tracked.md"]
 );
 
-check("T6: trackedSymlinks finds the staged mode-120000 entry in a real repo", symlinksActual, ["plugins/p/linked.md"]);
-check("T7: trackedSymlinks throws when git fails, so the caller fails closed", symlinksFailClosed, true);
+check("T6: trackedNonFiles finds the staged mode-120000 entry in a real repo", nonFilesActual, [{ mode: "120000", path: "plugins/p/linked.md" }]);
+check("T7: trackedNonFiles throws when git fails, so the caller fails closed", nonFilesFailClosed, true);
 
 console.log("");
 

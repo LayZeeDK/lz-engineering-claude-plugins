@@ -8,8 +8,12 @@
 // the target's own segments before any lookup, so a `..` that climbs above the plugin root fails even
 // when it comes back in through the plugin's folder name. The lookup walk then requires every segment
 // before the last, and a trailing-slash target, to be a tracked directory, as a POSIX install would.
+//
+// packageLinkGate takes its source files from the same tracked set, so a tracked symlink is checked and
+// an untracked or git-ignored file is not: exactly the files that ship.
 import { execFileSync } from "node:child_process";
 import path from "node:path";
+import { findLinkTargets, findUnsupportedLinkForms } from "./pipe-table.mjs";
 
 const DEAD = "dead (target is not in the package)";
 const LEAVES_PACKAGE = "LEAVES PACKAGE";
@@ -111,4 +115,45 @@ export function packageLinkProblems(target, sourceRel, tracked) {
   }
 
   return tracked.has(resolvedPath) || isTrackedDir(resolvedPath) ? [] : [DEAD];
+}
+
+/**
+ * The whole package-link gate over the tracked `.md` files: every dead or escaping link, every link form
+ * the extractor cannot read, and every unreadable file is a hit.
+ *
+ * @param {Set<string>} tracked repo-relative posix paths of the git-tracked plugin files
+ * @param {(rel: string) => string} readText reads one tracked file by its repo-relative path
+ * @returns {{ hits: string[], resolved: number }} `resolved` counts the targets the core acted on, not
+ *   anchors or scheme URLs, so a caller can fail a gate that resolved nothing
+ */
+export function packageLinkGate(tracked, readText) {
+  const hits = [];
+  let resolved = 0;
+
+  for (const rel of [...tracked].filter((file) => file.endsWith(".md")).sort()) {
+    let text;
+
+    try {
+      text = readText(rel);
+    } catch (err) {
+      hits.push(`${rel}: UNREADABLE (${err.code ?? err.message})`);
+      continue;
+    }
+
+    for (const { line, form } of findUnsupportedLinkForms(text)) {
+      hits.push(`${rel}:${line} -> unsupported link form (${form}), not checked`);
+    }
+
+    for (const target of findLinkTargets(text)) {
+      if (target.kind !== "anchor" && target.kind !== "scheme") {
+        resolved++;
+      }
+
+      for (const problem of packageLinkProblems(target, rel, tracked)) {
+        hits.push(`${rel}:${target.line} -> ${target.raw} ${problem}`);
+      }
+    }
+  }
+
+  return { hits, resolved };
 }

@@ -203,9 +203,51 @@ check(
   ["existsSync(lzjfm-recorder-probe.md)"]
 );
 
+// The gate reads exactly the tracked `.md` files, reports a dead link and an unsupported form as hits,
+// and counts only the targets it resolved.
+const gateTexts = { "plugins/p/a.md": "[ok](b.md)\n[gone](nope.md)\n", "plugins/p/b.md": "[r]: a.md\n" };
+const gateTracked = new Set(["plugins/p/a.md", "plugins/p/b.md", "plugins/p/plugin.json"]);
+
+check(
+  "W1: packageLinkGate reads only the tracked .md files and reports a dead link and an unsupported form",
+  attempt(() => {
+    const reads = [];
+    const { hits, resolved } = packageLinks.packageLinkGate(gateTracked, (rel) => {
+      reads.push(rel);
+
+      return gateTexts[rel];
+    });
+
+    return { reads, resolved, hits };
+  }),
+  {
+    reads: ["plugins/p/a.md", "plugins/p/b.md"],
+    resolved: 2,
+    hits: [
+      "plugins/p/a.md:2 -> nope.md dead (target is not in the package)",
+      "plugins/p/b.md:1 -> unsupported link form (reference-style definition), not checked",
+    ],
+  }
+);
+
+check(
+  "W3: an unreadable tracked file is one hit and the gate continues",
+  attempt(() =>
+    packageLinks.packageLinkGate(new Set(["plugins/p/a.md", "plugins/p/b.md"]), (rel) => {
+      if (rel === "plugins/p/a.md") {
+        throw Object.assign(new Error("EACCES: denied"), { code: "EACCES" });
+      }
+
+      return "[ok](a.md)\n";
+    })
+  ),
+  { hits: ["plugins/p/a.md: UNREADABLE (EACCES)"], resolved: 1 }
+);
+
 // The tracked-set builder, against a real git repo: only the git-tracked files under plugins/ belong to
 // the package, and a non-ASCII name comes back unquoted.
 let trackedActual;
+let gateReadsActual;
 const scratchRepo = fs.mkdtempSync(path.join(os.tmpdir(), "lzjfm-tracked-"));
 
 try {
@@ -221,6 +263,20 @@ try {
 
   git("add", "--", ".gitignore", "plugins/p/tracked.md", "plugins/p/spaced \u00f8.md");
   trackedActual = [...packageLinks.trackedFiles(scratchRepo)].sort();
+
+  // A symlink index entry, staged without a filesystem symlink, so no Windows privilege is needed.
+  gateReadsActual = attempt(() => {
+    const blob = execFileSync("git", ["hash-object", "-w", "--stdin"], { cwd: scratchRepo, input: "tracked.md", encoding: "utf8" }).trim();
+    git("update-index", "--add", "--cacheinfo", `120000,${blob},plugins/p/linked.md`);
+    const reads = [];
+    packageLinks.packageLinkGate(packageLinks.trackedFiles(scratchRepo), (rel) => {
+      reads.push(rel);
+
+      return "";
+    });
+
+    return reads;
+  });
 } catch (err) {
   trackedActual = `threw: ${err.message.split("\n")[0]}`;
 } finally {
@@ -231,6 +287,12 @@ check(
   "M2: trackedFiles lists only the git-tracked files under plugins/, non-ASCII names unquoted",
   trackedActual,
   ["plugins/p/spaced \u00f8.md", "plugins/p/tracked.md"]
+);
+
+check(
+  "W2: packageLinkGate over trackedFiles reads a tracked symlink and skips untracked and ignored files",
+  gateReadsActual,
+  ["plugins/p/linked.md", "plugins/p/spaced \u00f8.md", "plugins/p/tracked.md"]
 );
 
 console.log("");

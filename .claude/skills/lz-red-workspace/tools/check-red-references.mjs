@@ -84,8 +84,8 @@ import { fileURLToPath } from "node:url";
 import { SCAFFOLD_RES } from "./lib/scaffold-phrases.mjs";
 import { findBookCitedAsOwned } from "./lib/provenance-honesty.mjs";
 import { ROW_SCOPED_GUARDS, RETIRED_LABELS } from "./lib/row-guards.mjs";
-import { scanTables, findLinkTargets } from "./lib/pipe-table.mjs";
-import { packageLinkProblems, trackedFiles } from "./lib/package-links.mjs";
+import { scanTables } from "./lib/pipe-table.mjs";
+import { packageLinkGate, trackedFiles } from "./lib/package-links.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 // tools -> lz-red-workspace -> skills -> .claude -> repo root
@@ -645,7 +645,8 @@ const collectFiles = (dir) => {
 };
 
 
-// THE ONE WALK of the shipped tree, declared here because FOUR gates below consume it (G17, N1, N2, N3).
+// THE ONE WALK of the shipped tree, declared here because THREE gates below consume it (G17, N1, N3);
+// N2 reads its sources from the git-tracked set instead.
 // A MISSING or unreadable tree is recorded as an error string and pushed as a HIT by every consumer,
 // never filtered away: an existsSync FILTER would silently narrow the scope and hand each gate a vacuous
 // pass, which is the whole defect this arrangement exists to close.
@@ -655,7 +656,7 @@ let pluginsMarkdown = [];
 let pluginsWalkError = "";
 
 try {
-  // ONE walk, two views: the markdown subset for the qualifier, shape and link gates, the full list for
+  // ONE walk, two views: the markdown subset for the qualifier and shape gates, the full list for
   // the no-copy gate, which must see any extension.
   pluginsAllFiles = collectFiles(PLUGINS_DIR);
   pluginsMarkdown = pluginsAllFiles.filter((file) => file.endsWith(".md"));
@@ -714,15 +715,20 @@ report(
 
 // ===============================================================================================
 // [lc9] FOUR post-loop gates over the shipped tree (G17 bare qualifier above, N1 table shape, N2 link
-// resolution, N3 no taxonomy copy), all consuming the ONE walk declared above rather than adding a
-// second directory walker; plus one cross-file content gate (N7 attribution).
+// resolution, N3 no taxonomy copy). THREE consume the ONE walk declared above rather than adding a
+// second directory walker; N2 reads the git-tracked set, which is exactly what ships. Plus one
+// cross-file content gate (N7 attribution).
+//
+// G17, N1 and N3 keep the disk walk on purpose: an untracked file there is scanned, which is stricter,
+// and N3 must also catch an untracked copy. The walk skips a symlinked Markdown file; no tracked symlink
+// exists under plugins/ to miss.
 //
 // GENERAL RULE FOR EVERY COMMENT BELOW: a number that a later commit in this same task set will change
 // is a defect, not documentation. Write the invariant -- a zero, a direction, a reason -- or write
 // nothing and let a guard derive it. The census totals for this tree move the moment the taxonomy
 // copies are deleted, so none of them is recorded here.
 //
-// Every tree gate shares ONE walk and ONE error record. A walk failure is recorded as a HIT for every
+// Every walk gate shares ONE walk and ONE error record. A walk failure is recorded as a HIT for every
 // gate that consumes it, never filtered away: an empty file list would otherwise hand each gate a
 // vacuous pass, which is exactly the guard-that-cannot-fail class this file's own header condemns. Each
 // gate also carries its own seen-count leg, so a readable-but-empty tree cannot pass either.
@@ -788,16 +794,19 @@ report(
 // acted on and fails.
 //
 // An allowlist was MEASURED unnecessary rather than forgotten, and only the ZEROES are recorded here
-// because they are the facts the no-allowlist decision rests on: 0 absolute links, 0 reference-style
-// link definitions, 0 links inside code fences. The shipped tree DOES carry https links now (the plugin
+// because they are the facts the no-allowlist decision rests on: 0 absolute links, 0 links inside code
+// fences. A link form the extractor cannot read (a reference-style definition, an angle-bracket
+// destination, a single-quoted title, an HTML href/src) is a hit, so it fails instead of passing
+// unchecked. The shipped tree DOES carry https links now (the plugin
 // README and the functional-catalog Sources cite the repository by URL), but a scheme URL is skipped by
 // KIND, so it needs no allowlist either. The link, file and anchor TOTALS are deliberately NOT written
 // down -- every one of them moves when a reference is added or removed.
 //
 // PACKAGING BOUNDARY. A packaged plugin is the git-tracked files of plugins/<plugin>/ copied to their own
 // root, so a relative link that leaves that root is broken in the package even when its target exists
-// in the repo (Lars's ruling, 2026-11-07: links broken by packaging the plugin must be resolved). Targets
-// therefore resolve LEXICALLY against the `git ls-files` set, never the disk, and the lookup is
+// in the repo (Lars's ruling, 2026-11-07: links broken by packaging the plugin must be resolved). The
+// source files are the tracked `.md` files, so a tracked symlink is checked and an untracked file is
+// not. Targets resolve against the `git ls-files` set, never the disk, and the lookup is
 // case-sensitive. A target that escapes the plugin root its file lives under, or is rooted, is a hit
 // labelled LEAVES PACKAGE and fails before any lookup. The tracked set fails CLOSED: a git error or an
 // empty set is a hit, so the gate cannot pass having looked nothing up.
@@ -821,9 +830,7 @@ report(
 // a Markdown link: as a link it would fail here, correctly.
 const LINK_RESOLVES_LABEL =
   "[lc9] every relative markdown link in the shipped tree resolves inside its plugin package";
-const deadLinkHits = pluginsWalkError === "" ? [] : [pluginsWalkError];
-let relativeLinksResolved = 0;
-
+const deadLinkHits = [];
 let trackedPluginFiles = new Set();
 
 try {
@@ -836,29 +843,11 @@ if (trackedPluginFiles.size === 0) {
   deadLinkHits.push("NO TRACKED FILE WAS FOUND under plugins/, so this gate checked nothing");
 }
 
-for (const file of pluginsMarkdown) {
-  const shown = path.relative(repoRoot, file);
-  const sourceRel = shown.split(path.sep).join("/");
-  let linkText;
+const { hits: packageLinkHits, resolved: relativeLinksResolved } = packageLinkGate(trackedPluginFiles, (rel) =>
+  fs.readFileSync(path.join(repoRoot, rel), "utf8")
+);
 
-  try {
-    linkText = fs.readFileSync(file, "utf8");
-  } catch (err) {
-    deadLinkHits.push(`${shown}: UNREADABLE (${err.code ?? err.message})`);
-    continue;
-  }
-
-  for (const target of findLinkTargets(linkText)) {
-    // Counted only for the targets the core acts on, so the count equals the work this gate actually did.
-    if (target.kind !== "anchor" && target.kind !== "scheme") {
-      relativeLinksResolved++;
-    }
-
-    for (const problem of packageLinkProblems(target, sourceRel, trackedPluginFiles)) {
-      deadLinkHits.push(`${shown}:${target.line} -> ${target.raw} ${problem}`);
-    }
-  }
-}
+deadLinkHits.push(...packageLinkHits);
 
 if (relativeLinksResolved === 0) {
   deadLinkHits.push("NO RELATIVE LINK WAS RESOLVED, so this gate checked nothing");

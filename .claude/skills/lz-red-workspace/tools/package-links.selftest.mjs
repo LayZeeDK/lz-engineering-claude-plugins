@@ -207,6 +207,17 @@ check(
   attempt(() => pipeTable.findUnsupportedLinkForms("[a\nb](dead.md)")),
   [{ line: 2, form: "unparsed link" }]
 );
+check("X12: a closing run with trailing text does not close the fence", rawTargetsOf("```\nx\n``` foo\n[a](dead.md)\n```\n[b](dead2.md)"), ["dead2.md"]);
+
+// A fence still open at the end of the file hides every later link, so it is reported at its opener.
+check("Y1: a fence opened on a list-marker line -> unterminated fence at the indented closer", unsupported("- ```js\n  x\n  ```\n\n[a](dead.md)"), [{ line: 3, form: "unterminated fence" }]);
+check("Y2: a fence opened on an ordered-list line -> unterminated fence at the indented closer", unsupported("1. ```\n   code\n   ```\n[a](dead.md)"), [{ line: 3, form: "unterminated fence" }]);
+check("Y3: a fence inside a list item left open -> unterminated fence at its opener", unsupported("- item\n  ```\n  x\n\npara\n[a](dead.md)"), [{ line: 2, form: "unterminated fence" }]);
+
+// A backtick run whose info string holds a backtick is not a fence opener.
+check("Y4: backtick info string holding a backtick -> the link after it is extracted", rawTargetsOf("```a`b\n[a](dead.md)"), ["dead.md"]);
+check("Y5: backtick info string holding a backtick, then a fence line -> the link between is extracted", rawTargetsOf("```a`b\n[a](dead.md)\n```"), ["dead.md"]);
+
 check("X9: reference definition indented three spaces -> reported", formsOf("   [r]: skills/lz-red/SKILL.md"), ["reference-style definition"]);
 check("X10: uppercase HREF attribute -> reported", formsOf('<a HREF="skills/lz-red/SKILL.md">p</a>'), ["HTML href/src attribute"]);
 

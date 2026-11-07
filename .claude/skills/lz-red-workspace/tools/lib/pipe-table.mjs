@@ -132,10 +132,14 @@ const splitCells = (line) => {
  *
  * The visitor receives the line, its ONE-BASED number, and whether the line is fenced -- true for a
  * fence delimiter itself as well as for the lines between delimiters. An unterminated fence leaves
- * every following line fenced, which fails closed: content is skipped rather than mis-scanned.
+ * every following line fenced, and skipped content is the SILENT direction for a link gate, so the open
+ * fence is returned for the caller to report. Fences inside list items and blockquotes are not modelled:
+ * a list-item fence usually ends up unterminated (returned, loud), and a blockquote fence's content is
+ * scanned (loud).
  *
  * @param {string} text
  * @param {(line: string, lineNumber: number, fenced: boolean) => void} visit
+ * @returns {{ line: number } | null} the opener of a fence still open at the end, or null
  */
 const scanLines = (text, visit) => {
   let open = null;
@@ -143,22 +147,29 @@ const scanLines = (text, visit) => {
   text.split(/\r?\n/).forEach((line, index) => {
     const fence = FENCE_RE.exec(line);
 
-    if (!fence) {
-      visit(line, index + 1, open !== null);
+    if (fence !== null) {
+      const [, run, rest] = fence;
 
-      return;
+      // A backtick opener's info string may not hold a backtick, so such a line is not a fence.
+      if (open === null && (run[0] !== "`" || !rest.includes("`"))) {
+        open = { char: run[0], length: run.length, line: index + 1 };
+        visit(line, index + 1, true);
+
+        return;
+      }
+
+      if (open !== null && run[0] === open.char && run.length >= open.length && rest.trim() === "") {
+        open = null;
+        visit(line, index + 1, true);
+
+        return;
+      }
     }
 
-    const [, run, rest] = fence;
-
-    if (open === null) {
-      open = { char: run[0], length: run.length };
-    } else if (run[0] === open.char && run.length >= open.length && rest.trim() === "") {
-      open = null;
-    }
-
-    visit(line, index + 1, true);
+    visit(line, index + 1, open !== null);
   });
+
+  return open === null ? null : { line: open.line };
 };
 
 /**
@@ -297,7 +308,8 @@ export function findLinkTargets(text) {
 /**
  * Every link form in a document that `findLinkTargets` does not extract: reference-style definitions,
  * angle-bracket destinations, single-quoted titles, HTML `href`/`src` attributes, and, on a line with
- * none of those, any `](` the extractor did not consume (an "unparsed link"). This is the loud
+ * none of those, any `](` the extractor did not consume (an "unparsed link"), plus a fence still open
+ * at the end of the file (an "unterminated fence", at its opener), which hid every later line. This is the loud
  * partner of `findLinkTargets`: a form listed here is never extracted, so the caller must fail on it.
  *
  * Fence-aware like `findLinkTargets`. Inline code is NOT stripped, on purpose, so a form inside
@@ -309,7 +321,7 @@ export function findLinkTargets(text) {
 export function findUnsupportedLinkForms(text) {
   const found = [];
 
-  scanLines(text, (line, lineNumber, fenced) => {
+  const unterminated = scanLines(text, (line, lineNumber, fenced) => {
     if (fenced) {
       return;
     }
@@ -324,6 +336,11 @@ export function findUnsupportedLinkForms(text) {
 
     forms.forEach((form) => found.push({ line: lineNumber, form }));
   });
+
+  // Every line after an unterminated fence was skipped, so its links went unchecked.
+  if (unterminated !== null) {
+    found.push({ line: unterminated.line, form: "unterminated fence" });
+  }
 
   return found;
 }

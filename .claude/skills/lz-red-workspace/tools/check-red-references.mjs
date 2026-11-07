@@ -78,6 +78,7 @@
 // coach procedure + a tsc-strict Vitest fence, fill the four slices, remove every deferral marker,
 // and add both lz-tpp reverse pointers. The Phase-17.1 D-05 honesty gate stays intact.
 //   node .claude/skills/lz-red-workspace/tools/check-red-references.mjs
+import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -783,9 +784,9 @@ report(
 );
 
 // [lc9] N2 RELATIVE-LINK RESOLUTION GATE. A dead relative link is a whole failure class this battery
-// did not carry at all, and removing a shipped reference creates several at once. Only a `relative`
-// target is resolvable against a directory, so anchors, scheme URLs and root-absolute paths are skipped
-// by KIND rather than by an allowlist.
+// did not carry at all, and removing a shipped reference creates several at once. Anchors and scheme URLs
+// are skipped by KIND rather than by an allowlist; a rooted target (drive letter, root or UNC path) is
+// acted on and fails.
 //
 // An allowlist was MEASURED unnecessary rather than forgotten, and only the ZEROES are recorded here
 // because they are the facts the no-allowlist decision rests on: 0 absolute links, 0 reference-style
@@ -796,9 +797,11 @@ report(
 //
 // PACKAGING BOUNDARY. A packaged plugin is the git-tracked files of plugins/<plugin>/ copied to their own
 // root, so a relative link that leaves that root is broken in the package even when its target exists
-// in the repo (Lars's ruling, 2026-11-07: links broken by packaging the plugin must be resolved). Each
-// resolved target is therefore also checked against the plugin root its file lives under, and one that
-// escapes is a hit labelled LEAVES PACKAGE whether or not the file exists.
+// in the repo (Lars's ruling, 2026-11-07: links broken by packaging the plugin must be resolved). Targets
+// therefore resolve LEXICALLY against the `git ls-files` set, never the disk, and the lookup is
+// case-sensitive. A target that escapes the plugin root its file lives under, or is rooted, is a hit
+// labelled LEAVES PACKAGE and fails before any lookup. The tracked set fails CLOSED: a git error or an
+// empty set is a hit, so the gate cannot pass having looked nothing up.
 //
 // The fragment split is REQUIRED, not optional: the lz-refactor catalogs carry file-plus-fragment
 // links, and resolving `foo.md#bar` as a path would report every one of them dead.
@@ -806,23 +809,34 @@ report(
 // ANTI-VACUITY: FAIL when no link was RESOLVED at all, for the same reason as N1 -- a document with no
 // links has no dead links, so a mistyped path passes forever otherwise.
 //
-// The counter counts RESOLVED RELATIVE targets, NOT every link kind, and that distinction is the whole
+// The counter counts the targets the core ACTS ON (relative and absolute), NOT anchors or scheme URLs,
+// and that distinction is the whole
 // point of an anti-vacuity leg: it has to count the thing the gate ACTS ON, exactly as N1's `tablesSeen`
 // counts the tables scanTables actually saw. Counting every kind was a live defect -- a tree of only
 // anchors and scheme URLs, or a regression that stopped `linkKind` returning "relative", left the count
 // positive and the gate GREEN having resolved nothing. MEASURED against an all-anchor fixture tree
 // through the real gate: PASS before this fix, RED after.
 //
-// The KIND CLASSIFICATION is deliberately untouched. A target that is not an anchor, a `scheme:` or
-// root-absolute IS relative and IS existsSync-checked -- which is why a plugin-wide shared reference is
-// cited as INLINE CODE carrying a plugin-root variable path and never as a Markdown link: as a link it
-// would classify relative and fail here, correctly.
+// A target that is not an anchor or a `scheme:` URL IS checked against the package -- which is why a
+// plugin-wide shared reference is cited as INLINE CODE carrying a plugin-root variable path and never as
+// a Markdown link: as a link it would fail here, correctly.
 const LINK_RESOLVES_LABEL =
   "[lc9] every relative markdown link in the shipped tree resolves inside its plugin package";
 const deadLinkHits = pluginsWalkError === "" ? [] : [pluginsWalkError];
 let relativeLinksResolved = 0;
 
-const trackedPluginFiles = new Set();
+let trackedPluginFiles = new Set();
+
+try {
+  const listed = execFileSync("git", ["ls-files", "-z", "--", "plugins"], { cwd: repoRoot, encoding: "utf8" });
+  trackedPluginFiles = new Set(listed.split("\0").filter((entry) => entry !== ""));
+} catch (err) {
+  deadLinkHits.push(`git ls-files FAILED (${err.code ?? err.message}), so no link target could be looked up`);
+}
+
+if (trackedPluginFiles.size === 0) {
+  deadLinkHits.push("NO TRACKED FILE WAS FOUND under plugins/, so this gate checked nothing");
+}
 
 for (const file of pluginsMarkdown) {
   const shown = path.relative(repoRoot, file);
@@ -837,9 +851,8 @@ for (const file of pluginsMarkdown) {
   }
 
   for (const target of findLinkTargets(linkText)) {
-    // Counted only for the targets the core resolves, so the count equals the work this gate actually
-    // did. Incrementing before the kind filter counted work the gate never did.
-    if (target.kind === "relative" && target.raw.split("#")[0] !== "") {
+    // Counted only for the targets the core acts on, so the count equals the work this gate actually did.
+    if (target.kind !== "anchor" && target.kind !== "scheme") {
       relativeLinksResolved++;
     }
 

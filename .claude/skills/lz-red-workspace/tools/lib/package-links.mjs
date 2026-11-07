@@ -1,12 +1,11 @@
 // The per-link core of the relative-link gate in check-red-references.mjs. Exported for the self-test in
 // package-links.selftest.mjs.
-import fs from "node:fs";
+//
+// Pure and lexical: a packaged plugin is the git-tracked files of plugins/<plugin>/, so a target is
+// resolved as a path string and looked up in that tracked set, never on the disk. The disk would accept
+// untracked, git-ignored and junction-reached files, and on Windows it ignores letter case. The boundary
+// test runs before the lookup, so an escaping target is rejected without any further work.
 import path from "node:path";
-import { fileURLToPath } from "node:url";
-
-const here = path.dirname(fileURLToPath(import.meta.url));
-// lib -> tools -> lz-red-workspace -> skills -> .claude -> repo root
-const repoRoot = path.resolve(here, "..", "..", "..", "..", "..");
 
 const DEAD = "dead (target is not in the package)";
 const LEAVES_PACKAGE = "LEAVES PACKAGE";
@@ -20,8 +19,13 @@ const LEAVES_PACKAGE = "LEAVES PACKAGE";
  * @returns {string[]} empty when the link is fine
  */
 export function packageLinkProblems(target, sourceRel, tracked) {
-  if (target.kind !== "relative") {
+  if (target.kind === "anchor" || target.kind === "scheme") {
     return [];
+  }
+
+  // A package copied to its own root cannot contain a rooted path.
+  if (target.kind === "absolute") {
+    return [LEAVES_PACKAGE];
   }
 
   const [filePart] = target.raw.split("#");
@@ -30,19 +34,13 @@ export function packageLinkProblems(target, sourceRel, tracked) {
     return [];
   }
 
-  const problems = [];
-  const resolved = path.resolve(repoRoot, path.dirname(sourceRel), filePart);
+  const resolved = path.posix.normalize(path.posix.join(path.posix.dirname(sourceRel), filePart.replaceAll("\\", "/")));
+  const pluginRoot = sourceRel.split("/").slice(0, 2).join("/");
 
-  if (!fs.existsSync(resolved)) {
-    problems.push(DEAD);
+  if (resolved !== pluginRoot && !resolved.startsWith(`${pluginRoot}/`)) {
+    return [LEAVES_PACKAGE];
   }
 
-  const pluginRoot = path.join(repoRoot, ...sourceRel.split("/").slice(0, 2));
-  const insidePackage = path.relative(pluginRoot, resolved);
-
-  if (insidePackage === ".." || insidePackage.startsWith(`..${path.sep}`) || path.isAbsolute(insidePackage)) {
-    problems.push(LEAVES_PACKAGE);
-  }
-
-  return problems;
+  // Set.has is case-sensitive, so a link differing from a tracked path only in letter case is dead.
+  return tracked.has(resolved) ? [] : [DEAD];
 }

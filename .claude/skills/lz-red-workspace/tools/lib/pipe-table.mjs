@@ -252,8 +252,8 @@ export function scanTables(text) {
  * job.
  *
  * Kinds: `anchor` for a same-document fragment, `scheme` for anything carrying a URI scheme,
- * `absolute` for a root-relative path, `relative` for everything else. Only `relative` is resolvable
- * against a directory, so only `relative` can be a dead link on disk.
+ * `absolute` for a drive-letter, root or UNC path, `relative` for everything else. Only `relative` is
+ * resolvable against a directory, so only `relative` can be a dead link.
  *
  * @param {string} text
  * @returns {{ line: number, raw: string, kind: string }[]} one entry per link, in document order
@@ -282,12 +282,13 @@ const linkKind = (raw) => {
     return "anchor";
   }
 
-  if (/^[a-z][a-z0-9+.-]*:/i.test(raw)) {
-    return "scheme";
+  // A drive letter is tested before the scheme, which it would otherwise match as a one-letter scheme.
+  if (/^[a-z]:/i.test(raw) || raw.startsWith("/") || raw.startsWith("\\")) {
+    return "absolute";
   }
 
-  if (raw.startsWith("/")) {
-    return "absolute";
+  if (/^[a-z][a-z0-9+.-]*:/i.test(raw)) {
+    return "scheme";
   }
 
   return "relative";

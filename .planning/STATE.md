@@ -7,8 +7,8 @@ current_phase_name: three-way-classifier-correctness-lz-refactor-lz-red
 status: verified
 stopped_at: "Phase 22 VERIFIED passed 8/8 after gap closure; secured (0 threats open), validated (blind spot instrumented + mutation-proven), learnings extracted and bridged to the global store. 8 of 8 plans merged, full battery GREEN, zero metered spend. D-19 DISCHARGED 2026-08-04: the owner ran /reload-plugins, so the three edited descriptions are LIVE. HALTED awaiting the only remaining decision: separate approval for TWO metered rounds (Round A the placement A/B, Round B the now-owed EVL-01 reciprocal trigger regression). Neither is approved; nothing metered has run."
 last_updated: "2026-08-04T20:30:00.000Z"
-last_activity: 2026-08-04
-last_activity_desc: "quick-260804-kvh resumed: the evasion suite gained a third reporting state plus a count ratchet (febb9a1), then F3/OPEN-11 closed and F6/OPEN-14's recorded mechanism was RETRACTED as measurably false (dcb56c5). Battery 19 CAUGHT / 8 OPEN (baseline 8) / 3 unclosable CEILING, zero metered spend, no shipped file touched."
+last_activity: 2026-11-07
+last_activity_desc: "quick-261107-ft7 complete: lz-refactor step 3 now opens the candidate leaf (0/5 -> 11/11, packaged slim Opus 5.5), package-breaking links fixed and gated, lz-red Sources link reverted on review. Previous: quick-260804-kvh resumed: the evasion suite gained a third reporting state plus a count ratchet (febb9a1), then F3/OPEN-11 closed and F6/OPEN-14's recorded mechanism was RETRACTED as measurably false (dcb56c5). Battery 19 CAUGHT / 8 OPEN (baseline 8) / 3 unclosable CEILING, zero metered spend, no shipped file touched."
 progress:
   total_phases: 9
   completed_phases: 8
@@ -373,6 +373,7 @@ None open. lz-tdd@0.0.1 shipped with all prior concerns resolved:
 | 260801-w8b | Build the D-12 Option A ambiguity cell and run the first three-arm round (18 runs, $16.36); the mandatory unbiased audit then overturned its reading -- the treatment was never delivered | 2026-08-01 | 3c0c99d | Verified | [260801-w8b-build-the-d-12-option-a-dedicated-apply-](./quick/260801-w8b-build-the-d-12-option-a-dedicated-apply-/) |
 | 260802-j03 | Fix seven methodological defects in the D-12 A/B (arm interleave, per-run pristine record, prompt antecedent, guaranteed treatment dose, blunt-red pass criterion, k, lever tripwire re-key) | 2026-08-02 | ef3ea2e | Verified | [260802-j03-fix-six-methodological-defects-in-the-d-](./quick/260802-j03-fix-six-methodological-defects-in-the-d-/) |
 | 260803-53q | Close TD-02: widen the lz-refactor seam to route back to lz-red on intent, plus a fail-closed regression guard. Contract met and verified; the unprimed gate then found the surrounding classifier is not exhaustive (pre-existing, routed to phase work) | 2026-08-03 | 6b7ac4f | Verified (contract) | [260803-53q-close-td-02-widen-the-lz-refactor-seam-s](./quick/260803-53q-close-td-02-widen-the-lz-refactor-seam-s/) |
+| 261107-ft7 | lz-tdd reference-depth and packaging-link fixes: lz-refactor step 3 opens the candidate leaf (packaged slim Opus 5.5: 0/5 -> 11/11), package-breaking links fixed, N2 link gate fails links that leave the plugin; lz-red Sources link added then reverted on review | 2026-11-07 | d02204d | Reviewed (2 + scoped, cosmetic only) | [261107-ft7-lz-tdd-reference-depth-and-packaging-lin](./quick/261107-ft7-lz-tdd-reference-depth-and-packaging-lin/) |
 
 **Status basis, stated because "Verified" is doing real work here.** gsd-verifier returned `passed` at
 12/12 must-haves, re-measuring independently rather than reading the SUMMARY. But that verdict alone did

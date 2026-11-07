@@ -1,6 +1,6 @@
 # Return Modified Value
 
-*Provenance: [web-only]. Verified against the web edition of the catalog, not the print/e-book.*
+*Provenance: `[web-only]`. Verified against the web edition of the catalog, not the print/e-book.*
 
 Use when: a function updates a value by mutating it in place, and the code would read more clearly if
 it returned the new value instead.

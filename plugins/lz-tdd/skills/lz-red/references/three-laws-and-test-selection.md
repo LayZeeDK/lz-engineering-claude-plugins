@@ -41,9 +41,9 @@ refactor step (lz-refactor). This is the coach's entry point: what to test next,
   only to the first failure, then stop -- a not-yet-defined symbol counts as that failure just as
   much as a wrong result does. That rule sizes the test, which is a different question from which red
   you hand forward to the green step; the fail-for-the-right-reason step settles the second one.
-  Holding each increment to one small step keeps the distance between
-  red and green tiny, so a red bar always names the single change that caused it and the diagnosis
-  is immediate.
+- Why it pays off (lz-red's own reasoning, no-oracle): holding each increment to one small step keeps
+  the distance between red and green tiny, so a red bar always names the single change that caused it
+  and the diagnosis is immediate.
 
 ## Start from the degenerate or starter case
 
@@ -106,7 +106,8 @@ triangulation all operate inside the discipline these laws impose.
   failing unit test asks for it. The failing test comes first and the code that satisfies it comes
   second, so a red bar is the entry ticket to writing any behavior.
 - Law 2 -- size the test (Robert C. Martin, owned; oracle-verified): write only as much of a test as
-  it takes to fail, then stop and watch it fail. A reference to a symbol that does not yet exist is a
+  it takes to fail, then stop. The coach then runs the test and watches it fail before trusting the
+  red (lz-red's own addition, no-oracle). A reference to a symbol that does not yet exist is a
   failure just as much as a wrong assertion is -- code that does not compile counts as the red bar.
   This is the same thread as "Take one small step" above: grow the test to the first failure and no
   further (see that row for the not-yet-defined-symbol rationale in full). Read the scope carefully:

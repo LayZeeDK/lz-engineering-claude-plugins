@@ -170,6 +170,9 @@ form or a blunter one -- but it does not run the suite unprompted or edit the te
   assertion mismatch, an error is an exception raised in an earlier phase. Owned; oracle-verified
   against the clean-room source. This is the boundary the retagged backing for the
   fail-for-the-right-reason criterion rests on.
+- Robert C. Martin, Clean Code (Ch. 9, Unit Tests) -- a build failure counts as a legitimate red, the
+  position cited in the instrument-divergence paragraph. Owned; oracle-verified against the
+  clean-room source.
 - lz-red's own measurement on the pinned toolchain (Vitest 4.1.10, tsc 6.0.3) -- which failures land at
   the act line and which land at collection. Not from a source; no-oracle.
 - fast-check -- property-based generation, named only as a deferred ADV-02 forward-pointer, not a

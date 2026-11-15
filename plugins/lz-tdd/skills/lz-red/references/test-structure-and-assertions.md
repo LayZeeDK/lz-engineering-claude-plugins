@@ -56,14 +56,18 @@ an assertion pin observable behavior rather than implementation detail. This is 
 
 ## One concept per test
 
-- Rule: let each test pin a single concept, so a failure points back to exactly one broken behavior.
-  When a test grows a second, unrelated check, split it into two.
+- Rule: let each test pin a single concept. When a test grows a second, unrelated check, split it
+  into two. A handful of assertions about that one concept is fine, as long as the handful stays
+  small: one assertion per test is a guideline, not a law, so you split by concept rather than by
+  counting asserts.
 - When-to-use: when a test accumulates assertions about different behaviors, or its name needs an
   "and" to describe everything it verifies.
-- Distilled rationale (Robert C. Martin, owned; oracle-verified): a test that owns exactly one
+- Distilled rationale (Robert C. Martin, owned; oracle-verified): a test that mixes several concepts
+  leaves the reader to puzzle out what each section is there to show. Holding a test to one concept
+  lets it read as one clear statement of intent rather than a bundle you must decode.
+- Why it also helps diagnosis (lz-red's own reasoning, no-oracle): a test that owns exactly one
   concept turns a red bar into a precise signal -- the failure names the one behavior that broke
-  instead of leaving you to work out which of several checks tripped. The suite then reads as one
-  clear statement of intent per test rather than a bundle you must decode.
+  instead of leaving you to work out which of several checks tripped.
 
 The same three-part shape reads under either vocabulary. The production body below is shown for
 context only; at red time it is the not-yet-implemented form:
@@ -110,10 +114,11 @@ function applyCredit(balance: number, credit: number): number {
 - Property: beneath the four pillars sits a baseline of five properties every unit test should hold,
   named by the acronym F.I.R.S.T. -- Fast (runs in the blink of an eye, so the suite is run often),
   Independent (each test builds its own world and shares no state, so any test can run alone and in
-  any order), Repeatable (returns the same verdict on every machine and every run, leaning on no
-  clock, network, or leftover data), Self-validating (ends in a plain pass or fail with nothing for a
+  any order), Repeatable (returns the same verdict in any environment, even one with no network
+  available), Self-validating (ends in a plain pass or fail with nothing for a
   human to eyeball), and Timely (written just before the code it drives, which is what the red step
-  is).
+  is). In practice, Repeatable also means the test leans neither on the clock nor on data an
+  earlier run left behind (lz-red's own addition, no-oracle).
 - When-to-use: as the standing bar for every test you write; a test that surrenders one of these
   properties is a debt the suite repays later in flakiness or slowness.
 - Distilled rationale (Robert C. Martin, owned; oracle-verified): these five properties are what keep
@@ -194,6 +199,6 @@ the test or run the suite unprompted.
 - Vladimir Khorikov, Unit Testing: Principles, Practices, and Patterns -- the four pillars of a good
   unit test and the output/state/communication assertion styles. Unowned; high-confidence core only
   (no-oracle).
-- Robert C. Martin, Clean Code (Ch. 9, Unit Tests) -- one concept per test and one reason to fail,
-  and the F.I.R.S.T. properties as the test-quality baseline. Owned; oracle-verified against the
-  clean-room source.
+- Robert C. Martin, Clean Code (Ch. 9, Unit Tests) -- one concept per test (its readability
+  rationale and the keep-asserts-few nuance), and the F.I.R.S.T. properties as the test-quality
+  baseline. Owned; oracle-verified against the clean-room source.

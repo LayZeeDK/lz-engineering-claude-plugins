@@ -39,8 +39,10 @@ refactor step (lz-refactor). This is the coach's entry point: what to test next,
   resist writing more of the test than it takes to make it fail.
 - Distilled rationale (Robert C. Martin, owned; oracle-verified): the discipline is to grow the test
   only to the first failure, then stop -- a not-yet-defined symbol counts as that failure just as
-  much as a wrong result does. That rule sizes the test, which is a different question from which red
-  you hand forward to the green step; the fail-for-the-right-reason step settles the second one.
+  much as a wrong result does.
+- Scope of the rule (lz-red's own reasoning, no-oracle): that rule sizes the test, which is a
+  different question from which red you hand forward to the green step; the fail-for-the-right-reason
+  step settles the second one.
 - Why it pays off (lz-red's own reasoning, no-oracle): holding each increment to one small step keeps
   the distance between red and green tiny, so a red bar always names the single change that caused it
   and the diagnosis is immediate.
@@ -110,11 +112,13 @@ triangulation all operate inside the discipline these laws impose.
   red (lz-red's own addition, no-oracle). A reference to a symbol that does not yet exist is a
   failure just as much as a wrong assertion is -- code that does not compile counts as the red bar.
   This is the same thread as "Take one small step" above: grow the test to the first failure and no
-  further (see that row for the not-yet-defined-symbol rationale in full). Read the scope carefully:
-  Law 2 sizes the test, and the separate fail-for-the-right-reason step decides which red you hand
-  forward to the green step. Both are owned, they answer different questions, and the word failure does
-  double duty across them -- code that does not compile satisfies Law 2's stopping rule without being
-  the red you hand it forward on.
+  further (see that row for the not-yet-defined-symbol rationale in full). Read the scope carefully
+  (lz-red's own reasoning, no-oracle): Law 2 sizes the test, and the separate fail-for-the-right-reason
+  step decides which red you hand forward to the green step. That second step rests on other owned
+  sources -- Martin Fowler's failure-versus-error boundary (Refactoring 2nd Edition Ch. 4) and Kent
+  Beck's TDD is Kanban for Code, as principle-backing.md records -- not on Clean Code. The two answer
+  different questions, and the word failure does double duty across them -- code that does not compile
+  satisfies Law 2's stopping rule without being the red you hand it forward on.
 - Law 3 -- the lz-tpp handoff (lz-red orchestration, no-oracle): write only as much production code as
   it takes to pass the one failing test. That is the green step, and it is lz-tpp's job, not this
   skill's. lz-red confirms the red bar fails for the right reason and hands the failing test forward;

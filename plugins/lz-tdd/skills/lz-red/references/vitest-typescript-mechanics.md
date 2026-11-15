@@ -149,8 +149,8 @@ failure is cleared first, and a false green sends you back to sharpen the test.
 
 Instrument divergence, recorded rather than hidden. This project's own RED evaluation gate implements
 the assertion-only form of this rule -- it accepts an AssertionError and nothing else. That is STRICTER
-THAN the criterion stated above, and stricter than every owned source: Clean Code makes a build failure
-a legitimate red outright, Beck's instruction is to clear the compile error and then run and fail,
+THAN the criterion stated above, and stricter than every owned source: Clean Code counts a compile failure
+(code that does not compile) as failing outright, Beck's instruction is to clear the compile error and then run and fail,
 Fowler puts the boundary at an exception raised in an earlier phase, and Meszaros treats an error as a
 legitimate, equally severe red that you are told NOT to convert into a failure. The narrower gate is
 deliberate evaluation design -- one unambiguous signal is easier to grade mechanically -- and not a
@@ -170,7 +170,7 @@ form or a blunter one -- but it does not run the suite unprompted or edit the te
   assertion mismatch, an error is an exception raised in an earlier phase. Owned; oracle-verified
   against the clean-room source. This is the boundary the retagged backing for the
   fail-for-the-right-reason criterion rests on.
-- Robert C. Martin, Clean Code (Ch. 9, Unit Tests) -- a build failure counts as a legitimate red, the
+- Robert C. Martin, Clean Code (Ch. 9, Unit Tests) -- a compile failure (code that does not compile) counts as failing, the
   position cited in the instrument-divergence paragraph. Owned; oracle-verified against the
   clean-room source.
 - lz-red's own measurement on the pinned toolchain (Vitest 4.1.10, tsc 6.0.3) -- which failures land at

@@ -72,14 +72,14 @@ high-confidence core only.
 ### Why the fail-for-the-right-reason backing was retagged
 
 The single row this replaces backed the criterion to Robert C. Martin's Clean Code Ch. 9, owned and
-oracle-verified. That backing was wrong in a specific way: the chapter explicitly makes a build failure
-a legitimate red, and nowhere requires an assertion failure -- checked for absence across eight
+oracle-verified. That backing was wrong in a specific way: the chapter explicitly counts a compile
+failure (code that does not compile) as failing, and nowhere requires an assertion failure -- checked for absence across eight
 chapters. It does not merely fail to support the assertion-only criterion, it CONTRADICTS it. So the
 tier was honest and the mapping was not.
 
 Four owned sources independently decline to require an AssertionError specifically:
 
-- Clean Code -- a build failure is explicitly a legitimate red.
+- Clean Code -- a compile failure (code that does not compile) explicitly counts as failing.
 - Beck -- the instruction is to clear the compile error and then run and fail, and his own canonical
   production-side stub throws. The owned surface carrying it is the essay TDD is Kanban for Code,
   named in the row above; it is one of several positions he holds on cycle ordering and he calls them
@@ -89,7 +89,7 @@ Four owned sources independently decline to require an AssertionError specifical
   failure.
 
 The important part is not the count. **Clean Code and Beck genuinely DISAGREE with each other** about
-whether a build failure is a valid red, and both are owned. This skill's own step-2 versus step-5
+whether a compile failure is a valid red, and both are owned. This skill's own step-2 versus step-5
 contradiction was therefore a FAITHFUL TRANSCRIPTION of that disagreement: two owned sources were
 followed accurately in two different places, and their conflict travelled with them. It was not
 carelessness. The fix NAMES the disagreement and scopes each side to the question it actually answers,

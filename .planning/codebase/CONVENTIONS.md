@@ -11,9 +11,6 @@ This repository has **two authored surfaces**, each with its own conventions:
    `.claude/skills/*-workspace/`. This never ships; it verifies the Markdown and
    measures skill quality. Written as ESM `.mjs`, node builtins only.
 
-`.gsd-opengsd/` is a vendored third-party toolchain (gitignored) and is NOT
-governed by these conventions.
-
 ## Naming Patterns
 
 **Files:**

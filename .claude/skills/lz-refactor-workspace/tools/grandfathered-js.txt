@@ -1,4 +1,4 @@
-# These .mjs/.js files predate the erasable-TypeScript bar; delete a line when its file is ported to .ts.
+# These .mjs/.cjs/.js files predate the erasable-TypeScript bar; delete a line when its file is ported to .ts.
 .claude/skills/lz-red-workspace/arm-anchor.mjs
 .claude/skills/lz-red-workspace/check-evals.mjs
 .claude/skills/lz-red-workspace/e2e-rgr-srvx/grade-rgr.mjs

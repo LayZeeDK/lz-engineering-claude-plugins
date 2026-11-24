@@ -22,11 +22,11 @@ test('reports a .mjs under a workspace that is not grandfathered', () => {
   });
 });
 
-test('reports a .js the same way and matches the extension case-insensitively', () => {
-  const listed = [`${workspace}/b.js`, `${workspace}/c.MJS`, `${workspace}/a.Js`];
+test('reports a .js or .cjs the same way and matches the extension case-insensitively', () => {
+  const listed = [`${workspace}/b.js`, `${workspace}/c.MJS`, `${workspace}/a.Js`, `${workspace}/x.cjs`, `${workspace}/y.CJS`];
 
   assert.deepEqual(findScriptViolations(listed, []), {
-    added: [`${workspace}/a.Js`, `${workspace}/b.js`, `${workspace}/c.MJS`],
+    added: [`${workspace}/a.Js`, `${workspace}/b.js`, `${workspace}/c.MJS`, `${workspace}/x.cjs`, `${workspace}/y.CJS`],
     stale: [],
   });
 });
@@ -38,7 +38,7 @@ test('passes a grandfathered path', () => {
 });
 
 test('ignores other extensions under a workspace', () => {
-  const listed = ['x.ts', 'x.json', 'x.md', 'x.sh', 'x.py', 'x.mjs.map'].map((name) => `${workspace}/${name}`);
+  const listed = ['x.ts', 'x.mts', 'x.cts', 'x.json', 'x.md', 'x.sh', 'x.py', 'x.mjs.map'].map((name) => `${workspace}/${name}`);
 
   assert.deepEqual(findScriptViolations(listed, []), { added: [], stale: [] });
 });

@@ -1,14 +1,15 @@
 #!/usr/bin/env node
-// Script-bar guard over the eval workspaces: fails on any tracked or untracked-not-ignored .mjs or
-// .js file under .claude/skills/*-workspace/ (node_modules excepted) that grandfathered-js.txt
-// does not list, and on any listed file that is gone, so a ported script cannot come back as .mjs.
+// Script-bar guard over the eval workspaces: fails on any tracked or untracked-not-ignored .mjs,
+// .cjs or .js file under .claude/skills/*-workspace/ (node_modules excepted) that grandfathered-js.txt
+// does not list, and on any listed file that is gone, so a ported script cannot come back as
+// JavaScript. .mts and .cts are TypeScript and pass.
 //   node .claude/skills/lz-refactor-workspace/tools/check-no-new-js.ts
 import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const workspaceScript = /^\.claude\/skills\/[^/]+-workspace\/.*\.m?js$/i;
+const workspaceScript = /^\.claude\/skills\/[^/]+-workspace\/.*\.[cm]?js$/i;
 
 function isWorkspaceScript(path: string): boolean {
   return workspaceScript.test(path) && !path.split('/').includes('node_modules');

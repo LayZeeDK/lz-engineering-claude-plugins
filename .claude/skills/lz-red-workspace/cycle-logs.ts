@@ -9,6 +9,7 @@ import { existsSync, lstatSync, readdirSync } from 'node:fs';
 import { basename, dirname, join } from 'node:path';
 
 const looksLikeLog = (name: string): boolean =>
+  // Stryker disable next-line ConditionalExpression,StringLiteral: an empty name matches none of the checks below, so the guard cannot change any result
   name !== '' &&
   !/(^|\.)cycle-start$/.test(name) &&
   (/cycle/i.test(name) || (/log/i.test(name) && /\.(md|txt|log)$/i.test(name) && !/changelog/i.test(name)));
@@ -25,6 +26,7 @@ const matchingFiles = (folder: string, since: number): string[] => {
     return [];
   }
 
+  // Stryker disable next-line StringLiteral: an empty encoding falls back to utf8, so no result changes; the literal only selects the string[] overload
   return readdirSync(folder, { recursive: true, encoding: 'utf8' })
     .filter((rel) => looksLikeLog(basename(rel)) && !rel.split(/[\\/]/).includes('node_modules'))
     .map((rel) => join(folder, rel))

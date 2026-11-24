@@ -1,181 +1,45 @@
 {
   "version": "1.0",
-  "timestamp": "2026-08-04T20:30:00.000Z",
-  "context": "quick-260804-kvh-instrument-hardening-reporting-states-ratcheted-F3-closed-F6-retracted",
-  "supersedes_handoff": "2026-08-04T14:46:06.085Z quick-260804-kvh paused at 8/8",
-  "supersedes_note": "That handoff's two named next items are DONE. Its honesty_caveat is RESOLVED (three reporting states + a ratchet, febb9a1) and its priority-1 F3+F6 pairing is HALF DONE and HALF FALSIFIED: F3 closed at dcb56c5, F6 did not and could not have -- its recorded mechanism was measurably false and it is refiled into F2's family. The metered blockers are UNCHANGED and still unapproved; nothing metered has run in three consecutive sessions.",
-  "quick_task": "260804-kvh",
-  "quick_dir": ".planning/quick/260804-kvh-instrument-hardening-all-evasions",
-  "branch": "gsd/lz-tdd-0.0.3-lz-red",
-  "head_sha": "dcb56c5",
+  "timestamp": "2026-11-24T22:33:40.941Z",
+  "phase": "22.1",
+  "phase_name": "eval-harness-on-claude-plugin-eval-and-slim-claude-p",
+  "phase_dir": ".planning/phases/22.1-eval-harness-on-claude-plugin-eval-and-slim-claude-p",
+  "plan": null,
+  "task": null,
+  "total_tasks": null,
   "status": "paused",
-  "task": 8,
-  "total_tasks": 8,
-  "task_state": "Nothing mid-flight. Tree clean, battery GREEN at 19 CAUGHT / 8 OPEN (baseline 8) / 3 unclosable CEILING, no shipped file touched in either commit. The suite can no longer read green over unaccounted work.",
-  "metered_spend": "ZERO this session and ZERO the session before. Both metered rounds remain HALT-gated and UNAPPROVED.",
-
-  "THE_KEY_THING_FOR_WHOEVER_RESUMES": "Same as the last two handoffs, and it held up again in a NEW way: run `node .claude/skills/lz-red-workspace/tools/check-rgr-routing.evasions.mjs`. It is the arbiter, not your reading. `--list` prints all entries, `--only <ID>` runs one. THE SHARPER LESSON THIS TIME: the arbiter overruled THE HANDOFF ITSELF. The previous handoff stated F3 and F6 shared one root cause and should be closed by one change; measuring the two mutations before touching the filter showed F6's recorded mechanism was FALSE and the pairing wrong. Had the stated plan simply been executed, F3 would have closed, F6 would have been declared closed alongside it on the author's reading, and a live blind spot would have been recorded as shut. So MEASURE THE PREMISE, not just the fix -- a handoff written by a previous session is the author's reading too.",
-
-  "suite_baseline_at_head": {
-    "command": "node .claude/skills/lz-red-workspace/tools/check-rgr-routing.evasions.mjs",
-    "exit": 0,
-    "caught": 19,
-    "open": 8,
-    "expected_open_ratchet": 8,
-    "unclosable_ceilings": 3,
-    "unexplained": 0,
-    "bad_tests": 0,
-    "note": "The three states are live as of febb9a1, so the summary no longer calls open work 'evading by design'. GREEN means 'nothing unaccounted', NOT 'nothing left to do' -- the OPEN count is the backlog and prints on the same line. Any drift in the OPEN count exits 1 in either direction."
-  },
-
-  "honesty_caveat": {
-    "status": "RESOLVED 2026-08-04 at febb9a1. Kept here because the SHAPE recurs.",
-    "problem_was": "The suite had TWO states for a non-caught entry and both printed as CEILING: genuinely unclosable literal-blocklist limits (M16, E5, M2b) and real open work (the other 9). The summary called all 12 'evading by design', so the battery read GREEN over unfinished work.",
-    "resolution": "Three states. `unclosable: true` is an ALLOWLIST marking an axis closed by construction, so a new entry that forgets the flag reads OPEN -- the louder verdict. Everything else prints [OPEN] and counts separately. The count is RATCHETED against EXPECTED_OPEN: drift in EITHER direction exits 1 (a rise = new evasion or regression; a fall = something closed without lowering the constant, and that slack is where the next rise hides). Skipped under --only. Proven discriminating against the real file both directions before shipping.",
-    "deliberately_not_hard_red": "An OPEN entry does not by itself exit 1. F2 is gated behind an unapproved metered round, so hard-red would block the battery on something the owner has not been asked to decide. GREEN now means 'nothing unaccounted', never 'nothing left to do', and the OPEN count prints on the same line so the word cannot be misread."
-  },
-
-  "completed_this_session": [
-    { "id": "OPEN-3", "suite": "M4", "commit": "0212fa1", "name": "owns() judges the WHOLE destination list; a contradicting second destination was unexamined. Measured 0 verdict deltas over 3 surfaces x 8 owned cases before changing it." },
-    { "id": "OPEN-4", "suite": "M2", "commit": "0ebb4c6", "name": "A residual keeping both marker halves could still self-claim. Recognised by PHRASE (SELF_CLAIM_PHRASES) without teaching destinationsIn self-reference. Negation-awareness is load-bearing: 'not this skill's' is LIVE at laws-classify #s13. Recorded M2b as the honest new ceiling." },
-    { "id": "OPEN-7", "suite": "M8b", "commit": "2666529", "name": "Intro two-hop required mention ORDER only; now the sentence affirming lz-red must also CLAIM the first hop. ALLOWLIST that fails closed." },
-    { "id": "OPEN-8d", "suite": "M9", "commit": "3295213", "name": "Corpus shape pinned: exactly one no-owner case, exactly one ordered two-hop, owners drawn from the real vocabulary. One word had been able to retire the D-02 assertion." },
-    { "id": "OPEN-2", "suite": "M5 + M14", "commit": "0fd528d", "name": "Five of eight routers had NO correctness assertion. Measured first (mandatory): 18 of 45 free-surface pairs failed and EVERY failure was absent ask-words, zero were wrong destinations -- so the assertion is covered-only plus a coverage FLOOR (sets, not counts) to stop ask-word deletion becoming the new evasion." },
-    { "id": "OPEN-6", "suite": "M12", "commit": "1717fb8", "name": "All three `## Two modes` gates excluded cases their own skill owns. OWNER-DECIDED semantics: the gate chooses coach vs reference only; ownership is step 1's job. Body-only, verified by per-skill frontmatter diff." },
-    { "id": "F1", "suite": "F1", "commit": "b55bd76", "name": "The OPEN-6 admission check was NEGATION-BLIND (bare covers()), so inverting a clause kept every ask-word and still passed. Generalised the lib's affirmation pass into affirmedPhrasesIn and routed admission + delegation through it." },
-    { "id": "OPEN-6 regressions", "commit": "b55bd76", "name": "FOUR defects the prose reviewer found in this session's own rewrite: an unconditional imperative that contradicted the delegation sentence (would suppress the handoff), a circular loop-membership precondition that made branch (e) dead text, an environment-state conjunct ('a codebase is in view') the corpus's own bare prompts fail, and a wording that flattened c4's two-hop. All fixed; reference mode is now the explicit 'otherwise' so nothing falls between the two modes." },
-    { "id": "F7", "suite": "F7", "commit": "133174f", "name": "Step 1's three tie-break rules (first-match-wins, self-report-is-context, primary-ask) could simply be DELETED. Now an allowlist matched through affirmedPhrasesIn." },
-    { "id": "honesty_caveat -- three reporting states + ratchet", "commit": "febb9a1", "name": "The suite printed all 12 non-caught entries as 'evading by design', true of 3. Now OPEN vs unclosable CEILING, with `unclosable: true` as an ALLOWLIST so a forgotten flag reads OPEN. EXPECTED_OPEN ratchets the count: drift EITHER way exits 1. Proven discriminating against the real file at 8 (ROSE), 10 (FELL) and 9 (clean); --only exempt." },
-    { "id": "F3 (OPEN-11)", "suite": "F3", "commit": "dcb56c5", "name": "Closed in two halves: parseRoutingBranches stops dropping a zero-destination sentence that affirms a listed claim phrase, and [cls-01] no self-claiming branch judges what survives. ABLATION proved the assertion load-bearing -- with the parser change alone the F3-mutated tree leaves keysOnTestState empty, isBareCatchAll false, owns empty and routesCase deltas 0, so the gate would have stayed exit 0. Pre-change measurement over all 8 routers: 0 newly kept, 0 verdict deltas, 0 currently-kept branches affirming a listed phrase." },
-    { "id": "F6 -- MECHANISM RETRACTED, not closed", "suite": "F6", "commit": "dcb56c5", "name": "THE HANDOFF'S OWN PAIRING WAS WRONG. F6's recorded mechanism ('affirms no destination and is filtered out') is measurably false -- the mutated sentence affirms [lz-tpp, lz-refactor] and IS kept; the denial sits in a later clause and the negation pass is clause-scoped. The sweep stays silent because the only case it covers is c6 and it LEADS with lz-tpp, c6's own owner. Refiled into F2's family (removes correct routing rather than adding wrong routing). The COVERAGE FLOOR candidate was measured against it and does NOT catch it. Entry stays OPEN." },
-    { "id": "cls-04 sweep", "commit": "133174f", "name": "Contradiction sweep over TEN prose regions that had zero destination-level assertions: 3 descriptions, 3 SKILL.md intros, the plugin-wide reference intro, 3 pre-item-1 regions. Contradiction-only by MEASUREMENT, not preference -- see next_action." }
+  "completed_tasks": [
+    {"id": 1, "name": "Phase 22 code review + fixes WR-01..05, WR-07, WR-08", "status": "done", "commit": "62ecb99"},
+    {"id": 2, "name": "Phase 23 context: D-01..D-17 settled (agent-as-developer, lz-tdd-coach in 23, script bar, model guidelines)", "status": "done", "commit": "e5039a9"},
+    {"id": 3, "name": "Roadmap reorder: harness to Phase 22.1, Phase 24 removed, Phase 23.1 source-name sweep inserted", "status": "done", "commit": "865731c"},
+    {"id": 4, "name": "Quick task 261124-v73: workspace scripts to the user-scope bar (verified, reviewed, Stryker 100%)", "status": "done", "commit": "7c25dc3"},
+    {"id": 5, "name": "22.1 rulings: paid runs pre-approved once resumable; Opus 5.5 + Sonnet 5.5 only; n Sonnet 5 / Opus 3", "status": "done", "commit": "7fda693"}
   ],
-
   "remaining_tasks": [
-    {
-      "id": "F6 (OPEN-14) -- REFILED, was wrongly paired with F3",
-      "priority": 1,
-      "suite_entries": ["F6"],
-      "name": "THE F3+F6 PAIRING IN THE PREVIOUS HANDOFF WAS WRONG, and it was wrong in the direction that would have wasted the next session. F3 closed at dcb56c5 by the filter change; F6 did NOT, and could not have. Its recorded mechanism ('the sentence affirms no destination and is filtered out') is measurably false -- the mutated sentence affirms [lz-tpp, lz-refactor] and IS kept. The denial ('never hand a request to either of them') sits in a LATER clause and the negation pass is clause-scoped, so both names read affirmed.",
-      "measured_mechanism": "The cls-04 sweep already keeps this sentence and still reports nothing: the only case it covers is c6, and it LEADS with lz-tpp, which IS c6's owner. It reads consistent while the following clause revokes the handoff.",
-      "family": "F2/OPEN-10, not F3/OPEN-11 -- both REMOVE correct routing rather than add wrong routing, which is exactly what a contradiction-only sweep cannot see.",
-      "approach": "Needs an assertion that reads the REVOCATION -- a region may not deny a handoff it also states -- which is a NEW CLAIM SHAPE, not a wider reader. Note this would be a fourth literal blocklist unless shaped otherwise; weigh that before building it.",
-      "ruled_out_by_measurement": "The per-region COVERAGE FLOOR does NOT close F6. Floor on the tracked tree is 4 pairs total: lz-red description c6->lz-tpp, lz-red intro c6->lz-tpp, lz-tpp description c3->lz-red + c4->lz-red, lz-refactor intro c4->lz-red. The mutation loses none, because the leading destination is precisely what it leaves intact."
-    },
-    {
-      "id": "F5 + M14b (OPEN-13, OPEN-9)",
-      "priority": 3,
-      "warning_added_2026-08-04": "This entry pairs two evasions by asserted shape, exactly as the F3+F6 entry did before measurement falsified it. VERIFY the shared mechanism by measuring BOTH mutations before planning one change for the pair.",
-      "suite_entries": ["F5", "M14b"],
-      "name": "Also one shape: the mutations reverse ownership SEMANTICALLY without carrying any corpus ask-words, so covers() matches nothing and the cls-04 sweep (which now READS both regions) finds no contradiction.",
-      "approach": "F5 needs a rule that the pre-item-1 region may not ROUTE AT ALL -- a second axis is defined by dispatching there, not by which case it names. M14b likely follows from the same rule applied to reference intros."
-    },
-    {
-      "id": "F2 (OPEN-10)",
-      "priority": 2,
-      "note_added_2026-08-04": "F6 now measures into THIS family. The COVERAGE FLOOR candidate below was measured against F6 and does not catch it; that says nothing either way about F2's own mutation, which is a different edit. Measure the floor against F2 directly before building it -- the floor is thin (4 pairs across 10 regions, and lz-refactor's description contributes ZERO), so a floor that pins almost nothing may not be worth its weight.",
-      "suite_entry": "F2",
-      "name": "HIGHEST VALUE, hardest constraint. The YAML description is the surface the skill SELECTOR actually reads -- before any body text loads -- so in production it is what routes. It has NO ownership assertion, only a char cap and the test-state blocklist.",
-      "MEASURED_CONSTRAINT": "A full router-style assertion over descriptions FAILS on the shipped tree: lz-tpp's description carries c4's two-hop across a SENTENCE BOUNDARY, so its sentence names lz-red alone and the ordered-pair arm rejects it. Repairing that means editing a `description`, which forces a metered round. The cls-04 sweep therefore kept only the contradiction half, which this attack walks around because it REMOVES correct routing rather than adding wrong routing.",
-      "approach": "A description-level COVERAGE FLOOR -- pin what each description routes TODAY -- is the untried candidate that needs no description edit. Untested; measure both directions."
-    },
-    {
-      "id": "F4 (OPEN-12)",
-      "priority": 4,
-      "suite_entry": "F4",
-      "name": "A step-1 branch can claim asks the 9-case corpus does not sample (four canonical Fowler refactorings added to lz-red's branch (a), which beats branch (d) under first-match-wins). Every assertion is quantified over CASES, so added ask-words have no subject. The corpus SAMPLES the classifier, it does not BOUND it.",
-      "note": "Hardest of the batch and needs a design call: bounding a branch's vocabulary is a different kind of claim from routing a corpus case."
-    },
-    {
-      "id": "OPEN-8b/8c/8e/8f",
-      "priority": 5,
-      "suite_entries": ["M10", "M11", "M6"],
-      "name": "Carried over UNTOUCHED from the previous handoff. 8b/8c: QUESTION-vs-COMMAND and whole-package-sweeps are cited but are not ROUTING_SURFACES entries, and the QUESTION/COMMAND check asserts only that the heading EXISTS. 8e: the selftest hand-restates corpusFloorOk/scanFloorOk/hopsOrderedOk/flatten. 8f: two stale comments in routing-parse.mjs.",
-      "IMPORTANT": "8e is now DEFINITELY stale -- this session changed the corpus floor (added the three shape clauses) that the selftest hand-models, and re-verified nothing about that restatement. Check it before trusting the selftest's corpus legs."
-    },
-    {
-      "id": "honesty_caveat -- suite reporting states",
-      "priority": 6,
-      "name": "Add a third reporting state so real open work does not print as 'evading by design' and the battery cannot read GREEN over it. See honesty_caveat above."
-    },
-    {
-      "id": "reviewer-B finding 1 -- lz-red branch (a) too narrow",
-      "priority": 7,
-      "name": "lz-red's step-1 branch (a) is a closed four-item gloss that omits asks its OWN description promises: the testing stance / house test idiom, test SHAPE, and 'did this fail for the right reason'. Consequence: the description makes Claude SELECT lz-red, then step 1 finds no matching branch and terminal (e) DISCLAIMS the loop.",
-      "blocked_on": "Needs NEW corpus cases (no stance case, no test-structure case, no right-reason case exists), which is why no checker can see it. Bigger than an instrument fix.",
-      "constraint": "Widening branch (a) is BODY work and is fine; do NOT touch the description."
-    },
-    {
-      "id": "OPEN-5",
-      "priority": "none -- NOT CLOSEABLE",
-      "name": "Unchanged. M16 and E5 are permanent literal-blocklist ceilings. Do not try to close them and do not let the comments be reworded into a closure claim.",
-      "note": "M2b (self-claim paraphrase) joined this family this session -- it is the parser's THIRD literal blocklist."
-    }
+    {"id": 6, "name": "/gsd-discuss-phase 22.1 (--analyze --auto unless Lars says otherwise)", "status": "not_started"},
+    {"id": 7, "name": "/gsd-plan-phase 22.1, execute, verify, code review, secure, validate, learnings", "status": "not_started"},
+    {"id": 8, "name": "Phase 22.1 dry run proving run sets and runs resume; then baseline paid run (pre-approved)", "status": "not_started"},
+    {"id": 9, "name": "/gsd-plan-phase 23 (context ready), execute and post-execution chain", "status": "not_started"},
+    {"id": 10, "name": "Phase 23.1 discuss/plan/execute; names vs no-names measurement on the 22.1 harness; send result path to lz-oop session", "status": "not_started"},
+    {"id": 11, "name": "Phase 22 Rounds A and B on the 22.1 harness after Phase 23", "status": "not_started"}
   ],
-
-  "accepted_not_open": [
-    {
-      "id": "reviewer-B finding 6 -- Beck green-bar strategies",
-      "decision": "ACCEPTED by the owner 2026-08-04. Not a gap to close.",
-      "detail": "plugins/lz-tdd/references/beck-tdd-by-example.md assigns Fake It / Obvious Implementation / Triangulate to lz-tpp ('lz-tpp is the skill that ranks among them'), but lz-tpp names none of them anywhere and its reference mode admits only TPP-vocabulary asks. Owner intends a dedicated skill in a FUTURE MILESTONE.",
-      "note_for_that_milestone": "These are GREEN-BAR strategies, so per the plugin reference they belong with lz-tpp, not lz-red. Triangulate is already handled correctly and is the model: lz-red's three-laws leaf firewalls it ('Triangulation in this reference selects the next test; it never generalizes production code')."
-    },
-    {
-      "id": "reviewer-B finding 5",
-      "decision": "FIXED this session in passing",
-      "detail": "lz-tpp reference mode said 'with no test to coach' where both siblings say 'with nothing to coach', contradicting its own step 2 ('a make-this-test-pass ask almost never supplies the test')."
-    }
-  ],
-
-  "blockers": [
-    {
-      "type": "human_action",
-      "description": "Both metered rounds remain HALT-gated on fresh explicit owner approval. Neither is approved. Nothing metered has run in two consecutive sessions.",
-      "workaround": "Resume signal: 'approved -- round B' and/or 'approved -- round A at k=N'. Read .claude/skills/lz-red-workspace/e2e-rgr-routing/RUN-GATE.md first."
-    },
-    {
-      "type": "technical",
-      "description": "The gate is materially stronger than at session start but still weaker than its GREEN output suggests: 9 recorded entries are open work printing as documented ceilings. The highest-value one (F2) is the surface that actually routes in production.",
-      "workaround": "The suite makes the exact scope runnable and countable, and each ceiling now records the MEASURED reason it is not yet closed."
-    },
-    {
-      "type": "external",
-      "description": "PR #3 stays held (D-24). None of this instrument work unblocks it -- the owner-approved placement A/B does.",
-      "workaround": "None needed; recorded intent."
-    }
-  ],
-
+  "blockers": [],
+  "async_jobs": [],
   "human_actions_pending": [
-    { "action": "Approve or decline Round B (EVL-01 reciprocal trigger regression)", "blocking": true, "context": "Still owed. NOTE: this session made further BODY-only edits to all three `## Two modes` sections. Descriptions were NOT touched (verified by per-skill frontmatter diff), so the trigger-eval surface is unchanged and the pre-edit baseline still applies." },
-    { "action": "Approve or decline Round A (placement A/B) and its stage-1 k", "blocking": true, "context": "This is what actually unblocks PR #3." },
-    { "action": "Decide the two DESCRIPTION-tier items, or drop them permanently", "blocking": false, "context": "Unchanged from the last handoff. Both are description edits, so each must land BEFORE Round B or it forces a second metered round. lz-refactor has only 41 chars of headroom. Decide-now-or-drop." }
+    {"action": "Push branch gsd/lz-tdd-0.0.3-lz-red (188 commits ahead of origin)", "context": "Pushing needs Lars's word", "blocking": false},
+    {"action": "Optional: fnm uninstall 22.17.1", "context": "Installed by the review fixer to measure the Node floor", "blocking": false}
   ],
-
   "decisions": [
-    { "decision": "Mode gate = coach/reference switch, NOT an ownership gate", "rationale": "OWNER-DECIDED via AskUserQuestion after measurement showed all three gates excluded their own cases. The gate runs BEFORE step 1, so a gate narrower than its skill's ownership makes its own route-away branches unreachable. Gates are deliberately NOT required to enumerate all nine asks -- that would duplicate step 1 and bloat three shipped sections." },
-    { "decision": "Mode gates name NO sibling slug", "rationale": "Mode gates are destination-free by design; the delegation sentence says 'a sibling skill'." },
-    { "decision": "cls-04 sweep is CONTRADICTION-ONLY", "rationale": "MEASURED limit, not a preference. The positive half fails on the shipped tree via lz-tpp's cross-sentence two-hop, and repairing it means a metered-gated description edit." },
-    { "decision": "Allowlists (intro first-hop claim, delegation phrases, tie-break rules) fail CLOSED", "rationale": "A missing allowlist entry costs a false FAILURE; a missing blocklist entry costs a false PASS. Deliberate trade in the safe direction." },
-    { "decision": "Record WHY an attempted closure failed", "rationale": "The cls-04 sweep was expected to close F2/F5/F6/M14b and closed none. Recording the measured mechanism collapsed four vague gaps into two named root causes -- worth more than the closure would have been." },
-    { "decision": "Re-anchoring a mutation that my own prose edit orphaned is legitimate; re-specifying one to make it pass is not", "rationale": "M14 was MIS-TARGETED (first-occurrence replace hit the beck intro, ~60 lines above the seam heading), so it had been proving nothing. Re-anchored AND recorded the region it was accidentally hitting as a real new blind spot (M14b)." }
+    {"decision": "Eval harness lands first as Phase 22.1 and takes a baseline on today's skill text", "rationale": "Lars: \"Move the harness before the text changes. OK\"", "phase": "22.1"},
+    {"decision": "Paid eval runs pre-approved once run sets and runs are resumable", "rationale": "Lars ruling 2026-11-24, quoted in ROADMAP 22.1", "phase": "22.1"},
+    {"decision": "Official support and eval coverage: Opus 5.5 and Sonnet 5.5 only; n Sonnet 5, Opus 3", "rationale": "Lars rulings 2026-11-24, quoted in ROADMAP 22.1 and 23-CONTEXT D-17", "phase": "22.1"},
+    {"decision": "engines.node ^22.18.0 || ^24.11.0 || ^26.13.0 in the eval workspaces", "rationale": "Lars ruling; first no-flag type stripping + first 24 and 26 LTS", "phase": "quick-261124-v73"}
   ],
-
-  "verification_at_this_head": {
-    "check-rgr-routing.mjs": 0,
-    "check-rgr-routing.selftest.mjs": 0,
-    "check-rgr-routing.evasions.mjs": "0 (18 caught, 12 ceilings, 0 unexplained, 0 BAD TEST)",
-    "npm run check (lz-red-workspace)": 0,
-    "npm run check (lz-refactor-workspace)": 0,
-    "check-evals.mjs (both workspaces)": 0,
-    "claude plugin validate . and --strict": 0,
-    "git status --porcelain": "empty",
-    "git status --porcelain -- plugins/": "empty",
-    "frontmatter": "0 description lines changed across all three skills; earliest body change 27/31/34 vs frontmatter ending 17/19/20"
-  },
-
-  "uncommitted_files": [],
-
-  "next_action": "The two items the owner selected are DONE (febb9a1 reporting states + ratchet; dcb56c5 F3 closure + F6 retraction). Nothing is mid-flight: tree clean, battery GREEN at 19 CAUGHT / 8 OPEN (baseline 8) / 3 CEILING, no shipped file touched. The genuine next decision is the OWNER's, not the instrument's -- approve Round A (placement A/B, the only thing that unblocks PR #3), approve Round B (EVL-01 reciprocal trigger regression), or close the milestone. Three reviews agree the shipped routing text is correct on all nine corpus cases at every tier, and every remaining OPEN entry EXCEPT F2 buys protection against future regression rather than fixing live behavior. If continuing on the instrument instead: F6 is no longer the cheap one (it needs a new claim shape that reads a REVOCATION), so M10/M11/M6 (OPEN-8b/8c) are cheaper -- but check OPEN-8e FIRST, because the selftest hand-restates a corpus floor that a previous session changed without re-verifying that restatement.",
-
-  "context_notes": "THE LESSON HELD AND SHARPENED. The previous handoff said prose acceptance criteria let the author grade their own work. This session proved it five more times, and every catch came from the instrument, never from the author: (1) the first OPEN-2 fix looked correct and did NOT work -- routesCase is EXISTENTIAL, and prose surfaces carry two branches per case, so flipping one left the other satisfying it; the real fix was at the shared predicate. (2) M14 had been MIS-SPECIFIED all along -- String.replace with a string hits the FIRST occurrence, which was the beck file's intro, outside every parsed surface; the suite's landed-check passes on a mutation that lands in the WRONG REGION, which is a gap in the check itself. (3)(4)(5) Rewriting prose orphaned three anchors and added an export, all caught as BAD TEST / roster failures rather than passing vacuously. SECOND: the ~100-column hard wrap bit THREE more times, including twice while I was writing anchors specifically to avoid it -- every new suite entry now uses a single-line anchor and says so. Use `sed -n` or `cat -A` to pick an anchor; the Read tool's rendering can differ from the bytes (a reviewer hit `then refactor.` vs the real `then refactors.`). THIRD: two unprimed reviewers, given no knowledge of what had been changed, found 7 new evasions AND 4 regressions in the work shipped hours earlier -- including F1, which defeated the OPEN-6 guard by INVERTING a clause instead of narrowing it (narrowing deletes tokens and was caught; negating keeps them). Unprimed review is not optional here. FOURTH, on scope: the shipped routing text is correct on all nine corpus cases at every tier -- three reviews now agree -- so all remaining work buys protection against FUTURE regression, with ONE exception: F2 concerns the description, which is what actually routes in production, so it is the only open item with a live behavioral edge. If the owner would rather close the milestone, stopping here remains defensible and the suite preserves the backlog exactly."
+  "uncommitted_files": [
+    " M .planning/config.json",
+    "?? .planning/phases/23-agent-as-developer-conversion-of-lz-red-lz-tpp-and-lz-refact/.gitkeep",
+    "?? .scratch/"
+  ],
+  "next_action": "Run /gsd-discuss-phase 22.1 --analyze --auto, first reading lz-gardener's and lz-oop's eval harnesses for their resume design",
+  "context_notes": "Keep .planning/config.json unstaged (local refactor.trigger_enabled). Both eval workspaces need npm ci before npm run check. Only user-scope GSD Core exists (bare gsd-* names); gsd-tools writes a stray .planning/state.json, delete it after each call."
 }

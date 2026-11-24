@@ -1,7 +1,8 @@
 # Phase 23: Agent-as-developer conversion of lz-red, lz-tpp and lz-refactor - Context
 
 **Gathered:** 2026-11-24 (`--analyze --auto`: every decision below is the recommended option, chosen by Claude; trade-offs in 23-DISCUSSION-LOG.md)
-**Status:** Ready for planning (D-01 and D-05 settled by Lars on 2026-11-24)
+**Status:** BLOCKED -- Lars corrected the scope on 2026-11-24 (D-14, D-16); two placement questions are open and
+the lz-oop evidence for D-16 is pending. D-01 and D-05 are settled.
 
 <domain>
 ## Phase Boundary
@@ -33,10 +34,34 @@ backlog 999.1. No metered run happens in this phase.
   red that would need a second behaviour, or a seam needed first (hand off per the existing routing).
 
 ### Reference mode (explain on demand)
-- **D-03:** Keep reference mode in all three skills for 0.0.3, unchanged in substance: "explain TPP / this smell /
-  this RED rule" and a bare `/lz-tdd:<skill>` invocation with nothing to do still answer from the references. The
-  mode gate becomes "do the step" versus "explain". PROJECT.md's core value ("explains the premise on demand") stays
-  served until 0.0.4 moves it (separate `lz-tdd-coach`, Claude's recommendation, or into audit/review).
+- **D-03 (SUPERSEDED by Lars 2026-11-24, see D-14):** was "keep reference mode in all three skills for 0.0.3".
+- **D-14:** Remove reference mode and the non-command coach mode from lz-red, lz-tpp and lz-refactor. Each keeps only
+  the doing mode: it makes the step's changes itself and keeps going through the red, green and refactor steps and
+  the next cycles until the goal is met, following the plugin's workflows. Explaining TDD and guiding a human or an
+  agent (today's reference mode and non-command coach mode) belongs in the separate `lz-tdd-coach` skill. Lars
+  2026-11-24, verbatim: "What I meant was to remove *reference* mode and the non-command *coach* mode from the main
+  skills, keep the *coach* mode but using the agent-as-developer/command approach so that an agent using the skill
+  makes the red/green/refactor step/changes automatically and keeps progressing between the TDD phases and cycles
+  until the goal is met, following the lz-tdd plugin skills' workflows. The *reference* and non-command *coach* mode
+  guiding a human or agent in TDD or answering questions about TDD is what I suggested in the separate
+  `lz-tdd-coach` skill." -- **Reversibility:** costly -- descriptions, routing surfaces and every eval assume two modes.
+  OPEN (Claude asks Lars): whether `lz-tdd-coach` ships in this phase (moving today's reference-mode content) or in
+  0.0.4 (leaving 0.0.3 with no explain path).
+- **D-15:** The doing skills hand off to each other to keep the cycle moving: after its RED line lz-red continues
+  into the green step (lz-tpp), after GREEN into the refactor step (lz-refactor), after REFACTOR back to lz-red for
+  the next test, until the goal (the request's behaviour, or the test list) is done; each step still ends with its
+  D-05 line. The loop stops and reports on the D-02 conditions. Claude's reading of "keeps progressing between the
+  TDD phases and cycles until the goal is met".
+
+### Source names (Lars ruling, 2026-11-24)
+- **D-16:** Shipped skills and references name no people, conferences, talks, books, articles, podcasts or similar;
+  named patterns and named techniques may be named. A shipped `plugins/lz-tdd/ATTRIBUTION.md` names the sources the
+  plugin drew on. Lars, verbatim: "Similar to lz-oop, the lz-tdd plugins' skills and references shouldn't mention or
+  link to people, conferences, talks, books, articles, podcasts, or similar by name. Only for example named patterns
+  should be named in the skills and references. ... keep an plugins/lz-tdd/ATTRIBUTION.md file which is shipped with
+  the plugin and names sources used as inspiration for the plugin." Evidence and the exact line between a source name
+  and an allowed name come from the lz-oop session (asked 2026-11-24, answer pending). OPEN (Claude asks Lars): this
+  phase or its own phase.
 
 ### Running tests
 - **D-04:** Use the project's own test command (package scripts, runner config); never install dependencies. Red: run

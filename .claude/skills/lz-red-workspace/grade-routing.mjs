@@ -70,10 +70,12 @@
 // Usage:
 //   node .claude/skills/lz-red-workspace/grade-routing.mjs --selfcheck        # offline, zero spend
 //   node .claude/skills/lz-red-workspace/grade-routing.mjs --run <runDir>     # grade one captured run
-//   node .claude/skills/lz-red-workspace/grade-routing.mjs --suite <suiteDir> # grade every captured run
+//   node .claude/skills/lz-red-workspace/grade-routing.mjs --suite <suiteDir> # grade every captured run;
+//     exits 2 when <suiteDir> has no suite.json or no captured runs (add --allow-empty to accept zero)
 //   node .claude/skills/lz-red-workspace/grade-routing.mjs --run <runDir> --out <path>
 
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
@@ -686,6 +688,25 @@ function collectRunDirs(suiteDir) {
   return runDirs.sort();
 }
 
+// The --suite entry point, fail-closed like the sibling tabulator: a mistyped path or a capture
+// written under another mode must not read as "nothing to grade" with exit 0.
+export function resolveSuiteRunDirs(suiteDir, { allowEmpty = false } = {}) {
+  if (!fs.existsSync(path.join(suiteDir, 'suite.json'))) {
+    throw new Error(`grade-routing: --suite ${suiteDir} has no suite.json (fail closed rather than grade nothing)`);
+  }
+
+  const runDirs = collectRunDirs(suiteDir);
+
+  if (!runDirs.length && !allowEmpty) {
+    throw new Error(
+      `grade-routing: no captured runs under ${path.join(suiteDir, 'results', 'recommend')} (fail closed; ` +
+        'pass --allow-empty if an empty suite is expected)',
+    );
+  }
+
+  return runDirs;
+}
+
 // ---- offline selfcheck (zero spend) ------------------------------------------------------------
 
 function runSelfcheck() {
@@ -883,6 +904,35 @@ function runSelfcheck() {
     'each graded run carries the routing_table_read fact, so the read rate can be reported next to the pass rate',
   );
 
+  // 12. --suite fails CLOSED: a path with no suite.json, or a suite with no captured runs, is an
+  //     IO/usage error rather than "nothing to grade". The message is checked so an unrelated throw
+  //     cannot satisfy the leg.
+  const throwsClosed = (fn) => {
+    try {
+      fn();
+    } catch (err) {
+      return /fail closed/.test(err.message);
+    }
+
+    return false;
+  };
+  assert(
+    throwsClosed(() => resolveSuiteRunDirs(path.join(os.tmpdir(), 'grade-routing-no-such-suite'))),
+    '--suite on a path with no suite.json fails closed',
+  );
+  const emptySuite = fs.mkdtempSync(path.join(os.tmpdir(), 'grade-routing-empty-'));
+
+  try {
+    fs.writeFileSync(path.join(emptySuite, 'suite.json'), '{}\n');
+    assert(throwsClosed(() => resolveSuiteRunDirs(emptySuite)), '--suite with zero captured runs fails closed');
+    assert(
+      resolveSuiteRunDirs(emptySuite, { allowEmpty: true }).length === 0,
+      '--allow-empty accepts a suite with zero captured runs',
+    );
+  } finally {
+    fs.rmSync(emptySuite, { recursive: true, force: true });
+  }
+
   console.log('');
 
   // The SUMMARY line must never read OK on a failing run. An unconditional success sentence is how a
@@ -941,10 +991,17 @@ function main(argv) {
     return;
   }
 
-  const runDirs = collectRunDirs(suiteArg);
+  let runDirs;
+
+  try {
+    runDirs = resolveSuiteRunDirs(suiteArg, { allowEmpty: argv.includes('--allow-empty') });
+  } catch (err) {
+    console.error(err.message);
+    process.exit(2);
+  }
 
   if (!runDirs.length) {
-    console.log(`no captured runs under ${path.join(suiteArg, 'results', 'recommend')} -- nothing to grade.`);
+    console.log(`no captured runs under ${path.join(suiteArg, 'results', 'recommend')} -- nothing to grade (--allow-empty).`);
 
     return;
   }

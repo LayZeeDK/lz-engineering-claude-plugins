@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "engines": {
-    "node": ">=22.18.0"
+    "node": "^22.18.0 || ^24.11.0 || ^26.13.0"
   },
   "description": "NON-shipped compile harness + checker battery for the lz-refactor Fowler catalog (FWL-01..FWL-04). Not part of the shipped plugin; the shipped skill stays dependency-free Markdown.",
   "scripts": {

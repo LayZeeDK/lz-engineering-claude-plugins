@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "engines": {
-    "node": ">=22.18.0"
+    "node": "^22.18.0 || ^24.11.0 || ^26.13.0"
   },
   "description": "NON-shipped compile + completeness gate for the lz-red RED references (SEL/STR/NAME). Not part of the shipped plugin; the shipped skill stays dependency-free Markdown.",
   "scripts": {

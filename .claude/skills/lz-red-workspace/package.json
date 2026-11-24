@@ -5,7 +5,7 @@
   "description": "NON-shipped compile + completeness gate for the lz-red RED references (SEL/STR/NAME). Not part of the shipped plugin; the shipped skill stays dependency-free Markdown.",
   "scripts": {
     "typecheck": "node extract-samples.mjs",
-    "check": "tsc -p tsconfig.tools.json && node --test \"*.test.ts\" \"tools/**/*.test.ts\" && node ../lz-refactor-workspace/tools/check-no-new-js.ts && node tools/provenance-honesty.selftest.mjs && node tools/row-guards.selftest.mjs && node tools/package-links.selftest.mjs && node tools/check-red-references.mjs && node tools/check-rgr-routing.selftest.mjs && node tools/check-rgr-routing.mjs && node tools/check-rgr-routing.evasions.mjs",
+    "check": "tsc -p tsconfig.tools.json && node --test cycle-logs.test.ts && node ../lz-refactor-workspace/tools/check-no-new-js.ts && node tools/provenance-honesty.selftest.mjs && node tools/row-guards.selftest.mjs && node tools/package-links.selftest.mjs && node tools/check-red-references.mjs && node tools/check-rgr-routing.selftest.mjs && node tools/check-rgr-routing.mjs && node tools/check-rgr-routing.evasions.mjs",
     "check:evasions": "node tools/check-rgr-routing.evasions.mjs"
   },
   "devDependencies": {

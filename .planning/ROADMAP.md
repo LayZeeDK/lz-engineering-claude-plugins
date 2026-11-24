@@ -66,9 +66,9 @@ validation deps live only in a dev-only eval workspace.
 - [x] **Phase 20: Skill-Effectiveness Evals** - Trigger eval (incl. the cross-skill boundary) + RED-behavior eval vs baseline (completed 2026-07-21)
 - [x] **Phase 21: Applied RED Eval in Real OSS Repos (multi-dimensional, 3-arm)** - APPLY the next failing test in real OSS TypeScript repos with short human prompts; no_skill / with_skill / invoke_skill arms (+ optional mattpocock tdd competitor); grade on many lift dimensions -- mirrors the lz-refactor Phase 13/14 apply evals (INSERTED 2026-07-22) (completed 2026-07-23)
 - [x] **Phase 22: Three-way classifier correctness (lz-refactor + lz-red)** - Make the three skills' request classifiers exhaustive, mutually exclusive, and keyed on one axis, so no request in the red-green-refactor loop falls through or is claimed by two skills (ADDED 2026-08-03) (completed 2026-08-03)
-- [ ] **Phase 23: Agent-as-developer conversion of lz-red, lz-tpp and lz-refactor**
-- [ ] **Phase 23.1: Source-name sweep of lz-tdd: shipped skills and references name no people, books, talks, conferences, articles or podcasts (named patterns and techniques stay); add a shipped plugins/lz-tdd/ATTRIBUTION.md and a check that enforces it; lands before Phase 24's eval port and Phase 22's metered rounds (Lars 2026-11-24)**
-- [ ] **Phase 24: Eval harness on claude plugin eval and slim claude -p**
+- [ ] **Phase 22.1: Eval harness on claude plugin eval and slim claude -p, plus a baseline on today's skill text** (INSERTED 2026-11-24, moved from Phase 24)
+- [ ] **Phase 23: Agent-as-developer conversion of lz-red, lz-tpp and lz-refactor, plus the new lz-tdd-coach skill**
+- [ ] **Phase 23.1: Source-name sweep of lz-tdd** (INSERTED 2026-11-24)
 
 ## Phase Details
 
@@ -435,25 +435,49 @@ BUILT-and-HALTED. Closing Phase 22 does not by itself unblock PR #3 -- the owner
 which is itself a legitimate variant. The D-18/SC7 acceptance review, the D-26 unprimed review and both
 metered rounds are ORCHESTRATOR steps after the executors return.
 
-### Phase 23: Agent-as-developer conversion of lz-red, lz-tpp and lz-refactor
+### Phase 22.1: Eval harness on claude plugin eval and slim claude -p, plus a baseline on today's skill text (INSERTED)
 
-**Goal:** When an agent is doing the work, lz-red writes the failing test and runs it, lz-tpp makes the green change and
-runs the suite, and lz-refactor applies the refactoring and runs the suite: coach mode is removed from all three, and
-each names the transformation or refactoring it applied (field-triage themes A1, A2, reported independently by all
-four projects whose lz-tdd usage ledgers were triaged on 2026-11-24). Explaining on demand moves to 0.0.4
-(`lz-tdd-audit` / `lz-tdd-review` or a separate `lz-tdd-coach`).
-**Rulings:** Lars 2026-11-24: "Agent-as-developer clause and command naming line (themes A1 and A2): Ship in 0.0.3";
-converting lz-tdd to an agent-as-developer plugin, with `/lz-tdd:lz-tdd-audit` and `/lz-tdd:lz-tdd-review` skills in
-place of coach mode. Placing the conversion of the three existing skills here and the two new skills in 0.0.4 is
-Claude's reading, stated to Lars.
+**Goal:** Every lz-tdd eval suite runs on `claude plugin eval` (trigger, answer and apply-without-shell cases;
+`tool_used` Skill and leaf-read graders, built-in baseline arm) or on slim `claude -p` where `plugin eval` cannot
+express the run (cases that run tests, which need a shell sandbox native Windows lacks; packaged-variant A/B arms);
+each ported suite reproduces one recorded result, and the skill-creator-derived harnesses under
+`.claude/skills/*-workspace/` are retired. The new graders score the doing behaviour Phase 23 ships (each step makes
+its change, runs the tests and ends with its report line). A baseline run on today's skill text, as a packaged copy of
+this phase's last commit, is the "before" arm for Phase 23 and Phase 23.1. Phase 22's two owed metered rounds run on
+this harness after Phase 23. Every script the port adds meets the user-scope script bar (erasable TypeScript with
+`.test.ts`, type-checked, reviewed, security-reviewed; Lars 2026-11-24: "Make later scripts meet the bar by default:
+OK").
+**Rulings:** Lars 2026-11-24: "I want you to adopt `claude plugin eval` and/or slim `claude -p` and replace our
+current skill-creator plugin-inspired eval setup."; "4: OK" (Phase 22 rounds wait for the new harness); "Move the
+harness before the text changes. OK" (moved from Phase 24 to here). Any metered run, the baseline included, waits for
+Lars's go-ahead.
 **Requirements**: TBD
 **Depends on:** Phase 22
 **Plans:** 0 plans
 
 Plans:
+- [ ] TBD (run /gsd-plan-phase 22.1 to break down)
+
+### Phase 23: Agent-as-developer conversion of lz-red, lz-tpp and lz-refactor, plus the new lz-tdd-coach skill
+
+**Goal:** When an agent is doing the work, lz-red writes the failing test and runs it, lz-tpp makes the green change and
+runs the suite, and lz-refactor applies the refactoring and runs the suite: coach mode and reference mode are removed
+from all three, the cycle keeps going until the goal is met, and each step names the transformation or refactoring it
+applied (field-triage themes A1, A2, reported independently by all four projects whose lz-tdd usage ledgers were
+triaged on 2026-11-24). Explaining and guiding move to a new `lz-tdd-coach` skill in this phase (Lars 2026-11-24,
+recorded in 23-CONTEXT.md D-14). Measured before and after on the Phase 22.1 harness.
+**Rulings:** Lars 2026-11-24: "Agent-as-developer clause and command naming line (themes A1 and A2): Ship in 0.0.3";
+converting lz-tdd to an agent-as-developer plugin, with `/lz-tdd:lz-tdd-audit` and `/lz-tdd:lz-tdd-review` skills in
+place of coach mode. Placing the conversion of the three existing skills here and the two new skills in 0.0.4 is
+Claude's reading, stated to Lars.
+**Requirements**: TBD
+**Depends on:** Phase 22.1
+**Plans:** 0 plans
+
+Plans:
 - [ ] TBD (run /gsd-plan-phase 23 to break down)
 
-### Phase 23.1: Source-name sweep of lz-tdd: shipped skills and references name no people, books, talks, conferences, articles or podcasts (named patterns and techniques stay); add a shipped plugins/lz-tdd/ATTRIBUTION.md and a check that enforces it; lands before Phase 24's eval port and Phase 22's metered rounds (Lars 2026-11-24) (INSERTED)
+### Phase 23.1: Source-name sweep of lz-tdd (INSERTED)
 
 **Goal:** Shipped lz-tdd skills and references name no people, conferences, talks, books, articles or podcasts;
 named patterns and techniques stay. A shipped `plugins/lz-tdd/ATTRIBUTION.md` names the sources, and a check
@@ -461,38 +485,19 @@ named patterns and techniques stay. A shipped `plugins/lz-tdd/ATTRIBUTION.md` na
 chapter citation or stand-in outside it. Every checker that mirrors the swept text moves with it. Lars 2026-11-24:
 "Similar to lz-oop, the lz-tdd plugins' skills and references shouldn't mention or link to people, conferences,
 talks, books, articles, podcasts, or similar by name." and "Where the no-names sweep goes: Before Phase 24's eval
-port and the Phase 22 metered rounds". Person names go too (Lars 2026-11-24: "Whether person names go too: OK.
+port and the Phase 22 metered rounds" (the eval port has since moved to Phase 22.1, before this phase; Lars
+2026-11-24: "Move the harness before the text changes. OK"; the sweep still precedes the Phase 22 rounds). Person names go too (Lars 2026-11-24: "Whether person names go too: OK.
 Remove all agreed names."), except where a person's name is the usual name of a concept. Measured, not assumed
 (Lars 2026-11-24: "Yes, we need at least some evals before and after to compare the effect. If no names vs. current
 names show decent/similar/better performance, don't bother A/B testing the removal of only certain groups of names.
 Yes, use the Phase 24 harness instead of the current eval harness."): two arms, the commit before this phase
-(current names) and the commit after it (no names), each a packaged copy run on the Phase 24 harness once that
-harness exists; per-group arms only if no-names does worse. The run is metered and waits for Lars's yes at run time.
+(current names) and the commit after it (no names), each a packaged copy run on the Phase 22.1 harness; per-group arms only if no-names does worse. The run is metered and waits for Lars's yes at run time.
 **Requirements**: TBD
 **Depends on:** Phase 23
 **Plans:** 0 plans
 
 Plans:
 - [ ] TBD (run /gsd-plan-phase 23.1 to break down)
-
-### Phase 24: Eval harness on claude plugin eval and slim claude -p
-
-**Goal:** Every lz-tdd eval suite runs on `claude plugin eval` (trigger, coaching-answer and apply-without-shell cases;
-`tool_used` Skill and leaf-read graders, built-in baseline arm) or on slim `claude -p` where `plugin eval` cannot
-express the run (cases that run tests, which need a shell sandbox native Windows lacks; packaged-variant A/B arms);
-each ported suite reproduces one recorded result, and the skill-creator-derived harnesses under
-`.claude/skills/*-workspace/` are retired. Phase 22's two owed metered rounds then run once, on this harness, after
-Phase 23. Every script the port adds meets the user-scope script bar (erasable TypeScript with `.test.ts`, type-checked,
-reviewed, security-reviewed; Lars 2026-11-24: "Make later scripts meet the bar by default: OK").
-**Rulings:** Lars 2026-11-24: "I want you to adopt `claude plugin eval` and/or slim `claude -p` and replace our
-current skill-creator plugin-inspired eval setup."; "4: OK" (Phase 22 rounds wait for the new harness). Any metered
-run waits for Lars's go-ahead.
-**Requirements**: TBD
-**Depends on:** Phase 22
-**Plans:** 0 plans
-
-Plans:
-- [ ] TBD (run /gsd-plan-phase 24 to break down)
 
 ## Backlog
 

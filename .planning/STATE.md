@@ -2,9 +2,9 @@
 gsd_state_version: 1.0
 milestone: lz-tdd@0.0.3
 milestone_name: lz-red Skill
-current_phase: 23
-current_phase_name: agent-as-developer-conversion-of-lz-red-lz-tpp-and-lz-refact
-status: discussed
+current_phase: 22.1
+current_phase_name: eval-harness-on-claude-plugin-eval-and-slim-claude-p
+status: not_started
 stopped_at: "Phase 22 VERIFIED passed 8/8 after gap closure; secured (0 threats open), validated (blind spot instrumented + mutation-proven), learnings extracted and bridged to the global store. 8 of 8 plans merged, full battery GREEN, zero metered spend. D-19 DISCHARGED 2026-08-04: the owner ran /reload-plugins, so the three edited descriptions are LIVE. HALTED awaiting the only remaining decision: separate approval for TWO metered rounds (Round A the placement A/B, Round B the now-owed EVL-01 reciprocal trigger regression). Neither is approved; nothing metered has run."
 last_updated: "2026-08-04T20:30:00.000Z"
 last_activity: 2026-11-24
@@ -24,7 +24,7 @@ progress:
 See: .planning/PROJECT.md (updated 2026-07-18 -- started milestone lz-tdd@0.0.3)
 
 **Core value:** `lz-tpp` helps Claude choose the next code transformation by TPP priority during red-green-refactor TDD, and explains the premise on demand. lz-tdd@0.0.2 added `lz-refactor` (refactor step); lz-tdd@0.0.3 adds `lz-red` (red step) to complete the loop.
-**Current focus:** Phase 23 -- agent-as-developer-conversion-of-lz-red-lz-tpp-and-lz-refact (context gathered 2026-11-24, `--analyze --auto`, 11 decisions, todo C8/C9/E1 folded). Phase 22 stays halted on its two metered rounds, which run on the Phase 24 harness.
+**Current focus:** Phase 22.1 -- eval harness on `claude plugin eval` and slim `claude -p`, plus a baseline on today's skill text (not yet discussed). Then Phase 23 (context ready, 16 decisions) and Phase 23.1 (source-name sweep). Phase 22 stays halted on its two metered rounds, which run on the Phase 22.1 harness after Phase 23.
 **Milestone:** lz-tdd@0.0.3 (lz-red Skill, RED phase) -- planning (started 2026-07-18)
 
 ## Current Position
@@ -280,7 +280,9 @@ Prior entry: 2026-07-29 -- **THE FIX LOOP IS STOPPED, AWAITING AN OWNER DECISION
 ### Roadmap Evolution
 
 - Backlog 999.1-999.5 captured 2026-11-24 from the field triage: lz-tdd@0.0.4 (audit/review/coach skills, agent-loop cost and speed), bulk-step mode, lz-red depth, lz-refactor for test code, lz-green.
-- Phase 24 added 2026-11-24: Eval harness on `claude plugin eval` and slim `claude -p`, replacing the skill-creator-derived harnesses (Lars ruling, same day); Phase 22's two owed metered rounds run once on it, after Phase 23.
+- Phases reordered 2026-11-24 (Lars: "Move the harness before the text changes. OK"): the eval harness moved from Phase 24 to Phase 22.1, before the text changes, and takes a baseline on today's skill text; Phase 23 depends on it; Phase 24 removed.
+- Phase 23.1 inserted 2026-11-24: source-name sweep of lz-tdd plus a shipped ATTRIBUTION.md (Lars rulings, same day), measured names vs no names on the 22.1 harness.
+- Phase 24 added 2026-11-24 (since moved to 22.1): Eval harness on `claude plugin eval` and slim `claude -p`, replacing the skill-creator-derived harnesses (Lars ruling, same day); Phase 22's two owed metered rounds run once on it, after Phase 23.
 - Phase 23 added 2026-11-24: Agent-as-developer conversion of lz-red, lz-tpp and lz-refactor (field-triage themes A1, A2; Lars: "Ship in 0.0.3"). From the triage of four projects' lz-tdd ledgers; later themes go to backlog milestones (0.0.4 audit/review/coach skills and agent-loop cost; lz-red depth; lz-refactor test code; a separate lz-green milestone; a separate bulk-step milestone).
 - Phase 14 added 2026-07-15: Compare lz-refactor to the third-party /mattpocock-skills:code-review skill (which also scans for code smells in its Step 3), positioning lz-refactor against a real external code-review skill rather than only base Opus (Phase 13). Both skills invoked explicitly via slash-command syntax in their respective arms; lz-refactor arm uses queries triggering the smell-scan/recommend (coach) mode most comparable to code-review. Corpus = kata + nx @nx/* packages (reuse prior-eval targets). Dimensions (non-exhaustive): lift, token usage, tool usage, output quality, book authenticity (oracle/oracle-reviewer vs .oracle/, DST-04), over-/under-engineering. Depends on Phase 13 (reuse eval workspace + grading pipeline). Extends milestone lz-tdd@0.0.2 (otherwise complete + audit-pending).
 - Phase 08.1 inserted after Phase 8: GoF Design Patterns catalog (URGENT)

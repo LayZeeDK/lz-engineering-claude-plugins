@@ -1,6 +1,10 @@
 # Phase 23: Agent-as-developer conversion of lz-red, lz-tpp and lz-refactor - Context
 
 **Gathered:** 2026-11-24 (`--analyze --auto`: every decision below is the recommended option, chosen by Claude; trade-offs in 23-DISCUSSION-LOG.md)
+**Phase 24 is now Phase 22.1** (Lars 2026-11-24: "Move the harness before the text changes. OK"): every "Phase 24"
+below outside a verbatim quote means the Phase 22.1 harness, which lands BEFORE this phase. D-09 changes with it: the
+graders are already replaced when this phase starts, so this phase keeps the 22.1 suites GREEN instead of leaving
+coach-era graders alone. Planning waits until 22.1 is done.
 **Status:** Ready for planning (D-01, D-05, D-14 placement and D-16 placement settled by Lars on 2026-11-24; the
 person-name question belongs to phase 23.1)
 

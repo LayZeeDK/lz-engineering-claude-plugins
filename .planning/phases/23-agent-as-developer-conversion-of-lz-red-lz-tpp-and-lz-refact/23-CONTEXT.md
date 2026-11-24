@@ -71,8 +71,8 @@ backlog 999.1. No metered run happens in this phase.
   titles from ATTRIBUTION.md and fails on them, chapter citations and stand-ins elsewhere; nothing checks person
   names. Placement: NOT this phase. Lars 2026-11-24: "Where the no-names sweep goes: Before Phase 24's eval port and
   the Phase 22 metered rounds"; Claude's reading: its own phase 23.1, after this one. The new `lz-tdd-coach` is
-  written name-free from the start so 23.1 has less to sweep. OPEN (Claude asks Lars): whether person names go too
-  (lz-oop removed them), and whether to measure it.
+  written name-free from the start so 23.1 has less to sweep. Person names go too, and the effect is measured on
+  the Phase 24 harness (both Lars rulings 2026-11-24, recorded verbatim in ROADMAP Phase 23.1).
 
 ### Running tests
 - **D-04:** Use the project's own test command (package scripts, runner config); never install dependencies. Red: run

@@ -461,8 +461,13 @@ named patterns and techniques stay. A shipped `plugins/lz-tdd/ATTRIBUTION.md` na
 chapter citation or stand-in outside it. Every checker that mirrors the swept text moves with it. Lars 2026-11-24:
 "Similar to lz-oop, the lz-tdd plugins' skills and references shouldn't mention or link to people, conferences,
 talks, books, articles, podcasts, or similar by name." and "Where the no-names sweep goes: Before Phase 24's eval
-port and the Phase 22 metered rounds". Rulings, not measured: lz-oop's names A/B never finished. Open for its
-discussion: whether person names go too, and whether to measure.
+port and the Phase 22 metered rounds". Person names go too (Lars 2026-11-24: "Whether person names go too: OK.
+Remove all agreed names."), except where a person's name is the usual name of a concept. Measured, not assumed
+(Lars 2026-11-24: "Yes, we need at least some evals before and after to compare the effect. If no names vs. current
+names show decent/similar/better performance, don't bother A/B testing the removal of only certain groups of names.
+Yes, use the Phase 24 harness instead of the current eval harness."): two arms, the commit before this phase
+(current names) and the commit after it (no names), each a packaged copy run on the Phase 24 harness once that
+harness exists; per-group arms only if no-names does worse. The run is metered and waits for Lars's yes at run time.
 **Requirements**: TBD
 **Depends on:** Phase 23
 **Plans:** 0 plans

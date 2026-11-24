@@ -279,6 +279,7 @@ Prior entry: 2026-07-29 -- **THE FIX LOOP IS STOPPED, AWAITING AN OWNER DECISION
 
 ### Roadmap Evolution
 
+- Backlog 999.1-999.5 captured 2026-11-24 from the field triage: lz-tdd@0.0.4 (audit/review/coach skills, agent-loop cost and speed), bulk-step mode, lz-red depth, lz-refactor for test code, lz-green.
 - Phase 24 added 2026-11-24: Eval harness on `claude plugin eval` and slim `claude -p`, replacing the skill-creator-derived harnesses (Lars ruling, same day); Phase 22's two owed metered rounds run once on it, after Phase 23.
 - Phase 23 added 2026-11-24: Agent-as-developer conversion of lz-red, lz-tpp and lz-refactor (field-triage themes A1, A2; Lars: "Ship in 0.0.3"). From the triage of four projects' lz-tdd ledgers; later themes go to backlog milestones (0.0.4 audit/review/coach skills and agent-loop cost; lz-red depth; lz-refactor test code; a separate lz-green milestone; a separate bulk-step milestone).
 - Phase 14 added 2026-07-15: Compare lz-refactor to the third-party /mattpocock-skills:code-review skill (which also scans for code smells in its Step 3), positioning lz-refactor against a real external code-review skill rather than only base Opus (Phase 13). Both skills invoked explicitly via slash-command syntax in their respective arms; lz-refactor arm uses queries triggering the smell-scan/recommend (coach) mode most comparable to code-review. Corpus = kata + nx @nx/* packages (reuse prior-eval targets). Dimensions (non-exhaustive): lift, token usage, tool usage, output quality, book authenticity (oracle/oracle-reviewer vs .oracle/, DST-04), over-/under-engineering. Depends on Phase 13 (reuse eval workspace + grading pipeline). Extends milestone lz-tdd@0.0.2 (otherwise complete + audit-pending).
@@ -352,6 +353,10 @@ Recent decisions affecting current work:
 - [Phase ?]: Phase 21 (21-04): RUN-GATE.md flags a REQUIRED runner-JSON shape-drift canary before the full spend -- grade-red --selfcheck pins vitest@4.1.10 while the metered gate shells into the kata's vitest@^0.28.5 / jest@^29.4.3; run one real grade-red --run against a captured kata run (or add a jest devDependency for jest --json offline) first. Mitigated by grade-red's fail-closed contract, so not a BUILD blocker.
 
 ### Pending Todos
+
+- 2026-11-24: link the seven unreachable lz-refactor leaves, add a Fowler Sources section, fix the stale GoF line in
+  PROJECT.md (`.planning/todos/pending/2026-11-24-lz-refactor-reachability-fowler-sources-gof-line.md`; field-triage
+  C8, C9, E1; planned for lz-tdd@0.0.3).
 
 Package-link gate follow-ups from quick 261107-jfm, triaged 2026-11-07. Lars, verbatim: "1-2: Approve recommendations."
 (fix the three silent-pass items in one quick task, decline the inline-code one, and record all four here). The

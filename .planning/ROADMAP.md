@@ -470,5 +470,74 @@ run waits for Lars's go-ahead.
 Plans:
 - [ ] TBD (run /gsd-plan-phase 24 to break down)
 
+## Backlog
+
+Captured 2026-11-24 from `.planning/research/lz-tdd-field-triage-2026-11-24.md`; each item is a future milestone, not
+sequenced. Standing ruling for any of them (Lars 2026-11-24): mutation testing of `node:test`-covered code uses a pinned
+version of lz-node-test's StrykerJS `node:test` runner, never Stryker's command runner.
+
+### Phase 999.1: lz-tdd@0.0.4 -- lz-tdd-audit, lz-tdd-review and explain-on-demand; agent-loop cost and speed (BACKLOG)
+
+**Goal:** Add `/lz-tdd:lz-tdd-audit` and `/lz-tdd:lz-tdd-review` skills on the lz-oop pattern (read-only, route-only
+SKILL.md plus auditor/reviewer agents used when the session wrote the code), carry explain-on-demand either inside them
+or in a separate `lz-tdd-coach` skill (Claude recommends the separate skill; decide at discuss), and cut agent-loop cost
+and wall-clock time (triage theme A beyond A1/A2).
+**Requirements:** TBD
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (promote with /gsd:review-backlog when ready)
+
+### Phase 999.2: Bulk-step mode for red, green and refactor (BACKLOG)
+
+**Goal:** Let one red, green or refactor step cover several similar changes across files (for example several failing
+tests in one red step), alongside single-change steps. Prior art: Charted Coding (`marmicode/skills` `charted-*`
+skills and `marmicode/charted-coding-workshop`). Motivation, Lars 2026-11-24: sessions take far more wall-clock time
+since lz-tdd was adopted; bulk mode is the first proposal to sample, so the milestone measures wall-clock time against
+single-step mode before shipping.
+**Requirements:** TBD
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (promote with /gsd:review-backlog when ready)
+
+### Phase 999.3: lz-red depth (BACKLOG)
+
+**Goal:** Name the kinds of red and test shapes lz-red does not cover yet (triage theme B): test-after and mutant-kill
+guard tests, `node:test` mechanics, table-driven tests, reds that hang or crash, environment-derived expected values,
+wrong-reason reds from fixtures, old tests a new requirement contradicts, slow or gated reds, boundary examples, and the
+hand-off to lz-refactor when a seam is needed first.
+**Requirements:** TBD
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (promote with /gsd:review-backlog when ready)
+
+### Phase 999.4: lz-refactor for test code (BACKLOG)
+
+**Goal:** Extend lz-refactor beyond production code (triage theme C): test-code smells and test refactorings, the
+missing leaves (Replace Magic Literal, type assertions, Replace Loop with Recursion), a step-4 cost count that weighs
+mutation cost and churn, a loop audit that respects house rules, survey and preparatory-refactoring routes, and not
+trusting a green suite whose conditions are unpinned.
+**Requirements:** TBD
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (promote with /gsd:review-backlog when ready)
+
+### Phase 999.5: lz-green skill (BACKLOG)
+
+**Goal:** A dedicated green-phase skill covering the greens TPP has no step for (triage theme D): error paths, editing
+an existing condition, introducing a collaborator or seam, mechanism and timing changes, data and config greens, a first
+green that must be whole, bounding I/O loops, tie-breaks, and test-after guards; a scope statement plus a few named
+green kinds, not new TPP steps. Lars 2026-11-24: "All
+ledger entries about the `lz-tpp` skill not being sufficient for the green phase goes into a separate `lz-green` skill
+milestone".
+**Requirements:** TBD
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (promote with /gsd:review-backlog when ready)
+
 ---
 *Roadmap created: 2026-07-02 | lz-tdd@0.0.1 shipped: 2026-07-04 | lz-tdd@0.0.2 shipped: 2026-07-17 | lz-tdd@0.0.3 roadmap added: 2026-07-18 (Phases 15-20); Phase 21 (applied eval) inserted 2026-07-22. Per-milestone phase detail lives in `.planning/milestones/`.*

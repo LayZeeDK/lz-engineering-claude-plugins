@@ -34,7 +34,8 @@
 //
 // Usage:
 //   node tabulate-mechanical-red.mjs              # walk the suite's results/apply, print + write mechanical-red.json
-//   node tabulate-mechanical-red.mjs --grade-file <name>  # read <name> instead of red-grade.json as each run's grade
+//   node tabulate-mechanical-red.mjs --grade-file <name>  # read <name> instead of red-grade.json as each run's grade;
+//                                                         # <stem>-grade.json writes the rollup as mechanical-<stem>.json
 //   node tabulate-mechanical-red.mjs --mode recommend     # walk results/recommend instead of results/apply
 //   node tabulate-mechanical-red.mjs --suite <dir>        # tabulate ONE named suite, skipping prefix discovery
 //
@@ -242,6 +243,21 @@ function readJsonOrThrow(p, label) {
 // The per-run grade filename every walk defaults to. Phase 21's captured evidence is graded under
 // this exact name, so it stays the default and no existing caller has to pass anything.
 const DEFAULT_GRADE_FILE = 'red-grade.json';
+
+// The per-suite rollup filename, derived from the grade file: red-grade.json -> mechanical-red.json
+// (Phase 21's name, unchanged), routing-grade.json -> mechanical-routing.json (the name .gitignore
+// and check-evals.mjs's SUITE_SKIP_FILES carry). A grade file outside the `<stem>-grade.json` shape
+// throws, because writing a rollup under a name neither file knows would leave it untracked-but-
+// committable and outside the ASCII/email sweep.
+function rollupFileFor(gradeFile) {
+  const m = /^([a-z0-9-]+)-grade\.json$/.exec(gradeFile);
+
+  if (!m) {
+    throw new Error(`tabulate-red: grade file ${JSON.stringify(gradeFile)} is not named <stem>-grade.json, so it has no rollup name`);
+  }
+
+  return `mechanical-${m[1]}.json`;
+}
 
 // Walk results/apply/<arm>/<pid>/run-*/, joining each meta.json with its sibling grade file
 // (`gradeFile`, default red-grade.json). A meta.json present but that grade file missing FAILS
@@ -653,6 +669,12 @@ function checkMultiSuiteWalk(baseMeta, baseGrade) {
 }
 
 function runSelfcheck() {
+  // The rollup name follows the grade file, so the routing suite's rollup lands on the filename
+  // .gitignore and check-evals.mjs already name, and Phase 21's stays mechanical-red.json.
+  eq(rollupFileFor(DEFAULT_GRADE_FILE), 'mechanical-red.json', 'rollup name for red-grade.json');
+  eq(rollupFileFor('routing-grade.json'), 'mechanical-routing.json', 'rollup name for routing-grade.json');
+  assertThrows(() => rollupFileFor('grading.json'), 'a grade file not named <stem>-grade.json has no rollup name');
+
   const metas = readJsonOrThrow(path.join(FIXTURE_DIR, 'meta.sample.json'), 'meta.sample.json');
   const grades = readJsonOrThrow(path.join(FIXTURE_DIR, 'red-grade.sample.json'), 'red-grade.sample.json');
   const agg = aggregate(joinFixtures(metas, grades));
@@ -811,6 +833,13 @@ function main(argv) {
       process.exit(2);
     }
 
+    try {
+      rollupFileFor(value);
+    } catch (err) {
+      console.error(err.message);
+      process.exit(2);
+    }
+
     gradeFile = value;
   }
 
@@ -873,8 +902,9 @@ function main(argv) {
   }
 
   // ONE combined table across every suite (target ids are globally unique and walkAllSuites has
-  // already refused a collision), but each suite keeps its OWN mechanical-red.json next to its own
-  // results -- so a per-suite artifact never carries another repo's numbers.
+  // already refused a collision), but each suite keeps its OWN rollup (mechanical-<stem>.json, named
+  // after the grade file) next to its own results -- so a per-suite artifact never carries another
+  // repo's numbers.
   printTable(aggregate(all));
 
   for (const { suiteDir, runs } of perSuite) {
@@ -883,7 +913,7 @@ function main(argv) {
     }
 
     const suiteAgg = aggregate(runs);
-    const outPath = path.join(suiteDir, 'mechanical-red.json');
+    const outPath = path.join(suiteDir, rollupFileFor(gradeFile));
     fs.writeFileSync(outPath, JSON.stringify(suiteAgg, null, 2));
     console.log(`\nwrote ${outPath} (${runs.length} runs across ${Object.keys(suiteAgg).length} cells).`);
   }

@@ -48,8 +48,8 @@ After, the id is set once, with no setter:
 class Account {
   private readonly _id: string;
 
-  constructor(_id: string) {
-    this._id = _id;
+  constructor(id: string) {
+    this._id = id;
   }
 
   get id(): string {

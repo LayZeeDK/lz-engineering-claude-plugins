@@ -933,7 +933,8 @@ const redSentence =
   refactorIntroFlat
     .split(/(?<=[.!?])\s+/)
     .find((s) => destinationsIn(s).includes("lz-red")) ?? "";
-const claimed = FIRST_HOP_CLAIM_PHRASES.filter((p) => redSentence.toLowerCase().includes(p));
+// Through the negation-aware pass, so "does not take the red step first" claims nothing (M8c).
+const claimed = affirmedPhrasesIn(redSentence, FIRST_HOP_CLAIM_PHRASES);
 const twoHopOk = refactorIntro !== null && hopsOrdered && claimed.length > 0;
 
 report(

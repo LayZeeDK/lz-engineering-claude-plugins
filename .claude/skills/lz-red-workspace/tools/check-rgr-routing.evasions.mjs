@@ -500,6 +500,18 @@ const EVASIONS = [
     expect: "intro two-hop",
   },
   {
+    id: "M8c",
+    open: "closed",
+    what: "an intro that keeps both hops in order but NEGATES the first-hop claim phrase",
+    claim: "[cls-03] intro two-hop rule reads the claim phrase through the negation-aware pass",
+    file: REFACTOR,
+    find: "new behavior, or to change what working code does, opens the red step first in lz-red, because",
+    repl:
+      "new behavior, or to change what working code does, does not take the red step first: hand it\n" +
+      "to lz-red after the code exists, then to lz-tpp, because",
+    expect: "intro two-hop",
+  },
+  {
     id: "M10",
     open: "OPEN-8b",
     what: "invert the QUESTION vs COMMAND section's guidance (its BODY is read by nothing)",

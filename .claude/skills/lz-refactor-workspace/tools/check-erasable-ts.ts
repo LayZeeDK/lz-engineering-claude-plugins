@@ -162,6 +162,11 @@ export function findParameterProperties(markdown: string): Hit[] {
   return hits;
 }
 
+// Below Node.js 22.18.0 import.meta.main is undefined, which would skip the check and exit 0.
+if (typeof import.meta.main !== 'boolean') {
+  throw new Error('check-erasable-ts needs Node.js >= 22.18.0 (import.meta.main)');
+}
+
 if (import.meta.main) {
   const here = path.dirname(fileURLToPath(import.meta.url));
   // tools -> lz-refactor-workspace -> skills -> .claude -> repo root

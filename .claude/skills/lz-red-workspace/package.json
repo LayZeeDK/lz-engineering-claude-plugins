@@ -2,6 +2,9 @@
   "name": "lz-red-workspace",
   "private": true,
   "type": "module",
+  "engines": {
+    "node": ">=22.18.0"
+  },
   "description": "NON-shipped compile + completeness gate for the lz-red RED references (SEL/STR/NAME). Not part of the shipped plugin; the shipped skill stays dependency-free Markdown.",
   "scripts": {
     "typecheck": "node extract-samples.mjs",

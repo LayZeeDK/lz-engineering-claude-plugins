@@ -455,7 +455,10 @@ individual runs resumable where possible, similar to lz-gardening or lz-oop (I'm
 relevant Phase."): this phase makes a run set resume where it stopped (finished runs are kept and not paid for again)
 and makes each run resume where its tool allows, modelled on lz-gardener's or lz-oop's eval harness (the planning
 research reads both and picks the closer fit). Until resumability is built and shown working on a dry run, no paid
-run starts; after that, the baseline and the later rounds run without a separate go-ahead.
+run starts; after that, the baseline and the later rounds run without a separate go-ahead. Every suite runs on both
+officially supported models, Opus 5.5 and Sonnet 5.5 (Lars 2026-11-24, verbatim: "Which models the skills support:
+Official support (covered by evals) only for Opus 5.5 and Sonnet 5.5"), with the model checked from the CLI's own
+system/init and modelUsage output, not a harness field.
 **Requirements**: TBD
 **Depends on:** Phase 22
 **Plans:** 0 plans

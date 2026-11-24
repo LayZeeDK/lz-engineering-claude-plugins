@@ -91,8 +91,10 @@ backlog 999.1. No metered run happens in this phase.
   plugin-dev and skill-creator plugins for plugin and skill guidelines but the research of recent dates outrank them
   when they conlict." The planning research writes the resulting rule list into RESEARCH.md with each rule's
   source and date, and the phase's skill reviews (D-10) check against it. Phase 23.1's sweep follows the same list.
-  Supported models (Claude's reading, to confirm with Lars): the current Claude Code line, Opus 5.5, Sonnet 5.5,
-  Haiku 5.5 and Fable 5.2.
+  Supported models: Opus 5.5 and Sonnet 5.5 only, each covered by the Phase 22.1 evals. Lars 2026-11-24, verbatim:
+  "Which models the skills support: Official support (covered by evals) only for Opus 5.5 and Sonnet 5.5". Guidelines
+  for other models (Haiku, Fable) do not bind the skills; where a general Claude guideline conflicts with an Opus 5.5
+  or Sonnet 5.5 guideline, the model-specific one wins.
 
 ### Running tests
 - **D-04:** Use the project's own test command (package scripts, runner config); never install dependencies. Red: run

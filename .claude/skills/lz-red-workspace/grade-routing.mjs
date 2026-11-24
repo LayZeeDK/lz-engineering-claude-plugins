@@ -29,14 +29,15 @@
 //                 except on the ordered two-hop case, where it goes to the judge (one name can
 //                 never equal an ordered pair, so a deterministic verdict there could only FAIL)
 //   multiple      two or more affirmed names -> ALWAYS unresolved, handed to a blind judge
-//   zero          no affirmed name -> resolved deterministically ONLY on the residual case;
-//                 unresolved on every other case
+//   zero          no affirmed name -> ALWAYS unresolved, handed to a blind judge, the residual
+//                 case included
 //
 // `multiple` is never guessed because a CORRECT answer to the two-hop case names two skills
 // legitimately while a hedging answer names three, and no mechanical rule separates "lz-red first,
-// then lz-tpp" from "could be lz-red or lz-tpp". `zero` is not an automatic fail because a coaching
-// answer that solves the developer's problem without naming any skill is substantively AMBIGUOUS,
-// not wrong -- on the residual case it is exactly right, which is why that one case resolves.
+// then lz-tpp" from "could be lz-red or lz-tpp". `zero` is never guessed either: a coaching answer
+// that solves the developer's problem without naming any skill is substantively AMBIGUOUS, not
+// wrong -- and on the residual case an answer that coaches the design question as a refactor names
+// no skill too, so passing every nameless answer there would hide the very capture the case pins.
 //
 // It is a POST-RUN pass over captured artifacts. It does NOT drive claude, it spends nothing, and it
 // does not modify run-e2e.mjs. It fails CLOSED: an empty or sentinel answer, a non-zero run exit, an
@@ -512,16 +513,12 @@ export function gradeOne(answerText, meta, caseSpec, { headings } = {}) {
       `judge: the answer affirms one destination (${destination.label}) on an ordered two-hop case ` +
       `expecting ${expected}; a single name cannot be compared to an ordered pair mechanically`;
   } else if (destination.cardinality === 'zero') {
-    if (expected === NONE_LABEL) {
-      passed = true;
-      evidence =
-        'deterministic: the answer affirms no destination and this is the declared residual case, ' +
-        'which expects NONE';
-    } else {
-      evidence =
-        `judge: the answer affirms no destination but the case expects ${expected}; a coaching answer ` +
-        'that solves the problem without naming a skill is ambiguous, not automatically wrong';
-    }
+    // Unresolved on EVERY case, the residual included: an answer that coaches the residual question
+    // as a refactor names no slug either, so absence of a name cannot separate a correct decline
+    // from the residual capture that case exists to catch.
+    evidence =
+      `judge: the answer affirms no destination and the case expects ${expected}; naming no skill is ` +
+      'ambiguous on its own -- a correct decline and an unnamed capture both name none';
   } else {
     evidence =
       `judge: the answer affirms ${destination.affirmed.length} destinations in order ` +
@@ -772,10 +769,22 @@ function runSelfcheck() {
   assert(noName.routing.cardinality === 'zero', 'an answer naming no skill is cardinality zero');
   assert(noName.expectation.passed === null, 'zero on a non-residual case is unresolved, not an automatic fail');
 
-  // 6. zero names -> deterministic PASS on the residual case.
+  // 6. zero names -> unresolved on the residual case TOO. An answer that coaches the CLI question as
+  //    a refactor names no slug either, so absence of a name cannot tell a correct decline from the
+  //    residual capture c9 exists to catch.
   const residual = grade('residual-declined');
   assert(residual.routing.expected_label === NONE_LABEL, 'the residual fixture targets the case expecting NONE');
-  assert(residual.expectation.passed === true, 'zero on the residual case PASSES deterministically');
+  assert(residual.expectation.passed === null, 'zero on the residual case is unresolved, not a deterministic PASS');
+  const captured = gradeOne(
+    'Extract a parser function first, then replace the nested conditional with a lookup table, one small step at a time.',
+    { ...byName.get('residual-declined').meta, run_idx: 2 },
+    cases.find((c) => c.id === 'c9'),
+    { headings },
+  );
+  assert(
+    captured.routing.cardinality === 'zero' && captured.expectation.passed === null,
+    'a residual answer that coaches the question as a refactor without naming a skill does not pass deterministically',
+  );
 
   // 7. a LONGER name that merely starts with a tracked name is refused.
   const longer = grade('longer-name');
@@ -830,7 +839,7 @@ function runSelfcheck() {
     finalOutPath(path.join('x', GRADE_FILE), mixed.judge_required.length).endsWith(PRELIMINARY_GRADE_FILE),
     'judge items remaining -> the PRELIMINARY path, never the requested final one',
   );
-  const allResolved = assembleArtifact([correct, residual]);
+  const allResolved = assembleArtifact([correct, exclusion]);
   assert(allResolved.preliminary === false && allResolved.judge_required.length === 0, 'a fully resolved batch is final');
   assert(allResolved.pass === true, 'pass is a boolean once every run resolved');
   assert(finalOutPath(path.join('x', GRADE_FILE), 0).endsWith(GRADE_FILE), 'no judge items -> the requested final path is honored');

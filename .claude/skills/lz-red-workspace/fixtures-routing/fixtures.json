@@ -44,7 +44,7 @@
       "name": "residual-declined",
       "answer_file": "residual-declined.md",
       "meta": { "prompt_id": "c9", "arm": "variant_a", "run_idx": 1, "exit_code": 0, "routing_table_read": false, "routing_table_read_path": null },
-      "note": "The declared residual, answered correctly: it claims nothing for the loop and says so. Zero affirmed names on the one case that expects NONE, so it resolves deterministically."
+      "note": "The declared residual, answered correctly: it claims nothing for the loop and says so. Zero affirmed names on the one case that expects NONE. It still goes to the judge: an answer that coaches the question as a refactor names no skill either, so absence of a name cannot pass it."
     },
     {
       "name": "longer-name",

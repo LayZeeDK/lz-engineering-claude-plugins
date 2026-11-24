@@ -155,13 +155,15 @@ Three cardinality classes, kept apart on purpose:
 |------------------------------|------------|
 | exactly one | resolved DETERMINISTICALLY against the expected label, except on the two-hop case `c4`, where it goes to the judge (one name can never equal an ordered pair) |
 | two or more | ALWAYS unresolved -- handed to the judge |
-| zero | resolved deterministically ONLY on the residual case `c9`; unresolved on every other case |
+| zero | ALWAYS unresolved -- handed to the judge, the residual case `c9` included |
 
 `multiple` is never guessed, because a CORRECT answer to the two-hop case `c4` names two skills
 legitimately while a hedging answer names three, and no mechanical rule separates "lz-red first, then
-lz-tpp" from "could be lz-red or lz-tpp". `zero` is not an automatic fail, because a coaching answer
+lz-tpp" from "could be lz-red or lz-tpp". `zero` is never guessed either, because a coaching answer
 that solves the problem without naming a skill is substantively ambiguous rather than wrong -- and on
-`c9` it is exactly right.
+`c9` an answer that coaches the design question as a refactor names no skill too, so passing every
+nameless `c9` answer would hide the residual capture that case exists to catch. The rule is the same
+for all three arms.
 
 The grader writes `routing-grade.preliminary.json` with `judge_required: [...]` and structurally
 REFUSES to write a final `routing-grade.json` while anything remains unresolved.

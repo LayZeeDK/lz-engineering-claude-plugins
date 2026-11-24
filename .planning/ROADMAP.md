@@ -458,7 +458,11 @@ research reads both and picks the closer fit). Until resumability is built and s
 run starts; after that, the baseline and the later rounds run without a separate go-ahead. Every suite runs on both
 officially supported models, Opus 5.5 and Sonnet 5.5 (Lars 2026-11-24, verbatim: "Which models the skills support:
 Official support (covered by evals) only for Opus 5.5 and Sonnet 5.5"), with the model checked from the CLI's own
-system/init and modelUsage output, not a harness field.
+system/init and modelUsage output, not a harness field. Runs per case to start from (Claude's recommendation, Lars
+2026-11-24: "OK"): Sonnet 5.5 n=5 and Opus 5.5 n=3, for trigger/routing and apply suites alike, because a skill that
+holds on Sonnet usually holds on Opus (Lars: "If skills work for Sonnet 5.5, they usually work for Opus 5.5"). A case
+that passes on Sonnet but fails on Opus reruns on Opus at n=5 before it counts. Recheck the n against the per-run cost
+from this phase's dry run; if a suite is too expensive, cut cases before cutting Sonnet's n.
 **Requirements**: TBD
 **Depends on:** Phase 22
 **Plans:** 0 plans

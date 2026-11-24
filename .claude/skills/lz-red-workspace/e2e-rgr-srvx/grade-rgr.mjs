@@ -5,7 +5,7 @@ import { copyFileSync, existsSync, readdirSync, readFileSync, rmSync, statSync }
 import { homedir } from 'node:os';
 import { join, relative } from 'node:path';
 import { spawnSync } from 'node:child_process';
-import { cycleLogs } from '../cycle-logs.mjs';
+import { cycleLogs } from '../cycle-logs.ts';
 
 const evalDir = import.meta.dirname;
 const tasksRoot = join(process.env.SLIM_ROOT ?? 'D:/tmp/slim-claude-p', 'rgr-eval');

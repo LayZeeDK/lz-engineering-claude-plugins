@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os';
 import { join, relative } from 'node:path';
 import { after, test } from 'node:test';
 
-import { cycleLogs } from './cycle-logs.mjs';
+import { cycleLogs } from './cycle-logs.ts';
 
 const root = mkdtempSync(join(tmpdir(), 'cycle-logs-'));
 const runs = join(root, 'runs');
@@ -13,7 +13,7 @@ const since = Date.now() - 60_000;
 
 after(() => rmSync(root, { recursive: true, force: true }));
 
-function file(path, ageMs = 0) {
+function file(path: string, ageMs = 0): void {
   const full = join(runs, path);
   mkdirSync(join(full, '..'), { recursive: true });
   writeFileSync(full, 'x');
@@ -21,7 +21,7 @@ function file(path, ageMs = 0) {
   utimesSync(full, at, at);
 }
 
-function credited() {
+function credited(): string[] {
   return cycleLogs(since, project)
     .map((path) => relative(runs, path).split('\\').join('/'))
     .sort();

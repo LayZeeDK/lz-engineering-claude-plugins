@@ -5,7 +5,7 @@ import { readFileSync, readdirSync, existsSync, copyFileSync, rmSync, statSync }
 import { join } from 'node:path';
 import { homedir } from 'node:os';
 import { spawnSync } from 'node:child_process';
-import { cycleLogs } from '../cycle-logs.mjs';
+import { cycleLogs } from '../cycle-logs.ts';
 
 const ids = process.argv.slice(2);
 const outDir = join(import.meta.dirname, 'out');

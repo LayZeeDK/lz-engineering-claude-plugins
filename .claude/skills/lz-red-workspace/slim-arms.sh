@@ -51,7 +51,7 @@ ensure_pkg() {
 # A session may write its cycle log into the rules folder or SLIM_ROOT, which every run reuses, so a later run can
 # overwrite an earlier run's log. Call begin_cycle_logs <run dir> right before the session and collect_cycle_logs
 # <run dir> right after it: the files changed in between, in rules-b and directly in SLIM_ROOT, are copied with their
-# times into <run dir>.cycle-logs, where ../cycle-logs.mjs reads them.
+# times into <run dir>.cycle-logs, where ../cycle-logs.ts reads them.
 begin_cycle_logs() {
   rm -rf "$1.cycle-logs"
   touch "$1.cycle-start"

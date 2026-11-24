@@ -68,47 +68,81 @@ test('parseGrandfatherList drops blank and # lines, trims entries, and accepts C
   assert.deepEqual(parseGrandfatherList(text), ['a/b.mjs', 'c/d.js']);
 });
 
-const repo = mkdtempSync(join(tmpdir(), 'check-no-new-js-'));
+test('parseGrandfatherList splits on a bare line feed too', () => {
+  assert.deepEqual(parseGrandfatherList('a/b.mjs\n# note\nc/d.js\n'), ['a/b.mjs', 'c/d.js']);
+});
 
-after(() => rmSync(repo, { recursive: true, force: true }));
+test('reports an unlisted grandfathered path as stale in sorted order', () => {
+  const listed = [`${workspace}/kept.mjs`];
+  const grandfathered = [`${workspace}/kept.mjs`, `${workspace}/c.mjs`, `${workspace}/a.mjs`, `${workspace}/b.mjs`];
 
-function git(...args: string[]): string {
-  return execFileSync('git', args, { cwd: repo, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] });
-}
+  assert.deepEqual(findScriptViolations(listed, grandfathered), {
+    added: [],
+    stale: [`${workspace}/a.mjs`, `${workspace}/b.mjs`, `${workspace}/c.mjs`],
+  });
+});
 
-function write(path: string): void {
-  const full = join(repo, path);
-  mkdirSync(dirname(full), { recursive: true });
-  writeFileSync(full, '');
+test('ignores a .claude/skills path that is nested below another folder', () => {
+  const listed = [`plugins/x/${workspace}/nested.mjs`, `docs/.claude/skills/x-workspace/nested.js`];
+
+  assert.deepEqual(findScriptViolations(listed, []), { added: [], stale: [] });
+});
+
+const scratchRoot = mkdtempSync(join(tmpdir(), 'check-no-new-js-'));
+
+after(() => rmSync(scratchRoot, { recursive: true, force: true }));
+
+// Every test that needs a repository gets its own, so none depends on what another test left behind.
+function scratchRepo() {
+  const repo = mkdtempSync(join(scratchRoot, 'repo-'));
+  const git = (...args: string[]): string =>
+    execFileSync('git', args, { cwd: repo, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] });
+
+  git('init', '--quiet');
+
+  return {
+    repo,
+    git,
+    write(path: string, content = ''): void {
+      const full = join(repo, path);
+
+      mkdirSync(dirname(full), { recursive: true });
+      writeFileSync(full, content);
+    },
+  };
 }
 
 test('git calls go to the scratch repository even under an inherited GIT_DIR or GIT_INDEX_FILE', () => {
-  git('init', '--quiet');
+  const { git } = scratchRepo();
 
   assert.equal(git('rev-parse', '--git-dir').trim(), '.git');
   assert.equal(git('rev-parse', '--git-path', 'index').trim(), '.git/index');
 });
 
-test('listWorkspaceFiles lists staged and untracked files but not ignored ones', () => {
+test('listWorkspaceFiles lists staged and untracked files but not ignored ones, with no empty entry', () => {
   const ws = '.claude/skills/x-workspace';
   const staged = `${ws}/staged.mjs`;
   const untracked = `${ws}/untracked.mjs`;
+  const { repo, git, write } = scratchRepo();
 
-  git('init', '--quiet');
-  writeFileSync(join(repo, '.gitignore'), 'node_modules/\nresults/\n');
+  write('.gitignore', 'node_modules/\nresults/\n');
   write(staged);
   write(untracked);
   write(`${ws}/node_modules/dep/index.js`);
   write(`${ws}/results/out.mjs`);
+  write('README.md');
   git('add', '--', staged);
 
   const listed = listWorkspaceFiles(repo);
 
-  assert.ok(listed.includes(staged));
-  assert.ok(listed.includes(untracked));
-  assert.equal(
-    listed.some((path) => path.includes('node_modules') || path.includes('results/')),
-    false,
-  );
+  assert.deepEqual([...listed].sort(), [staged, untracked]);
   assert.deepEqual(findScriptViolations(listed, [staged]), { added: [untracked], stale: [] });
+});
+
+test('listWorkspaceFiles returns an empty list for a repository with nothing under .claude/skills', () => {
+  const { repo, write } = scratchRepo();
+
+  write('README.md');
+
+  assert.deepEqual(listWorkspaceFiles(repo), []);
 });

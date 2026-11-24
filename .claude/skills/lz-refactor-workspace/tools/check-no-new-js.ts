@@ -45,6 +45,7 @@ export function listWorkspaceFiles(repoRoot: string): string[] {
   return output.split('\0').filter((path) => path !== '');
 }
 
+// Stryker disable all: command-line entry; the guard's real-tree run in npm run check exercises it, and the Node.js version throw cannot run under a Node.js that can load this test
 // Below Node.js 22.18.0 import.meta.main is undefined, which would skip the check and exit 0.
 if (typeof import.meta.main !== 'boolean') {
   throw new Error('check-no-new-js needs Node.js >= 22.18.0 (import.meta.main)');
@@ -68,3 +69,4 @@ if (import.meta.main) {
   console.log(`check-no-new-js: ${added.length} new, ${stale.length} stale`);
   process.exitCode = added.length > 0 || stale.length > 0 ? 1 : 0;
 }
+// Stryker restore all

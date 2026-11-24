@@ -67,6 +67,7 @@ validation deps live only in a dev-only eval workspace.
 - [x] **Phase 21: Applied RED Eval in Real OSS Repos (multi-dimensional, 3-arm)** - APPLY the next failing test in real OSS TypeScript repos with short human prompts; no_skill / with_skill / invoke_skill arms (+ optional mattpocock tdd competitor); grade on many lift dimensions -- mirrors the lz-refactor Phase 13/14 apply evals (INSERTED 2026-07-22) (completed 2026-07-23)
 - [x] **Phase 22: Three-way classifier correctness (lz-refactor + lz-red)** - Make the three skills' request classifiers exhaustive, mutually exclusive, and keyed on one axis, so no request in the red-green-refactor loop falls through or is claimed by two skills (ADDED 2026-08-03) (completed 2026-08-03)
 - [ ] **Phase 23: Agent-as-developer conversion of lz-red, lz-tpp and lz-refactor**
+- [ ] **Phase 23.1: Source-name sweep of lz-tdd: shipped skills and references name no people, books, talks, conferences, articles or podcasts (named patterns and techniques stay); add a shipped plugins/lz-tdd/ATTRIBUTION.md and a check that enforces it; lands before Phase 24's eval port and Phase 22's metered rounds (Lars 2026-11-24)**
 - [ ] **Phase 24: Eval harness on claude plugin eval and slim claude -p**
 
 ## Phase Details
@@ -451,6 +452,23 @@ Claude's reading, stated to Lars.
 
 Plans:
 - [ ] TBD (run /gsd-plan-phase 23 to break down)
+
+### Phase 23.1: Source-name sweep of lz-tdd: shipped skills and references name no people, books, talks, conferences, articles or podcasts (named patterns and techniques stay); add a shipped plugins/lz-tdd/ATTRIBUTION.md and a check that enforces it; lands before Phase 24's eval port and Phase 22's metered rounds (Lars 2026-11-24) (INSERTED)
+
+**Goal:** Shipped lz-tdd skills and references name no people, conferences, talks, books, articles or podcasts;
+named patterns and techniques stay. A shipped `plugins/lz-tdd/ATTRIBUTION.md` names the sources, and a check
+(modelled on lz-oop's `tools/citations.ts`, written to the user-scope script bar) fails the build on a title,
+chapter citation or stand-in outside it. Every checker that mirrors the swept text moves with it. Lars 2026-11-24:
+"Similar to lz-oop, the lz-tdd plugins' skills and references shouldn't mention or link to people, conferences,
+talks, books, articles, podcasts, or similar by name." and "Where the no-names sweep goes: Before Phase 24's eval
+port and the Phase 22 metered rounds". Rulings, not measured: lz-oop's names A/B never finished. Open for its
+discussion: whether person names go too, and whether to measure.
+**Requirements**: TBD
+**Depends on:** Phase 23
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd-plan-phase 23.1 to break down)
 
 ### Phase 24: Eval harness on claude plugin eval and slim claude -p
 

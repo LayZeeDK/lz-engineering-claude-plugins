@@ -1,8 +1,8 @@
 # Phase 23: Agent-as-developer conversion of lz-red, lz-tpp and lz-refactor - Context
 
 **Gathered:** 2026-11-24 (`--analyze --auto`: every decision below is the recommended option, chosen by Claude; trade-offs in 23-DISCUSSION-LOG.md)
-**Status:** BLOCKED -- Lars corrected the scope on 2026-11-24 (D-14, D-16); two placement questions are open and
-the lz-oop evidence for D-16 is pending. D-01 and D-05 are settled.
+**Status:** Ready for planning (D-01, D-05, D-14 placement and D-16 placement settled by Lars on 2026-11-24; the
+person-name question belongs to phase 23.1)
 
 <domain>
 ## Phase Boundary
@@ -10,10 +10,10 @@ the lz-oop evidence for D-16 is pending. D-01 and D-05 are settled.
 The three shipped skills stop coaching and start doing. When an agent is doing the work, lz-red writes the next
 failing test and runs it, lz-tpp makes the green change and runs the tests, and lz-refactor applies the refactoring and
 runs the tests. Each ends its step with one line naming what it did. Coach mode ("coach, don't drive", "do not run the
-suite unprompted", QUESTION-vs-COMMAND gating) is removed from all three. Explaining on demand (reference mode) stays
-until 0.0.4 decides its home. Field-triage themes A1 and A2.
+suite unprompted", QUESTION-vs-COMMAND gating) is removed from all three, and so is reference mode; explaining and
+guiding move to a new `lz-tdd-coach` skill in this phase (D-14). Field-triage themes A1 and A2.
 
-Not in this phase: the new `lz-tdd-audit` / `lz-tdd-review` / `lz-tdd-coach` skills, the once-per-session cycle card
+Not in this phase: the source-name sweep (phase 23.1, D-16), the new `lz-tdd-audit` / `lz-tdd-review` skills, the once-per-session cycle card
 and smaller SKILL.md bodies (A3), new trigger phrases for an agent's own work (A4), the cycle log (A5) -- all
 backlog 999.1. No metered run happens in this phase.
 
@@ -45,8 +45,8 @@ backlog 999.1. No metered run happens in this phase.
   until the goal is met, following the lz-tdd plugin skills' workflows. The *reference* and non-command *coach* mode
   guiding a human or agent in TDD or answering questions about TDD is what I suggested in the separate
   `lz-tdd-coach` skill." -- **Reversibility:** costly -- descriptions, routing surfaces and every eval assume two modes.
-  OPEN (Claude asks Lars): whether `lz-tdd-coach` ships in this phase (moving today's reference-mode content) or in
-  0.0.4 (leaving 0.0.3 with no explain path).
+  `lz-tdd-coach` ships in THIS phase, built by moving today's reference-mode and non-command coach content out of
+  the three skills (Lars 2026-11-24: "When lz-tdd-coach ships: OK", approving Claude's Phase 23 recommendation).
 - **D-15:** The doing skills hand off to each other to keep the cycle moving: after its RED line lz-red continues
   into the green step (lz-tpp), after GREEN into the refactor step (lz-refactor), after REFACTOR back to lz-red for
   the next test, until the goal (the request's behaviour, or the test list) is done; each step still ends with its
@@ -69,10 +69,10 @@ backlog 999.1. No metered run happens in this phase.
   Books (author, italic title, edition, year), Talks/interviews/podcasts (speaker: Title (year)), Articles; a work
   gets its line in the change that first draws on it. Enforcement model: lz-oop `tools/citations.ts` (+ test) reads
   titles from ATTRIBUTION.md and fails on them, chapter citations and stand-ins elsewhere; nothing checks person
-  names. OPEN (Claude asks Lars): this phase or its own phase; whether person names go too (lz-oop removed them).
-  Superseded wording follows: Evidence and the exact line between a source name
-  and an allowed name come from the lz-oop session (asked 2026-11-24, answer pending). OPEN (Claude asks Lars): this
-  phase or its own phase.
+  names. Placement: NOT this phase. Lars 2026-11-24: "Where the no-names sweep goes: Before Phase 24's eval port and
+  the Phase 22 metered rounds"; Claude's reading: its own phase 23.1, after this one. The new `lz-tdd-coach` is
+  written name-free from the start so 23.1 has less to sweep. OPEN (Claude asks Lars): whether person names go too
+  (lz-oop removed them), and whether to measure it.
 
 ### Running tests
 - **D-04:** Use the project's own test command (package scripts, runner config); never install dependencies. Red: run

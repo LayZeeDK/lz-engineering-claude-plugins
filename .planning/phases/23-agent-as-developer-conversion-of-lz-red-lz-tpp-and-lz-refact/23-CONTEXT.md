@@ -1,8 +1,8 @@
 # Phase 23: Agent-as-developer conversion of lz-red, lz-tpp and lz-refactor - Context
 
 **Gathered:** 2026-11-24 (`--analyze --auto`: every decision below is the recommended option, chosen by Claude; trade-offs in 23-DISCUSSION-LOG.md)
-**Status:** BLOCKED -- D-01 and D-05 are UNRESOLVED (high impact, not high confidence; `--auto` may not lock them).
-Planning waits for Lars to settle both.
+**Status:** BLOCKED -- D-05 is UNRESOLVED (high impact, not high confidence; `--auto` may not lock it). D-01 was
+settled by Lars on 2026-11-24. Planning waits for D-05.
 
 <domain>
 ## Phase Boundary
@@ -23,12 +23,11 @@ backlog 999.1. No metered run happens in this phase.
 ## Implementation Decisions
 
 ### Default stance
-- **D-01: UNRESOLVED (BLOCKER).** Is a request phrased as a question ("which test next?", "what makes this pass?")
-  answered by doing the step, or by a recommendation only? Options: (a) do the step for every request; only an
-  explicit advice-only request ("don't change the code", "just suggest") gets no edits -- Claude's recommendation;
-  (b) do the step on a command or when the session is already implementing; a bare question gets the recommendation
-  plus "say go to apply it". Confidence is not high: Lars's ruling and all four ledgers cover an agent doing the work;
-  how a human's plain question should behave is Claude's inference. -- **Reversibility:** costly -- the trigger and
+- **D-01:** Each skill performs its step by default: it edits the code and runs the tests. The QUESTION-vs-COMMAND
+  split is removed; a request phrased as a question ("which test next?", "what makes this pass?") gets the step done
+  and the reason in one or two sentences. Only a request that explicitly limits the skill to advice ("don't change the
+  code", "just suggest") gets the recommendation without edits. Lars approved this option (a) on 2026-11-24 ("1: OK")
+  over option (b), where a bare question would get a recommendation plus "say go to apply it". -- **Reversibility:** costly -- the trigger and
   behaviour evals, the Phase 22 routing corpus and the user-scope `test-first.md` workaround all assume the old default.
 - **D-02:** The skill never asks permission to edit or run tests inside its own step. It still stops and reports
   instead of acting when the step cannot be done safely: no test runner found, the suite is red before a refactor, a

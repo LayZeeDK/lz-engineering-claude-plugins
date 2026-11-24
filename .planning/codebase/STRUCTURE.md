@@ -166,11 +166,6 @@ lz-engineering-claude-plugins/
   `*-RESULTS.md` records are hand-authored and tracked)
 - Committed: Record yes, raw run byproducts no
 
-**`.gsd-migration-backup/`:**
-- Purpose: backup from the GSD1-to-GSD-Core migration
-- Generated: Yes
-- Committed: No
-
 **`.planning/`:**
 - Purpose: GSD planning artifacts and this codebase map
 - Generated: Partly

@@ -44,3 +44,11 @@ be maintainer-scoped (gate on the maintainer's name), not a blanket allowlist ov
 
 Re-run the allowlist scan before committing meta-docs, audit reports, or agent-generated content.
 "Absent earlier" goes stale the moment a later doc quotes the rule.
+
+## GSD phases: code review is required
+
+Every executed GSD phase gets `/gsd-code-review <phase>` before it closes. GSD Core runs code review after execution
+only as an advisory step that never blocks, so treat it as a required gate here. Run order after execute: verify ->
+code review -> secure -> validate -> extract learnings. The `gsd-code-reviewer` agent reaches the verdict, not the
+orchestrator. Fix findings that would block a merge through `/gsd-code-review <phase> --fix` (the `gsd-code-fixer`
+agent) before the chain moves on; record any finding left open, with its reason, in the phase's REVIEW.md.

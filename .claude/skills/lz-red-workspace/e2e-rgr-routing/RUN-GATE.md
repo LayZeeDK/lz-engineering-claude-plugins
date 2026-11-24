@@ -153,7 +153,7 @@ Three cardinality classes, kept apart on purpose:
 
 | Affirmed names in the answer | Resolution |
 |------------------------------|------------|
-| exactly one | resolved DETERMINISTICALLY against the expected label |
+| exactly one | resolved DETERMINISTICALLY against the expected label, except on the two-hop case `c4`, where it goes to the judge (one name can never equal an ordered pair) |
 | two or more | ALWAYS unresolved -- handed to the judge |
 | zero | resolved deterministically ONLY on the residual case `c9`; unresolved on every other case |
 

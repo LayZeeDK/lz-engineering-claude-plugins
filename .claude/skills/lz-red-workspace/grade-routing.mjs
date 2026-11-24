@@ -25,7 +25,9 @@
 //
 // Three cardinality classes, kept apart on purpose because they carry different amounts of evidence:
 //
-//   exactly-one   one affirmed name -> resolved DETERMINISTICALLY against the expected label
+//   exactly-one   one affirmed name -> resolved DETERMINISTICALLY against the expected label,
+//                 except on the ordered two-hop case, where it goes to the judge (one name can
+//                 never equal an ordered pair, so a deterministic verdict there could only FAIL)
 //   multiple      two or more affirmed names -> ALWAYS unresolved, handed to a blind judge
 //   zero          no affirmed name -> resolved deterministically ONLY on the residual case;
 //                 unresolved on every other case
@@ -498,11 +500,17 @@ export function gradeOne(answerText, meta, caseSpec, { headings } = {}) {
   let passed = null;
   let evidence = '';
 
-  if (destination.cardinality === 'exactly-one') {
+  if (destination.cardinality === 'exactly-one' && !expected.includes(HOP)) {
     passed = destination.label === expected;
     evidence =
       `deterministic: the answer affirms exactly one destination (${destination.label}) and the case ` +
       `expects ${expected}`;
+  } else if (destination.cardinality === 'exactly-one') {
+    // No single label can equal an ordered pair, so resolving here could only FAIL -- and an answer
+    // that names the correct first hop and describes the second without its slug is not wrong.
+    evidence =
+      `judge: the answer affirms one destination (${destination.label}) on an ordered two-hop case ` +
+      `expecting ${expected}; a single name cannot be compared to an ordered pair mechanically`;
   } else if (destination.cardinality === 'zero') {
     if (expected === NONE_LABEL) {
       passed = true;
@@ -746,6 +754,18 @@ function runSelfcheck() {
     !JSON.stringify(twoHop.judgeInput).includes('expected'),
     'the judge input does NOT carry the expected label (the judge stays blind)',
   );
+
+  // 4b. ONE name on the two-hop case -> unresolved. No single label can equal an ordered pair, so a
+  //     deterministic comparison here could only ever FAIL, and an answer naming the correct first
+  //     hop would score worse than one naming no skill at all.
+  const oneHop = gradeOne(
+    'Write the failing test first; that is the job of lz-red. Then make it pass with the smallest change.',
+    { ...byName.get('two-hop').meta, run_idx: 2 },
+    cases.find((c) => c.id === 'c4'),
+    { headings },
+  );
+  assert(oneHop.routing.cardinality === 'exactly-one', 'a two-hop answer naming only the first hop is cardinality exactly-one');
+  assert(oneHop.expectation.passed === null, 'exactly-one on the ordered two-hop case is unresolved, not a deterministic FAIL');
 
   // 5. zero names -> unresolved on a NON-residual case.
   const noName = grade('no-name-coaching');

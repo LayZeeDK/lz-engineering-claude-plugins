@@ -78,6 +78,22 @@ backlog 999.1. No metered run happens in this phase.
   written name-free from the start so 23.1 has less to sweep. Person names go too, and the effect is measured on
   the Phase 24 harness (both Lars rulings 2026-11-24, recorded verbatim in ROADMAP Phase 23.1).
 
+### Model guidelines (Lars ruling, 2026-11-24)
+- **D-17:** Every skill and reference this phase writes or converts (lz-red, lz-tpp, lz-refactor, the new
+  `lz-tdd-coach`) follows the model-specific guidelines for the supported models and the general Claude model
+  guidelines in `~/.claude/research/` (for example `claude-models-2026-09-blogs.md`, `prompting-evidence-2026-09.md`,
+  `fable-5-2-evidence-2026-11.md`, `skills-and-agents/`) and the user-scope `~/.claude/references/prompting-*.md`.
+  Newer sources and newer model generations outrank older ones where they conflict (`prompting-fable-5-1` is
+  retired). plugin-dev and skill-creator are consulted for plugin and skill structure, and the dated research
+  outranks them where they conflict. Lars, verbatim: "Skills should comply with model-specific guidelines for the
+  models that we support and general Claude model guidelines, all in ~/.claude/research/, taking into account that
+  sources of newer date and newer model generation outrank earlier sources when they conflict. Also consult the
+  plugin-dev and skill-creator plugins for plugin and skill guidelines but the research of recent dates outrank them
+  when they conlict." The planning research writes the resulting rule list into RESEARCH.md with each rule's
+  source and date, and the phase's skill reviews (D-10) check against it. Phase 23.1's sweep follows the same list.
+  Supported models (Claude's reading, to confirm with Lars): the current Claude Code line, Opus 5.5, Sonnet 5.5,
+  Haiku 5.5 and Fable 5.2.
+
 ### Running tests
 - **D-04:** Use the project's own test command (package scripts, runner config); never install dependencies. Red: run
   the new test alone and confirm it fails for the expected reason (an assertion from the code under test; a compile or

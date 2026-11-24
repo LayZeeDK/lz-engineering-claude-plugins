@@ -459,7 +459,8 @@ Plans:
 express the run (cases that run tests, which need a shell sandbox native Windows lacks; packaged-variant A/B arms);
 each ported suite reproduces one recorded result, and the skill-creator-derived harnesses under
 `.claude/skills/*-workspace/` are retired. Phase 22's two owed metered rounds then run once, on this harness, after
-Phase 23.
+Phase 23. Every script the port adds meets the user-scope script bar (erasable TypeScript with `.test.ts`, type-checked,
+reviewed, security-reviewed; Lars 2026-11-24: "Make later scripts meet the bar by default: OK").
 **Rulings:** Lars 2026-11-24: "I want you to adopt `claude plugin eval` and/or slim `claude -p` and replace our
 current skill-creator plugin-inspired eval setup."; "4: OK" (Phase 22 rounds wait for the new harness). Any metered
 run waits for Lars's go-ahead.

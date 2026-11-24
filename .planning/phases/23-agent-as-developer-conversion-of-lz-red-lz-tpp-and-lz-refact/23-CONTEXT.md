@@ -1,8 +1,7 @@
 # Phase 23: Agent-as-developer conversion of lz-red, lz-tpp and lz-refactor - Context
 
 **Gathered:** 2026-11-24 (`--analyze --auto`: every decision below is the recommended option, chosen by Claude; trade-offs in 23-DISCUSSION-LOG.md)
-**Status:** BLOCKED -- D-05 is UNRESOLVED (high impact, not high confidence; `--auto` may not lock it). D-01 was
-settled by Lars on 2026-11-24. Planning waits for D-05.
+**Status:** Ready for planning (D-01 and D-05 settled by Lars on 2026-11-24)
 
 <domain>
 ## Phase Boundary
@@ -26,8 +25,8 @@ backlog 999.1. No metered run happens in this phase.
 - **D-01:** Each skill performs its step by default: it edits the code and runs the tests. The QUESTION-vs-COMMAND
   split is removed; a request phrased as a question ("which test next?", "what makes this pass?") gets the step done
   and the reason in one or two sentences. Only a request that explicitly limits the skill to advice ("don't change the
-  code", "just suggest") gets the recommendation without edits. Lars approved this option (a) on 2026-11-24 ("1: OK")
-  over option (b), where a bare question would get a recommendation plus "say go to apply it". -- **Reversibility:** costly -- the trigger and
+  code", "just suggest") gets the recommendation without edits. Lars approved this option (a) on 2026-11-24 ("D-01,
+  what a plain question does: OK") over option (b), where a bare question would get a recommendation plus "say go to apply it". -- **Reversibility:** costly -- the trigger and
   behaviour evals, the Phase 22 routing corpus and the user-scope `test-first.md` workaround all assume the old default.
 - **D-02:** The skill never asks permission to edit or run tests inside its own step. It still stops and reports
   instead of acting when the step cannot be done safely: no test runner found, the suite is red before a refactor, a
@@ -46,9 +45,8 @@ backlog 999.1. No metered run happens in this phase.
   Refactor: confirm green before the first refactoring and after each one; stop on red and revert that step.
 
 ### Naming line (A2)
-- **D-05: UNRESOLVED (BLOCKER).** The report line's exact form freezes a vocabulary that Phase 24 graders and the
-  later cycle log (A5) will match on, and the form below is Claude's default, not derived from evidence. Candidate
-  (Claude's recommendation) -- each step ends with exactly one report line, fixed prefix, grep-able:
+- **D-05:** Each step ends with exactly one report line, fixed prefix, grep-able (Lars 2026-11-24: "D-05, the line
+  each step ends with: OK"). Phase 24 graders and the later cycle log (A5) match on it:
   - `RED: <test name> -- fails: <one-phrase reason>`
   - `GREEN: <TPP transformation, number and name> -- <test name> passes; <n> tests green` (when the change is not the
     highest-priority transformation that works, add `-- deviation: <reason>`, keeping the existing deviation rule)
@@ -65,7 +63,25 @@ backlog 999.1. No metered run happens in this phase.
   that mirrors them in the same plan, so the Phase 22 routing gate (`check-rgr-routing.mjs`, `selfcheck-routing.mjs`)
   stays GREEN. Keep `## Two modes` as the heading of the do-versus-explain gate.
 - **D-08:** Rebuild the Phase 22 placement variant trees (`build-variants.mjs`) from the converted bodies so Round A
-  measures what ships; the D-11 frontmatter-identity precondition must still hold.
+  measures what ships; the D-11 frontmatter-identity precondition must still hold. This plan also closes two Phase 22
+  review findings (`22-REVIEW.md`; Lars 2026-11-24 "How to fix the review findings: OK"): CR-01 "Variant C cannot be
+  built" (re-anchor the lz-tpp transform to the converted text and keep the banned `all prior tests green` phrase out
+  of every arm) and WR-06 (selfcheck cannot tell the variant trees are stale). Add a single-axis check over the
+  generated variant trees and a staleness check, both in `npm run check`.
+
+### Scripts
+- **D-12:** Every script this phase adds, or edits beyond a selector change, meets the user-scope script bar
+  (`~/.claude/references/lars-skill-authoring.md`, "Before calling a skill done"): erasable TypeScript run directly by
+  Node.js, a `.test.ts` beside it run on Node.js 22 and 24, type-checked, code-reviewed, security-reviewed, through
+  `/deslop`, ideally mutation-tested; never a new `.mjs` or `.js`. Lars 2026-11-24: "Make later scripts meet the bar by
+  default: OK". A heading-selector update in an existing `.mjs` (D-07) is an edit, not a port.
+- **D-13:** Where a skill step is deterministic (finding the test command, running the narrowest proof, emitting the
+  D-05 line), consider a bundled script or CLI in the shipped plugin instead of prose. Lars 2026-11-24: "Consider
+  scripts and/or a bundled CLI for deterministic steps/tasks. Note that Claude marketplace plugins support
+  package.json and install `node_modules` using `npm ci`. Research and verify if in doubt about how this works. This
+  means that script/CLI dependencies are allowed in the shipped plugin." Research must verify the install mechanics
+  (when `npm ci` runs, lockfile requirement, Windows behaviour, `${CLAUDE_PLUGIN_ROOT}` paths) against the Claude Code
+  docs and a real local install before the plan relies on it; shipped scripts meet D-12.
 
 ### Evals and checks
 - **D-09:** The skill-creator-derived graders that score "Coach, don't drive" (`lz-tpp-workspace/grade-run.mjs`,

@@ -5,11 +5,12 @@
   "description": "NON-shipped compile harness + checker battery for the lz-refactor Fowler catalog (FWL-01..FWL-04). Not part of the shipped plugin; the shipped skill stays dependency-free Markdown.",
   "scripts": {
     "typecheck": "node extract-samples.mjs",
-    "check": "node tools/check-catalog.mjs && node tools/check-kerievsky.mjs && node tools/check-gof.mjs && node tools/check-extra-patterns.mjs && node tools/check-smells.mjs && node tools/check-crossrefs.mjs && node tools/check-principles.mjs && node tools/check-hygiene.mjs && node tools/check-functional.mjs && node tools/check-backing.mjs",
+    "check": "tsc -p tsconfig.tools.json && node --test \"*.test.ts\" \"tools/**/*.test.ts\" && node tools/check-erasable-ts.ts && node tools/check-catalog.mjs &&node tools/check-kerievsky.mjs && node tools/check-gof.mjs && node tools/check-extra-patterns.mjs && node tools/check-smells.mjs && node tools/check-crossrefs.mjs && node tools/check-principles.mjs && node tools/check-hygiene.mjs && node tools/check-functional.mjs && node tools/check-backing.mjs",
     "grade-reference": "node grade-reference.mjs",
     "grade-reference:selfcheck": "node grade-reference.mjs --selfcheck"
   },
   "devDependencies": {
+    "@types/node": "24.19.2",
     "typescript": "6.0.3"
   }
 }

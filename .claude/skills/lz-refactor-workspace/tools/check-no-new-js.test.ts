@@ -7,6 +7,12 @@ import { after, test } from 'node:test';
 
 import { findScriptViolations, listWorkspaceFiles, parseGrandfatherList } from './check-no-new-js.ts';
 
+// git ranks these above cwd, so an inherited value (a git hook sets them) would aim the scratch-repo calls,
+// listWorkspaceFiles included, at the real repository or its index.
+for (const key of ['GIT_DIR', 'GIT_WORK_TREE', 'GIT_INDEX_FILE', 'GIT_OBJECT_DIRECTORY', 'GIT_COMMON_DIR']) {
+  delete process.env[key];
+}
+
 const workspace = '.claude/skills/lz-red-workspace';
 
 test('reports a .mjs under a workspace that is not grandfathered', () => {
@@ -66,8 +72,8 @@ const repo = mkdtempSync(join(tmpdir(), 'check-no-new-js-'));
 
 after(() => rmSync(repo, { recursive: true, force: true }));
 
-function git(...args: string[]): void {
-  execFileSync('git', args, { cwd: repo, stdio: 'ignore' });
+function git(...args: string[]): string {
+  return execFileSync('git', args, { cwd: repo, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] });
 }
 
 function write(path: string): void {
@@ -75,6 +81,13 @@ function write(path: string): void {
   mkdirSync(dirname(full), { recursive: true });
   writeFileSync(full, '');
 }
+
+test('git calls go to the scratch repository even under an inherited GIT_DIR or GIT_INDEX_FILE', () => {
+  git('init', '--quiet');
+
+  assert.equal(git('rev-parse', '--git-dir').trim(), '.git');
+  assert.equal(git('rev-parse', '--git-path', 'index').trim(), '.git/index');
+});
 
 test('listWorkspaceFiles lists staged and untracked files but not ignored ones', () => {
   const ws = '.claude/skills/x-workspace';

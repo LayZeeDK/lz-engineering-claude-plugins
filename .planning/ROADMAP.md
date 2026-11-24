@@ -449,8 +449,13 @@ this harness after Phase 23. Every script the port adds meets the user-scope scr
 OK").
 **Rulings:** Lars 2026-11-24: "I want you to adopt `claude plugin eval` and/or slim `claude -p` and replace our
 current skill-creator plugin-inspired eval setup."; "4: OK" (Phase 22 rounds wait for the new harness); "Move the
-harness before the text changes. OK" (moved from Phase 24 to here). Any metered run, the baseline included, waits for
-Lars's go-ahead.
+harness before the text changes. OK" (moved from Phase 24 to here). Paid runs are pre-approved once the harness is
+resumable (Lars 2026-11-24, verbatim: "Pre-approve paid eval runs but first you must make the eval run sets and the
+individual runs resumable where possible, similar to lz-gardening or lz-oop (I'm not sure which). Do this in the
+relevant Phase."): this phase makes a run set resume where it stopped (finished runs are kept and not paid for again)
+and makes each run resume where its tool allows, modelled on lz-gardener's or lz-oop's eval harness (the planning
+research reads both and picks the closer fit). Until resumability is built and shown working on a dry run, no paid
+run starts; after that, the baseline and the later rounds run without a separate go-ahead.
 **Requirements**: TBD
 **Depends on:** Phase 22
 **Plans:** 0 plans

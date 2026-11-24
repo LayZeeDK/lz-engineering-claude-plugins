@@ -52,9 +52,12 @@ class Playlist {
 
 // Concrete Iterator: holds the state for one pass over the aggregate.
 class PlaylistCursor implements Cursor<string> {
+  private readonly items: readonly string[];
   private index = 0;
 
-  constructor(private readonly items: readonly string[]) {}
+  constructor(items: readonly string[]) {
+    this.items = items;
+  }
 
   hasNext(): boolean {
     return this.index < this.items.length;

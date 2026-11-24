@@ -34,7 +34,11 @@ Before, a string field with behavior sitting outside it:
 
 ```ts
 class Parcel {
-  constructor(public trackingId: string) {}
+  public trackingId: string;
+
+  constructor(trackingId: string) {
+    this.trackingId = trackingId;
+  }
 }
 
 const isExpress = (parcel: Parcel): boolean => parcel.trackingId.startsWith("EX");
@@ -44,7 +48,11 @@ After, the concept is a type, and its behavior lives on it:
 
 ```ts
 class TrackingId {
-  constructor(private readonly value: string) {}
+  private readonly value: string;
+
+  constructor(value: string) {
+    this.value = value;
+  }
 
   toString(): string {
     return this.value;
@@ -56,7 +64,11 @@ class TrackingId {
 }
 
 class Parcel {
-  constructor(public trackingId: TrackingId) {}
+  public trackingId: TrackingId;
+
+  constructor(trackingId: TrackingId) {
+    this.trackingId = trackingId;
+  }
 }
 ```
 

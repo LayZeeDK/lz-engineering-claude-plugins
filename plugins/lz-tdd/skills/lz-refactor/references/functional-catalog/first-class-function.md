@@ -24,7 +24,11 @@ class NoDiscount implements DiscountStrategy {
 }
 
 class PercentageDiscount implements DiscountStrategy {
-  constructor(private readonly rate: number) {}
+  private readonly rate: number;
+
+  constructor(rate: number) {
+    this.rate = rate;
+  }
 
   apply(price: number): number {
     return price * (1 - this.rate);
@@ -32,7 +36,11 @@ class PercentageDiscount implements DiscountStrategy {
 }
 
 class Cart {
-  constructor(private strategy: DiscountStrategy) {}
+  private strategy: DiscountStrategy;
+
+  constructor(strategy: DiscountStrategy) {
+    this.strategy = strategy;
+  }
 
   checkout(price: number): number {
     return this.strategy.apply(price);

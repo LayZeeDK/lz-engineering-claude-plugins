@@ -44,10 +44,13 @@ After, data and behavior live together, and the parameters disappear:
 
 ```ts
 class Session {
-  constructor(
-    private readonly minutes: number,
-    private readonly ratePerMinute: number,
-  ) {}
+  private readonly minutes: number;
+  private readonly ratePerMinute: number;
+
+  constructor(minutes: number, ratePerMinute: number) {
+    this.minutes = minutes;
+    this.ratePerMinute = ratePerMinute;
+  }
 
   cost(): number {
     return this.minutes * this.ratePerMinute;

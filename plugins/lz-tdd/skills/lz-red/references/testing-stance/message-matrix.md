@@ -104,9 +104,12 @@ type Notify = (event: string) => void;
 // The SUT answers an incoming query (isOpen) and handles an incoming command (openGate)
 // that also sends an outgoing command to its notifier collaborator.
 class Gate {
+  private readonly notify: Notify;
   private open = false;
 
-  constructor(private readonly notify: Notify) {}
+  constructor(notify: Notify) {
+    this.notify = notify;
+  }
 
   // Incoming query: returns a value, no observable side effect.
   isOpen(): boolean {

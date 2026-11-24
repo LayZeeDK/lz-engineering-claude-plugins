@@ -14,12 +14,11 @@ Before, an iterator object tracks the current position by hand:
 
 ```ts
 class RangeIterator {
+  private readonly end: number;
   private current: number;
 
-  constructor(
-    private readonly end: number,
-    start = 0,
-  ) {
+  constructor(end: number, start = 0) {
+    this.end = end;
     this.current = start;
   }
 

@@ -24,7 +24,11 @@ Before, the subclass adds only one derived label:
 
 ```ts
 class Folder {
-  constructor(readonly name: string) {}
+  readonly name: string;
+
+  constructor(name: string) {
+    this.name = name;
+  }
 }
 
 class SmartFolder extends Folder {
@@ -38,7 +42,11 @@ After, the two collapse into a single class:
 
 ```ts
 class Folder {
-  constructor(readonly name: string) {}
+  readonly name: string;
+
+  constructor(name: string) {
+    this.name = name;
+  }
 
   get label(): string {
     return this.name.toUpperCase();

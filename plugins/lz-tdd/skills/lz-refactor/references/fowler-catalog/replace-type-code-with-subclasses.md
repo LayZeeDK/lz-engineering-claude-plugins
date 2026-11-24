@@ -35,7 +35,11 @@ Before, a transit time chosen by a carrier type code:
 
 ```ts
 class Shipment {
-  constructor(private readonly carrier: "air" | "ground") {}
+  private readonly carrier: "air" | "ground";
+
+  constructor(carrier: "air" | "ground") {
+    this.carrier = carrier;
+  }
 
   get transitDays(): number {
     return this.carrier === "air" ? 2 : 5;

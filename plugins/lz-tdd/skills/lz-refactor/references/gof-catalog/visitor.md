@@ -47,7 +47,11 @@ interface Staff {
 }
 
 class Engineer implements Staff {
-  constructor(readonly salary: number) {}
+  readonly salary: number;
+
+  constructor(salary: number) {
+    this.salary = salary;
+  }
 
   accept(visitor: StaffVisitor): void {
     visitor.visitEngineer(this);
@@ -55,10 +59,13 @@ class Engineer implements Staff {
 }
 
 class Manager implements Staff {
-  constructor(
-    readonly salary: number,
-    readonly reports: number,
-  ) {}
+  readonly salary: number;
+  readonly reports: number;
+
+  constructor(salary: number, reports: number) {
+    this.salary = salary;
+    this.reports = reports;
+  }
 
   accept(visitor: StaffVisitor): void {
     visitor.visitManager(this);

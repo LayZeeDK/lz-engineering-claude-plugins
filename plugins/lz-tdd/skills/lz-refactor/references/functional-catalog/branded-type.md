@@ -14,7 +14,11 @@ Before, a class wraps the primitive to give it a distinct type:
 
 ```ts
 class UserId {
-  constructor(readonly value: string) {}
+  readonly value: string;
+
+  constructor(value: string) {
+    this.value = value;
+  }
 }
 
 function loadUser(id: UserId): string {

@@ -38,7 +38,11 @@ Before, one method both formats the reading and classifies it:
 
 ```ts
 class Thermostat {
-  constructor(private readonly celsius: number) {}
+  private readonly celsius: number;
+
+  constructor(celsius: number) {
+    this.celsius = celsius;
+  }
 
   summary(): string {
     let label: string;
@@ -59,7 +63,11 @@ After, the top method reads as intent; detail moves into named helpers:
 
 ```ts
 class Thermostat {
-  constructor(private readonly celsius: number) {}
+  private readonly celsius: number;
+
+  constructor(celsius: number) {
+    this.celsius = celsius;
+  }
 
   summary(): string {
     return this.reading() + " (" + this.comfortLabel() + ")";

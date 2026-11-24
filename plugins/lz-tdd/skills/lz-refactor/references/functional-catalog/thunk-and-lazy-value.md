@@ -18,10 +18,13 @@ interface Command {
 }
 
 class AddItemCommand implements Command {
-  constructor(
-    private readonly cart: string[],
-    private readonly item: string,
-  ) {}
+  private readonly cart: string[];
+  private readonly item: string;
+
+  constructor(cart: string[], item: string) {
+    this.cart = cart;
+    this.item = item;
+  }
 
   execute(): void {
     this.cart.push(this.item);

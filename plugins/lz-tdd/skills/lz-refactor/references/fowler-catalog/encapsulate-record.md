@@ -51,7 +51,11 @@ interface BookData {
 }
 
 class Book {
-  constructor(private readonly data: BookData) {}
+  private readonly data: BookData;
+
+  constructor(data: BookData) {
+    this.data = data;
+  }
 
   get title(): string {
     return this.data.title;

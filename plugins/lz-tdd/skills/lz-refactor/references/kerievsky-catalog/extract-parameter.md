@@ -46,7 +46,10 @@ After, the store is a constructor parameter the caller supplies:
 
 ```ts
 class EventLog {
-  constructor(private readonly sink: string[]) {}
+  private readonly sink: string[];
+  constructor(sink: string[]) {
+    this.sink = sink;
+  }
   record(event: string): void {
     this.sink.push(event);
   }

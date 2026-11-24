@@ -36,10 +36,13 @@ Before, each creator repeats the assembly:
 
 ```ts
 class Rational {
-  constructor(
-    readonly numerator: number,
-    readonly denominator: number,
-  ) {}
+  readonly numerator: number;
+  readonly denominator: number;
+
+  constructor(numerator: number, denominator: number) {
+    this.numerator = numerator;
+    this.denominator = denominator;
+  }
 }
 
 function fromPair(a: number, b: number): Rational {
@@ -59,10 +62,13 @@ After, the specific creator chains through the general one:
 
 ```ts
 class Rational {
-  constructor(
-    readonly numerator: number,
-    readonly denominator: number,
-  ) {}
+  readonly numerator: number;
+  readonly denominator: number;
+
+  constructor(numerator: number, denominator: number) {
+    this.numerator = numerator;
+    this.denominator = denominator;
+  }
 }
 
 function fromPair(a: number, b: number): Rational {

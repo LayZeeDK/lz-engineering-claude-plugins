@@ -38,10 +38,13 @@ Reach for it when you want an undo or rollback capability, or a checkpoint of an
 ```ts
 // Memento: an opaque snapshot; only the originator interprets its contents.
 class SaveGame {
-  constructor(
-    readonly level: number,
-    readonly health: number,
-  ) {}
+  readonly level: number;
+  readonly health: number;
+
+  constructor(level: number, health: number) {
+    this.level = level;
+    this.health = health;
+  }
 }
 
 // Originator: produces a memento of its state and restores itself from one.

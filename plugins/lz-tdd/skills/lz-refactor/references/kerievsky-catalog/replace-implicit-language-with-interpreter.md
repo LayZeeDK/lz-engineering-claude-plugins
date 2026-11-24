@@ -68,12 +68,18 @@ interface Expr {
 }
 
 class Level implements Expr {
-  constructor(private readonly level: string) {}
+  private readonly level: string;
+  constructor(level: string) {
+    this.level = level;
+  }
   test(entry: Entry): boolean { return entry.level === this.level; }
 }
 
 class And implements Expr {
-  constructor(private readonly parts: Expr[]) {}
+  private readonly parts: Expr[];
+  constructor(parts: Expr[]) {
+    this.parts = parts;
+  }
   test(entry: Entry): boolean { return this.parts.every((part) => part.test(entry)); }
 }
 ```

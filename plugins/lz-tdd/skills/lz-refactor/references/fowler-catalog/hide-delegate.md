@@ -26,11 +26,19 @@ Before, the caller reaches through Order to Customer:
 
 ```ts
 class Customer {
-  constructor(public region: string) {}
+  public region: string;
+
+  constructor(region: string) {
+    this.region = region;
+  }
 }
 
 class Order {
-  constructor(public customer: Customer) {}
+  public customer: Customer;
+
+  constructor(customer: Customer) {
+    this.customer = customer;
+  }
 }
 
 const regionOf = (order: Order): string => order.customer.region;
@@ -40,11 +48,19 @@ After, Order hides the delegate behind its own method:
 
 ```ts
 class Customer {
-  constructor(public region: string) {}
+  public region: string;
+
+  constructor(region: string) {
+    this.region = region;
+  }
 }
 
 class Order {
-  constructor(private readonly customer: Customer) {}
+  private readonly customer: Customer;
+
+  constructor(customer: Customer) {
+    this.customer = customer;
+  }
 
   get region(): string {
     return this.customer.region;

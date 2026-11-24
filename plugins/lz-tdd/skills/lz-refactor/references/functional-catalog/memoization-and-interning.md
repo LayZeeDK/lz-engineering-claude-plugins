@@ -14,7 +14,11 @@ Before, a factory class caches shared glyphs in a field:
 
 ```ts
 class Glyph {
-  constructor(readonly char: string) {}
+  readonly char: string;
+
+  constructor(char: string) {
+    this.char = char;
+  }
 }
 
 class GlyphFactory {

@@ -37,7 +37,13 @@ Before, the total is a free function, but it uses nothing except a `Reservation`
 
 ```ts
 class Reservation {
-  constructor(readonly nights: number, readonly ratePerNight: number) {}
+  readonly nights: number;
+  readonly ratePerNight: number;
+
+  constructor(nights: number, ratePerNight: number) {
+    this.nights = nights;
+    this.ratePerNight = ratePerNight;
+  }
 }
 
 function reservationTotal(reservation: Reservation): number {
@@ -49,7 +55,13 @@ After, the function moves onto the class whose data it works with:
 
 ```ts
 class Reservation {
-  constructor(readonly nights: number, readonly ratePerNight: number) {}
+  readonly nights: number;
+  readonly ratePerNight: number;
+
+  constructor(nights: number, ratePerNight: number) {
+    this.nights = nights;
+    this.ratePerNight = ratePerNight;
+  }
 
   get total(): number {
     return this.nights * this.ratePerNight;

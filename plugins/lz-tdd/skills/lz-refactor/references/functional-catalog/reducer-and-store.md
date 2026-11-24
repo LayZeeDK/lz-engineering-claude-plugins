@@ -26,10 +26,13 @@ class SubmitButton implements Component {
 }
 
 class DialogMediator {
+  private readonly submit: SubmitButton;
   private nameFilled = false;
   private termsAccepted = false;
 
-  constructor(private readonly submit: SubmitButton) {}
+  constructor(submit: SubmitButton) {
+    this.submit = submit;
+  }
 
   changed(field: "name" | "terms", value: boolean): void {
     if (field === "name") {

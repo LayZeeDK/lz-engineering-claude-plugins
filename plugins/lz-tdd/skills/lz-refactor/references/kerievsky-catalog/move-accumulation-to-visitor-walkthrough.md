@@ -52,14 +52,20 @@ interface DocNode {
 }
 
 class TextNode implements DocNode {
-  constructor(private readonly length: number) {}
+  private readonly length: number;
+  constructor(length: number) {
+    this.length = length;
+  }
   accept(visitor: NodeVisitor): void {
     visitor.text(this.length);
   }
 }
 
 class ImageNode implements DocNode {
-  constructor(private readonly area: number) {}
+  private readonly area: number;
+  constructor(area: number) {
+    this.area = area;
+  }
   accept(visitor: NodeVisitor): void {
     visitor.image(this.area);
   }

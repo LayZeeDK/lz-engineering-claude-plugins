@@ -37,11 +37,15 @@ interface Prototype<T> {
 
 // Concrete Prototype: knows how to copy itself, carrying its configured state along.
 class Enemy implements Prototype<Enemy> {
-  constructor(
-    readonly kind: string,
-    readonly health: number,
-    readonly loot: readonly string[],
-  ) {}
+  readonly kind: string;
+  readonly health: number;
+  readonly loot: readonly string[];
+
+  constructor(kind: string, health: number, loot: readonly string[]) {
+    this.kind = kind;
+    this.health = health;
+    this.loot = loot;
+  }
 
   clone(): Enemy {
     return new Enemy(this.kind, this.health, [...this.loot]);

@@ -36,10 +36,13 @@ Before, two builds of the same class read the same, distinguished only by argume
 
 ```ts
 class Discount {
-  constructor(
-    readonly kind: "percent" | "flat",
-    readonly amount: number,
-  ) {}
+  readonly kind: "percent" | "flat";
+  readonly amount: number;
+
+  constructor(kind: "percent" | "flat", amount: number) {
+    this.kind = kind;
+    this.amount = amount;
+  }
 }
 
 const seasonal = new Discount("percent", 15);
@@ -50,10 +53,13 @@ After, each construction path has a name; the constructor is sealed:
 
 ```ts
 class Discount {
-  private constructor(
-    readonly kind: "percent" | "flat",
-    readonly amount: number,
-  ) {}
+  readonly kind: "percent" | "flat";
+  readonly amount: number;
+
+  private constructor(kind: "percent" | "flat", amount: number) {
+    this.kind = kind;
+    this.amount = amount;
+  }
 
   static percentage(amount: number): Discount {
     return new Discount("percent", amount);

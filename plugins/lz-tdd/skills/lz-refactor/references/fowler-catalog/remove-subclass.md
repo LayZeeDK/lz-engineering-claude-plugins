@@ -30,7 +30,11 @@ Before, an admin subclass only decorates the label:
 
 ```ts
 class User {
-  constructor(readonly name: string) {}
+  readonly name: string;
+
+  constructor(name: string) {
+    this.name = name;
+  }
 
   get label(): string {
     return this.name;
@@ -48,10 +52,13 @@ After, the distinction becomes a field, and a factory hides construction:
 
 ```ts
 class User {
-  constructor(
-    readonly name: string,
-    private readonly admin: boolean = false,
-  ) {}
+  readonly name: string;
+  private readonly admin: boolean;
+
+  constructor(name: string, admin: boolean = false) {
+    this.name = name;
+    this.admin = admin;
+  }
 
   get label(): string {
     return this.admin ? `${this.name} (admin)` : this.name;

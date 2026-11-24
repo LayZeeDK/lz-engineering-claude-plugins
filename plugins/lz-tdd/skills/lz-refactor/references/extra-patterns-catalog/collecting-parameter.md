@@ -56,7 +56,11 @@ class NotEmpty implements Rule {
 }
 
 class MaxLength implements Rule {
-  constructor(private readonly limit: number) {}
+  private readonly limit: number;
+
+  constructor(limit: number) {
+    this.limit = limit;
+  }
 
   check(value: string, problems: Problems): void {
     if (value.length > this.limit) {

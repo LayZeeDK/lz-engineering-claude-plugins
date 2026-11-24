@@ -28,7 +28,11 @@ Before, an invoice and a receipt format money the same way:
 
 ```ts
 class Invoice {
-  constructor(protected readonly total: number) {}
+  protected readonly total: number;
+
+  constructor(total: number) {
+    this.total = total;
+  }
 
   formatTotal(): string {
     return `$${this.total.toFixed(2)}`;
@@ -36,7 +40,11 @@ class Invoice {
 }
 
 class Receipt {
-  constructor(protected readonly total: number) {}
+  protected readonly total: number;
+
+  constructor(total: number) {
+    this.total = total;
+  }
 
   formatTotal(): string {
     return `$${this.total.toFixed(2)}`;
@@ -48,7 +56,11 @@ After, the shared field and method rise into an extracted superclass:
 
 ```ts
 abstract class FinancialDocument {
-  constructor(protected readonly total: number) {}
+  protected readonly total: number;
+
+  constructor(total: number) {
+    this.total = total;
+  }
 
   formatTotal(): string {
     return `$${this.total.toFixed(2)}`;

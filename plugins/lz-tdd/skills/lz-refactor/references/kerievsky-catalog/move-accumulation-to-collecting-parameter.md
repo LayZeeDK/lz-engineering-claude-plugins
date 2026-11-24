@@ -36,10 +36,12 @@ Before, each node returns its text and the parent concatenates:
 
 ```ts
 class Tree {
-  constructor(
-    readonly name: string,
-    readonly children: Tree[],
-  ) {}
+  readonly name: string;
+  readonly children: Tree[];
+  constructor(name: string, children: Tree[]) {
+    this.name = name;
+    this.children = children;
+  }
   render(): string {
     let out = this.name;
     for (const child of this.children) {
@@ -54,10 +56,12 @@ After, one collecting parameter is passed down and each node appends to it:
 
 ```ts
 class Tree {
-  constructor(
-    readonly name: string,
-    readonly children: Tree[],
-  ) {}
+  readonly name: string;
+  readonly children: Tree[];
+  constructor(name: string, children: Tree[]) {
+    this.name = name;
+    this.children = children;
+  }
   render(): string {
     const lines: string[] = [];
     this.collect(lines);

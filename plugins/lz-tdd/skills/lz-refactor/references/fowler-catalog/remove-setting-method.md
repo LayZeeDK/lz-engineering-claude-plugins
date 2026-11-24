@@ -46,7 +46,11 @@ After, the id is set once, with no setter:
 
 ```ts
 class Account {
-  constructor(private readonly _id: string) {}
+  private readonly _id: string;
+
+  constructor(_id: string) {
+    this._id = _id;
+  }
 
   get id(): string {
     return this._id;

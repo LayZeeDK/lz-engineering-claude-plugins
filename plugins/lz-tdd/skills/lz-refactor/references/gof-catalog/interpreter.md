@@ -44,7 +44,11 @@ interface RuleExpression {
 
 // Terminal Expression: a leaf rule (a single flag lookup).
 class FlagRule implements RuleExpression {
-  constructor(private readonly flag: string) {}
+  private readonly flag: string;
+
+  constructor(flag: string) {
+    this.flag = flag;
+  }
 
   interpret(context: Context): boolean {
     return context.has(this.flag);
@@ -53,10 +57,13 @@ class FlagRule implements RuleExpression {
 
 // Nonterminal Expression: a composite rule built from sub-expressions.
 class AndRule implements RuleExpression {
-  constructor(
-    private readonly left: RuleExpression,
-    private readonly right: RuleExpression,
-  ) {}
+  private readonly left: RuleExpression;
+  private readonly right: RuleExpression;
+
+  constructor(left: RuleExpression, right: RuleExpression) {
+    this.left = left;
+    this.right = right;
+  }
 
   interpret(context: Context): boolean {
     return this.left.interpret(context) && this.right.interpret(context);

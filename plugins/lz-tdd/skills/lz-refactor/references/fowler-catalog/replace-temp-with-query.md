@@ -25,7 +25,13 @@ Before, a temp holds an intermediate value:
 
 ```ts
 class Invoice {
-  constructor(private readonly hours: number, private readonly rate: number) {}
+  private readonly hours: number;
+  private readonly rate: number;
+
+  constructor(hours: number, rate: number) {
+    this.hours = hours;
+    this.rate = rate;
+  }
 
   get total(): number {
     const labor = this.hours * this.rate;
@@ -38,7 +44,13 @@ After, the value is a query, reusable and free of the local:
 
 ```ts
 class Invoice {
-  constructor(private readonly hours: number, private readonly rate: number) {}
+  private readonly hours: number;
+  private readonly rate: number;
+
+  constructor(hours: number, rate: number) {
+    this.hours = hours;
+    this.rate = rate;
+  }
 
   get total(): number {
     return this.labor + this.labor * 0.1;

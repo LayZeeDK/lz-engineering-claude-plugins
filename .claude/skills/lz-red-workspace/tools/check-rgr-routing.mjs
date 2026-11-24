@@ -118,9 +118,14 @@ import {
 } from "./lib/routing-parse.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
-// tools -> lz-red-workspace -> skills -> .claude -> repo root
-const repoRoot = path.resolve(here, "..", "..", "..", "..");
-const CORPUS_PATH = path.join(here, "rgr-cases.json");
+// tools -> lz-red-workspace -> skills -> .claude -> repo root. RGR_ROUTING_ROOT points the gate at
+// a COPY of the tree instead: the evasion suite mutates only that copy, so an interrupted run can
+// never leave a shipped file carrying a planted defect. Every read below, the corpus included,
+// resolves under this one root.
+const repoRoot = process.env.RGR_ROUTING_ROOT
+  ? path.resolve(process.env.RGR_ROUTING_ROOT)
+  : path.resolve(here, "..", "..", "..", "..");
+const CORPUS_PATH = path.join(repoRoot, ".claude", "skills", "lz-red-workspace", "tools", "rgr-cases.json");
 const LZ_REFACTOR_SKILL = path.join(repoRoot, "plugins", "lz-tdd", "skills", "lz-refactor", "SKILL.md");
 
 // Per-entry listing cap for a skill's folded description. Do NOT hard-code a baseline here -- the

@@ -22,7 +22,9 @@
 //      FAILS -- it must never read as a pass. This fired twice in one session: a `sed` anchor that
 //      spanned a ~100-column line wrap, and a fold-proof anchor for text that did not exist. Both
 //      produced a GREEN gate that proved absolutely nothing.
-//   2. RESTORE AND VERIFY BY CHECKSUM, in a `finally`, so a throw cannot leave a shipped file mutated.
+//   2. MUTATE A COPY, NEVER THE TRACKED TREE, and still restore and verify by checksum in a `finally`
+//      so one entry's mutation cannot leak into the next. The copy lives under os.tmpdir() and the
+//      gate reads it through RGR_ROUTING_ROOT, so a killed run cannot leave a shipped file mutated.
 //   3. ASSERT THE EXPECTED NAMED LABEL, not merely a non-zero exit. An insertion at the wrong site that
 //      reddens some unrelated check would otherwise read as a pass.
 //   4. NO PIPES when measuring an exit code -- a pipeline reports the LAST stage's status. This
@@ -50,6 +52,7 @@
 // ---------------------------------------------------------------------------------------------
 import crypto from "node:crypto";
 import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
 import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
@@ -57,14 +60,27 @@ import { fileURLToPath } from "node:url";
 const here = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(here, "..", "..", "..", "..");
 const GATE = path.join(here, "check-rgr-routing.mjs");
+const CORPUS = ".claude/skills/lz-red-workspace/tools/rgr-cases.json";
 
-const abs = (rel) => path.join(repoRoot, ...rel.split("/"));
+// Every mutation lands in a COPY of the files the gate reads, never in the tracked tree, and the
+// gate is pointed at the copy through RGR_ROUTING_ROOT. A `finally` does not run when Node is
+// killed (Ctrl-C, a tool timeout, a closed terminal), so restoring in place could leave a shipped
+// SKILL.md carrying a planted defect, and two sessions running this at once would corrupt each
+// other's baseline. A killed run here leaves at most a stray temp dir.
+const copyRoot = fs.mkdtempSync(path.join(os.tmpdir(), "rgr-evasions-"));
+fs.cpSync(path.join(repoRoot, "plugins", "lz-tdd"), path.join(copyRoot, "plugins", "lz-tdd"), { recursive: true });
+fs.mkdirSync(path.dirname(path.join(copyRoot, ...CORPUS.split("/"))), { recursive: true });
+fs.copyFileSync(path.join(repoRoot, ...CORPUS.split("/")), path.join(copyRoot, ...CORPUS.split("/")));
+process.on("exit", () => fs.rmSync(copyRoot, { recursive: true, force: true }));
+
+const abs = (rel) => path.join(copyRoot, ...rel.split("/"));
 const sha = (p) => crypto.createHash("sha256").update(fs.readFileSync(p)).digest("hex");
+const gateEnv = { ...process.env, RGR_ROUTING_ROOT: copyRoot };
 
 // Exit code measured directly from the child, never through a pipe (rule 4).
 const runGate = () => {
   try {
-    return { code: 0, out: execFileSync("node", [GATE], { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }) };
+    return { code: 0, out: execFileSync("node", [GATE], { encoding: "utf8", env: gateEnv, stdio: ["ignore", "pipe", "pipe"] }) };
   } catch (e) {
     return { code: typeof e.status === "number" ? e.status : 1, out: `${e.stdout || ""}${e.stderr || ""}` };
   }
@@ -74,7 +90,6 @@ const RED = "plugins/lz-tdd/skills/lz-red/SKILL.md";
 const TPP = "plugins/lz-tdd/skills/lz-tpp/SKILL.md";
 const REFACTOR = "plugins/lz-tdd/skills/lz-refactor/SKILL.md";
 const BECK = "plugins/lz-tdd/references/beck-tdd-by-example.md";
-const CORPUS = ".claude/skills/lz-red-workspace/tools/rgr-cases.json";
 
 // THE RATCHET (rule 8). The number of OPEN entries expected at HEAD. Raise it only when a new open
 // evasion is deliberately recorded; LOWER it in the same commit that closes one. Any drift exits 1.

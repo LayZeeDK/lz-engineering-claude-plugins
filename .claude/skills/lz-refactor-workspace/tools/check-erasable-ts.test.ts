@@ -67,6 +67,26 @@ test('reports override and public modifiers', () => {
   assert.deepEqual(hitLines(markdown), [5, 5]);
 });
 
+test('reports a protected modifier', () => {
+  const markdown = fence('ts', 'class A {\n  constructor(protected readonly t: T) {}\n}');
+
+  assert.deepEqual(hitLines(markdown), [5]);
+});
+
+test('scans tsx, mts and cts fences', () => {
+  const code = 'constructor(private n: Notifier) {}';
+
+  assert.deepEqual(hitLines(fence('tsx', code)), [4]);
+  assert.deepEqual(hitLines(fence('mts', code)), [4]);
+  assert.deepEqual(hitLines(fence('cts', code)), [4]);
+});
+
+test('scans a ts fence left open at the end of the file', () => {
+  const markdown = ['# Leaf', '', '```ts', 'class A {', '  constructor(private n: Notifier) {}', '}'].join('\n');
+
+  assert.deepEqual(hitLines(markdown), [5]);
+});
+
 test('ignores a readonly member of an object-type parameter', () => {
   const markdown = fence('ts', 'class A {\n  constructor(opts: { readonly a: number, readonly b: number }) {}\n}');
 

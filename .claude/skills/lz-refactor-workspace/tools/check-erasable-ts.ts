@@ -1,8 +1,10 @@
 #!/usr/bin/env node
-// Erasable-syntax guard over the shipped TypeScript examples: fails on any constructor parameter
-// property (a constructor parameter that starts with public, private, protected, readonly or
-// override) inside a ts or typescript fence in plugins/**/*.md. Parameter properties fail
-// erasableSyntaxOnly and Node.js type stripping. Commented-out code is ignored.
+// Erasable-syntax guard over the shipped TypeScript examples, for one construct only: fails on any
+// constructor parameter property (a constructor parameter that starts with public, private,
+// protected, readonly or override) inside a ts, typescript, tsx, mts or cts fence in
+// plugins/**/*.md. Parameter properties fail erasableSyntaxOnly and Node.js type stripping. Other
+// non-erasable syntax (enum, namespace with values, import = require) is not checked.
+// Commented-out code is ignored.
 //   node .claude/skills/lz-refactor-workspace/tools/check-erasable-ts.ts
 import fs from 'node:fs';
 import path from 'node:path';
@@ -18,7 +20,7 @@ interface Block {
   text: string;
 }
 
-const tsInfo = new Set(['ts', 'typescript']);
+const tsInfo = new Set(['ts', 'typescript', 'tsx', 'mts', 'cts']);
 const modifier = /^(?:@[\w.$]+(?:\([^)]*\))?\s+)*(?:public|private|protected|readonly|override)\s+[\w$]/;
 
 function tsBlocks(lines: string[]): Block[] {
@@ -50,6 +52,10 @@ function tsBlocks(lines: string[]): Block[] {
     } else {
       open.body.push(line);
     }
+  }
+
+  if (open?.isTs === true) {
+    blocks.push({ firstLine: open.firstLine, text: open.body.join('\n') });
   }
 
   return blocks;
@@ -106,6 +112,8 @@ function blankCommentsAndStrings(code: string): string {
 }
 
 // Start offsets of the depth-0 parameters of the list that opens just before `start`.
+// shortcut: every < opens a generic, so a comparison in a default value (`ok = a < b`) hides the
+// parameters after it; upgrade if an example ever needs one.
 function parameterStarts(code: string, start: number): number[] {
   const starts = [start];
   let depth = 0;

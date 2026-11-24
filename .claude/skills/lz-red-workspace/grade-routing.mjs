@@ -83,6 +83,8 @@ const REPO_ROOT = path.resolve(HERE, '../../..');
 const CORPUS_PATH = path.join(HERE, 'tools', 'rgr-cases.json');
 const FIXTURE_DIR = path.join(HERE, 'fixtures-routing');
 const SHIPPED_SKILLS_DIR = path.join(REPO_ROOT, 'plugins', 'lz-tdd', 'skills');
+// The shared routing table variants B and C add to their trees (build-variants.mjs copies it in).
+const VARIANT_TABLE_PATH = path.join(HERE, 'variants', 'rgr-routing.md');
 
 // The closed label set. Order is the corpus's own reading order and is not significant.
 const SKILL_LABELS = ['lz-red', 'lz-tpp', 'lz-refactor'];
@@ -287,12 +289,13 @@ const HEADING_PLACEHOLDER = '[section heading]';
 // Below this length a "heading" is too generic to be arm-identifying and stripping it would be noise.
 const MIN_HEADING_LENGTH = 6;
 
-// The arm-identifying heading set is DERIVED from the tracked tree rather than hardcoded, so a
+// The arm-identifying heading set is DERIVED from all three trees rather than hardcoded, so a
 // rewording by whoever authors the routing content cannot silently stale it. Variant A is the tracked
-// tree and variants B/C only remove or relocate sections, so A's heading set is the superset that
-// contains every heading a leak could name. Fails CLOSED: an unreadable tree throws, because handing
-// a judge an UNBLINDED answer is worse than stopping the grade.
-export function shippedSectionHeadings(skillsDir = SHIPPED_SKILLS_DIR) {
+// SKILL.md set. Variants B and C also ADD the shared routing table (variants/rgr-routing.md), whose
+// headings and bold edge-case titles exist only in those arms, so the set is the union of both
+// sources. Fails CLOSED: an unreadable source throws, because handing a judge an UNBLINDED answer is
+// worse than stopping the grade.
+export function shippedSectionHeadings(skillsDir = SHIPPED_SKILLS_DIR, variantTable = VARIANT_TABLE_PATH) {
   let entries;
 
   try {
@@ -325,6 +328,24 @@ export function shippedSectionHeadings(skillsDir = SHIPPED_SKILLS_DIR) {
       if (m && m[1].length >= MIN_HEADING_LENGTH) {
         headings.add(m[1]);
       }
+    }
+  }
+
+  let table;
+
+  try {
+    table = fs.readFileSync(variantTable, 'utf8');
+  } catch (err) {
+    throw new Error(`grade-routing: cannot read ${variantTable} for the heading set (fail closed): ${err.message}`);
+  }
+
+  for (const line of table.split('\n')) {
+    // `#` to `###` headings, plus a bold edge-case title that opens a paragraph (its trailing
+    // period dropped, so a recital without it still matches).
+    const m = /^#{1,3}\s+(.+?)\s*$/.exec(line) || /^\*\*(.+?)[.:]?\*\*/.exec(line);
+
+    if (m && m[1].length >= MIN_HEADING_LENGTH) {
+      headings.add(m[1]);
     }
   }
 
@@ -827,6 +848,13 @@ function runSelfcheck() {
   assert(!/PLUGIN_ROOT/.test(leakyNorm.text), 'the plugin-root variable is gone from the judge input');
   assert(!leakyNorm.text.includes(headings[0]), `the recited section heading is gone from the judge input (${headings[0]})`);
   assert(leakyNorm.text.includes(PATH_PLACEHOLDER) && leakyNorm.text.includes(HEADING_PLACEHOLDER), 'both leaks are replaced by neutral placeholders, not deleted');
+  // 9b. the REAL derived set reaches the headings only variants B and C carry (their shared table's
+  //     section headings and bold edge-case titles), not just the SKILL.md headings all arms share.
+  const derived = shippedSectionHeadings();
+  const tableLeak = normalizeForJudge("Per the routing table's Edge cases, this goes to lz-red.", derived);
+  assert(tableLeak.fired.includes('section-heading'), 'a recited variant-table heading ("Edge cases") fires section-heading');
+  const titleLeak = normalizeForJudge('As the table says, the residual terminal claims nothing.', derived);
+  assert(titleLeak.fired.includes('section-heading'), 'a recited variant-table edge-case title fires section-heading');
   const clean = normalizeForJudge('hand it to lz-refactor once the bar is green', headings);
   assert(clean.fired.length === 0 && clean.changed === false, 'an answer with no leak reports NO normalization (the pass is not vacuous)');
   assert(clean.text.includes('lz-refactor'), 'normalization never strips a bare destination name');

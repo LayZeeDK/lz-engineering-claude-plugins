@@ -189,7 +189,9 @@ normalization pass before the judge sees anything:
 - the FILE-PATH leak -- variants B and C may cite the shared table's path or the plugin-root variable;
   variant A cannot;
 - the SECTION-TITLE leak -- variants A and B may quote a per-skill narrative heading that variant C
-  deletes.
+  deletes, and variants B and C may quote a heading or bold edge-case title of the shared table that
+  variant A does not carry. The grader derives its strip set from the SKILL.md files AND
+  `variants/rgr-routing.md`.
 
 Both are replaced by neutral placeholders rather than deleted, and the grader REPORTS whether
 normalization fired per run. Report that count per arm in the writeup, so blindness is EVIDENCED

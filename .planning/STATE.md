@@ -708,8 +708,8 @@ Items acknowledged and carried forward from previous milestone close:
 ## Session Continuity
 
 Last session: 2026-11-24 (resume-work, then `/gsd-discuss-phase 22.1 --analyze --auto`)
-Stopped at: Phase 22.1 context gathered (31d105d). D-11, which suites get ported, is UNRESOLVED (high impact, not
-high confidence) and waits for Lars; planning starts after his ruling. No paid run has started.
+Stopped at: Phase 22.1 context gathered (31d105d); D-11 settled by Lars ("D-11, which suites get ported: OK",
+option B). Next: /gsd-plan-phase 22.1. No paid run has started.
 Resume file: .planning/phases/22.1-eval-harness-on-claude-plugin-eval-and-slim-claude-p/22.1-CONTEXT.md
 Prior last session: 2026-08-04 (resume-work -- BOTH zero-spend items DONE, plus a cascaded third task; the
 two metered rounds are the ONLY remaining blockers and neither is approved)

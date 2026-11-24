@@ -2,9 +2,9 @@
 gsd_state_version: 1.0
 milestone: lz-tdd@0.0.3
 milestone_name: lz-red Skill
-current_phase: 22
-current_phase_name: three-way-classifier-correctness-lz-refactor-lz-red
-status: verified
+current_phase: 23
+current_phase_name: agent-as-developer-conversion-of-lz-red-lz-tpp-and-lz-refact
+status: discussed
 stopped_at: "Phase 22 VERIFIED passed 8/8 after gap closure; secured (0 threats open), validated (blind spot instrumented + mutation-proven), learnings extracted and bridged to the global store. 8 of 8 plans merged, full battery GREEN, zero metered spend. D-19 DISCHARGED 2026-08-04: the owner ran /reload-plugins, so the three edited descriptions are LIVE. HALTED awaiting the only remaining decision: separate approval for TWO metered rounds (Round A the placement A/B, Round B the now-owed EVL-01 reciprocal trigger regression). Neither is approved; nothing metered has run."
 last_updated: "2026-08-04T20:30:00.000Z"
 last_activity: 2026-11-24
@@ -24,7 +24,7 @@ progress:
 See: .planning/PROJECT.md (updated 2026-07-18 -- started milestone lz-tdd@0.0.3)
 
 **Core value:** `lz-tpp` helps Claude choose the next code transformation by TPP priority during red-green-refactor TDD, and explains the premise on demand. lz-tdd@0.0.2 added `lz-refactor` (refactor step); lz-tdd@0.0.3 adds `lz-red` (red step) to complete the loop.
-**Current focus:** Phase 22 -- three-way-classifier-correctness-lz-refactor-lz-red
+**Current focus:** Phase 23 -- agent-as-developer-conversion-of-lz-red-lz-tpp-and-lz-refact (context gathered 2026-11-24, `--analyze --auto`, 11 decisions, todo C8/C9/E1 folded). Phase 22 stays halted on its two metered rounds, which run on the Phase 24 harness.
 **Milestone:** lz-tdd@0.0.3 (lz-red Skill, RED phase) -- planning (started 2026-07-18)
 
 ## Current Position

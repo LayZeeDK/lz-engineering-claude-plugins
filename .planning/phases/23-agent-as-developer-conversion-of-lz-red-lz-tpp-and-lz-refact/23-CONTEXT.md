@@ -59,7 +59,18 @@ backlog 999.1. No metered run happens in this phase.
   plugin drew on. Lars, verbatim: "Similar to lz-oop, the lz-tdd plugins' skills and references shouldn't mention or
   link to people, conferences, talks, books, articles, podcasts, or similar by name. Only for example named patterns
   should be named in the skills and references. ... keep an plugins/lz-tdd/ATTRIBUTION.md file which is shipped with
-  the plugin and names sources used as inspiration for the plugin." Evidence and the exact line between a source name
+  the plugin and names sources used as inspiration for the plugin." lz-oop session's answer (2026-11-24): its
+  names A/B was designed (arms ff64c1c / 23dfd28 / 9c7bcc7, 55 cases, k=3) but only the baseline arm ran, so NO
+  lz-oop decision on names rests on measurement; its rules are Lars's rulings, and its person-name removal (9c7bcc7)
+  is applied but unmeasured. Line (Lars's rule plus lz-oop Claude's reading, inferred): allowed = names of principles,
+  rules, refactorings, smells, patterns, and a person-carrying concept name when it is the concept's usual name;
+  forbidden = titles of books/talks/articles, chapter numbers, stand-ins ("the book", "the talk"), her/she for an
+  author, provenance statements, Sources sections, and quoting or close paraphrase. ATTRIBUTION.md shape: intro, then
+  Books (author, italic title, edition, year), Talks/interviews/podcasts (speaker: Title (year)), Articles; a work
+  gets its line in the change that first draws on it. Enforcement model: lz-oop `tools/citations.ts` (+ test) reads
+  titles from ATTRIBUTION.md and fails on them, chapter citations and stand-ins elsewhere; nothing checks person
+  names. OPEN (Claude asks Lars): this phase or its own phase; whether person names go too (lz-oop removed them).
+  Superseded wording follows: Evidence and the exact line between a source name
   and an allowed name come from the lz-oop session (asked 2026-11-24, answer pending). OPEN (Claude asks Lars): this
   phase or its own phase.
 

@@ -117,10 +117,26 @@ function markerOf(dir: string): string {
   return `${dir}/.git/template.json`;
 }
 
+export interface TestRun {
+  readonly status: number | null;
+  // The end of the runner's output, for the error when a run goes wrong.
+  readonly output: string;
+}
+
 // The install and the test runs, replaceable so the unit tests stay offline.
 export interface Toolchain {
   readonly install: (dir: string) => void;
-  readonly vitest: (dir: string, args: readonly string[]) => number | null;
+  readonly vitest: (dir: string, args: readonly string[]) => TestRun;
+}
+
+// The child's environment with <dir>/node_modules/.bin first on its PATH, as `npx` gives a script: the kata's
+// approvals spec starts `ts-node` by name. Windows spells the variable Path, so the existing key is kept.
+export function withLocalBin(dir: string, env: NodeJS.ProcessEnv): NodeJS.ProcessEnv {
+  const key = Object.keys(env).find((name) => name.toUpperCase() === 'PATH') ?? 'PATH';
+  const separator = process.platform === 'win32' ? ';' : ':';
+  const bin = join(dir, 'node_modules', '.bin');
+
+  return { ...env, [key]: env[key] === undefined || env[key] === '' ? bin : `${bin}${separator}${env[key]}` };
 }
 
 // Stryker disable all: spawns npm and vitest, which the unit tests replace
@@ -139,13 +155,17 @@ export const kataToolchain: Toolchain = {
       throw new Error(`npm ci in ${dir} exited ${String(result.status)}: ${(result.stderr ?? '').slice(-1500)}`);
     }
   },
-  vitest: (dir, args) =>
-    spawnSync(process.execPath, ['node_modules/vitest/vitest.mjs', ...args], {
+  vitest: (dir, args) => {
+    const result = spawnSync(process.execPath, ['node_modules/vitest/vitest.mjs', ...args], {
       cwd: dir,
+      env: withLocalBin(dir, process.env),
       encoding: 'utf8',
       maxBuffer: 64 * 1024 * 1024,
       windowsHide: true,
-    }).status,
+    });
+
+    return { status: result.status, output: `${result.stdout ?? ''}${result.stderr ?? ''}${result.error?.message ?? ''}`.slice(-2000) };
+  },
 };
 // Stryker restore all
 
@@ -156,10 +176,15 @@ function arm(dir: string, template: Recipe, toolchain: Toolchain): void {
 
   // The update flag is explicit and --ci is never passed: CI mode refuses to write a new snapshot.
   const wrote = toolchain.vitest(dir, ['run', template.arm.spec, '-u']);
-  const proved = wrote === 0 ? toolchain.vitest(dir, ['run', template.arm.spec]) : null;
 
-  if (wrote !== 0 || proved !== 0) {
-    throw new Error(`arming ${template.arm.spec} failed: the update run exited ${String(wrote)}, the plain run ${String(proved)}`);
+  if (wrote.status !== 0) {
+    throw new Error(`arming ${template.arm.spec} failed: the update run exited ${String(wrote.status)}:\n${wrote.output}`);
+  }
+
+  const proved = toolchain.vitest(dir, ['run', template.arm.spec]);
+
+  if (proved.status !== 0) {
+    throw new Error(`arming ${template.arm.spec} failed: the plain re-run exited ${String(proved.status)}:\n${proved.output}`);
   }
 
   const blob = git(dir, ['hash-object', template.arm.snapshot]);
@@ -179,7 +204,7 @@ function proveRed(dir: string, template: Recipe, toolchain: Toolchain): void {
   const report = `${dirname(dir)}/red-${String(process.pid)}.json`;
 
   try {
-    const status = toolchain.vitest(dir, ['run', template.red.spec, '--reporter=json', `--outputFile=${report}`]);
+    const { status } = toolchain.vitest(dir, ['run', template.red.spec, '--reporter=json', `--outputFile=${report}`]);
     const json = existsSync(report) ? readJson(report) : null;
     const failed = isRecord(json) && typeof json['numFailedTests'] === 'number' ? json['numFailedTests'] : 0;
     const files = isRecord(json) && Array.isArray(json['testResults']) ? json['testResults'] : [];

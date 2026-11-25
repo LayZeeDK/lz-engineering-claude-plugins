@@ -6,7 +6,7 @@ import { join } from 'node:path';
 import { after, test } from 'node:test';
 
 import { git } from './stage.ts';
-import { buildTemplate, copyTemplate, readTemplates, templateDir, type Recipe, type Toolchain } from './templates.ts';
+import { buildTemplate, copyTemplate, readTemplates, templateDir, withLocalBin, type Recipe, type Toolchain } from './templates.ts';
 
 const root = mkdtempSync(join(tmpdir(), 'lz-evals-templates-')).replaceAll('\\', '/');
 
@@ -92,7 +92,7 @@ function fakeToolchain(calls: Calls): Toolchain {
         put(`${dir}/test/__snapshots__/approvals.spec.ts.snap`, snapshotText);
       }
 
-      return 0;
+      return { status: 0, output: '' };
     },
   };
 }
@@ -180,7 +180,7 @@ test('a red template copies the committed overlay in and requires its spec to fa
       const out = args.find((arg) => arg.startsWith('--outputFile='))?.slice('--outputFile='.length) ?? '';
       put(out, JSON.stringify({ numFailedTests: failed, testResults: files }));
 
-      return failed > 0 || files.length > 0 ? 1 : 0;
+      return { status: failed > 0 || files.length > 0 ? 1 : 0, output: '' };
     },
   });
 
@@ -215,6 +215,15 @@ test('copyTemplate copies a built template into an empty run folder below the sl
   assert.throws(() => copyTemplate(dir, `${f.slimRoot}/elsewhere`, f.slimRoot), /is not below/);
   assert.throws(() => copyTemplate(dir, `${f.slimRoot}/runs/../escape`, f.slimRoot), /is not below/);
   assert.throws(() => copyTemplate(`${f.slimRoot}/templates`, `${f.slimRoot}/runs/other`, f.slimRoot), /is not a built template/);
+});
+
+test('withLocalBin puts the template node_modules/.bin first on PATH under the name the environment already uses', () => {
+  const separator = process.platform === 'win32' ? ';' : ':';
+  const bin = join('W:/kata', 'node_modules', '.bin');
+
+  assert.deepEqual(withLocalBin('W:/kata', { Path: 'A', OTHER: 'x' }), { Path: `${bin}${separator}A`, OTHER: 'x' });
+  assert.deepEqual(withLocalBin('W:/kata', { PATH: 'A' }), { PATH: `${bin}${separator}A` });
+  assert.deepEqual(withLocalBin('W:/kata', {}), { PATH: bin });
 });
 
 test('the committed templates.json pins three GildedRose recipes with clone-relative paths', () => {

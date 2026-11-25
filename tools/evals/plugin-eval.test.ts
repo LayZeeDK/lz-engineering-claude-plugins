@@ -81,7 +81,7 @@ function cliJson(overrides: { partial?: boolean; error?: string | null; withoutE
   };
 }
 
-const meta = { startedAt: '2026-11-25T00:00:00.000Z', binary: 'W:/bin/claude.exe' };
+const meta = { startedAt: '2026-11-25T00:00:00.000Z', binary: 'W:/bin/claude.exe', pluginTree: 'p'.repeat(40), casesTree: 'c'.repeat(40) };
 const bothTraces: Traces = { with: traceOf(sonnet), without: null };
 
 function outcome(json: unknown, traces: Traces = bothTraces, ablation: Ablation = 'none'): string {

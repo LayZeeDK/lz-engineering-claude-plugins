@@ -98,6 +98,64 @@ export function readFrontmatter(text: string): Frontmatter {
   return { data, body: lines.slice(end + 1).join('\n').replace(/^\n+/, '') };
 }
 
+export interface CaseYaml {
+  readonly schemaVersion: string | null;
+  readonly name: string | null;
+  readonly tags: readonly string[];
+  readonly scaffoldScript: string | null;
+}
+
+// The case.yaml subset the harness runs: schema_version, name, tags as a flow list, and a context block holding only
+// scaffold_script. Anything else fails, naming the line, so no field is silently dropped.
+export function readCaseYaml(text: string): CaseYaml {
+  const lines = text.replaceAll('\r\n', '\n').split('\n');
+  const values = new Map<string, string | number | boolean | string[]>();
+  let inContext = false;
+
+  lines.forEach((line, index) => {
+    if (line.trim() === '') {
+      return;
+    }
+
+    const top = /^(schema_version|name|tags|context):(?: (.*))?$/.exec(line);
+    const nested = /^ {2}(scaffold_script): (.+)$/.exec(line);
+
+    if (top?.[1] === 'context' && (top[2] ?? '').trim() === '') {
+      inContext = true;
+    } else if (top?.[1] !== undefined && top[1] !== 'context' && !values.has(top[1])) {
+      inContext = false;
+      const raw = (top[2] ?? '').trim();
+      values.set(top[1], raw.startsWith('[') && raw.endsWith(']') ? flowList(raw, line) : scalar(raw, line));
+    } else if (inContext && nested?.[2] !== undefined && !values.has('scaffold_script')) {
+      values.set('scaffold_script', scalar(nested[2].trim(), line));
+    } else {
+      throw new Error(`case.yaml line ${String(index + 1)} ${JSON.stringify(line)} is not a field the harness reads`);
+    }
+  });
+
+  const stringField = (key: string): string | null => {
+    const value = values.get(key);
+
+    if (value !== undefined && typeof value !== 'string') {
+      throw new Error(`case.yaml ${key} must be a string`);
+    }
+
+    return value ?? null;
+  };
+  const tags = values.get('tags') ?? [];
+
+  if (!isStringArray(tags)) {
+    throw new Error('case.yaml tags must be a flow list');
+  }
+
+  return {
+    schemaVersion: stringField('schema_version'),
+    name: stringField('name'),
+    tags,
+    scaffoldScript: stringField('scaffold_script'),
+  };
+}
+
 export type Backend = 'plugin-eval' | 'slim';
 export type Ablation = 'none' | 'with-without';
 

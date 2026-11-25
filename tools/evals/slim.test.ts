@@ -63,6 +63,8 @@ function outFile(session: string | null, text: string, models: readonly string[]
   return JSON.stringify({ cwd: 'S:/cwd', args: [], prompt: 'x', status: 0, ms, stdout: session === null ? '' : JSON.stringify(result), stderr: '' });
 }
 
+const meta = { binary: 'W:/bin/run-slim.ts', pluginTree: 'p'.repeat(40), casesTree: 'c'.repeat(40) };
+
 const input = {
   cwd: 'S:/slim/runs/set-abc',
   rawDir: 'W:/set/head/m/c/run-1/raw',
@@ -161,7 +163,7 @@ test('settleSlim writes result.json for a finished run and refuses a limit stop,
       put(`${runDir}/raw/result.json`, out);
     }
 
-    const outcome = settleSlim(plannedRun(runDir), `${runDir}/raw/result.json`, 0, 'W:/bin/run-slim.ts');
+    const outcome = settleSlim(plannedRun(runDir), `${runDir}/raw/result.json`, 0, meta);
 
     return {
       outcome,
@@ -194,11 +196,11 @@ test('a resumed run sums turns and seconds over its --out files and keeps the hi
   put(`${runDir}/raw/result.json`, outFile(sessionA, 'stopped', [sonnet], 3000));
   put(`${runDir}/raw/result-resume-1.json`, outFile(sessionA, 'Done.', [sonnet], 5000));
 
-  assert.equal(settleSlim(plannedRun(runDir), `${runDir}/raw/result-resume-1.json`, 0, 'W:/bin/run-slim.ts'), 'done');
+  assert.equal(settleSlim(plannedRun(runDir), `${runDir}/raw/result-resume-1.json`, 0, meta), 'done');
   const result = requireRecord(readJson(`${runDir}/result.json`), 'result.json');
   assert.deepEqual(
-    ['turns', 'seconds', 'costUsd', 'graded', 'backend'].map((key) => result[key]),
-    [8, 8, 0.3, false, 'slim'],
+    ['turns', 'seconds', 'costUsd', 'graded', 'backend', 'pluginTree', 'casesTree', 'binary'].map((key) => result[key]),
+    [8, 8, 0.3, false, 'slim', meta.pluginTree, meta.casesTree, meta.binary],
   );
 });
 

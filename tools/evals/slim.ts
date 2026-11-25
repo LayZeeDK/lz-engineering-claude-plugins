@@ -17,6 +17,7 @@ import {
   type Normalized,
   type PlannedRun,
   type RunOutcome,
+  type Trees,
 } from './run-set.ts';
 import { limitStopped, modelRefusal, namesModel, resultFacts, slimOutput, usageTokens, type SlimOutput } from './trace.ts';
 
@@ -155,8 +156,12 @@ function usedModels(output: SlimOutput): string[] {
   return isRecord(usage) ? Object.keys(usage) : [];
 }
 
+export interface SlimMeta extends Trees {
+  readonly binary: string;
+}
+
 // Seconds and turns are each part's own; cost and tokens are running totals of the session every resume continues.
-export function normalizeSlim(run: PlannedRun, outs: readonly SlimOutput[], latest: SlimOutput | null, binary: string): Normalized {
+export function normalizeSlim(run: PlannedRun, outs: readonly SlimOutput[], latest: SlimOutput | null, meta: SlimMeta): Normalized {
   if (latest === null) {
     return { outcome: 'failed', reason: 'run-slim wrote no --out file' };
   }
@@ -192,8 +197,8 @@ export function normalizeSlim(run: PlannedRun, outs: readonly SlimOutput[], late
       runSet: run.runSetName,
       arm: run.arm,
       ref: run.ref,
-      pluginTree: null,
-      casesTree: null,
+      pluginTree: meta.pluginTree,
+      casesTree: meta.casesTree,
       suite: run.suite.name,
       case: run.caseInfo.name,
       k: run.k,
@@ -201,7 +206,7 @@ export function normalizeSlim(run: PlannedRun, outs: readonly SlimOutput[], late
       initModel: ran,
       modelsUsed: used,
       claudeCodeVersion: null,
-      binary,
+      binary: meta.binary,
       startedAt: started?.startedAt ?? '',
       seconds: Math.round(sum(outs.map(({ ms }) => ms)) / 1000),
       turns: sum(facts.map(({ turns }) => turns)),
@@ -221,17 +226,18 @@ export function normalizeSlim(run: PlannedRun, outs: readonly SlimOutput[], late
 }
 
 // Reads what the invocation that just ended wrote (outFile) and every earlier part, and settles the run.
-export function settleSlim(run: PlannedRun, outFile: string, status: number | null, binary: string): RunOutcome {
+export function settleSlim(run: PlannedRun, outFile: string, status: number | null, meta: SlimMeta): RunOutcome {
   const outs = outFiles(`${run.runDir}/raw`).map((file) => slimOutput(readJson(file)));
   const latest = existsSync(outFile) ? slimOutput(readJson(outFile)) : null;
 
-  return settleRun(run.runDir, normalizeSlim(run, outs, latest, binary), status);
+  return settleRun(run.runDir, normalizeSlim(run, outs, latest, meta), status);
 }
 
 export interface SlimContext {
   readonly stageRoot: string;
   readonly slimRoot: string;
   readonly runSlim: Command;
+  readonly trees: (run: PlannedRun) => Trees;
 }
 
 export function slimPluginDir(stageRoot: string, run: PlannedRun): string | null {
@@ -300,8 +306,8 @@ export async function withHeavyLock<T>(
   }
 }
 
-function binaryOf(command: Command): string {
-  return command.prefix[0] ?? command.file;
+function metaOf(run: PlannedRun, ctx: SlimContext): SlimMeta {
+  return { binary: ctx.runSlim.prefix[0] ?? ctx.runSlim.file, ...ctx.trees(run) };
 }
 
 export async function startSlimRun(run: PlannedRun, ctx: SlimContext): Promise<RunOutcome> {
@@ -317,7 +323,7 @@ export async function startSlimRun(run: PlannedRun, ctx: SlimContext): Promise<R
   writeFileSync(`${input.rawDir}/prompt.txt`, run.caseInfo.body);
   const status = await spawnLogged(ctx.runSlim, args, input.rawDir, 'run-slim');
 
-  return settleSlim(run, `${input.rawDir}/result.json`, status, binaryOf(ctx.runSlim));
+  return settleSlim(run, `${input.rawDir}/result.json`, status, metaOf(run, ctx));
 }
 
 export async function resumeSlimRun(run: PlannedRun, ctx: SlimContext, session: string): Promise<RunOutcome> {
@@ -328,6 +334,6 @@ export async function resumeSlimRun(run: PlannedRun, ctx: SlimContext, session: 
   rmSync(`${input.rawDir}/refused.txt`, { force: true });
   const status = await spawnLogged(ctx.runSlim, args, input.rawDir, `run-slim-resume-${String(nextResume(input.rawDir))}`);
 
-  return settleSlim(run, out, status, binaryOf(ctx.runSlim));
+  return settleSlim(run, out, status, metaOf(run, ctx));
 }
 // Stryker restore all

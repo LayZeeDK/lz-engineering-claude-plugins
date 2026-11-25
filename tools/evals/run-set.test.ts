@@ -6,6 +6,7 @@ import { join } from 'node:path';
 import { after, test } from 'node:test';
 
 import {
+  acquireRunSetLock,
   diedRuns,
   newRuns,
   planRuns,
@@ -144,6 +145,61 @@ test('planRuns refuses a plan in which two entries resolve to one run folder, na
   );
 
   assert.throws(() => plan(repo, setDir), (error: Error) => /head\/claude-opus-5-5\/demo-02\/run-1/.test(error.message) && /demo.*demo/.test(error.message));
+});
+
+function deadPid(): number {
+  return spawnSync(process.execPath, ['-e', '']).pid;
+}
+
+test('acquireRunSetLock refuses while a live process holds the lock and releases it for the next', () => {
+  const dir = `${root}/lock-live`;
+  mkdirSync(dir, { recursive: true });
+  const release = acquireRunSetLock(dir);
+
+  assert.equal((JSON.parse(readFileSync(`${dir}/.lock`, 'utf8')) as { pid: number }).pid, process.pid);
+  assert.throws(() => acquireRunSetLock(dir), new RegExp(`pid ${String(process.pid)}`));
+
+  release();
+
+  assert.equal(existsSync(`${dir}/.lock`), false);
+  acquireRunSetLock(dir)();
+});
+
+test('acquireRunSetLock reports a lock whose process is dead and takes it over', () => {
+  const dir = `${root}/lock-stale`;
+  const dead = deadPid();
+  put(`${dir}/.lock`, JSON.stringify({ pid: dead, startedAt: '2026-11-25T00:00:00.000Z' }));
+  const release = acquireRunSetLock(dir);
+
+  assert.equal((JSON.parse(readFileSync(`${dir}/.lock`, 'utf8')) as { pid: number }).pid, process.pid);
+
+  release();
+});
+
+test('run, resume and rerun refuse while a live process holds the run set lock, and release it afterwards', () => {
+  const { repo, setDir, env } = scenario('lock-cli', { [opus]: 1 });
+  const runDir = `${setDir}/head/${opus}/demo-01/run-1`;
+  put(`${setDir}/.lock`, JSON.stringify({ pid: process.pid, startedAt: '2026-11-25T00:00:00.000Z' }));
+
+  const results = [
+    evalCli(['run', setDir], env),
+    evalCli(['rerun', setDir, runDir], env),
+    evalCli(['resume', setDir, runDir], env),
+  ];
+
+  for (const refused of results) {
+    assert.equal(refused.status, 1, refused.output);
+    assert.match(refused.output, new RegExp(`pid ${String(process.pid)}`));
+  }
+
+  assert.equal(stubCalls(env), 0);
+  rmSync(`${setDir}/.lock`);
+
+  const ok = evalCli(['run', setDir], env);
+
+  assert.equal(ok.status, 0, ok.output);
+  assert.equal(existsSync(`${setDir}/.lock`), false);
+  assert.equal(plan(repo, setDir).every((run) => runState(run.runDir) === 'done'), true);
 });
 
 test('readRunSet refuses bad names, refs, run counts, keys and records, naming the file', () => {

@@ -40,6 +40,7 @@ import { crosscheckRunSet, readGraders } from './grade.ts';
 import { assertName, isRecord, readJson } from './guards.ts';
 import { claudeCommand, startPluginEvalRun, type PluginEvalContext } from './plugin-eval.ts';
 import {
+  acquireRunSetLock,
   diedRuns,
   newRuns,
   planRuns,
@@ -143,7 +144,7 @@ function reportOutcomes(runSet: RunSet, outcomes: readonly RunOutcomeEntry[]): b
   }
 
   if (outcomes.some(({ outcome }) => outcome === 'limit')) {
-    console.error('the usage limit stopped the run set; start the run set again once the limit resets');
+    console.error('the usage limit stopped the run set; once the limit resets, restart the limit-stopped runs with: node tools/evals/eval.ts rerun <run set dir> <run dir>... (run leaves a run that started and has no result alone)');
   }
 
   return notDone.length === 0;
@@ -259,6 +260,8 @@ if (import.meta.main) {
     }
 
     const runSet = readRunSet(runSetDir);
+    // Taken before anything reads the run folders; the exit event also fires after an uncaught error.
+    process.on('exit', acquireRunSetLock(runSet.dir));
     const plan = planRuns(runSet, evalsRoots(repo));
     const projectsDir = process.env['LZ_EVAL_PROJECTS_DIR'] ?? join(homedir(), '.claude/projects');
     const died = command === 'run' ? diedRuns(plan) : [];

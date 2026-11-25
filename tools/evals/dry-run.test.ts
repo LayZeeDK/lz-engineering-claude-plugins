@@ -231,7 +231,7 @@ test('a usage-limit stop on either backend writes no result, stops the queue and
     const limited = evalCli(['run', s.setDir, '--concurrency', '1'], { ...s.env, LZ_EVAL_STUB_ERROR: 'limit' });
     const runs = plan(s);
     assert.equal(limited.status, 1, limited.output);
-    assert.match(limited.output, /once the limit resets/);
+    assert.match(limited.output, /once the limit resets, restart the limit-stopped runs with: .* rerun /);
     assert.deepEqual(
       runs.map((run) => [runState(run.runDir), existsSync(`${run.runDir}/raw/refused.txt`)]),
       [

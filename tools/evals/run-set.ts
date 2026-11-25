@@ -2,7 +2,7 @@
 // each run gets `<run set>/<arm>/<model>/<case>/run-<k>/`. A run is done when the harness has written its
 // result.json. Repository-only; nothing here ships with the plugin.
 import { spawn } from 'node:child_process';
-import { closeSync, existsSync, mkdirSync, openSync, renameSync, writeFileSync } from 'node:fs';
+import { closeSync, existsSync, mkdirSync, openSync, renameSync, rmSync, writeFileSync } from 'node:fs';
 import { basename, dirname, relative, resolve } from 'node:path';
 import { findSuite, listCases, type CaseInfo, type Suite } from './cases.ts';
 import { assertName, isRecord, isStringArray, readJson } from './guards.ts';
@@ -321,6 +321,59 @@ export function planRuns(runSet: RunSet, roots: readonly string[]): PlannedRun[]
   }
 
   return plan;
+}
+
+function pidAlive(pid: number): boolean {
+  try {
+    process.kill(pid, 0);
+
+    return true;
+  } catch (error) {
+    // EPERM means the process exists and belongs to someone else.
+    return error instanceof Error && 'code' in error && error.code === 'EPERM';
+  }
+}
+
+function lockedPid(file: string): number | null {
+  try {
+    const held = readJson(file);
+
+    return isRecord(held) && typeof held['pid'] === 'number' ? held['pid'] : null;
+  } catch {
+    return null;
+  }
+}
+
+// One harness process at a time works a run set: `run`, `rerun` and `resume` decide what to start from the folders on
+// disk, so a second process would pay for the same runs. A lock whose process is dead is reported and taken over.
+// Gives back the release, which removes the lock only while it is still this process's.
+export function acquireRunSetLock(dir: string): () => void {
+  const file = `${dir}/.lock`;
+  const claim = (): void => writeFileSync(file, `${JSON.stringify({ pid: process.pid, startedAt: new Date().toISOString() })}\n`, { flag: 'wx' });
+
+  try {
+    claim();
+  } catch (error) {
+    if (!(error instanceof Error && 'code' in error && error.code === 'EEXIST')) {
+      throw error;
+    }
+
+    const pid = lockedPid(file);
+
+    if (pid !== null && pidAlive(pid)) {
+      throw new Error(`${dir} is locked by the running process pid ${String(pid)}; wait for it or stop it first`);
+    }
+
+    console.error(`stale lock in ${dir} (pid ${String(pid)} is not running); taking it over`);
+    rmSync(file, { force: true });
+    claim();
+  }
+
+  return () => {
+    if (lockedPid(file) === process.pid) {
+      rmSync(file, { force: true });
+    }
+  };
 }
 
 export function resultPath(runDir: string): string {

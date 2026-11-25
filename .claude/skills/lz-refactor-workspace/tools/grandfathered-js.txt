@@ -1,10 +1,7 @@
 # These .mjs/.cjs/.js files predate the erasable-TypeScript bar; delete a line when its file is ported to .ts.
-.claude/skills/lz-red-workspace/arm-anchor.mjs
 .claude/skills/lz-red-workspace/check-evals.mjs
 .claude/skills/lz-red-workspace/extract-samples.mjs
-.claude/skills/lz-red-workspace/grade-red.mjs
 .claude/skills/lz-red-workspace/grade-routing.mjs
-.claude/skills/lz-red-workspace/selfcheck-red.mjs
 .claude/skills/lz-red-workspace/selfcheck-routing.mjs
 .claude/skills/lz-red-workspace/tools/check-red-references.mjs
 .claude/skills/lz-red-workspace/tools/check-rgr-routing.evasions.mjs

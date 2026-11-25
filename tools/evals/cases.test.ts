@@ -89,6 +89,13 @@ test('readSuite fills defaults and refuses unknown keys and bad values', () => {
   assert.throws(() => readSuite(`${root}/suites/bad-key`), /unknown keys heavyy/);
   assert.throws(() => readSuite(`${root}/suites/bad-backend`), /backend must be/);
   assert.throws(() => readSuite(`${root}/suites/bad-timeout`), /timeoutMinutes/);
+
+  put(`${root}/suites/kata/suite.json`, '{"backend":"slim","target":"gilded-rose-ts"}');
+  put(`${root}/suites/pe-target/suite.json`, '{"backend":"plugin-eval","target":"gilded-rose-ts"}');
+  put(`${root}/suites/bad-target/suite.json`, '{"backend":"slim","target":"../kata"}');
+  assert.equal(readSuite(`${root}/suites/kata`).target, 'gilded-rose-ts');
+  assert.throws(() => readSuite(`${root}/suites/pe-target`), /target has the wrong type/);
+  assert.throws(() => readSuite(`${root}/suites/bad-target`), /template name/);
 });
 
 test('evalsRoots names both suite roots, and evalRepo honours LZ_EVAL_REPO', () => {

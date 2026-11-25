@@ -6,7 +6,12 @@
 //   node tools/evals/eval.ts aggregate <run set dir> [--allow-stub]          write RESULTS.md and recheck.json
 //   node tools/evals/eval.ts stage <ref>                                     package <ref> and the committed cases
 //   node tools/evals/eval.ts crosscheck <run set dir>                        grade plugin-eval traces with the model
+//   node tools/evals/eval.ts template <name>                                 build one slim template by hand
 //
+// A slim suite's `target` names a template in evals/lz-tdd-apply/templates.json: a kata at a pinned commit with its
+// sha256-checked lockfile installed (`npm ci --ignore-scripts`), optionally armed and given a known-red overlay, built
+// once below <slim root>/templates/ from the clone at <LZ_EVAL_CLONES>/<org>/<repo>. `run` builds every template its
+// runs need before the first spawn, and each run starts in a fresh copy.
 // `crosscheck` re-grades every finished plugin-eval run from its copied traces with the harness's grader model and
 // exits 1 on any verdict that differs from the CLI's, or on a run it could not grade.
 // `run`, `rerun` and `resume` refuse while evals/lz-tdd or evals/lz-tdd-apply has uncommitted changes, then stage
@@ -23,7 +28,8 @@
 // LZ_EVAL_CLAUDE (the claude binary; a .ts file runs under this Node.js), LZ_EVAL_RUN_SLIM (default
 // ~/.claude/references/slim-claude-p/run-slim.ts), LZ_EVAL_STAGE_ROOT (default <repo>/dist/eval), LZ_EVAL_SLIM_ROOT
 // (default D:/tmp/slim-claude-p), LZ_EVAL_PROJECTS_DIR (default ~/.claude/projects), and for a slim suite marked heavy
-// LZ_EVAL_HEAVY_LOCK (heavy-lock.ts) with LZ_EVAL_LOCK_OWNER.
+// LZ_EVAL_HEAVY_LOCK (heavy-lock.ts) with LZ_EVAL_LOCK_OWNER; LZ_EVAL_CLONES (default D:/projects/github, the clone
+// root the templates name <org>/<repo> below) and LZ_EVAL_BASH (the bash for scaffold scripts; default Git Bash).
 import { existsSync, writeFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join, relative, resolve } from 'node:path';
@@ -31,7 +37,7 @@ import { parseArgs } from 'node:util';
 import { aggregate, recheckCases, renderResults } from './aggregate.ts';
 import { evalRepo, evalsRoots } from './cases.ts';
 import { crosscheckRunSet, readGraders } from './grade.ts';
-import { isRecord, readJson } from './guards.ts';
+import { assertName, isRecord, readJson } from './guards.ts';
 import { claudeCommand, startPluginEvalRun, type PluginEvalContext } from './plugin-eval.ts';
 import {
   diedRuns,
@@ -56,6 +62,7 @@ import {
   type SlimContext,
 } from './slim.ts';
 import { casesTree, git, readStage, resolveCommit, stageRef } from './stage.ts';
+import { buildTemplate } from './templates.ts';
 
 const usage =
   'usage: eval.ts run <run set dir> [--concurrency 3] | rerun|resume <run set dir> <run dir>... | aggregate|crosscheck <run set dir> [--allow-stub] | stage <ref>';
@@ -201,20 +208,24 @@ if (import.meta.main) {
     runSetDir === undefined ||
     (takesRuns && runDirs.length === 0) ||
     (!takesRuns && runDirs.length > 0) ||
-    !['run', 'rerun', 'resume', 'aggregate', 'stage', 'crosscheck'].includes(command ?? '')
+    !['run', 'rerun', 'resume', 'aggregate', 'stage', 'crosscheck', 'template'].includes(command ?? '')
   ) {
     throw new Error(usage);
   }
 
   const repo = evalRepo(process.env);
   const stageRoot = process.env['LZ_EVAL_STAGE_ROOT'] ?? `${repo}/dist/eval`;
+  const slimRoot = process.env['LZ_EVAL_SLIM_ROOT'] ?? 'D:/tmp/slim-claude-p';
+  const clonesRoot = process.env['LZ_EVAL_CLONES'] ?? 'D:/projects/github';
 
-  if (command === 'run' || command === 'rerun' || command === 'resume') {
+  if (command === 'run' || command === 'rerun' || command === 'resume' || command === 'template') {
     refuseUncommittedCases(repo);
   }
 
   if (command === 'stage') {
     console.log(stageRef(repo, stageRoot, resolveCommit(repo, runSetDir)));
+  } else if (command === 'template') {
+    console.log(buildTemplate(repo, slimRoot, clonesRoot, assertName('template', runSetDir)));
   } else if (command === 'crosscheck') {
     const runSet = readRunSet(runSetDir);
     const report = crosscheckRunSet(planRuns(runSet, evalsRoots(repo)), stageRoot);
@@ -274,13 +285,18 @@ if (import.meta.main) {
       readGraders(run.caseInfo.dir);
     }
 
+    const trees = stageRuns(repo, todo, stageRoot);
+    // A resumed session goes on in the folder it has; only a fresh start copies a template.
+    const targets = command === 'resume' ? [] : todo.flatMap((run) => (isSlim(run) && run.suite.target !== null ? [run.suite.target] : []));
+    const templates = new Map([...new Set(targets)].map((name) => [name, buildTemplate(repo, slimRoot, clonesRoot, name)]));
     const ctx: Context = {
       stageRoot,
       claude: claudeCommand(process.env),
-      slimRoot: process.env['LZ_EVAL_SLIM_ROOT'] ?? 'D:/tmp/slim-claude-p',
+      slimRoot,
       runSlim: runSlimCommand(process.env),
       projectsDir,
-      trees: stageRuns(repo, todo, stageRoot),
+      trees,
+      templates,
     };
     let outcomes: RunOutcomeEntry[] = [];
 

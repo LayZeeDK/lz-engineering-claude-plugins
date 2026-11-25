@@ -7,7 +7,17 @@ import { after, test } from 'node:test';
 import type { Suite } from './cases.ts';
 import { readJson, requireRecord } from './guards.ts';
 import type { PlannedRun } from './run-set.ts';
-import { projectFolder, resumeArgs, sessionId, settleSlim, slimArgs, slimCwd, withHeavyLock } from './slim.ts';
+import {
+  projectFolder,
+  resumeArgs,
+  runScaffold,
+  scaffoldScript,
+  sessionId,
+  settleSlim,
+  slimArgs,
+  slimCwd,
+  withHeavyLock,
+} from './slim.ts';
 
 const root = mkdtempSync(join(tmpdir(), 'lz-evals-slim-')).replaceAll('\\', '/');
 
@@ -251,4 +261,33 @@ test('withHeavyLock refuses a heavy suite without LZ_EVAL_HEAVY_LOCK and never c
     /set LZ_EVAL_HEAVY_LOCK/,
   );
   assert.equal(await withHeavyLock(false, 'task', 5, async () => 'ran', { LZ_EVAL_HEAVY_LOCK: 'W:/no/such/heavy-lock.ts' }), 'ran');
+});
+
+test('scaffoldScript names the case.yaml scaffold script inside the case folder, and refuses one outside it', () => {
+  const caseDir = `${root}/scaffold-case`;
+  assert.equal(scaffoldScript(caseDir), null);
+  put(`${caseDir}/case.yaml`, 'name: demo\ncontext:\n  scaffold_script: checkout.sh\n');
+  assert.equal(scaffoldScript(caseDir), `${caseDir}/checkout.sh`);
+  put(`${caseDir}/case.yaml`, 'name: demo\n');
+  assert.equal(scaffoldScript(caseDir), null);
+  put(`${caseDir}/case.yaml`, 'context:\n  scaffold_script: ../other/checkout.sh\n');
+  assert.throws(() => scaffoldScript(caseDir), /must name a file inside the case folder/);
+});
+
+test('runScaffold runs bash in the run folder with PATH, a temp HOME and TMPDIR only, and fails on a non-zero exit', () => {
+  const cwd = `${root}/scaffold-cwd`;
+  const rawDir = `${root}/scaffold-raw`;
+  mkdirSync(cwd, { recursive: true });
+  const script = `${root}/scaffold.sh`;
+  put(script, 'printf "%s|%s|%s" "$(pwd -W 2>/dev/null || pwd)" "${LZ_SECRET-unset}" "${HOME:+home}" > env.txt\necho scaffolded\n');
+  const env = { ...process.env, LZ_SECRET: 'leaked' };
+
+  runScaffold(script, cwd, rawDir, env);
+  const [where, secret, home] = readFileSync(`${cwd}/env.txt`, 'utf8').split('|');
+  assert.deepEqual([where?.replaceAll('\\', '/').toLowerCase(), secret, home], [cwd.toLowerCase(), 'unset', 'home']);
+  assert.equal(readFileSync(`${rawDir}/scaffold.stdout.txt`, 'utf8'), 'scaffolded\n');
+
+  put(script, 'echo broken >&2\nexit 3\n');
+  assert.throws(() => runScaffold(script, cwd, rawDir, env), /exited 3/);
+  assert.equal(readFileSync(`${rawDir}/scaffold.stderr.txt`, 'utf8'), 'broken\n');
 });

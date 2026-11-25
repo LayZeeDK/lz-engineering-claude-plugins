@@ -170,7 +170,8 @@ export interface Suite {
   readonly allow: string | null;
   readonly timeoutMinutes: number;
   readonly invokeTwin: string | null;
-  readonly target: unknown;
+  // A slim suite's template name in evals/lz-tdd-apply/templates.json; its runs start in a copy of that template.
+  readonly target: string | null;
 }
 
 const suiteKeys = new Set([
@@ -234,6 +235,7 @@ export function readSuite(dir: string): Suite {
   suiteField(file, 'allow', allow === null || typeof allow === 'string');
   suiteField(file, 'timeoutMinutes', typeof timeoutMinutes === 'number' && timeoutMinutes > 0);
   suiteField(file, 'invokeTwin', invokeTwin === null || typeof invokeTwin === 'string');
+  suiteField(file, 'target', target === null || (typeof target === 'string' && backend === 'slim'));
 
   return {
     name: assertName('suite', basename(dir)),
@@ -246,7 +248,7 @@ export function readSuite(dir: string): Suite {
     allow: typeof allow === 'string' ? allow : null,
     timeoutMinutes: typeof timeoutMinutes === 'number' ? timeoutMinutes : 15,
     invokeTwin: typeof invokeTwin === 'string' ? invokeTwin : null,
-    target,
+    target: typeof target === 'string' ? assertName('template', target) : null,
   };
 }
 

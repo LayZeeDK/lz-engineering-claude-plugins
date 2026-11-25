@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -114,6 +115,67 @@ test('run refuses an uncommitted case before it stages or spawns anything', () =
   assert.equal(refused.status, 1, refused.output);
   assert.match(refused.output, /commit the cases first/);
   assert.deepEqual([existsSync(`${stubDir}/argv.jsonl`), existsSync(stageRoot), existsSync(`${setDir}/head`)], [false, false, false]);
+});
+
+test('a slim run starts in a copy of its suite template, after its case scaffold ran there', () => {
+  const base = `${root}/slim-template`;
+  const clone = `${base}/clones/demo/kata`;
+  mkdirSync(clone, { recursive: true });
+  git(clone, ['init', '-q']);
+  put(`${clone}/ts/package.json`, '{"name":"kata","version":"1.0.0","private":true}\n');
+  put(`${clone}/ts/.gitignore`, 'node_modules\npackage-lock.json\n');
+  git(clone, ['add', '-A']);
+  git(clone, ['-c', 'user.name=lz-tdd-eval', '-c', 'user.email=larsbrinknielsen@gmail.com', 'commit', '-q', '-m', 'kata']);
+  const lock = '{"name":"kata","version":"1.0.0","lockfileVersion":3,"requires":true,"packages":{"":{"name":"kata","version":"1.0.0"}}}\n';
+  put(`${clone}/ts/package-lock.json`, lock);
+  const repo = `${base}/repo`;
+  const sha = demoRepo(repo);
+  put(
+    `${repo}/evals/lz-tdd-apply/templates.json`,
+    JSON.stringify({
+      kata: {
+        clone: 'demo/kata',
+        commit: git(clone, ['rev-parse', 'HEAD']),
+        subdir: 'ts',
+        lockfile: { path: 'ts/package-lock.json', sha256: createHash('sha256').update(lock).digest('hex') },
+        arm: null,
+        overlay: null,
+        red: null,
+      },
+    }),
+  );
+  put(`${repo}/evals/lz-tdd-apply/apply/suite.json`, '{"backend":"slim","target":"kata"}\n');
+  put(`${repo}/evals/lz-tdd-apply/apply/apply-01/prompt.md`, 'Make it pass.\n');
+  put(`${repo}/evals/lz-tdd-apply/apply/apply-01/case.yaml`, 'name: apply-01\ncontext:\n  scaffold_script: scaffold.sh\n');
+  put(`${repo}/evals/lz-tdd-apply/apply/apply-01/scaffold.sh`, 'echo scaffolded > scaffolded.txt\n');
+  git(repo, ['add', '-A']);
+  git(repo, ['-c', 'user.name=lz-tdd-eval', '-c', 'user.email=larsbrinknielsen@gmail.com', 'commit', '-q', '-m', 'slim case']);
+  const setDir = `${base}/set`;
+  put(
+    `${setDir}/run-set.json`,
+    JSON.stringify({ cells: [{ arm: 'head', ref: sha, models: { 'claude-sonnet-5-5': 1 }, suites: [{ suite: 'apply' }] }] }),
+  );
+  const env = {
+    LZ_EVAL_REPO: repo,
+    LZ_EVAL_STAGE_ROOT: `${base}/stage`,
+    LZ_EVAL_SLIM_ROOT: `${base}/slim`,
+    LZ_EVAL_CLONES: `${base}/clones`,
+    LZ_EVAL_RUN_SLIM: join(import.meta.dirname, 'stubs.ts'),
+    LZ_EVAL_PROJECTS_DIR: `${base}/projects`,
+    LZ_EVAL_STUB_DIR: `${base}/stub`,
+  };
+
+  const ran = evalCli(['run', setDir], env);
+  assert.equal(ran.status, 0, ran.output);
+  const runDir = `${setDir}/head/claude-sonnet-5-5/apply-01/run-1`;
+  const cwd = String(requireRecord(readJson(`${runDir}/raw/started.json`), 'started.json')['cwd']);
+  assert.equal(readFileSync(`${cwd}/package.json`, 'utf8'), '{"name":"kata","version":"1.0.0","private":true}\n');
+  assert.equal(readFileSync(`${cwd}/scaffolded.txt`, 'utf8').trim(), 'scaffolded');
+  // npm ci of a lockfile without packages makes no node_modules; the lockfile itself is copied in.
+  assert.equal(readFileSync(`${cwd}/package-lock.json`, 'utf8'), lock);
+  assert.equal(git(cwd, ['rev-parse', 'HEAD^{tree}']), git(clone, ['rev-parse', 'HEAD:ts']));
+  const result = requireRecord(readJson(`${runDir}/result.json`), 'result.json');
+  assert.deepEqual([result['backend'], result['graded'], result['pluginTree']], ['slim', true, pluginTree(repo, sha)]);
 });
 
 test('stage prints the stage folder of a ref, and a ref that is no commit fails', () => {

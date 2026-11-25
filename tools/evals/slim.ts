@@ -3,9 +3,10 @@
 // nothing here ships with the plugin.
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { existsSync, mkdirSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
-import { homedir } from 'node:os';
+import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { homedir, tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { readCaseYaml } from './cases.ts';
 import { isRecord, readJson } from './guards.ts';
 import {
   forwardSlashes,
@@ -20,6 +21,7 @@ import {
   type Trees,
 } from './run-set.ts';
 import { gradeRun, readGraders, runEvidence } from './grade.ts';
+import { copyTemplate } from './templates.ts';
 import {
   limitStopped,
   modelRefusal,
@@ -253,6 +255,24 @@ export interface SlimContext {
   readonly runSlim: Command;
   readonly projectsDir: string;
   readonly trees: (run: PlannedRun) => Trees;
+  // Built template folders by template name, for suites with a target.
+  readonly templates: ReadonlyMap<string, string>;
+}
+
+// The case's committed scaffold script, from case.yaml context.scaffold_script, or null when it has none.
+export function scaffoldScript(caseDir: string): string | null {
+  const file = `${caseDir}/case.yaml`;
+  const script = existsSync(file) ? readCaseYaml(readFileSync(file, 'utf8')).scaffoldScript : null;
+
+  if (script === null) {
+    return null;
+  }
+
+  if (!script.split('/').every((part) => /^[A-Za-z0-9._-]+$/.test(part) && part !== '.' && part !== '..')) {
+    throw new Error(`${file}: scaffold_script must name a file inside the case folder, not ${JSON.stringify(script)}`);
+  }
+
+  return `${caseDir}/${script}`;
 }
 
 export function slimPluginDir(stageRoot: string, run: PlannedRun): string | null {
@@ -325,16 +345,67 @@ function metaOf(run: PlannedRun, ctx: SlimContext): SlimMeta {
   return { binary: ctx.runSlim.prefix[0] ?? ctx.runSlim.file, ...ctx.trees(run) };
 }
 
+// The bash that runs scaffold scripts: Git Bash on Windows unless LZ_EVAL_BASH names another.
+export function bashOf(env: NodeJS.ProcessEnv): string {
+  return env['LZ_EVAL_BASH'] ?? (process.platform === 'win32' ? 'C:/Program Files/Git/bin/bash.exe' : 'bash');
+}
+
+// The `plugin eval` scaffold contract, kept for slim runs: bash runs the script in the run's folder for at most 120 s
+// with PATH, a temp HOME and TMPDIR only. Its output goes to raw/scaffold.*.txt.
+export function runScaffold(script: string, cwd: string, rawDir: string, env: NodeJS.ProcessEnv): void {
+  const home = mkdtempSync(join(tmpdir(), 'lz-eval-home-'));
+
+  try {
+    const result = spawnSync(bashOf(env), [script], {
+      cwd,
+      env: { PATH: env['PATH'] ?? '', HOME: home, TMPDIR: tmpdir() },
+      encoding: 'utf8',
+      timeout: 120_000,
+      windowsHide: true,
+    });
+    mkdirSync(rawDir, { recursive: true });
+    writeFileSync(`${rawDir}/scaffold.stdout.txt`, result.stdout ?? '');
+    writeFileSync(`${rawDir}/scaffold.stderr.txt`, result.stderr ?? '');
+
+    if (result.status !== 0) {
+      throw new Error(`scaffold ${script} exited ${String(result.status)}${result.error === undefined ? '' : ` (${result.error.message})`}`);
+    }
+  } finally {
+    rmSync(home, { recursive: true, force: true });
+  }
+}
+
 export async function startSlimRun(run: PlannedRun, ctx: SlimContext): Promise<RunOutcome> {
   const input = slimInput(run, ctx);
   const args = slimArgs(input);
+  const script = scaffoldScript(run.caseInfo.dir);
   freshCwd(ctx.slimRoot, input.cwd);
+
+  if (run.suite.target !== null) {
+    const template = ctx.templates.get(run.suite.target);
+
+    if (template === undefined) {
+      throw new Error(`template ${run.suite.target} was not built`);
+    }
+
+    copyTemplate(template, input.cwd, ctx.slimRoot);
+  }
+
   mkdirSync(input.rawDir, { recursive: true });
   const startedAt = new Date().toISOString();
   writeFileSync(
     `${input.rawDir}/started.json`,
     `${JSON.stringify({ startedAt, cwd: input.cwd, argv: [...ctx.runSlim.prefix, ...args] }, null, 2)}\n`,
   );
+
+  if (script !== null) {
+    try {
+      runScaffold(script, input.cwd, input.rawDir, process.env);
+    } catch (error) {
+      return settleRun(run.runDir, { outcome: 'failed', reason: error instanceof Error ? error.message : String(error) }, null);
+    }
+  }
+
   writeFileSync(`${input.rawDir}/prompt.txt`, run.caseInfo.body);
   const status = await spawnLogged(ctx.runSlim, args, input.rawDir, 'run-slim');
 

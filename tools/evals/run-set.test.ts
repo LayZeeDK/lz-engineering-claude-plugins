@@ -134,6 +134,18 @@ test('planRuns expands cell x model x selected case x run into run folders, filt
   );
 });
 
+test('planRuns refuses a plan in which two entries resolve to one run folder, naming the folder and both suites', () => {
+  const { repo, setDir, ref } = scenario('dup', { [opus]: 1 });
+  put(
+    `${setDir}/run-set.json`,
+    JSON.stringify({
+      cells: [{ arm: 'head', ref, models: { [opus]: 1 }, suites: [{ suite: 'demo', tags: ['a'] }, { suite: 'demo', tags: ['b'] }] }],
+    }),
+  );
+
+  assert.throws(() => plan(repo, setDir), (error: Error) => /head\/claude-opus-5-5\/demo-02\/run-1/.test(error.message) && /demo.*demo/.test(error.message));
+});
+
 test('readRunSet refuses bad names, refs, run counts, keys and records, naming the file', () => {
   const bad = [
     { cells: [{ arm: '../x', ref: zeros, models: { [sonnet]: 1 }, suites: [{ suite: 'demo' }] }] },
@@ -223,6 +235,9 @@ test('writeResult renames a finished temp file into result.json', () => {
   writeResult(runDir, result);
 
   assert.deepEqual([existsSync(`${runDir}/result.json`), existsSync(`${runDir}/result.json.tmp`)], [true, false]);
+  assert.deepEqual(JSON.parse(readFileSync(`${runDir}/result.json`, 'utf8')), result);
+
+  assert.throws(() => writeResult(runDir, { ...result, costUsd: 9 }), /already has a result/);
   assert.deepEqual(JSON.parse(readFileSync(`${runDir}/result.json`, 'utf8')), result);
 });
 

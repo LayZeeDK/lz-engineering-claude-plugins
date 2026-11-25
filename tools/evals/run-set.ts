@@ -287,8 +287,7 @@ function selected(caseInfo: CaseInfo, select: SuiteSelect): boolean {
 // (D-10: a case that passes on Sonnet and fails on Opus reruns on Opus at n=5 before it counts).
 export function planRuns(runSet: RunSet, roots: readonly string[]): PlannedRun[] {
   const recheck = readRecheck(runSet.dir);
-
-  return runSet.cells.flatMap((entry) =>
+  const plan = runSet.cells.flatMap((entry) =>
     entry.suites.flatMap((select) => {
       const suite = findSuite(roots, select.suite);
       const cases = listCases(suite).filter((caseInfo) => selected(caseInfo, select));
@@ -309,6 +308,19 @@ export function planRuns(runSet: RunSet, roots: readonly string[]): PlannedRun[]
       );
     }),
   );
+  const owners = new Map<string, string>();
+
+  for (const run of plan) {
+    const owner = owners.get(run.runDir);
+
+    if (owner !== undefined) {
+      throw new Error(`two plan entries resolve to the run folder ${run.runDir} (suites ${owner} and ${run.suite.name}); a run folder is paid for once`);
+    }
+
+    owners.set(run.runDir, run.suite.name);
+  }
+
+  return plan;
 }
 
 export function resultPath(runDir: string): string {
@@ -354,6 +366,11 @@ export function setAside(root: string, paths: readonly string[]): void {
 // A rename is atomic, so a write killed halfway never leaves a result.json that reads as done.
 export function writeResult(runDir: string, result: RunResult): void {
   const file = resultPath(runDir);
+
+  if (existsSync(file)) {
+    throw new Error(`${runDir} already has a result; a finished result is never overwritten`);
+  }
+
   writeFileSync(`${file}.tmp`, `${JSON.stringify(result, null, 2)}\n`);
   renameSync(`${file}.tmp`, file);
 }

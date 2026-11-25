@@ -546,6 +546,21 @@ version of lz-node-test's StrykerJS `node:test` runner, never Stryker's command 
 SKILL.md plus auditor/reviewer agents used when the session wrote the code), carry explain-on-demand either inside them
 or in a separate `lz-tdd-coach` skill (Claude recommends the separate skill; decide at discuss), and cut agent-loop cost
 and wall-clock time (triage theme A beyond A1/A2).
+**Prior art to check (Lars 2026-11-25: "For the audit and review skills, consider whether any of the points in
+https://github.com/LayZeeDK/thermos-claude-plugin/pull/1#pullrequestreview-5554687472 apply"; Claude's reading of
+which apply, to confirm at discuss):**
+- `disable-model-invocation: true` makes the Skill tool refuse the skill for the main agent and for subagents, so an
+  agent that loads its rubric through Skill silently reviews without it. Preload the rubric into the auditor and
+  reviewer agents with `skills:` (plugin-qualified name), and decide per skill whether Claude may invoke it on its own.
+- `subagent_type` takes the plugin-qualified agent name; the bare name fails with "Agent type ... not found".
+- A `tools` allowlist does not make an agent read-only (Bash still writes, commits and posts), and callers' briefs ask
+  reviewers to write findings files and scratch scripts, so a list without Write breaks those uses.
+- No fixed findings format in the agent body: it overrides a caller's own format (a review playbook's severity
+  scale, a workflow `schema`); `ReportFindings` is missing in background subagents and has no severity field.
+- Name the tool `Agent`, not `Task`; collect parallel results without `TaskOutput` (removed in Claude Code 2.1.277).
+- PR lookup says "`gh` or `glab`" with no `origin` host check (Enterprise, self-hosted and fork setups).
+- Let reviewers run `git diff` themselves; diff compression (such as `rtk`) is a user's own setup, not skill text.
+- Prove behaviour with `claude -p --plugin-dir` probes on each supported model before claiming it.
 **Requirements:** TBD
 **Plans:** 0 plans
 

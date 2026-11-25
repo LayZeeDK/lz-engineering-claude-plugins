@@ -1,0 +1,10 @@
+{
+  "cells": [
+    {
+      "arm": "head",
+      "ref": "975e819c2690492c2f4933eb0b58aeded7df06f3",
+      "models": { "claude-sonnet-5-5": 1 },
+      "suites": [{ "suite": "trigger-lz-tpp", "cases": ["trigger-lz-tpp-01"] }]
+    }
+  ]
+}

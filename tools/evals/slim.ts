@@ -19,7 +19,17 @@ import {
   type RunOutcome,
   type Trees,
 } from './run-set.ts';
-import { limitStopped, modelRefusal, namesModel, resultFacts, slimOutput, usageTokens, type SlimOutput } from './trace.ts';
+import { gradeRun, readGraders, runEvidence } from './grade.ts';
+import {
+  limitStopped,
+  modelRefusal,
+  namesModel,
+  outFiles,
+  resultFacts,
+  slimOutput,
+  usageTokens,
+  type SlimOutput,
+} from './trace.ts';
 
 export function runSlimCommand(env: NodeJS.ProcessEnv): Command {
   return scriptOrBinary(env['LZ_EVAL_RUN_SLIM'] ?? join(homedir(), '.claude/references/slim-claude-p/run-slim.ts'));
@@ -42,18 +52,6 @@ export function slimArgs(input: SlimInput): string[] {
     ...(input.pluginDir === null ? [] : ['--plugin-dir', input.pluginDir]),
     ...(input.allow === null ? [] : ['--allow', input.allow]),
   ];
-}
-
-// The run's --out files in order: result.json, then result-resume-1.json, -2 and so on.
-export function outFiles(rawDir: string): string[] {
-  const resumes = existsSync(rawDir)
-    ? readdirSync(rawDir).flatMap((name) => /^result-resume-(\d+)\.json$/.exec(name)?.[1] ?? []).map(Number)
-    : [];
-
-  return [
-    `${rawDir}/result.json`,
-    ...resumes.sort((a, b) => a - b).map((number) => `${rawDir}/result-resume-${String(number)}.json`),
-  ].filter((file) => existsSync(file));
 }
 
 function nextResume(rawDir: string): number {
@@ -225,18 +223,35 @@ export function normalizeSlim(run: PlannedRun, outs: readonly SlimOutput[], late
   };
 }
 
-// Reads what the invocation that just ended wrote (outFile) and every earlier part, and settles the run.
-export function settleSlim(run: PlannedRun, outFile: string, status: number | null, meta: SlimMeta): RunOutcome {
+// A finished session is graded from its own transcripts with the case's graders (D-13), which equal HEAD because `run`
+// refuses uncommitted cases; a session whose transcript is gone cannot be graded, so it fails.
+function graded(run: PlannedRun, normalized: Normalized, projectsDir: string): Normalized {
+  if (normalized.outcome !== 'done') {
+    return normalized;
+  }
+
+  try {
+    const verdicts = gradeRun(readGraders(run.caseInfo.dir), runEvidence(run.runDir, projectsDir));
+
+    return { outcome: 'done', result: { ...normalized.result, graded: true, arms: { with: verdicts, without: null } } };
+  } catch (error) {
+    return { outcome: 'failed', reason: error instanceof Error ? error.message : String(error) };
+  }
+}
+
+// Reads what the invocation that just ended wrote (outFile) and every earlier part, grades it and settles the run.
+export function settleSlim(run: PlannedRun, outFile: string, status: number | null, meta: SlimMeta, projectsDir: string): RunOutcome {
   const outs = outFiles(`${run.runDir}/raw`).map((file) => slimOutput(readJson(file)));
   const latest = existsSync(outFile) ? slimOutput(readJson(outFile)) : null;
 
-  return settleRun(run.runDir, normalizeSlim(run, outs, latest, meta), status);
+  return settleRun(run.runDir, graded(run, normalizeSlim(run, outs, latest, meta), projectsDir), status);
 }
 
 export interface SlimContext {
   readonly stageRoot: string;
   readonly slimRoot: string;
   readonly runSlim: Command;
+  readonly projectsDir: string;
   readonly trees: (run: PlannedRun) => Trees;
 }
 
@@ -323,7 +338,7 @@ export async function startSlimRun(run: PlannedRun, ctx: SlimContext): Promise<R
   writeFileSync(`${input.rawDir}/prompt.txt`, run.caseInfo.body);
   const status = await spawnLogged(ctx.runSlim, args, input.rawDir, 'run-slim');
 
-  return settleSlim(run, `${input.rawDir}/result.json`, status, metaOf(run, ctx));
+  return settleSlim(run, `${input.rawDir}/result.json`, status, metaOf(run, ctx), ctx.projectsDir);
 }
 
 export async function resumeSlimRun(run: PlannedRun, ctx: SlimContext, session: string): Promise<RunOutcome> {
@@ -334,6 +349,6 @@ export async function resumeSlimRun(run: PlannedRun, ctx: SlimContext, session: 
   rmSync(`${input.rawDir}/refused.txt`, { force: true });
   const status = await spawnLogged(ctx.runSlim, args, input.rawDir, `run-slim-resume-${String(nextResume(input.rawDir))}`);
 
-  return settleSlim(run, out, status, metaOf(run, ctx));
+  return settleSlim(run, out, status, metaOf(run, ctx), ctx.projectsDir);
 }
 // Stryker restore all

@@ -89,6 +89,12 @@ test('one plugin-eval run goes from run-set.json to result.json and RESULTS.md, 
   const refused = evalCli(['aggregate', setDir], env);
   assert.equal(refused.status, 1, refused.output);
   assert.match(refused.output, /dry-run stub/);
+
+  // The stub passes every grader, but its trace replies "stub reply", so the model fails the `hello` regex.
+  const crosscheck = evalCli(['crosscheck', setDir], env);
+  assert.equal(crosscheck.status, 1, crosscheck.output);
+  assert.match(crosscheck.output, /disagree: demo-01 head\/claude-sonnet-5-5\/demo-01\/run-1 with stub: CLI true, model false/);
+  assert.match(crosscheck.output, /crosscheck: 0 agree, 1 disagree, 0 unchecked/);
 });
 
 test('run refuses an uncommitted case before it stages or spawns anything', () => {

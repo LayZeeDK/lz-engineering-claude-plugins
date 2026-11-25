@@ -64,6 +64,9 @@ function outFile(session: string | null, text: string, models: readonly string[]
 }
 
 const meta = { binary: 'W:/bin/run-slim.ts', pluginTree: 'p'.repeat(40), casesTree: 'c'.repeat(40) };
+// Each finished session below has a transcript here, which settleSlim grades from.
+const projects = `${root}/settle-projects`;
+put(`${projects}/${projectFolder('S:/cwd')}/${sessionA}.jsonl`, '{"type":"user","message":{"content":"Make it pass."}}\n');
 
 const input = {
   cwd: 'S:/slim/runs/set-abc',
@@ -163,7 +166,7 @@ test('settleSlim writes result.json for a finished run and refuses a limit stop,
       put(`${runDir}/raw/result.json`, out);
     }
 
-    const outcome = settleSlim(plannedRun(runDir), `${runDir}/raw/result.json`, 0, meta);
+    const outcome = settleSlim(plannedRun(runDir), `${runDir}/raw/result.json`, 0, meta, projects);
 
     return {
       outcome,
@@ -196,12 +199,50 @@ test('a resumed run sums turns and seconds over its --out files and keeps the hi
   put(`${runDir}/raw/result.json`, outFile(sessionA, 'stopped', [sonnet], 3000));
   put(`${runDir}/raw/result-resume-1.json`, outFile(sessionA, 'Done.', [sonnet], 5000));
 
-  assert.equal(settleSlim(plannedRun(runDir), `${runDir}/raw/result-resume-1.json`, 0, meta), 'done');
+  assert.equal(settleSlim(plannedRun(runDir), `${runDir}/raw/result-resume-1.json`, 0, meta, projects), 'done');
   const result = requireRecord(readJson(`${runDir}/result.json`), 'result.json');
   assert.deepEqual(
     ['turns', 'seconds', 'costUsd', 'graded', 'backend', 'pluginTree', 'casesTree', 'binary'].map((key) => result[key]),
-    [8, 8, 0.3, false, 'slim', meta.pluginTree, meta.casesTree, meta.binary],
+    [8, 8, 0.3, true, 'slim', meta.pluginTree, meta.casesTree, meta.binary],
   );
+});
+
+test('a finished slim run is graded from its transcript with the case graders; one without a transcript fails', () => {
+  const caseDir = `${root}/graded-case`;
+  put(`${caseDir}/graders/fired.md`, '---\ntype: tool_used\ntool: Skill\ninput_match: \'"skill"\\s*:\\s*"(?:[\\w-]+:)?lz-tpp"\'\n---\n');
+  put(`${caseDir}/graders/ran-tests.md`, "---\ntype: tool_used\ntool: Bash\ninput_match: 'vitest'\n---\n");
+  put(`${caseDir}/graders/green.md`, "---\ntype: regex\npattern: 'GREEN: [^\\n]+\\s*$'\n---\n");
+  const run = (runDir: string): PlannedRun => ({ ...plannedRun(runDir), caseInfo: { ...plannedRun(runDir).caseInfo, dir: caseDir } });
+  const cwd = 'S:/graded';
+  const entries = [
+    { type: 'assistant', message: { content: [{ type: 'tool_use', id: 's1', name: 'Skill', input: { skill: 'lz-tdd:lz-tpp' } }] } },
+    { type: 'user', message: { content: [{ type: 'tool_result', tool_use_id: 's1', content: 'ok' }] } },
+    { type: 'assistant', message: { content: [{ type: 'tool_use', id: 'b1', name: 'Bash', input: { command: 'npx vitest run' } }] } },
+  ];
+  put(`${projects}/${projectFolder(cwd)}/${sessionB}.jsonl`, `${entries.map((entry) => JSON.stringify(entry)).join('\n')}\n`);
+  const out = (session: string): string => outFile(session, 'Done.\n\nGREEN: x -- y passes; 3 tests green').replace('"cwd":"S:/cwd"', `"cwd":"${cwd}"`);
+
+  const gradedDir = `${root}/graded-run`;
+  put(`${gradedDir}/raw/started.json`, JSON.stringify({ startedAt: '2026-11-25T00:00:00.000Z', cwd }));
+  put(`${gradedDir}/raw/result.json`, out(sessionB));
+  assert.equal(settleSlim(run(gradedDir), `${gradedDir}/raw/result.json`, 0, meta, projects), 'done');
+  const result = requireRecord(readJson(`${gradedDir}/result.json`), 'result.json');
+  assert.deepEqual([result['graded'], requireRecord(result['arms'], 'arms')['with']], [
+    true,
+    [
+      { name: 'fired', passed: true, scored: true },
+      { name: 'green', passed: true, scored: true },
+      { name: 'ran-tests', passed: true, scored: true },
+    ],
+  ]);
+
+  const lostDir = `${root}/lost-transcript`;
+  const lost = '99999999-9999-4999-8999-999999999999';
+  put(`${lostDir}/raw/started.json`, JSON.stringify({ startedAt: '2026-11-25T00:00:00.000Z', cwd }));
+  put(`${lostDir}/raw/result.json`, out(lost));
+  assert.equal(settleSlim(run(lostDir), `${lostDir}/raw/result.json`, 0, meta, projects), 'failed');
+  assert.match(readFileSync(`${lostDir}/raw/refused.txt`, 'utf8'), new RegExp(`no transcript for session ${lost}`));
+  assert.equal(existsSync(`${lostDir}/result.json`), false);
 });
 
 test('withHeavyLock refuses a heavy suite without LZ_EVAL_HEAVY_LOCK and never calls the lock for a light one', async () => {

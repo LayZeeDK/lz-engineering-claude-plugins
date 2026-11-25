@@ -86,6 +86,21 @@ Requirements for milestone lz-tdd@0.0.3. Each maps to a roadmap phase. Grounded 
 - [ ] **CLS-04**: GUARDED SEMANTICALLY: `check-rgr-routing.mjs` derives its verdict from a PARSED (condition -> destination) table over each classifier surface and asserts exhaustive / at-most-one / no-test-state-key over the case corpus. It fails closed on a missing canonical location (no `existsSync` skip), is wrap-tolerant, is mutation-tested in BOTH directions, and is wired into `lz-red-workspace`'s `npm run check`. `check-red-references.mjs`'s label-count arithmetic and its `NEW_LABELS` roster stay untouched. (Maps SC6; encodes D-15 + D-16 + D-17. A parsed table rather than token matching is what closes the measured F-1 ceiling, where a renamed heading alone satisfied a bare presence needle.)
 - [ ] **CLS-05**: PLACEMENT DECIDED EMPIRICALLY: the routing content is authored in three placement variants (A inline only / B shared table plus inline rationale / C shared table replacing the narrative sections), staged as three `--plugin-dir`-selectable trees, and A/B'd on ROUTING CORRECTNESS over the case corpus with a destination-extraction grader (never a house-vocabulary proxy), Pass@k + Pass^k, >= 1 blind judge and >= 1 from-scratch unbiased reviewer, and a substance-only headline. Pre-registered null tiebreak: variant C. (Maps SC8; encodes D-08..D-14 + D-24. **BUILD-then-HALT, in the EVL-01 / EVL-02 closure shape.** BOTH metered rounds require FRESH EXPLICIT OWNER APPROVAL at run time: the placement A/B itself, AND the EVL-01 reciprocal trigger regression that the D-06 `description` edits force -- that second round is MANDATORY, not conditional, precisely because the descriptions change. Neither approval is implied by the other and no `workflow.auto_advance` setting carries either. Phase 22 therefore closes with the classifier FIXED and the placement question BUILT-and-HALTED: closing Phase 22 does NOT by itself select a variant, and does NOT by itself unblock PR #3 -- the owner-approved A/B run does. "No variant shipped" at phase close is the DESIGNED outcome per D-24, not an incomplete phase, and this row must not be read as a false Pending. **RECONCILE-ON-COMPLETION OBLIGATION:** whoever runs the approved rounds updates this line AND its Traceability row. Per the drift notice below, a status field only ever written by the step that DEFERS it is never cleared by the step that RESOLVES it -- which is exactly how all three EVL rows decayed.)
 
+### Eval harness (EVH)
+
+- [ ] **EVH-01**: A run set is resumable: `result.json` marks a run done; `run` starts only runs without one; a run folder with outputs and no result is refused until `rerun`; `rerun` sets the old run aside in `set-aside-<n>`; raising n adds runs and keeps old ones (D-01, D-02)
+- [ ] **EVH-02**: A slim run that stopped resumes its own session (`run-slim.ts --resume <id>`) into `result-resume-<n>.json`, with the session id found even when the session printed nothing (D-01)
+- [ ] **EVH-03**: A usage-limit stop counts as failed, never done, on both backends (D-01)
+- [ ] **EVH-04**: A free dry run against a stub `claude` and a stub run-slim, killed partway, restarts only the unfinished runs (D-03 step 1)
+- [ ] **EVH-05**: Staging packages `git archive <ref>:plugins/lz-tdd` plus the cases into a git-ignored folder; one `plugin eval` invocation per arm x model x case x run, `--no-publish`, `--trust-plugin`, traces copied into the run folder (D-02, D-06, D-07, D-16)
+- [ ] **EVH-06**: The model that ran, cost, tokens, turns and wall clock come from the CLI's own output (trace `system/init.model`, `result.modelUsage`); a run whose model differs from the one asked for is refused as a result (D-10)
+- [ ] **EVH-07**: Graders: plugin-eval grader files per D-13 and TypeScript slim graders for the same facts plus "a Bash call ran the tests"; every grader has a known-pass and a known-fail fixture checked for free (D-13, D-14)
+- [ ] **EVH-08**: Suites ported per D-11 option B with the D-15 arms: one trigger suite per skill, one doing-behaviour suite per skill, the routing corpus, one slim apply suite per skill (D-11, D-15)
+- [ ] **EVH-09**: One recorded cell per carried-over suite reproduces inside the 95% Wilson interval (paid) (D-12)
+- [ ] **EVH-10**: Pilot (interrupted and resumed, both models) then the baseline run set on this phase's last commit; `RESULTS.md` names commit, models from CLI output, n, cost, wall clock; n rechecked against pilot cost (D-03 step 2, D-17, D-10)
+- [ ] **EVH-11**: The skill-creator-derived runners are retired with every workspace `npm run check` still exit 0 (D-09)
+- [ ] **EVH-12**: `tools/evals` meets the script bar: erasable TS, `.test.ts` per script on Node 22 and 24, `tsc` clean, Stryker with the pinned lz-node-test runner, code and security review; a case lint keeps committed cases ASCII and email-allowlisted (D-08, AGENTS.md)
+
 ## Future Requirements
 
 Deferred to a later lz-tdd release. Tracked, not in this roadmap.
@@ -223,11 +238,23 @@ Which phases cover which requirements. Populated during roadmap creation.
 | CLS-03 | Phase 22 | Pending |
 | CLS-04 | Phase 22 | Pending |
 | CLS-05 | Phase 22 | Pending (build complete at phase close; both metered rounds gated) |
+| EVH-01 | Phase 22.1 | Pending |
+| EVH-02 | Phase 22.1 | Pending |
+| EVH-03 | Phase 22.1 | Pending |
+| EVH-04 | Phase 22.1 | Pending |
+| EVH-05 | Phase 22.1 | Pending |
+| EVH-06 | Phase 22.1 | Pending |
+| EVH-07 | Phase 22.1 | Pending |
+| EVH-08 | Phase 22.1 | Pending |
+| EVH-09 | Phase 22.1 | Pending |
+| EVH-10 | Phase 22.1 | Pending |
+| EVH-11 | Phase 22.1 | Pending |
+| EVH-12 | Phase 22.1 | Pending |
 
 **Coverage:**
 
-- lz-tdd@0.0.3 requirements: 33 total
-- Mapped to phases: 33
+- lz-tdd@0.0.3 requirements: 45 total
+- Mapped to phases: 45
 - Unmapped: 0
 
 ---
@@ -280,4 +307,4 @@ Which phases cover which requirements. Populated during roadmap creation.
 > launders a bookkeeping miss into a reasoned position.
 
 *Requirements defined: 2026-07-18*
-*Last updated: 2026-08-03 -- CLS-01..CLS-05 ADDED at Phase 22 plan time as a new "Request classifier correctness (CLS)" section, derived from ROADMAP Phase 22 SC1-SC8 and the locked CONTEXT decisions D-01..D-26; no scope invented. Coverage 28 -> 33. CLS-01..CLS-04 close when `check-rgr-routing.mjs` goes GREEN over the 9-case corpus (Phase 22 waves 2-3). CLS-05 is BUILD-then-HALT and carries an explicit RECONCILE-ON-COMPLETION OBLIGATION: both of its metered rounds -- the placement A/B (D-08..D-13) and the MANDATORY EVL-01 reciprocal trigger regression forced by the D-06 description edits -- need fresh explicit owner approval, so its row stays Pending at phase close BY DESIGN (D-24) and must be reconciled by whoever runs them. That obligation is written down deliberately: it is the drift notice's second durable rule applied FORWARD, so CLS-05 cannot decay into a false "Pending" the way all three EVL rows did. Prior: 2026-08-02 -- ALL THREE EVL requirements reconciled from a false "Pending". EVL-01 -> Complete with a documented shortfall (run 2026-07-21; 92% recall against a self-set 100% target, closed on an independent held-out A/B; the headline predates the shipped D-09 widen). EVL-02 -> Complete, modest and honestly bounded (run 2026-07-22; substance-only Pass@1 0.97 vs 0.87, edge concentrated in 2 of 10 scenarios, the full-run figure vocabulary-inflated and context-only). EVL-03 reconciled to Complete (metered round 2026-07-27/28, 36 runs, $29.04; all 36 captures re-graded 2026-08-02 under the current grader with zero verdict changes, confirming the published numbers are grader-regime-invariant). Prior: 2026-07-22 -- EVL-03 formalized at Phase 21 plan time (D-14): an APPLY-based, 3-arm, multi-dimensional RED eval decomposed into EVL-03.1..EVL-03.7 (BUILD/RUN split) mapping the 5 Phase-21 ROADMAP success criteria, in the EVL-01/EVL-02 "build complete; empirical run gated" closure shape. Coverage 27 -> 28. Prior: 2026-07-21 after Phase 20 completion (25/27 Complete; EVL-01 + EVL-02 Pending build-then-halt per D-11; VIT-02 also Pending, carried).*
+*Last updated: 2026-11-25 -- EVH-01..EVH-12 added at Phase 22.1 plan time as a new "Eval harness (EVH)" section, copied from the phase_requirements table in 22.1-RESEARCH.md with each row's decisions in parentheses; coverage 33 -> 45. Prior: 2026-08-03 -- CLS-01..CLS-05 ADDED at Phase 22 plan time as a new "Request classifier correctness (CLS)" section, derived from ROADMAP Phase 22 SC1-SC8 and the locked CONTEXT decisions D-01..D-26; no scope invented. Coverage 28 -> 33. CLS-01..CLS-04 close when `check-rgr-routing.mjs` goes GREEN over the 9-case corpus (Phase 22 waves 2-3). CLS-05 is BUILD-then-HALT and carries an explicit RECONCILE-ON-COMPLETION OBLIGATION: both of its metered rounds -- the placement A/B (D-08..D-13) and the MANDATORY EVL-01 reciprocal trigger regression forced by the D-06 description edits -- need fresh explicit owner approval, so its row stays Pending at phase close BY DESIGN (D-24) and must be reconciled by whoever runs them. That obligation is written down deliberately: it is the drift notice's second durable rule applied FORWARD, so CLS-05 cannot decay into a false "Pending" the way all three EVL rows did. Prior: 2026-08-02 -- ALL THREE EVL requirements reconciled from a false "Pending". EVL-01 -> Complete with a documented shortfall (run 2026-07-21; 92% recall against a self-set 100% target, closed on an independent held-out A/B; the headline predates the shipped D-09 widen). EVL-02 -> Complete, modest and honestly bounded (run 2026-07-22; substance-only Pass@1 0.97 vs 0.87, edge concentrated in 2 of 10 scenarios, the full-run figure vocabulary-inflated and context-only). EVL-03 reconciled to Complete (metered round 2026-07-27/28, 36 runs, $29.04; all 36 captures re-graded 2026-08-02 under the current grader with zero verdict changes, confirming the published numbers are grader-regime-invariant). Prior: 2026-07-22 -- EVL-03 formalized at Phase 21 plan time (D-14): an APPLY-based, 3-arm, multi-dimensional RED eval decomposed into EVL-03.1..EVL-03.7 (BUILD/RUN split) mapping the 5 Phase-21 ROADMAP success criteria, in the EVL-01/EVL-02 "build complete; empirical run gated" closure shape. Coverage 27 -> 28. Prior: 2026-07-21 after Phase 20 completion (25/27 Complete; EVL-01 + EVL-02 Pending build-then-halt per D-11; VIT-02 also Pending, carried).*

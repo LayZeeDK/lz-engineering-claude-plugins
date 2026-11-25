@@ -1,0 +1,333 @@
+// The slim `claude -p` backend, through run-slim.ts, for cases that must run tests. Each run gets its own working
+// folder below LZ_EVAL_SLIM_ROOT, and a stopped run continues its own session with `--resume`. Repository-only;
+// nothing here ships with the plugin.
+import { spawnSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
+import { existsSync, mkdirSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { homedir } from 'node:os';
+import { join } from 'node:path';
+import { isRecord, readJson } from './guards.ts';
+import {
+  forwardSlashes,
+  scriptOrBinary,
+  settleRun,
+  spawnLogged,
+  stageDir,
+  type Command,
+  type Normalized,
+  type PlannedRun,
+  type RunOutcome,
+} from './run-set.ts';
+import { limitStopped, modelRefusal, namesModel, resultFacts, slimOutput, usageTokens, type SlimOutput } from './trace.ts';
+
+export function runSlimCommand(env: NodeJS.ProcessEnv): Command {
+  return scriptOrBinary(env['LZ_EVAL_RUN_SLIM'] ?? join(homedir(), '.claude/references/slim-claude-p/run-slim.ts'));
+}
+
+export interface SlimInput {
+  readonly cwd: string;
+  readonly rawDir: string;
+  readonly model: string;
+  readonly timeoutMinutes: number;
+  readonly pluginDir: string | null;
+  readonly allow: string | null;
+}
+
+// No rules folder: the session sees the plugin under test and nothing of the maintainer's setup.
+export function slimArgs(input: SlimInput): string[] {
+  return [
+    ...['--cwd', input.cwd, '--prompt-file', `${input.rawDir}/prompt.txt`, '--out', `${input.rawDir}/result.json`],
+    ...['--model', input.model, '--rules', 'none', '--timeout-min', String(input.timeoutMinutes)],
+    ...(input.pluginDir === null ? [] : ['--plugin-dir', input.pluginDir]),
+    ...(input.allow === null ? [] : ['--allow', input.allow]),
+  ];
+}
+
+// The run's --out files in order: result.json, then result-resume-1.json, -2 and so on.
+export function outFiles(rawDir: string): string[] {
+  const resumes = existsSync(rawDir)
+    ? readdirSync(rawDir).flatMap((name) => /^result-resume-(\d+)\.json$/.exec(name)?.[1] ?? []).map(Number)
+    : [];
+
+  return [
+    `${rawDir}/result.json`,
+    ...resumes.sort((a, b) => a - b).map((number) => `${rawDir}/result-resume-${String(number)}.json`),
+  ].filter((file) => existsSync(file));
+}
+
+function nextResume(rawDir: string): number {
+  const last = outFiles(rawDir)
+    .map((file) => /result-resume-(\d+)\.json$/.exec(file)?.[1])
+    .filter((number) => number !== undefined)
+    .map(Number);
+
+  return Math.max(0, ...last) + 1;
+}
+
+// A stopped run goes on in its own session, from continue.txt, into the next result-resume-<n>.json.
+export function resumeArgs(input: SlimInput, session: string): string[] {
+  const args = slimArgs(input);
+  args[args.indexOf('--prompt-file') + 1] = `${input.rawDir}/continue.txt`;
+  args[args.indexOf('--out') + 1] = `${input.rawDir}/result-resume-${String(nextResume(input.rawDir))}.json`;
+
+  return [...args, '--resume', session];
+}
+
+// Claude Code names a project's transcript folder after its working directory, every character other than a letter or
+// digit turned into `-`.
+export function projectFolder(cwd: string): string {
+  return cwd.replace(/[^A-Za-z0-9]/g, '-');
+}
+
+interface Started {
+  readonly startedAt: string;
+  readonly cwd: string;
+}
+
+function readStarted(runDir: string): Started | null {
+  const file = `${runDir}/raw/started.json`;
+  const value = existsSync(file) ? readJson(file) : null;
+
+  return isRecord(value) && typeof value['startedAt'] === 'string' && typeof value['cwd'] === 'string'
+    ? { startedAt: value['startedAt'], cwd: value['cwd'] }
+    : null;
+}
+
+const transcriptName = /^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\.jsonl$/;
+
+// The latest --out file names the session. A session killed before it printed anything left none, so then the run's
+// own transcript folder does: each run has its own working folder, so one transcript written since the run started is
+// that run's. Zero or two candidates give null: rerun it.
+export function sessionId(runDir: string, projectsDir: string): string | null {
+  const latest = outFiles(`${runDir}/raw`).at(-1);
+  const fromOut = latest === undefined ? null : slimOutput(readJson(latest)).session;
+
+  if (fromOut !== null) {
+    return fromOut;
+  }
+
+  const started = readStarted(runDir);
+
+  if (started === null) {
+    return null;
+  }
+
+  const folder = `${projectsDir}/${projectFolder(started.cwd)}`;
+  const since = Date.parse(started.startedAt);
+  const candidates = existsSync(folder)
+    ? readdirSync(folder).flatMap((name) => {
+        const session = transcriptName.exec(name)?.[1];
+
+        return session !== undefined && statSync(`${folder}/${name}`).mtimeMs >= since ? [session] : [];
+      })
+    : [];
+
+  return candidates.length === 1 ? (candidates[0] ?? null) : null;
+}
+
+// Short, so a copied node_modules stays under the Windows path limit; below the slim root, outside the home folder and
+// this repository, so no CLAUDE.md above it loads.
+export function slimCwd(slimRoot: string, run: PlannedRun): string {
+  const key = `${run.arm}/${run.model}/${run.caseInfo.name}/run-${String(run.k)}`;
+
+  return `${slimRoot}/runs/${run.runSetName}-${createHash('sha256').update(key).digest('hex').slice(0, 12)}`;
+}
+
+// The harness made this folder; anything outside <slim root>/runs/ is refused rather than deleted.
+function freshCwd(slimRoot: string, cwd: string): void {
+  const runsRoot = `${forwardSlashes(slimRoot)}/runs/`;
+
+  if (!forwardSlashes(cwd).startsWith(runsRoot)) {
+    throw new Error(`${cwd} is not below ${runsRoot}; refusing to delete it`);
+  }
+
+  rmSync(cwd, { recursive: true, force: true });
+  mkdirSync(cwd, { recursive: true });
+}
+
+function sum(values: readonly number[]): number {
+  return values.reduce((total, value) => total + value, 0);
+}
+
+function usedModels(output: SlimOutput): string[] {
+  const usage = output.result['modelUsage'];
+
+  return isRecord(usage) ? Object.keys(usage) : [];
+}
+
+// Seconds and turns are each part's own; cost and tokens are running totals of the session every resume continues.
+export function normalizeSlim(run: PlannedRun, outs: readonly SlimOutput[], latest: SlimOutput | null, binary: string): Normalized {
+  if (latest === null) {
+    return { outcome: 'failed', reason: 'run-slim wrote no --out file' };
+  }
+
+  const text = resultFacts(latest.result).resultText;
+
+  // A session the usage limit ended exits 0; its result text decides.
+  if (limitStopped(text)) {
+    return { outcome: 'limit', reason: `usage limit: ${String(text)}` };
+  }
+
+  if (latest.status !== 0 || latest.result['is_error'] !== false) {
+    return { outcome: 'failed', reason: `the session ended with status ${String(latest.status)} or an error result` };
+  }
+
+  const used = [...new Set(outs.flatMap(usedModels))];
+  const ran = used.find((model) => namesModel(run.model, model)) ?? used[0] ?? null;
+  const refusal = modelRefusal(run.model, ran, used);
+
+  if (refusal !== null) {
+    return { outcome: 'failed', reason: refusal };
+  }
+
+  const facts = outs.map((output) => resultFacts(output.result));
+  const tokens = outs.map((output) => usageTokens(output.result['modelUsage']));
+  const started = readStarted(run.runDir);
+
+  return {
+    outcome: 'done',
+    result: {
+      schemaVersion: 1,
+      backend: 'slim',
+      runSet: run.runSetName,
+      arm: run.arm,
+      ref: run.ref,
+      pluginTree: null,
+      casesTree: null,
+      suite: run.suite.name,
+      case: run.caseInfo.name,
+      k: run.k,
+      requestedModel: run.model,
+      initModel: ran,
+      modelsUsed: used,
+      claudeCodeVersion: null,
+      binary,
+      startedAt: started?.startedAt ?? '',
+      seconds: Math.round(sum(outs.map(({ ms }) => ms)) / 1000),
+      turns: sum(facts.map(({ turns }) => turns)),
+      costUsd: Math.max(0, ...facts.map(({ costUsd }) => costUsd)),
+      judgeCostUsd: 0,
+      tokens: {
+        input: Math.max(0, ...tokens.map(({ input }) => input)),
+        output: Math.max(0, ...tokens.map(({ output }) => output)),
+        cacheRead: Math.max(0, ...tokens.map(({ cacheRead }) => cacheRead)),
+        cacheCreation: Math.max(0, ...tokens.map(({ cacheCreation }) => cacheCreation)),
+      },
+      maxTurns: false,
+      graded: false,
+      arms: { with: [], without: null },
+    },
+  };
+}
+
+// Reads what the invocation that just ended wrote (outFile) and every earlier part, and settles the run.
+export function settleSlim(run: PlannedRun, outFile: string, status: number | null, binary: string): RunOutcome {
+  const outs = outFiles(`${run.runDir}/raw`).map((file) => slimOutput(readJson(file)));
+  const latest = existsSync(outFile) ? slimOutput(readJson(outFile)) : null;
+
+  return settleRun(run.runDir, normalizeSlim(run, outs, latest, binary), status);
+}
+
+export interface SlimContext {
+  readonly stageRoot: string;
+  readonly slimRoot: string;
+  readonly runSlim: Command;
+}
+
+export function slimPluginDir(stageRoot: string, run: PlannedRun): string | null {
+  return run.ref === null ? null : `${stageDir(stageRoot, run.ref)}/plugin`;
+}
+
+export function slimInput(run: PlannedRun, ctx: SlimContext): SlimInput {
+  return {
+    cwd: slimCwd(ctx.slimRoot, run),
+    rawDir: `${run.runDir}/raw`,
+    model: run.model,
+    timeoutMinutes: run.suite.timeoutMinutes,
+    pluginDir: slimPluginDir(ctx.stageRoot, run),
+    allow: run.suite.allow,
+  };
+}
+
+// Stryker disable all: the heavy lock, the spawned sessions and the command line below start real processes, which
+// no unit test does
+export function required(name: string, env: NodeJS.ProcessEnv): string {
+  const value = env[name];
+
+  if (value === undefined || value === '') {
+    throw new Error(`set ${name}`);
+  }
+
+  return value;
+}
+
+function heavyLock(lock: string, args: readonly string[]): number {
+  return spawnSync(process.execPath, [lock, ...args], { stdio: 'inherit' }).status ?? 1;
+}
+
+// A suite that runs a test suite holds the machine's heavy-run lock (D-04); one that does not never touches it.
+export async function withHeavyLock<T>(
+  heavy: boolean,
+  task: string,
+  minutes: number,
+  work: () => Promise<T>,
+  env: NodeJS.ProcessEnv,
+): Promise<T> {
+  if (!heavy) {
+    return work();
+  }
+
+  const lock = required('LZ_EVAL_HEAVY_LOCK', env);
+  const owner = required('LZ_EVAL_LOCK_OWNER', env);
+  const slot = ['--owner', owner, '--task', task, '--minutes', String(minutes)];
+  heavyLock(lock, ['wait', ...slot]);
+
+  for (let code = heavyLock(lock, ['acquire', ...slot, '--pid', String(process.pid)]); code !== 0;) {
+    if (code === 4) {
+      heavyLock(lock, ['wait', ...slot]);
+    } else if (code !== 2) {
+      throw new Error(`heavy-lock acquire exited ${String(code)}`);
+    }
+
+    await new Promise((done) => setTimeout(done, 30_000));
+    code = heavyLock(lock, ['acquire', ...slot, '--pid', String(process.pid)]);
+  }
+
+  try {
+    return await work();
+  } finally {
+    heavyLock(lock, ['release', '--owner', owner]);
+  }
+}
+
+function binaryOf(command: Command): string {
+  return command.prefix[0] ?? command.file;
+}
+
+export async function startSlimRun(run: PlannedRun, ctx: SlimContext): Promise<RunOutcome> {
+  const input = slimInput(run, ctx);
+  const args = slimArgs(input);
+  freshCwd(ctx.slimRoot, input.cwd);
+  mkdirSync(input.rawDir, { recursive: true });
+  const startedAt = new Date().toISOString();
+  writeFileSync(
+    `${input.rawDir}/started.json`,
+    `${JSON.stringify({ startedAt, cwd: input.cwd, argv: [...ctx.runSlim.prefix, ...args] }, null, 2)}\n`,
+  );
+  writeFileSync(`${input.rawDir}/prompt.txt`, run.caseInfo.body);
+  const status = await spawnLogged(ctx.runSlim, args, input.rawDir, 'run-slim');
+
+  return settleSlim(run, `${input.rawDir}/result.json`, status, binaryOf(ctx.runSlim));
+}
+
+export async function resumeSlimRun(run: PlannedRun, ctx: SlimContext, session: string): Promise<RunOutcome> {
+  const input = slimInput(run, ctx);
+  const args = resumeArgs(input, session);
+  const out = args[args.indexOf('--out') + 1] ?? '';
+  writeFileSync(`${input.rawDir}/continue.txt`, 'Continue the task from where you stopped.\n');
+  rmSync(`${input.rawDir}/refused.txt`, { force: true });
+  const status = await spawnLogged(ctx.runSlim, args, input.rawDir, `run-slim-resume-${String(nextResume(input.rawDir))}`);
+
+  return settleSlim(run, out, status, binaryOf(ctx.runSlim));
+}
+// Stryker restore all

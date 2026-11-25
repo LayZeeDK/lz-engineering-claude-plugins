@@ -465,11 +465,11 @@ that passes on Sonnet but fails on Opus reruns on Opus at n=5 before it counts. 
 from this phase's dry run; if a suite is too expensive, cut cases before cutting Sonnet's n.
 **Requirements**: EVH-01, EVH-02, EVH-03, EVH-04, EVH-05, EVH-06, EVH-07, EVH-08, EVH-09, EVH-10, EVH-11, EVH-12
 **Depends on:** Phase 22
-**Plans:** 8 plans
+**Plans:** 1/8 plans executed
 
 Plans:
 **Wave 1**
-- [ ] 22.1-01-PLAN.md -- resumable run-set core, both backends, and the free stub dry run (the gate before any paid run)
+- [x] 22.1-01-PLAN.md -- resumable run-set core, both backends, and the free stub dry run (the gate before any paid run)
 
 **Wave 2** *(blocked on Wave 1 completion)*
 - [ ] 22.1-02-PLAN.md -- staging from git archive, slim templates from pinned kata commits, the grader model and crosscheck

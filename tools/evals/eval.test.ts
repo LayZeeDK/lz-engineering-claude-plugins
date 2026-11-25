@@ -204,13 +204,21 @@ test('a paid run books the timing-sensitive lock for a plugin-eval suite, and re
   assert.match(refused.output, /set LZ_EVAL_HEAVY_LOCK/);
   assert.equal(existsSync(`${stubDir}/argv.jsonl`), false);
 
-  const ran = evalCli(['run', setDir], { ...env, LZ_EVAL_HEAVY_LOCK: lock, LZ_EVAL_LOCK_OWNER: 'eval-test' });
+  const locked = { ...env, LZ_EVAL_HEAVY_LOCK: lock, LZ_EVAL_LOCK_OWNER: 'eval-test' };
+  const badMinutes = evalCli(['run', setDir, '--lock-minutes', '1441'], locked);
+  assert.equal(badMinutes.status, 1, badMinutes.output);
+  assert.match(badMinutes.output, /--lock-minutes must be a whole number from 1 to 1440/);
+  assert.equal(existsSync(log), false);
+
+  const ran = evalCli(['run', setDir, '--lock-minutes', '7'], locked);
   assert.equal(ran.status, 0, ran.output);
   assert.equal(argvLines(stubDir), 1);
   const calls = readFileSync(log, 'utf8').split('\n').filter((line) => line !== '').map((line): unknown => JSON.parse(line));
   assert.deepEqual(
-    calls.map((call) => (Array.isArray(call) ? [call[0], call.includes('--timing')] : null)),
-    [['wait', false], ['acquire', true], ['release', false]],
+    calls.map((call) =>
+      Array.isArray(call) ? [call[0], call.includes('--timing'), call.includes('--minutes') ? call[call.indexOf('--minutes') + 1] : null] : null,
+    ),
+    [['wait', false, '7'], ['acquire', true, '7'], ['release', false, null]],
   );
 });
 

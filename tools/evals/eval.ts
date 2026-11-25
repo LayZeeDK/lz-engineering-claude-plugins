@@ -3,6 +3,7 @@
 //   node tools/evals/eval.ts run <run set dir> [--concurrency 3]            start every run that has no folder yet
 //   node tools/evals/eval.ts rerun <run set dir> <run dir>... [--concurrency 3]
 //   node tools/evals/eval.ts resume <run set dir> <run dir>...              continue stopped slim sessions
+//   run, rerun and resume take [--lock-minutes <1-1440>]: the lock slot to book, the part's measured estimate
 //   node tools/evals/eval.ts aggregate <run set dir> [--allow-stub]          write RESULTS.md and recheck.json
 //   node tools/evals/eval.ts stage <ref>                                     package <ref> and the committed cases
 //   node tools/evals/eval.ts crosscheck <run set dir>                        grade plugin-eval traces with the model
@@ -163,10 +164,6 @@ function writeRecheck(runSet: RunSet, listed: Record<string, number>): void {
   }
 }
 
-function lockMinutes(runs: readonly PlannedRun[]): number {
-  return runs.reduce((total, run) => total + run.suite.timeoutMinutes + 2, 0);
-}
-
 interface Context extends PluginEvalContext, SlimContext {}
 
 // A paid run measures cost and wall clock, so every suite in it holds a timing-sensitive slot.
@@ -185,14 +182,20 @@ function lockMode(runs: readonly PlannedRun[], env: NodeJS.ProcessEnv): LockMode
 }
 
 // Plugin-eval runs on the workers first; slim runs one at a time after them, all in one lock slot when one is needed.
-async function startRuns(runSet: RunSet, runs: readonly PlannedRun[], concurrency: number, ctx: Context): Promise<RunOutcomeEntry[]> {
+async function startRuns(
+  runSet: RunSet,
+  runs: readonly PlannedRun[],
+  concurrency: number,
+  minutes: number,
+  ctx: Context,
+): Promise<RunOutcomeEntry[]> {
   const pluginRuns = runs.filter((run) => !isSlim(run));
   const slimRuns = runs.filter(isSlim);
 
   return withHeavyLock(
     lockMode(runs, process.env),
     `lz-tdd eval ${runSet.name}: ${String(pluginRuns.length)} plugin eval runs, ${String(concurrency)} at a time, then ${String(slimRuns.length)} slim claude -p runs, one at a time`,
-    lockMinutes(runs),
+    minutes,
     async () => {
       const first = await runAll(pluginRuns, concurrency, (run) => startPluginEvalRun(run, ctx));
 
@@ -217,6 +220,7 @@ if (import.meta.main) {
     allowPositionals: true,
     options: {
       concurrency: { type: 'string', default: '3' },
+      'lock-minutes': { type: 'string' },
       'allow-stub': { type: 'boolean', default: false },
     },
   });
@@ -276,6 +280,16 @@ if (import.meta.main) {
     if (!Number.isInteger(concurrency) || concurrency < 1) {
       throw new Error(`--concurrency must be a whole number of at least 1, not ${values.concurrency}`);
     }
+
+    // The slot a part books is its measured estimate; without one, the sum of the runs' timeouts.
+    const booked = values['lock-minutes'] === undefined ? null : Number(values['lock-minutes']);
+
+    if (booked !== null && (!Number.isInteger(booked) || booked < 1 || booked > 1440)) {
+      throw new Error(`--lock-minutes must be a whole number from 1 to 1440, not ${values['lock-minutes'] ?? ''}`);
+    }
+
+    const lockMinutes = (runs: readonly PlannedRun[]): number =>
+      booked ?? runs.reduce((total, run) => total + run.suite.timeoutMinutes + 2, 0);
 
     const runSet = readRunSet(runSetDir);
     // Taken before anything reads the run folders; the exit event also fires after an uncaught error.
@@ -344,7 +358,7 @@ if (import.meta.main) {
         setAside(runSet.dir, todo.map((run) => run.runDir));
       }
 
-      outcomes = await startRuns(runSet, todo, concurrency, ctx);
+      outcomes = await startRuns(runSet, todo, concurrency, lockMinutes(todo), ctx);
     }
 
     reportDied(runSet, died);

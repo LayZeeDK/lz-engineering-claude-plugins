@@ -68,9 +68,10 @@ Refused calls in the 10 apply runs (28 in all, from `permission_denials` in each
 | Read of the staged plugin's own skill reference (outside the run cwd) | 1 | the lz-red testing-stance reference | `Read` on the staged plugin folder (or `--add-dir` for it) |
 
 The kinds overlap, so the run counts do not add up to 10. The slim session's allow list is not only the case's
-`npx` rules: `run-slim` passes a filtered copy of the maintainer's user allow list (for example `Bash(git *)`,
-`Bash(curl *)`, `Bash(git push *)`). Each run works in an archive copy with no `.git`, so a push has no remote,
-but network calls are allowed; the phase's security review covers it.
+`npx` rules: `run-slim` passes the maintainer's user allow list (306 rules, for example `Bash(git *)` and
+`Bash(curl *)`) with the user deny list, every `ask` rule as a deny, and every spelling of `git push` as a deny (324
+deny rules; a deny beats any allow, so pushes were refused). Network calls such as `curl` were allowed; the phase's
+security review covers it, and `run-slim --offline` replaces the allow list with a short read-only one.
 
 The plugin-reference Read matters most: under slim the skill could not open its own reference file (1 of 10 runs,
 Opus). Plan 05 adds

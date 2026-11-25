@@ -1,0 +1,23 @@
+{
+  "cells": [
+    {
+      "arm": "tpp-5f586da-turns10",
+      "ref": "5f586da3b18097b3aaa22dec115d607577e56151",
+      "models": { "claude-opus-4-8": 3 },
+      "suites": [{ "suite": "trigger-lz-tpp-turns10", "tags": ["rec-5f586da", "fire"] }]
+    }
+  ],
+  "record": [
+    {
+      "label": "tpp-recall",
+      "cell": "tpp-5f586da-turns10",
+      "model": "claude-opus-4-8",
+      "suite": "trigger-lz-tpp-turns10",
+      "tags": ["rec-5f586da", "fire"],
+      "grader": "skill-fired",
+      "unit": "case-fired",
+      "passed": 13,
+      "total": 13
+    }
+  ]
+}

@@ -19,6 +19,7 @@ import {
   type RunOutcome,
   type RunResult,
 } from './run-set.ts';
+import { git } from './stage.ts';
 
 const root = mkdtempSync(join(tmpdir(), 'lz-evals-run-set-')).replaceAll('\\', '/');
 
@@ -34,18 +35,25 @@ function put(path: string, text: string): void {
 }
 
 // A repository with one plugin-eval suite of two cases, a stage for the zero ref, and a run set over it.
-function scenario(name: string, models: Record<string, number>): { repo: string; setDir: string; env: NodeJS.ProcessEnv } {
+// A repository whose one commit holds a minimal plugin and the demo suite; the cell tests that commit.
+function scenario(name: string, models: Record<string, number>): { repo: string; ref: string; setDir: string; env: NodeJS.ProcessEnv } {
   const base = `${root}/${name}`;
   const repo = `${base}/repo`;
+  mkdirSync(repo, { recursive: true });
+  git(repo, ['init', '-q']);
+  put(`${repo}/plugins/lz-tdd/.claude-plugin/plugin.json`, '{"name":"lz-tdd"}\n');
   put(`${repo}/evals/lz-tdd/demo/suite.json`, '{"backend":"plugin-eval"}');
   put(`${repo}/evals/lz-tdd/demo/demo-01/prompt.md`, '---\ntags: [a]\n---\nOne.\n');
   put(`${repo}/evals/lz-tdd/demo/demo-02/prompt.md`, '---\ntags: [a, b]\n---\nTwo.\n');
-  mkdirSync(`${base}/stage/${zeros.slice(0, 12)}/lz-tdd`, { recursive: true });
+  git(repo, ['add', '-A']);
+  git(repo, ['-c', 'user.name=lz-tdd-eval', '-c', 'user.email=larsbrinknielsen@gmail.com', 'commit', '-q', '-m', 'demo']);
+  const ref = git(repo, ['rev-parse', 'HEAD']);
   const setDir = `${base}/set`;
-  writeRunSet(setDir, models);
+  writeRunSet(setDir, ref, models);
 
   return {
     repo,
+    ref,
     setDir,
     env: {
       LZ_EVAL_REPO: repo,
@@ -56,8 +64,8 @@ function scenario(name: string, models: Record<string, number>): { repo: string;
   };
 }
 
-function writeRunSet(setDir: string, models: Record<string, number>): void {
-  put(`${setDir}/run-set.json`, JSON.stringify({ cells: [{ arm: 'head', ref: zeros, models, suites: [{ suite: 'demo' }] }] }));
+function writeRunSet(setDir: string, ref: string, models: Record<string, number>): void {
+  put(`${setDir}/run-set.json`, JSON.stringify({ cells: [{ arm: 'head', ref, models, suites: [{ suite: 'demo' }] }] }));
 }
 
 function plan(repo: string, setDir: string): PlannedRun[] {
@@ -310,7 +318,7 @@ test('planRuns plans up to the recheck count for a case listed in recheck.json',
 });
 
 test('run starts only new runs, leaves a died run alone and names it with rerun; rerun sets runs aside; raising n keeps old results', () => {
-  const { repo, setDir, env } = scenario('cli', { [sonnet]: 2, [opus]: 2 });
+  const { repo, ref, setDir, env } = scenario('cli', { [sonnet]: 2, [opus]: 2 });
   const all = plan(repo, setDir);
   const at = (model: string, caseName: string, k: number): string => `${setDir}/head/${model}/${caseName}/run-${String(k)}`;
   fakeResult(at(sonnet, 'demo-01', 1));
@@ -354,7 +362,7 @@ test('run starts only new runs, leaves a died run alone and names it with rerun;
   assert.equal(existsSync(`${setDir}/set-aside-2/head/${sonnet}/demo-02/run-2/raw`), true);
 
   const before = all.map((run) => statSync(resultPath(run.runDir)).mtimeMs);
-  writeRunSet(setDir, { [sonnet]: 3, [opus]: 2 });
+  writeRunSet(setDir, ref, { [sonnet]: 3, [opus]: 2 });
   const raised = plan(repo, setDir);
   assert.deepEqual(
     newRuns(raised).map((run) => run.runDir),

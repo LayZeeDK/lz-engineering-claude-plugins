@@ -4,7 +4,19 @@
 //   node tools/evals/eval.ts rerun <run set dir> <run dir>... [--concurrency 3]
 //   node tools/evals/eval.ts resume <run set dir> <run dir>...              continue stopped slim sessions
 //   node tools/evals/eval.ts aggregate <run set dir> [--allow-stub]          write RESULTS.md and recheck.json
+//   node tools/evals/eval.ts stage <ref>                                     package <ref> and the committed cases
+//   node tools/evals/eval.ts crosscheck <run set dir>                        grade plugin-eval traces with the model
+//   node tools/evals/eval.ts template <name>                                 build one slim template by hand
 //
+// A slim suite's `target` names a template in evals/lz-tdd-apply/templates.json: a kata at a pinned commit with its
+// sha256-checked lockfile installed (`npm ci --ignore-scripts`), optionally armed and given a known-red overlay, built
+// once below <slim root>/templates/ from the clone at <LZ_EVAL_CLONES>/<org>/<repo>. `run` builds every template its
+// runs need before the first spawn, and each run starts in a fresh copy.
+// `crosscheck` re-grades every finished plugin-eval run from its copied traces with the harness's grader model and
+// exits 1 on any verdict that differs from the CLI's, or on a run it could not grade.
+// `run`, `rerun` and `resume` refuse while evals/lz-tdd or evals/lz-tdd-apply has uncommitted changes, then stage
+// every ref their runs need (dist/eval/<sha12>/plugin from `git archive`, and lz-tdd/ = plugin/ plus the committed
+// plugin-eval cases), so a run never tests the working tree.
 // <run set dir>/run-set.json names the cells: {"cells": [{"arm", "ref", "models": {"<model>": <runs>}, "suites":
 // [{"suite", "tags"?, "cases"?}]}], "record"?: [...]}. A run is done when its result.json exists, and `run` never
 // starts it again; a run folder without one is a run that died, which `run` leaves alone and names. `rerun` moves
@@ -16,15 +28,17 @@
 // LZ_EVAL_CLAUDE (the claude binary; a .ts file runs under this Node.js), LZ_EVAL_RUN_SLIM (default
 // ~/.claude/references/slim-claude-p/run-slim.ts), LZ_EVAL_STAGE_ROOT (default <repo>/dist/eval), LZ_EVAL_SLIM_ROOT
 // (default D:/tmp/slim-claude-p), LZ_EVAL_PROJECTS_DIR (default ~/.claude/projects), and for a slim suite marked heavy
-// LZ_EVAL_HEAVY_LOCK (heavy-lock.ts) with LZ_EVAL_LOCK_OWNER.
+// LZ_EVAL_HEAVY_LOCK (heavy-lock.ts) with LZ_EVAL_LOCK_OWNER; LZ_EVAL_CLONES (default D:/projects/github, the clone
+// root the templates name <org>/<repo> below) and LZ_EVAL_BASH (the bash for scaffold scripts; default Git Bash).
 import { existsSync, writeFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join, relative, resolve } from 'node:path';
 import { parseArgs } from 'node:util';
 import { aggregate, recheckCases, renderResults } from './aggregate.ts';
 import { evalRepo, evalsRoots } from './cases.ts';
-import { isRecord, readJson } from './guards.ts';
-import { claudeCommand, pluginEvalTarget, startPluginEvalRun, type PluginEvalContext } from './plugin-eval.ts';
+import { crosscheckRunSet, readGraders } from './grade.ts';
+import { assertName, isRecord, readJson } from './guards.ts';
+import { claudeCommand, startPluginEvalRun, type PluginEvalContext } from './plugin-eval.ts';
 import {
   diedRuns,
   newRuns,
@@ -36,20 +50,22 @@ import {
   type PlannedRun,
   type RunOutcomeEntry,
   type RunSet,
+  type Trees,
 } from './run-set.ts';
 import {
   required,
   resumeSlimRun,
   runSlimCommand,
   sessionId,
-  slimPluginDir,
   startSlimRun,
   withHeavyLock,
   type SlimContext,
 } from './slim.ts';
+import { casesTree, git, readStage, resolveCommit, stageRef } from './stage.ts';
+import { buildTemplate } from './templates.ts';
 
 const usage =
-  'usage: eval.ts run <run set dir> [--concurrency 3] | rerun|resume <run set dir> <run dir>... | aggregate <run set dir> [--allow-stub]';
+  'usage: eval.ts run <run set dir> [--concurrency 3] | rerun|resume <run set dir> <run dir>... | aggregate|crosscheck <run set dir> [--allow-stub] | stage <ref>';
 
 function shortName(runSet: RunSet, run: PlannedRun): string {
   return relative(runSet.dir, run.runDir).replaceAll('\\', '/');
@@ -59,17 +75,45 @@ function isSlim(run: PlannedRun): boolean {
   return run.suite.backend === 'slim';
 }
 
-function checkStages(runs: readonly PlannedRun[], stageRoot: string): void {
-  const needed = runs.flatMap((run) => {
-    const dir = isSlim(run) ? slimPluginDir(stageRoot, run) : pluginEvalTarget(stageRoot, run);
+// Only committed cases run: staging reads them from HEAD, and a case edited since would run as its old self.
+function refuseUncommittedCases(repo: string): void {
+  const dirty = git(repo, ['status', '--porcelain', '--', ...evalsRoots(repo)]);
 
-    return dir === null ? [] : [dir];
-  });
-  const missing = [...new Set(needed)].filter((dir) => !existsSync(dir));
+  if (dirty !== '') {
+    throw new Error(`commit the cases first; uncommitted under evals/:\n${dirty}`);
+  }
+}
+
+// Stages every ref the runs about to start need, checks that each plugin-eval case is in its stage, and gives back
+// the trees each run's result.json records.
+function stageRuns(repo: string, runs: readonly PlannedRun[], stageRoot: string): (run: PlannedRun) => Trees {
+  const refs = [...new Set(runs.flatMap((run) => (run.ref === null ? [] : [run.ref])))];
+  const stages = new Map(
+    refs.map((ref) => {
+      const info = readStage(stageRef(repo, stageRoot, resolveCommit(repo, ref)));
+
+      if (info === null) {
+        throw new Error(`staging ${ref} wrote no readable stage.json`);
+      }
+
+      return [ref, info];
+    }),
+  );
+  const missing = runs.filter(
+    (run) => !isSlim(run) && run.ref !== null && !(stages.get(run.ref)?.cases ?? []).includes(run.caseInfo.name),
+  );
 
   if (missing.length > 0) {
-    throw new Error(`stage ${missing.join(', ')} first`);
+    throw new Error(`not in the staged cases (commit them): ${[...new Set(missing.map((run) => run.caseInfo.name))].join(', ')}`);
   }
+
+  const cases = casesTree(repo);
+
+  return (run) => {
+    const info = run.ref === null ? undefined : stages.get(run.ref);
+
+    return { pluginTree: info?.pluginTree ?? null, casesTree: info?.casesTree ?? cases };
+  };
 }
 
 function namedRuns(runSet: RunSet, plan: readonly PlannedRun[], runDirs: readonly string[]): PlannedRun[] {
@@ -164,16 +208,44 @@ if (import.meta.main) {
     runSetDir === undefined ||
     (takesRuns && runDirs.length === 0) ||
     (!takesRuns && runDirs.length > 0) ||
-    !['run', 'rerun', 'resume', 'aggregate'].includes(command ?? '')
+    !['run', 'rerun', 'resume', 'aggregate', 'stage', 'crosscheck', 'template'].includes(command ?? '')
   ) {
     throw new Error(usage);
   }
 
   const repo = evalRepo(process.env);
-  const runSet = readRunSet(runSetDir);
-  const plan = planRuns(runSet, evalsRoots(repo));
+  const stageRoot = process.env['LZ_EVAL_STAGE_ROOT'] ?? `${repo}/dist/eval`;
+  const slimRoot = process.env['LZ_EVAL_SLIM_ROOT'] ?? 'D:/tmp/slim-claude-p';
+  const clonesRoot = process.env['LZ_EVAL_CLONES'] ?? 'D:/projects/github';
 
-  if (command === 'aggregate') {
+  if (command === 'run' || command === 'rerun' || command === 'resume' || command === 'template') {
+    refuseUncommittedCases(repo);
+  }
+
+  if (command === 'stage') {
+    console.log(stageRef(repo, stageRoot, resolveCommit(repo, runSetDir)));
+  } else if (command === 'template') {
+    console.log(buildTemplate(repo, slimRoot, clonesRoot, assertName('template', runSetDir)));
+  } else if (command === 'crosscheck') {
+    const runSet = readRunSet(runSetDir);
+    const report = crosscheckRunSet(planRuns(runSet, evalsRoots(repo)), stageRoot);
+
+    for (const { caseName, run, side, grader, cli, model } of report.disagree) {
+      console.error(`disagree: ${caseName} ${relative(runSet.dir, run).replaceAll('\\', '/')} ${side} ${grader}: CLI ${String(cli)}, model ${String(model)}`);
+    }
+
+    for (const { run, reason } of report.unchecked) {
+      console.error(`unchecked: ${relative(runSet.dir, run).replaceAll('\\', '/')}: ${reason}`);
+    }
+
+    console.log(`crosscheck: ${String(report.agree)} agree, ${String(report.disagree.length)} disagree, ${String(report.unchecked.length)} unchecked`);
+
+    if (report.disagree.length > 0 || report.unchecked.length > 0) {
+      process.exitCode = 1;
+    }
+  } else if (command === 'aggregate') {
+    const runSet = readRunSet(runSetDir);
+    const plan = planRuns(runSet, evalsRoots(repo));
     const summary = aggregate(runSet.dir, plan, { allowStub: values['allow-stub'], record: runSet.record });
     writeFileSync(`${runSet.dir}/RESULTS.md`, renderResults(summary));
     writeRecheck(runSet, recheckCases(summary));
@@ -186,12 +258,8 @@ if (import.meta.main) {
       throw new Error(`--concurrency must be a whole number of at least 1, not ${values.concurrency}`);
     }
 
-    const ctx: Context = {
-      stageRoot: process.env['LZ_EVAL_STAGE_ROOT'] ?? `${repo}/dist/eval`,
-      claude: claudeCommand(process.env),
-      slimRoot: process.env['LZ_EVAL_SLIM_ROOT'] ?? 'D:/tmp/slim-claude-p',
-      runSlim: runSlimCommand(process.env),
-    };
+    const runSet = readRunSet(runSetDir);
+    const plan = planRuns(runSet, evalsRoots(repo));
     const projectsDir = process.env['LZ_EVAL_PROJECTS_DIR'] ?? join(homedir(), '.claude/projects');
     const died = command === 'run' ? diedRuns(plan) : [];
     const todo = command === 'run' ? newRuns(plan) : namedRuns(runSet, plan, runDirs);
@@ -202,21 +270,37 @@ if (import.meta.main) {
       throw new Error(`each of these runs has a result, which ${String(command)} never replaces: ${done.map((run) => shortName(runSet, run)).join(', ')}`);
     }
 
-    checkStages(todo, ctx.stageRoot);
-
     if (todo.some((run) => isSlim(run) && run.suite.heavy)) {
       required('LZ_EVAL_HEAVY_LOCK', process.env);
     }
 
+    const plugin = todo.filter((run) => !isSlim(run));
+
+    if (command === 'resume' && plugin.length > 0) {
+      throw new Error(`plugin eval has no resume; rerun it: ${plugin.map((run) => shortName(runSet, run)).join(', ')}`);
+    }
+
+    // A slim run is graded by the harness after it has paid for the session, so its graders must read now.
+    for (const run of todo.filter(isSlim)) {
+      readGraders(run.caseInfo.dir);
+    }
+
+    const trees = stageRuns(repo, todo, stageRoot);
+    // A resumed session goes on in the folder it has; only a fresh start copies a template.
+    const targets = command === 'resume' ? [] : todo.flatMap((run) => (isSlim(run) && run.suite.target !== null ? [run.suite.target] : []));
+    const templates = new Map([...new Set(targets)].map((name) => [name, buildTemplate(repo, slimRoot, clonesRoot, name)]));
+    const ctx: Context = {
+      stageRoot,
+      claude: claudeCommand(process.env),
+      slimRoot,
+      runSlim: runSlimCommand(process.env),
+      projectsDir,
+      trees,
+      templates,
+    };
     let outcomes: RunOutcomeEntry[] = [];
 
     if (command === 'resume') {
-      const plugin = todo.filter((run) => !isSlim(run));
-
-      if (plugin.length > 0) {
-        throw new Error(`plugin eval has no resume; rerun it: ${plugin.map((run) => shortName(runSet, run)).join(', ')}`);
-      }
-
       const sessions = new Map(todo.map((run) => [run.runDir, runState(run.runDir) === 'new' ? null : sessionId(run.runDir, projectsDir)]));
       const missing = todo.filter((run) => sessions.get(run.runDir) === null);
 

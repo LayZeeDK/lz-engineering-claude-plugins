@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { after, test } from 'node:test';
 
-import { evalRepo, evalsRoots, findSuite, listCases, readFrontmatter, readSuite } from './cases.ts';
+import { evalRepo, evalsRoots, findSuite, listCases, readCaseYaml, readFrontmatter, readSuite } from './cases.ts';
 
 const root = mkdtempSync(join(tmpdir(), 'lz-evals-cases-')).replaceAll('\\', '/');
 
@@ -89,6 +89,13 @@ test('readSuite fills defaults and refuses unknown keys and bad values', () => {
   assert.throws(() => readSuite(`${root}/suites/bad-key`), /unknown keys heavyy/);
   assert.throws(() => readSuite(`${root}/suites/bad-backend`), /backend must be/);
   assert.throws(() => readSuite(`${root}/suites/bad-timeout`), /timeoutMinutes/);
+
+  put(`${root}/suites/kata/suite.json`, '{"backend":"slim","target":"gilded-rose-ts"}');
+  put(`${root}/suites/pe-target/suite.json`, '{"backend":"plugin-eval","target":"gilded-rose-ts"}');
+  put(`${root}/suites/bad-target/suite.json`, '{"backend":"slim","target":"../kata"}');
+  assert.equal(readSuite(`${root}/suites/kata`).target, 'gilded-rose-ts');
+  assert.throws(() => readSuite(`${root}/suites/pe-target`), /target has the wrong type/);
+  assert.throws(() => readSuite(`${root}/suites/bad-target`), /template name/);
 });
 
 test('evalsRoots names both suite roots, and evalRepo honours LZ_EVAL_REPO', () => {
@@ -124,4 +131,21 @@ test('listCases lists case folders with prompt.md, with their tags, and refuses 
 
   put(`${root}/l/demo/other-01/prompt.md`, 'Stray.\n');
   assert.throws(() => listCases(readSuite(`${root}/l/demo`)), /must start with demo-/);
+});
+
+test('readCaseYaml reads schema_version, name, tags and context.scaffold_script, and names any other line', () => {
+  const text = 'schema_version: "1.1"\nname: real-demo\ntags: [real, shape]\ncontext:\n  scaffold_script: checkout.sh\n';
+
+  assert.deepEqual(readCaseYaml(text), {
+    schemaVersion: '1.1',
+    name: 'real-demo',
+    tags: ['real', 'shape'],
+    scaffoldScript: 'checkout.sh',
+  });
+  assert.deepEqual(readCaseYaml('name: bare\n'), { schemaVersion: null, name: 'bare', tags: [], scaffoldScript: null });
+  assert.throws(() => readCaseYaml('name: x\ngraders:\n  - a\n'), /line 2 "graders:"/);
+  assert.throws(() => readCaseYaml('context:\n  history_file: h.jsonl\n'), /line 2 " {2}history_file: h.jsonl"/);
+  assert.throws(() => readCaseYaml('  scaffold_script: s.sh\n'), /line 1/);
+  assert.throws(() => readCaseYaml('name: a\nname: b\n'), /line 2/);
+  assert.throws(() => readCaseYaml('tags: real\n'), /tags must be a flow list/);
 });

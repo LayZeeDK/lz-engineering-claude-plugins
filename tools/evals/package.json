@@ -7,7 +7,7 @@
   },
   "description": "Repository-only eval harness for the lz-tdd plugin (claude plugin eval and slim claude -p run sets); not shipped with the plugin.",
   "scripts": {
-    "check": "tsc -p tsconfig.json && node --test eval.test.ts guards.test.ts cases.test.ts run-set.test.ts trace.test.ts plugin-eval.test.ts aggregate.test.ts slim.test.ts stubs.test.ts dry-run.test.ts"
+    "check": "tsc -p tsconfig.json && node --test eval.test.ts guards.test.ts cases.test.ts run-set.test.ts trace.test.ts plugin-eval.test.ts aggregate.test.ts slim.test.ts stubs.test.ts dry-run.test.ts stage.test.ts grade.test.ts templates.test.ts"
   },
   "devDependencies": {
     "@types/node": "22.20.5",

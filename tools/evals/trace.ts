@@ -1,6 +1,7 @@
 // Readers of what the Claude Code CLI itself wrote: the stream-json trace of a `claude plugin eval` run and the
 // run-slim `--out` file. The model that ran, its cost and its tokens come from here, never from a field the harness
 // or the eval command echoes back. Repository-only; nothing here ships with the plugin.
+import { existsSync, readdirSync } from 'node:fs';
 import { isRecord, jsonLines } from './guards.ts';
 import type { Tokens } from './run-set.ts';
 
@@ -113,6 +114,18 @@ export function slimOutput(raw: unknown): SlimOutput {
     result: result ?? {},
     session: sessions.at(-1) ?? null,
   };
+}
+
+// A slim run's --out files in order: result.json, then result-resume-1.json, -2 and so on.
+export function outFiles(rawDir: string): string[] {
+  const resumes = existsSync(rawDir)
+    ? readdirSync(rawDir).flatMap((name) => /^result-resume-(\d+)\.json$/.exec(name)?.[1] ?? []).map(Number)
+    : [];
+
+  return [
+    `${rawDir}/result.json`,
+    ...resumes.sort((a, b) => a - b).map((number) => `${rawDir}/result-resume-${String(number)}.json`),
+  ].filter((file) => existsSync(file));
 }
 
 export interface ToolCall {

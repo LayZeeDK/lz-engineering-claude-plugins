@@ -17,6 +17,7 @@ import {
   type Normalized,
   type PlannedRun,
   type RunOutcome,
+  type Trees,
 } from './run-set.ts';
 import { limitStopped, modelRefusal, traceModels, traceResult } from './trace.ts';
 
@@ -52,7 +53,7 @@ export interface Traces {
   readonly without: readonly unknown[] | null;
 }
 
-export interface RunMeta {
+export interface RunMeta extends Trees {
   readonly startedAt: string;
   readonly binary: string;
 }
@@ -173,8 +174,8 @@ export function normalizePluginEval(json: unknown, traces: Traces, run: PlannedR
       runSet: run.runSetName,
       arm: run.arm,
       ref: run.ref,
-      pluginTree: null,
-      casesTree: null,
+      pluginTree: meta.pluginTree,
+      casesTree: meta.casesTree,
       suite: run.suite.name,
       case: run.caseInfo.name,
       k: run.k,
@@ -241,6 +242,7 @@ function readCliJson(file: string): unknown {
 export interface PluginEvalContext {
   readonly stageRoot: string;
   readonly claude: Command;
+  readonly trees: (run: PlannedRun) => Trees;
 }
 
 export function pluginEvalTarget(stageRoot: string, run: PlannedRun): string {
@@ -269,7 +271,11 @@ export async function startPluginEvalRun(run: PlannedRun, ctx: PluginEvalContext
   const status = await spawnLogged(ctx.claude, args, rawDir, 'plugin-eval');
   const json = readCliJson(`${rawDir}/plugin-eval.json`);
   const traces = copyTraces(json, rawDir);
-  const normalized = normalizePluginEval(json, traces, run, { startedAt, binary: ctx.claude.prefix[0] ?? ctx.claude.file });
+  const normalized = normalizePluginEval(json, traces, run, {
+    startedAt,
+    binary: ctx.claude.prefix[0] ?? ctx.claude.file,
+    ...ctx.trees(run),
+  });
 
   return settleRun(run.runDir, normalized, status);
 }

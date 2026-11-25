@@ -68,6 +68,12 @@ export interface Tokens {
   readonly cacheCreation: number;
 }
 
+// The packaged plugin's tree (null for a cell without a plugin) and the committed cases' trees a run was started on.
+export interface Trees {
+  readonly pluginTree: string | null;
+  readonly casesTree: string | null;
+}
+
 export interface RunResult {
   readonly schemaVersion: 1;
   readonly backend: 'plugin-eval' | 'slim';

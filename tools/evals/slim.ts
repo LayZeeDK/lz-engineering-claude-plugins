@@ -3,9 +3,10 @@
 // nothing here ships with the plugin.
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { existsSync, mkdirSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
-import { homedir } from 'node:os';
+import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { homedir, tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { readCaseYaml } from './cases.ts';
 import { isRecord, readJson } from './guards.ts';
 import {
   forwardSlashes,
@@ -17,8 +18,20 @@ import {
   type Normalized,
   type PlannedRun,
   type RunOutcome,
+  type Trees,
 } from './run-set.ts';
-import { limitStopped, modelRefusal, namesModel, resultFacts, slimOutput, usageTokens, type SlimOutput } from './trace.ts';
+import { gradeRun, readGraders, runEvidence } from './grade.ts';
+import { copyTemplate } from './templates.ts';
+import {
+  limitStopped,
+  modelRefusal,
+  namesModel,
+  outFiles,
+  resultFacts,
+  slimOutput,
+  usageTokens,
+  type SlimOutput,
+} from './trace.ts';
 
 export function runSlimCommand(env: NodeJS.ProcessEnv): Command {
   return scriptOrBinary(env['LZ_EVAL_RUN_SLIM'] ?? join(homedir(), '.claude/references/slim-claude-p/run-slim.ts'));
@@ -41,18 +54,6 @@ export function slimArgs(input: SlimInput): string[] {
     ...(input.pluginDir === null ? [] : ['--plugin-dir', input.pluginDir]),
     ...(input.allow === null ? [] : ['--allow', input.allow]),
   ];
-}
-
-// The run's --out files in order: result.json, then result-resume-1.json, -2 and so on.
-export function outFiles(rawDir: string): string[] {
-  const resumes = existsSync(rawDir)
-    ? readdirSync(rawDir).flatMap((name) => /^result-resume-(\d+)\.json$/.exec(name)?.[1] ?? []).map(Number)
-    : [];
-
-  return [
-    `${rawDir}/result.json`,
-    ...resumes.sort((a, b) => a - b).map((number) => `${rawDir}/result-resume-${String(number)}.json`),
-  ].filter((file) => existsSync(file));
 }
 
 function nextResume(rawDir: string): number {
@@ -155,8 +156,12 @@ function usedModels(output: SlimOutput): string[] {
   return isRecord(usage) ? Object.keys(usage) : [];
 }
 
+export interface SlimMeta extends Trees {
+  readonly binary: string;
+}
+
 // Seconds and turns are each part's own; cost and tokens are running totals of the session every resume continues.
-export function normalizeSlim(run: PlannedRun, outs: readonly SlimOutput[], latest: SlimOutput | null, binary: string): Normalized {
+export function normalizeSlim(run: PlannedRun, outs: readonly SlimOutput[], latest: SlimOutput | null, meta: SlimMeta): Normalized {
   if (latest === null) {
     return { outcome: 'failed', reason: 'run-slim wrote no --out file' };
   }
@@ -192,8 +197,8 @@ export function normalizeSlim(run: PlannedRun, outs: readonly SlimOutput[], late
       runSet: run.runSetName,
       arm: run.arm,
       ref: run.ref,
-      pluginTree: null,
-      casesTree: null,
+      pluginTree: meta.pluginTree,
+      casesTree: meta.casesTree,
       suite: run.suite.name,
       case: run.caseInfo.name,
       k: run.k,
@@ -201,7 +206,7 @@ export function normalizeSlim(run: PlannedRun, outs: readonly SlimOutput[], late
       initModel: ran,
       modelsUsed: used,
       claudeCodeVersion: null,
-      binary,
+      binary: meta.binary,
       startedAt: started?.startedAt ?? '',
       seconds: Math.round(sum(outs.map(({ ms }) => ms)) / 1000),
       turns: sum(facts.map(({ turns }) => turns)),
@@ -220,18 +225,54 @@ export function normalizeSlim(run: PlannedRun, outs: readonly SlimOutput[], late
   };
 }
 
-// Reads what the invocation that just ended wrote (outFile) and every earlier part, and settles the run.
-export function settleSlim(run: PlannedRun, outFile: string, status: number | null, binary: string): RunOutcome {
+// A finished session is graded from its own transcripts with the case's graders (D-13), which equal HEAD because `run`
+// refuses uncommitted cases; a session whose transcript is gone cannot be graded, so it fails.
+function graded(run: PlannedRun, normalized: Normalized, projectsDir: string): Normalized {
+  if (normalized.outcome !== 'done') {
+    return normalized;
+  }
+
+  try {
+    const verdicts = gradeRun(readGraders(run.caseInfo.dir), runEvidence(run.runDir, projectsDir));
+
+    return { outcome: 'done', result: { ...normalized.result, graded: true, arms: { with: verdicts, without: null } } };
+  } catch (error) {
+    return { outcome: 'failed', reason: error instanceof Error ? error.message : String(error) };
+  }
+}
+
+// Reads what the invocation that just ended wrote (outFile) and every earlier part, grades it and settles the run.
+export function settleSlim(run: PlannedRun, outFile: string, status: number | null, meta: SlimMeta, projectsDir: string): RunOutcome {
   const outs = outFiles(`${run.runDir}/raw`).map((file) => slimOutput(readJson(file)));
   const latest = existsSync(outFile) ? slimOutput(readJson(outFile)) : null;
 
-  return settleRun(run.runDir, normalizeSlim(run, outs, latest, binary), status);
+  return settleRun(run.runDir, graded(run, normalizeSlim(run, outs, latest, meta), projectsDir), status);
 }
 
 export interface SlimContext {
   readonly stageRoot: string;
   readonly slimRoot: string;
   readonly runSlim: Command;
+  readonly projectsDir: string;
+  readonly trees: (run: PlannedRun) => Trees;
+  // Built template folders by template name, for suites with a target.
+  readonly templates: ReadonlyMap<string, string>;
+}
+
+// The case's committed scaffold script, from case.yaml context.scaffold_script, or null when it has none.
+export function scaffoldScript(caseDir: string): string | null {
+  const file = `${caseDir}/case.yaml`;
+  const script = existsSync(file) ? readCaseYaml(readFileSync(file, 'utf8')).scaffoldScript : null;
+
+  if (script === null) {
+    return null;
+  }
+
+  if (!script.split('/').every((part) => /^[A-Za-z0-9._-]+$/.test(part) && part !== '.' && part !== '..')) {
+    throw new Error(`${file}: scaffold_script must name a file inside the case folder, not ${JSON.stringify(script)}`);
+  }
+
+  return `${caseDir}/${script}`;
 }
 
 export function slimPluginDir(stageRoot: string, run: PlannedRun): string | null {
@@ -300,24 +341,75 @@ export async function withHeavyLock<T>(
   }
 }
 
-function binaryOf(command: Command): string {
-  return command.prefix[0] ?? command.file;
+function metaOf(run: PlannedRun, ctx: SlimContext): SlimMeta {
+  return { binary: ctx.runSlim.prefix[0] ?? ctx.runSlim.file, ...ctx.trees(run) };
+}
+
+// The bash that runs scaffold scripts: Git Bash on Windows unless LZ_EVAL_BASH names another.
+export function bashOf(env: NodeJS.ProcessEnv): string {
+  return env['LZ_EVAL_BASH'] ?? (process.platform === 'win32' ? 'C:/Program Files/Git/bin/bash.exe' : 'bash');
+}
+
+// The `plugin eval` scaffold contract, kept for slim runs: bash runs the script in the run's folder for at most 120 s
+// with PATH, a temp HOME and TMPDIR only. Its output goes to raw/scaffold.*.txt.
+export function runScaffold(script: string, cwd: string, rawDir: string, env: NodeJS.ProcessEnv): void {
+  const home = mkdtempSync(join(tmpdir(), 'lz-eval-home-'));
+
+  try {
+    const result = spawnSync(bashOf(env), [script], {
+      cwd,
+      env: { PATH: env['PATH'] ?? '', HOME: home, TMPDIR: tmpdir() },
+      encoding: 'utf8',
+      timeout: 120_000,
+      windowsHide: true,
+    });
+    mkdirSync(rawDir, { recursive: true });
+    writeFileSync(`${rawDir}/scaffold.stdout.txt`, result.stdout ?? '');
+    writeFileSync(`${rawDir}/scaffold.stderr.txt`, result.stderr ?? '');
+
+    if (result.status !== 0) {
+      throw new Error(`scaffold ${script} exited ${String(result.status)}${result.error === undefined ? '' : ` (${result.error.message})`}`);
+    }
+  } finally {
+    rmSync(home, { recursive: true, force: true });
+  }
 }
 
 export async function startSlimRun(run: PlannedRun, ctx: SlimContext): Promise<RunOutcome> {
   const input = slimInput(run, ctx);
   const args = slimArgs(input);
+  const script = scaffoldScript(run.caseInfo.dir);
   freshCwd(ctx.slimRoot, input.cwd);
+
+  if (run.suite.target !== null) {
+    const template = ctx.templates.get(run.suite.target);
+
+    if (template === undefined) {
+      throw new Error(`template ${run.suite.target} was not built`);
+    }
+
+    copyTemplate(template, input.cwd, ctx.slimRoot);
+  }
+
   mkdirSync(input.rawDir, { recursive: true });
   const startedAt = new Date().toISOString();
   writeFileSync(
     `${input.rawDir}/started.json`,
     `${JSON.stringify({ startedAt, cwd: input.cwd, argv: [...ctx.runSlim.prefix, ...args] }, null, 2)}\n`,
   );
+
+  if (script !== null) {
+    try {
+      runScaffold(script, input.cwd, input.rawDir, process.env);
+    } catch (error) {
+      return settleRun(run.runDir, { outcome: 'failed', reason: error instanceof Error ? error.message : String(error) }, null);
+    }
+  }
+
   writeFileSync(`${input.rawDir}/prompt.txt`, run.caseInfo.body);
   const status = await spawnLogged(ctx.runSlim, args, input.rawDir, 'run-slim');
 
-  return settleSlim(run, `${input.rawDir}/result.json`, status, binaryOf(ctx.runSlim));
+  return settleSlim(run, `${input.rawDir}/result.json`, status, metaOf(run, ctx), ctx.projectsDir);
 }
 
 export async function resumeSlimRun(run: PlannedRun, ctx: SlimContext, session: string): Promise<RunOutcome> {
@@ -328,6 +420,6 @@ export async function resumeSlimRun(run: PlannedRun, ctx: SlimContext, session: 
   rmSync(`${input.rawDir}/refused.txt`, { force: true });
   const status = await spawnLogged(ctx.runSlim, args, input.rawDir, `run-slim-resume-${String(nextResume(input.rawDir))}`);
 
-  return settleSlim(run, out, status, binaryOf(ctx.runSlim));
+  return settleSlim(run, out, status, metaOf(run, ctx), ctx.projectsDir);
 }
 // Stryker restore all

@@ -12,12 +12,12 @@ import { evalsRoots } from './cases.ts';
 import { readJson, requireRecord } from './guards.ts';
 import { planRuns, readRunSet, resultPath, runState, type PlannedRun } from './run-set.ts';
 import { projectFolder } from './slim.ts';
+import { git } from './stage.ts';
 
 const root = mkdtempSync(join(tmpdir(), 'lz-evals-dry-run-')).replaceAll('\\', '/');
 
 after(() => rmSync(root, { recursive: true, force: true }));
 
-const zeros = '0'.repeat(40);
 const sonnet = 'claude-sonnet-5-5';
 const opus = 'claude-opus-5-5';
 const evalScript = join(import.meta.dirname, 'eval.ts');
@@ -30,16 +30,21 @@ function put(path: string, text: string): void {
 
 interface Scenario {
   readonly repo: string;
+  readonly ref: string;
   readonly setDir: string;
   readonly stubDir: string;
   readonly projects: string;
   readonly env: NodeJS.ProcessEnv;
 }
 
-// A repository with a plugin-eval suite `pe` and a slim suite `sl` of three cases each, and a stage for the zero ref.
+// A repository whose one commit holds a minimal plugin, a plugin-eval suite `pe` and a slim suite `sl` of three cases
+// each; the cells test that commit, which `run` stages.
 function scenario(name: string): Scenario {
   const base = `${root}/${name}`;
   const repo = `${base}/repo`;
+  mkdirSync(repo, { recursive: true });
+  git(repo, ['init', '-q']);
+  put(`${repo}/plugins/lz-tdd/.claude-plugin/plugin.json`, '{"name":"lz-tdd"}\n');
   put(`${repo}/evals/lz-tdd/pe/suite.json`, '{"backend":"plugin-eval"}');
   put(`${repo}/evals/lz-tdd-apply/sl/suite.json`, '{"backend":"slim","timeoutMinutes":5}');
 
@@ -48,13 +53,14 @@ function scenario(name: string): Scenario {
     put(`${repo}/evals/lz-tdd-apply/sl/sl-${index}/prompt.md`, `Apply ${index}.\n`);
   }
 
-  mkdirSync(`${base}/stage/${zeros.slice(0, 12)}/lz-tdd`, { recursive: true });
-  mkdirSync(`${base}/stage/${zeros.slice(0, 12)}/plugin`, { recursive: true });
+  git(repo, ['add', '-A']);
+  git(repo, ['-c', 'user.name=lz-tdd-eval', '-c', 'user.email=larsbrinknielsen@gmail.com', 'commit', '-q', '-m', 'cases']);
   // The harness's own variables come only from here, so a heavy lock or a real binary set in the shell never leaks in.
   const inherited = Object.fromEntries(Object.entries(process.env).filter(([key]) => !key.startsWith('LZ_EVAL_')));
 
   return {
     repo,
+    ref: git(repo, ['rev-parse', 'HEAD']),
     setDir: `${base}/set`,
     stubDir: `${base}/stub`,
     projects: `${base}/projects`,
@@ -71,8 +77,8 @@ function scenario(name: string): Scenario {
   };
 }
 
-function writeRunSet(setDir: string, models: Record<string, number>, suites: readonly unknown[]): void {
-  put(`${setDir}/run-set.json`, JSON.stringify({ cells: [{ arm: 'head', ref: zeros, models, suites }] }));
+function writeRunSet(s: Scenario, models: Record<string, number>, suites: readonly unknown[]): void {
+  put(`${s.setDir}/run-set.json`, JSON.stringify({ cells: [{ arm: 'head', ref: s.ref, models, suites }] }));
 }
 
 function plan(s: Scenario): PlannedRun[] {
@@ -143,7 +149,7 @@ function argvLog(s: Scenario): string[][] {
 
 test('killed partway, the next run starts only unfinished runs; a died run waits for rerun; raising n keeps results', async () => {
   const s = scenario('a');
-  writeRunSet(s.setDir, { [sonnet]: 2, [opus]: 2 }, [{ suite: 'pe' }, { suite: 'sl' }]);
+  writeRunSet(s,{ [sonnet]: 2, [opus]: 2 }, [{ suite: 'pe' }, { suite: 'sl' }]);
   const all = plan(s);
   assert.equal(all.length, 24);
 
@@ -171,7 +177,7 @@ test('killed partway, the next run starts only unfinished runs; a died run waits
   assert.equal(runState(died.runDir), 'done');
 
   const mtimes = all.map((run) => statSync(resultPath(run.runDir)).mtimeMs);
-  writeRunSet(s.setDir, { [sonnet]: 3, [opus]: 2 }, [{ suite: 'pe' }, { suite: 'sl' }]);
+  writeRunSet(s,{ [sonnet]: 3, [opus]: 2 }, [{ suite: 'pe' }, { suite: 'sl' }]);
   const raised = evalCli(['run', s.setDir], withoutHang(s.env));
   assert.equal(raised.status, 0, raised.output);
   const added = plan(s).filter((run) => !all.some((old) => old.runDir === run.runDir));
@@ -188,7 +194,7 @@ test('killed partway, the next run starts only unfinished runs; a died run waits
 
 test('a slim run killed before it wrote --out resumes its own session by the transcript id', async () => {
   const s = scenario('b');
-  writeRunSet(s.setDir, { [sonnet]: 3 }, [{ suite: 'sl', cases: ['sl-01'] }]);
+  writeRunSet(s,{ [sonnet]: 3 }, [{ suite: 'sl', cases: ['sl-01'] }]);
   s.env['LZ_EVAL_STUB_HANG_AFTER'] = '1';
   await runAndKill(s, ['run', s.setDir]);
   const runs = plan(s);
@@ -218,9 +224,9 @@ test('a slim run killed before it wrote --out resumes its own session by the tra
 test('a usage-limit stop on either backend writes no result, stops the queue and fails the run set', () => {
   for (const suite of ['pe', 'sl']) {
     const s = scenario(`c-${suite}`);
-    writeRunSet(s.setDir, { [sonnet]: 1 }, [{ suite, cases: [`${suite}-01`] }]);
+    writeRunSet(s,{ [sonnet]: 1 }, [{ suite, cases: [`${suite}-01`] }]);
     assert.equal(evalCli(['run', s.setDir], s.env).status, 0);
-    writeRunSet(s.setDir, { [sonnet]: 3 }, [{ suite, cases: [`${suite}-01`] }]);
+    writeRunSet(s,{ [sonnet]: 3 }, [{ suite, cases: [`${suite}-01`] }]);
 
     const limited = evalCli(['run', s.setDir, '--concurrency', '1'], { ...s.env, LZ_EVAL_STUB_ERROR: 'limit' });
     const runs = plan(s);

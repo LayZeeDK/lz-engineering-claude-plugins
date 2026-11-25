@@ -9,14 +9,14 @@ import type { Ablation } from './cases.ts';
 import { isRecord, jsonLines, readJson } from './guards.ts';
 import {
   scriptOrBinary,
+  settleRun,
   spawnLogged,
   stageDir,
-  writeResult,
   type Command,
   type GraderVerdict,
+  type Normalized,
   type PlannedRun,
   type RunOutcome,
-  type RunResult,
 } from './run-set.ts';
 import { limitStopped, modelRefusal, traceModels, traceResult } from './trace.ts';
 
@@ -56,10 +56,6 @@ export interface RunMeta {
   readonly startedAt: string;
   readonly binary: string;
 }
-
-export type Normalized =
-  | { readonly outcome: 'done'; readonly result: RunResult }
-  | { readonly outcome: 'failed' | 'limit'; readonly reason: string };
 
 function failed(reason: string): Normalized {
   return { outcome: 'failed', reason };
@@ -275,14 +271,6 @@ export async function startPluginEvalRun(run: PlannedRun, ctx: PluginEvalContext
   const traces = copyTraces(json, rawDir);
   const normalized = normalizePluginEval(json, traces, run, { startedAt, binary: ctx.claude.prefix[0] ?? ctx.claude.file });
 
-  if (normalized.outcome === 'done') {
-    writeResult(run.runDir, normalized.result);
-
-    return 'done';
-  }
-
-  writeFileSync(`${rawDir}/refused.txt`, `exit ${String(status)}: ${normalized.reason}\n`);
-
-  return normalized.outcome;
+  return settleRun(run.runDir, normalized, status);
 }
 // Stryker restore all

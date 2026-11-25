@@ -352,6 +352,25 @@ export function writeResult(runDir: string, result: RunResult): void {
   renameSync(`${file}.tmp`, file);
 }
 
+export type Normalized =
+  | { readonly outcome: 'done'; readonly result: RunResult }
+  | { readonly outcome: 'failed' | 'limit'; readonly reason: string };
+
+// Where a run's outcome lands on disk for both backends: result.json only when done, else raw/refused.txt with the
+// reason and every raw file kept.
+export function settleRun(runDir: string, normalized: Normalized, status: number | null): RunOutcome {
+  if (normalized.outcome === 'done') {
+    writeResult(runDir, normalized.result);
+
+    return 'done';
+  }
+
+  mkdirSync(`${runDir}/raw`, { recursive: true });
+  writeFileSync(`${runDir}/raw/refused.txt`, `exit ${String(status)}: ${normalized.reason}\n`);
+
+  return normalized.outcome;
+}
+
 export function stageDir(stageRoot: string, ref: string): string {
   return `${stageRoot}/${ref.slice(0, 12)}`;
 }

@@ -3,7 +3,8 @@
 // one git repository. Each slim run starts in a fresh copy of one. Repository-only; nothing here ships with the plugin.
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { copyFileSync, cpSync, existsSync, mkdirSync, readdirSync, readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs';
+import { copyFileSync, cpSync, existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { assertName, isRecord, readJson } from './guards.ts';
 import { forwardSlashes } from './run-set.ts';
@@ -129,6 +130,20 @@ export interface Toolchain {
   readonly vitest: (dir: string, args: readonly string[]) => TestRun;
 }
 
+// What third-party code a run starts gets: PATH, SystemRoot (Windows needs it to start a program), the given HOME and
+// TMPDIR, and none of the harness's secrets such as API keys and tokens.
+export function cleanEnv(env: NodeJS.ProcessEnv, home: string): NodeJS.ProcessEnv {
+  const find = (wanted: string): string | undefined => env[Object.keys(env).find((name) => name.toUpperCase() === wanted) ?? wanted];
+  const systemRoot = find('SYSTEMROOT');
+
+  return {
+    PATH: find('PATH') ?? '',
+    HOME: home,
+    TMPDIR: tmpdir(),
+    ...(systemRoot === undefined ? {} : { SystemRoot: systemRoot }),
+  };
+}
+
 // The child's environment with <dir>/node_modules/.bin first on its PATH, as `npx` gives a script: the kata's
 // approvals spec starts `ts-node` by name. Windows spells the variable Path, so the existing key is kept.
 export function withLocalBin(dir: string, env: NodeJS.ProcessEnv): NodeJS.ProcessEnv {
@@ -156,13 +171,15 @@ export const kataToolchain: Toolchain = {
     }
   },
   vitest: (dir, args) => {
+    const home = mkdtempSync(join(tmpdir(), 'lz-eval-home-'));
     const result = spawnSync(process.execPath, ['node_modules/vitest/vitest.mjs', ...args], {
       cwd: dir,
-      env: withLocalBin(dir, process.env),
+      env: withLocalBin(dir, cleanEnv(process.env, home)),
       encoding: 'utf8',
       maxBuffer: 64 * 1024 * 1024,
       windowsHide: true,
     });
+    rmSync(home, { recursive: true, force: true });
 
     return { status: result.status, output: `${result.stdout ?? ''}${result.stderr ?? ''}${result.error?.message ?? ''}`.slice(-2000) };
   },

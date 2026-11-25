@@ -21,7 +21,7 @@ import {
   type Trees,
 } from './run-set.ts';
 import { gradeRun, readGraders, runEvidence } from './grade.ts';
-import { copyTemplate } from './templates.ts';
+import { cleanEnv, copyTemplate } from './templates.ts';
 import {
   limitStopped,
   modelRefusal,
@@ -358,7 +358,7 @@ export function runScaffold(script: string, cwd: string, rawDir: string, env: No
   try {
     const result = spawnSync(bashOf(env), [script], {
       cwd,
-      env: { PATH: env['PATH'] ?? '', HOME: home, TMPDIR: tmpdir() },
+      env: cleanEnv(env, home),
       encoding: 'utf8',
       timeout: 120_000,
       windowsHide: true,

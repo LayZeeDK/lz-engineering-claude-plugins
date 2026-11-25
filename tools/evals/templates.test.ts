@@ -6,7 +6,7 @@ import { join } from 'node:path';
 import { after, test } from 'node:test';
 
 import { git } from './stage.ts';
-import { buildTemplate, copyTemplate, readTemplates, templateDir, withLocalBin, type Recipe, type Toolchain } from './templates.ts';
+import { buildTemplate, cleanEnv, copyTemplate, readTemplates, templateDir, withLocalBin, type Recipe, type Toolchain } from './templates.ts';
 
 const root = mkdtempSync(join(tmpdir(), 'lz-evals-templates-')).replaceAll('\\', '/');
 
@@ -215,6 +215,16 @@ test('copyTemplate copies a built template into an empty run folder below the sl
   assert.throws(() => copyTemplate(dir, `${f.slimRoot}/elsewhere`, f.slimRoot), /is not below/);
   assert.throws(() => copyTemplate(dir, `${f.slimRoot}/runs/../escape`, f.slimRoot), /is not below/);
   assert.throws(() => copyTemplate(`${f.slimRoot}/templates`, `${f.slimRoot}/runs/other`, f.slimRoot), /is not a built template/);
+});
+
+test('cleanEnv keeps PATH, SystemRoot and the given HOME, and drops every other variable', () => {
+  assert.deepEqual(cleanEnv({ Path: 'A', SystemRoot: 'W:/win', GH_TOKEN: 'secret', HOME: 'real' }, 'H'), {
+    PATH: 'A',
+    HOME: 'H',
+    TMPDIR: tmpdir(),
+    SystemRoot: 'W:/win',
+  });
+  assert.deepEqual(cleanEnv({ SECRET: 'x' }, 'H'), { PATH: '', HOME: 'H', TMPDIR: tmpdir() });
 });
 
 test('withLocalBin puts the template node_modules/.bin first on PATH under the name the environment already uses', () => {

@@ -80,7 +80,7 @@ test('modelRefusal refuses another main model beside the requested one, naming i
 
 test('limitStopped accepts the straight and the curly apostrophe, any case, and a rate-limit error type', () => {
   assert.deepEqual(
-    ['You’ve hit your 5-hour limit', "you've HIT your weekly limit"].map((text) => limitStopped(text)),
+    [`You${String.fromCharCode(0x2019)}ve hit your 5-hour limit`, "you've HIT your weekly limit"].map((text) => limitStopped(text)),
     [true, true],
   );
   assert.equal(limitStopped(null, { subtype: 'error_rate_limit' }), true);

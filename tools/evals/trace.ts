@@ -84,8 +84,10 @@ export function traceResult(entries: readonly unknown[]): TraceResult | null {
 
 // A usage limit ends a session at once with status 0 and is_error false; only its result text says so.
 // The apostrophe is straight or curly (U+2019); a result object naming a rate limit in an error type also counts.
+const limitText = new RegExp(`^You['${String.fromCharCode(0x2019)}]ve hit your .*limit`, 'i');
+
 export function limitStopped(text: string | null, result?: unknown): boolean {
-  return (text !== null && /^You['’]ve hit your .*limit/i.test(text)) || namesRateLimit(result);
+  return (text !== null && limitText.test(text)) || namesRateLimit(result);
 }
 
 function namesRateLimit(result: unknown): boolean {

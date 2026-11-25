@@ -465,7 +465,7 @@ that passes on Sonnet but fails on Opus reruns on Opus at n=5 before it counts. 
 from this phase's dry run; if a suite is too expensive, cut cases before cutting Sonnet's n.
 **Requirements**: EVH-01, EVH-02, EVH-03, EVH-04, EVH-05, EVH-06, EVH-07, EVH-08, EVH-09, EVH-10, EVH-11, EVH-12
 **Depends on:** Phase 22
-**Plans:** 5/8 plans executed
+**Plans:** 6/8 plans executed
 
 Plans:
 **Wave 1**
@@ -484,7 +484,7 @@ Plans:
 - [x] 22.1-05-PLAN.md -- the remaining doing suites and the lz-tpp, lz-refactor and srvx lz-red slim apply suites (srvx on a pinned pnpm template), with invoke twins
 
 **Wave 6** *(blocked on Wave 5 completion)*
-- [ ] 22.1-06-PLAN.md -- reproductions of one recorded result per carried-over suite (trigger recall, two apply cells) on their recorded models and commits, with committed verdicts (paid)
+- [x] 22.1-06-PLAN.md -- reproductions of one recorded result per carried-over suite (trigger recall, two apply cells) on their recorded models and commits, with committed verdicts (paid)
 
 **Wave 7** *(blocked on Wave 6 completion)*
 - [ ] 22.1-07-PLAN.md -- retirement of the skill-creator-derived runners, per workspace only where its reproduction landed inside, plus grade-red, arm-anchor and selfcheck-red (Lars 2026-11-25)

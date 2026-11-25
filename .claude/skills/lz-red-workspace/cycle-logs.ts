@@ -1,7 +1,6 @@
-// The cycle logs credited to one eval run, read by rules-ab-kata/grade.mjs and e2e-rgr-srvx/grade-rgr.mjs.
+// The cycle logs credited to one eval run, for a grader that scores whether a session kept a TDD cycle log.
 // Arm-b sessions may write their log into the shared rules folder or SLIM_ROOT, which every run reuses, so the
-// runner copies the files changed there during the run into `<run folder>.cycle-logs` (collect_cycle_logs in
-// slim-arms.sh). A run's logs are the files changed since the run started in that copy, in the run folder (outside
+// runner copies the files changed there during the run into `<run folder>.cycle-logs`. A run's logs are the files changed since the run started in that copy, in the run folder (outside
 // node_modules), and beside the run folder as `<run folder>.<name>`, whose file name looks like a log: it contains
 // "cycle", or it contains "log" with a .md, .txt or .log extension and is not a changelog. So `src/log.ts` and
 // `CHANGELOG.md` in a run's project do not count.

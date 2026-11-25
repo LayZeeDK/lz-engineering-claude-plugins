@@ -404,6 +404,16 @@ export function buildTemplate(
     git(tmp, ['init', '-q']);
     // The kata's own .gitignore keeps node_modules and the lockfile out of the commit.
     git(tmp, ['add', '-A']);
+    // A Windows checkout has no exec bit to stage, so the clone's tree supplies it (srvx's bin/srvx.mjs).
+    const executables = git(clone, ['ls-tree', '-r', '-z', subdir === null ? template.commit : `${template.commit}:${subdir}`])
+      .split('\0')
+      .filter((line) => line.startsWith('100755 '))
+      .map((line) => line.slice(line.indexOf('\t') + 1));
+
+    if (executables.length > 0) {
+      git(tmp, ['update-index', '--chmod=+x', '--', ...executables]);
+    }
+
     git(tmp, ['-c', 'user.name=lz-tdd-eval', '-c', 'user.email=larsbrinknielsen@gmail.com', '-c', 'commit.gpgsign=false', 'commit', '-q', '-m', `template ${name}`]);
     const tree = git(tmp, ['rev-parse', 'HEAD^{tree}']);
     writeFileSync(markerOf(tmp), `${JSON.stringify({ name, recipe: template, tree }, null, 2)}\n`);

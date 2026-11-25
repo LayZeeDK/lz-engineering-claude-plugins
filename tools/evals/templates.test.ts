@@ -47,6 +47,10 @@ function fixture(name: string, recipes: (commit: string, blob: string) => Record
   put(`${clone}/ts/package.json`, '{"name":"kata","private":true}\n');
   put(`${clone}/ts/.gitignore`, 'node_modules\npackage-lock.json\n');
   put(`${clone}/ts/test/approvals.spec.ts`, 'test("approvals", () => {});\n');
+  // An executable file, as srvx has: Windows checkouts carry no exec bit, so the template must take it from the clone.
+  put(`${clone}/ts/bin/kata.mjs`, '#!/usr/bin/env node\n');
+  git(clone, ['add', '-A']);
+  git(clone, ['update-index', '--chmod=+x', 'ts/bin/kata.mjs']);
   const commit = commitAll(clone);
   put(`${clone}/ts/package-lock.json`, lockText);
   const snapshot = `${base}/snapshot.snap`;

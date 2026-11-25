@@ -1,0 +1,5 @@
+{
+  "grader": { "type": "tool_used", "tool": "Write", "inputMatch": "probe-inside\\.txt" },
+  "pass": { "toolCalls": [{ "name": "Write", "input": { "file_path": "D:\\tmp\\w\\probe-inside.txt", "content": "inside" } }], "lastMessage": "" },
+  "fail": { "toolCalls": [{ "name": "Write", "input": { "file_path": "D:\\tmp\\w\\probe-other.txt", "content": "inside" } }], "lastMessage": "" }
+}

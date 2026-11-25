@@ -1,0 +1,5 @@
+{
+  "grader": { "type": "tool_used", "tool": "Skill", "inputMatch": "\"skill\"\\s*:\\s*\"(?:[\\w-]+:)?lz-refactor\"" },
+  "pass": { "toolCalls": [{ "name": "Skill", "input": { "skill": "lz-tdd:lz-refactor" } }], "lastMessage": "" },
+  "fail": { "toolCalls": [{ "name": "Skill", "input": { "skill": "lz-tdd:lz-red" } }], "lastMessage": "" }
+}

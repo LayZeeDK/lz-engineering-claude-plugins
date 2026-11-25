@@ -1,0 +1,9 @@
+{
+  "backend": "slim",
+  "heavy": true,
+  "target": "gilded-rose-ts-armed",
+  "allow": "Edit Write Bash(npx vitest:*) Bash(npx tsc:*) Bash(npm test:*) Bash(npm run:*)",
+  "timeoutMinutes": 20,
+  "skill": "lz-red",
+  "invokeTwin": "apply-lz-red-invoke"
+}

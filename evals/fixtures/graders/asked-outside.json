@@ -1,0 +1,11 @@
+{
+  "grader": { "type": "tool_used", "tool": "Write", "inputMatch": "outside\\.txt" },
+  "pass": {
+    "toolCalls": [{ "name": "Write", "input": { "file_path": "D:\\tmp\\lz-eval-probe\\outside.txt", "content": "outside" } }],
+    "lastMessage": ""
+  },
+  "fail": {
+    "toolCalls": [{ "name": "Write", "input": { "file_path": "D:\\tmp\\lz-eval-probe\\other.txt", "content": "outside" } }],
+    "lastMessage": ""
+  }
+}

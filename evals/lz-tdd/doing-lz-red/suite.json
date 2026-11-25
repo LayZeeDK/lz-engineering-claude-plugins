@@ -1,0 +1,8 @@
+{
+  "backend": "plugin-eval",
+  "ablation": "with-without",
+  "allowTools": ["Write", "Edit"],
+  "scaffold": true,
+  "skill": "lz-red",
+  "invokeTwin": "doing-lz-red-invoke"
+}

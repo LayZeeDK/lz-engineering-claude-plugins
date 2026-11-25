@@ -13,11 +13,16 @@ import { archiveInto, git, gitIn } from './stage.ts';
 export interface Recipe {
   readonly clone: string;
   readonly commit: string;
-  readonly subdir: string;
+  // null: the repository root, so the whole commit is the template.
+  readonly subdir: string | null;
   readonly lockfile: { readonly path: string; readonly sha256: string };
   readonly arm: { readonly spec: string; readonly snapshot: string; readonly blob: string } | null;
   readonly overlay: string | null;
   readonly red: { readonly spec: string } | null;
+  // Absent: npm ci. Absent keys stay absent, so a recipe without them keeps its template folder name.
+  readonly installer?: { readonly pnpm: string };
+  // A package script run after the install, with the same installer.
+  readonly build?: string;
 }
 
 const segment = /^[A-Za-z0-9._-]+$/;
@@ -53,8 +58,31 @@ function only(value: unknown, keys: readonly string[], what: string): Record<str
   return value;
 }
 
+function installerOf(value: unknown, what: string): { readonly pnpm: string } {
+  const fields = only(value, ['pnpm'], `${what} installer`);
+  const version = fields['pnpm'];
+
+  if (typeof version !== 'string' || !/^\d+\.\d+\.\d+$/.test(version)) {
+    throw new Error(`${what} installer pnpm must be a version shaped <digits>.<digits>.<digits>`);
+  }
+
+  return { pnpm: version };
+}
+
+function buildOf(value: unknown, installer: unknown, what: string): string {
+  if (typeof value !== 'string' || !/^[a-z0-9][a-z0-9:._-]*$/i.test(value)) {
+    throw new Error(`${what} build must be a package script name`);
+  }
+
+  if (installer === undefined) {
+    throw new Error(`${what} build needs the pnpm installer`);
+  }
+
+  return value;
+}
+
 function recipe(value: unknown, what: string): Recipe {
-  const fields = only(value, ['clone', 'commit', 'subdir', 'lockfile', 'arm', 'overlay', 'red'], what);
+  const fields = only(value, ['clone', 'commit', 'subdir', 'lockfile', 'arm', 'overlay', 'red', 'installer', 'build'], what);
   const lockfile = only(fields['lockfile'], ['path', 'sha256'], `${what} lockfile`);
   const arm = fields['arm'] ?? null;
   const red = fields['red'] ?? null;
@@ -72,7 +100,7 @@ function recipe(value: unknown, what: string): Recipe {
   return {
     clone,
     commit: hex(fields['commit'], 40, `${what} commit`),
-    subdir: relativePath(fields['subdir'], `${what} subdir`),
+    subdir: fields['subdir'] === null ? null : relativePath(fields['subdir'], `${what} subdir`),
     lockfile: {
       path: relativePath(lockfile['path'], `${what} lockfile path`),
       sha256: hex(lockfile['sha256'], 64, `${what} lockfile sha256`),
@@ -87,6 +115,8 @@ function recipe(value: unknown, what: string): Recipe {
           },
     overlay: overlay === null ? null : relativePath(overlay, `${what} overlay`),
     red: redFields === null ? null : { spec: relativePath(redFields['spec'], `${what} red spec`) },
+    ...(fields['installer'] === undefined ? {} : { installer: installerOf(fields['installer'], what) }),
+    ...(fields['build'] === undefined ? {} : { build: buildOf(fields['build'], fields['installer'], what) }),
   };
 }
 
@@ -128,6 +158,8 @@ export interface TestRun {
 export interface Toolchain {
   readonly install: (dir: string) => void;
   readonly vitest: (dir: string, args: readonly string[]) => TestRun;
+  // Runs the pnpm executable (LZ_EVAL_PNPM) in dir.
+  readonly pnpm: (exe: string, dir: string, args: readonly string[]) => TestRun;
 }
 
 // What third-party code a run starts gets: PATH, SystemRoot (Windows needs it to start a program), the given HOME and
@@ -183,8 +215,60 @@ export const kataToolchain: Toolchain = {
 
     return { status: result.status, output: `${result.stdout ?? ''}${result.stderr ?? ''}${result.error?.message ?? ''}`.slice(-2000) };
   },
+  // --version and install keep the environment (pnpm finds its own versions and store through it, as npm ci does); a
+  // run starts the package's own script, third-party code, so it gets the clean environment the test runs get.
+  pnpm: (exe, dir, args) => {
+    const home = args.includes('run') ? mkdtempSync(join(tmpdir(), 'lz-eval-home-')) : null;
+    const result = spawnSync(exe, args, {
+      cwd: dir,
+      ...(home === null ? {} : { env: withLocalBin(dir, cleanEnv(process.env, home)) }),
+      encoding: 'utf8',
+      maxBuffer: 64 * 1024 * 1024,
+      windowsHide: true,
+    });
+
+    if (home !== null) {
+      rmSync(home, { recursive: true, force: true });
+    }
+
+    return { status: result.status, output: `${result.stdout ?? ''}${result.stderr ?? ''}${result.error?.message ?? ''}`.slice(-2000) };
+  },
 };
 // Stryker restore all
+
+// srvx's workspace lists examples/**, whose packages pnpm would link into node_modules; --filter . installs the root
+// package only, and the hoisted linker with copied files leaves a node_modules of real files that a dereferenced copy
+// carries whole. A run under pnpm 11 checks the dependencies first and reinstalls with the default linker, so the
+// build turns that check off.
+function pnpmInstall(exe: string, dir: string, pnpm: string, build: string | undefined, toolchain: Toolchain): void {
+  const version = toolchain.pnpm(exe, dir, ['--version']);
+
+  if (version.status !== 0 || version.output.trim() !== pnpm) {
+    throw new Error(`pnpm --version printed ${version.output.trim()}, not the pinned ${pnpm} (exit ${String(version.status)})`);
+  }
+
+  const install = toolchain.pnpm(exe, dir, [
+    'install',
+    '--frozen-lockfile',
+    '--ignore-scripts',
+    '--node-linker=hoisted',
+    '--package-import-method=copy',
+    '--filter',
+    '.',
+  ]);
+
+  if (install.status !== 0) {
+    throw new Error(`pnpm install exited ${String(install.status)}:\n${install.output}`);
+  }
+
+  if (build !== undefined) {
+    const built = toolchain.pnpm(exe, dir, ['--config.verify-deps-before-run=false', 'run', build]);
+
+    if (built.status !== 0) {
+      throw new Error(`pnpm run ${build} exited ${String(built.status)}:\n${built.output}`);
+    }
+  }
+}
 
 function arm(dir: string, template: Recipe, toolchain: Toolchain): void {
   if (template.arm === null) {
@@ -252,6 +336,7 @@ export function buildTemplate(
   clonesRoot: string,
   name: string,
   toolchain: Toolchain = kataToolchain,
+  env: NodeJS.ProcessEnv = process.env,
 ): string {
   const template = readTemplates(repo).get(name);
 
@@ -271,8 +356,16 @@ export function buildTemplate(
     throw new Error(`fetch ${template.commit} into ${clone}`);
   }
 
-  if (!template.lockfile.path.startsWith(`${template.subdir}/`)) {
-    throw new Error(`${name}: the lockfile ${template.lockfile.path} is not below ${template.subdir}`);
+  const { subdir, installer } = template;
+
+  if (subdir !== null && !template.lockfile.path.startsWith(`${subdir}/`)) {
+    throw new Error(`${name}: the lockfile ${template.lockfile.path} is not below ${subdir}`);
+  }
+
+  const pnpmExe = env['LZ_EVAL_PNPM'];
+
+  if (installer !== undefined && (pnpmExe === undefined || pnpmExe === '')) {
+    throw new Error(`${name} installs with pnpm ${installer.pnpm}: set LZ_EVAL_PNPM to that pnpm executable`);
   }
 
   const overlay = template.overlay === null ? null : `evals/lz-tdd-apply/${template.overlay}`;
@@ -286,8 +379,8 @@ export function buildTemplate(
   mkdirSync(tmp, { recursive: true });
 
   try {
-    archiveInto(clone, `${template.commit}:${template.subdir}`, tmp, tmp);
-    const lockfile = `${tmp}/${template.lockfile.path.slice(template.subdir.length + 1)}`;
+    archiveInto(clone, subdir === null ? template.commit : `${template.commit}:${subdir}`, tmp, tmp);
+    const lockfile = `${tmp}/${subdir === null ? template.lockfile.path : template.lockfile.path.slice(subdir.length + 1)}`;
     copyFileSync(`${clone}/${template.lockfile.path}`, lockfile);
     const lockHash = sha256(readFileSync(lockfile));
 
@@ -295,7 +388,12 @@ export function buildTemplate(
       throw new Error(`${clone}/${template.lockfile.path} has sha256 ${lockHash}, not the pinned ${template.lockfile.sha256}`);
     }
 
-    toolchain.install(tmp);
+    if (installer !== undefined && pnpmExe !== undefined) {
+      pnpmInstall(pnpmExe, tmp, installer.pnpm, template.build, toolchain);
+    } else {
+      toolchain.install(tmp);
+    }
+
     arm(tmp, template, toolchain);
 
     if (overlay !== null) {

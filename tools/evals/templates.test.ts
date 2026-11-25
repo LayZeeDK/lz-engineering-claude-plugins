@@ -94,8 +94,37 @@ function fakeToolchain(calls: Calls): Toolchain {
 
       return { status: 0, output: '' };
     },
+    pnpm: () => {
+      throw new Error('this recipe has no pnpm installer');
+    },
   };
 }
+
+interface PnpmCalls {
+  readonly runs: { exe: string; dir: string; args: string[] }[];
+}
+
+// Stands in for pnpm: --version prints the given version, a build run answers with the given status, and every call
+// is recorded.
+function fakePnpm(calls: PnpmCalls, version: string, buildStatus = 0): Toolchain {
+  return {
+    install: () => {
+      throw new Error('npm ci must not run for a pnpm recipe');
+    },
+    vitest: () => ({ status: 0, output: '' }),
+    pnpm: (exe, dir, args) => {
+      calls.runs.push({ exe, dir, args: [...args] });
+
+      if (args[0] === '--version') {
+        return { status: 0, output: `${version}\n` };
+      }
+
+      return args.includes('run') ? { status: buildStatus, output: buildStatus === 0 ? 'built' : 'obuild crashed at the end' } : { status: 0, output: '' };
+    },
+  };
+}
+
+const pnpmEnv = { LZ_EVAL_PNPM: 'W:/pnpm/pnpm.exe' };
 
 test('readTemplates reads the recipes and refuses unknown keys, absolute or parent paths and short hashes', () => {
   const f = fixture('read', (commit) => ({ plain: recipe(commit) }));
@@ -182,6 +211,9 @@ test('a red template copies the committed overlay in and requires its spec to fa
 
       return { status: failed > 0 || files.length > 0 ? 1 : 0, output: '' };
     },
+    pnpm: () => {
+      throw new Error('this recipe has no pnpm installer');
+    },
   });
 
   assert.throws(
@@ -236,15 +268,86 @@ test('withLocalBin puts the template node_modules/.bin first on PATH under the n
   assert.deepEqual(withLocalBin('W:/kata', {}), { PATH: bin });
 });
 
-test('the committed templates.json pins three GildedRose recipes with clone-relative paths', () => {
+test('the committed templates.json pins three GildedRose recipes with clone-relative paths and the srvx pnpm recipe', () => {
   const recipes = readTemplates(join(import.meta.dirname, '..', '..').replaceAll('\\', '/'));
   const kata = (name: string): Recipe | undefined => recipes.get(name);
+  const gildedRose = ['gilded-rose-ts', 'gilded-rose-ts-armed', 'gilded-rose-ts-conjured-red'];
 
-  assert.deepEqual([...recipes.keys()], ['gilded-rose-ts', 'gilded-rose-ts-armed', 'gilded-rose-ts-conjured-red']);
+  assert.deepEqual([...recipes.keys()], [...gildedRose, 'srvx']);
   assert.deepEqual(
-    [...recipes.values()].map(({ clone, commit, subdir }) => `${clone}@${commit}:${subdir}`),
+    gildedRose.map((name) => kata(name)).map((entry) => `${String(entry?.clone)}@${String(entry?.commit)}:${String(entry?.subdir)}`),
     Array.from({ length: 3 }, () => 'emilybache/GildedRose-Refactoring-Kata@3e0085bfd0da7ca9cc2db23129eb882b9d7184fa:TypeScript'),
   );
   assert.deepEqual([kata('gilded-rose-ts')?.arm, kata('gilded-rose-ts-armed')?.arm?.blob], [null, '2998a7711cc40813c573dd5c89b70d1fe8d6b13e']);
   assert.deepEqual([kata('gilded-rose-ts-conjured-red')?.overlay, kata('gilded-rose-ts-conjured-red')?.red?.spec], ['overlays/conjured-red', 'test/vitest/conjured.spec.ts']);
+  // No added keys on the GildedRose recipes, so their template folder names stay what Plan 02 built.
+  assert.deepEqual(
+    gildedRose.map((name) => Object.keys(kata(name) ?? {})),
+    Array.from({ length: 3 }, () => ['clone', 'commit', 'subdir', 'lockfile', 'arm', 'overlay', 'red']),
+  );
+  assert.match(templateDir('S:', 'gilded-rose-ts-armed', kata('gilded-rose-ts-armed') ?? assert.fail()), /gilded-rose-ts-armed-3e0085bfd0da-f724b921$/);
+  assert.deepEqual(kata('srvx'), {
+    clone: 'h3js/srvx',
+    commit: '55d90b39840a5bb7236e23c4e326ee4fc3842d57',
+    subdir: null,
+    lockfile: { path: 'pnpm-lock.yaml', sha256: 'c3e50eedc2ace3d41930b6db4a79c7c22d6df52f99b018050b59bd08cf7aca10' },
+    arm: null,
+    overlay: null,
+    red: null,
+    installer: { pnpm: '11.11.0' },
+    build: 'build',
+  });
+});
+
+test('readTemplates refuses an installer other than pnpm, a version not shaped x.y.z, and a build that is not a script name', () => {
+  const f = fixture('pnpm-read', (commit) => ({ plain: recipe(commit) }));
+  const refuse = (entry: Record<string, unknown>, pattern: RegExp): void => {
+    put(`${f.repo}/evals/lz-tdd-apply/templates.json`, JSON.stringify({ bad: entry }));
+    assert.throws(() => readTemplates(f.repo), pattern);
+  };
+
+  refuse(recipe(f.commit, { installer: { yarn: '4.0.0' } }), /templates\.json bad installer: unknown keys yarn/);
+  refuse(recipe(f.commit, { installer: { pnpm: 'latest' } }), /templates\.json bad installer pnpm must be a version shaped <digits>\.<digits>\.<digits>/);
+  refuse(recipe(f.commit, { installer: { pnpm: '11.11' } }), /bad installer pnpm must be a version/);
+  refuse(recipe(f.commit, { installer: { pnpm: '11.11.0' }, build: 'build && rm -rf /' }), /templates\.json bad build must be a package script name/);
+  refuse(recipe(f.commit, { build: 'build' }), /templates\.json bad build needs the pnpm installer/);
+  refuse(recipe(f.commit, { subdir: '' }), /subdir must be a relative path/);
+});
+
+test('a pnpm recipe at the repository root checks the version, installs flat and root-only, builds, and commits the whole tree', () => {
+  const f = fixture('pnpm-build', (commit) => ({
+    root: recipe(commit, { subdir: null, installer: { pnpm: '11.11.0' }, build: 'build' }),
+  }));
+  const calls: PnpmCalls = { runs: [] };
+  const dir = buildTemplate(f.repo, f.slimRoot, f.clones, 'root', fakePnpm(calls, '11.11.0'), pnpmEnv);
+
+  assert.deepEqual(
+    calls.runs.map(({ exe, args }) => [exe, ...args]),
+    [
+      ['W:/pnpm/pnpm.exe', '--version'],
+      ['W:/pnpm/pnpm.exe', 'install', '--frozen-lockfile', '--ignore-scripts', '--node-linker=hoisted', '--package-import-method=copy', '--filter', '.'],
+      ['W:/pnpm/pnpm.exe', '--config.verify-deps-before-run=false', 'run', 'build'],
+    ],
+  );
+  assert.ok(calls.runs.every((run) => run.dir === calls.runs[0]?.dir && run.dir.startsWith(`${dir}.tmp-`)));
+  // The whole commit, not a subfolder: the template tree is the clone commit's tree.
+  assert.equal(git(dir, ['rev-parse', 'HEAD^{tree}']), git(`${f.clones}/demo/kata`, ['rev-parse', `${f.commit}^{tree}`]));
+  assert.equal(readFileSync(`${dir}/ts/package-lock.json`, 'utf8'), lockText);
+});
+
+test('a pnpm recipe refuses before any archive when LZ_EVAL_PNPM is unset, and before install when the version differs', () => {
+  const f = fixture('pnpm-refuse', (commit) => ({
+    root: recipe(commit, { subdir: null, installer: { pnpm: '11.11.0' } }),
+    built: recipe(commit, { subdir: null, installer: { pnpm: '11.11.0' }, build: 'build' }),
+  }));
+  const calls: PnpmCalls = { runs: [] };
+
+  assert.throws(() => buildTemplate(f.repo, f.slimRoot, f.clones, 'root', fakePnpm(calls, '11.11.0'), {}), /set LZ_EVAL_PNPM/);
+  assert.deepEqual([calls.runs.length, existsSync(`${f.slimRoot}/templates`)], [0, false]);
+
+  assert.throws(() => buildTemplate(f.repo, f.slimRoot, f.clones, 'root', fakePnpm(calls, '12.16.1'), pnpmEnv), /pnpm --version printed 12\.16\.1, not the pinned 11\.11\.0/);
+  assert.deepEqual(calls.runs.map(({ args }) => args[0]), ['--version']);
+
+  assert.throws(() => buildTemplate(f.repo, f.slimRoot, f.clones, 'built', fakePnpm({ runs: [] }, '11.11.0', 3), pnpmEnv), /pnpm run build exited 3:\nobuild crashed at the end/);
+  assert.deepEqual(readdirSync(`${f.slimRoot}/templates`), []);
 });

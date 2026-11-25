@@ -1,0 +1,11 @@
+{
+  "grader": { "type": "tool_used", "tool": "Write", "inputMatch": "is-palindrome\\.test\\.ts" },
+  "pass": {
+    "toolCalls": [{ "name": "Write", "input": { "file_path": "D:\\tmp\\w\\src\\is-palindrome.test.ts", "content": "test" } }],
+    "lastMessage": ""
+  },
+  "fail": {
+    "toolCalls": [{ "name": "Write", "input": { "file_path": "D:\\tmp\\w\\src\\other.test.ts", "content": "test" } }],
+    "lastMessage": ""
+  }
+}

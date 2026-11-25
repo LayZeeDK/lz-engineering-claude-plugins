@@ -333,6 +333,7 @@ const plannedStub: PlannedRun = {
     timeoutMinutes: 15,
     invokeTwin: null,
     target: null,
+    skill: null,
   },
   caseInfo: { name: 'demo-01', dir: 'W:/repo/evals/lz-tdd/demo/demo-01', tags: [], body: '' },
   k: 1,

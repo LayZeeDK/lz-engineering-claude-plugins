@@ -85,6 +85,7 @@ test('readSuite fills defaults and refuses unknown keys and bad values', () => {
     timeoutMinutes: 15,
     invokeTwin: null,
     target: null,
+    skill: null,
   });
   assert.throws(() => readSuite(`${root}/suites/bad-key`), /unknown keys heavyy/);
   assert.throws(() => readSuite(`${root}/suites/bad-backend`), /backend must be/);

@@ -51,6 +51,7 @@ function runSet(name: string, specs: readonly RunSpec[]): { setDir: string; plan
         timeoutMinutes: 15,
         invokeTwin: null,
         target: null,
+        skill: null,
       },
       caseInfo: { name: spec.caseName, dir: `W:/repo/evals/lz-tdd/trigger-x/${spec.caseName}`, tags: spec.tags ?? [], body: '' },
       k,

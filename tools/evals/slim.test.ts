@@ -45,6 +45,7 @@ function plannedRun(runDir: string, heavy = false): PlannedRun {
     timeoutMinutes: 20,
     invokeTwin: null,
     target: null,
+    skill: null,
   };
 
   return {

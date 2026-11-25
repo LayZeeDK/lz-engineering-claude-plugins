@@ -172,6 +172,8 @@ export interface Suite {
   readonly invokeTwin: string | null;
   // A slim suite's template name in evals/lz-tdd-apply/templates.json; its runs start in a copy of that template.
   readonly target: string | null;
+  // The lz-tdd skill the suite measures (its invoke twin prompts `/lz-tdd:<skill>`), or null for a suite of no one skill.
+  readonly skill: string | null;
 }
 
 const suiteKeys = new Set([
@@ -184,6 +186,7 @@ const suiteKeys = new Set([
   'timeoutMinutes',
   'invokeTwin',
   'target',
+  'skill',
 ]);
 
 function suiteField(file: string, key: string, valid: boolean): void {
@@ -216,6 +219,7 @@ export function readSuite(dir: string): Suite {
     timeoutMinutes = 15,
     invokeTwin = null,
     target = null,
+    skill = null,
   } = value;
 
   if (backend !== 'plugin-eval' && backend !== 'slim') {
@@ -236,6 +240,7 @@ export function readSuite(dir: string): Suite {
   suiteField(file, 'timeoutMinutes', typeof timeoutMinutes === 'number' && timeoutMinutes > 0);
   suiteField(file, 'invokeTwin', invokeTwin === null || typeof invokeTwin === 'string');
   suiteField(file, 'target', target === null || (typeof target === 'string' && backend === 'slim'));
+  suiteField(file, 'skill', skill === null || typeof skill === 'string');
 
   return {
     name: assertName('suite', basename(dir)),
@@ -249,6 +254,7 @@ export function readSuite(dir: string): Suite {
     timeoutMinutes: typeof timeoutMinutes === 'number' ? timeoutMinutes : 15,
     invokeTwin: typeof invokeTwin === 'string' ? invokeTwin : null,
     target: typeof target === 'string' ? assertName('template', target) : null,
+    skill: typeof skill === 'string' ? assertName('skill', skill) : null,
   };
 }
 

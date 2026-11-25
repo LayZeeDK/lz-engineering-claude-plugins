@@ -202,6 +202,7 @@ function plannedRun(runDir: string, caseName: string): PlannedRun {
     timeoutMinutes: 15,
     invokeTwin: null,
     target: null,
+    skill: null,
   };
 
   return {

@@ -21,6 +21,7 @@ function plannedRun(ablation: Ablation): PlannedRun {
     timeoutMinutes: 15,
     invokeTwin: null,
     target: null,
+    skill: null,
   };
 
   return {

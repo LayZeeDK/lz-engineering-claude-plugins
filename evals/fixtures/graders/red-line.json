@@ -1,0 +1,11 @@
+{
+  "grader": { "type": "regex", "pattern": "RED: [^\\n]+ -- fails: [^\\n]+\\s*$" },
+  "pass": {
+    "toolCalls": [],
+    "lastMessage": "I added the test to src/is-palindrome.test.ts.\n\nRED: isPalindrome('racecar') is true -- fails: expected false to be true\n"
+  },
+  "fail": {
+    "toolCalls": [],
+    "lastMessage": "I added the test to src/is-palindrome.test.ts.\n\nRED: isPalindrome('racecar') is true -- fails: expected false to be true\n\nWant me to make it pass next?"
+  }
+}

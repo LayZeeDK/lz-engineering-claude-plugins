@@ -256,12 +256,33 @@ test('a finished slim run is graded from its transcript with the case graders; o
   assert.equal(existsSync(`${lostDir}/result.json`), false);
 });
 
-test('withHeavyLock refuses a heavy suite without LZ_EVAL_HEAVY_LOCK and never calls the lock for a light one', async () => {
-  await assert.rejects(
-    withHeavyLock(true, 'task', 5, async () => 'ran', {}),
-    /set LZ_EVAL_HEAVY_LOCK/,
+test('withHeavyLock refuses a lock without LZ_EVAL_HEAVY_LOCK and never calls the lock when none is needed', async () => {
+  await assert.rejects(withHeavyLock('heavy', 'task', 5, async () => 'ran', {}), /set LZ_EVAL_HEAVY_LOCK/);
+  await assert.rejects(withHeavyLock('timing', 'task', 5, async () => 'ran', {}), /set LZ_EVAL_HEAVY_LOCK/);
+  assert.equal(await withHeavyLock('none', 'task', 5, async () => 'ran', { LZ_EVAL_HEAVY_LOCK: 'W:/no/such/heavy-lock.ts' }), 'ran');
+});
+
+test('withHeavyLock waits, acquires with --timing only for a timing-sensitive slot, and releases', async () => {
+  const log = `${root}/fake-lock.jsonl`;
+  const lock = `${root}/fake-lock.ts`;
+  put(lock, `import { appendFileSync } from 'node:fs';\nappendFileSync(${JSON.stringify(log)}, JSON.stringify(process.argv.slice(2)) + '\\n');\n`);
+  const env = { LZ_EVAL_HEAVY_LOCK: lock, LZ_EVAL_LOCK_OWNER: 'owner' };
+
+  assert.equal(await withHeavyLock('timing', 'task', 5, async () => 'ran', env), 'ran');
+  assert.equal(await withHeavyLock('heavy', 'task', 5, async () => 'ran', env), 'ran');
+  const slot = ['--owner', 'owner', '--task', 'task', '--minutes', '5'];
+  const pid = ['--pid', String(process.pid)];
+  assert.deepEqual(
+    readFileSync(log, 'utf8').split('\n').filter((line) => line !== '').map((line): unknown => JSON.parse(line)),
+    [
+      ['wait', ...slot],
+      ['acquire', ...slot, '--timing', ...pid],
+      ['release', '--owner', 'owner'],
+      ['wait', ...slot],
+      ['acquire', ...slot, ...pid],
+      ['release', '--owner', 'owner'],
+    ],
   );
-  assert.equal(await withHeavyLock(false, 'task', 5, async () => 'ran', { LZ_EVAL_HEAVY_LOCK: 'W:/no/such/heavy-lock.ts' }), 'ran');
 });
 
 test('scaffoldScript names the case.yaml scaffold script inside the case folder, and refuses one outside it', () => {

@@ -306,24 +306,28 @@ function heavyLock(lock: string, args: readonly string[]): number {
   return spawnSync(process.execPath, [lock, ...args], { stdio: 'inherit' }).status ?? 1;
 }
 
-// A suite that runs a test suite holds the machine's heavy-run lock (D-04); one that does not never touches it.
+// `heavy`: a stub run of a suite that runs a test suite (D-04). `timing`: a paid run, whose cost and wall clock are
+// measured, so peers hold their machine load until it ends.
+export type LockMode = 'none' | 'heavy' | 'timing';
+
 export async function withHeavyLock<T>(
-  heavy: boolean,
+  mode: LockMode,
   task: string,
   minutes: number,
   work: () => Promise<T>,
   env: NodeJS.ProcessEnv,
 ): Promise<T> {
-  if (!heavy) {
+  if (mode === 'none') {
     return work();
   }
 
   const lock = required('LZ_EVAL_HEAVY_LOCK', env);
   const owner = required('LZ_EVAL_LOCK_OWNER', env);
   const slot = ['--owner', owner, '--task', task, '--minutes', String(minutes)];
+  const acquire = ['acquire', ...slot, ...(mode === 'timing' ? ['--timing'] : []), '--pid', String(process.pid)];
   heavyLock(lock, ['wait', ...slot]);
 
-  for (let code = heavyLock(lock, ['acquire', ...slot, '--pid', String(process.pid)]); code !== 0;) {
+  for (let code = heavyLock(lock, acquire); code !== 0;) {
     if (code === 4) {
       heavyLock(lock, ['wait', ...slot]);
     } else if (code !== 2) {
@@ -331,7 +335,7 @@ export async function withHeavyLock<T>(
     }
 
     await new Promise((done) => setTimeout(done, 30_000));
-    code = heavyLock(lock, ['acquire', ...slot, '--pid', String(process.pid)]);
+    code = heavyLock(lock, acquire);
   }
 
   try {

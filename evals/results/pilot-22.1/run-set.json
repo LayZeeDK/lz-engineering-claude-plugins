@@ -3,8 +3,24 @@
     {
       "arm": "head",
       "ref": "975e819c2690492c2f4933eb0b58aeded7df06f3",
-      "models": { "claude-sonnet-5-5": 1 },
-      "suites": [{ "suite": "trigger-lz-tpp", "cases": ["trigger-lz-tpp-01"] }]
+      "models": { "claude-sonnet-5-5": 2, "claude-opus-5-5": 2 },
+      "suites": [
+        { "suite": "trigger-lz-tpp", "cases": ["trigger-lz-tpp-01", "trigger-lz-tpp-14"] },
+        { "suite": "trigger-lz-red", "cases": ["trigger-lz-red-01", "trigger-lz-red-08"] },
+        { "suite": "trigger-lz-refactor", "cases": ["trigger-lz-refactor-01", "trigger-lz-refactor-17"] },
+        { "suite": "routing", "cases": ["routing-c1", "routing-c9"] },
+        { "suite": "doing-lz-red", "cases": ["doing-lz-red-08"] },
+        { "suite": "doing-lz-red-invoke", "cases": ["doing-lz-red-invoke-08"] },
+        { "suite": "harness-probes", "cases": ["harness-probes-write-inside", "harness-probes-write-outside"] },
+        { "suite": "apply-lz-red", "cases": ["apply-lz-red-r1"] },
+        { "suite": "apply-lz-red-invoke", "cases": ["apply-lz-red-invoke-r1"] }
+      ]
+    },
+    {
+      "arm": "no-plugin",
+      "ref": null,
+      "models": { "claude-sonnet-5-5": 1, "claude-opus-5-5": 1 },
+      "suites": [{ "suite": "apply-lz-red", "cases": ["apply-lz-red-r1"] }]
     }
   ]
 }

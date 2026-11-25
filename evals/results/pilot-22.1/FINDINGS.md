@@ -1,7 +1,8 @@
 # Pilot 22.1 findings
 
 Run set `pilot-22.1`, ref 975e819c2690492c2f4933eb0b58aeded7df06f3 (the commit the plugin and cases were staged
-from), Claude Code 2.1.327, 2026-11-25. 58 results: 56 in cell `head` (28 per model) and 2 in cell `no-plugin`.
+from), Claude Code 2.1.327 (recorded by the 48 plugin-eval runs; the 10 slim results leave it null), 2026-11-25.
+58 results: 56 in cell `head` (28 per model) and 2 in cell `no-plugin`.
 Every result names the requested model in its CLI output (`initModel` and `modelsUsed`, 58 of 58). `crosscheck`:
 132 agree, 0 disagree, 0 unchecked.
 
@@ -38,9 +39,14 @@ Trigger and routing cases, one `plugin eval` invocation per run (n = 16 per mode
 | claude-sonnet-5-5 | 19 s | 3 (5) |
 | claude-opus-5-5 | 18.5 s | 4 (6) |
 
-The executor measured the start-up overhead per invocation during the run at about 2 s (median wall clock 21.6 s
-Sonnet, 23.6 s Opus, from the harness's start stamp to `result.json`). Not recounted: copying the raw results out
-of the worktree reset the file times that measure it. About a tenth of a trigger run either way; A6 holds.
+The start-up overhead per invocation is not measured here. The executor read median wall clocks of 21.6 s
+(Sonnet) and 23.6 s (Opus) during the run, but those figures cannot be checked now (copying the raw results out of
+the worktree reset the file times) and do not agree with the CLI seconds above (2.6 s over for Sonnet, 5.1 s for
+Opus). A6 holds on what is measured: one invocation per run finishes a trigger case in about 19 s of CLI time.
+Measure the overhead again in Plan 06.
+
+Three trigger runs ended at the case's `max_turns` (3) after the skill had fired (Opus `trigger-lz-red-01` run 1,
+Opus and Sonnet `trigger-lz-refactor-01` run 1); their graders still passed, and the turn medians include them.
 
 ## Scaffold
 
@@ -57,27 +63,36 @@ Refused calls in the 10 apply runs (28 in all, from `permission_denials` in each
 
 | Kind | Runs with it | Example | Rule that would allow it |
 |---|---|---|---|
-| Compound or piped Bash (`cd <cwd> && ...`, `... \| grep`, `\| tail`, `> file`) | 7 | `cd <cwd> && npx tsc --noEmit -p .` | `Bash(cd:*)`, `Bash(cat:*)`, `Bash(grep:*)`, `Bash(tail:*)`, `Bash(git ls-files:*)` beside the existing `npx` rules |
+| Compound or piped Bash (`cd <cwd> && ...`, `... \| grep`, `\| tail`, `> file`) | 7 | `cd <cwd> && npx tsc --noEmit -p . \| tail -20` | `Bash(cd:*)`, `Bash(grep:*)`, `Bash(tail:*)` and a rule for redirection; `cat` and `git` were already allowed |
 | PowerShell tool | 5 | `npx tsc --noEmit -p . 2>&1 \| Select-String ...` | `PowerShell(npx tsc:*)`, `PowerShell(npx vitest:*)` |
 | Read of the staged plugin's own skill reference (outside the run cwd) | 1 | the lz-red testing-stance reference | `Read` on the staged plugin folder (or `--add-dir` for it) |
 
-The plugin-reference Read matters most: under slim the skill could not open its own reference file. Plan 05 adds
+The kinds overlap, so the run counts do not add up to 10. The slim session's allow list is not only the case's
+`npx` rules: `run-slim` passes a filtered copy of the maintainer's user allow list (for example `Bash(git *)`,
+`Bash(curl *)`, `Bash(git push *)`). Each run works in an archive copy with no `.git`, so a push has no remote,
+but network calls are allowed; the phase's security review covers it.
+
+The plugin-reference Read matters most: under slim the skill could not open its own reference file (1 of 10 runs,
+Opus). Plan 05 adds
 the plugin folder Read and the PowerShell rules to the apply suites' `allow`; the compound-Bash rules are its call.
 The harness's `denied` flag missed all of these (it read only `permissionDecision`); it now also reads the refusal
 text of an error tool result.
 
 Apply graders, all 10 runs: `production-untouched-edit` and `-write` 10 of 10, `ran-tests` 10 of 10, `skill-fired`
 4 of 4 natural-arm runs and 0 of 2 no-plugin runs (as expected; the invoke twin does not score it). Two graders
-failed in every arm, the no-plugin arm included: `red-line` 0 of 10 (no reply ended with the
-`RED: ... -- fails: ...` line) and `wrote-test` 1 of 10 (agents edited the existing spec instead of writing a new
-file, and the grader matches Write only). The doing case's `red-line` also passed 0 of 12 sides. These graders
+failed in every arm, the no-plugin arm included: `red-line` 0 of 10 (no final reply contains `RED:` at all) and
+`wrote-test` 1 of 10 (natural 0 of 4, invoke 1 of 4, no-plugin 0 of 2; the grader matches Write only, and the
+replies suggest the agents edited the existing placeholder spec instead, which the slim output, with no tool
+trace, cannot confirm). The doing case's `red-line` also passed 0 of 12 sides, 0 of 4 on the side where lz-red
+fired, so the cause lies in the grader or the skill's output, not in the arm. These graders
 cannot tell the arms apart as they stand; Plans 05-06 revisit them before the baseline relies on them.
 
 ## Rate limit
 
-No run carried a rate-limit or usage-limit error. Every trigger and routing grader passed in both models at
-concurrency 2 (fire and quiet cases alike), so there is no sign of throttling showing up as a missed trigger. n is
-2 runs per case and model, too small to rule out a small drop.
+No run carried a rate-limit or usage-limit error. The traces' rate-limit events read `allowed` in 6 runs and
+`allowed_warning` in 52, so the account was near a limit through most of the pilot without being stopped. Every
+trigger and routing grader passed in both models at concurrency 2 (fire and quiet cases alike), so there is no sign
+of throttling showing up as a missed trigger. n is 2 runs per case and model, too small to rule out a small drop.
 
 ## Cost
 
@@ -105,7 +120,9 @@ of its run kind:
   measured).
 - GildedRose apply cell: 5 x 0.1048 + 3 x 0.3047 = $1.4381; natural, invoke twin and no-plugin: 3 x 1.4381 =
   $4.3143.
-- srvx apply cell at the apply mean x 3.19 per model: 5 x 0.3343 + 3 x 0.9720 = $4.5875; three cells = $13.7626.
+- srvx apply cell at the apply mean x 3.19 per model (not measured in this pilot: 3.19 is the srvx-to-GildedRose
+  cost ratio of an earlier single-model eval, 12.16 / 3.81 USD over 9 runs each, applied to both models; the
+  largest line of the projection): 5 x 0.3343 + 3 x 0.9720 = $4.5875; three cells = $13.7626.
 - Routing, 9 cases: 9 x 0.5826 = $5.2434.
 - Trigger cases: 3 suites x 2k cases x 0.5826 = $3.4956 x k.
 
@@ -116,6 +133,9 @@ of its run kind:
 | 3 | $10.4868 | $39.7300 | $43.70 |
 | 2 | $6.9912 | $36.2344 | $39.86 |
 
-k = 5 is the largest k whose total is at most 100 USD.
+The plan offers 10, 8, 6 or 4 baseline trigger cases per skill (k = 5, 4, 3 or 2), and Plan 03 tagged 10 per
+skill for the baseline, so k = 5 is the most the case set holds. It fits the budget with about 49 USD to spare (the
+budget alone would allow k = 17: 97.54 USD). The pilot does not test whether Sonnet n = 5 and Opus n = 3 are enough
+(no variance or Pass^k at that n); n is kept because Lars set it and the budget does not force a cut.
 
 keep n; baseline trigger cases per skill: 10 (projected total $51.39 of the 100 USD budget).

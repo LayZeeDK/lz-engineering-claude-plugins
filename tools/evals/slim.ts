@@ -169,7 +169,7 @@ export function normalizeSlim(run: PlannedRun, outs: readonly SlimOutput[], late
   const text = resultFacts(latest.result).resultText;
 
   // A session the usage limit ended exits 0; its result text decides.
-  if (limitStopped(text)) {
+  if (limitStopped(text, latest.result)) {
     return { outcome: 'limit', reason: `usage limit: ${String(text)}` };
   }
 

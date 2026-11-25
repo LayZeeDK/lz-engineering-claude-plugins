@@ -83,8 +83,20 @@ export function traceResult(entries: readonly unknown[]): TraceResult | null {
 }
 
 // A usage limit ends a session at once with status 0 and is_error false; only its result text says so.
-export function limitStopped(text: string | null): boolean {
-  return text !== null && /^You've hit your .*limit/.test(text);
+// The apostrophe is straight or curly (U+2019); a result object naming a rate limit in an error type also counts.
+export function limitStopped(text: string | null, result?: unknown): boolean {
+  return (text !== null && /^You['’]ve hit your .*limit/i.test(text)) || namesRateLimit(result);
+}
+
+function namesRateLimit(result: unknown): boolean {
+  if (!isRecord(result)) {
+    return false;
+  }
+
+  const error = result['error'];
+  const kinds = [result['type'], result['subtype'], result['error_type'], error, isRecord(error) ? error['type'] : undefined];
+
+  return kinds.some((kind) => typeof kind === 'string' && /rate[_ -]?limit/i.test(kind));
 }
 
 export interface SlimOutput {
@@ -182,8 +194,8 @@ export function namesModel(requested: string, model: string): boolean {
   return model === requested || new RegExp(`^${requested.replaceAll('.', '\\.')}-\\d{8}$`).test(model);
 }
 
-// Null when the session ran on the requested model. Other modelUsage keys are the CLI's own side calls (Haiku), which
-// are allowed.
+// Null when the session ran on the requested model. Other modelUsage keys are allowed only as the CLI's own side calls
+// (Haiku family); any other model, such as a silent fallback to an older Opus, refuses the run.
 export function modelRefusal(requested: string, init: string | null, used: readonly string[]): string | null {
   if (init === null) {
     return `the CLI output names no model; ${requested} was requested`;
@@ -197,5 +209,7 @@ export function modelRefusal(requested: string, init: string | null, used: reado
     return `model mismatch: modelUsage (${used.join(', ') || 'empty'}) does not name ${init}`;
   }
 
-  return null;
+  const extra = used.find((model) => !namesModel(requested, model) && !/^claude-haiku-/.test(model));
+
+  return extra === undefined ? null : `model mismatch: ${extra} also ran beside ${requested}`;
 }

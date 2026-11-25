@@ -71,6 +71,23 @@ test('modelRefusal accepts the requested model or its dated id, and side calls o
   assert.match(modelRefusal(sonnet, 'claude-opus-5-5', ['claude-opus-5-5']) ?? '', /claude-opus-5-5 ran where claude-sonnet-5-5/);
 });
 
+test('modelRefusal refuses another main model beside the requested one, naming it', () => {
+  const refusal = modelRefusal('claude-opus-5-5', 'claude-opus-5-5', ['claude-opus-5-5', 'claude-opus-4-8']);
+
+  assert.match(refusal ?? '', /claude-opus-4-8/);
+  assert.equal(modelRefusal('claude-opus-5-5', 'claude-opus-5-5', ['claude-opus-5-5', 'claude-haiku-4-5-20251001']), null);
+});
+
+test('limitStopped accepts the straight and the curly apostrophe, any case, and a rate-limit error type', () => {
+  assert.deepEqual(
+    ['You’ve hit your 5-hour limit', "you've HIT your weekly limit"].map((text) => limitStopped(text)),
+    [true, true],
+  );
+  assert.equal(limitStopped(null, { subtype: 'error_rate_limit' }), true);
+  assert.equal(limitStopped(null, { error: { type: 'rate_limit_error' } }), true);
+  assert.equal(limitStopped(null, { subtype: 'success' }), false);
+});
+
 test('toolCalls pairs each tool_use with its tool_result by id and marks errors and rejected permissions', () => {
   const entries = [
     {

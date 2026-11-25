@@ -125,7 +125,7 @@ export function normalizePluginEval(json: unknown, traces: Traces, run: PlannedR
 
     return error === null || error === undefined ? [] : [typeof error === 'string' ? error.replace(/^exit \d+: /, '') : String(error)];
   });
-  const limited = errors.find((error) => limitStopped(error));
+  const limited = errors.find((error) => limitStopped(error)) ?? (sideRuns.some((side) => limitStopped(null, side)) ? 'rate-limit error type' : undefined);
 
   // A usage-limited run scores 0 and the suite is not marked partial, so its error text is the only sign.
   if (limited !== undefined) {

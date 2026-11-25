@@ -242,7 +242,8 @@ export function readRunSet(dir: string): RunSet {
 
   return {
     dir: root,
-    name: assertName('run set', basename(root)),
+    // A run set folder is named for its phase (pilot-22.1), so it may hold dots, but never start with one.
+    name: assertName('run set', basename(root), /^[a-z0-9][a-z0-9.-]*$/),
     cells: parsed,
     record: inFile(file, () => record.map((entry) => recordedCell(entry, file))),
   };

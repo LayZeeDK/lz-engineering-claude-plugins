@@ -238,6 +238,15 @@ test('readRunSet refuses bad names, refs, run counts, keys and records, naming t
   );
 });
 
+test('readRunSet takes a dotted run set folder name such as pilot-22.1, and refuses one that starts with a dot', () => {
+  const value = { cells: [{ arm: 'head', ref: zeros, models: { [sonnet]: 1 }, suites: [{ suite: 'demo' }] }] };
+  put(`${root}/pilot-22.1/run-set.json`, JSON.stringify(value));
+  put(`${root}/.hidden/run-set.json`, JSON.stringify(value));
+
+  assert.equal(readRunSet(`${root}/pilot-22.1`).name, 'pilot-22.1');
+  assert.throws(() => readRunSet(`${root}/.hidden`), /run set name ".hidden" must match/);
+});
+
 test('readRunSet reads recorded cells for the reproduction table', () => {
   const dir = `${root}/recorded`;
   const record = {

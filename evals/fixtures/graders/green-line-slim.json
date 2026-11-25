@@ -1,0 +1,14 @@
+{
+  "grader": {
+    "type": "regex",
+    "pattern": "GREEN: [^\\n]+ -- [^\\n]+ passes; \\d+ tests green[^\\n]*\\s*$"
+  },
+  "pass": {
+    "toolCalls": [],
+    "lastMessage": "I made the change.\n\nGREEN: 6 (unconditional -> if) -- Conjured items lose two quality a day passes; 3 tests green\n"
+  },
+  "fail": {
+    "toolCalls": [],
+    "lastMessage": "I made the change.\n\nGREEN: 6 (unconditional -> if) -- Conjured items lose two quality a day passes\n"
+  }
+}

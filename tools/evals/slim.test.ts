@@ -88,7 +88,7 @@ const input = {
   allow: null,
 };
 
-test('slimArgs passes cwd, prompt, out, model, no rules and the timeout, and the plugin and allow rules only when set', () => {
+test('slimArgs passes cwd, prompt, out, model, no rules, the timeout and --offline always, and the plugin and allow rules only when set', () => {
   assert.deepEqual(slimArgs(input), [
     '--cwd',
     'S:/slim/runs/set-abc',
@@ -102,13 +102,32 @@ test('slimArgs passes cwd, prompt, out, model, no rules and the timeout, and the
     'none',
     '--timeout-min',
     '20',
+    '--offline',
   ]);
   assert.deepEqual(slimArgs({ ...input, pluginDir: 'W:/stage/000000000000/plugin', allow: 'Bash(npm test)' }).slice(12), [
+    '--offline',
     '--plugin-dir',
     'W:/stage/000000000000/plugin',
     '--allow',
     'Bash(npm test)',
   ]);
+});
+
+test('slimArgs turns {plugin} into the staged plugin folder as a drive-rooted rule path, and drops its rules with no plugin', () => {
+  const allow = 'Edit Read({plugin}/**) Bash(npx vitest:*)';
+  const allowOf = (args: readonly string[]): string | undefined => args[args.indexOf('--allow') + 1];
+
+  assert.equal(
+    allowOf(slimArgs({ ...input, pluginDir: 'D:/repo/dist/eval/000000000000/plugin', allow })),
+    'Edit Read(//d/repo/dist/eval/000000000000/plugin/**) Bash(npx vitest:*)',
+  );
+  assert.equal(
+    allowOf(slimArgs({ ...input, pluginDir: 'D:\\repo\\dist\\eval\\000000000000\\plugin', allow })),
+    'Edit Read(//d/repo/dist/eval/000000000000/plugin/**) Bash(npx vitest:*)',
+  );
+  assert.equal(allowOf(slimArgs({ ...input, pluginDir: '/srv/stage/plugin', allow })), 'Edit Read(//srv/stage/plugin/**) Bash(npx vitest:*)');
+  assert.equal(allowOf(slimArgs({ ...input, allow })), 'Edit Bash(npx vitest:*)');
+  assert.throws(() => slimArgs({ ...input, pluginDir: 'D:/my repo/plugin', allow }), /plugin folder/);
 });
 
 test('resumeArgs writes the next result-resume-<n>.json from continue.txt and resumes the session', () => {
@@ -121,6 +140,7 @@ test('resumeArgs writes the next result-resume-<n>.json from continue.txt and re
     [args[args.indexOf('--prompt-file') + 1], args[args.indexOf('--out') + 1], args.slice(-2)],
     [`${rawDir}/continue.txt`, `${rawDir}/result-resume-2.json`, ['--resume', sessionA]],
   );
+  assert.ok(args.includes('--offline'), 'a resumed run keeps the offline permission set');
 });
 
 test('projectFolder turns every character outside letters and digits into a dash', () => {

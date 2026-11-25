@@ -1,0 +1,5 @@
+schema_version: "1.1"
+name: doing-lz-tpp-07
+tags: [doing, lz-tpp, green-step]
+context:
+  scaffold_script: scaffold.sh

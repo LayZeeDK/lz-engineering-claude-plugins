@@ -1,0 +1,14 @@
+{
+  "grader": {
+    "type": "regex",
+    "pattern": "GREEN: [^\\n]+ -- [^\\n]+ passes[^\\n]*\\s*$"
+  },
+  "pass": {
+    "toolCalls": [],
+    "lastMessage": "I made the change.\n\nGREEN: 4 (unconditional -> if) -- of(1) is 1 passes\n"
+  },
+  "fail": {
+    "toolCalls": [],
+    "lastMessage": "I made the change.\n\nGREEN: 4 (unconditional -> if) -- of(1) is 1 passes\n\nWant me to go on?"
+  }
+}

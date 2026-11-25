@@ -1,0 +1,33 @@
+{
+  "grader": {
+    "type": "tool_used",
+    "tool": "Edit",
+    "inputMatch": "\"file_path\"\\s*:\\s*\"[^\"]*[\\\\/]+test[\\\\/]+[^\"]*\\.ts\""
+  },
+  "pass": {
+    "toolCalls": [
+      {
+        "name": "Edit",
+        "input": {
+          "file_path": "D:\\tmp\\w\\test\\node-adapter.test.ts",
+          "old_string": "a",
+          "new_string": "import { toNodeHandler } from '../src/adapters/node.ts';"
+        }
+      }
+    ],
+    "lastMessage": ""
+  },
+  "fail": {
+    "toolCalls": [
+      {
+        "name": "Edit",
+        "input": {
+          "file_path": "D:\\tmp\\w\\src\\adapters\\_node\\send.ts",
+          "old_string": "a",
+          "new_string": "// covered by test/node-adapter.test.ts"
+        }
+      }
+    ],
+    "lastMessage": ""
+  }
+}

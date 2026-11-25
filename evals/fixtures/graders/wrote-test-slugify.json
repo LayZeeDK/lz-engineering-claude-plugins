@@ -1,0 +1,31 @@
+{
+  "grader": {
+    "type": "tool_used",
+    "tool": "Write",
+    "inputMatch": "slugify\\.test\\.ts"
+  },
+  "pass": {
+    "toolCalls": [
+      {
+        "name": "Write",
+        "input": {
+          "file_path": "D:\\tmp\\w\\src\\slugify.test.ts",
+          "content": "x"
+        }
+      }
+    ],
+    "lastMessage": ""
+  },
+  "fail": {
+    "toolCalls": [
+      {
+        "name": "Write",
+        "input": {
+          "file_path": "D:\\tmp\\w\\src\\other.test.ts",
+          "content": "x"
+        }
+      }
+    ],
+    "lastMessage": ""
+  }
+}

@@ -1,5 +1,7 @@
 # lz-refactor apply/drive-mode eval -- real Angular repos
 
+Superseded: these runs now go through `tools/evals` (`node tools/evals/eval.ts`); the commands below are kept as the record of how the results here were made.
+
 Tests the shipped `lz-refactor` skill in **apply/drive mode** (the skill EDITS code in small
 behavior-preserving steps) on **TypeScript source** in three real, locally-cloned Angular repos.
 Targets are pre-identified (nx-style) in `targets.json`.

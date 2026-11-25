@@ -1,5 +1,7 @@
 # RGR routing placement A/B -- RUN-GATE (the gated metered-run presentation)
 
+Superseded: these runs now go through `tools/evals` (`node tools/evals/eval.ts`); the commands below are kept as the record of how the results here were made.
+
 This file is DOCUMENTATION. It presents ready-to-run gated metered commands and then STOPS. Running
 any command below is out of scope for phase execution: Phase 22 authored this file, proved the whole
 instrument GREEN offline, and HALTED. Both metered rounds are separate, freshly-approved,

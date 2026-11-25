@@ -1,5 +1,7 @@
 # e2e-reference: reference-catalog eval for lz-refactor
 
+Superseded: these runs now go through `tools/evals` (`node tools/evals/eval.ts`); the commands below are kept as the record of how the results here were made.
+
 Measures whether lz-refactor's curated, oracle-verified reference catalog carries a real
 correct-answer edge over base Opus 4.8 on look-up questions where base plausibly answers WRONG or
 VAGUE. This is the one untested value lever after the output-warrant loop concluded null/parity.

@@ -1,5 +1,7 @@
 # e2e-rgr-srvx: red-green-refactor outcome eval on srvx
 
+Superseded: these runs now go through `tools/evals` (`node tools/evals/eval.ts`); the commands below are kept as the record of how the results here were made.
+
 ## Purpose
 
 A full red-green-refactor outcome eval: a slim `claude -p` session implements a real feature test-first in the

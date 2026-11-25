@@ -1,5 +1,7 @@
 # lz-refactor end-to-end test -- Gilded Rose kata
 
+Superseded: these runs now go through `tools/evals` (`node tools/evals/eval.ts`); the commands below are kept as the record of how the results here were made.
+
 Second e2e suite for the `lz-refactor` skill, on the canonical refactoring kata
 (https://github.com/emilybache/GildedRose-Refactoring-Kata, TypeScript). Complements `../e2e-nx/`
 (real-world nx code) with a small, well-known target that has a good-known refactoring path and

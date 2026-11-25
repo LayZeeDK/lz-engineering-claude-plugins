@@ -2,15 +2,10 @@
 .claude/skills/lz-red-workspace/arm-anchor.mjs
 .claude/skills/lz-red-workspace/check-evals.mjs
 .claude/skills/lz-red-workspace/e2e-rgr-srvx/grade-rgr.mjs
-.claude/skills/lz-red-workspace/eval-status.mjs
 .claude/skills/lz-red-workspace/extract-samples.mjs
 .claude/skills/lz-red-workspace/grade-red.mjs
 .claude/skills/lz-red-workspace/grade-routing.mjs
-.claude/skills/lz-red-workspace/grade-run.mjs
-.claude/skills/lz-red-workspace/merge-judge.mjs
 .claude/skills/lz-red-workspace/rules-ab-kata/grade.mjs
-.claude/skills/lz-red-workspace/run-recall-chunks.mjs
-.claude/skills/lz-red-workspace/run-spec-chunks.mjs
 .claude/skills/lz-red-workspace/selfcheck-red.mjs
 .claude/skills/lz-red-workspace/selfcheck-routing.mjs
 .claude/skills/lz-red-workspace/tabulate-mechanical-red.mjs

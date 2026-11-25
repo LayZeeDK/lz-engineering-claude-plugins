@@ -169,6 +169,16 @@ function blocks(entries: readonly unknown[]): Block[] {
   });
 }
 
+// Claude Code 2.1.327 records a refused call only as an error tool_result with this text, in plugin-eval traces
+// (dontAsk mode) and in slim transcripts alike; no permissionDecision entry is written.
+function refusal(content: unknown): boolean {
+  const text = Array.isArray(content)
+    ? content.map((part) => (isRecord(part) && typeof part['text'] === 'string' ? part['text'] : '')).join('\n')
+    : content;
+
+  return typeof text === 'string' && /^Permission to use \S+ .*has been denied/.test(text);
+}
+
 export function toolCalls(entries: readonly unknown[]): ToolCall[] {
   const all = blocks(entries);
   const results = new Map(
@@ -180,13 +190,14 @@ export function toolCalls(entries: readonly unknown[]): ToolCall[] {
     .map(({ block }) => {
       const found = results.get(block['id']);
       const decision = found?.entry['permissionDecision'];
+      const isError = found?.block['is_error'] === true;
 
       return {
         id: String(block['id']),
         name: String(block['name']),
         input: block['input'],
-        isError: found?.block['is_error'] === true,
-        denied: isRecord(decision) && decision['decision'] === 'reject',
+        isError,
+        denied: (isRecord(decision) && decision['decision'] === 'reject') || (isError && refusal(found?.block['content'])),
       };
     });
 }

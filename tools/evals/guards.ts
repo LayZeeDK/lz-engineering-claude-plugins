@@ -21,9 +21,9 @@ export function isStringArray(value: unknown): value is string[] {
 const namePattern = /^[a-z0-9][a-z0-9-]*$/;
 
 // Names become folder names under a run set, so nothing that could leave it (`..`, a slash, a drive) gets through.
-export function assertName(kind: string, value: string): string {
-  if (!namePattern.test(value)) {
-    throw new Error(`${kind} name ${JSON.stringify(value)} must match ${String(namePattern)}`);
+export function assertName(kind: string, value: string, pattern: RegExp = namePattern): string {
+  if (!pattern.test(value)) {
+    throw new Error(`${kind} name ${JSON.stringify(value)} must match ${String(pattern)}`);
   }
 
   return value;

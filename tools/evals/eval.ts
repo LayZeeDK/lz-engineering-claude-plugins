@@ -3,6 +3,7 @@
 //   node tools/evals/eval.ts run <run set dir> [--concurrency 3]            start every run that has no folder yet
 //   node tools/evals/eval.ts rerun <run set dir> <run dir>... [--concurrency 3]
 //   node tools/evals/eval.ts resume <run set dir> <run dir>...              continue stopped slim sessions
+//   run, rerun and resume take [--lock-minutes <1-1440>]: the lock slot to book, the part's measured estimate
 //   node tools/evals/eval.ts aggregate <run set dir> [--allow-stub]          write RESULTS.md and recheck.json
 //   node tools/evals/eval.ts stage <ref>                                     package <ref> and the committed cases
 //   node tools/evals/eval.ts crosscheck <run set dir>                        grade plugin-eval traces with the model
@@ -23,16 +24,17 @@
 // the named runs into set-aside-<n> and starts them fresh; `resume` continues a slim run's own session into
 // raw/result-resume-<n>.json (plugin eval has no resume). Both refuse a run that has a result. A <run dir> is a path
 // relative to the run set (head/claude-sonnet-5-5/<case>/run-1) or an absolute one. `run` starts plugin-eval runs on
-// --concurrency workers, then slim runs one at a time.
+// --concurrency workers, then slim runs one at a time. A paid run (any backend but stubs.ts) holds the machine's
+// heavy-run lock as a timing-sensitive slot for all its suites; a stub run holds it only for a slim suite marked heavy.
 // Environment: LZ_EVAL_REPO (the repository whose evals/ the harness reads; default this repository),
 // LZ_EVAL_CLAUDE (the claude binary; a .ts file runs under this Node.js), LZ_EVAL_RUN_SLIM (default
 // ~/.claude/references/slim-claude-p/run-slim.ts), LZ_EVAL_STAGE_ROOT (default <repo>/dist/eval), LZ_EVAL_SLIM_ROOT
-// (default D:/tmp/slim-claude-p), LZ_EVAL_PROJECTS_DIR (default ~/.claude/projects), and for a slim suite marked heavy
+// (default D:/tmp/slim-claude-p), LZ_EVAL_PROJECTS_DIR (default ~/.claude/projects), and whenever the lock is held
 // LZ_EVAL_HEAVY_LOCK (heavy-lock.ts) with LZ_EVAL_LOCK_OWNER; LZ_EVAL_CLONES (default D:/projects/github, the clone
 // root the templates name <org>/<repo> below) and LZ_EVAL_BASH (the bash for scaffold scripts; default Git Bash).
 import { existsSync, writeFileSync } from 'node:fs';
 import { homedir } from 'node:os';
-import { join, relative, resolve } from 'node:path';
+import { basename, join, relative, resolve } from 'node:path';
 import { parseArgs } from 'node:util';
 import { aggregate, recheckCases, renderResults } from './aggregate.ts';
 import { evalRepo, evalsRoots } from './cases.ts';
@@ -60,6 +62,7 @@ import {
   sessionId,
   startSlimRun,
   withHeavyLock,
+  type LockMode,
   type SlimContext,
 } from './slim.ts';
 import { casesTree, git, readStage, resolveCommit, stageRef } from './stage.ts';
@@ -161,31 +164,49 @@ function writeRecheck(runSet: RunSet, listed: Record<string, number>): void {
   }
 }
 
-function lockMinutes(runs: readonly PlannedRun[]): number {
-  return runs.reduce((total, run) => total + run.suite.timeoutMinutes + 2, 0);
-}
-
 interface Context extends PluginEvalContext, SlimContext {}
 
-// Plugin-eval runs on the workers first; slim runs one at a time after them, under the heavy lock when a suite needs it.
-async function startRuns(runSet: RunSet, runs: readonly PlannedRun[], concurrency: number, ctx: Context): Promise<RunOutcomeEntry[]> {
-  const pluginRuns = runs.filter((run) => !isSlim(run));
-  const slimRuns = runs.filter(isSlim);
-  const first = await runAll(pluginRuns, concurrency, (run) => startPluginEvalRun(run, ctx));
+// A paid run measures cost and wall clock, so every suite in it holds a timing-sensitive slot.
+function lockMode(runs: readonly PlannedRun[], env: NodeJS.ProcessEnv): LockMode {
+  const paid = runs.some((run) => {
+    const command = isSlim(run) ? runSlimCommand(env) : claudeCommand(env);
 
-  if (first.some(({ outcome }) => outcome === 'limit') || slimRuns.length === 0) {
-    return first;
+    return basename(command.prefix[0] ?? command.file) !== 'stubs.ts';
+  });
+
+  if (paid) {
+    return 'timing';
   }
 
-  const second = await withHeavyLock(
-    slimRuns.some((run) => run.suite.heavy),
-    `lz-tdd eval ${runSet.name}: ${String(slimRuns.length)} slim claude -p runs, one at a time`,
-    lockMinutes(slimRuns),
-    () => runAll(slimRuns, 1, (run) => startSlimRun(run, ctx)),
+  return runs.some((run) => isSlim(run) && run.suite.heavy) ? 'heavy' : 'none';
+}
+
+// Plugin-eval runs on the workers first; slim runs one at a time after them, all in one lock slot when one is needed.
+async function startRuns(
+  runSet: RunSet,
+  runs: readonly PlannedRun[],
+  concurrency: number,
+  minutes: number,
+  ctx: Context,
+): Promise<RunOutcomeEntry[]> {
+  const pluginRuns = runs.filter((run) => !isSlim(run));
+  const slimRuns = runs.filter(isSlim);
+
+  return withHeavyLock(
+    lockMode(runs, process.env),
+    `lz-tdd eval ${runSet.name}: ${String(pluginRuns.length)} plugin eval runs, ${String(concurrency)} at a time, then ${String(slimRuns.length)} slim claude -p runs, one at a time`,
+    minutes,
+    async () => {
+      const first = await runAll(pluginRuns, concurrency, (run) => startPluginEvalRun(run, ctx));
+
+      if (first.some(({ outcome }) => outcome === 'limit') || slimRuns.length === 0) {
+        return first;
+      }
+
+      return [...first, ...(await runAll(slimRuns, 1, (run) => startSlimRun(run, ctx)))];
+    },
     process.env,
   );
-
-  return [...first, ...second];
 }
 
 // Stryker disable all: command-line entry; eval.test.ts, run-set.test.ts and dry-run.test.ts run it as a process
@@ -199,6 +220,7 @@ if (import.meta.main) {
     allowPositionals: true,
     options: {
       concurrency: { type: 'string', default: '3' },
+      'lock-minutes': { type: 'string' },
       'allow-stub': { type: 'boolean', default: false },
     },
   });
@@ -259,6 +281,16 @@ if (import.meta.main) {
       throw new Error(`--concurrency must be a whole number of at least 1, not ${values.concurrency}`);
     }
 
+    // The slot a part books is its measured estimate; without one, the sum of the runs' timeouts.
+    const booked = values['lock-minutes'] === undefined ? null : Number(values['lock-minutes']);
+
+    if (booked !== null && (!Number.isInteger(booked) || booked < 1 || booked > 1440)) {
+      throw new Error(`--lock-minutes must be a whole number from 1 to 1440, not ${values['lock-minutes'] ?? ''}`);
+    }
+
+    const lockMinutes = (runs: readonly PlannedRun[]): number =>
+      booked ?? runs.reduce((total, run) => total + run.suite.timeoutMinutes + 2, 0);
+
     const runSet = readRunSet(runSetDir);
     // Taken before anything reads the run folders; the exit event also fires after an uncaught error.
     process.on('exit', acquireRunSetLock(runSet.dir));
@@ -273,8 +305,9 @@ if (import.meta.main) {
       throw new Error(`each of these runs has a result, which ${String(command)} never replaces: ${done.map((run) => shortName(runSet, run)).join(', ')}`);
     }
 
-    if (todo.some((run) => isSlim(run) && run.suite.heavy)) {
+    if (lockMode(todo, process.env) !== 'none') {
       required('LZ_EVAL_HEAVY_LOCK', process.env);
+      required('LZ_EVAL_LOCK_OWNER', process.env);
     }
 
     const plugin = todo.filter((run) => !isSlim(run));
@@ -312,7 +345,7 @@ if (import.meta.main) {
       }
 
       outcomes = await withHeavyLock(
-        todo.some((run) => run.suite.heavy),
+        lockMode(todo, process.env),
         `lz-tdd eval ${runSet.name}: resume ${String(todo.length)} slim claude -p runs`,
         lockMinutes(todo),
         () => runAll(todo, 1, (run) => resumeSlimRun(run, ctx, sessions.get(run.runDir) ?? '')),
@@ -325,7 +358,7 @@ if (import.meta.main) {
         setAside(runSet.dir, todo.map((run) => run.runDir));
       }
 
-      outcomes = await startRuns(runSet, todo, concurrency, ctx);
+      outcomes = await startRuns(runSet, todo, concurrency, lockMinutes(todo), ctx);
     }
 
     reportDied(runSet, died);

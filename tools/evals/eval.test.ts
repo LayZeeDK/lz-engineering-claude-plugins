@@ -178,6 +178,50 @@ test('a slim run starts in a copy of its suite template, after its case scaffold
   assert.deepEqual([result['backend'], result['graded'], result['pluginTree']], ['slim', true, pluginTree(repo, sha)]);
 });
 
+test('a paid run books the timing-sensitive lock for a plugin-eval suite, and refuses before any spawn without it', () => {
+  const repo = `${root}/paid`;
+  const stubDir = `${root}/paid-stub`;
+  const setDir = `${root}/sets/paid`;
+  const sha = demoRepo(repo);
+  put(
+    `${setDir}/run-set.json`,
+    JSON.stringify({ cells: [{ arm: 'head', ref: sha, models: { 'claude-sonnet-5-5': 1 }, suites: [{ suite: 'demo' }] }] }),
+  );
+  // Any backend but the stub counts as paid; this one hands its arguments on to the stub.
+  const claude = `${root}/paid-claude.ts`;
+  const stub = join(import.meta.dirname, 'stubs.ts');
+  put(
+    claude,
+    `import { spawnSync } from 'node:child_process';\nconst ran = spawnSync(process.execPath, [${JSON.stringify(stub)}, ...process.argv.slice(2)], { stdio: 'inherit' });\nprocess.exit(ran.status ?? 1);\n`,
+  );
+  const log = `${root}/paid-lock.jsonl`;
+  const lock = `${root}/paid-lock.ts`;
+  put(lock, `import { appendFileSync } from 'node:fs';\nappendFileSync(${JSON.stringify(log)}, JSON.stringify(process.argv.slice(2)) + '\\n');\n`);
+  const env = { LZ_EVAL_REPO: repo, LZ_EVAL_STAGE_ROOT: `${root}/paid-stage`, LZ_EVAL_CLAUDE: claude, LZ_EVAL_STUB_DIR: stubDir };
+
+  const refused = evalCli(['run', setDir], { ...env, LZ_EVAL_HEAVY_LOCK: '', LZ_EVAL_LOCK_OWNER: '' });
+  assert.equal(refused.status, 1, refused.output);
+  assert.match(refused.output, /set LZ_EVAL_HEAVY_LOCK/);
+  assert.equal(existsSync(`${stubDir}/argv.jsonl`), false);
+
+  const locked = { ...env, LZ_EVAL_HEAVY_LOCK: lock, LZ_EVAL_LOCK_OWNER: 'eval-test' };
+  const badMinutes = evalCli(['run', setDir, '--lock-minutes', '1441'], locked);
+  assert.equal(badMinutes.status, 1, badMinutes.output);
+  assert.match(badMinutes.output, /--lock-minutes must be a whole number from 1 to 1440/);
+  assert.equal(existsSync(log), false);
+
+  const ran = evalCli(['run', setDir, '--lock-minutes', '7'], locked);
+  assert.equal(ran.status, 0, ran.output);
+  assert.equal(argvLines(stubDir), 1);
+  const calls = readFileSync(log, 'utf8').split('\n').filter((line) => line !== '').map((line): unknown => JSON.parse(line));
+  assert.deepEqual(
+    calls.map((call) =>
+      Array.isArray(call) ? [call[0], call.includes('--timing'), call.includes('--minutes') ? call[call.indexOf('--minutes') + 1] : null] : null,
+    ),
+    [['wait', false, '7'], ['acquire', true, '7'], ['release', false, null]],
+  );
+});
+
 test('stage prints the stage folder of a ref, and a ref that is no commit fails', () => {
   const repo = `${root}/stage-cli`;
   const stageRoot = `${root}/stage-cli-out`;

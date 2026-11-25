@@ -97,6 +97,9 @@ test('toolCalls pairs each tool_use with its tool_result by id and marks errors 
           { type: 'tool_use', id: 't1', name: 'Read', input: { file_path: 'S:/cwd/a.ts' } },
           { type: 'tool_use', id: 't2', name: 'Bash', input: { command: 'npm test' } },
           { type: 'tool_use', id: 't3', name: 'Edit', input: {} },
+          { type: 'tool_use', id: 't4', name: 'Write', input: { file_path: 'D:/tmp/out.txt' } },
+          { type: 'tool_use', id: 't5', name: 'Bash', input: { command: 'grep -v x' } },
+          { type: 'tool_use', id: 't6', name: 'Bash', input: { command: 'echo' } },
         ],
       },
     },
@@ -106,6 +109,37 @@ test('toolCalls pairs each tool_use with its tool_result by id and marks errors 
       permissionDecision: { decision: 'reject' },
       message: { content: [{ type: 'tool_result', tool_use_id: 't2', content: 'denied' }] },
     },
+    // Claude Code 2.1.327: a plugin-eval trace in dontAsk mode, then a slim transcript.
+    {
+      type: 'user',
+      message: {
+        content: [
+          {
+            type: 'tool_result',
+            tool_use_id: 't4',
+            content: "Permission to use Write has been denied because Claude Code is running in don't ask mode.",
+            is_error: true,
+          },
+        ],
+      },
+    },
+    {
+      type: 'user',
+      message: {
+        content: [
+          {
+            type: 'tool_result',
+            tool_use_id: 't5',
+            content: [{ type: 'text', text: 'Permission to use Bash with command grep -v x has been denied.' }],
+            is_error: true,
+          },
+        ],
+      },
+    },
+    {
+      type: 'user',
+      message: { content: [{ type: 'tool_result', tool_use_id: 't6', content: 'Permission to use Bash has been denied.', is_error: false }] },
+    },
     { type: 'api-request-blob', message: { content: [{ type: 'tool_use', id: 't9', name: 'Write', input: {} }] } },
   ];
 
@@ -113,6 +147,9 @@ test('toolCalls pairs each tool_use with its tool_result by id and marks errors 
     { id: 't1', name: 'Read', input: { file_path: 'S:/cwd/a.ts' }, isError: true, denied: false },
     { id: 't2', name: 'Bash', input: { command: 'npm test' }, isError: false, denied: true },
     { id: 't3', name: 'Edit', input: {}, isError: false, denied: false },
+    { id: 't4', name: 'Write', input: { file_path: 'D:/tmp/out.txt' }, isError: true, denied: true },
+    { id: 't5', name: 'Bash', input: { command: 'grep -v x' }, isError: true, denied: true },
+    { id: 't6', name: 'Bash', input: { command: 'echo' }, isError: false, denied: false },
   ]);
 });
 

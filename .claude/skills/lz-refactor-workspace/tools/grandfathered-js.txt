@@ -38,7 +38,3 @@
 .claude/skills/lz-refactor-workspace/tools/lib/scaffold-phrases.mjs
 .claude/skills/lz-refactor-workspace/tools/lib/section-body.mjs
 .claude/skills/lz-refactor-workspace/tools/verify-scaffold.mjs
-.claude/skills/lz-tpp-workspace/eval-status.mjs
-.claude/skills/lz-tpp-workspace/grade-run.mjs
-.claude/skills/lz-tpp-workspace/merge-judge.mjs
-.claude/skills/lz-tpp-workspace/run-spec-chunks.mjs

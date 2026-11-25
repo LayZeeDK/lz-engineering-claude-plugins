@@ -5,6 +5,30 @@
       "ref": "5f586da3b18097b3aaa22dec115d607577e56151",
       "models": { "claude-opus-4-8": 3 },
       "suites": [{ "suite": "trigger-lz-tpp", "tags": ["rec-5f586da", "fire"] }]
+    },
+    {
+      "arm": "red-8cd13a8",
+      "ref": "8cd13a8bdf7b2feae5961d1100b6fa21f997de8a",
+      "models": { "claude-opus-4-8": 3 },
+      "suites": [{ "suite": "trigger-lz-red", "tags": ["rec-8cd13a8", "fire"] }]
+    },
+    {
+      "arm": "refactor-2daaf40",
+      "ref": "2daaf40601d91c8f3b379687750eb20b30ecd630",
+      "models": { "claude-opus-4-8": 3 },
+      "suites": [{ "suite": "trigger-lz-refactor", "tags": ["rec-f23c7f8", "fire"] }]
+    },
+    {
+      "arm": "red-apply-9ad48cd",
+      "ref": "9ad48cdeefe4c5f34ea19103162d057b1c19b9eb",
+      "models": { "claude-opus-5": 3 },
+      "suites": [{ "suite": "apply-lz-red", "cases": ["apply-lz-red-r1"] }]
+    },
+    {
+      "arm": "refactor-apply-877aef3",
+      "ref": "877aef36febee93b1e6bb8e2a98b35cb8a978171",
+      "models": { "claude-opus-4-8": 3 },
+      "suites": [{ "suite": "apply-lz-refactor", "cases": ["apply-lz-refactor-gr4"] }]
     }
   ],
   "record": [
@@ -18,6 +42,68 @@
       "unit": "case-fired",
       "passed": 13,
       "total": 13
+    },
+    {
+      "label": "red-heldout-recall",
+      "cell": "red-8cd13a8",
+      "model": "claude-opus-4-8",
+      "suite": "trigger-lz-red",
+      "tags": ["rec-8cd13a8", "fire"],
+      "grader": "skill-fired",
+      "unit": "case-fired",
+      "passed": 6,
+      "total": 6
+    },
+    {
+      "label": "refactor-recall",
+      "cell": "refactor-2daaf40",
+      "model": "claude-opus-4-8",
+      "suite": "trigger-lz-refactor",
+      "tags": ["rec-f23c7f8", "fire"],
+      "grader": "skill-fired",
+      "unit": "case-fired",
+      "passed": 10,
+      "total": 10
+    },
+    {
+      "label": "red-apply-fired",
+      "cell": "red-apply-9ad48cd",
+      "model": "claude-opus-5",
+      "suite": "apply-lz-red",
+      "grader": "skill-fired",
+      "unit": "run",
+      "passed": 3,
+      "total": 3
+    },
+    {
+      "label": "red-apply-untouched-edit",
+      "cell": "red-apply-9ad48cd",
+      "model": "claude-opus-5",
+      "suite": "apply-lz-red",
+      "grader": "production-untouched-edit",
+      "unit": "run",
+      "passed": 3,
+      "total": 3
+    },
+    {
+      "label": "red-apply-untouched-write",
+      "cell": "red-apply-9ad48cd",
+      "model": "claude-opus-5",
+      "suite": "apply-lz-red",
+      "grader": "production-untouched-write",
+      "unit": "run",
+      "passed": 3,
+      "total": 3
+    },
+    {
+      "label": "refactor-apply-fired",
+      "cell": "refactor-apply-877aef3",
+      "model": "claude-opus-4-8",
+      "suite": "apply-lz-refactor",
+      "grader": "skill-fired",
+      "unit": "run",
+      "passed": 3,
+      "total": 3
     }
   ]
 }

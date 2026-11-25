@@ -1,20 +1,21 @@
 ---
-gsd_state_version: 1.0
+gsd_state_version: "1.0"
 milestone: lz-tdd@0.0.3
-milestone_name: lz-red Skill
-current_phase: 22.1
-current_phase_name: eval-harness-on-claude-plugin-eval-and-slim-claude-p
+milestone_name: lz-red Skill (RED phase) (Phases 15-22)
+current_phase: "22.1"
+current_phase_name: Eval harness on claude plugin eval and slim claude -p, plus a baseline on today's skill text
 status: not_started
 stopped_at: "Phase 22 VERIFIED passed 8/8 after gap closure; secured (0 threats open), validated (blind spot instrumented + mutation-proven), learnings extracted and bridged to the global store. 8 of 8 plans merged, full battery GREEN, zero metered spend. D-19 DISCHARGED 2026-08-04: the owner ran /reload-plugins, so the three edited descriptions are LIVE. HALTED awaiting the only remaining decision: separate approval for TWO metered rounds (Round A the placement A/B, Round B the now-owed EVL-01 reciprocal trigger regression). Neither is approved; nothing metered has run."
-last_updated: "2026-08-04T20:30:00.000Z"
+last_updated: "2026-11-25T06:51:32.252Z"
 last_activity: 2026-11-24
 last_activity_desc: "quick-261107-lbc complete (resumed 2026-11-24): package-link gate fails on any non-file index entry under plugins/; eval runners copy each run's cycle logs into <run>.cycle-logs and one shared reader credits them (beside-folder logs restored and name-only matching after verification, 37dbb12); gsd-verifier passed 7/7. Previous: quick-261124-nq7 complete: lz-tdd TS examples use erasable syntax only (186 constructor parameter properties in 72 leaves rewritten as fields; guard check-erasable-ts.ts red first; review fixes 8ad7134/a89d056; gsd-verifier passed 6/6). Previous: quick-261107-kd7 complete: package-link gate silent passes closed (tracked-file walk, segment walk, loud unsupported link forms and unterminated fences); lz-refactor tags as code spans. Previous: quick-261107-jfm complete: package-link gate checks the git-tracked set case-sensitively and rejects absolute and re-entering paths without touching the filesystem (two reviews, low findings only). Previous: quick-261107-isy complete: e2e-rgr-srvx and rules-ab-kata eval harnesses landed under lz-red-workspace (dry runs + selfcheck only; metered Opus round gated on Lars). Previous: quick-261107-ft7 complete: lz-refactor step 3 now opens the candidate leaf (0/5 -> 11/11, packaged slim Opus 5.5), package-breaking links fixed and gated, lz-red Sources link reverted on review. Previous: quick-260804-kvh resumed: the evasion suite gained a third reporting state plus a count ratchet (febb9a1), then F3/OPEN-11 closed and F6/OPEN-14's recorded mechanism was RETRACTED as measurably false (dcb56c5). Battery 19 CAUGHT / 8 OPEN (baseline 8) / 3 unclosable CEILING, zero metered spend, no shipped file touched."
+state_head: e7533e2c2410df7e4977258187108c79c926d271
 progress:
-  total_phases: 9
-  completed_phases: 8
-  total_plans: 34
-  completed_plans: 31
-  percent: 91
+  total_phases: 12
+  completed_phases: 9
+  total_plans: 43
+  completed_plans: 35
+  percent: 75
 ---
 
 # Project State
@@ -49,7 +50,11 @@ measured against it and does NOT catch it. The standing lesson now extends one l
 written by a previous session is the author's reading too, so measure the PREMISE, not just the fix.
 
 
-Phase: 22 (three-way-classifier-correctness-lz-refactor-lz-red) -- 8 of 8 plans executed and merged;
+Phase: 22.1 (Eval harness on claude plugin eval and slim claude -p, plus a baseline on today's skill text) -- READY TO
+EXECUTE: 8 plans in 8 waves, checker passed on iteration 2 (2026-11-25). Paid runs in Plans 04, 06, 08 only after
+Plan 01's free dry-run gate commit.
+
+Previous phase: 22 (three-way-classifier-correctness-lz-refactor-lz-red) -- 8 of 8 plans executed and merged;
 `gsd-verifier` passed 8/8. HALTED at the blocking-human gate; PR #3 stays held (D-24).
 Plan: 8 of 8 (22-01..22-07 plus the gap-closure 22-08).
 **THE ROUND THAT MATTERED:** the acceptance review BLOCKED the first close. `lz-refactor/SKILL.md`'s
@@ -707,10 +712,11 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-11-24 (resume-work, then `/gsd-discuss-phase 22.1 --analyze --auto`)
-Stopped at: Phase 22.1 context gathered (31d105d); D-11 settled by Lars ("D-11, which suites get ported: OK",
-option B). Next: /gsd-plan-phase 22.1. No paid run has started.
-Resume file: .planning/phases/22.1-eval-harness-on-claude-plugin-eval-and-slim-claude-p/22.1-CONTEXT.md
+Last session: 2026-11-25 (AFK run, `/gsd-plan-phase 22.1`; log in .planning/afk/afk-run-2026-11-25.md)
+Stopped at: Phase 22.1 planned: 8 plans, checker passed on iteration 2. Next: /gsd-execute-phase 22.1. No paid run
+has started.
+Resume file: .planning/phases/22.1-eval-harness-on-claude-plugin-eval-and-slim-claude-p/22.1-01-PLAN.md
+Earlier: Phase 22.1 context gathered (31d105d); D-11 settled by Lars ("D-11, which suites get ported: OK", option B).
 Prior last session: 2026-08-04 (resume-work -- BOTH zero-spend items DONE, plus a cascaded third task; the
 two metered rounds are the ONLY remaining blockers and neither is approved)
 Progress this session, 7 commits, ZERO metered spend: (1) quick 260804-hbv closed the

@@ -410,7 +410,15 @@ export function buildTemplate(
     rmSync(dir, { recursive: true, force: true });
     renameSync(tmp, dir);
   } catch (error) {
-    rmSync(tmp, { recursive: true, force: true });
+    // A crashed build can keep the folder undeletable for a while (EPERM on Windows); its error still comes first.
+    try {
+      rmSync(tmp, { recursive: true, force: true, maxRetries: 5, retryDelay: 200 });
+    } catch (cleanup) {
+      const why = error instanceof Error ? error.message : String(error);
+      const left = cleanup instanceof Error ? cleanup.message : String(cleanup);
+
+      throw new Error(`${why}\n(${tmp} could not be removed: ${left}; delete it before the next build)`, { cause: error });
+    }
 
     throw error;
   }

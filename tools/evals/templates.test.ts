@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
+import { spawn, type ChildProcess } from 'node:child_process';
 import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -350,4 +351,42 @@ test('a pnpm recipe refuses before any archive when LZ_EVAL_PNPM is unset, and b
 
   assert.throws(() => buildTemplate(f.repo, f.slimRoot, f.clones, 'built', fakePnpm({ runs: [] }, '11.11.0', 3), pnpmEnv), /pnpm run build exited 3:\nobuild crashed at the end/);
   assert.deepEqual(readdirSync(`${f.slimRoot}/templates`), []);
+});
+
+// A crashed build can leave the folder undeletable for a while (measured: EPERM on Windows), and the cleanup must not
+// then hide why the build failed. A process left running in the folder stands in for it here (Windows refuses to
+// delete a folder that is a process's working directory).
+test('a failed build still reports its own error when the half-built folder cannot be removed', () => {
+  const f = fixture('pnpm-held', (commit) => ({ built: recipe(commit, { subdir: null, installer: { pnpm: '11.11.0' }, build: 'build' }) }));
+  const failing = fakePnpm({ runs: [] }, '11.11.0', 3);
+  const held: { child: ChildProcess | null } = { child: null };
+  const holding: Toolchain = {
+    ...failing,
+    pnpm: (exe, dir, args) => {
+      if (args.includes('run')) {
+        held.child = spawn(process.execPath, ['-e', 'setTimeout(() => {}, 60000)'], { cwd: dir, stdio: 'ignore' });
+      }
+
+      return failing.pnpm(exe, dir, args);
+    },
+  };
+
+  try {
+    assert.throws(
+      () => buildTemplate(f.repo, f.slimRoot, f.clones, 'built', holding, pnpmEnv),
+      (error: unknown) => {
+        assert.ok(error instanceof Error);
+        assert.match(error.message, /^pnpm run build exited 3:\nobuild crashed at the end/);
+        const left = readdirSync(`${f.slimRoot}/templates`);
+
+        if (left.length > 0) {
+          assert.match(error.message, /could not be removed/);
+        }
+
+        return true;
+      },
+    );
+  } finally {
+    held.child?.kill();
+  }
 });

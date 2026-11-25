@@ -103,6 +103,13 @@ Thumbs.db
 .claude/skills/lz-refactor-workspace/e2e-reference/results/
 .claude/skills/lz-refactor-workspace/e2e-reference/aggregate.json
 
+# Eval harness run sets (tools/evals, Phase 22.1): each run folder holds the CLI's raw output,
+# traces and transcripts, which carry local paths and the account's temp folder names. Ignore the
+# per-arm run trees and the generated recheck list; each run set's run-set.json, RESULTS.md and
+# FINDINGS.md stay tracked. Staging (dist/eval/) is already covered by dist/ above.
+evals/results/*/*/
+evals/results/*/recheck.json
+
 # Clean-room oracle: authoritative copyrighted source excerpts (Fowler/Kerievsky/GoF book
 # patterns in Markdown). NEVER committed. Only the read-only oracle-reviewer subagent reads this;
 # the main authoring context never does, so verbatim book prose cannot leak into the repo (DST-04).

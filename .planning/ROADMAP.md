@@ -465,7 +465,7 @@ that passes on Sonnet but fails on Opus reruns on Opus at n=5 before it counts. 
 from this phase's dry run; if a suite is too expensive, cut cases before cutting Sonnet's n.
 **Requirements**: EVH-01, EVH-02, EVH-03, EVH-04, EVH-05, EVH-06, EVH-07, EVH-08, EVH-09, EVH-10, EVH-11, EVH-12
 **Depends on:** Phase 22
-**Plans:** 3/8 plans executed
+**Plans:** 4/8 plans executed
 
 Plans:
 **Wave 1**
@@ -478,7 +478,7 @@ Plans:
 - [x] 22.1-03-PLAN.md -- case lint, generated trigger and routing suites (10 trigger cases per skill tagged for the baseline), and the pilot's hand-written cases
 
 **Wave 4** *(blocked on Wave 3 completion)*
-- [ ] 22.1-04-PLAN.md -- pilot run set on both models, interrupted and resumed; findings that decide the rest, including how many trigger cases fit the 100 USD baseline cap (paid)
+- [x] 22.1-04-PLAN.md -- pilot run set on both models, interrupted and resumed; findings that decide the rest, including how many trigger cases fit the 100 USD baseline cap (paid)
 
 **Wave 5** *(blocked on Wave 4 completion)*
 - [ ] 22.1-05-PLAN.md -- the remaining doing suites and the lz-tpp, lz-refactor and srvx lz-red slim apply suites (srvx on a pinned pnpm template), with invoke twins

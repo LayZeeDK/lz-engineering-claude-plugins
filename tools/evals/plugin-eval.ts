@@ -18,7 +18,7 @@ import {
   type RunOutcome,
   type RunResult,
 } from './run-set.ts';
-import { modelRefusal, traceModels, traceResult } from './trace.ts';
+import { limitStopped, modelRefusal, traceModels, traceResult } from './trace.ts';
 
 export function claudeCommand(env: NodeJS.ProcessEnv): Command {
   return scriptOrBinary(
@@ -118,8 +118,32 @@ export function normalizePluginEval(json: unknown, traces: Traces, run: PlannedR
   const armRun = withRuns[0];
   const baselineRun = withoutRuns[0];
 
-  if (json['partial'] !== false || armRun === undefined || armRun['error'] !== null || (ablated && baselineRun?.['error'] !== null)) {
-    return failed('the run is partial or reports an error');
+  if (armRun === undefined) {
+    return failed('plugin-eval.json has no with-arm run');
+  }
+
+  const sideRuns = [armRun, ...(baselineRun === undefined ? [] : [baselineRun])];
+  const errors = sideRuns.flatMap((side) => {
+    const error = side['error'];
+
+    return error === null || error === undefined ? [] : [typeof error === 'string' ? error.replace(/^exit \d+: /, '') : String(error)];
+  });
+  const limited = errors.find((error) => limitStopped(error));
+
+  // A usage-limited run scores 0 and the suite is not marked partial, so its error text is the only sign.
+  if (limited !== undefined) {
+    return { outcome: 'limit', reason: `usage limit: ${limited}` };
+  }
+
+  if (json['partial'] !== false || sideRuns.some((side) => side['aborted'] === true)) {
+    return failed(`the run is partial (${String(json['partialReason'] ?? 'no reason given')})`);
+  }
+
+  const maxTurns = errors.some((error) => error.startsWith('Reached maximum number of turns'));
+  const otherError = errors.find((error) => !error.startsWith('Reached maximum number of turns'));
+
+  if (otherError !== undefined) {
+    return failed(`the run reports an error: ${otherError}`);
   }
 
   const traceList = ablated ? [traces.with, traces.without] : [traces.with];
@@ -142,7 +166,6 @@ export function normalizePluginEval(json: unknown, traces: Traces, run: PlannedR
     return failed('an arm run has no readable graders');
   }
 
-  const sideRuns = [armRun, ...(baselineRun === undefined ? [] : [baselineRun])];
   const facts = traceList.map((trace) => traceResult(trace ?? []));
   const sum = (values: readonly number[]): number => values.reduce((total, value) => total + value, 0);
 
@@ -175,7 +198,7 @@ export function normalizePluginEval(json: unknown, traces: Traces, run: PlannedR
         cacheRead: sum(facts.map((fact) => fact?.tokens.cacheRead ?? 0)),
         cacheCreation: sum(facts.map((fact) => fact?.tokens.cacheCreation ?? 0)),
       },
-      maxTurns: false,
+      maxTurns,
       graded: true,
       arms: { with: withVerdicts, without: ablated ? withoutVerdicts : null },
     },

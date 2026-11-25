@@ -3,7 +3,7 @@
 // result.json. Repository-only; nothing here ships with the plugin.
 import { spawn } from 'node:child_process';
 import { closeSync, existsSync, mkdirSync, openSync, renameSync, writeFileSync } from 'node:fs';
-import { basename, resolve } from 'node:path';
+import { basename, dirname, relative, resolve } from 'node:path';
 import { findSuite, listCases, type CaseInfo, type Suite } from './cases.ts';
 import { assertName, isRecord, isStringArray, readJson } from './guards.ts';
 
@@ -20,10 +20,26 @@ export interface Cell {
   readonly suites: readonly SuiteSelect[];
 }
 
+// A recorded pass rate the run set reproduces. case-fired counts a case whose grader passed in at least half its runs
+// (the old harness's "fired = rate >= 0.5"), case-quiet one whose grader passed in more than half (fired rate below
+// 0.5), and run counts each run.
+export interface RecordedCell {
+  readonly label: string;
+  readonly cell: string;
+  readonly model: string;
+  readonly suite: string;
+  readonly tags?: readonly string[];
+  readonly grader: string;
+  readonly unit: 'case-fired' | 'case-quiet' | 'run';
+  readonly passed: number;
+  readonly total: number;
+}
+
 export interface RunSet {
   readonly dir: string;
   readonly name: string;
   readonly cells: readonly Cell[];
+  readonly record: readonly RecordedCell[];
 }
 
 export interface PlannedRun {
@@ -148,6 +164,46 @@ function cell(value: unknown, file: string): Cell {
   };
 }
 
+function isCount(value: unknown): value is number {
+  return typeof value === 'number' && Number.isInteger(value) && value >= 0;
+}
+
+function recordedCell(value: unknown, file: string): RecordedCell {
+  if (!isRecord(value)) {
+    throw new Error(`${file}: each record entry must be a JSON object`);
+  }
+
+  const { label, cell: arm, model, suite, tags, grader, unit, passed, total, ...rest } = value;
+
+  if (
+    Object.keys(rest).length > 0 ||
+    typeof label !== 'string' ||
+    typeof arm !== 'string' ||
+    typeof model !== 'string' ||
+    typeof suite !== 'string' ||
+    (tags !== undefined && !isStringArray(tags)) ||
+    typeof grader !== 'string' ||
+    (unit !== 'case-fired' && unit !== 'case-quiet' && unit !== 'run') ||
+    !isCount(passed) ||
+    !isCount(total) ||
+    passed > total
+  ) {
+    throw new Error(`${file}: record entry ${JSON.stringify(label)} is malformed`);
+  }
+
+  return {
+    label,
+    cell: assertName('arm', arm),
+    model: assertName('model', model),
+    suite: assertName('suite', suite),
+    ...(tags === undefined ? {} : { tags }),
+    grader,
+    unit,
+    passed,
+    total,
+  };
+}
+
 export function readRunSet(dir: string): RunSet {
   const root = forwardSlashes(dir);
   const file = `${root}/run-set.json`;
@@ -157,7 +213,11 @@ export function readRunSet(dir: string): RunSet {
     throw new Error(`${file} is not a JSON object`);
   }
 
-  const { cells, ...rest } = value;
+  const { cells, record = [], ...rest } = value;
+
+  if (!Array.isArray(record)) {
+    throw new Error(`${file}: record must be a list`);
+  }
 
   if (Object.keys(rest).length > 0) {
     throw new Error(`${file}: unknown keys ${Object.keys(rest).join(', ')}`);
@@ -167,14 +227,47 @@ export function readRunSet(dir: string): RunSet {
     throw new Error(`${file}: cells must be a non-empty list`);
   }
 
-  const parsed = cells.map((entry) => cell(entry, file));
+  const parsed = inFile(file, () => cells.map((entry) => cell(entry, file)));
   const arms = parsed.map(({ arm }) => arm);
 
   if (new Set(arms).size !== arms.length) {
     throw new Error(`${file}: two cells share an arm name`);
   }
 
-  return { dir: root, name: assertName('run set', basename(root)), cells: parsed };
+  return {
+    dir: root,
+    name: assertName('run set', basename(root)),
+    cells: parsed,
+    record: inFile(file, () => record.map((entry) => recordedCell(entry, file))),
+  };
+}
+
+// A bad name deep in a cell still names the file it came from.
+function inFile<T>(file: string, read: () => T): T {
+  try {
+    return read();
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+
+    throw new Error(message.startsWith(file) ? message : `${file}: ${message}`);
+  }
+}
+
+// recheck.json, written by `aggregate`: {"<arm>/<model>/<case>": runs}.
+function readRecheck(runSetDir: string): Map<string, number> {
+  const file = `${runSetDir}/recheck.json`;
+
+  if (!existsSync(file)) {
+    return new Map();
+  }
+
+  const value = readJson(file);
+
+  if (!isRecord(value) || !Object.values(value).every((runs) => isCount(runs))) {
+    throw new Error(`${file} must map <arm>/<model>/<case> to a run count`);
+  }
+
+  return new Map(Object.entries(value).flatMap(([key, runs]) => (typeof runs === 'number' ? [[key, runs]] : [])));
 }
 
 function selected(caseInfo: CaseInfo, select: SuiteSelect): boolean {
@@ -184,8 +277,11 @@ function selected(caseInfo: CaseInfo, select: SuiteSelect): boolean {
   return tagged && named;
 }
 
-// Every cell x model x selected case x k = 1..runs.
+// Every cell x model x selected case x k = 1..runs; a case recheck.json lists gets its recheck count when that is more
+// (D-10: a case that passes on Sonnet and fails on Opus reruns on Opus at n=5 before it counts).
 export function planRuns(runSet: RunSet, roots: readonly string[]): PlannedRun[] {
+  const recheck = readRecheck(runSet.dir);
+
   return runSet.cells.flatMap((entry) =>
     entry.suites.flatMap((select) => {
       const suite = findSuite(roots, select.suite);
@@ -193,7 +289,7 @@ export function planRuns(runSet: RunSet, roots: readonly string[]): PlannedRun[]
 
       return Object.entries(entry.models).flatMap(([model, runs]) =>
         cases.flatMap((caseInfo) =>
-          Array.from({ length: runs }, (_, index) => ({
+          Array.from({ length: Math.max(runs, recheck.get(`${entry.arm}/${model}/${caseInfo.name}`) ?? 0) }, (_, index) => ({
             runDir: `${runSet.dir}/${entry.arm}/${model}/${caseInfo.name}/run-${String(index + 1)}`,
             runSetName: runSet.name,
             arm: entry.arm,
@@ -227,6 +323,28 @@ export function newRuns(plan: readonly PlannedRun[]): PlannedRun[] {
   return plan.filter((run) => runState(run.runDir) === 'new');
 }
 
+// Runs that started and left no result: `run` refuses them until `rerun` (or `resume`, for slim) says what to do.
+export function diedRuns(plan: readonly PlannedRun[]): PlannedRun[] {
+  return plan.filter((run) => runState(run.runDir) === 'died');
+}
+
+// Moves what a rerun replaces into the first free set-aside-<n>, keeping its place below the root for a look later.
+export function setAside(root: string, paths: readonly string[]): void {
+  let number = 1;
+
+  while (existsSync(`${root}/set-aside-${String(number)}`)) {
+    number += 1;
+  }
+
+  paths
+    .filter((path) => existsSync(path))
+    .forEach((path) => {
+      const aside = `${root}/set-aside-${String(number)}/${relative(root, path)}`;
+      mkdirSync(dirname(aside), { recursive: true });
+      renameSync(path, aside);
+    });
+}
+
 // A rename is atomic, so a write killed halfway never leaves a result.json that reads as done.
 export function writeResult(runDir: string, result: RunResult): void {
   const file = resultPath(runDir);
@@ -253,7 +371,8 @@ export interface RunOutcomeEntry {
   readonly outcome: RunOutcome;
 }
 
-// Starts the runs, `concurrency` at a time, and gives back each started run's outcome.
+// Starts the runs, `concurrency` at a time, and gives back each started run's outcome. After a usage-limit stop no
+// worker takes a new run: every one would hit the same limit.
 export async function runAll(
   runs: readonly PlannedRun[],
   concurrency: number,
@@ -261,8 +380,9 @@ export async function runAll(
 ): Promise<RunOutcomeEntry[]> {
   const queue = [...runs];
   const outcomes: RunOutcomeEntry[] = [];
+  const next = (): PlannedRun | undefined => (outcomes.some(({ outcome }) => outcome === 'limit') ? undefined : queue.shift());
   const worker = async (): Promise<void> => {
-    for (let run = queue.shift(); run !== undefined; run = queue.shift()) {
+    for (let run = next(); run !== undefined; run = next()) {
       let outcome: RunOutcome;
 
       try {

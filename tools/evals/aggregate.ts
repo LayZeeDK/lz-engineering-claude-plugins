@@ -3,10 +3,11 @@
 import { existsSync } from 'node:fs';
 import { basename } from 'node:path';
 import { isRecord, isStringArray, readJson } from './guards.ts';
-import { resultPath, type GraderVerdict, type PlannedRun } from './run-set.ts';
+import { resultPath, type GraderVerdict, type PlannedRun, type RecordedCell } from './run-set.ts';
 
 export interface ResultFacts {
   readonly binary: string;
+  readonly casesTree: string | null;
   readonly modelsUsed: readonly string[];
   readonly costUsd: number;
   readonly judgeCostUsd: number;
@@ -40,6 +41,7 @@ export function readResultFacts(file: string): ResultFacts {
     !isRecord(value) ||
     value['schemaVersion'] !== 1 ||
     typeof value['binary'] !== 'string' ||
+    (value['casesTree'] !== null && typeof value['casesTree'] !== 'string') ||
     !isStringArray(value['modelsUsed']) ||
     typeof value['costUsd'] !== 'number' ||
     typeof value['judgeCostUsd'] !== 'number' ||
@@ -52,6 +54,7 @@ export function readResultFacts(file: string): ResultFacts {
 
   return {
     binary: value['binary'],
+    casesTree: typeof value['casesTree'] === 'string' ? value['casesTree'] : null,
     modelsUsed: value['modelsUsed'],
     costUsd: value['costUsd'],
     judgeCostUsd: value['judgeCostUsd'],
@@ -90,16 +93,111 @@ export interface CellLine {
   readonly seconds: number;
 }
 
+export interface Comparison {
+  readonly record: RecordedCell;
+  readonly interval: readonly [number, number];
+  readonly reproduced: { readonly passed: number; readonly total: number };
+  readonly inside: boolean;
+}
+
 export interface Summary {
   readonly runSet: string;
   readonly planned: number;
   readonly rows: readonly RunRow[];
   readonly cells: readonly CellLine[];
   readonly counts: readonly GraderCount[];
+  readonly comparisons: readonly Comparison[];
 }
 
 export interface AggregateOptions {
   readonly allowStub: boolean;
+  readonly record: readonly RecordedCell[];
+}
+
+// The 95% Wilson score interval of passed/total; [0, 1] when nothing ran. z is the exact 97.5% normal quantile: the
+// rounded 1.96 moves some bounds in the third decimal (3/3 gives 0.438 instead of 0.439).
+export function wilson(passed: number, total: number, z = 1.959964): readonly [number, number] {
+  if (total === 0) {
+    return [0, 1];
+  }
+
+  const p = passed / total;
+  const z2 = z * z;
+  const centre = (p + z2 / (2 * total)) / (1 + z2 / total);
+  const half = (z * Math.sqrt((p * (1 - p)) / total + z2 / (4 * total * total))) / (1 + z2 / total);
+
+  return [Math.max(0, centre - half), Math.min(1, centre + half)];
+}
+
+interface CaseRate {
+  readonly key: string;
+  readonly passed: number;
+  readonly runs: number;
+}
+
+// Per arm, model and case: the runs whose `passes` verdict held.
+function caseRates(rows: readonly RunRow[], passes: (row: RunRow) => boolean | null): CaseRate[] {
+  const rates = new Map<string, CaseRate>();
+
+  for (const row of rows) {
+    const passed = passes(row);
+
+    if (passed === null) {
+      continue;
+    }
+
+    const key = `${row.run.arm}/${row.run.model}/${row.run.caseInfo.name}`;
+    const before = rates.get(key) ?? { key, passed: 0, runs: 0 };
+    rates.set(key, { key, passed: before.passed + (passed ? 1 : 0), runs: before.runs + 1 });
+  }
+
+  return [...rates.values()];
+}
+
+const sonnet = 'claude-sonnet-5-5';
+const opus = 'claude-opus-5-5';
+
+// A run passes when every verdict of its with side passed. A case that passes on Sonnet and fails on Opus with fewer
+// than 5 Opus runs gets 5 Opus runs before it counts (D-10).
+export function recheckCases(summary: Summary): Record<string, number> {
+  const rates = caseRates(summary.rows, ({ facts }) => facts.with.every((verdict) => verdict.passed));
+  const rateOf = (key: string): CaseRate | undefined => rates.find((rate) => rate.key === key);
+  const listed = rates.flatMap(({ key, passed, runs }) => {
+    const [arm, model, caseName] = key.split('/');
+    const onSonnet = rateOf(`${String(arm)}/${sonnet}/${String(caseName)}`);
+
+    return model === opus && passed / runs < 0.5 && runs < 5 && onSonnet !== undefined && onSonnet.passed / onSonnet.runs >= 0.5
+      ? [[key, 5] as const]
+      : [];
+  });
+
+  return Object.fromEntries(listed);
+}
+
+function compare(rows: readonly RunRow[], record: RecordedCell): Comparison {
+  const matching = rows.filter(
+    ({ run }) =>
+      run.arm === record.cell &&
+      run.model === record.model &&
+      run.suite.name === record.suite &&
+      (record.tags ?? []).every((tag) => run.caseInfo.tags.includes(tag)),
+  );
+  const rates = caseRates(matching, ({ facts }) => facts.with.find((verdict) => verdict.name === record.grader)?.passed ?? null);
+  const counted = (rate: CaseRate): boolean => {
+    if (record.unit === 'case-fired') {
+      return rate.passed / rate.runs >= 0.5;
+    }
+
+    return rate.passed / rate.runs > 0.5;
+  };
+  const reproduced =
+    record.unit === 'run'
+      ? { passed: rates.reduce((total, rate) => total + rate.passed, 0), total: rates.reduce((total, rate) => total + rate.runs, 0) }
+      : { passed: rates.filter(counted).length, total: rates.length };
+  const interval = wilson(record.passed, record.total);
+  const share = reproduced.total === 0 ? null : reproduced.passed / reproduced.total;
+
+  return { record, interval, reproduced, inside: share !== null && share >= interval[0] && share <= interval[1] };
 }
 
 // A result made by a dry-run stub must never be recorded as a real one.
@@ -170,17 +268,47 @@ export function aggregate(runSetDir: string, plan: readonly PlannedRun[], option
     );
   }
 
+  // One cell's numbers must all come from one set of cases, or they compare different tests.
+  for (const arm of unique(rows.map(({ run }) => run.arm))) {
+    const trees = unique(rows.filter(({ run }) => run.arm === arm).map(({ facts }) => facts.casesTree));
+
+    if (trees.length > 1) {
+      throw new Error(`arm ${arm} has results from ${String(trees.length)} case trees; rerun the stale runs`);
+    }
+  }
+
   return {
     runSet: basename(runSetDir),
     planned: plan.length,
     rows,
     cells: cellLines(rows),
     counts: graderCounts(rows),
+    comparisons: options.record.map((record) => compare(rows, record)),
   };
 }
 
+const fixed = (value: number): string => value.toFixed(3);
+
 export function renderResults(summary: Summary): string {
   const lines = [`# Run set ${summary.runSet}`, ''];
+
+  if (summary.rows.length < summary.planned) {
+    lines.push(`partial: ${String(summary.rows.length)} of ${String(summary.planned)} planned runs have results`, '');
+  }
+
+  if (summary.comparisons.length > 0) {
+    lines.push(
+      '## Recorded cells',
+      '',
+      '| Record | Recorded k/n [95% Wilson] | Reproduced k/m | Verdict |',
+      '|---|---|---|---|',
+      ...summary.comparisons.map(
+        ({ record, interval, reproduced, inside }) =>
+          `| ${record.label} | ${String(record.passed)}/${String(record.total)} [${fixed(interval[0])}, ${fixed(interval[1])}] | ${String(reproduced.passed)}/${String(reproduced.total)} | ${inside ? 'inside' : 'outside'} |`,
+      ),
+      '',
+    );
+  }
 
   for (const line of summary.cells) {
     lines.push(

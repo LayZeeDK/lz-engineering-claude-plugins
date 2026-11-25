@@ -5,16 +5,16 @@ milestone_name: lz-red Skill (RED phase) (Phases 15-22)
 current_phase: "22.1"
 current_phase_name: Eval harness on claude plugin eval and slim claude -p, plus a baseline on today's skill text
 status: executing
-stopped_at: "Phase 22.1 executing: Plans 01-04 merged. Pilot (Plan 04) merged e6a1948, findings de637b5: A1/A2 pass, keep n, 10 trigger cases per skill (projected 51.39 of 100 USD), pilot spend 6.13 USD. Next: unbiased review of FINDINGS against raw results, then Plan 05 (slim allow rules for plugin Read and PowerShell; red-line and wrote-test graders to revisit)."
-last_updated: "2026-11-25T18:07:48.827Z"
+stopped_at: "Phase 22.1 executing: Plans 01-05 merged. Pilot findings reviewed and corrected (9691018, 7148038). Plan 05 merged 355c826: all doing and apply suites, slim runs always --offline (Lars 2026-11-25), apply red step scores edited-test; srvx template build crashes natively (obuild 0xC0000005) so srvx suites cannot run yet, decision open for Lars. Next: Plan 06 (paid reproduction)."
+last_updated: "2026-11-25T20:37:43.774Z"
 last_activity: 2026-11-25
-last_activity_desc: Phase 22.1 Plan 04 (paid pilot) merged with its findings
-state_head: de637b5a3d2cfdf76b45f3d59cd3519913c1cda0
+last_activity_desc: Phase 22.1 Plan 05 (remaining suites, srvx template) merged
+state_head: 355c826d8730240f5267e5fd87aed544b26dc1c2
 progress:
   total_phases: 12
   completed_phases: 9
   total_plans: 43
-  completed_plans: 39
+  completed_plans: 40
   percent: 75
 ---
 
@@ -56,7 +56,7 @@ Plan 01's free dry-run gate commit.
 
 Previous phase: 22 (three-way-classifier-correctness-lz-refactor-lz-red) -- 8 of 8 plans executed and merged;
 `gsd-verifier` passed 8/8. HALTED at the blocking-human gate; PR #3 stays held (D-24).
-Plan: 5 of 8
+Plan: 6 of 8
 **THE ROUND THAT MATTERED:** the acceptance review BLOCKED the first close. `lz-refactor/SKILL.md`'s
 intro paragraph still routed behavior changes straight to `lz-tpp`, omitting the two-hop its own
 frontmatter, narrative and branch (c) all state -- the exact dead end ROADMAP SC1 names, surviving in
@@ -77,7 +77,7 @@ PASS at the wave-1 RED baseline to 2 FAIL / 52 PASS after wave 2, and the two su
 22-04's targets (`beck-seam` scan floor; `laws-classify` bare catch-all). All nine corpus cases now
 have exactly one owner, c6 is not regressed, and descriptions sit at lz-red 1439 / lz-tpp 840 /
 lz-refactor 1369 against the 1536 cap.
-Status: Executing Phase 22.1 (Plans 01-04 merged; pilot e6a1948, findings de637b5)
+Status: Executing Phase 22.1 (Plans 01-05 merged; Plan 05 355c826)
 EXECUTING. Artifacts:
 22-CONTEXT.md + 22-DISCUSSION-LOG.md (d0a8b03), 22-RESEARCH.md (de101bf), 22-VALIDATION.md +
 context amendments (17173c2), 22-PATTERNS.md (3bf4d3b), 7 plans (2dcc1af) + targeted revision

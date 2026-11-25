@@ -63,11 +63,13 @@ function expandAllow(allow: string, pluginDir: string | null): string {
   return allow.replaceAll('{plugin}', `/${posix}`);
 }
 
-// No rules folder: the session sees the plugin under test and nothing of the maintainer's setup.
+// No rules folder: the session sees the plugin under test and nothing of the maintainer's setup. --offline replaces
+// the maintainer's allow list with run-slim's read-only one and denies the network tools, so the suite's own allow
+// list is all a run may do beyond reading.
 export function slimArgs(input: SlimInput): string[] {
   return [
     ...['--cwd', input.cwd, '--prompt-file', `${input.rawDir}/prompt.txt`, '--out', `${input.rawDir}/result.json`],
-    ...['--model', input.model, '--rules', 'none', '--timeout-min', String(input.timeoutMinutes)],
+    ...['--model', input.model, '--rules', 'none', '--timeout-min', String(input.timeoutMinutes), '--offline'],
     ...(input.pluginDir === null ? [] : ['--plugin-dir', input.pluginDir]),
     ...(input.allow === null ? [] : ['--allow', expandAllow(input.allow, input.pluginDir)]),
   ];

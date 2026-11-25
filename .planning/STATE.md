@@ -4,12 +4,12 @@ milestone: lz-tdd@0.0.3
 milestone_name: lz-red Skill (RED phase) (Phases 15-22)
 current_phase: "22.1"
 current_phase_name: Eval harness on claude plugin eval and slim claude -p, plus a baseline on today's skill text
-status: not_started
+status: executing
 stopped_at: "Phase 22 VERIFIED passed 8/8 after gap closure; secured (0 threats open), validated (blind spot instrumented + mutation-proven), learnings extracted and bridged to the global store. 8 of 8 plans merged, full battery GREEN, zero metered spend. D-19 DISCHARGED 2026-08-04: the owner ran /reload-plugins, so the three edited descriptions are LIVE. HALTED awaiting the only remaining decision: separate approval for TWO metered rounds (Round A the placement A/B, Round B the now-owed EVL-01 reciprocal trigger regression). Neither is approved; nothing metered has run."
-last_updated: "2026-11-25T06:51:32.252Z"
-last_activity: 2026-11-24
-last_activity_desc: "quick-261107-lbc complete (resumed 2026-11-24): package-link gate fails on any non-file index entry under plugins/; eval runners copy each run's cycle logs into <run>.cycle-logs and one shared reader credits them (beside-folder logs restored and name-only matching after verification, 37dbb12); gsd-verifier passed 7/7. Previous: quick-261124-nq7 complete: lz-tdd TS examples use erasable syntax only (186 constructor parameter properties in 72 leaves rewritten as fields; guard check-erasable-ts.ts red first; review fixes 8ad7134/a89d056; gsd-verifier passed 6/6). Previous: quick-261107-kd7 complete: package-link gate silent passes closed (tracked-file walk, segment walk, loud unsupported link forms and unterminated fences); lz-refactor tags as code spans. Previous: quick-261107-jfm complete: package-link gate checks the git-tracked set case-sensitively and rejects absolute and re-entering paths without touching the filesystem (two reviews, low findings only). Previous: quick-261107-isy complete: e2e-rgr-srvx and rules-ab-kata eval harnesses landed under lz-red-workspace (dry runs + selfcheck only; metered Opus round gated on Lars). Previous: quick-261107-ft7 complete: lz-refactor step 3 now opens the candidate leaf (0/5 -> 11/11, packaged slim Opus 5.5), package-breaking links fixed and gated, lz-red Sources link reverted on review. Previous: quick-260804-kvh resumed: the evasion suite gained a third reporting state plus a count ratchet (febb9a1), then F3/OPEN-11 closed and F6/OPEN-14's recorded mechanism was RETRACTED as measurably false (dcb56c5). Battery 19 CAUGHT / 8 OPEN (baseline 8) / 3 unclosable CEILING, zero metered spend, no shipped file touched."
-state_head: e7533e2c2410df7e4977258187108c79c926d271
+last_updated: "2026-11-25T06:54:33.438Z"
+last_activity: 2026-11-25
+last_activity_desc: Phase 22.1 execution started
+state_head: 3d062ebc6ea8d25bd79cdbc2d4023e5dd74289b2
 progress:
   total_phases: 12
   completed_phases: 9
@@ -25,7 +25,7 @@ progress:
 See: .planning/PROJECT.md (updated 2026-07-18 -- started milestone lz-tdd@0.0.3)
 
 **Core value:** `lz-tpp` helps Claude choose the next code transformation by TPP priority during red-green-refactor TDD, and explains the premise on demand. lz-tdd@0.0.2 added `lz-refactor` (refactor step); lz-tdd@0.0.3 adds `lz-red` (red step) to complete the loop.
-**Current focus:** Phase 22.1 -- eval harness on `claude plugin eval` and slim `claude -p`, plus a baseline on today's skill text (not yet discussed). Then Phase 23 (context ready, 16 decisions) and Phase 23.1 (source-name sweep). Phase 22 stays halted on its two metered rounds, which run on the Phase 22.1 harness after Phase 23.
+**Current focus:** Phase 22.1 -- Eval harness on claude plugin eval and slim claude -p, plus a baseline on today's skill text
 **Milestone:** lz-tdd@0.0.3 (lz-red Skill, RED phase) -- planning (started 2026-07-18)
 
 ## Current Position
@@ -50,13 +50,13 @@ measured against it and does NOT catch it. The standing lesson now extends one l
 written by a previous session is the author's reading too, so measure the PREMISE, not just the fix.
 
 
-Phase: 22.1 (Eval harness on claude plugin eval and slim claude -p, plus a baseline on today's skill text) -- READY TO
-EXECUTE: 8 plans in 8 waves, checker passed on iteration 2 (2026-11-25). Paid runs in Plans 04, 06, 08 only after
+Phase: 22.1 (Eval harness on claude plugin eval and slim claude -p, plus a baseline on today's skill text) -- EXECUTING
+(started 2026-11-25): 8 plans in 8 waves, checker passed on iteration 2. Paid runs in Plans 04, 06, 08 only after
 Plan 01's free dry-run gate commit.
 
 Previous phase: 22 (three-way-classifier-correctness-lz-refactor-lz-red) -- 8 of 8 plans executed and merged;
 `gsd-verifier` passed 8/8. HALTED at the blocking-human gate; PR #3 stays held (D-24).
-Plan: 8 of 8 (22-01..22-07 plus the gap-closure 22-08).
+Plan: 1 of 8
 **THE ROUND THAT MATTERED:** the acceptance review BLOCKED the first close. `lz-refactor/SKILL.md`'s
 intro paragraph still routed behavior changes straight to `lz-tpp`, omitting the two-hop its own
 frontmatter, narrative and branch (c) all state -- the exact dead end ROADMAP SC1 names, surviving in
@@ -77,7 +77,7 @@ PASS at the wave-1 RED baseline to 2 FAIL / 52 PASS after wave 2, and the two su
 22-04's targets (`beck-seam` scan floor; `laws-classify` bare catch-all). All nine corpus cases now
 have exactly one owner, c6 is not regressed, and descriptions sit at lz-red 1439 / lz-tpp 840 /
 lz-refactor 1369 against the 1536 cap.
-Status: Phase 22 discussed + researched + planned 2026-08-03 (`--analyze --auto --chain`), now
+Status: Executing Phase 22.1
 EXECUTING. Artifacts:
 22-CONTEXT.md + 22-DISCUSSION-LOG.md (d0a8b03), 22-RESEARCH.md (de101bf), 22-VALIDATION.md +
 context amendments (17173c2), 22-PATTERNS.md (3bf4d3b), 7 plans (2dcc1af) + targeted revision
@@ -119,7 +119,8 @@ and the unprimed reviewer on quick 260803-53q showed the loop's own classifier i
 -- the canonical post-green request falls through lz-refactor and lz-red's catch-all takes it.
 Pre-existing since lz-tdd@0.0.2, not a 0.0.3 regression, and the owner chose to fix the classifier
 as a unit rather than take the available two-line patch. Next: `/gsd-plan-phase 22`.
-Last activity: 2026-08-03 -- **WAVES 1 AND 2 EXECUTED AND MERGED (4/7 plans); PAUSED before wave 3
+Last activity: 2026-11-25 -- Phase 22.1 execution started.
+Prior activity: 2026-08-03 -- **WAVES 1 AND 2 EXECUTED AND MERGED (4/7 plans); PAUSED before wave 3
 at owner request.** The instrument-first sequencing is now vindicated by measurement rather than
 argument: wave 1 authored the gate and asserted it RED (20 FAIL / 34 PASS) touching zero shipped
 Markdown, and wave 2 drove it to 2 FAIL / 52 PASS with the two survivors being precisely 22-04's

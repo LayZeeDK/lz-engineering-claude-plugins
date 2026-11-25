@@ -1,0 +1,9 @@
+{
+  "backend": "slim",
+  "heavy": true,
+  "target": "gilded-rose-ts",
+  "allow": "Edit Write Read({plugin}/**) Bash(npx vitest:*) Bash(npx tsc:*) Bash(npm test:*) Bash(npm run:*) Bash(cd:*) Bash(grep:*) Bash(tail:*) PowerShell(npx tsc:*) PowerShell(npx vitest:*)",
+  "timeoutMinutes": 20,
+  "skill": "lz-refactor",
+  "invokeTwin": "apply-lz-refactor-invoke"
+}

@@ -1,8 +1,11 @@
 import assert from 'node:assert/strict';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { test } from 'node:test';
 
 import type { Ablation, Suite } from './cases.ts';
-import { claudeCommand, normalizePluginEval, pluginEvalArgs, pluginEvalTarget, type Traces } from './plugin-eval.ts';
+import { claudeCommand, copyTraces, normalizePluginEval, pluginEvalArgs, pluginEvalTarget, type Traces } from './plugin-eval.ts';
 import type { PlannedRun } from './run-set.ts';
 
 const sonnet = 'claude-sonnet-5-5';
@@ -118,6 +121,7 @@ test('pluginEvalArgs puts the target first, one run per invocation, and --allow-
       '0',
       '--trust-plugin',
       '--no-publish',
+      '--keep-temp',
       '--judge-model',
       'claude-sonnet-5-5',
       '--output-dir',
@@ -130,6 +134,30 @@ test('pluginEvalArgs puts the target first, one run per invocation, and --allow-
       'Edit',
     ],
   );
+});
+
+test('copyTraces copies each arm trace into raw/ and then removes the kept claude-eval sandbox, and no other folder', () => {
+  const root = mkdtempSync(join(tmpdir(), 'lz-evals-traces-')).replaceAll('\\', '/');
+
+  try {
+    const sandbox = `${root}/claude-eval-AbC123`;
+    const other = `${root}/elsewhere`;
+    const rawDir = `${root}/raw`;
+    mkdirSync(`${sandbox}/out`, { recursive: true });
+    mkdirSync(`${other}/out`, { recursive: true });
+    mkdirSync(rawDir);
+    writeFileSync(`${sandbox}/out/trace.jsonl`, '{"type":"system"}\n');
+    writeFileSync(`${other}/out/trace.jsonl`, '{"type":"result"}\n');
+    const json = {
+      cases: [{ arms: { with: [{ tracePath: `${sandbox}/out/trace.jsonl` }], without: [{ tracePath: `${other}/out/trace.jsonl` }] } }],
+    };
+
+    assert.deepEqual(copyTraces(json, rawDir), { with: [{ type: 'system' }], without: [{ type: 'result' }] });
+    assert.equal(readFileSync(`${rawDir}/trace-with.jsonl`, 'utf8'), '{"type":"system"}\n');
+    assert.deepEqual([existsSync(sandbox), existsSync(`${other}/out/trace.jsonl`)], [false, true]);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
 });
 
 test('claudeCommand runs a .ts stand-in under this Node.js and anything else directly', () => {

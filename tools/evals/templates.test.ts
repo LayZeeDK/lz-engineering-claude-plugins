@@ -99,37 +99,46 @@ function fakeToolchain(calls: Calls): Toolchain {
 
       return { status: 0, output: '' };
     },
-    pnpm: () => {
-      throw new Error('this recipe has no pnpm installer');
+    run: () => {
+      throw new Error('this recipe has no build');
     },
   };
 }
 
-interface PnpmCalls {
-  readonly runs: { exe: string; dir: string; args: string[] }[];
+interface BuildCalls {
+  readonly steps: { step: string; dir: string; lockfile: string | null }[];
 }
 
-// Stands in for pnpm: --version prints the given version, a build run answers with the given status, and every call
-// is recorded.
-function fakePnpm(calls: PnpmCalls, version: string, buildStatus = 0): Toolchain {
+// Stands in for npm ci and npm run: records each step with the lockfile the folder holds at that moment, and a build
+// answers with the given status.
+function fakeNpmBuild(calls: BuildCalls, buildStatus = 0): Toolchain {
+  const lockfileIn = (dir: string): string | null => (existsSync(`${dir}/package-lock.json`) ? readFileSync(`${dir}/package-lock.json`, 'utf8') : null);
+
   return {
-    install: () => {
-      throw new Error('npm ci must not run for a pnpm recipe');
+    install: (dir) => {
+      calls.steps.push({ step: 'ci', dir, lockfile: lockfileIn(dir) });
     },
     vitest: () => ({ status: 0, output: '' }),
-    pnpm: (exe, dir, args) => {
-      calls.runs.push({ exe, dir, args: [...args] });
+    run: (dir, script) => {
+      calls.steps.push({ step: `run ${script}`, dir, lockfile: lockfileIn(dir) });
 
-      if (args[0] === '--version') {
-        return { status: 0, output: `${version}\n` };
-      }
-
-      return args.includes('run') ? { status: buildStatus, output: buildStatus === 0 ? 'built' : 'obuild crashed at the end' } : { status: 0, output: '' };
+      return { status: buildStatus, output: buildStatus === 0 ? 'built' : 'obuild crashed at the end' };
     },
   };
 }
 
-const pnpmEnv = { LZ_EVAL_PNPM: 'W:/pnpm/pnpm.exe' };
+const rootLockText = '{"name":"kata","lockfileVersion":3,"packages":{"":{"name":"kata"}}}\n';
+const rootLockSha = createHash('sha256').update(rootLockText).digest('hex');
+
+// A recipe at the clone root whose package-lock.json is committed to the repository below evals/lz-tdd-apply.
+function committedLock(commit: string, extra: Record<string, unknown> = {}): Record<string, unknown> {
+  return recipe(commit, { subdir: null, lockfile: { path: 'package-lock.json', sha256: rootLockSha, from: 'lockfiles/kata/package-lock.json' }, ...extra });
+}
+
+function commitLockfile(f: Fixture, text = rootLockText): void {
+  put(`${f.repo}/evals/lz-tdd-apply/lockfiles/kata/package-lock.json`, text);
+  commitAll(f.repo);
+}
 
 test('readTemplates reads the recipes and refuses unknown keys, absolute or parent paths and short hashes', () => {
   const f = fixture('read', (commit) => ({ plain: recipe(commit) }));
@@ -216,8 +225,8 @@ test('a red template copies the committed overlay in and requires its spec to fa
 
       return { status: failed > 0 || files.length > 0 ? 1 : 0, output: '' };
     },
-    pnpm: () => {
-      throw new Error('this recipe has no pnpm installer');
+    run: () => {
+      throw new Error('this recipe has no build');
     },
   });
 
@@ -273,8 +282,9 @@ test('withLocalBin puts the template node_modules/.bin first on PATH under the n
   assert.deepEqual(withLocalBin('W:/kata', {}), { PATH: bin });
 });
 
-test('the committed templates.json pins three GildedRose recipes with clone-relative paths and the srvx pnpm recipe', () => {
-  const recipes = readTemplates(join(import.meta.dirname, '..', '..').replaceAll('\\', '/'));
+test('the committed templates.json pins three GildedRose recipes with clone-relative paths and the srvx recipe with its committed npm lockfile', () => {
+  const repo = join(import.meta.dirname, '..', '..').replaceAll('\\', '/');
+  const recipes = readTemplates(repo);
   const kata = (name: string): Recipe | undefined => recipes.get(name);
   const gildedRose = ['gilded-rose-ts', 'gilded-rose-ts-armed', 'gilded-rose-ts-conjured-red'];
 
@@ -291,69 +301,70 @@ test('the committed templates.json pins three GildedRose recipes with clone-rela
     Array.from({ length: 3 }, () => ['clone', 'commit', 'subdir', 'lockfile', 'arm', 'overlay', 'red']),
   );
   assert.match(templateDir('S:', 'gilded-rose-ts-armed', kata('gilded-rose-ts-armed') ?? assert.fail()), /gilded-rose-ts-armed-3e0085bfd0da-f724b921$/);
+  const srvxLock = readFileSync(`${repo}/evals/lz-tdd-apply/lockfiles/srvx/package-lock.json`);
   assert.deepEqual(kata('srvx'), {
     clone: 'h3js/srvx',
     commit: '55d90b39840a5bb7236e23c4e326ee4fc3842d57',
     subdir: null,
-    lockfile: { path: 'pnpm-lock.yaml', sha256: 'c3e50eedc2ace3d41930b6db4a79c7c22d6df52f99b018050b59bd08cf7aca10' },
+    lockfile: { path: 'package-lock.json', sha256: createHash('sha256').update(srvxLock).digest('hex'), from: 'lockfiles/srvx/package-lock.json' },
     arm: null,
     overlay: null,
     red: null,
-    installer: { pnpm: '11.11.0' },
     build: 'build',
   });
 });
 
-test('readTemplates refuses an installer other than pnpm, a version not shaped x.y.z, and a build that is not a script name', () => {
-  const f = fixture('pnpm-read', (commit) => ({ plain: recipe(commit) }));
+test('readTemplates refuses the old installer key, a build that is not a script name and a lockfile source outside the evals folder', () => {
+  const f = fixture('npm-read', (commit) => ({ plain: recipe(commit) }));
   const refuse = (entry: Record<string, unknown>, pattern: RegExp): void => {
     put(`${f.repo}/evals/lz-tdd-apply/templates.json`, JSON.stringify({ bad: entry }));
     assert.throws(() => readTemplates(f.repo), pattern);
   };
 
-  refuse(recipe(f.commit, { installer: { yarn: '4.0.0' } }), /templates\.json bad installer: unknown keys yarn/);
-  refuse(recipe(f.commit, { installer: { pnpm: 'latest' } }), /templates\.json bad installer pnpm must be a version shaped <digits>\.<digits>\.<digits>/);
-  refuse(recipe(f.commit, { installer: { pnpm: '11.11' } }), /bad installer pnpm must be a version/);
-  refuse(recipe(f.commit, { installer: { pnpm: '11.11.0' }, build: 'build && rm -rf /' }), /templates\.json bad build must be a package script name/);
-  refuse(recipe(f.commit, { build: 'build' }), /templates\.json bad build needs the pnpm installer/);
+  refuse(recipe(f.commit, { installer: { pnpm: '11.11.0' } }), /templates\.json bad: unknown keys installer/);
+  refuse(recipe(f.commit, { build: 'build && rm -rf /' }), /templates\.json bad build must be a package script name/);
+  refuse(committedLock(f.commit, { lockfile: { path: 'package-lock.json', sha256: rootLockSha, from: '../package-lock.json' } }), /bad lockfile from must be a relative path/);
+  refuse(committedLock(f.commit, { lockfile: { path: 'package-lock.json', sha256: rootLockSha, from: 'D:/lock.json' } }), /bad lockfile from must be a relative path/);
   refuse(recipe(f.commit, { subdir: '' }), /subdir must be a relative path/);
 });
 
-test('a pnpm recipe at the repository root checks the version, installs flat and root-only, builds, and commits the whole tree', () => {
-  const f = fixture('pnpm-build', (commit) => ({
-    root: recipe(commit, { subdir: null, installer: { pnpm: '11.11.0' }, build: 'build' }),
-  }));
-  const calls: PnpmCalls = { runs: [] };
-  const dir = buildTemplate(f.repo, f.slimRoot, f.clones, 'root', fakePnpm(calls, '11.11.0'), pnpmEnv);
+test('a recipe with a committed lockfile copies it from the repository HEAD, runs npm ci, then the build, and commits the whole tree', () => {
+  const f = fixture('npm-build', (commit) => ({ root: committedLock(commit, { build: 'build' }) }));
+  commitLockfile(f);
+  // The working tree differs from HEAD; the template takes the committed bytes.
+  put(`${f.repo}/evals/lz-tdd-apply/lockfiles/kata/package-lock.json`, 'uncommitted\n');
+  const calls: BuildCalls = { steps: [] };
+  const dir = buildTemplate(f.repo, f.slimRoot, f.clones, 'root', fakeNpmBuild(calls));
 
   assert.deepEqual(
-    calls.runs.map(({ exe, args }) => [exe, ...args]),
+    calls.steps.map(({ step, lockfile }) => [step, lockfile]),
     [
-      ['W:/pnpm/pnpm.exe', '--version'],
-      ['W:/pnpm/pnpm.exe', 'install', '--frozen-lockfile', '--ignore-scripts', '--node-linker=hoisted', '--package-import-method=copy', '--filter', '.'],
-      ['W:/pnpm/pnpm.exe', '--config.verify-deps-before-run=false', 'run', 'build'],
+      ['ci', rootLockText],
+      ['run build', rootLockText],
     ],
   );
-  assert.ok(calls.runs.every((run) => run.dir === calls.runs[0]?.dir && run.dir.startsWith(`${dir}.tmp-`)));
-  // The whole commit, not a subfolder: the template tree is the clone commit's tree.
-  assert.equal(git(dir, ['rev-parse', 'HEAD^{tree}']), git(`${f.clones}/demo/kata`, ['rev-parse', `${f.commit}^{tree}`]));
-  assert.equal(readFileSync(`${dir}/ts/package-lock.json`, 'utf8'), lockText);
+  assert.ok(calls.steps.every(({ dir: at }) => at.startsWith(`${dir}.tmp-`)));
+  assert.equal(readFileSync(`${dir}/package-lock.json`, 'utf8'), rootLockText);
+  // The whole clone commit plus the lockfile it lacks, all committed.
+  assert.equal(git(dir, ['rev-parse', 'HEAD:ts/package.json']), git(`${f.clones}/demo/kata`, ['rev-parse', `${f.commit}:ts/package.json`]));
+  assert.equal(git(dir, ['show', 'HEAD:package-lock.json']), rootLockText.trim());
+  assert.equal(git(dir, ['status', '--porcelain']), '');
 });
 
-test('a pnpm recipe refuses before any archive when LZ_EVAL_PNPM is unset, and before install when the version differs', () => {
-  const f = fixture('pnpm-refuse', (commit) => ({
-    root: recipe(commit, { subdir: null, installer: { pnpm: '11.11.0' } }),
-    built: recipe(commit, { subdir: null, installer: { pnpm: '11.11.0' }, build: 'build' }),
+test('a recipe with a committed lockfile refuses a missing or changed lockfile before npm ci, and reports a failed build', () => {
+  const f = fixture('npm-refuse', (commit) => ({
+    root: committedLock(commit),
+    built: committedLock(commit, { build: 'build' }),
   }));
-  const calls: PnpmCalls = { runs: [] };
+  const calls: BuildCalls = { steps: [] };
 
-  assert.throws(() => buildTemplate(f.repo, f.slimRoot, f.clones, 'root', fakePnpm(calls, '11.11.0'), {}), /set LZ_EVAL_PNPM/);
-  assert.deepEqual([calls.runs.length, existsSync(`${f.slimRoot}/templates`)], [0, false]);
+  assert.throws(() => buildTemplate(f.repo, f.slimRoot, f.clones, 'root', fakeNpmBuild(calls)), /lockfile missing: commit evals\/lz-tdd-apply\/lockfiles\/kata\/package-lock\.json/);
+  commitLockfile(f, 'changed\n');
+  assert.throws(() => buildTemplate(f.repo, f.slimRoot, f.clones, 'root', fakeNpmBuild(calls)), new RegExp(`lockfiles/kata/package-lock\\.json has sha256 [0-9a-f]{64}, not the pinned ${rootLockSha}`));
+  assert.deepEqual(calls.steps, []);
 
-  assert.throws(() => buildTemplate(f.repo, f.slimRoot, f.clones, 'root', fakePnpm(calls, '12.16.1'), pnpmEnv), /pnpm --version printed 12\.16\.1, not the pinned 11\.11\.0/);
-  assert.deepEqual(calls.runs.map(({ args }) => args[0]), ['--version']);
-
-  assert.throws(() => buildTemplate(f.repo, f.slimRoot, f.clones, 'built', fakePnpm({ runs: [] }, '11.11.0', 3), pnpmEnv), /pnpm run build exited 3:\nobuild crashed at the end/);
+  commitLockfile(f);
+  assert.throws(() => buildTemplate(f.repo, f.slimRoot, f.clones, 'built', fakeNpmBuild(calls, 3)), /npm run build exited 3:\nobuild crashed at the end/);
   assert.deepEqual(readdirSync(`${f.slimRoot}/templates`), []);
 });
 
@@ -361,26 +372,25 @@ test('a pnpm recipe refuses before any archive when LZ_EVAL_PNPM is unset, and b
 // then hide why the build failed. A process left running in the folder stands in for it here (Windows refuses to
 // delete a folder that is a process's working directory).
 test('a failed build still reports its own error when the half-built folder cannot be removed', () => {
-  const f = fixture('pnpm-held', (commit) => ({ built: recipe(commit, { subdir: null, installer: { pnpm: '11.11.0' }, build: 'build' }) }));
-  const failing = fakePnpm({ runs: [] }, '11.11.0', 3);
+  const f = fixture('npm-held', (commit) => ({ built: committedLock(commit, { build: 'build' }) }));
+  commitLockfile(f);
+  const failing = fakeNpmBuild({ steps: [] }, 3);
   const held: { child: ChildProcess | null } = { child: null };
   const holding: Toolchain = {
     ...failing,
-    pnpm: (exe, dir, args) => {
-      if (args.includes('run')) {
-        held.child = spawn(process.execPath, ['-e', 'setTimeout(() => {}, 60000)'], { cwd: dir, stdio: 'ignore' });
-      }
+    run: (dir, script) => {
+      held.child = spawn(process.execPath, ['-e', 'setTimeout(() => {}, 60000)'], { cwd: dir, stdio: 'ignore' });
 
-      return failing.pnpm(exe, dir, args);
+      return failing.run(dir, script);
     },
   };
 
   try {
     assert.throws(
-      () => buildTemplate(f.repo, f.slimRoot, f.clones, 'built', holding, pnpmEnv),
+      () => buildTemplate(f.repo, f.slimRoot, f.clones, 'built', holding),
       (error: unknown) => {
         assert.ok(error instanceof Error);
-        assert.match(error.message, /^pnpm run build exited 3:\nobuild crashed at the end/);
+        assert.match(error.message, /^npm run build exited 3:\nobuild crashed at the end/);
         const left = readdirSync(`${f.slimRoot}/templates`);
 
         if (left.length > 0) {

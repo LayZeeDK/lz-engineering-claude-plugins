@@ -10,8 +10,8 @@
 //   node tools/evals/eval.ts template <name>                                 build one slim template by hand
 //
 // A slim suite's `target` names a template in evals/lz-tdd-apply/templates.json: a kata at a pinned commit with its
-// sha256-checked lockfile installed (`npm ci --ignore-scripts`, or a pinned pnpm when the recipe names an `installer`,
-// then its `build` script), optionally armed and given a known-red overlay, built
+// sha256-checked lockfile (the clone's, or one committed below evals/lz-tdd-apply) installed with
+// `npm ci --ignore-scripts`, then its `build` script if it names one, optionally armed and given a known-red overlay, built
 // once below <slim root>/templates/ from the clone at <LZ_EVAL_CLONES>/<org>/<repo>. `run` builds every template its
 // runs need before the first spawn, and each run starts in a fresh copy.
 // `crosscheck` re-grades every finished plugin-eval run from its copied traces with the harness's grader model and
@@ -32,9 +32,7 @@
 // ~/.claude/references/slim-claude-p/run-slim.ts), LZ_EVAL_STAGE_ROOT (default <repo>/dist/eval), LZ_EVAL_SLIM_ROOT
 // (default D:/tmp/slim-claude-p), LZ_EVAL_PROJECTS_DIR (default ~/.claude/projects), and whenever the lock is held
 // LZ_EVAL_HEAVY_LOCK (heavy-lock.ts) with LZ_EVAL_LOCK_OWNER; LZ_EVAL_CLONES (default D:/projects/github, the clone
-// root the templates name <org>/<repo> below), LZ_EVAL_PNPM (the pnpm executable at the version a template with a
-// pnpm installer pins; required only to build such a template) and LZ_EVAL_BASH (the bash for scaffold scripts;
-// default Git Bash).
+// root the templates name <org>/<repo> below) and LZ_EVAL_BASH (the bash for scaffold scripts; default Git Bash).
 import { existsSync, writeFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { basename, join, relative, resolve } from 'node:path';

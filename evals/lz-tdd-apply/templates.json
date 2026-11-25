@@ -50,15 +50,13 @@
     "commit": "55d90b39840a5bb7236e23c4e326ee4fc3842d57",
     "subdir": null,
     "lockfile": {
-      "path": "pnpm-lock.yaml",
-      "sha256": "c3e50eedc2ace3d41930b6db4a79c7c22d6df52f99b018050b59bd08cf7aca10"
+      "path": "package-lock.json",
+      "sha256": "30a1ccf48098340ec63e2aa827c4680dd5f0207623210323a7863bd2ac36a1ec",
+      "from": "lockfiles/srvx/package-lock.json"
     },
     "arm": null,
     "overlay": null,
     "red": null,
-    "installer": {
-      "pnpm": "11.11.0"
-    },
     "build": "build"
   }
 }

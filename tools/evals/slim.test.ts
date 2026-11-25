@@ -111,6 +111,23 @@ test('slimArgs passes cwd, prompt, out, model, no rules and the timeout, and the
   ]);
 });
 
+test('slimArgs turns {plugin} into the staged plugin folder as a drive-rooted rule path, and drops its rules with no plugin', () => {
+  const allow = 'Edit Read({plugin}/**) Bash(npx vitest:*)';
+  const allowOf = (args: readonly string[]): string | undefined => args[args.indexOf('--allow') + 1];
+
+  assert.equal(
+    allowOf(slimArgs({ ...input, pluginDir: 'D:/repo/dist/eval/000000000000/plugin', allow })),
+    'Edit Read(//d/repo/dist/eval/000000000000/plugin/**) Bash(npx vitest:*)',
+  );
+  assert.equal(
+    allowOf(slimArgs({ ...input, pluginDir: 'D:\\repo\\dist\\eval\\000000000000\\plugin', allow })),
+    'Edit Read(//d/repo/dist/eval/000000000000/plugin/**) Bash(npx vitest:*)',
+  );
+  assert.equal(allowOf(slimArgs({ ...input, pluginDir: '/srv/stage/plugin', allow })), 'Edit Read(//srv/stage/plugin/**) Bash(npx vitest:*)');
+  assert.equal(allowOf(slimArgs({ ...input, allow })), 'Edit Bash(npx vitest:*)');
+  assert.throws(() => slimArgs({ ...input, pluginDir: 'D:/my repo/plugin', allow }), /plugin folder/);
+});
+
 test('resumeArgs writes the next result-resume-<n>.json from continue.txt and resumes the session', () => {
   const rawDir = `${root}/resume/raw`;
   put(`${rawDir}/result.json`, '{}');

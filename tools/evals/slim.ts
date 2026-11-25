@@ -46,13 +46,30 @@ export interface SlimInput {
   readonly allow: string | null;
 }
 
+// A suite's allow list names the staged plugin folder as {plugin}, since its path depends on the checkout and the
+// ref. Permission rules match Windows paths in POSIX form (D:\x is /d/x) and take // for a path from the root. With
+// no plugin (the no-plugin arm) a rule naming {plugin} is dropped.
+function expandAllow(allow: string, pluginDir: string | null): string {
+  if (pluginDir === null) {
+    return allow.replaceAll(/\s*[A-Za-z]+\(\{plugin\}[^)]*\)/g, '').trim();
+  }
+
+  if (/[\s()]/.test(pluginDir)) {
+    throw new Error(`the plugin folder ${pluginDir} holds a space or a parenthesis, which an allow rule cannot carry`);
+  }
+
+  const posix = pluginDir.replaceAll('\\', '/').replace(/^([A-Za-z]):/, (_drive, letter: string) => `/${letter.toLowerCase()}`);
+
+  return allow.replaceAll('{plugin}', `/${posix}`);
+}
+
 // No rules folder: the session sees the plugin under test and nothing of the maintainer's setup.
 export function slimArgs(input: SlimInput): string[] {
   return [
     ...['--cwd', input.cwd, '--prompt-file', `${input.rawDir}/prompt.txt`, '--out', `${input.rawDir}/result.json`],
     ...['--model', input.model, '--rules', 'none', '--timeout-min', String(input.timeoutMinutes)],
     ...(input.pluginDir === null ? [] : ['--plugin-dir', input.pluginDir]),
-    ...(input.allow === null ? [] : ['--allow', input.allow]),
+    ...(input.allow === null ? [] : ['--allow', expandAllow(input.allow, input.pluginDir)]),
   ];
 }
 

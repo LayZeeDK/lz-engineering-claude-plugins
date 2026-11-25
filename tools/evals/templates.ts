@@ -15,13 +15,14 @@ export interface Recipe {
   readonly commit: string;
   // null: the repository root, so the whole commit is the template.
   readonly subdir: string | null;
-  readonly lockfile: { readonly path: string; readonly sha256: string };
+  // `from`: the lockfile is committed below evals/lz-tdd-apply in this repository and copied to `path` in the checkout
+  // (for a kata whose own lockfile npm cannot install). Absent: the clone holds it at `path`.
+  readonly lockfile: { readonly path: string; readonly sha256: string; readonly from?: string };
   readonly arm: { readonly spec: string; readonly snapshot: string; readonly blob: string } | null;
   readonly overlay: string | null;
   readonly red: { readonly spec: string } | null;
-  // Absent: npm ci. Absent keys stay absent, so a recipe without them keeps its template folder name.
-  readonly installer?: { readonly pnpm: string };
-  // A package script run after the install, with the same installer.
+  // A package script `npm run` starts after npm ci. Absent keys stay absent, so a recipe without them keeps its
+  // template folder name.
   readonly build?: string;
 }
 
@@ -58,32 +59,17 @@ function only(value: unknown, keys: readonly string[], what: string): Record<str
   return value;
 }
 
-function installerOf(value: unknown, what: string): { readonly pnpm: string } {
-  const fields = only(value, ['pnpm'], `${what} installer`);
-  const version = fields['pnpm'];
-
-  if (typeof version !== 'string' || !/^\d+\.\d+\.\d+$/.test(version)) {
-    throw new Error(`${what} installer pnpm must be a version shaped <digits>.<digits>.<digits>`);
-  }
-
-  return { pnpm: version };
-}
-
-function buildOf(value: unknown, installer: unknown, what: string): string {
+function buildOf(value: unknown, what: string): string {
   if (typeof value !== 'string' || !/^[a-z0-9][a-z0-9:._-]*$/i.test(value)) {
     throw new Error(`${what} build must be a package script name`);
-  }
-
-  if (installer === undefined) {
-    throw new Error(`${what} build needs the pnpm installer`);
   }
 
   return value;
 }
 
 function recipe(value: unknown, what: string): Recipe {
-  const fields = only(value, ['clone', 'commit', 'subdir', 'lockfile', 'arm', 'overlay', 'red', 'installer', 'build'], what);
-  const lockfile = only(fields['lockfile'], ['path', 'sha256'], `${what} lockfile`);
+  const fields = only(value, ['clone', 'commit', 'subdir', 'lockfile', 'arm', 'overlay', 'red', 'build'], what);
+  const lockfile = only(fields['lockfile'], ['path', 'sha256', 'from'], `${what} lockfile`);
   const arm = fields['arm'] ?? null;
   const red = fields['red'] ?? null;
   const overlay = fields['overlay'] ?? null;
@@ -104,6 +90,7 @@ function recipe(value: unknown, what: string): Recipe {
     lockfile: {
       path: relativePath(lockfile['path'], `${what} lockfile path`),
       sha256: hex(lockfile['sha256'], 64, `${what} lockfile sha256`),
+      ...(lockfile['from'] === undefined ? {} : { from: relativePath(lockfile['from'], `${what} lockfile from`) }),
     },
     arm:
       armFields === null
@@ -115,8 +102,7 @@ function recipe(value: unknown, what: string): Recipe {
           },
     overlay: overlay === null ? null : relativePath(overlay, `${what} overlay`),
     red: redFields === null ? null : { spec: relativePath(redFields['spec'], `${what} red spec`) },
-    ...(fields['installer'] === undefined ? {} : { installer: installerOf(fields['installer'], what) }),
-    ...(fields['build'] === undefined ? {} : { build: buildOf(fields['build'], fields['installer'], what) }),
+    ...(fields['build'] === undefined ? {} : { build: buildOf(fields['build'], what) }),
   };
 }
 
@@ -158,8 +144,8 @@ export interface TestRun {
 export interface Toolchain {
   readonly install: (dir: string) => void;
   readonly vitest: (dir: string, args: readonly string[]) => TestRun;
-  // Runs the pnpm executable (LZ_EVAL_PNPM) in dir.
-  readonly pnpm: (exe: string, dir: string, args: readonly string[]) => TestRun;
+  // Starts a package script in dir (`npm run <script>`).
+  readonly run: (dir: string, script: string) => TestRun;
 }
 
 // What third-party code a run starts gets: PATH, SystemRoot (Windows needs it to start a program), the given HOME and
@@ -188,10 +174,11 @@ export function withLocalBin(dir: string, env: NodeJS.ProcessEnv): NodeJS.Proces
 
 // Stryker disable all: spawns npm and vitest, which the unit tests replace
 // A .cmd shim cannot be spawned without a shell, so npm runs as its own script under this Node.js.
+const npmCli = join(dirname(process.execPath), 'node_modules/npm/bin/npm-cli.js');
+
 export const kataToolchain: Toolchain = {
   install: (dir) => {
-    const npm = join(dirname(process.execPath), 'node_modules/npm/bin/npm-cli.js');
-    const result = spawnSync(process.execPath, [npm, 'ci', '--ignore-scripts', '--no-audit', '--no-fund'], {
+    const result = spawnSync(process.execPath, [npmCli, 'ci', '--ignore-scripts', '--no-audit', '--no-fund'], {
       cwd: dir,
       encoding: 'utf8',
       maxBuffer: 64 * 1024 * 1024,
@@ -215,60 +202,22 @@ export const kataToolchain: Toolchain = {
 
     return { status: result.status, output: `${result.stdout ?? ''}${result.stderr ?? ''}${result.error?.message ?? ''}`.slice(-2000) };
   },
-  // --version and install keep the environment (pnpm finds its own versions and store through it, as npm ci does); a
-  // run starts the package's own script, third-party code, so it gets the clean environment the test runs get.
-  pnpm: (exe, dir, args) => {
-    const home = args.includes('run') ? mkdtempSync(join(tmpdir(), 'lz-eval-home-')) : null;
-    const result = spawnSync(exe, args, {
+  // The package's own script is third-party code, so it gets the clean environment the test runs get.
+  run: (dir, script) => {
+    const home = mkdtempSync(join(tmpdir(), 'lz-eval-home-'));
+    const result = spawnSync(process.execPath, [npmCli, 'run', script], {
       cwd: dir,
-      ...(home === null ? {} : { env: withLocalBin(dir, cleanEnv(process.env, home)) }),
+      env: withLocalBin(dir, cleanEnv(process.env, home)),
       encoding: 'utf8',
       maxBuffer: 64 * 1024 * 1024,
       windowsHide: true,
     });
-
-    if (home !== null) {
-      rmSync(home, { recursive: true, force: true });
-    }
+    rmSync(home, { recursive: true, force: true });
 
     return { status: result.status, output: `${result.stdout ?? ''}${result.stderr ?? ''}${result.error?.message ?? ''}`.slice(-2000) };
   },
 };
 // Stryker restore all
-
-// srvx's workspace lists examples/**, whose packages pnpm would link into node_modules; --filter . installs the root
-// package only, and the hoisted linker with copied files leaves a node_modules of real files that a dereferenced copy
-// carries whole. A run under pnpm 11 checks the dependencies first and reinstalls with the default linker, so the
-// build turns that check off.
-function pnpmInstall(exe: string, dir: string, pnpm: string, build: string | undefined, toolchain: Toolchain): void {
-  const version = toolchain.pnpm(exe, dir, ['--version']);
-
-  if (version.status !== 0 || version.output.trim() !== pnpm) {
-    throw new Error(`pnpm --version printed ${version.output.trim()}, not the pinned ${pnpm} (exit ${String(version.status)})`);
-  }
-
-  const install = toolchain.pnpm(exe, dir, [
-    'install',
-    '--frozen-lockfile',
-    '--ignore-scripts',
-    '--node-linker=hoisted',
-    '--package-import-method=copy',
-    '--filter',
-    '.',
-  ]);
-
-  if (install.status !== 0) {
-    throw new Error(`pnpm install exited ${String(install.status)}:\n${install.output}`);
-  }
-
-  if (build !== undefined) {
-    const built = toolchain.pnpm(exe, dir, ['--config.verify-deps-before-run=false', 'run', build]);
-
-    if (built.status !== 0) {
-      throw new Error(`pnpm run ${build} exited ${String(built.status)}:\n${built.output}`);
-    }
-  }
-}
 
 function arm(dir: string, template: Recipe, toolchain: Toolchain): void {
   if (template.arm === null) {
@@ -336,7 +285,6 @@ export function buildTemplate(
   clonesRoot: string,
   name: string,
   toolchain: Toolchain = kataToolchain,
-  env: NodeJS.ProcessEnv = process.env,
 ): string {
   const template = readTemplates(repo).get(name);
 
@@ -356,16 +304,18 @@ export function buildTemplate(
     throw new Error(`fetch ${template.commit} into ${clone}`);
   }
 
-  const { subdir, installer } = template;
+  const { subdir } = template;
 
   if (subdir !== null && !template.lockfile.path.startsWith(`${subdir}/`)) {
     throw new Error(`${name}: the lockfile ${template.lockfile.path} is not below ${subdir}`);
   }
 
-  const pnpmExe = env['LZ_EVAL_PNPM'];
+  // Read from HEAD, as the overlay is, so the bytes are the committed ones whatever the working tree holds.
+  const committedLock = template.lockfile.from === undefined ? null : `evals/lz-tdd-apply/${template.lockfile.from}`;
+  const committedText = committedLock === null ? null : gitIn(repo, ['cat-file', 'blob', `HEAD:${committedLock}`]);
 
-  if (installer !== undefined && (pnpmExe === undefined || pnpmExe === '')) {
-    throw new Error(`${name} installs with pnpm ${installer.pnpm}: set LZ_EVAL_PNPM to that pnpm executable`);
+  if (committedText !== null && committedText.status !== 0) {
+    throw new Error(`${name}: lockfile missing: commit ${String(committedLock)}`);
   }
 
   const overlay = template.overlay === null ? null : `evals/lz-tdd-apply/${template.overlay}`;
@@ -381,17 +331,27 @@ export function buildTemplate(
   try {
     archiveInto(clone, subdir === null ? template.commit : `${template.commit}:${subdir}`, tmp, tmp);
     const lockfile = `${tmp}/${subdir === null ? template.lockfile.path : template.lockfile.path.slice(subdir.length + 1)}`;
-    copyFileSync(`${clone}/${template.lockfile.path}`, lockfile);
+    if (committedText === null) {
+      copyFileSync(`${clone}/${template.lockfile.path}`, lockfile);
+    } else {
+      writeFileSync(lockfile, committedText.stdout);
+    }
+
     const lockHash = sha256(readFileSync(lockfile));
 
     if (lockHash !== template.lockfile.sha256) {
-      throw new Error(`${clone}/${template.lockfile.path} has sha256 ${lockHash}, not the pinned ${template.lockfile.sha256}`);
+      const source = committedLock ?? `${clone}/${template.lockfile.path}`;
+      throw new Error(`${source} has sha256 ${lockHash}, not the pinned ${template.lockfile.sha256}`);
     }
 
-    if (installer !== undefined && pnpmExe !== undefined) {
-      pnpmInstall(pnpmExe, tmp, installer.pnpm, template.build, toolchain);
-    } else {
-      toolchain.install(tmp);
+    toolchain.install(tmp);
+
+    if (template.build !== undefined) {
+      const built = toolchain.run(tmp, template.build);
+
+      if (built.status !== 0) {
+        throw new Error(`npm run ${template.build} exited ${String(built.status)}:\n${built.output}`);
+      }
     }
 
     arm(tmp, template, toolchain);

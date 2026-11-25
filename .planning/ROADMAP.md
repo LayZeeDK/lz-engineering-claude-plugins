@@ -475,22 +475,22 @@ Plans:
 - [x] 22.1-02-PLAN.md -- staging from git archive, slim templates from pinned kata commits, the grader model and crosscheck
 
 **Wave 3** *(blocked on Wave 2 completion)*
-- [ ] 22.1-03-PLAN.md -- case lint, generated trigger and routing suites, and the pilot's hand-written cases
+- [ ] 22.1-03-PLAN.md -- case lint, generated trigger and routing suites (10 trigger cases per skill tagged for the baseline), and the pilot's hand-written cases
 
 **Wave 4** *(blocked on Wave 3 completion)*
-- [ ] 22.1-04-PLAN.md -- pilot run set on both models, interrupted and resumed; findings that decide the rest (paid)
+- [ ] 22.1-04-PLAN.md -- pilot run set on both models, interrupted and resumed; findings that decide the rest, including how many trigger cases fit the 100 USD baseline cap (paid)
 
 **Wave 5** *(blocked on Wave 4 completion)*
-- [ ] 22.1-05-PLAN.md -- the remaining doing suites and the lz-tpp and lz-refactor slim apply suites, with invoke twins
+- [ ] 22.1-05-PLAN.md -- the remaining doing suites and the lz-tpp, lz-refactor and srvx lz-red slim apply suites (srvx on a pinned pnpm template), with invoke twins
 
 **Wave 6** *(blocked on Wave 5 completion)*
-- [ ] 22.1-06-PLAN.md -- reproductions of recorded cells on their recorded models and commits, with committed verdicts (paid)
+- [ ] 22.1-06-PLAN.md -- reproductions of one recorded result per carried-over suite (trigger recall, two apply cells) on their recorded models and commits, with committed verdicts (paid)
 
 **Wave 7** *(blocked on Wave 6 completion)*
-- [ ] 22.1-07-PLAN.md -- retirement of the skill-creator-derived runners, per workspace only where its reproduction landed inside
+- [ ] 22.1-07-PLAN.md -- retirement of the skill-creator-derived runners, per workspace only where its reproduction landed inside, plus grade-red, arm-anchor and selfcheck-red (Lars 2026-11-25)
 
 **Wave 8** *(blocked on Wave 7 completion)*
-- [ ] 22.1-08-PLAN.md -- Stryker config on the pinned lz-node-test runner, then the baseline run set (paid)
+- [ ] 22.1-08-PLAN.md -- with-without section and Stryker config, then the baseline in stages under the 100 USD cap, srvx last after the analysis (paid)
 
 ### Phase 23: Agent-as-developer conversion of lz-red, lz-tpp and lz-refactor, plus the new lz-tdd-coach skill
 

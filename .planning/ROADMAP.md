@@ -525,7 +525,12 @@ Remove all agreed names."), except where a person's name is the usual name of a 
 (Lars 2026-11-24: "Yes, we need at least some evals before and after to compare the effect. If no names vs. current
 names show decent/similar/better performance, don't bother A/B testing the removal of only certain groups of names.
 Yes, use the Phase 24 harness instead of the current eval harness."): two arms, the commit before this phase
-(current names) and the commit after it (no names), each a packaged copy run on the Phase 22.1 harness; per-group arms only if no-names does worse. The run is metered and waits for Lars's yes at run time. When the
+(current names) and the commit after it (no names), each a packaged copy run on the Phase 22.1 harness; per-group arms only if no-names does worse. The run is metered and waits for Lars's yes at run time.
+Budget (Lars 2026-11-25: "Names test budget for Phase 23.1: One new arm, with srvx at about $51."): Phase 23's
+after-measurement serves as the names arm when nothing in the shipped text changes between it and this phase's
+start (the plan checks this before spending); only the no-names arm is new, srvx cells included, about 51 USD at
+pilot costs. Lars on why it is still needed after lz-oop's null result (2026-11-25): "Names related to TDD might
+differ from names related to OOP in how they affect models". When the
 result record exists, send its path to the lz-oop session (asked 2026-11-24; its person-names item is open).
 **Requirements**: TBD
 **Depends on:** Phase 23

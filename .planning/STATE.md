@@ -5,16 +5,16 @@ milestone_name: lz-red Skill (RED phase) (Phases 15-22)
 current_phase: "22.1"
 current_phase_name: Eval harness on claude plugin eval and slim claude -p, plus a baseline on today's skill text
 status: executing
-stopped_at: "Phase 22.1 executing: Plans 01 (free dry-run gate 43ea6bb) and 02 merged (5be83e4); plans 03/05/07/08 being revised for Lars's 2026-11-25 rulings (baseline budget $100, fewer trigger cases, srvx kept and run last, script retirement); next Plan 03. No paid run yet."
-last_updated: "2026-11-25T08:18:06.991Z"
+stopped_at: "Phase 22.1 executing: Plans 01-03 merged (27a6068), review fixes merged (4e1630f, 952bc21), plans revised for Lars's 2026-11-25 rulings (4e93745). Next: Plan 04, the first paid run (pilot), lock booked with --timing. No paid run yet."
+last_updated: "2026-11-25T09:45:29.977Z"
 last_activity: 2026-11-25
 last_activity_desc: Phase 22.1 execution started
-state_head: 5be83e47f6d9d080b88a7c871161285c419a1e44
+state_head: 27a606856fe3de61717ef7d8390b871b456fd9f6
 progress:
   total_phases: 12
   completed_phases: 9
   total_plans: 43
-  completed_plans: 37
+  completed_plans: 38
   percent: 75
 ---
 
@@ -56,7 +56,7 @@ Plan 01's free dry-run gate commit.
 
 Previous phase: 22 (three-way-classifier-correctness-lz-refactor-lz-red) -- 8 of 8 plans executed and merged;
 `gsd-verifier` passed 8/8. HALTED at the blocking-human gate; PR #3 stays held (D-24).
-Plan: 3 of 8
+Plan: 4 of 8
 **THE ROUND THAT MATTERED:** the acceptance review BLOCKED the first close. `lz-refactor/SKILL.md`'s
 intro paragraph still routed behavior changes straight to `lz-tpp`, omitting the two-hop its own
 frontmatter, narrative and branch (c) all state -- the exact dead end ROADMAP SC1 names, surviving in
@@ -77,7 +77,7 @@ PASS at the wave-1 RED baseline to 2 FAIL / 52 PASS after wave 2, and the two su
 22-04's targets (`beck-seam` scan floor; `laws-classify` bare catch-all). All nine corpus cases now
 have exactly one owner, c6 is not regressed, and descriptions sit at lz-red 1439 / lz-tpp 840 /
 lz-refactor 1369 against the 1536 cap.
-Status: Executing Phase 22.1 (Plans 01-02 merged; 5be83e4)
+Status: Executing Phase 22.1 (Plans 01-03 merged; 27a6068)
 EXECUTING. Artifacts:
 22-CONTEXT.md + 22-DISCUSSION-LOG.md (d0a8b03), 22-RESEARCH.md (de101bf), 22-VALIDATION.md +
 context amendments (17173c2), 22-PATTERNS.md (3bf4d3b), 7 plans (2dcc1af) + targeted revision

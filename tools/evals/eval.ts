@@ -10,7 +10,8 @@
 //   node tools/evals/eval.ts template <name>                                 build one slim template by hand
 //
 // A slim suite's `target` names a template in evals/lz-tdd-apply/templates.json: a kata at a pinned commit with its
-// sha256-checked lockfile installed (`npm ci --ignore-scripts`), optionally armed and given a known-red overlay, built
+// sha256-checked lockfile installed (`npm ci --ignore-scripts`, or a pinned pnpm when the recipe names an `installer`,
+// then its `build` script), optionally armed and given a known-red overlay, built
 // once below <slim root>/templates/ from the clone at <LZ_EVAL_CLONES>/<org>/<repo>. `run` builds every template its
 // runs need before the first spawn, and each run starts in a fresh copy.
 // `crosscheck` re-grades every finished plugin-eval run from its copied traces with the harness's grader model and

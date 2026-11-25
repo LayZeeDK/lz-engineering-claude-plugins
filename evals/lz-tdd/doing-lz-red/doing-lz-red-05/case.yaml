@@ -1,0 +1,5 @@
+schema_version: "1.1"
+name: doing-lz-red-05
+tags: [doing, lz-red, red-step]
+context:
+  scaffold_script: scaffold.sh

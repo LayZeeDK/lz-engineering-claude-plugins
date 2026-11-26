@@ -4,18 +4,18 @@ milestone: lz-tdd@0.0.3
 milestone_name: lz-red Skill (RED phase) (Phases 15-22)
 current_phase: "22.1"
 current_phase_name: Eval harness on claude plugin eval and slim claude -p, plus a baseline on today's skill text
-status: executing
-stopped_at: "Phase 22.1 executing: Plans 01-07 merged. Plan 07 merged 98ae198: lz-red and lz-refactor skill-creator runners retired, lz-tpp kept (tpp-recall outside). Diagnostic re-run at max_turns 10 merged 160f731 ($5.84): recall still 10/13 outside, 0 runs hit the cap, misses 03/05/07; crosscheck 117/0/0. Next per Lars's 2026-11-25 ruling: a Bash-allowed lz-tpp re-run needs his yes; srvx moves to npm (decided) before Plan 08."
-last_updated: "2026-11-25T22:59:56.847Z"
-last_activity: 2026-11-25
-last_activity_desc: Phase 22.1 Plan 07 (runner retirement) and the lz-tpp max_turns 10 re-run merged and checked
-state_head: 160f731a8ca1f3fd8ea04335dba612b1014b71f0
+status: verifying
+stopped_at: "Phase 22.1 executed: Plans 01-08 merged. Plan 08 baseline merged fbd6c55: 456/456 runs, models-ok, crosscheck 1032/0, $48.22 (phase $71.42). Only doing-lz-tpp-invoke discriminates with/without; srvx edited-test grader misses Write-created test files (Blocked on Lars in 22.1-08-SUMMARY). Next: gsd-verifier, then code review, secure, validate, extract learnings."
+last_updated: "2026-11-26T07:08:36.592Z"
+last_activity: 2026-11-26
+last_activity_desc: Phase 22.1 Plan 08 (paid baseline) merged; all three check batteries green on the merge
+state_head: fbd6c55e6c10a27abfcb6342b513ee4fef99d232
 progress:
-  total_phases: 12
+  total_phases: 13
   completed_phases: 9
-  total_plans: 43
-  completed_plans: 42
-  percent: 75
+  total_plans: 51
+  completed_plans: 43
+  percent: 69
 ---
 
 # Project State
@@ -77,8 +77,8 @@ PASS at the wave-1 RED baseline to 2 FAIL / 52 PASS after wave 2, and the two su
 22-04's targets (`beck-seam` scan floor; `laws-classify` bare catch-all). All nine corpus cases now
 have exactly one owner, c6 is not regressed, and descriptions sit at lz-red 1439 / lz-tpp 840 /
 lz-refactor 1369 against the 1536 cap.
-Status: Executing Phase 22.1 (Plans 01-07 merged; Plan 07 98ae198)
-EXECUTING. Artifacts:
+Status: Phase 22.1 executed (Plans 01-08 merged; Plan 08 fbd6c55) -- ready for verification
+Artifacts:
 22-CONTEXT.md + 22-DISCUSSION-LOG.md (d0a8b03), 22-RESEARCH.md (de101bf), 22-VALIDATION.md +
 context amendments (17173c2), 22-PATTERNS.md (3bf4d3b), 7 plans (2dcc1af) + targeted revision
 (4a0e084). Plan-checker: first pass 0 BLOCKER / 3 WARNING, all three closed by the revision,

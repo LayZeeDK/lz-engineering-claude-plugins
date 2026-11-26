@@ -1,11 +1,12 @@
 import assert from 'node:assert/strict';
-import { mkdirSync, mkdtempSync, rmSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { after, test } from 'node:test';
 
 import { aggregate, recheckCases, renderResults, wilson } from './aggregate.ts';
-import { writeResult, type PlannedRun, type RecordedCell } from './run-set.ts';
+import type { Suite } from './cases.ts';
+import { writeResult, type GraderVerdict, type PlannedRun, type RecordedCell } from './run-set.ts';
 
 const root = mkdtempSync(join(tmpdir(), 'lz-evals-aggregate-')).replaceAll('\\', '/');
 
@@ -184,6 +185,188 @@ test('RESULTS.md names the ref, the models that ran, runs, cost and wall clock, 
   assert.match(text, /\| trigger-x \| with \| claude-sonnet-5-5 \| skill-fired \| 1\/2 \|/);
   assert.match(text, /partial: 2 of 3 planned runs have results/);
   assert.doesNotMatch(text, /W:|[/\\]head[/\\]/);
+});
+
+interface SideRun {
+  readonly arm: string;
+  readonly ref: string | null;
+  readonly model: string;
+  readonly suite: Suite;
+  readonly caseName: string;
+  readonly with: readonly (readonly [string, boolean])[];
+  readonly without?: readonly (readonly [string, boolean])[];
+}
+
+const graderText: Record<string, string> = {
+  'skill-fired': '---\ntype: tool_used\ntool: Skill\n---\n',
+  'wrote-test': '---\ntype: tool_used\ntool: Write\n---\n',
+  'ran-tests': '---\ntype: tool_used\ntool: Bash\n---\n',
+  quiet: "---\ntype: regex\npattern: '^'\n---\n",
+};
+
+function suiteOf(name: string, backend: Suite['backend'], ablation: Suite['ablation'], invokeTwin: string | null = null): Suite {
+  return {
+    name,
+    dir: `${root}/cases/${name}`,
+    backend,
+    ablation,
+    allowTools: [],
+    scaffold: false,
+    heavy: false,
+    allow: null,
+    timeoutMinutes: 15,
+    invokeTwin,
+    target: null,
+    skill: null,
+  };
+}
+
+// Writes each run's result.json and its case's grader files, and gives back the plan that names them.
+function sideRunSet(name: string, specs: readonly SideRun[]): { setDir: string; plan: PlannedRun[] } {
+  const setDir = `${root}/${name}`;
+  const counter = new Map<string, number>();
+  const plan = specs.map((spec): PlannedRun => {
+    const key = `${spec.arm}/${spec.model}/${spec.caseName}`;
+    const k = (counter.get(key) ?? 0) + 1;
+    counter.set(key, k);
+    const runDir = `${setDir}/${key}/run-${String(k)}`;
+    const caseDir = `${spec.suite.dir}/${spec.caseName}`;
+    mkdirSync(`${caseDir}/graders`, { recursive: true });
+
+    for (const [grader] of [...spec.with, ...(spec.without ?? [])]) {
+      writeFileSync(`${caseDir}/graders/${grader}.md`, graderText[grader] ?? '');
+    }
+
+    const verdicts = (list: readonly (readonly [string, boolean])[]): GraderVerdict[] =>
+      list.map(([grader, passed]) => ({ name: grader, passed, scored: true }));
+    mkdirSync(runDir, { recursive: true });
+    writeResult(runDir, {
+      schemaVersion: 1,
+      backend: spec.suite.backend,
+      runSet: name,
+      arm: spec.arm,
+      ref: spec.ref,
+      pluginTree: null,
+      casesTree: null,
+      suite: spec.suite.name,
+      case: spec.caseName,
+      k,
+      requestedModel: spec.model,
+      initModel: spec.model,
+      modelsUsed: [spec.model],
+      claudeCodeVersion: null,
+      binary: 'W:/bin/claude.exe',
+      startedAt: '2026-11-25T00:00:00.000Z',
+      seconds: 10,
+      turns: 2,
+      costUsd: 0.1,
+      judgeCostUsd: 0,
+      tokens: { input: 0, output: 0, cacheRead: 0, cacheCreation: 0 },
+      maxTurns: false,
+      graded: true,
+      arms: { with: verdicts(spec.with), without: spec.without === undefined ? null : verdicts(spec.without) },
+    });
+
+    return {
+      runDir,
+      runSetName: name,
+      arm: spec.arm,
+      ref: spec.ref,
+      model: spec.model,
+      suite: spec.suite,
+      caseInfo: { name: spec.caseName, dir: caseDir, tags: [], body: '' },
+      k,
+    };
+  });
+
+  return { setDir, plan };
+}
+
+const sha = '1'.repeat(40);
+
+function times(count: number, make: (index: number) => SideRun): SideRun[] {
+  return Array.from({ length: count }, (_, index) => make(index));
+}
+
+test('a with-without suite and its invoke twin get with and without rows, Wilson intervals and a verdict; Skill graders are left out', () => {
+  const doing = suiteOf('doing-x', 'plugin-eval', 'with-without', 'doing-x-invoke');
+  const twin = suiteOf('doing-x-invoke', 'plugin-eval', 'none');
+  const trigger = suiteOf('trigger-x', 'plugin-eval', 'none');
+  const { setDir, plan } = sideRunSet('with-without', [
+    ...times(5, () => ({
+      arm: 'head',
+      ref: sha,
+      model: sonnet,
+      suite: doing,
+      caseName: 'doing-x-01',
+      with: [
+        ['skill-fired', true],
+        ['wrote-test', true],
+      ],
+      without: [['wrote-test', false]],
+    })),
+    ...times(5, (index) => ({ arm: 'head', ref: sha, model: sonnet, suite: twin, caseName: 'doing-x-invoke-01', with: [['wrote-test', index < 3]] })),
+    ...times(2, () => ({ arm: 'head', ref: sha, model: sonnet, suite: trigger, caseName: 'trigger-x-01', with: [['skill-fired', true]] })),
+  ]);
+  const summary = aggregate(setDir, plan, { allowStub: false, record: [] });
+
+  assert.deepEqual(summary.withWithout.verdicts, [
+    { suite: 'doing-x', verdict: 'discriminates' },
+    { suite: 'doing-x-invoke', verdict: 'does not discriminate' },
+    { suite: 'trigger-x', verdict: 'no without arm' },
+  ]);
+  assert.deepEqual(
+    summary.withWithout.rows.map((row) => [row.suite, row.grader, row.with.passed, row.with.total, row.without.passed, row.without.total, row.overlap]),
+    [
+      ['doing-x', 'wrote-test', 5, 5, 0, 5, false],
+      ['doing-x-invoke', 'wrote-test', 3, 5, 0, 5, true],
+    ],
+  );
+
+  const text = renderResults(summary);
+  const section = text.slice(text.indexOf('## With and without'));
+  assert.match(section, /^\| doing-x \| discriminates \|$/m);
+  assert.match(section, /^\| doing-x-invoke \| does not discriminate \|$/m);
+  assert.match(section, /^\| trigger-x \| no without arm \|$/m);
+  assert.match(section, /^\| doing-x \| claude-sonnet-5-5 \| wrote-test \| 5\/5 \| 0\/5 \| 1\.00 \| \[0\.566, 1\.000\] \| \[0\.000, 0\.434\] \| no \|$/m);
+  assert.match(section, /^\| doing-x-invoke \| claude-sonnet-5-5 \| wrote-test \| 3\/5 \| 0\/5 \| 0\.60 \| \[0\.231, 0\.882\] \| \[0\.000, 0\.434\] \| yes \|$/m);
+  assert.doesNotMatch(section, /skill-fired/);
+  assert.equal(text.indexOf('## With and without') > text.lastIndexOf('## Arm head'), true);
+});
+
+test('a slim suite takes its without side from the cell without a ref', () => {
+  const apply = suiteOf('apply-x', 'slim', 'none');
+  const { setDir, plan } = sideRunSet('slim-sides', [
+    ...times(5, () => ({
+      arm: 'head',
+      ref: sha,
+      model: opus,
+      suite: apply,
+      caseName: 'apply-x-01',
+      with: [
+        ['skill-fired', true],
+        ['ran-tests', true],
+      ],
+    })),
+    ...times(5, () => ({
+      arm: 'no-plugin',
+      ref: null,
+      model: opus,
+      suite: apply,
+      caseName: 'apply-x-01',
+      with: [
+        ['skill-fired', false],
+        ['ran-tests', true],
+      ],
+    })),
+  ]);
+  const summary = aggregate(setDir, plan, { allowStub: false, record: [] });
+
+  assert.deepEqual(summary.withWithout.verdicts, [{ suite: 'apply-x', verdict: 'does not discriminate' }]);
+  assert.deepEqual(
+    summary.withWithout.rows.map((row) => [row.suite, row.model, row.grader, row.with.passed, row.without.passed, row.delta]),
+    [['apply-x', opus, 'ran-tests', 5, 5, 0]],
+  );
 });
 
 test('aggregate refuses stub results without allowStub and a cell whose results come from two case trees', () => {

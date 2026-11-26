@@ -117,3 +117,56 @@
 | apply-lz-red | with | claude-opus-5-5 | red-line | 0/1 |
 | apply-lz-red | with | claude-opus-5-5 | skill-fired | 0/1 |
 | apply-lz-red | with | claude-opus-5-5 | wrote-test | 0/1 |
+
+## With and without
+
+| Suite | Verdict |
+|---|---|
+| trigger-lz-tpp | no without arm |
+| trigger-lz-red | no without arm |
+| trigger-lz-refactor | no without arm |
+| routing | no without arm |
+| doing-lz-red | does not discriminate |
+| doing-lz-red-invoke | does not discriminate |
+| harness-probes | no without arm |
+| apply-lz-red | does not discriminate |
+| apply-lz-red-invoke | does not discriminate |
+
+| Suite | Model | Grader | With | Without | Delta | With 95% | Without 95% | Overlap |
+|---|---|---|---|---|---|---|---|---|
+| doing-lz-red | claude-sonnet-5-5 | production-untouched-edit | 2/2 | 2/2 | 0.00 | [0.342, 1.000] | [0.342, 1.000] | yes |
+| doing-lz-red | claude-sonnet-5-5 | production-untouched-write | 2/2 | 2/2 | 0.00 | [0.342, 1.000] | [0.342, 1.000] | yes |
+| doing-lz-red | claude-sonnet-5-5 | red-line | 0/2 | 0/2 | 0.00 | [0.000, 0.658] | [0.000, 0.658] | yes |
+| doing-lz-red | claude-sonnet-5-5 | wrote-test | 2/2 | 2/2 | 0.00 | [0.342, 1.000] | [0.342, 1.000] | yes |
+| doing-lz-red | claude-opus-5-5 | production-untouched-edit | 2/2 | 2/2 | 0.00 | [0.342, 1.000] | [0.342, 1.000] | yes |
+| doing-lz-red | claude-opus-5-5 | production-untouched-write | 2/2 | 2/2 | 0.00 | [0.342, 1.000] | [0.342, 1.000] | yes |
+| doing-lz-red | claude-opus-5-5 | red-line | 0/2 | 0/2 | 0.00 | [0.000, 0.658] | [0.000, 0.658] | yes |
+| doing-lz-red | claude-opus-5-5 | wrote-test | 2/2 | 2/2 | 0.00 | [0.342, 1.000] | [0.342, 1.000] | yes |
+| doing-lz-red-invoke | claude-sonnet-5-5 | production-untouched-edit | 2/2 | 2/2 | 0.00 | [0.342, 1.000] | [0.342, 1.000] | yes |
+| doing-lz-red-invoke | claude-sonnet-5-5 | production-untouched-write | 2/2 | 2/2 | 0.00 | [0.342, 1.000] | [0.342, 1.000] | yes |
+| doing-lz-red-invoke | claude-sonnet-5-5 | red-line | 0/2 | 0/2 | 0.00 | [0.000, 0.658] | [0.000, 0.658] | yes |
+| doing-lz-red-invoke | claude-sonnet-5-5 | wrote-test | 2/2 | 2/2 | 0.00 | [0.342, 1.000] | [0.342, 1.000] | yes |
+| doing-lz-red-invoke | claude-opus-5-5 | production-untouched-edit | 2/2 | 2/2 | 0.00 | [0.342, 1.000] | [0.342, 1.000] | yes |
+| doing-lz-red-invoke | claude-opus-5-5 | production-untouched-write | 2/2 | 2/2 | 0.00 | [0.342, 1.000] | [0.342, 1.000] | yes |
+| doing-lz-red-invoke | claude-opus-5-5 | red-line | 0/2 | 0/2 | 0.00 | [0.000, 0.658] | [0.000, 0.658] | yes |
+| doing-lz-red-invoke | claude-opus-5-5 | wrote-test | 2/2 | 2/2 | 0.00 | [0.342, 1.000] | [0.342, 1.000] | yes |
+| apply-lz-red | claude-sonnet-5-5 | production-untouched-edit | 2/2 | 1/1 | 0.00 | [0.342, 1.000] | [0.207, 1.000] | yes |
+| apply-lz-red | claude-sonnet-5-5 | production-untouched-write | 2/2 | 1/1 | 0.00 | [0.342, 1.000] | [0.207, 1.000] | yes |
+| apply-lz-red | claude-sonnet-5-5 | ran-tests | 2/2 | 1/1 | 0.00 | [0.342, 1.000] | [0.207, 1.000] | yes |
+| apply-lz-red | claude-sonnet-5-5 | red-line | 0/2 | 0/1 | 0.00 | [0.000, 0.658] | [0.000, 0.793] | yes |
+| apply-lz-red | claude-sonnet-5-5 | wrote-test | 0/2 | 0/1 | 0.00 | [0.000, 0.658] | [0.000, 0.793] | yes |
+| apply-lz-red | claude-opus-5-5 | production-untouched-edit | 2/2 | 1/1 | 0.00 | [0.342, 1.000] | [0.207, 1.000] | yes |
+| apply-lz-red | claude-opus-5-5 | production-untouched-write | 2/2 | 1/1 | 0.00 | [0.342, 1.000] | [0.207, 1.000] | yes |
+| apply-lz-red | claude-opus-5-5 | ran-tests | 2/2 | 1/1 | 0.00 | [0.342, 1.000] | [0.207, 1.000] | yes |
+| apply-lz-red | claude-opus-5-5 | red-line | 0/2 | 0/1 | 0.00 | [0.000, 0.658] | [0.000, 0.793] | yes |
+| apply-lz-red | claude-opus-5-5 | wrote-test | 0/2 | 0/1 | 0.00 | [0.000, 0.658] | [0.000, 0.793] | yes |
+| apply-lz-red-invoke | claude-sonnet-5-5 | production-untouched-edit | 2/2 | 1/1 | 0.00 | [0.342, 1.000] | [0.207, 1.000] | yes |
+| apply-lz-red-invoke | claude-sonnet-5-5 | production-untouched-write | 2/2 | 1/1 | 0.00 | [0.342, 1.000] | [0.207, 1.000] | yes |
+| apply-lz-red-invoke | claude-sonnet-5-5 | ran-tests | 2/2 | 1/1 | 0.00 | [0.342, 1.000] | [0.207, 1.000] | yes |
+| apply-lz-red-invoke | claude-sonnet-5-5 | red-line | 0/2 | 0/1 | 0.00 | [0.000, 0.658] | [0.000, 0.793] | yes |
+| apply-lz-red-invoke | claude-sonnet-5-5 | wrote-test | 1/2 | 0/1 | 0.50 | [0.095, 0.905] | [0.000, 0.793] | yes |
+| apply-lz-red-invoke | claude-opus-5-5 | production-untouched-edit | 2/2 | 1/1 | 0.00 | [0.342, 1.000] | [0.207, 1.000] | yes |
+| apply-lz-red-invoke | claude-opus-5-5 | production-untouched-write | 2/2 | 1/1 | 0.00 | [0.342, 1.000] | [0.207, 1.000] | yes |
+| apply-lz-red-invoke | claude-opus-5-5 | ran-tests | 2/2 | 1/1 | 0.00 | [0.342, 1.000] | [0.207, 1.000] | yes |
+| apply-lz-red-invoke | claude-opus-5-5 | red-line | 0/2 | 0/1 | 0.00 | [0.000, 0.658] | [0.000, 0.793] | yes |
+| apply-lz-red-invoke | claude-opus-5-5 | wrote-test | 0/2 | 0/1 | 0.00 | [0.000, 0.658] | [0.000, 0.793] | yes |

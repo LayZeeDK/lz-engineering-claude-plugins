@@ -557,10 +557,17 @@ comparisons, so the rename runs after 23.1 and carries one trigger check of its 
 `lz-red` -> `tddux-red`, `lz-tpp` -> `tddux-tpp`, `lz-refactor` -> `tddux-refactor`, `lz-tdd-coach` (Phase 23) ->
 `tddux-coach`; marketplace `lz-engineering-claude-plugins` -> `tddux`; the 0.0.4 backlog's `lz-tdd-audit` and
 `lz-tdd-review` -> `tddux-audit` and `tddux-review`. Covers tracked file content and names (workspaces under
-`.claude/skills/`, eval suites and graders, checkers, planning records). Open for Lars: whether "no `lz-tdd`" also
-covers the published `lz-tdd@0.0.1` and `lz-tdd@0.0.2` tags and git history (rewriting either is destructive and
-waits for his word; default: keep both), and whether marketplace.json gets a `renames` entry from `lz-tdd` for
-existing installs (it would keep the string; default: no entry). The repo transfer itself is Lars's action.
+`.claude/skills/`, eval suites and graders, checkers, planning records). The repo transfer itself is Lars's action.
+**Rulings (Lars 2026-11-26):** "1-2: OK" (the mapping above; keep the published `lz-tdd@0.0.1`/`lz-tdd@0.0.2` tags and
+git history) and "3: Allow a `renames` entry mentioning `lz-tdd` if that's a thing but since the marketplace (repo)
+name will also change, I'm not sure how to handle this." Facts (Claude Code docs, host-marketplace and
+marketplace-reference, read 2026-11-26): `renames` is a top-level map in marketplace.json from a former plugin name
+to its current one, so `"renames": {"lz-tdd": "tddux"}` is supported and moves `enabledPlugins` keys; a git-added
+marketplace then needs one `/plugin install tddux@<marketplace>`. The docs do not say what happens when a registered
+marketplace's own `name` changes, or when its GitHub repo is transferred (GitHub redirects the old URL). The phase
+settles that with a free local spike (`claude plugin marketplace add` of a local copy at the old names, then the new
+names with the renames entry, `claude plugin list`/`update`), and writes the migration steps for existing users
+(re-add `tddux/tddux` and reinstall, if the spike shows the old registration does not follow) into the README.
 **Requirements**: TBD
 **Depends on:** Phase 23.1
 **Plans:** 0 plans

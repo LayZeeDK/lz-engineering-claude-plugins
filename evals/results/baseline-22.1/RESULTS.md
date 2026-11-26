@@ -242,6 +242,62 @@
 | apply-lz-refactor | with | claude-opus-5-5 | refactor-line | 0/3 |
 | apply-lz-refactor | with | claude-opus-5-5 | skill-fired | 0/3 |
 
+## Arm srvx
+
+- Ref: 9491ad3ca298ee1764479c24895cfcefa76c3f66
+- claude-sonnet-5-5: 10 runs; models that ran (CLI output): claude-sonnet-5-5
+- claude-opus-5-5: 6 runs; models that ran (CLI output): claude-opus-5-5
+- Cost (agent plus judge): $3.58
+- Wall clock (summed): 693 s
+
+| Suite | Side | Model | Grader | Passed |
+|---|---|---|---|---|
+| apply-lz-red-srvx | with | claude-sonnet-5-5 | edited-test | 3/5 |
+| apply-lz-red-srvx | with | claude-sonnet-5-5 | production-untouched-edit | 5/5 |
+| apply-lz-red-srvx | with | claude-sonnet-5-5 | production-untouched-write | 5/5 |
+| apply-lz-red-srvx | with | claude-sonnet-5-5 | ran-tests | 5/5 |
+| apply-lz-red-srvx | with | claude-sonnet-5-5 | red-line | 0/5 |
+| apply-lz-red-srvx | with | claude-sonnet-5-5 | skill-fired | 5/5 |
+| apply-lz-red-srvx | with | claude-opus-5-5 | edited-test | 0/3 |
+| apply-lz-red-srvx | with | claude-opus-5-5 | production-untouched-edit | 3/3 |
+| apply-lz-red-srvx | with | claude-opus-5-5 | production-untouched-write | 3/3 |
+| apply-lz-red-srvx | with | claude-opus-5-5 | ran-tests | 3/3 |
+| apply-lz-red-srvx | with | claude-opus-5-5 | red-line | 0/3 |
+| apply-lz-red-srvx | with | claude-opus-5-5 | skill-fired | 3/3 |
+| apply-lz-red-srvx-invoke | with | claude-sonnet-5-5 | edited-test | 2/5 |
+| apply-lz-red-srvx-invoke | with | claude-sonnet-5-5 | production-untouched-edit | 5/5 |
+| apply-lz-red-srvx-invoke | with | claude-sonnet-5-5 | production-untouched-write | 5/5 |
+| apply-lz-red-srvx-invoke | with | claude-sonnet-5-5 | ran-tests | 5/5 |
+| apply-lz-red-srvx-invoke | with | claude-sonnet-5-5 | red-line | 0/5 |
+| apply-lz-red-srvx-invoke | with | claude-opus-5-5 | edited-test | 0/3 |
+| apply-lz-red-srvx-invoke | with | claude-opus-5-5 | production-untouched-edit | 3/3 |
+| apply-lz-red-srvx-invoke | with | claude-opus-5-5 | production-untouched-write | 3/3 |
+| apply-lz-red-srvx-invoke | with | claude-opus-5-5 | ran-tests | 3/3 |
+| apply-lz-red-srvx-invoke | with | claude-opus-5-5 | red-line | 0/3 |
+
+## Arm srvx-no-plugin
+
+- Ref: none (no plugin)
+- claude-sonnet-5-5: 5 runs; models that ran (CLI output): claude-sonnet-5-5
+- claude-opus-5-5: 3 runs; models that ran (CLI output): claude-opus-5-5
+- Cost (agent plus judge): $1.57
+- Wall clock (summed): 352 s
+
+| Suite | Side | Model | Grader | Passed |
+|---|---|---|---|---|
+| apply-lz-red-srvx | with | claude-sonnet-5-5 | edited-test | 0/5 |
+| apply-lz-red-srvx | with | claude-sonnet-5-5 | production-untouched-edit | 5/5 |
+| apply-lz-red-srvx | with | claude-sonnet-5-5 | production-untouched-write | 5/5 |
+| apply-lz-red-srvx | with | claude-sonnet-5-5 | ran-tests | 5/5 |
+| apply-lz-red-srvx | with | claude-sonnet-5-5 | red-line | 0/5 |
+| apply-lz-red-srvx | with | claude-sonnet-5-5 | skill-fired | 0/5 |
+| apply-lz-red-srvx | with | claude-opus-5-5 | edited-test | 0/3 |
+| apply-lz-red-srvx | with | claude-opus-5-5 | production-untouched-edit | 3/3 |
+| apply-lz-red-srvx | with | claude-opus-5-5 | production-untouched-write | 3/3 |
+| apply-lz-red-srvx | with | claude-opus-5-5 | ran-tests | 3/3 |
+| apply-lz-red-srvx | with | claude-opus-5-5 | red-line | 0/3 |
+| apply-lz-red-srvx | with | claude-opus-5-5 | skill-fired | 0/3 |
+
 ## With and without
 
 | Suite | Verdict |
@@ -262,6 +318,8 @@
 | apply-lz-tpp-invoke | does not discriminate |
 | apply-lz-refactor | does not discriminate |
 | apply-lz-refactor-invoke | does not discriminate |
+| apply-lz-red-srvx | does not discriminate |
+| apply-lz-red-srvx-invoke | does not discriminate |
 
 | Suite | Model | Grader | With | Without | Delta | With 95% | Without 95% | Overlap |
 |---|---|---|---|---|---|---|---|---|
@@ -373,24 +431,49 @@
 | apply-lz-refactor-invoke | claude-opus-5-5 | leaf-read | 1/3 | 0/3 | 0.33 | [0.061, 0.792] | [0.000, 0.561] | yes |
 | apply-lz-refactor-invoke | claude-opus-5-5 | ran-tests | 3/3 | 3/3 | 0.00 | [0.439, 1.000] | [0.439, 1.000] | yes |
 | apply-lz-refactor-invoke | claude-opus-5-5 | refactor-line | 0/3 | 0/3 | 0.00 | [0.000, 0.561] | [0.000, 0.561] | yes |
+| apply-lz-red-srvx | claude-sonnet-5-5 | edited-test | 3/5 | 0/5 | 0.60 | [0.231, 0.882] | [0.000, 0.434] | yes |
+| apply-lz-red-srvx | claude-sonnet-5-5 | production-untouched-edit | 5/5 | 5/5 | 0.00 | [0.566, 1.000] | [0.566, 1.000] | yes |
+| apply-lz-red-srvx | claude-sonnet-5-5 | production-untouched-write | 5/5 | 5/5 | 0.00 | [0.566, 1.000] | [0.566, 1.000] | yes |
+| apply-lz-red-srvx | claude-sonnet-5-5 | ran-tests | 5/5 | 5/5 | 0.00 | [0.566, 1.000] | [0.566, 1.000] | yes |
+| apply-lz-red-srvx | claude-sonnet-5-5 | red-line | 0/5 | 0/5 | 0.00 | [0.000, 0.434] | [0.000, 0.434] | yes |
+| apply-lz-red-srvx | claude-opus-5-5 | edited-test | 0/3 | 0/3 | 0.00 | [0.000, 0.561] | [0.000, 0.561] | yes |
+| apply-lz-red-srvx | claude-opus-5-5 | production-untouched-edit | 3/3 | 3/3 | 0.00 | [0.439, 1.000] | [0.439, 1.000] | yes |
+| apply-lz-red-srvx | claude-opus-5-5 | production-untouched-write | 3/3 | 3/3 | 0.00 | [0.439, 1.000] | [0.439, 1.000] | yes |
+| apply-lz-red-srvx | claude-opus-5-5 | ran-tests | 3/3 | 3/3 | 0.00 | [0.439, 1.000] | [0.439, 1.000] | yes |
+| apply-lz-red-srvx | claude-opus-5-5 | red-line | 0/3 | 0/3 | 0.00 | [0.000, 0.561] | [0.000, 0.561] | yes |
+| apply-lz-red-srvx-invoke | claude-sonnet-5-5 | edited-test | 2/5 | 0/5 | 0.40 | [0.118, 0.769] | [0.000, 0.434] | yes |
+| apply-lz-red-srvx-invoke | claude-sonnet-5-5 | production-untouched-edit | 5/5 | 5/5 | 0.00 | [0.566, 1.000] | [0.566, 1.000] | yes |
+| apply-lz-red-srvx-invoke | claude-sonnet-5-5 | production-untouched-write | 5/5 | 5/5 | 0.00 | [0.566, 1.000] | [0.566, 1.000] | yes |
+| apply-lz-red-srvx-invoke | claude-sonnet-5-5 | ran-tests | 5/5 | 5/5 | 0.00 | [0.566, 1.000] | [0.566, 1.000] | yes |
+| apply-lz-red-srvx-invoke | claude-sonnet-5-5 | red-line | 0/5 | 0/5 | 0.00 | [0.000, 0.434] | [0.000, 0.434] | yes |
+| apply-lz-red-srvx-invoke | claude-opus-5-5 | edited-test | 0/3 | 0/3 | 0.00 | [0.000, 0.561] | [0.000, 0.561] | yes |
+| apply-lz-red-srvx-invoke | claude-opus-5-5 | production-untouched-edit | 3/3 | 3/3 | 0.00 | [0.439, 1.000] | [0.439, 1.000] | yes |
+| apply-lz-red-srvx-invoke | claude-opus-5-5 | production-untouched-write | 3/3 | 3/3 | 0.00 | [0.439, 1.000] | [0.439, 1.000] | yes |
+| apply-lz-red-srvx-invoke | claude-opus-5-5 | ran-tests | 3/3 | 3/3 | 0.00 | [0.439, 1.000] | [0.439, 1.000] | yes |
+| apply-lz-red-srvx-invoke | claude-opus-5-5 | red-line | 0/3 | 0/3 | 0.00 | [0.000, 0.561] | [0.000, 0.561] | yes |
 
 ## Notes
 
 Written by hand after `aggregate`; every figure is counted from the run folders' result.json files and the CLI
 output in each run's raw folder.
 
-- Models: all 432 results name the requested model in the CLI output (`initModel` and `modelsUsed`):
-  claude-sonnet-5-5 in 270, claude-opus-5-5 in 162. No other model ran. The plugin tree in every `head` result is
-  6479dbe82d2e3542f88091a5fefb0fc8ad0be82f; the `no-plugin` arm loads no plugin.
-- Cost: $43.07 for the 432 results ($39.80 `head`, $3.27 `no-plugin`). Runs that were stopped before they wrote a
-  result are not in that sum. 10 run folders were set aside and rerun: 5 Sonnet doing-lz-red-08 runs whose scaffold
-  failed before a session started (no cost), and 5 runs stopped mid-session (2 Opus doing-lz-red-08, 3 slim apply
-  runs). None of their traces reached a cost line; by their kinds' means they cost about $1.6 (estimated).
+- Models: all 456 results name the requested model in the CLI output (`initModel` and `modelsUsed`):
+  claude-sonnet-5-5 in 285, claude-opus-5-5 in 171. No other model ran. The plugin tree in every `head` and `srvx`
+  result is 6479dbe82d2e3542f88091a5fefb0fc8ad0be82f; the two no-plugin arms load no plugin.
+- Cost: $48.22 for the 456 results ($39.80 `head`, $3.27 `no-plugin`, $3.58 `srvx`, $1.57 `srvx-no-plugin`). Runs
+  that were stopped before they wrote a result are not in that sum. 11 run folders were set aside and rerun: 5 Sonnet
+  doing-lz-red-08 runs whose scaffold failed before a session started (no cost), 5 runs stopped mid-session (2 Opus
+  doing-lz-red-08, 3 slim apply runs) and 1 srvx run stopped by the usage limit within seconds. None of their traces
+  reached a cost line; by their kinds' means they cost about $1.6 (estimated).
 - `crosscheck`: 1032 agree, 0 disagree, 0 unchecked.
-- Opus recheck: `aggregate` listed no case that passes on Sonnet and fails on Opus, so no recheck runs were planned.
+- Opus recheck: `aggregate` listed no case that passes on Sonnet and fails on Opus, before or after the srvx cells,
+  so no recheck runs were planned.
 - `max_turns`: 16 runs hit the routing suite's cap of 3 (11 Sonnet, 5 Opus). No trigger run hit its new cap of 10.
-- In the `no-plugin` arm the Side column reads `with` for every row: it names the ablation side, and that arm loads
-  no plugin at all. Its `skill-fired` rows are 0 by construction and are left out of the With and without section.
+- In the two no-plugin arms the Side column reads `with` for every row: it names the ablation side, and those arms
+  load no plugin at all. Their `skill-fired` rows are 0 by construction and are left out of the With and without
+  section.
+- srvx ran last, after the committed analysis of the other suites (Lars's 2026-11-25 ruling). Its template is built
+  as an npm project; the first measured run (Sonnet, $0.14) needed no change to the suite's allow list.
 
 ### Trigger recall next to the reproduction
 
@@ -410,16 +493,21 @@ Every quiet and sibling-quiet grader passed in every baseline trigger run.
 
 ### Graders that cannot discriminate
 
-These graders pass or fail the same way on both sides, so they cannot tell with and without apart in this run set.
-No grader was shown broken, so none was changed.
+These graders pass or fail the same way on both sides, or miss the behaviour they are meant to see, so they cannot
+tell with and without apart in this run set. None was changed here.
 
 - `red-line`, `green-line` and `refactor-line`: 0 in every run of every suite, on both sides and both models.
 - `leaf-read`: 0 in every apply run. In the doing suites it is a with-side-only signal (Sonnet 0/5 to 3/5, Opus 0/3
   to 3/3).
 - `edited-production` on apply-lz-refactor-gr4: the skill often declines the refactor (as in the recorded result
   at 877aef3), so the grader scores that behaviour as a failure; with 1/5 vs without 4/5 on Sonnet.
+- `edited-test` on the srvx suites accepts only an Edit call on a file under `test/`. The prompt asks the model to
+  add a test under `test/`, and a new test file is written with Write. In 9 of the 24 srvx runs the model's final
+  message says it added a new test file; `edited-test` failed in 8 of them (5 in the without arm, read from the
+  final messages, not checked against the traces). Opus scores 0/3 in every srvx cell. The Sonnet delta of +0.60 on
+  apply-lz-red-srvx is therefore not a measure of the skill.
 - `skill-fired` on the natural apply suites, Sonnet: apply-lz-tpp 0/5 and apply-lz-refactor 0/5 (Opus 3/3 in
-  both); apply-lz-red 5/5.
+  both); apply-lz-red and apply-lz-red-srvx 5/5.
 
 The one discriminating row: doing-lz-tpp-invoke, Sonnet `edited-production` with 0/5 vs without 5/5. With the
 skill invoked, the model recommends the next transformation and does not edit the code.
@@ -450,13 +538,19 @@ file, commands piped into grep, head or tail, and `npx jest` stay refused.
 | no-plugin | apply-lz-tpp | Opus | 3 | 6 |
 | no-plugin | apply-lz-refactor | Sonnet | 5 | 21 |
 | no-plugin | apply-lz-refactor | Opus | 3 | 15 |
+| srvx | apply-lz-red-srvx | Sonnet | 5 | 5 |
+| srvx | apply-lz-red-srvx | Opus | 3 | 5 |
+| srvx | apply-lz-red-srvx-invoke | Sonnet | 5 | 5 |
+| srvx | apply-lz-red-srvx-invoke | Opus | 3 | 3 |
+| srvx-no-plugin | apply-lz-red-srvx | Sonnet | 5 | 6 |
+| srvx-no-plugin | apply-lz-red-srvx | Opus | 3 | 6 |
 
 Runs counts sessions: a plugin-eval run has one per side, a slim run one. Every other arm, suite, side and model
-cell (25 of 44) had none. Kinds: compound `cd ... &&` commands with pipes into grep, head or tail (most
-apply-lz-red and apply-lz-tpp refusals); `npx jest` (the gr4 template's test runner, which the suite does not
-allow); file edits through the shell (heredoc, `sed -i`, `python -`, `git show ... >`); `git stash` around a test
-run (apply-lz-tpp); redirects to a file; `npx ts-node`. The trigger refusals are 3 Grep calls and 1 Read outside
-the run folder.
+cell (25 of 50) had none. Kinds: compound `cd ... &&` commands with pipes into grep, head or tail (most
+apply-lz-red, apply-lz-red-srvx and apply-lz-tpp refusals); `npx jest` (the gr4 template's test runner, which the
+suite does not allow); file edits through the shell (heredoc, `sed -i`, `python -`, `git show ... >`); `git stash`
+around a test run (apply-lz-tpp); redirects to a file; `npx ts-node`. The trigger refusals are 3 Grep calls and
+1 Read outside the run folder.
 
 ### Peer load
 
@@ -465,4 +559,4 @@ Runs that overlapped a window in which a peer session ran short CPU work (window
 02:08:00-02:09:50 (apply-lz-red-r1 Sonnet runs 1-2), 03:34:00-03:36:00 (apply-lz-refactor-invoke-gr4 Opus runs 2-3).
 Only apply-lz-red-r1 Sonnet run 1 stands out: 73 s against 27-35 s for the case's other runs. The harness never
 replaces a finished result, so it stays, flagged here; its wall clock is the only figure the load can touch.
-Costs and pass rates are unaffected.
+Costs and pass rates are unaffected. No window was relayed during the srvx cells.

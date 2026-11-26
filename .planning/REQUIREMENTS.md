@@ -101,6 +101,21 @@ Requirements for milestone lz-tdd@0.0.3. Each maps to a roadmap phase. Grounded 
 - [ ] **EVH-11**: The skill-creator-derived runners are retired with every workspace `npm run check` still exit 0 (D-09)
 - [ ] **EVH-12**: `tools/evals` meets the script bar: erasable TS, `.test.ts` per script on Node 22 and 24, `tsc` clean, Stryker with the pinned lz-node-test runner, code and security review; a case lint keeps committed cases ASCII and email-allowlisted (D-08, AGENTS.md)
 
+### Agent as developer (AGD)
+
+- [ ] **AGD-01**: lz-red, lz-tpp and lz-refactor perform their step by default (edit, then run the tests); an explicitly advice-only request gets the recommendation without edits; the D-02 stop conditions stop and report (D-01, D-02)
+- [ ] **AGD-02**: Tests run with the project's own command, narrowest proof per step, no dependency install (D-04)
+- [ ] **AGD-03**: Each step ends with its D-05 report line, last in the reply; formats match the 22.1 grader regexes (D-05)
+- [ ] **AGD-04**: The cycle continues RED -> GREEN -> REFACTOR -> RED until the request's own goal is met, then stops (D-15)
+- [ ] **AGD-05**: Reference mode and non-command coach mode leave the three skills; `lz-tdd-coach` ships with that content, name-free (D-14, D-16)
+- [ ] **AGD-06**: Descriptions lose the coach framing only; H1s and `## Coach decision procedure` renamed; routing gate GREEN (D-06, D-07)
+- [ ] **AGD-07**: Variant trees rebuild from the converted bodies; CR-01 and WR-06 closed; single-axis and staleness checks in `npm run check` (D-08)
+- [ ] **AGD-08**: Every deterministic check GREEN (`npm run check` in both workspaces, `npm --prefix tools/evals run check`, `claude plugin validate . --strict`); new scripts meet the script bar (D-09, D-12, D-13)
+- [ ] **AGD-09**: Folded todo: seven leaves linked from the smell route; PROJECT.md line 89 corrected; Fowler Sources per the conflict ruling (D-11)
+- [ ] **AGD-10**: Before/after on the 22.1 harness: an after run set on a packaged copy of this phase's last skill commit, same suites, cases, models and n as `baseline-22.1` (paid; needs Lars's approval of its cost at run time)
+- [ ] **AGD-11**: Every skill and reference edit reviewed against the D-17 rule list, one reviewer unprimed (D-10, D-17)
+- [ ] **AGD-12**: Docs follow the change: root README, plugin README, plugin.json and marketplace.json descriptions, PROJECT.md core value, REQUIREMENTS.md out-of-scope row
+
 ## Future Requirements
 
 Deferred to a later lz-tdd release. Tracked, not in this roadmap.
@@ -250,6 +265,18 @@ Which phases cover which requirements. Populated during roadmap creation.
 | EVH-10 | Phase 22.1 | Pending |
 | EVH-11 | Phase 22.1 | Pending |
 | EVH-12 | Phase 22.1 | Pending |
+| AGD-01 | Phase 23 | Pending |
+| AGD-02 | Phase 23 | Pending |
+| AGD-03 | Phase 23 | Pending |
+| AGD-04 | Phase 23 | Pending |
+| AGD-05 | Phase 23 | Pending |
+| AGD-06 | Phase 23 | Pending |
+| AGD-07 | Phase 23 | Pending |
+| AGD-08 | Phase 23 | Pending |
+| AGD-09 | Phase 23 | Pending |
+| AGD-10 | Phase 23 | Pending |
+| AGD-11 | Phase 23 | Pending |
+| AGD-12 | Phase 23 | Pending |
 
 **Coverage:**
 
@@ -307,4 +334,4 @@ Which phases cover which requirements. Populated during roadmap creation.
 > launders a bookkeeping miss into a reasoned position.
 
 *Requirements defined: 2026-07-18*
-*Last updated: 2026-11-25 -- EVH-01..EVH-12 added at Phase 22.1 plan time as a new "Eval harness (EVH)" section, copied from the phase_requirements table in 22.1-RESEARCH.md with each row's decisions in parentheses; coverage 33 -> 45. Prior: 2026-08-03 -- CLS-01..CLS-05 ADDED at Phase 22 plan time as a new "Request classifier correctness (CLS)" section, derived from ROADMAP Phase 22 SC1-SC8 and the locked CONTEXT decisions D-01..D-26; no scope invented. Coverage 28 -> 33. CLS-01..CLS-04 close when `check-rgr-routing.mjs` goes GREEN over the 9-case corpus (Phase 22 waves 2-3). CLS-05 is BUILD-then-HALT and carries an explicit RECONCILE-ON-COMPLETION OBLIGATION: both of its metered rounds -- the placement A/B (D-08..D-13) and the MANDATORY EVL-01 reciprocal trigger regression forced by the D-06 description edits -- need fresh explicit owner approval, so its row stays Pending at phase close BY DESIGN (D-24) and must be reconciled by whoever runs them. That obligation is written down deliberately: it is the drift notice's second durable rule applied FORWARD, so CLS-05 cannot decay into a false "Pending" the way all three EVL rows did. Prior: 2026-08-02 -- ALL THREE EVL requirements reconciled from a false "Pending". EVL-01 -> Complete with a documented shortfall (run 2026-07-21; 92% recall against a self-set 100% target, closed on an independent held-out A/B; the headline predates the shipped D-09 widen). EVL-02 -> Complete, modest and honestly bounded (run 2026-07-22; substance-only Pass@1 0.97 vs 0.87, edge concentrated in 2 of 10 scenarios, the full-run figure vocabulary-inflated and context-only). EVL-03 reconciled to Complete (metered round 2026-07-27/28, 36 runs, $29.04; all 36 captures re-graded 2026-08-02 under the current grader with zero verdict changes, confirming the published numbers are grader-regime-invariant). Prior: 2026-07-22 -- EVL-03 formalized at Phase 21 plan time (D-14): an APPLY-based, 3-arm, multi-dimensional RED eval decomposed into EVL-03.1..EVL-03.7 (BUILD/RUN split) mapping the 5 Phase-21 ROADMAP success criteria, in the EVL-01/EVL-02 "build complete; empirical run gated" closure shape. Coverage 27 -> 28. Prior: 2026-07-21 after Phase 20 completion (25/27 Complete; EVL-01 + EVL-02 Pending build-then-halt per D-11; VIT-02 also Pending, carried).*
+*Last updated: 2026-11-26 -- AGD-01..AGD-12 added at Phase 23 plan time as a new "Agent as developer (AGD)" section, copied from the phase_requirements table in 23-RESEARCH.md with each row's decisions in parentheses; coverage 45 -> 57. Prior: 2026-11-25 -- EVH-01..EVH-12 added at Phase 22.1 plan time as a new "Eval harness (EVH)" section, copied from the phase_requirements table in 22.1-RESEARCH.md with each row's decisions in parentheses; coverage 33 -> 45. Prior: 2026-08-03 -- CLS-01..CLS-05 ADDED at Phase 22 plan time as a new "Request classifier correctness (CLS)" section, derived from ROADMAP Phase 22 SC1-SC8 and the locked CONTEXT decisions D-01..D-26; no scope invented. Coverage 28 -> 33. CLS-01..CLS-04 close when `check-rgr-routing.mjs` goes GREEN over the 9-case corpus (Phase 22 waves 2-3). CLS-05 is BUILD-then-HALT and carries an explicit RECONCILE-ON-COMPLETION OBLIGATION: both of its metered rounds -- the placement A/B (D-08..D-13) and the MANDATORY EVL-01 reciprocal trigger regression forced by the D-06 description edits -- need fresh explicit owner approval, so its row stays Pending at phase close BY DESIGN (D-24) and must be reconciled by whoever runs them. That obligation is written down deliberately: it is the drift notice's second durable rule applied FORWARD, so CLS-05 cannot decay into a false "Pending" the way all three EVL rows did. Prior: 2026-08-02 -- ALL THREE EVL requirements reconciled from a false "Pending". EVL-01 -> Complete with a documented shortfall (run 2026-07-21; 92% recall against a self-set 100% target, closed on an independent held-out A/B; the headline predates the shipped D-09 widen). EVL-02 -> Complete, modest and honestly bounded (run 2026-07-22; substance-only Pass@1 0.97 vs 0.87, edge concentrated in 2 of 10 scenarios, the full-run figure vocabulary-inflated and context-only). EVL-03 reconciled to Complete (metered round 2026-07-27/28, 36 runs, $29.04; all 36 captures re-graded 2026-08-02 under the current grader with zero verdict changes, confirming the published numbers are grader-regime-invariant). Prior: 2026-07-22 -- EVL-03 formalized at Phase 21 plan time (D-14): an APPLY-based, 3-arm, multi-dimensional RED eval decomposed into EVL-03.1..EVL-03.7 (BUILD/RUN split) mapping the 5 Phase-21 ROADMAP success criteria, in the EVL-01/EVL-02 "build complete; empirical run gated" closure shape. Coverage 27 -> 28. Prior: 2026-07-21 after Phase 20 completion (25/27 Complete; EVL-01 + EVL-02 Pending build-then-halt per D-11; VIT-02 also Pending, carried).*

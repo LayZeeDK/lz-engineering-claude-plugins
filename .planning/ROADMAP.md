@@ -505,7 +505,7 @@ recorded in 23-CONTEXT.md D-14). Measured before and after on the Phase 22.1 har
 converting lz-tdd to an agent-as-developer plugin, with `/lz-tdd:lz-tdd-audit` and `/lz-tdd:lz-tdd-review` skills in
 place of coach mode. Placing the conversion of the three existing skills here and the two new skills in 0.0.4 is
 Claude's reading, stated to Lars.
-**Requirements**: TBD
+**Requirements**: AGD-01, AGD-02, AGD-03, AGD-04, AGD-05, AGD-06, AGD-07, AGD-08, AGD-09, AGD-10, AGD-11, AGD-12
 **Depends on:** Phase 22.1
 **Plans:** 0 plans
 

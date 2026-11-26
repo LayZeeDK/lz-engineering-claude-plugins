@@ -69,6 +69,7 @@ validation deps live only in a dev-only eval workspace.
 - [ ] **Phase 22.1: Eval harness on claude plugin eval and slim claude -p, plus a baseline on today's skill text** (INSERTED 2026-11-24, moved from Phase 24)
 - [ ] **Phase 23: Agent-as-developer conversion of lz-red, lz-tpp and lz-refactor, plus the new lz-tdd-coach skill**
 - [ ] **Phase 23.1: Source-name sweep of lz-tdd** (INSERTED 2026-11-24)
+- [ ] **Phase 23.2: TDDux identity** (INSERTED 2026-11-26)
 
 ## Phase Details
 
@@ -538,6 +539,34 @@ result record exists, send its path to the lz-oop session (asked 2026-11-24; its
 
 Plans:
 - [ ] TBD (run /gsd-plan-phase 23.1 to break down)
+
+### Phase 23.2: TDDux identity (INSERTED)
+
+**Goal:** The plugin, its marketplace and its skills carry the TDDux identity, tagline "If it quacks like a bug...",
+and no `lz-tdd` remains in the repository, so the GitHub repo can move to a public `tddux/tddux` repo. Lars
+2026-11-26, verbatim: "When it's a good time between/during/after other planned changes, adopt the new "TDDux"
+identity with tagline "If it quacks like a bug...". When all planned work has completed, the GitHub repo will be
+transferred to a public `tddux/tddux` repo. No `lz-tdd` must remain. Skill names, for example: `/tddux-red` (fully
+qualified name when invoked `/tddux:tddux-red`), `/tddux-review`, and `/tddux-audit`." and "Do it during/right after
+the current milestone".
+**Why last in the milestone (Claude's reading, 2026-11-26):** Phases 23 and 23.1 each compare a before and an after
+arm on the 22.1 harness, and Lars expects names to change how models behave ("Names related to TDD might differ from
+names related to OOP in how they affect models"). Renaming before or between them would mix a name change into both
+comparisons, so the rename runs after 23.1 and carries one trigger check of its own.
+**Proposed mapping (Claude's default; public vocabulary is Lars's call):** plugin `lz-tdd` -> `tddux`; skills
+`lz-red` -> `tddux-red`, `lz-tpp` -> `tddux-tpp`, `lz-refactor` -> `tddux-refactor`, `lz-tdd-coach` (Phase 23) ->
+`tddux-coach`; marketplace `lz-engineering-claude-plugins` -> `tddux`; the 0.0.4 backlog's `lz-tdd-audit` and
+`lz-tdd-review` -> `tddux-audit` and `tddux-review`. Covers tracked file content and names (workspaces under
+`.claude/skills/`, eval suites and graders, checkers, planning records). Open for Lars: whether "no `lz-tdd`" also
+covers the published `lz-tdd@0.0.1` and `lz-tdd@0.0.2` tags and git history (rewriting either is destructive and
+waits for his word; default: keep both), and whether marketplace.json gets a `renames` entry from `lz-tdd` for
+existing installs (it would keep the string; default: no entry). The repo transfer itself is Lars's action.
+**Requirements**: TBD
+**Depends on:** Phase 23.1
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd-plan-phase 23.2 to break down)
 
 ## Backlog
 

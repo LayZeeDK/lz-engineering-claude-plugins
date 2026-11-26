@@ -57,6 +57,7 @@
     "arm": null,
     "overlay": null,
     "red": null,
-    "build": "build"
+    "build": "build",
+    "npm": true
   }
 }

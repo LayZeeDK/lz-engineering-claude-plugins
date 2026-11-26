@@ -39,7 +39,11 @@ interface Fixture {
 
 // A kata clone at <clones>/demo/kata with its lockfile ignored in the clone (as the real kata does), and a repository
 // whose evals/lz-tdd-apply/templates.json names it.
-function fixture(name: string, recipes: (commit: string, blob: string) => Record<string, unknown>): Fixture {
+function fixture(
+  name: string,
+  recipes: (commit: string, blob: string) => Record<string, unknown>,
+  extraFiles: (clone: string) => void = () => {},
+): Fixture {
   const base = `${root}/${name}`;
   const clone = `${base}/clones/demo/kata`;
   mkdirSync(clone, { recursive: true });
@@ -49,6 +53,7 @@ function fixture(name: string, recipes: (commit: string, blob: string) => Record
   put(`${clone}/ts/test/approvals.spec.ts`, 'test("approvals", () => {});\n');
   // An executable file, as srvx has: Windows checkouts carry no exec bit, so the template must take it from the clone.
   put(`${clone}/ts/bin/kata.mjs`, '#!/usr/bin/env node\n');
+  extraFiles(clone);
   git(clone, ['add', '-A']);
   git(clone, ['update-index', '--chmod=+x', 'ts/bin/kata.mjs']);
   const commit = commitAll(clone);
@@ -311,6 +316,7 @@ test('the committed templates.json pins three GildedRose recipes with clone-rela
     overlay: null,
     red: null,
     build: 'build',
+    npm: true,
   });
 });
 
@@ -366,6 +372,29 @@ test('a recipe with a committed lockfile refuses a missing or changed lockfile b
   commitLockfile(f);
   assert.throws(() => buildTemplate(f.repo, f.slimRoot, f.clones, 'built', fakeNpmBuild(calls, 3)), /npm run build exited 3:\nobuild crashed at the end/);
   assert.deepEqual(readdirSync(`${f.slimRoot}/templates`), []);
+});
+
+test('an npm recipe drops the pnpm files and has package scripts call npm run where they called pnpm', () => {
+  const scripts = { lint: 'oxlint .', test: 'pnpm lint && pnpm typecheck && vitest run', bench: 'pnpm --expose-gc node ./b.ts' };
+  const f = fixture('npm-only', (commit) => ({ npm: committedLock(commit, { npm: true }), kept: committedLock(commit) }), (clone) => {
+    put(`${clone}/package.json`, `${JSON.stringify({ name: 'kata', scripts })}\n`);
+    put(`${clone}/pnpm-lock.yaml`, 'lockfileVersion: 9.0\n');
+    put(`${clone}/pnpm-workspace.yaml`, 'packages: []\n');
+  });
+  commitLockfile(f);
+  const npm = buildTemplate(f.repo, f.slimRoot, f.clones, 'npm', fakeNpmBuild({ steps: [] }));
+  const kept = buildTemplate(f.repo, f.slimRoot, f.clones, 'kept', fakeNpmBuild({ steps: [] }));
+
+  assert.deepEqual([existsSync(`${npm}/pnpm-lock.yaml`), existsSync(`${npm}/pnpm-workspace.yaml`)], [false, false]);
+  assert.deepEqual(JSON.parse(readFileSync(`${npm}/package.json`, 'utf8')), {
+    name: 'kata',
+    scripts: { lint: 'oxlint .', test: 'npm run lint && npm run typecheck && vitest run', bench: 'pnpm --expose-gc node ./b.ts' },
+  });
+  assert.equal(git(npm, ['status', '--porcelain']), '');
+  assert.deepEqual([existsSync(`${kept}/pnpm-lock.yaml`), JSON.parse(readFileSync(`${kept}/package.json`, 'utf8')).scripts], [true, scripts]);
+
+  put(`${f.repo}/evals/lz-tdd-apply/templates.json`, JSON.stringify({ bad: committedLock(f.commit, { npm: 'yes' }) }));
+  assert.throws(() => readTemplates(f.repo), /templates\.json bad npm must be true/);
 });
 
 // A crashed build can leave the folder undeletable for a while (measured: EPERM on Windows), and the cleanup must not

@@ -24,6 +24,8 @@ export interface Recipe {
   // A package script `npm run` starts after npm ci. Absent keys stay absent, so a recipe without them keeps its
   // template folder name.
   readonly build?: string;
+  // true: make a pnpm project an npm one (see npmProject). Absent like build.
+  readonly npm?: true;
 }
 
 const segment = /^[A-Za-z0-9._-]+$/;
@@ -68,7 +70,12 @@ function buildOf(value: unknown, what: string): string {
 }
 
 function recipe(value: unknown, what: string): Recipe {
-  const fields = only(value, ['clone', 'commit', 'subdir', 'lockfile', 'arm', 'overlay', 'red', 'build'], what);
+  const fields = only(value, ['clone', 'commit', 'subdir', 'lockfile', 'arm', 'overlay', 'red', 'build', 'npm'], what);
+
+  if (fields['npm'] !== undefined && fields['npm'] !== true) {
+    throw new Error(`${what} npm must be true or absent`);
+  }
+
   const lockfile = only(fields['lockfile'], ['path', 'sha256', 'from'], `${what} lockfile`);
   const arm = fields['arm'] ?? null;
   const red = fields['red'] ?? null;
@@ -103,7 +110,33 @@ function recipe(value: unknown, what: string): Recipe {
     overlay: overlay === null ? null : relativePath(overlay, `${what} overlay`),
     red: redFields === null ? null : { spec: relativePath(redFields['spec'], `${what} red spec`) },
     ...(fields['build'] === undefined ? {} : { build: buildOf(fields['build'], what) }),
+    ...(fields['npm'] === true ? { npm: true } : {}),
   };
+}
+
+// A pnpm project's scripts call `pnpm <script>` and its pnpm files point a session at pnpm, which a run's allow list
+// does not grant. The template drops those files and has every script call `npm run <script>` instead.
+function npmProject(dir: string): void {
+  rmSync(`${dir}/pnpm-lock.yaml`, { force: true });
+  rmSync(`${dir}/pnpm-workspace.yaml`, { force: true });
+  const file = `${dir}/package.json`;
+  const manifest = readJson(file);
+
+  if (!isRecord(manifest)) {
+    throw new Error(`${file} is not a JSON object`);
+  }
+
+  const scripts = manifest['scripts'];
+
+  if (isRecord(scripts)) {
+    for (const [name, command] of Object.entries(scripts)) {
+      if (typeof command === 'string') {
+        scripts[name] = command.replace(/(^|[\s&|;(])pnpm (?=[a-z])/g, '$1npm run ');
+      }
+    }
+  }
+
+  writeFileSync(file, `${JSON.stringify(manifest, null, 2)}\n`);
 }
 
 export function templatesFile(repo: string): string {
@@ -342,6 +375,10 @@ export function buildTemplate(
     if (lockHash !== template.lockfile.sha256) {
       const source = committedLock ?? `${clone}/${template.lockfile.path}`;
       throw new Error(`${source} has sha256 ${lockHash}, not the pinned ${template.lockfile.sha256}`);
+    }
+
+    if (template.npm === true) {
+      npmProject(tmp);
     }
 
     toolchain.install(tmp);

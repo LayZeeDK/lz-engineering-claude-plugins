@@ -507,10 +507,28 @@ place of coach mode. Placing the conversion of the three existing skills here an
 Claude's reading, stated to Lars.
 **Requirements**: AGD-01, AGD-02, AGD-03, AGD-04, AGD-05, AGD-06, AGD-07, AGD-08, AGD-09, AGD-10, AGD-11, AGD-12
 **Depends on:** Phase 22.1
-**Plans:** 0 plans
+**Plans:** 8 plans
 
 Plans:
-- [ ] TBD (run /gsd-plan-phase 23 to break down)
+**Wave 1**
+- [ ] 23-01-PLAN.md -- (wave 1) skill-contract check `tools/evals/check-skills.ts`, RED at HEAD; shared heading renames
+
+**Wave 2** *(blocked on Wave 1 completion)*
+- [ ] 23-02-PLAN.md -- (wave 2) lz-red writes and runs the failing test by default, the phase tracer
+- [ ] 23-03-PLAN.md -- (wave 2) new lz-tdd-coach skill: explains and guides, edits nothing
+
+**Wave 3** *(blocked on Wave 2 completion)*
+- [ ] 23-04-PLAN.md -- (wave 3) lz-tpp applies the transformation and runs the tests by default
+
+**Wave 4** *(blocked on Wave 3 completion)*
+- [ ] 23-05-PLAN.md -- (wave 4) lz-refactor performs the refactoring by default; gate selectors and check script follow
+
+**Wave 5** *(blocked on Wave 4 completion)*
+- [ ] 23-06-PLAN.md -- (wave 5) variant trees rebuilt; staleness and single-axis checks (CR-01, WR-06)
+- [ ] 23-07-PLAN.md -- (wave 5) docs and planning records follow the change; folded reachability todo closed
+
+**Wave 6** *(blocked on Wave 5 completion)*
+- [ ] 23-08-PLAN.md -- (wave 6) paid after run on the 22.1 harness, behind Lars's cost checkpoint
 
 ### Phase 23.1: Source-name sweep of lz-tdd (INSERTED)
 

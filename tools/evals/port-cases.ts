@@ -226,14 +226,18 @@ function graderText(spec: GraderSpec): string {
   return lines.join('\n');
 }
 
-function promptText(ported: PortedCase): string {
-  return ['---', `tags: [${ported.tags.join(', ')}]`, 'max_turns: 3', 'allowed_tools: [Read, Glob, Grep, Skill]', '---', '', ported.body].join(
-    '\n',
-  );
+// The run settings each case's frontmatter carries. Trigger cases get 10 turns, because at 3 a run in the empty run
+// folder was cut off mid-search, and no Agent tool, which two runs called although allowed_tools leaves it out (Lars,
+// 2026-11-26).
+export const triggerSettings = ['max_turns: 10', 'allowed_tools: [Read, Glob, Grep, Skill]', 'disallowed_tools: [Agent]'] as const;
+export const routingSettings = ['max_turns: 3', 'allowed_tools: [Read, Glob, Grep, Skill]'] as const;
+
+function promptText(ported: PortedCase, settings: readonly string[]): string {
+  return ['---', `tags: [${ported.tags.join(', ')}]`, ...settings, '---', '', ported.body].join('\n');
 }
 
 // Writes suite.json and every case, and removes this suite's case folders the generator no longer produces.
-export function writeSuite(dir: string, suite: Record<string, unknown>, cases: readonly PortedCase[]): void {
+export function writeSuite(dir: string, suite: Record<string, unknown>, cases: readonly PortedCase[], settings: readonly string[]): void {
   const name = basename(dir);
   mkdirSync(dir, { recursive: true });
   writeFileSync(`${dir}/suite.json`, `${JSON.stringify(suite, null, 2)}\n`);
@@ -249,7 +253,7 @@ export function writeSuite(dir: string, suite: Record<string, unknown>, cases: r
     const caseDir = `${dir}/${ported.name}`;
     rmSync(caseDir, { recursive: true, force: true });
     mkdirSync(`${caseDir}/graders`, { recursive: true });
-    writeFileSync(`${caseDir}/prompt.md`, promptText(ported));
+    writeFileSync(`${caseDir}/prompt.md`, promptText(ported, settings));
 
     for (const spec of ported.graders) {
       writeFileSync(`${caseDir}/graders/${spec.name}.md`, graderText(spec));
@@ -273,12 +277,12 @@ if (import.meta.main) {
 
   for (const skill of skills) {
     const cases = triggerCases(repo, skill);
-    writeSuite(`${root}/trigger-${skill}`, { backend: 'plugin-eval', ablation: 'none', skill }, cases);
+    writeSuite(`${root}/trigger-${skill}`, { backend: 'plugin-eval', ablation: 'none', skill }, cases, triggerSettings);
     console.log(`trigger-${skill}: ${String(cases.length)} cases`);
   }
 
   const routing = routingCases(repo);
-  writeSuite(`${root}/routing`, { backend: 'plugin-eval', ablation: 'none', skill: null }, routing);
+  writeSuite(`${root}/routing`, { backend: 'plugin-eval', ablation: 'none', skill: null }, routing, routingSettings);
   console.log(`routing: ${String(routing.length)} cases`);
 }
 // Stryker restore all

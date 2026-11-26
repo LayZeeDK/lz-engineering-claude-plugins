@@ -7,7 +7,7 @@ import { after, test } from 'node:test';
 
 import { evalRepo } from './cases.ts';
 import { readGraders } from './grade.ts';
-import { routingCases, triggerCases, writeSuite, type PortedCase } from './port-cases.ts';
+import { routingCases, routingSettings, triggerCases, triggerSettings, writeSuite, type PortedCase } from './port-cases.ts';
 
 const root = mkdtempSync(join(tmpdir(), 'lz-evals-port-')).replaceAll('\\', '/');
 
@@ -147,11 +147,16 @@ test('writeSuite writes prompts and graders the harness reads, drops stale cases
     { name: 'trigger-x-02', tags: ['trigger', 'quiet'], body: 'b query\n', graders: [{ name: 'quiet', skill: 'lz-red', quiet: true }] },
   ];
   put(`${dir}/trigger-x-03/prompt.md`, 'stale\n');
-  writeSuite(dir, { backend: 'plugin-eval', ablation: 'none', skill: 'lz-red' }, cases);
+  writeSuite(dir, { backend: 'plugin-eval', ablation: 'none', skill: 'lz-red' }, cases, triggerSettings);
 
   assert.equal(existsSync(`${dir}/trigger-x-03`), false);
   assert.equal(
     readFileSync(`${dir}/trigger-x-01/prompt.md`, 'utf8'),
+    '---\ntags: [trigger, fire]\nmax_turns: 10\nallowed_tools: [Read, Glob, Grep, Skill]\ndisallowed_tools: [Agent]\n---\n\na query\n',
+  );
+  writeSuite(`${repo}/evals/lz-tdd/routing-x`, { backend: 'plugin-eval', ablation: 'none', skill: null }, [{ name: 'routing-x-01', tags: ['trigger', 'fire'], body: 'a query\n', graders: [] }], routingSettings);
+  assert.equal(
+    readFileSync(`${repo}/evals/lz-tdd/routing-x/routing-x-01/prompt.md`, 'utf8'),
     '---\ntags: [trigger, fire]\nmax_turns: 3\nallowed_tools: [Read, Glob, Grep, Skill]\n---\n\na query\n',
   );
   assert.deepEqual(
@@ -161,7 +166,7 @@ test('writeSuite writes prompts and graders the harness reads, drops stale cases
   assert.equal(readGraders(`${dir}/trigger-x-01`)[0]?.max, null);
 
   commitAll(repo);
-  writeSuite(dir, { backend: 'plugin-eval', ablation: 'none', skill: 'lz-red' }, cases);
+  writeSuite(dir, { backend: 'plugin-eval', ablation: 'none', skill: 'lz-red' }, cases, triggerSettings);
   assert.equal(git(repo, ['status', '--porcelain']), '');
 });
 

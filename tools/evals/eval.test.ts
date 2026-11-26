@@ -210,7 +210,7 @@ test('a paid run books the timing-sensitive lock for a plugin-eval suite, and re
   assert.match(badMinutes.output, /--lock-minutes must be a whole number from 1 to 1440/);
   assert.equal(existsSync(log), false);
 
-  const ran = evalCli(['run', setDir, '--lock-minutes', '7'], locked);
+  const ran = evalCli(['run', setDir, '--lock-minutes', '7', '--lock-note', 'part 1 of 3'], locked);
   assert.equal(ran.status, 0, ran.output);
   assert.equal(argvLines(stubDir), 1);
   const calls = readFileSync(log, 'utf8').split('\n').filter((line) => line !== '').map((line): unknown => JSON.parse(line));
@@ -220,6 +220,8 @@ test('a paid run books the timing-sensitive lock for a plugin-eval suite, and re
     ),
     [['wait', false, '7'], ['acquire', true, '7'], ['release', false, null]],
   );
+  const acquired = calls[1];
+  assert.match(Array.isArray(acquired) ? String(acquired[acquired.indexOf('--task') + 1]) : '', /^lz-tdd eval .*\(part 1 of 3\)$/);
 });
 
 test('stage prints the stage folder of a ref, and a ref that is no commit fails', () => {

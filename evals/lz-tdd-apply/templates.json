@@ -51,12 +51,13 @@
     "subdir": null,
     "lockfile": {
       "path": "package-lock.json",
-      "sha256": "30a1ccf48098340ec63e2aa827c4680dd5f0207623210323a7863bd2ac36a1ec",
+      "sha256": "0085e799225cfc1a9dabf715723eee1b015d2482622f81920f84288519e0a09a",
       "from": "lockfiles/srvx/package-lock.json"
     },
     "arm": null,
     "overlay": null,
     "red": null,
-    "build": "build"
+    "build": "build",
+    "npm": true
   }
 }

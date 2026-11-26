@@ -110,6 +110,11 @@ Thumbs.db
 evals/results/*/*/
 evals/results/*/recheck.json
 
+# Stryker output of the eval harness's mutation gate (tools/evals/stryker.config.ts): reports,
+# the incremental file and the sandbox are local byproducts of a re-runnable check.
+tools/evals/reports/
+tools/evals/.stryker-tmp/
+
 # Clean-room oracle: authoritative copyrighted source excerpts (Fowler/Kerievsky/GoF book
 # patterns in Markdown). NEVER committed. Only the read-only oracle-reviewer subagent reads this;
 # the main authoring context never does, so verbatim book prose cannot leak into the repo (DST-04).

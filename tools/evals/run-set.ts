@@ -473,6 +473,15 @@ export function scriptOrBinary(path: string): Command {
   return path.endsWith('.ts') ? { file: process.execPath, prefix: [path] } : { file: path, prefix: [] };
 }
 
+// The lock slot a part books without a measured estimate: each run's timeout plus 2 minutes, with plugin-eval runs
+// sharing `concurrency` workers and slim runs one after another.
+export function defaultLockMinutes(runs: readonly PlannedRun[], concurrency: number): number {
+  const minutes = (backend: 'plugin-eval' | 'slim'): number =>
+    runs.filter((run) => run.suite.backend === backend).reduce((total, run) => total + run.suite.timeoutMinutes + 2, 0);
+
+  return Math.ceil(minutes('plugin-eval') / concurrency) + minutes('slim');
+}
+
 export interface RunOutcomeEntry {
   readonly run: PlannedRun;
   readonly outcome: RunOutcome;

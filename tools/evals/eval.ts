@@ -45,6 +45,7 @@ import { assertName, isRecord, readJson } from './guards.ts';
 import { claudeCommand, startPluginEvalRun, type PluginEvalContext } from './plugin-eval.ts';
 import {
   acquireRunSetLock,
+  defaultLockMinutes,
   diedRuns,
   newRuns,
   planRuns,
@@ -185,6 +186,7 @@ function lockMode(runs: readonly PlannedRun[], env: NodeJS.ProcessEnv): LockMode
 }
 
 // Plugin-eval runs on the workers first; slim runs one at a time after them, all in one lock slot when one is needed.
+// `prepare` runs once the slot is held, so a refused slot changes nothing on disk.
 async function startRuns(
   runSet: RunSet,
   runs: readonly PlannedRun[],
@@ -192,6 +194,7 @@ async function startRuns(
   minutes: number,
   note: string,
   ctx: Context,
+  prepare: () => void,
 ): Promise<RunOutcomeEntry[]> {
   const pluginRuns = runs.filter((run) => !isSlim(run));
   const slimRuns = runs.filter(isSlim);
@@ -201,6 +204,7 @@ async function startRuns(
     `lz-tdd eval ${runSet.name}: ${String(pluginRuns.length)} plugin eval runs, ${String(concurrency)} at a time, then ${String(slimRuns.length)} slim claude -p runs, one at a time${note}`,
     minutes,
     async () => {
+      prepare();
       const first = await runAll(pluginRuns, concurrency, (run) => startPluginEvalRun(run, ctx));
 
       if (first.some(({ outcome }) => outcome === 'limit') || slimRuns.length === 0) {
@@ -286,15 +290,14 @@ if (import.meta.main) {
       throw new Error(`--concurrency must be a whole number of at least 1, not ${values.concurrency}`);
     }
 
-    // The slot a part books is its measured estimate; without one, the sum of the runs' timeouts.
+    // The slot a part books is its measured estimate; without one, the runs' timeouts as defaultLockMinutes adds them.
     const booked = values['lock-minutes'] === undefined ? null : Number(values['lock-minutes']);
 
     if (booked !== null && (!Number.isInteger(booked) || booked < 1 || booked > 1440)) {
       throw new Error(`--lock-minutes must be a whole number from 1 to 1440, not ${values['lock-minutes'] ?? ''}`);
     }
 
-    const lockMinutes = (runs: readonly PlannedRun[]): number =>
-      booked ?? runs.reduce((total, run) => total + run.suite.timeoutMinutes + 2, 0);
+    const lockMinutes = (runs: readonly PlannedRun[]): number => booked ?? defaultLockMinutes(runs, concurrency);
     const note = values['lock-note'] === undefined ? '' : ` (${values['lock-note']})`;
 
     const runSet = readRunSet(runSetDir);
@@ -314,6 +317,15 @@ if (import.meta.main) {
     if (lockMode(todo, process.env) !== 'none') {
       required('LZ_EVAL_HEAVY_LOCK', process.env);
       required('LZ_EVAL_LOCK_OWNER', process.env);
+
+      const minutes = lockMinutes(todo);
+
+      // heavy-lock.ts refuses a slot above 1440 minutes.
+      if (minutes > 1440) {
+        throw new Error(
+          `the default lock booking is ${String(minutes)} minutes, above 1440; pass --lock-minutes with the part's measured estimate, or split the runs into parts`,
+        );
+      }
     }
 
     const plugin = todo.filter((run) => !isSlim(run));
@@ -359,11 +371,12 @@ if (import.meta.main) {
     } else if (todo.length === 0 && died.length === 0) {
       console.log(`every run of ${runSet.name} has a result; raise runs in run-set.json for more`);
     } else {
-      if (command === 'rerun') {
-        setAside(runSet.dir, todo.map((run) => run.runDir));
-      }
-
-      outcomes = await startRuns(runSet, todo, concurrency, lockMinutes(todo), note, ctx);
+      const setRerunsAside = (): void => {
+        if (command === 'rerun') {
+          setAside(runSet.dir, todo.map((run) => run.runDir));
+        }
+      };
+      outcomes = await startRuns(runSet, todo, concurrency, lockMinutes(todo), note, ctx, setRerunsAside);
     }
 
     reportDied(runSet, died);

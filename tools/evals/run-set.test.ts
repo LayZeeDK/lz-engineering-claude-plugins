@@ -7,6 +7,7 @@ import { after, test } from 'node:test';
 
 import {
   acquireRunSetLock,
+  defaultLockMinutes,
   diedRuns,
   newRuns,
   planRuns,
@@ -150,6 +151,50 @@ test('planRuns refuses a selection that matches no case, such as a misspelt tag'
   put(`${setDir}/run-set.json`, JSON.stringify({ cells: [{ arm: 'head', ref, models: { [opus]: 1 }, suites: [{ suite: 'demo', tags: ['bb'] }] }] }));
 
   assert.throws(() => plan(repo, setDir), /suite demo: the selection matches no case/);
+});
+
+test('defaultLockMinutes books plugin-eval runs by their concurrency and slim runs one after another', () => {
+  const { repo, setDir } = scenario('lock-minutes', { [opus]: 1 });
+  const pluginRuns = plan(repo, setDir);
+  const [first] = pluginRuns;
+  assert.ok(first !== undefined);
+  const slimRun: PlannedRun = { ...first, suite: { ...first.suite, backend: 'slim', timeoutMinutes: 20 } };
+
+  assert.deepEqual(
+    [defaultLockMinutes([...pluginRuns, slimRun], 3), defaultLockMinutes([...pluginRuns, slimRun], 1), defaultLockMinutes(pluginRuns, 3)],
+    [12 + 22, 34 + 22, 12],
+  );
+});
+
+test('rerun refuses a default booking above 1440 minutes before it sets a run aside or calls the lock', () => {
+  const { repo, setDir, env } = scenario('lock-cap', { [opus]: 1 });
+  put(`${repo}/evals/lz-tdd/demo/suite.json`, '{"backend":"plugin-eval","timeoutMinutes":1500}');
+  git(repo, ['-c', 'user.name=lz-tdd-eval', '-c', 'user.email=larsbrinknielsen@gmail.com', 'commit', '-q', '-am', 'long timeout']);
+  const runDir = `${setDir}/head/${opus}/demo-01/run-1`;
+  mkdirSync(`${runDir}/raw`, { recursive: true });
+  const lockLog = `${root}/lock-cap/lock.log`;
+  const lock = `${root}/lock-cap/fake-lock.ts`;
+  put(lock, `import { appendFileSync } from 'node:fs';\nappendFileSync(${JSON.stringify(lockLog)}, process.argv.slice(2).join(' ') + '\\n');\n`);
+  const paid = { ...env, LZ_EVAL_CLAUDE: `${root}/lock-cap/claude.ts`, LZ_EVAL_HEAVY_LOCK: lock, LZ_EVAL_LOCK_OWNER: 'owner' };
+
+  const refused = evalCli(['rerun', setDir, runDir, '--concurrency', '1'], paid);
+  assert.equal(refused.status, 1, refused.output);
+  assert.match(refused.output, /1502 minutes.*above 1440.*--lock-minutes/);
+  assert.deepEqual([existsSync(`${setDir}/set-aside-1`), existsSync(`${runDir}/raw`), existsSync(lockLog)], [false, true, false]);
+});
+
+test('rerun sets its runs aside only once the lock is held, so a refused acquire leaves the run set as it was', () => {
+  const { setDir, env } = scenario('lock-refused', { [opus]: 1 });
+  const runDir = `${setDir}/head/${opus}/demo-01/run-1`;
+  mkdirSync(`${runDir}/raw`, { recursive: true });
+  const lock = `${root}/lock-refused/fake-lock.ts`;
+  put(lock, "process.exitCode = process.argv[2] === 'acquire' ? 1 : 0;\n");
+  const paid = { ...env, LZ_EVAL_CLAUDE: `${root}/lock-refused/claude.ts`, LZ_EVAL_HEAVY_LOCK: lock, LZ_EVAL_LOCK_OWNER: 'owner' };
+
+  const refused = evalCli(['rerun', setDir, runDir], paid);
+  assert.equal(refused.status, 1, refused.output);
+  assert.match(refused.output, /heavy-lock acquire exited 1/);
+  assert.deepEqual([existsSync(`${setDir}/set-aside-1`), existsSync(`${runDir}/raw`)], [false, true]);
 });
 
 test('planRuns refuses a plan in which two entries resolve to one run folder, naming the folder and both suites', () => {

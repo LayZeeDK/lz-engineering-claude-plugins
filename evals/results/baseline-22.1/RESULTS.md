@@ -474,6 +474,14 @@ output in each run's raw folder.
   section.
 - srvx ran last, after the committed analysis of the other suites (Lars's 2026-11-25 ruling). Its template is built
   as an npm project; the first measured run (Sonnet, $0.14) needed no change to the suite's allow list.
+- srvx `edited-test` re-grade (2026-11-27, no run cost): the grader counted only an Edit call on a file under
+  `test/`, and most runs created the test file with Write. It now counts Edit or Write (`tool: 'Edit|Write'`). The
+  24 srvx runs were graded again from their saved transcripts with the changed grader: `edited-test` passes in 24 of
+  24 (srvx Sonnet natural 5/5, invoke 5/5; srvx Opus natural 3/3, invoke 3/3; srvx-no-plugin Sonnet 5/5, Opus 3/3).
+  The tables above keep the figures of the original grading (3/5, 0/3, 2/5, 0/3 with; 0/5, 0/3 without); the result.json
+  files were not rewritten. The Sonnet difference of 3/5 against 0/5 came from the grader, not from the plugin, so
+  `apply-lz-red-srvx` still does not discriminate, now with every grader equal on both sides except `red-line` (0
+  everywhere) and `skill-fired`.
 
 ### Trigger recall next to the reproduction
 

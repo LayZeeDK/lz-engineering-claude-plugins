@@ -108,6 +108,7 @@ export interface SideCount {
 
 export interface WithWithoutRow {
   readonly suite: string;
+  readonly arm: string;
   readonly model: string;
   readonly grader: string;
   readonly with: SideCount;
@@ -121,7 +122,7 @@ export interface WithWithoutRow {
 export type Discrimination = 'discriminates' | 'does not discriminate' | 'no without arm';
 
 export interface WithWithout {
-  readonly verdicts: readonly { readonly suite: string; readonly verdict: Discrimination }[];
+  readonly verdicts: readonly { readonly suite: string; readonly arm: string; readonly verdict: Discrimination }[];
   readonly rows: readonly WithWithoutRow[];
 }
 
@@ -312,67 +313,82 @@ function skillGraders(rows: readonly RunRow[]): Set<string> {
   return new Set(dirs.flatMap((dir) => readGraders(dir).filter((def) => def.type === 'tool_used' && def.tool === 'Skill').map((def) => def.name)));
 }
 
-// The with side is every run with a plugin. The without side is the CLI's without arm for a with-without suite, the
-// runs of a cell without a ref for any other suite, and an invoke twin's natural suite's without side.
+// Per suite and plugin arm: the with side is that arm's runs, never pooled with another arm's. The without side is the
+// CLI's without arm for a with-without suite, the runs of a cell without a ref for any other suite, and an invoke
+// twin's natural suite's without side.
 function withWithout(rows: readonly RunRow[]): WithWithout {
   const suites = unique(rows.map(({ run }) => run.suite.name));
   const excluded = skillGraders(rows);
   const inSuite = (name: string): RunRow[] => rows.filter(({ run }) => run.suite.name === name);
-  const withoutOf = (name: string): SideEntry[] =>
+  const withoutOf = (name: string, arm: string): SideEntry[] =>
     inSuite(name).flatMap(({ run, facts }): SideEntry[] => {
       if (run.suite.ablation === 'with-without') {
-        return facts.without === null ? [] : [{ model: run.model, verdicts: facts.without }];
+        return facts.without === null || run.arm !== arm ? [] : [{ model: run.model, verdicts: facts.without }];
       }
 
       return run.ref === null ? [{ model: run.model, verdicts: facts.with }] : [];
     });
-  const verdicts: { suite: string; verdict: Discrimination }[] = [];
+  const verdicts: { suite: string; arm: string; verdict: Discrimination }[] = [];
   const table: WithWithoutRow[] = [];
 
   for (const suite of suites) {
     const natural = rows.find(({ run }) => run.suite.invokeTwin === suite)?.run.suite.name;
-    const without = tally(withoutOf(natural ?? suite), excluded);
-    const withSide = tally(
-      inSuite(suite).flatMap(({ run, facts }) => (run.ref === null ? [] : [{ model: run.model, verdicts: facts.with }])),
-      excluded,
-    );
+    const pluginArms = unique(inSuite(suite).flatMap(({ run }) => (run.ref === null ? [] : [run.arm])));
 
-    if (without.size === 0) {
-      verdicts.push({ suite, verdict: 'no without arm' });
-      continue;
+    for (const arm of pluginArms) {
+      const without = tally(withoutOf(natural ?? suite, arm), excluded);
+      const withSide = tally(
+        inSuite(suite).flatMap(({ run, facts }) => (run.arm === arm ? [{ model: run.model, verdicts: facts.with }] : [])),
+        excluded,
+      );
+
+      if (without.size === 0) {
+        verdicts.push({ suite, arm, verdict: 'no without arm' });
+        continue;
+      }
+
+      const armRows = sideRows(suite, arm, withSide, without);
+      table.push(...armRows);
+      verdicts.push({ suite, arm, verdict: armRows.some(({ overlap }) => !overlap) ? 'discriminates' : 'does not discriminate' });
     }
-
-    const suiteRows = [...withSide].flatMap(([model, graders]) =>
-      [...graders].flatMap(([grader, withCount]): WithWithoutRow[] => {
-        const withoutCount = without.get(model)?.get(grader);
-
-        if (withoutCount === undefined) {
-          return [];
-        }
-
-        const withInterval = wilson(withCount.passed, withCount.total);
-        const withoutInterval = wilson(withoutCount.passed, withoutCount.total);
-
-        return [
-          {
-            suite,
-            model,
-            grader,
-            with: withCount,
-            without: withoutCount,
-            delta: withCount.passed / withCount.total - withoutCount.passed / withoutCount.total,
-            withInterval,
-            withoutInterval,
-            overlap: withInterval[0] <= withoutInterval[1] && withoutInterval[0] <= withInterval[1],
-          },
-        ];
-      }),
-    );
-    table.push(...suiteRows);
-    verdicts.push({ suite, verdict: suiteRows.some(({ overlap }) => !overlap) ? 'discriminates' : 'does not discriminate' });
   }
 
   return { verdicts, rows: table };
+}
+
+function sideRows(
+  suite: string,
+  arm: string,
+  withSide: ReadonlyMap<string, ReadonlyMap<string, SideCount>>,
+  without: ReadonlyMap<string, ReadonlyMap<string, SideCount>>,
+): WithWithoutRow[] {
+  return [...withSide].flatMap(([model, graders]) =>
+    [...graders].flatMap(([grader, withCount]): WithWithoutRow[] => {
+      const withoutCount = without.get(model)?.get(grader);
+
+      if (withoutCount === undefined) {
+        return [];
+      }
+
+      const withInterval = wilson(withCount.passed, withCount.total);
+      const withoutInterval = wilson(withoutCount.passed, withoutCount.total);
+
+      return [
+        {
+          suite,
+          arm,
+          model,
+          grader,
+          with: withCount,
+          without: withoutCount,
+          delta: withCount.passed / withCount.total - withoutCount.passed / withoutCount.total,
+          withInterval,
+          withoutInterval,
+          overlap: withInterval[0] <= withoutInterval[1] && withoutInterval[0] <= withInterval[1],
+        },
+      ];
+    }),
+  );
 }
 
 export function aggregate(runSetDir: string, plan: readonly PlannedRun[], options: AggregateOptions): Summary {
@@ -461,20 +477,20 @@ export function renderResults(summary: Summary): string {
     lines.push(
       '## With and without',
       '',
-      '| Suite | Verdict |',
-      '|---|---|',
-      ...summary.withWithout.verdicts.map(({ suite, verdict }) => `| ${suite} | ${verdict} |`),
+      '| Suite | Arm | Verdict |',
+      '|---|---|---|',
+      ...summary.withWithout.verdicts.map(({ suite, arm, verdict }) => `| ${suite} | ${arm} | ${verdict} |`),
       '',
     );
   }
 
   if (summary.withWithout.rows.length > 0) {
     lines.push(
-      '| Suite | Model | Grader | With | Without | Delta | With 95% | Without 95% | Overlap |',
-      '|---|---|---|---|---|---|---|---|---|',
+      '| Suite | Arm | Model | Grader | With | Without | Delta | With 95% | Without 95% | Overlap |',
+      '|---|---|---|---|---|---|---|---|---|---|',
       ...summary.withWithout.rows.map(
         (row) =>
-          `| ${row.suite} | ${row.model} | ${row.grader} | ${count(row.with)} | ${count(row.without)} | ${row.delta.toFixed(2)} | ${interval(row.withInterval)} | ${interval(row.withoutInterval)} | ${row.overlap ? 'yes' : 'no'} |`,
+          `| ${row.suite} | ${row.arm} | ${row.model} | ${row.grader} | ${count(row.with)} | ${count(row.without)} | ${row.delta.toFixed(2)} | ${interval(row.withInterval)} | ${interval(row.withoutInterval)} | ${row.overlap ? 'yes' : 'no'} |`,
       ),
       '',
     );

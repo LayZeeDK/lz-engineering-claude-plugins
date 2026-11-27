@@ -92,6 +92,18 @@ test('readGrader refuses a type or key the model does not hold, naming the file'
   assert.throws(() => grader('bad-min', ['type: tool_used', 'tool: Read', 'min: -1']), /bad-min\.md.*min/);
 });
 
+test('readGrader refuses a pattern that is not a valid regex with its flags, naming the file', () => {
+  assert.throws(() => grader('bad-pattern', ['type: regex', "pattern: 'a{'", 'flags: u']), /bad-pattern\.md.*pattern is not a valid regex/);
+});
+
+test('readGrader refuses an input_match that is not a valid regex, naming the file', () => {
+  assert.throws(() => grader('bad-input', ['type: tool_used', 'tool: Edit', "input_match: 'src[\\\\/]+(a'"]), /bad-input\.md.*input_match is not a valid regex/);
+});
+
+test('readGrader refuses a min above max, which no run can pass', () => {
+  assert.throws(() => grader('never', ['type: tool_used', 'tool: Edit', 'min: 2', 'max: 1']), /never\.md.*min 2 is above max 1/);
+});
+
 test('tool_used counts calls of the tool whose JSON input matches, between min and max', () => {
   const fired = grader('fired', skillFired);
   const quiet = grader('quiet-red', [...skillFired, 'min: 0', 'max: 0', 'arm: both']);

@@ -86,6 +86,21 @@ export function readGrader(file: string): GraderDef {
     throw fail('a tool_used grader needs a tool');
   }
 
+  if (def.max !== null && def.min > def.max) {
+    throw fail(`min ${String(def.min)} is above max ${String(def.max)}, so no run can pass`);
+  }
+
+  // Compiled here, before any session is paid for, so a bad pattern never fails a finished run.
+  const compile = (key: string, source: string | null, flags: string): void => {
+    try {
+      new RegExp(source ?? '', flags);
+    } catch (error) {
+      throw fail(`${key} is not a valid regex: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  };
+  compile('pattern', def.pattern, def.flags);
+  compile('input_match', def.inputMatch, '');
+
   return def;
 }
 

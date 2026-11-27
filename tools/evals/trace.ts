@@ -148,6 +148,8 @@ export interface ToolCall {
   readonly input: unknown;
   readonly isError: boolean;
   readonly denied: boolean;
+  // A command that ran and exited non-zero is an error result that starts "Exit code <n>"; null for any other result.
+  readonly exitCode: number | null;
 }
 
 interface Block {
@@ -172,11 +174,21 @@ function blocks(entries: readonly unknown[]): Block[] {
 // Claude Code 2.1.327 records a refused call only as an error tool_result with this text, in plugin-eval traces
 // (dontAsk mode) and in slim transcripts alike; no permissionDecision entry is written.
 function refusal(content: unknown): boolean {
+  return /^Permission to use \S+ .*has been denied/.test(resultText(content));
+}
+
+function resultText(content: unknown): string {
   const text = Array.isArray(content)
     ? content.map((part) => (isRecord(part) && typeof part['text'] === 'string' ? part['text'] : '')).join('\n')
     : content;
 
-  return typeof text === 'string' && /^Permission to use \S+ .*has been denied/.test(text);
+  return typeof text === 'string' ? text : '';
+}
+
+function exitCode(isError: boolean, content: unknown): number | null {
+  const code = isError ? /^Exit code (\d+)/.exec(resultText(content))?.[1] : undefined;
+
+  return code === undefined ? null : Number(code);
 }
 
 export function toolCalls(entries: readonly unknown[]): ToolCall[] {
@@ -198,6 +210,7 @@ export function toolCalls(entries: readonly unknown[]): ToolCall[] {
         input: block['input'],
         isError,
         denied: (isRecord(decision) && decision['decision'] === 'reject') || (isError && refusal(found?.block['content'])),
+        exitCode: exitCode(isError, found?.block['content']),
       };
     });
 }

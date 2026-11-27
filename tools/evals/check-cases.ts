@@ -305,7 +305,7 @@ function fixtureEvidence(value: unknown, what: string): Evidence {
       throw new Error(`${what} evidence tool call ${String(index)} has no name`);
     }
 
-    return { id: `fixture-${String(index)}`, name: call['name'], input: call['input'] ?? null, isError: false, denied: false };
+    return { id: `fixture-${String(index)}`, name: call['name'], input: call['input'] ?? null, isError: false, denied: false, exitCode: null };
   });
 
   return { calls, lastMessage: value['lastMessage'] };

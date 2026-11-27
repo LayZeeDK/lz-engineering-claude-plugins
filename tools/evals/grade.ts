@@ -144,8 +144,15 @@ function uniqueCalls(calls: readonly ToolCall[]): ToolCall[] {
   });
 }
 
-// A slim run's evidence: the tool calls of every session its --out files name (a resume may fork a new one), with
-// their subagents, each call once; and the reply of the latest --out file.
+// A refused call, or a call whose result is an error (an Edit that found no match), changed nothing; a command that ran
+// and exited non-zero, such as a test run with a failing test, did run.
+function tookEffect(call: ToolCall): boolean {
+  return !call.denied && (!call.isError || call.exitCode !== null);
+}
+
+// A slim run's evidence: the tool calls that took effect in every session its --out files name (a resume may fork a
+// new one), with their subagents, each call once; and the reply of the latest --out file. Slim suites are graded only
+// here, so they count effects; plugin-eval traces keep the CLI's count, which crosscheck compares against.
 export function runEvidence(runDir: string, projectsDir: string): Evidence {
   const outs = outFiles(`${runDir}/raw`).map((file) => slimOutput(readJson(file)));
   const sessions = [
@@ -167,7 +174,10 @@ export function runEvidence(runDir: string, projectsDir: string): Evidence {
   });
   const latest = outs.at(-1);
 
-  return { calls: uniqueCalls(calls), lastMessage: (latest === undefined ? null : resultFacts(latest.result).resultText) ?? '' };
+  return {
+    calls: uniqueCalls(calls).filter(tookEffect),
+    lastMessage: (latest === undefined ? null : resultFacts(latest.result).resultText) ?? '',
+  };
 }
 
 // A plugin-eval trace is the session's stream-json: the same assistant and user entries, then one result entry.

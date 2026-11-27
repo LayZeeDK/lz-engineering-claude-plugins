@@ -5,7 +5,7 @@ import { join } from 'node:path';
 import { after, test } from 'node:test';
 
 import type { Suite } from './cases.ts';
-import { crosscheckRunSet, gradeRun, readGrader, runEvidence, sessionTranscripts, type GraderDef } from './grade.ts';
+import { crosscheckRunSet, gradeRun, readGrader, runEvidence, sessionTranscripts, traceEvidence, type GraderDef } from './grade.ts';
 import type { PlannedRun, RunResult } from './run-set.ts';
 import { projectFolder } from './slim.ts';
 import { toolCalls, type ToolCall } from './trace.ts';
@@ -30,7 +30,7 @@ function grader(name: string, lines: readonly string[]): GraderDef {
 }
 
 function call(name: string, input: unknown, id = `t-${name}-${JSON.stringify(input).length}`): ToolCall {
-  return { id, name, input, isError: false, denied: false };
+  return { id, name, input, isError: false, denied: false, exitCode: null };
 }
 
 function lines(entries: readonly unknown[]): string {
@@ -200,6 +200,60 @@ test('runEvidence reads every session of a slim run with its subagents, once per
   const missing = `${root}/evidence-missing`;
   put(`${missing}/raw/result.json`, slimOut('77777777-7777-4777-8777-777777777777', 'done', cwd));
   assert.throws(() => runEvidence(missing, projects), /no transcript for session 77777777-7777-4777-8777-777777777777/);
+});
+
+function failedUse(id: string, name: string, input: unknown, content: string): unknown[] {
+  return [
+    { type: 'assistant', message: { content: [{ type: 'tool_use', id, name, input }] } },
+    { type: 'user', message: { content: [{ type: 'tool_result', tool_use_id: id, content, is_error: true }] } },
+  ];
+}
+
+function slimEvidence(name: string, entries: readonly unknown[]): string[] {
+  const projects = `${root}/projects-${name}`;
+  const cwd = `S:/slim/runs/${name}`;
+  const runDir = `${root}/${name}-run`;
+  put(`${runDir}/raw/result.json`, slimOut(sessionA, 'done', cwd));
+  put(`${projects}/${projectFolder(cwd)}/${sessionA}.jsonl`, lines(entries));
+
+  return runEvidence(runDir, projects).calls.map(({ id }) => id);
+}
+
+test('runEvidence leaves out a slim call whose result is an error, such as an Edit that changed nothing', () => {
+  const entries = [
+    ...toolUse('e1', 'Edit', { file_path: 'test/a.test.ts' }),
+    ...failedUse('e2', 'Edit', { file_path: 'test/b.test.ts' }, '<tool_use_error>String to replace not found in file.</tool_use_error>'),
+  ];
+
+  assert.deepEqual(slimEvidence('failed-edit', entries), ['e1']);
+});
+
+test('runEvidence keeps a slim command that ran and exited non-zero, such as a test run with a failing test', () => {
+  const entries = [
+    ...failedUse('b1', 'Bash', { command: 'npx vitest run' }, 'Exit code 1\n FAIL  test/a.test.ts > adds'),
+    ...failedUse('b2', 'Bash', { command: 'npx jest' }, 'This command requires approval'),
+  ];
+
+  assert.deepEqual(slimEvidence('exited', entries), ['b1']);
+});
+
+test('runEvidence leaves out a slim call that a permission decision rejected, with or without an error result', () => {
+  const entries = [
+    { type: 'assistant', message: { content: [{ type: 'tool_use', id: 'w1', name: 'Write', input: { file_path: 'src/a.ts' } }] } },
+    { type: 'user', permissionDecision: { decision: 'reject' }, message: { content: [{ type: 'tool_result', tool_use_id: 'w1', content: 'denied' }] } },
+    ...toolUse('w2', 'Write', { file_path: 'test/a.test.ts' }),
+  ];
+
+  assert.deepEqual(slimEvidence('rejected', entries), ['w2']);
+});
+
+test('traceEvidence keeps every plugin-eval call, failed or refused, as the CLI counts them', () => {
+  const entries = [
+    ...failedUse('e1', 'Edit', { file_path: 'a.ts' }, 'String to replace not found in file.'),
+    ...failedUse('w1', 'Write', { file_path: 'b.ts' }, 'Permission to use Write has been denied.'),
+  ];
+
+  assert.deepEqual(traceEvidence(entries).calls.map(({ id }) => id), ['e1', 'w1']);
 });
 
 function plannedRun(runDir: string, caseName: string): PlannedRun {

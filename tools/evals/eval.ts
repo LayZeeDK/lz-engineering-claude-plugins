@@ -40,7 +40,7 @@ import { basename, join, relative, resolve } from 'node:path';
 import { parseArgs } from 'node:util';
 import { aggregate, recheckCases, renderResults } from './aggregate.ts';
 import { evalRepo, evalsRoots } from './cases.ts';
-import { crosscheckRunSet, readGraders } from './grade.ts';
+import { crosscheckRunSet } from './grade.ts';
 import { assertName, isRecord, readJson } from './guards.ts';
 import { claudeCommand, startPluginEvalRun, type PluginEvalContext } from './plugin-eval.ts';
 import {
@@ -58,6 +58,7 @@ import {
   type Trees,
 } from './run-set.ts';
 import {
+  readCaseInputs,
   required,
   resumeSlimRun,
   runSlimCommand,
@@ -321,11 +322,9 @@ if (import.meta.main) {
       throw new Error(`plugin eval has no resume; rerun it: ${plugin.map((run) => shortName(runSet, run)).join(', ')}`);
     }
 
-    // A slim run is graded by the harness after it has paid for the session, so its graders must read now.
-    for (const run of todo.filter(isSlim)) {
-      readGraders(run.caseInfo.dir);
-    }
-
+    // A slim run is graded by the harness after it has paid for the session, so its graders must read now; they and the
+    // scaffold script are kept from here on, so a case edited while the runs go on changes none of them.
+    const cases = new Map([...new Set(todo.filter(isSlim).map((run) => run.caseInfo.dir))].map((dir) => [dir, readCaseInputs(dir)]));
     const trees = stageRuns(repo, todo, stageRoot);
     // A resumed session goes on in the folder it has; only a fresh start copies a template.
     const targets = command === 'resume' ? [] : todo.flatMap((run) => (isSlim(run) && run.suite.target !== null ? [run.suite.target] : []));
@@ -338,6 +337,7 @@ if (import.meta.main) {
       projectsDir,
       trees,
       templates,
+      cases,
     };
     let outcomes: RunOutcomeEntry[] = [];
 

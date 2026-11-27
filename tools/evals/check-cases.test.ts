@@ -218,6 +218,13 @@ test('a missing scaffold script and a slim suite whose target is not a template 
   expectProblem(noTarget, /apply-x: target other is not in templates\.json/);
 });
 
+test('a grader naming two tools is a problem in a plugin-eval suite, where the CLI takes one tool name', () => {
+  const repo = cleanRepo();
+  const either = ['type: tool_used', "tool: 'Edit|Write'", "input_match: 'a\\.test\\.ts'"];
+  graderFile(`${repo}/evals/lz-tdd/doing-x/doing-x-01/graders/wrote.md`, either);
+  expectProblem(repo, /doing-x-01: grader wrote names tools Edit\|Write, which only a slim suite can grade/);
+});
+
 test('an unreadable suite.json or grader is a problem, not a crash', () => {
   const repo = cleanRepo();
   put(`${repo}/evals/lz-tdd/doing-x/suite.json`, '{"backend":"plugin-eval","skil":"lz-red"}\n');

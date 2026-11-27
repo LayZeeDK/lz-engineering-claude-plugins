@@ -386,6 +386,12 @@ export function lintCases(repo: string): LintReport {
     for (const def of lintCase.graders) {
       const key = graderKey(def);
 
+      if (lintCase.suite.backend !== 'slim' && def.tool?.includes('|') === true) {
+        problems.push(
+          `${shown(repo, lintCase.path)}: grader ${def.name} names tools ${def.tool}, which only a slim suite can grade`,
+        );
+      }
+
       if (!used.has(key)) {
         used.set(key, `${shown(repo, lintCase.path)}/graders/${def.name}.md`);
       }

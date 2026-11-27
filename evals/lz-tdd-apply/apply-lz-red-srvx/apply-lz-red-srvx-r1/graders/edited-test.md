@@ -1,7 +1,7 @@
 ---
 type: tool_used
-tool: Edit
+tool: 'Edit|Write'
 input_match: '"file_path"\s*:\s*"[^"]*[\\/]+test[\\/]+[^"]*\.ts"'
 ---
 
-The red step edited a test file under test/.
+The red step edited or created a test file under test/.

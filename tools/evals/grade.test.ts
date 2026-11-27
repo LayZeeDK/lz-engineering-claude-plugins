@@ -113,6 +113,19 @@ test('tool_used counts calls of the tool whose JSON input matches, between min a
   );
 });
 
+test('a tool_used grader naming two tools as Edit|Write counts a matching call of either', () => {
+  const testFile = ['type: tool_used', "tool: 'Edit|Write'", "input_match: '[\\\\/]+test[\\\\/]+[^\"]*\\.ts\"'"];
+  const editedTest = grader('edited-test', testFile);
+  const passed = (name: string, path: string): boolean =>
+    gradeRun([editedTest], { calls: [call(name, { file_path: path })], lastMessage: '' })[0]?.passed ?? false;
+
+  assert.equal(passed('Write', 'D:\\tmp\\srvx\\test\\static.test.ts'), true);
+  assert.equal(passed('Edit', 'D:/tmp/srvx/test/static.test.ts'), true);
+  assert.equal(passed('Write', 'D:/tmp/srvx/src/static.ts'), false);
+  assert.equal(passed('Read', 'D:/tmp/srvx/test/static.test.ts'), false);
+  assert.equal(passed('MultiEdit|Write', 'D:/tmp/srvx/test/static.test.ts'), false);
+});
+
 test('a path-tail input_match matches a Windows path and a forward-slash path in the JSON-encoded input', () => {
   const leaf = grader('leaf-read', ['type: tool_used', 'tool: Read', "input_match: 'references[\\\\/]+transformations\\.md'", 'arm: with-only']);
   const read = (path: string): boolean => gradeRun([leaf], { calls: [call('Read', { file_path: path })], lastMessage: '' })[0]?.passed ?? false;

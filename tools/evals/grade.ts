@@ -111,8 +111,9 @@ function passes(def: GraderDef, evidence: Evidence): boolean {
   }
 
   const inputMatch = def.inputMatch === null ? null : new RegExp(def.inputMatch);
+  const tools = (def.tool ?? '').split('|');
   const count = evidence.calls.filter(
-    (call) => call.name === def.tool && (inputMatch === null || inputMatch.test(JSON.stringify(call.input ?? null))),
+    (call) => tools.includes(call.name) && (inputMatch === null || inputMatch.test(JSON.stringify(call.input ?? null))),
   ).length;
 
   return def.min <= count && (def.max === null || count <= def.max);

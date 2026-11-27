@@ -509,11 +509,11 @@ tell with and without apart in this run set. None was changed here.
   to 3/3).
 - `edited-production` on apply-lz-refactor-gr4: the skill often declines the refactor (as in the recorded result
   at 877aef3), so the grader scores that behaviour as a failure; with 1/5 vs without 4/5 on Sonnet.
-- `edited-test` on the srvx suites accepts only an Edit call on a file under `test/`. The prompt asks the model to
-  add a test under `test/`, and a new test file is written with Write. In 9 of the 24 srvx runs the model's final
-  message says it added a new test file; `edited-test` failed in 8 of them (5 in the without arm, read from the
-  final messages, not checked against the traces). Opus scores 0/3 in every srvx cell. The Sonnet delta of +0.60 on
-  apply-lz-red-srvx is therefore not a measure of the skill.
+- `edited-test` on the srvx suites accepted only an Edit call on a file under `test/` when these runs were graded.
+  The prompt asks the model to add a test under `test/`, and in 24 of the 24 srvx runs the session created that
+  file with Write (measured from the transcripts); the grader passed only in the 5 runs that also made an Edit. The
+  Sonnet delta of +0.60 on apply-lz-red-srvx is therefore not a measure of the skill. The re-grade note above gives
+  the figures under the corrected grader.
 - `skill-fired` on the natural apply suites, Sonnet: apply-lz-tpp 0/5 and apply-lz-refactor 0/5 (Opus 3/3 in
   both); apply-lz-red and apply-lz-red-srvx 5/5.
 

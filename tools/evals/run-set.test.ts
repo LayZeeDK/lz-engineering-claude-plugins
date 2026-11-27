@@ -16,6 +16,7 @@ import {
   runAll,
   runState,
   setAside,
+  spawnLogged,
   writeResult,
   type PlannedRun,
   type RunOutcome,
@@ -195,6 +196,43 @@ test('rerun sets its runs aside only once the lock is held, so a refused acquire
   assert.equal(refused.status, 1, refused.output);
   assert.match(refused.output, /heavy-lock acquire exited 1/);
   assert.deepEqual([existsSync(`${setDir}/set-aside-1`), existsSync(`${runDir}/raw`)], [false, true]);
+});
+
+test('spawnLogged stops a child that outlives its timeout and reports that it timed out', async () => {
+  const started = Date.now();
+  const spawned = await spawnLogged({ file: process.execPath, prefix: ['-e', 'setTimeout(() => {}, 20000)'] }, [], `${root}/spawn-timeout`, 'hang', 500);
+
+  assert.deepEqual([spawned.timedOut, Date.now() - started < 15_000], [true, true]);
+});
+
+test('spawnLogged stops the timed-out child together with the processes it started', async () => {
+  const marker = `${root}/spawn-tree/grandchild-ran`;
+  const grandchild = `setTimeout(() => require('node:fs').writeFileSync(${JSON.stringify(marker)}, 'x'), 3000)`;
+  // Detached on Windows, where Node.js would otherwise end it with its parent; claude.exe's own children need not be.
+  const detached = process.platform === 'win32';
+  const child = `require('node:child_process').spawn(process.execPath, ['-e', ${JSON.stringify(grandchild)}], { stdio: 'ignore', detached: ${String(detached)} }); setTimeout(() => {}, 20000);`;
+
+  await spawnLogged({ file: process.execPath, prefix: ['-e', child] }, [], `${root}/spawn-tree`, 'tree', 1000);
+  await new Promise((wait) => setTimeout(wait, 4500));
+
+  assert.equal(existsSync(marker), false);
+});
+
+test('a plugin-eval run still going at twice its suite timeout is stopped and counted as failed, never done', () => {
+  const { repo, setDir, env } = scenario('pe-timeout', { [opus]: 1 });
+  put(`${repo}/evals/lz-tdd/demo/suite.json`, '{"backend":"plugin-eval","timeoutMinutes":0.02}');
+  git(repo, ['-c', 'user.name=lz-tdd-eval', '-c', 'user.email=larsbrinknielsen@gmail.com', 'commit', '-q', '-am', 'short timeout']);
+  put(`${setDir}/run-set.json`, JSON.stringify({ cells: [{ arm: 'head', ref: git(repo, ['rev-parse', 'HEAD']), models: { [opus]: 1 }, suites: [{ suite: 'demo', cases: ['demo-01'] }] }] }));
+  const runDir = `${setDir}/head/${opus}/demo-01/run-1`;
+
+  const result = spawnSync(process.execPath, [join(import.meta.dirname, 'eval.ts'), 'run', setDir], {
+    encoding: 'utf8',
+    env: { ...process.env, ...env, LZ_EVAL_STUB_HANG_AFTER: '0' },
+    timeout: 60_000,
+  });
+  assert.equal(result.status, 1, `${result.stdout}${result.stderr}`);
+  assert.equal(runState(runDir), 'died');
+  assert.match(readFileSync(`${runDir}/raw/refused.txt`, 'utf8'), /timed out after 0\.04 min/);
 });
 
 test('planRuns refuses a plan in which two entries resolve to one run folder, naming the folder and both suites', () => {

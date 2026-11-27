@@ -280,7 +280,14 @@ export async function startPluginEvalRun(run: PlannedRun, ctx: PluginEvalContext
   const startedAt = new Date().toISOString();
   mkdirSync(rawDir, { recursive: true });
   writeFileSync(`${rawDir}/started.json`, `${JSON.stringify({ startedAt, argv: [...ctx.claude.prefix, ...args] }, null, 2)}\n`);
-  const status = await spawnLogged(ctx.claude, args, rawDir, 'plugin-eval');
+  // One invocation runs the with arm, the without arm and the judge, so it gets twice the suite's timeout.
+  const minutes = run.suite.timeoutMinutes * 2;
+  const { status, timedOut } = await spawnLogged(ctx.claude, args, rawDir, 'plugin-eval', minutes * 60_000);
+
+  if (timedOut) {
+    return settleRun(run.runDir, { outcome: 'failed', reason: `timed out after ${String(minutes)} min` }, status);
+  }
+
   const json = readCliJson(`${rawDir}/plugin-eval.json`);
   const traces = copyTraces(json, rawDir);
   const normalized = normalizePluginEval(json, traces, run, {

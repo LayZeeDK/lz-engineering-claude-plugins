@@ -1,7 +1,7 @@
 // A run set: `<run set>/run-set.json` names cells (an arm, its packaged ref, models with runs per model, suites), and
 // each run gets `<run set>/<arm>/<model>/<case>/run-<k>/`. A run is done when the harness has written its
 // result.json. Repository-only; nothing here ships with the plugin.
-import { spawn } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
 import { closeSync, existsSync, mkdirSync, openSync, renameSync, rmSync, writeFileSync } from 'node:fs';
 import { basename, dirname, relative, resolve } from 'node:path';
 import { findSuite, listCases, type CaseInfo, type Suite } from './cases.ts';
@@ -518,15 +518,45 @@ export async function runAll(
 }
 
 // Stryker disable all: spawns a real process, which the unit tests leave to the dry run
-// The child's output goes to files in raw/, so a run's evidence stays with the run and the console stays readable.
-export function spawnLogged(command: Command, args: readonly string[], rawDir: string, log: string): Promise<number | null> {
+function killTree(pid: number | undefined): void {
+  if (pid === undefined) {
+    return;
+  }
+
+  if (process.platform === 'win32') {
+    spawnSync('taskkill', ['/PID', String(pid), '/T', '/F'], { windowsHide: true });
+  } else {
+    process.kill(-pid, 'SIGKILL');
+  }
+}
+
+export interface Spawned {
+  readonly status: number | null;
+  readonly timedOut: boolean;
+}
+
+// The child's output goes to files in raw/, so a run's evidence stays with the run and the console stays readable. A
+// child still running after timeoutMs is stopped and reported as timed out.
+export function spawnLogged(command: Command, args: readonly string[], rawDir: string, log: string, timeoutMs?: number): Promise<Spawned> {
   mkdirSync(rawDir, { recursive: true });
   const stdout = openSync(`${rawDir}/${log}.stdout.txt`, 'w');
   const stderr = openSync(`${rawDir}/${log}.stderr.txt`, 'w');
 
   return new Promise((done) => {
-    const child = spawn(command.file, [...command.prefix, ...args], { stdio: ['ignore', stdout, stderr], windowsHide: true });
+    // With a timeout, its own process group off Windows, so the timeout can stop the processes it started too.
+    const child = spawn(command.file, [...command.prefix, ...args], {
+      stdio: ['ignore', stdout, stderr],
+      windowsHide: true,
+      detached: timeoutMs !== undefined && process.platform !== 'win32',
+    });
     let finished = false;
+    let timedOut = false;
+    const timer = timeoutMs === undefined
+      ? undefined
+      : setTimeout(() => {
+          timedOut = true;
+          killTree(child.pid);
+        }, timeoutMs);
     // A spawn error is followed by close, and the files may be closed once only.
     const finish = (status: number | null): void => {
       if (finished) {
@@ -534,9 +564,10 @@ export function spawnLogged(command: Command, args: readonly string[], rawDir: s
       }
 
       finished = true;
+      clearTimeout(timer);
       closeSync(stdout);
       closeSync(stderr);
-      done(status);
+      done({ status, timedOut });
     };
     child.on('error', (error) => {
       writeFileSync(`${rawDir}/${log}.spawn-error.txt`, `${error.message}\n`);

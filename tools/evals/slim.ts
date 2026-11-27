@@ -464,7 +464,7 @@ export async function startSlimRun(run: PlannedRun, ctx: SlimContext): Promise<R
   }
 
   writeFileSync(`${input.rawDir}/prompt.txt`, run.caseInfo.body);
-  const status = await spawnLogged(ctx.runSlim, args, input.rawDir, 'run-slim');
+  const { status } = await spawnLogged(ctx.runSlim, args, input.rawDir, 'run-slim');
 
   return settleSlim(run, `${input.rawDir}/result.json`, status, metaOf(run, ctx), ctx.projectsDir, caseInputs(run, ctx).graders);
 }
@@ -475,7 +475,7 @@ export async function resumeSlimRun(run: PlannedRun, ctx: SlimContext, session: 
   const out = args[args.indexOf('--out') + 1] ?? '';
   writeFileSync(`${input.rawDir}/continue.txt`, 'Continue the task from where you stopped.\n');
   rmSync(`${input.rawDir}/refused.txt`, { force: true });
-  const status = await spawnLogged(ctx.runSlim, args, input.rawDir, `run-slim-resume-${String(nextResume(input.rawDir))}`);
+  const { status } = await spawnLogged(ctx.runSlim, args, input.rawDir, `run-slim-resume-${String(nextResume(input.rawDir))}`);
 
   return settleSlim(run, out, status, metaOf(run, ctx), ctx.projectsDir, caseInputs(run, ctx).graders);
 }

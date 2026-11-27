@@ -135,6 +135,23 @@ test('planRuns expands cell x model x selected case x run into run folders, filt
   );
 });
 
+test('planRuns refuses a selection that names a case the suite does not have', () => {
+  const { repo, setDir, ref } = scenario('unknown-case', { [opus]: 1 });
+  put(
+    `${setDir}/run-set.json`,
+    JSON.stringify({ cells: [{ arm: 'head', ref, models: { [opus]: 1 }, suites: [{ suite: 'demo', cases: ['demo-01', 'demo-03'] }] }] }),
+  );
+
+  assert.throws(() => plan(repo, setDir), /suite demo has no case demo-03/);
+});
+
+test('planRuns refuses a selection that matches no case, such as a misspelt tag', () => {
+  const { repo, setDir, ref } = scenario('no-match', { [opus]: 1 });
+  put(`${setDir}/run-set.json`, JSON.stringify({ cells: [{ arm: 'head', ref, models: { [opus]: 1 }, suites: [{ suite: 'demo', tags: ['bb'] }] }] }));
+
+  assert.throws(() => plan(repo, setDir), /suite demo: the selection matches no case/);
+});
+
 test('planRuns refuses a plan in which two entries resolve to one run folder, naming the folder and both suites', () => {
   const { repo, setDir, ref } = scenario('dup', { [opus]: 1 });
   put(

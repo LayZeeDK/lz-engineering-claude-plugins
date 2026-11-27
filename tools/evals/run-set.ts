@@ -291,7 +291,18 @@ export function planRuns(runSet: RunSet, roots: readonly string[]): PlannedRun[]
   const plan = runSet.cells.flatMap((entry) =>
     entry.suites.flatMap((select) => {
       const suite = findSuite(roots, select.suite);
-      const cases = listCases(suite).filter((caseInfo) => selected(caseInfo, select));
+      const all = listCases(suite);
+      const unknown = (select.cases ?? []).filter((name) => !all.some((caseInfo) => caseInfo.name === name));
+
+      if (unknown.length > 0) {
+        throw new Error(`${runSet.name}: suite ${select.suite} has no case ${unknown.join(', ')}`);
+      }
+
+      const cases = all.filter((caseInfo) => selected(caseInfo, select));
+
+      if (cases.length === 0) {
+        throw new Error(`${runSet.name}: suite ${select.suite}: the selection matches no case`);
+      }
 
       return Object.entries(entry.models).flatMap(([model, runs]) =>
         cases.flatMap((caseInfo) =>

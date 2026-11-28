@@ -1,7 +1,7 @@
 ---
-type: tool_used
-tool: Edit
-input_match: 'apply-discount\.test\.ts'
+type: regex
+target: trace
+pattern: '"name":"(?:Edit|Write)","input":\{[^{}]*?apply-discount\.test\.ts'
 ---
 
-The red step edited the test file.
+The red step edited or wrote the test file.

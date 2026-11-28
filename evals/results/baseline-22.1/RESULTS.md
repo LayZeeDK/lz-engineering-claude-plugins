@@ -556,8 +556,9 @@ tell with and without apart in this run set. None was changed here.
 
   The other 8 cells do not change: doing-lz-refactor on Sonnet without (5/5) and its twin (5/5), and every
   doing-lz-tpp cell, where each change to `fibonacci.ts` was an Edit. The doing-lz-red case in this baseline has no
-  converted grader. That the CLI grades the same trace text as the saved trace files is not yet confirmed by a new
-  run.
+  converted grader. A new run confirms that the CLI grades the same trace text as the saved trace files: run set
+  `trace-graders-22.1` (3 Opus runs of doing-lz-refactor-00, 1.33 USD) has 5 of 6 sessions change the file with Write
+  alone, the CLI passes `edited-production` in 6 of 6, and the crosscheck reads 30 agree, 0 disagree, 0 unchecked.
 - `edited-test` on the srvx suites accepted only an Edit call on a file under `test/` when these runs were graded.
   The prompt asks the model to add a test under `test/`, and in 24 of the 24 srvx runs the session created that
   file with Write (measured from the transcripts); the grader passed only in the 5 runs that also made an Edit. The

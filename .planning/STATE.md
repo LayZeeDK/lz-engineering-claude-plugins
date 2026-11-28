@@ -6,10 +6,10 @@ current_phase: "22.1"
 current_phase_name: Eval harness on claude plugin eval and slim claude -p, plus a baseline on today's skill text
 status: verifying
 stopped_at: "Phase 22.1 executed: Plans 01-08 merged. Plan 08 baseline merged fbd6c55: 456/456 runs, models-ok, crosscheck 1032/0, $48.22 (phase $71.42). Only doing-lz-tpp-invoke discriminates with/without; srvx edited-test grader misses Write-created test files (Blocked on Lars in 22.1-08-SUMMARY). Next: gsd-verifier, then code review, secure, validate, extract learnings."
-last_updated: "2026-11-26T07:08:36.592Z"
+last_updated: "2026-11-28T11:48:18.703Z"
 last_activity: 2026-11-26
 last_activity_desc: Phase 22.1 Plan 08 (paid baseline) merged; all three check batteries green on the merge
-state_head: fbd6c55e6c10a27abfcb6342b513ee4fef99d232
+state_head: 1604b75bf37fc25a8991a4c29f322317494a8547
 progress:
   total_phases: 13
   completed_phases: 9
@@ -406,6 +406,7 @@ None open. lz-tdd@0.0.1 shipped with all prior concerns resolved:
 | 261124-nq7 | Make lz-tdd's TypeScript examples erasable syntax only, from a field report by another plugin project (Lars: "This is unintentional."): 186 constructor parameter properties in 72 lz-refactor/lz-red leaves rewritten as field declarations plus constructor assignments (after `super(...)` in subclasses); new guard `check-erasable-ts.ts` (red first: 186 hits on the old tree) with 20 tests | 2026-11-24 | a89d056 | Verified (gsd-verifier passed 6/6; review: 0 blocker/major, 4 of 5 minor fixed, 1 noted as a known limit) | [261124-nq7-erasable-constructor-parameter-propertie](./quick/261124-nq7-erasable-constructor-parameter-propertie/) |
 | 261107-lbc | Fail the package-link gate on any tracked non-file entry under plugins/ (symlink, gitlink), and make the eval graders find each run's cycle logs: runners copy logs from the shared rules folder and SLIM_ROOT into `<run>.cycle-logs`, one shared reader (`cycle-logs.mjs`) for both graders. Executed 2026-11-07, stranded unmerged; resumed 2026-11-24: cherry-picked, verifier gap (beside-folder logs) and warning (`src/log.ts` counted) fixed test-first | 2026-11-24 | 37dbb12 | Verified (gsd-verifier 7/7 after gap fix; review round 2 by executor) | [261107-lbc-fail-on-tracked-symlinks-and-fix-kata-cy](./quick/261107-lbc-fail-on-tracked-symlinks-and-fix-kata-cy/) |
 | 261124-v73 | Bring the eval-workspace scripts up to the user-scope script bar (Lars: "Bring both scripts up to the bar in one /gsd-quick --validate task: OK", "Make later scripts meet the bar by default: OK"): `cycle-logs` ported to erasable `.ts` + `.test.ts`; `tsc -p tsconfig.tools.json` (es2024, @types/node 22.20.5) and the erasable guard in both checks; new test-first `check-no-new-js.ts` fails on any new `.mjs`/`.cjs`/`.js` in the workspaces (67 grandfathered); test files named, no globs; `engines.node` `^22.18.0 \|\| ^24.11.0 \|\| ^26.13.0` (Lars) | 2026-11-24 | 1aaadb6 | Verified (gsd-verifier 7/7; code review 0 blockers, WR-01..04 + IN-01 fixed; security review 0 high/medium; deslop clean; Stryker 100% on both scripts with the lz-node-test runner at a78a56c) | [261124-v73-bring-two-workspace-scripts-up-to-the-us](./quick/261124-v73-bring-two-workspace-scripts-up-to-the-us/) |
+| 261128-ghr | Make the tools/evals check portable to CI runners | 2026-11-28 | 1604b75 | Local check 155/155; CI proof pending | [261128-ghr-make-the-tools-evals-check-portable-to-c](./quick/261128-ghr-make-the-tools-evals-check-portable-to-c/) |
 
 **Status basis, stated because "Verified" is doing real work here.** gsd-verifier returned `passed` at
 12/12 must-haves, re-measuring independently rather than reading the SUMMARY. But that verdict alone did

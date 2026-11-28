@@ -239,3 +239,12 @@ test('stage prints the case target of a ref for the committed cases, and a ref t
   assert.equal(missing.status, 1, missing.output);
   assert.match(missing.output, /no-such-ref names no commit/);
 });
+
+test('a command line the harness cannot read prints a usage line that names every command and the lock flags', () => {
+  const { status, output } = evalCli([], {});
+
+  assert.equal(status, 1, output);
+  assert.match(output, /template <name>/);
+  assert.match(output, /--lock-minutes <1-1440>/);
+  assert.match(output, /--lock-note <text>/);
+});

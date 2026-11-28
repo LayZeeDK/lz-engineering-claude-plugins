@@ -112,7 +112,7 @@ Requirements for milestone lz-tdd@0.0.3. Each maps to a roadmap phase. Grounded 
 - [ ] **AGD-07**: Variant trees rebuild from the converted bodies; CR-01 and WR-06 closed; single-axis and staleness checks in `npm run check` (D-08)
 - [ ] **AGD-08**: Every deterministic check GREEN (`npm run check` in both workspaces, `npm --prefix tools/evals run check`, `claude plugin validate . --strict`); new scripts meet the script bar (D-09, D-12, D-13)
 - [ ] **AGD-09**: Folded todo: seven leaves linked from the smell route; PROJECT.md line 89 corrected; Fowler Sources per the conflict ruling (D-11)
-- [ ] **AGD-10**: Before/after on the 22.1 harness: an after run set on a packaged copy of this phase's last skill commit, same suites, cases, models and n as `baseline-22.1` (paid; needs Lars's approval of its cost at run time)
+- [ ] **AGD-10**: Before/after on the 22.1 harness: an after run set on a packaged copy of this phase's last skill commit, same suites, cases, models and n as `baseline-22.1` (paid; pre-approved by Lars on 2026-11-27 as option core-loop with a cap of 60 USD, and a price above the cap goes back to Lars)
 - [ ] **AGD-11**: Every skill and reference edit reviewed against the D-17 rule list, one reviewer unprimed (D-10, D-17)
 - [ ] **AGD-12**: Docs follow the change: root README, plugin README, plugin.json and marketplace.json descriptions, PROJECT.md core value, REQUIREMENTS.md out-of-scope row
 

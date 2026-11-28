@@ -6,6 +6,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { after, test } from 'node:test';
 
+import { evalRepo } from './cases.ts';
 import { git } from './stage.ts';
 import { buildTemplate, cleanEnv, copyTemplate, readTemplates, templateDir, withLocalBin, type Recipe, type Toolchain } from './templates.ts';
 
@@ -288,7 +289,7 @@ test('withLocalBin puts the template node_modules/.bin first on PATH under the n
 });
 
 test('the committed templates.json pins three GildedRose recipes with clone-relative paths and the srvx recipe with its committed npm lockfile', () => {
-  const repo = join(import.meta.dirname, '..', '..').replaceAll('\\', '/');
+  const repo = evalRepo(process.env);
   const recipes = readTemplates(repo);
   const kata = (name: string): Recipe | undefined => recipes.get(name);
   const gildedRose = ['gilded-rose-ts', 'gilded-rose-ts-armed', 'gilded-rose-ts-conjured-red'];

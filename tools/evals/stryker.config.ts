@@ -16,6 +16,10 @@ if (runner === undefined || runner === '') {
   throw new Error('set LZ_NODE_TEST_RUNNER to the lz-node-test runner entry (pinned checkout)');
 }
 
+// Stryker runs the tests from a copy below .stryker-tmp/, where "two folders up" is not the repository; the tests that
+// read the real tree take the repository from this variable.
+process.env['LZ_EVAL_REPO'] ??= new URL('../../', import.meta.url).pathname.replace(/^\/(?=[A-Za-z]:)/, '').replace(/\/$/, '');
+
 async function callExport(module: URL, name: string, ...args: unknown[]): Promise<void> {
   const exports: unknown = await import(module.href);
   const exported: unknown = typeof exports === 'object' && exports !== null ? Reflect.get(exports, name) : undefined;

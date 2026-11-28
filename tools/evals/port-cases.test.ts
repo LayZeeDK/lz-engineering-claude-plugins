@@ -171,7 +171,7 @@ test('writeSuite writes prompts and graders the harness reads, drops stale cases
 });
 
 test('the real sets give the planned counts, record tags and baseline picks', () => {
-  const repo = evalRepo({});
+  const repo = evalRepo(process.env);
   const expected = { 'lz-red': [36, 18, 12, 'rec-8cd13a8'], 'lz-tpp': [28, 14, 27, 'rec-5f586da'], 'lz-refactor': [30, 16, 20, 'rec-f23c7f8'] } as const;
 
   for (const [skill, [total, fire, recorded, tag]] of Object.entries(expected)) {
@@ -191,7 +191,7 @@ test('the real sets give the planned counts, record tags and baseline picks', ()
 });
 
 test('routingCases gives the nine corpus prompts verbatim with owner and quiet graders', () => {
-  const cases = routingCases(evalRepo({}));
+  const cases = routingCases(evalRepo(process.env));
   const byName = new Map(cases.map((c) => [c.name, c]));
 
   assert.deepEqual([...byName.keys()], Array.from({ length: 9 }, (_, i) => `routing-c${String(i + 1)}`));

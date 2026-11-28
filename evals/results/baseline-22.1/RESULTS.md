@@ -541,8 +541,23 @@ tell with and without apart in this run set. None was changed here.
   `edited-production` reads 5/5 with against 5/5 without on Sonnet and 3/3 against 3/3 on Opus for
   apply-lz-refactor, so the earlier -0.60 and +0.33 differences came from the grader.
 - The doing suites on `claude plugin eval` (doing-lz-red, doing-lz-tpp, doing-lz-refactor and their twins, 40
-  grader definitions) still count only Edit calls; their `edited-production` and `edited-test` rows above undercount
-  sessions that wrote the file with Write. Not corrected yet.
+  grader definitions) counted only Edit calls when these runs were graded, so their `edited-production` and
+  `edited-test` rows above undercount sessions that wrote the file with Write. Those graders are now regular
+  expressions over the trace that accept an Edit or a Write call on the file. A free re-grade of the saved traces
+  with the new definitions changes 9 of 48 verdicts, each from fail to pass on a run whose only change to
+  `process-order.ts` was a Write. The table above is not regenerated; the corrected `edited-production` cells are:
+
+  | Suite | Model | Side | Graded then | Re-graded |
+  |---|---|---|---|---|
+  | doing-lz-refactor | claude-opus-5-5 | with | 1/3 | 3/3 |
+  | doing-lz-refactor | claude-opus-5-5 | without | 0/3 | 3/3 |
+  | doing-lz-refactor-invoke | claude-opus-5-5 | with | 1/3 | 3/3 |
+  | doing-lz-refactor | claude-sonnet-5-5 | with | 3/5 | 5/5 |
+
+  The other 8 cells do not change: doing-lz-refactor on Sonnet without (5/5) and its twin (5/5), and every
+  doing-lz-tpp cell, where each change to `fibonacci.ts` was an Edit. The doing-lz-red case in this baseline has no
+  converted grader. That the CLI grades the same trace text as the saved trace files is not yet confirmed by a new
+  run.
 - `edited-test` on the srvx suites accepted only an Edit call on a file under `test/` when these runs were graded.
   The prompt asks the model to add a test under `test/`, and in 24 of the 24 srvx runs the session created that
   file with Write (measured from the transcripts); the grader passed only in the 5 runs that also made an Edit. The

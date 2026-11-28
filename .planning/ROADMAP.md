@@ -493,6 +493,9 @@ Plans:
 **Wave 8** *(blocked on Wave 7 completion)*
 - [ ] 22.1-08-PLAN.md -- with-without section and Stryker config, then the baseline in stages under the 100 USD cap, srvx last after the analysis (paid)
 
+**Wave 9** *(blocked on Wave 8 completion)*
+- [ ] 22.1-09-PLAN.md -- gap closure for the verifier's third pass: ran-tests counts a test-runner invocation (free re-grade of the 96 saved slim runs, Notes corrected), no cast besides as const in tools/evals, and a recorded state for each Info finding IN-01 to IN-14 (no paid run)
+
 ### Phase 23: Agent-as-developer conversion of lz-red, lz-tpp and lz-refactor, plus the new lz-tdd-coach skill
 
 **Goal:** When an agent is doing the work, lz-red writes the failing test and runs it, lz-tpp makes the green change and

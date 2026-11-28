@@ -244,7 +244,7 @@ export function normalizeSlim(run: PlannedRun, outs: readonly SlimOutput[], late
   };
 }
 
-// A finished session is graded from its own transcripts with the case's graders (D-13), as read when `run` found the
+// A finished session is graded from its own transcripts with the case's graders, as read when `run` found the
 // cases committed, so an edit made while runs go on never grades them; a session whose transcript is gone cannot be
 // graded, so it fails.
 function graded(run: PlannedRun, normalized: Normalized, projectsDir: string, graders: readonly GraderDef[]): Normalized {
@@ -356,7 +356,7 @@ function heavyLock(lock: string, args: readonly string[]): number {
   return spawnSync(process.execPath, [lock, ...args], { stdio: 'inherit' }).status ?? 1;
 }
 
-// `heavy`: a stub run of a suite that runs a test suite (D-04). `timing`: a paid run, whose cost and wall clock are
+// `heavy`: a stub run of a suite that runs a test suite. `timing`: a paid run, whose cost and wall clock are
 // measured, so peers hold their machine load until it ends.
 export type LockMode = 'none' | 'heavy' | 'timing';
 

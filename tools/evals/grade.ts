@@ -1,4 +1,4 @@
-// The grader model (D-13, D-14): the two `claude plugin eval` grader types the cases use, `regex` on the last message
+// The grader model: the two `claude plugin eval` grader types the cases use, `regex` on the last message
 // or the trace and `tool_used` over the tool calls, as the CLI documents them. Slim runs are graded with it from their own
 // transcripts, and `crosscheck` grades every plugin-eval run from its copied trace to catch a gap between this model
 // and the CLI. Repository-only; nothing here ships with the plugin.
@@ -33,7 +33,7 @@ function isGraderType(value: unknown): value is GraderDef['type'] {
   return value === 'regex' || value === 'tool_used';
 }
 
-// file_exists and llm graders are not modelled (D-14: deterministic first), so a case that needs one fails here
+// file_exists and llm graders are not modelled, so a case that needs one fails here
 // instead of passing unchecked.
 export function readGrader(file: string): GraderDef {
   const fail = (what: string): Error => new Error(`${file}: ${what}`);

@@ -1,4 +1,4 @@
-// The D-03 step 1 free dry run (EVH-04): the harness against stub claude and stub run-slim, killed partway, then
+// The free dry run: the harness against stub claude and stub run-slim, killed partway, then
 // started again. No model is called.
 import assert from 'node:assert/strict';
 import { spawn, spawnSync } from 'node:child_process';

@@ -1,4 +1,4 @@
-// Case lint (EVH-12, D-14, D-15), the last step of `npm run check`: every suite and case under evals/lz-tdd and
+// Case lint, the last step of `npm run check`: every suite and case under evals/lz-tdd and
 // evals/lz-tdd-apply reads the way the harness and the `claude plugin eval` loader read it, every grader definition
 // has a fixture showing it can pass and can fail, every invoke twin matches its natural case, and every file under
 // evals/ that git would commit is ASCII, names no email address but the public contact, and no absolute path outside
@@ -12,7 +12,7 @@ import { isRecord, readJson } from './guards.ts';
 import { git } from './stage.ts';
 
 // The prompt.md frontmatter keys the `claude plugin eval` loader accepts (measured 2026-11-25; an unknown key fails at
-// load time). The harness passes model and runs per run (D-02, D-10), so a case may not set them.
+// load time). The harness passes model and runs per run, so a case may not set them.
 const loaderKeys = [
   'schema_version',
   'name',

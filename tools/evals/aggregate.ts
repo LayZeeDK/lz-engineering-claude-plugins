@@ -185,7 +185,7 @@ const sonnet = 'claude-sonnet-5-5';
 const opus = 'claude-opus-5-5';
 
 // A run passes when every verdict of its with side passed. A case that passes on Sonnet and fails on Opus with fewer
-// than 5 Opus runs gets 5 Opus runs before it counts (D-10).
+// than 5 Opus runs gets 5 Opus runs before it counts.
 export function recheckCases(summary: Summary): Record<string, number> {
   const rates = caseRates(summary.rows, ({ facts }) => facts.with.every((verdict) => verdict.passed));
   const rateOf = (key: string): CaseRate | undefined => rates.find((rate) => rate.key === key);

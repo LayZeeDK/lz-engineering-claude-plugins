@@ -1,4 +1,4 @@
-// Slim run templates (D-05, D-12): a kata at a pinned commit with its toolchain installed from a sha256-checked
+// Slim run templates: a kata at a pinned commit with its toolchain installed from a sha256-checked
 // lockfile, optionally armed (an approvals snapshot written and proved) and given a known-red overlay, committed as
 // one git repository. Each slim run starts in a fresh copy of one. Repository-only; nothing here ships with the plugin.
 import { spawnSync } from 'node:child_process';

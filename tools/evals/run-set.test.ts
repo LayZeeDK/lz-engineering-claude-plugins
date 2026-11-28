@@ -38,7 +38,6 @@ function put(path: string, text: string): void {
   writeFileSync(path, text);
 }
 
-// A repository with one plugin-eval suite of two cases, a stage for the zero ref, and a run set over it.
 // A repository whose one commit holds a minimal plugin and the demo suite; the cell tests that commit.
 function scenario(name: string, models: Record<string, number>): { repo: string; ref: string; setDir: string; env: NodeJS.ProcessEnv } {
   const base = `${root}/${name}`;

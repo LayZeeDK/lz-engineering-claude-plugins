@@ -95,6 +95,16 @@ test('triggerCases unions the sets by query in first-appearance order, names and
   assert.deepEqual(cases.at(-1)?.tags, ['trigger', 'lz-red', 'quiet', 'chunk']);
 });
 
+test('a record with readFrom is read from that commit and still tags its queries with the recorded sha', () => {
+  const { repo, sha } = sourceRepo(entries(5, 5, 'held'), [], []);
+  const cases = triggerCases(repo, 'lz-red', { ...spec('0abc123'), record: { sha: '0abc123', readFrom: sha, path: `${ws}/heldout-d09.json` } });
+
+  assert.deepEqual(
+    cases.filter((c) => c.tags.includes('rec-0abc123')).map((c) => c.body),
+    ['held fire 0\n', 'held fire 1\n'],
+  );
+});
+
 test('baseline goes on the first five fire and first five quiet cases that are not canaries', () => {
   const { repo, sha } = sourceRepo([], entries(0, 0, 'f'), []);
   put(`${repo}/${ws}/heldout-d09.json`, JSON.stringify([canary, ...entries(7, 6, 'held')]));

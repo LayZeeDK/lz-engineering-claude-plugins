@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { after, test } from 'node:test';
 
-import type { Suite } from './cases.ts';
+import { evalRepo, type Suite } from './cases.ts';
 import { crosscheckRunSet, gradeRun, readGrader, runEvidence, sessionTranscripts, traceEvidence, type GraderDef } from './grade.ts';
 import type { PlannedRun, RunResult } from './run-set.ts';
 import { projectFolder } from './slim.ts';
@@ -184,6 +184,52 @@ test('a Bash call that ran the tests is a tool_used grader over the transcript',
 
   assert.equal(gradeRun([ranTests], { calls: toolCalls(entries), lastMessage: '' })[0]?.passed, true);
   assert.equal(gradeRun([ranTests], { calls: toolCalls(entries.slice(0, 2)), lastMessage: '' })[0]?.passed, false);
+});
+
+// One Bash command a row, and whether it runs the tests. The allow list of the apply suites and the scripts of their
+// two templates decide what counts, so a change to either is a change to this table.
+const ranTestsRows: readonly (readonly [command: string, runsTests: boolean])[] = [
+  ['npx vitest run test/vitest/x.spec.ts', true],
+  ['npx jest', true],
+  ['npm test', true],
+  ['npm run test', true],
+  ['npm run test:jest -- approvals', true],
+  ['cd x && npx vitest run', true],
+  ['cd "D:/tmp/w" && npx tsc --noEmit -p . 2>&1 | tail -20; npx vitest run', true],
+  ['CI=1 npx vitest run', true],
+  ['cd x && CI=1 NODE_ENV=test npm test 2>&1 | tail -30', true],
+  ['git status\nnpm test', true],
+  ['npm run vitest -- run test/x.test.ts', true],
+  ['ls test/jest', false],
+  ['cat package.json | head -30 && ls test/jest', false],
+  ['cat test/vitest/approvals.spec.ts', false],
+  ['echo "npx vitest run"', false],
+  ['grep -rn "npm test" README.md', false],
+  ['git status', false],
+  ['npm run build', false],
+  ['npx tsc --noEmit', false],
+  ['npm run dev', false],
+  ['CI=1', false],
+];
+
+test('the committed ran-tests grader passes a test-runner invocation and fails a mention of the runner', () => {
+  const ranTests = readGrader(`${evalRepo(process.env)}/evals/lz-tdd-apply/apply-lz-red/apply-lz-red-r1/graders/ran-tests.md`);
+  const descriptions = ['Run the tests; npm test && npx vitest run', 'Run npm test; then npm test && npx vitest run'];
+  const wrong: string[] = [];
+
+  for (const [command, runsTests] of ranTestsRows) {
+    const inputs = [{ command }, ...descriptions.flatMap((description) => [{ command, description }, { description, command }])];
+
+    for (const input of inputs) {
+      const passed = gradeRun([ranTests], { calls: [call('Bash', input)], lastMessage: '' })[0]?.passed;
+
+      if (passed !== runsTests) {
+        wrong.push(`${runsTests ? 'fails' : 'passes'} ${JSON.stringify(input)}`);
+      }
+    }
+  }
+
+  assert.deepEqual(wrong, []);
 });
 
 test('sessionTranscripts lists the main transcript and every subagent transcript of the session', () => {

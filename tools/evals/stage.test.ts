@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { after, test } from 'node:test';
 
-import { casesTree, git, pluginTree, readStage, resolveCommit, stageRef } from './stage.ts';
+import { caseTarget, casesTree, git, pluginTree, resolveCommit, stageRef } from './stage.ts';
 
 const root = mkdtempSync(join(tmpdir(), 'lz-evals-stage-')).replaceAll('\\', '/');
 
@@ -44,28 +44,39 @@ test('stageRef packages the commit and the committed plugin-eval cases, and reus
   put(`${repo}/plugins/lz-tdd/skills/demo/SKILL.md`, 'edited, not committed\n');
   const stageRoot = `${root}/stage-out`;
 
-  const dir = stageRef(repo, stageRoot, sha);
-  assert.equal(dir, `${stageRoot}/${sha.slice(0, 12)}`);
+  const staged = stageRef(repo, stageRoot, sha);
+  const dir = `${stageRoot}/${sha.slice(0, 12)}`;
+  assert.equal(staged.target, caseTarget(stageRoot, sha, casesTree(repo)));
+  assert.match(staged.target, new RegExp(`^${dir}/lz-tdd-[0-9a-f]{12}$`));
   assert.equal(readFileSync(`${dir}/plugin/skills/demo/SKILL.md`, 'utf8'), '---\nname: demo\ndescription: demo\n---\n');
-  assert.equal(readFileSync(`${dir}/lz-tdd/.claude-plugin/plugin.json`, 'utf8'), '{"name":"lz-tdd"}\n');
-  assert.deepEqual(readdirSync(`${dir}/lz-tdd/evals`), ['demo-01']);
-  assert.ok(existsSync(`${dir}/lz-tdd/evals/demo-01/graders/hello.md`));
+  assert.equal(readFileSync(`${staged.target}/.claude-plugin/plugin.json`, 'utf8'), '{"name":"lz-tdd"}\n');
+  assert.deepEqual(readdirSync(`${staged.target}/evals`), ['demo-01']);
+  assert.ok(existsSync(`${staged.target}/evals/demo-01/graders/hello.md`));
   assert.equal(existsSync(`${dir}/plugin/evals`), false);
-  assert.deepEqual(readStage(dir), { sha, pluginTree: pluginTree(repo, sha), casesTree: casesTree(repo), cases: ['demo-01'] });
+  assert.deepEqual(staged, { sha, pluginTree: pluginTree(repo, sha), casesTree: casesTree(repo), cases: ['demo-01'], target: staged.target });
   assert.deepEqual(readdirSync(stageRoot), [sha.slice(0, 12)]);
 
   const pluginMtime = statSync(`${dir}/plugin`).mtimeMs;
-  const caseMtime = statSync(`${dir}/lz-tdd`).mtimeMs;
-  assert.equal(stageRef(repo, stageRoot, sha), dir);
-  assert.deepEqual([statSync(`${dir}/plugin`).mtimeMs, statSync(`${dir}/lz-tdd`).mtimeMs], [pluginMtime, caseMtime]);
+  const caseMtime = statSync(staged.target).mtimeMs;
+  assert.deepEqual(stageRef(repo, stageRoot, sha), staged);
+  assert.deepEqual([statSync(`${dir}/plugin`).mtimeMs, statSync(staged.target).mtimeMs], [pluginMtime, caseMtime]);
+});
+
+test('stageRef stages each committed cases tree in its own case target and never rebuilds one in use', () => {
+  const repo = demoRepo('per-tree');
+  const sha = commitAll(repo, 'demo');
+  const stageRoot = `${root}/per-tree-out`;
+  const first = stageRef(repo, stageRoot, sha);
+  const firstMtime = statSync(first.target).mtimeMs;
 
   put(`${repo}/evals/lz-tdd/demo/demo-02/prompt.md`, 'Say bye.\n');
-  git(repo, ['checkout', '--', 'plugins']);
   commitAll(repo, 'second case');
-  stageRef(repo, stageRoot, sha);
-  assert.equal(statSync(`${dir}/plugin`).mtimeMs, pluginMtime);
-  assert.deepEqual(readdirSync(`${dir}/lz-tdd/evals`).sort(), ['demo-01', 'demo-02']);
-  assert.deepEqual(readStage(dir)?.cases, ['demo-01', 'demo-02']);
+  const second = stageRef(repo, stageRoot, sha);
+
+  assert.notEqual(second.target, first.target);
+  assert.deepEqual([first.cases, second.cases, second.casesTree], [['demo-01'], ['demo-01', 'demo-02'], casesTree(repo)]);
+  assert.deepEqual([readdirSync(`${first.target}/evals`), statSync(first.target).mtimeMs], [['demo-01'], firstMtime]);
+  assert.deepEqual(readdirSync(`${second.target}/evals`), ['demo-01', 'demo-02']);
 });
 
 test('an uncommitted case is not staged', () => {
@@ -73,8 +84,8 @@ test('an uncommitted case is not staged', () => {
   const sha = commitAll(repo, 'demo');
   put(`${repo}/evals/lz-tdd/demo/demo-09/prompt.md`, 'Not committed.\n');
 
-  const dir = stageRef(repo, `${root}/uncommitted-out`, sha);
-  assert.deepEqual(readdirSync(`${dir}/lz-tdd/evals`), ['demo-01']);
+  const staged = stageRef(repo, `${root}/uncommitted-out`, sha);
+  assert.deepEqual(readdirSync(`${staged.target}/evals`), ['demo-01']);
 });
 
 test('two plugin-eval cases with one name in different suites are refused', () => {
@@ -103,6 +114,6 @@ test('casesTree is none when HEAD has no evals folder', () => {
   const sha = commitAll(repo, 'plugin only');
 
   assert.equal(casesTree(repo), 'none');
-  const dir = stageRef(repo, `${root}/no-evals-out`, sha);
-  assert.deepEqual([existsSync(`${dir}/lz-tdd/evals`), readStage(dir)?.cases], [false, []]);
+  const staged = stageRef(repo, `${root}/no-evals-out`, sha);
+  assert.deepEqual([existsSync(`${staged.target}/evals`), staged.cases], [false, []]);
 });

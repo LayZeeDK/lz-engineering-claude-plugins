@@ -18,7 +18,7 @@
 // `crosscheck` re-grades every finished plugin-eval run from its copied traces with the harness's grader model and
 // exits 1 on any verdict that differs from the CLI's, or on a run it could not grade.
 // `run`, `rerun` and `resume` refuse while evals/lz-tdd or evals/lz-tdd-apply has uncommitted changes, then stage
-// every ref their runs need (dist/eval/<sha12>/plugin from `git archive`, and lz-tdd/ = plugin/ plus the committed
+// every ref their runs need (dist/eval/<sha12>/plugin from `git archive`, and lz-tdd-<cases key>/ = plugin/ plus the committed
 // plugin-eval cases), so a run never tests the working tree.
 // <run set dir>/run-set.json names the cells: {"cells": [{"arm", "ref", "models": {"<model>": <runs>}, "suites":
 // [{"suite", "tags"?, "cases"?}]}], "record"?: [...]}. A run is done when its result.json exists, and `run` never
@@ -40,11 +40,12 @@ import { basename, join, relative, resolve } from 'node:path';
 import { parseArgs } from 'node:util';
 import { aggregate, recheckCases, renderResults } from './aggregate.ts';
 import { evalRepo, evalsRoots } from './cases.ts';
-import { crosscheckRunSet, readGraders } from './grade.ts';
+import { crosscheckRunSet } from './grade.ts';
 import { assertName, isRecord, readJson } from './guards.ts';
 import { claudeCommand, startPluginEvalRun, type PluginEvalContext } from './plugin-eval.ts';
 import {
   acquireRunSetLock,
+  defaultLockMinutes,
   diedRuns,
   newRuns,
   planRuns,
@@ -58,6 +59,7 @@ import {
   type Trees,
 } from './run-set.ts';
 import {
+  readCaseInputs,
   required,
   resumeSlimRun,
   runSlimCommand,
@@ -67,7 +69,7 @@ import {
   type LockMode,
   type SlimContext,
 } from './slim.ts';
-import { casesTree, git, readStage, resolveCommit, stageRef } from './stage.ts';
+import { casesTree, git, resolveCommit, stageRef } from './stage.ts';
 import { buildTemplate } from './templates.ts';
 
 const usage =
@@ -94,17 +96,7 @@ function refuseUncommittedCases(repo: string): void {
 // the trees each run's result.json records.
 function stageRuns(repo: string, runs: readonly PlannedRun[], stageRoot: string): (run: PlannedRun) => Trees {
   const refs = [...new Set(runs.flatMap((run) => (run.ref === null ? [] : [run.ref])))];
-  const stages = new Map(
-    refs.map((ref) => {
-      const info = readStage(stageRef(repo, stageRoot, resolveCommit(repo, ref)));
-
-      if (info === null) {
-        throw new Error(`staging ${ref} wrote no readable stage.json`);
-      }
-
-      return [ref, info];
-    }),
-  );
+  const stages = new Map(refs.map((ref) => [ref, stageRef(repo, stageRoot, resolveCommit(repo, ref))]));
   const missing = runs.filter(
     (run) => !isSlim(run) && run.ref !== null && !(stages.get(run.ref)?.cases ?? []).includes(run.caseInfo.name),
   );
@@ -184,6 +176,7 @@ function lockMode(runs: readonly PlannedRun[], env: NodeJS.ProcessEnv): LockMode
 }
 
 // Plugin-eval runs on the workers first; slim runs one at a time after them, all in one lock slot when one is needed.
+// `prepare` runs once the slot is held, so a refused slot changes nothing on disk.
 async function startRuns(
   runSet: RunSet,
   runs: readonly PlannedRun[],
@@ -191,6 +184,7 @@ async function startRuns(
   minutes: number,
   note: string,
   ctx: Context,
+  prepare: () => void,
 ): Promise<RunOutcomeEntry[]> {
   const pluginRuns = runs.filter((run) => !isSlim(run));
   const slimRuns = runs.filter(isSlim);
@@ -200,6 +194,7 @@ async function startRuns(
     `lz-tdd eval ${runSet.name}: ${String(pluginRuns.length)} plugin eval runs, ${String(concurrency)} at a time, then ${String(slimRuns.length)} slim claude -p runs, one at a time${note}`,
     minutes,
     async () => {
+      prepare();
       const first = await runAll(pluginRuns, concurrency, (run) => startPluginEvalRun(run, ctx));
 
       if (first.some(({ outcome }) => outcome === 'limit') || slimRuns.length === 0) {
@@ -250,7 +245,7 @@ if (import.meta.main) {
   }
 
   if (command === 'stage') {
-    console.log(stageRef(repo, stageRoot, resolveCommit(repo, runSetDir)));
+    console.log(stageRef(repo, stageRoot, resolveCommit(repo, runSetDir)).target);
   } else if (command === 'template') {
     console.log(buildTemplate(repo, slimRoot, clonesRoot, assertName('template', runSetDir)));
   } else if (command === 'crosscheck') {
@@ -285,15 +280,14 @@ if (import.meta.main) {
       throw new Error(`--concurrency must be a whole number of at least 1, not ${values.concurrency}`);
     }
 
-    // The slot a part books is its measured estimate; without one, the sum of the runs' timeouts.
+    // The slot a part books is its measured estimate; without one, the runs' timeouts as defaultLockMinutes adds them.
     const booked = values['lock-minutes'] === undefined ? null : Number(values['lock-minutes']);
 
     if (booked !== null && (!Number.isInteger(booked) || booked < 1 || booked > 1440)) {
       throw new Error(`--lock-minutes must be a whole number from 1 to 1440, not ${values['lock-minutes'] ?? ''}`);
     }
 
-    const lockMinutes = (runs: readonly PlannedRun[]): number =>
-      booked ?? runs.reduce((total, run) => total + run.suite.timeoutMinutes + 2, 0);
+    const lockMinutes = (runs: readonly PlannedRun[]): number => booked ?? defaultLockMinutes(runs, concurrency);
     const note = values['lock-note'] === undefined ? '' : ` (${values['lock-note']})`;
 
     const runSet = readRunSet(runSetDir);
@@ -313,6 +307,15 @@ if (import.meta.main) {
     if (lockMode(todo, process.env) !== 'none') {
       required('LZ_EVAL_HEAVY_LOCK', process.env);
       required('LZ_EVAL_LOCK_OWNER', process.env);
+
+      const minutes = lockMinutes(todo);
+
+      // heavy-lock.ts refuses a slot above 1440 minutes.
+      if (minutes > 1440) {
+        throw new Error(
+          `the default lock booking is ${String(minutes)} minutes, above 1440; pass --lock-minutes with the part's measured estimate, or split the runs into parts`,
+        );
+      }
     }
 
     const plugin = todo.filter((run) => !isSlim(run));
@@ -321,11 +324,9 @@ if (import.meta.main) {
       throw new Error(`plugin eval has no resume; rerun it: ${plugin.map((run) => shortName(runSet, run)).join(', ')}`);
     }
 
-    // A slim run is graded by the harness after it has paid for the session, so its graders must read now.
-    for (const run of todo.filter(isSlim)) {
-      readGraders(run.caseInfo.dir);
-    }
-
+    // A slim run is graded by the harness after it has paid for the session, so its graders must read now; they and the
+    // scaffold script are kept from here on, so a case edited while the runs go on changes none of them.
+    const cases = new Map([...new Set(todo.filter(isSlim).map((run) => run.caseInfo.dir))].map((dir) => [dir, readCaseInputs(dir)]));
     const trees = stageRuns(repo, todo, stageRoot);
     // A resumed session goes on in the folder it has; only a fresh start copies a template.
     const targets = command === 'resume' ? [] : todo.flatMap((run) => (isSlim(run) && run.suite.target !== null ? [run.suite.target] : []));
@@ -338,6 +339,7 @@ if (import.meta.main) {
       projectsDir,
       trees,
       templates,
+      cases,
     };
     let outcomes: RunOutcomeEntry[] = [];
 
@@ -359,11 +361,12 @@ if (import.meta.main) {
     } else if (todo.length === 0 && died.length === 0) {
       console.log(`every run of ${runSet.name} has a result; raise runs in run-set.json for more`);
     } else {
-      if (command === 'rerun') {
-        setAside(runSet.dir, todo.map((run) => run.runDir));
-      }
-
-      outcomes = await startRuns(runSet, todo, concurrency, lockMinutes(todo), note, ctx);
+      const setRerunsAside = (): void => {
+        if (command === 'rerun') {
+          setAside(runSet.dir, todo.map((run) => run.runDir));
+        }
+      };
+      outcomes = await startRuns(runSet, todo, concurrency, lockMinutes(todo), note, ctx, setRerunsAside);
     }
 
     reportDied(runSet, died);

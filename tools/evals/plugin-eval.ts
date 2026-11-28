@@ -11,7 +11,6 @@ import {
   scriptOrBinary,
   settleRun,
   spawnLogged,
-  stageDir,
   type Command,
   type GraderVerdict,
   type Normalized,
@@ -19,6 +18,7 @@ import {
   type RunOutcome,
   type Trees,
 } from './run-set.ts';
+import { caseTarget } from './stage.ts';
 import { limitStopped, modelRefusal, traceModels, traceResult } from './trace.ts';
 
 export function claudeCommand(env: NodeJS.ProcessEnv): Command {
@@ -257,19 +257,20 @@ export interface PluginEvalContext {
   readonly trees: (run: PlannedRun) => Trees;
 }
 
-export function pluginEvalTarget(stageRoot: string, run: PlannedRun): string {
-  if (run.ref === null) {
+export function pluginEvalTarget(stageRoot: string, run: PlannedRun, cases: string | null): string {
+  if (run.ref === null || cases === null) {
     throw new Error(`arm ${run.arm} has no ref; a plugin-eval suite needs a packaged plugin`);
   }
 
-  return `${stageDir(stageRoot, run.ref)}/lz-tdd`;
+  return caseTarget(stageRoot, run.ref, cases);
 }
 
 // Stryker disable all: spawns the CLI, which the unit tests leave to the dry run
 export async function startPluginEvalRun(run: PlannedRun, ctx: PluginEvalContext): Promise<RunOutcome> {
   const rawDir = `${run.runDir}/raw`;
+  const trees = ctx.trees(run);
   const args = pluginEvalArgs({
-    target: pluginEvalTarget(ctx.stageRoot, run),
+    target: pluginEvalTarget(ctx.stageRoot, run, trees.casesTree),
     caseName: run.caseInfo.name,
     model: run.model,
     ablation: run.suite.ablation,
@@ -280,13 +281,20 @@ export async function startPluginEvalRun(run: PlannedRun, ctx: PluginEvalContext
   const startedAt = new Date().toISOString();
   mkdirSync(rawDir, { recursive: true });
   writeFileSync(`${rawDir}/started.json`, `${JSON.stringify({ startedAt, argv: [...ctx.claude.prefix, ...args] }, null, 2)}\n`);
-  const status = await spawnLogged(ctx.claude, args, rawDir, 'plugin-eval');
+  // One invocation runs the with arm, the without arm and the judge, so it gets twice the suite's timeout.
+  const minutes = run.suite.timeoutMinutes * 2;
+  const { status, timedOut } = await spawnLogged(ctx.claude, args, rawDir, 'plugin-eval', minutes * 60_000);
+
+  if (timedOut) {
+    return settleRun(run.runDir, { outcome: 'failed', reason: `timed out after ${String(minutes)} min` }, status);
+  }
+
   const json = readCliJson(`${rawDir}/plugin-eval.json`);
   const traces = copyTraces(json, rawDir);
   const normalized = normalizePluginEval(json, traces, run, {
     startedAt,
     binary: ctx.claude.prefix[0] ?? ctx.claude.file,
-    ...ctx.trees(run),
+    ...trees,
   });
 
   return settleRun(run.runDir, normalized, status);

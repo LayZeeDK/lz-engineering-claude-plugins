@@ -5,9 +5,10 @@ import { join } from 'node:path';
 import { after, test } from 'node:test';
 
 import type { Suite } from './cases.ts';
-import { crosscheckRunSet, gradeRun, readGrader, runEvidence, sessionTranscripts, type GraderDef } from './grade.ts';
+import { crosscheckRunSet, gradeRun, readGrader, runEvidence, sessionTranscripts, traceEvidence, type GraderDef } from './grade.ts';
 import type { PlannedRun, RunResult } from './run-set.ts';
 import { projectFolder } from './slim.ts';
+import { caseTarget } from './stage.ts';
 import { toolCalls, type ToolCall } from './trace.ts';
 
 const root = mkdtempSync(join(tmpdir(), 'lz-evals-grade-')).replaceAll('\\', '/');
@@ -30,7 +31,7 @@ function grader(name: string, lines: readonly string[]): GraderDef {
 }
 
 function call(name: string, input: unknown, id = `t-${name}-${JSON.stringify(input).length}`): ToolCall {
-  return { id, name, input, isError: false, denied: false };
+  return { id, name, input, isError: false, denied: false, exitCode: null };
 }
 
 function lines(entries: readonly unknown[]): string {
@@ -90,6 +91,18 @@ test('readGrader refuses a type or key the model does not hold, naming the file'
   assert.throws(() => grader('no-tool', ['type: tool_used']), /no-tool\.md.*tool/);
   assert.throws(() => grader('no-pattern', ['type: regex']), /no-pattern\.md.*pattern/);
   assert.throws(() => grader('bad-min', ['type: tool_used', 'tool: Read', 'min: -1']), /bad-min\.md.*min/);
+});
+
+test('readGrader refuses a pattern that is not a valid regex with its flags, naming the file', () => {
+  assert.throws(() => grader('bad-pattern', ['type: regex', "pattern: 'a{'", 'flags: u']), /bad-pattern\.md.*pattern is not a valid regex/);
+});
+
+test('readGrader refuses an input_match that is not a valid regex, naming the file', () => {
+  assert.throws(() => grader('bad-input', ['type: tool_used', 'tool: Edit', "input_match: 'src[\\\\/]+(a'"]), /bad-input\.md.*input_match is not a valid regex/);
+});
+
+test('readGrader refuses a min above max, which no run can pass', () => {
+  assert.throws(() => grader('never', ['type: tool_used', 'tool: Edit', 'min: 2', 'max: 1']), /never\.md.*min 2 is above max 1/);
 });
 
 test('tool_used counts calls of the tool whose JSON input matches, between min and max', () => {
@@ -202,6 +215,60 @@ test('runEvidence reads every session of a slim run with its subagents, once per
   assert.throws(() => runEvidence(missing, projects), /no transcript for session 77777777-7777-4777-8777-777777777777/);
 });
 
+function failedUse(id: string, name: string, input: unknown, content: string): unknown[] {
+  return [
+    { type: 'assistant', message: { content: [{ type: 'tool_use', id, name, input }] } },
+    { type: 'user', message: { content: [{ type: 'tool_result', tool_use_id: id, content, is_error: true }] } },
+  ];
+}
+
+function slimEvidence(name: string, entries: readonly unknown[]): string[] {
+  const projects = `${root}/projects-${name}`;
+  const cwd = `S:/slim/runs/${name}`;
+  const runDir = `${root}/${name}-run`;
+  put(`${runDir}/raw/result.json`, slimOut(sessionA, 'done', cwd));
+  put(`${projects}/${projectFolder(cwd)}/${sessionA}.jsonl`, lines(entries));
+
+  return runEvidence(runDir, projects).calls.map(({ id }) => id);
+}
+
+test('runEvidence leaves out a slim call whose result is an error, such as an Edit that changed nothing', () => {
+  const entries = [
+    ...toolUse('e1', 'Edit', { file_path: 'test/a.test.ts' }),
+    ...failedUse('e2', 'Edit', { file_path: 'test/b.test.ts' }, '<tool_use_error>String to replace not found in file.</tool_use_error>'),
+  ];
+
+  assert.deepEqual(slimEvidence('failed-edit', entries), ['e1']);
+});
+
+test('runEvidence keeps a slim command that ran and exited non-zero, such as a test run with a failing test', () => {
+  const entries = [
+    ...failedUse('b1', 'Bash', { command: 'npx vitest run' }, 'Exit code 1\n FAIL  test/a.test.ts > adds'),
+    ...failedUse('b2', 'Bash', { command: 'npx jest' }, 'This command requires approval'),
+  ];
+
+  assert.deepEqual(slimEvidence('exited', entries), ['b1']);
+});
+
+test('runEvidence leaves out a slim call that a permission decision rejected, with or without an error result', () => {
+  const entries = [
+    { type: 'assistant', message: { content: [{ type: 'tool_use', id: 'w1', name: 'Write', input: { file_path: 'src/a.ts' } }] } },
+    { type: 'user', permissionDecision: { decision: 'reject' }, message: { content: [{ type: 'tool_result', tool_use_id: 'w1', content: 'denied' }] } },
+    ...toolUse('w2', 'Write', { file_path: 'test/a.test.ts' }),
+  ];
+
+  assert.deepEqual(slimEvidence('rejected', entries), ['w2']);
+});
+
+test('traceEvidence keeps every plugin-eval call, failed or refused, as the CLI counts them', () => {
+  const entries = [
+    ...failedUse('e1', 'Edit', { file_path: 'a.ts' }, 'String to replace not found in file.'),
+    ...failedUse('w1', 'Write', { file_path: 'b.ts' }, 'Permission to use Write has been denied.'),
+  ];
+
+  assert.deepEqual(traceEvidence(entries).calls.map(({ id }) => id), ['e1', 'w1']);
+});
+
 function plannedRun(runDir: string, caseName: string): PlannedRun {
   const suite: Suite = {
     name: 'trigger-red',
@@ -238,6 +305,8 @@ function trace(entries: readonly unknown[], text: string): string {
   ]);
 }
 
+const staged = 'cases-a+cases-b';
+
 function pluginResult(run: PlannedRun, withVerdicts: Record<string, boolean>, withoutVerdicts: Record<string, boolean>): RunResult {
   const verdicts = (map: Record<string, boolean>): RunResult['arms']['with'] =>
     Object.entries(map).map(([name, passed]) => ({ name, passed, scored: true }));
@@ -249,7 +318,7 @@ function pluginResult(run: PlannedRun, withVerdicts: Record<string, boolean>, wi
     arm: run.arm,
     ref: run.ref,
     pluginTree: null,
-    casesTree: null,
+    casesTree: staged,
     suite: run.suite.name,
     case: run.caseInfo.name,
     k: run.k,
@@ -272,7 +341,7 @@ function pluginResult(run: PlannedRun, withVerdicts: Record<string, boolean>, wi
 
 test('crosscheckRunSet agrees with the CLI on its own traces, lists a flipped verdict, and counts a run without a trace', () => {
   const stageRoot = `${root}/stage`;
-  const caseDir = (name: string): string => `${stageRoot}/${'a'.repeat(12)}/lz-tdd/evals/${name}`;
+  const caseDir = (name: string): string => `${caseTarget(stageRoot, 'a'.repeat(40), staged)}/evals/${name}`;
   const runs = ['trigger-red-01', 'trigger-red-02', 'trigger-red-03'].map((name) => plannedRun(`${root}/set/head/m/${name}/run-1`, name));
 
   for (const run of runs) {
@@ -301,4 +370,16 @@ test('crosscheckRunSet agrees with the CLI on its own traces, lists a flipped ve
   assert.match(report.unchecked[0]?.reason ?? '', /trace-with\.jsonl/);
 
   assert.deepEqual(crosscheckRunSet([agree], stageRoot), { agree: 4, disagree: [], unchecked: [] });
+});
+
+test('crosscheckRunSet leaves a run unchecked when no stage holds the cases tree its result records', () => {
+  const stageRoot = `${root}/stage-other-tree`;
+  const run = plannedRun(`${root}/set-other/head/m/trigger-red-01/run-1`, 'trigger-red-01');
+  put(`${caseTarget(stageRoot, 'a'.repeat(40), 'later+tree')}/evals/trigger-red-01/graders/fired.md`, ['---', ...skillFired, '---', ''].join('\n'));
+  put(`${run.runDir}/raw/trace-with.jsonl`, trace(toolUse('s1', 'Skill', { skill: 'lz-tdd:lz-red' }), 'x'));
+  put(`${run.runDir}/result.json`, JSON.stringify(pluginResult(run, { fired: true }, {})));
+
+  const report = crosscheckRunSet([run], stageRoot);
+  assert.deepEqual([report.agree, report.unchecked.length], [0, 1]);
+  assert.match(report.unchecked[0]?.reason ?? '', /no stage holds the cases tree cases-a\+cases-b/);
 });

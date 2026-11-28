@@ -5,10 +5,12 @@ import { join } from 'node:path';
 import { after, test } from 'node:test';
 
 import type { Suite } from './cases.ts';
+import { readGraders } from './grade.ts';
 import { readJson, requireRecord } from './guards.ts';
 import type { PlannedRun } from './run-set.ts';
 import {
   projectFolder,
+  readCaseInputs,
   resumeArgs,
   runScaffold,
   scaffoldScript,
@@ -197,7 +199,7 @@ test('settleSlim writes result.json for a finished run and refuses a limit stop,
       put(`${runDir}/raw/result.json`, out);
     }
 
-    const outcome = settleSlim(plannedRun(runDir), `${runDir}/raw/result.json`, 0, meta, projects);
+    const outcome = settleSlim(plannedRun(runDir), `${runDir}/raw/result.json`, 0, meta, projects, []);
 
     return {
       outcome,
@@ -230,7 +232,7 @@ test('a resumed run sums turns and seconds over its --out files and keeps the hi
   put(`${runDir}/raw/result.json`, outFile(sessionA, 'stopped', [sonnet], 3000));
   put(`${runDir}/raw/result-resume-1.json`, outFile(sessionA, 'Done.', [sonnet], 5000));
 
-  assert.equal(settleSlim(plannedRun(runDir), `${runDir}/raw/result-resume-1.json`, 0, meta, projects), 'done');
+  assert.equal(settleSlim(plannedRun(runDir), `${runDir}/raw/result-resume-1.json`, 0, meta, projects, []), 'done');
   const result = requireRecord(readJson(`${runDir}/result.json`), 'result.json');
   assert.deepEqual(
     ['turns', 'seconds', 'costUsd', 'graded', 'backend', 'pluginTree', 'casesTree', 'binary'].map((key) => result[key]),
@@ -256,7 +258,7 @@ test('a finished slim run is graded from its transcript with the case graders; o
   const gradedDir = `${root}/graded-run`;
   put(`${gradedDir}/raw/started.json`, JSON.stringify({ startedAt: '2026-11-25T00:00:00.000Z', cwd }));
   put(`${gradedDir}/raw/result.json`, out(sessionB));
-  assert.equal(settleSlim(run(gradedDir), `${gradedDir}/raw/result.json`, 0, meta, projects), 'done');
+  assert.equal(settleSlim(run(gradedDir), `${gradedDir}/raw/result.json`, 0, meta, projects, readGraders(caseDir)), 'done');
   const result = requireRecord(readJson(`${gradedDir}/result.json`), 'result.json');
   assert.deepEqual([result['graded'], requireRecord(result['arms'], 'arms')['with']], [
     true,
@@ -271,9 +273,25 @@ test('a finished slim run is graded from its transcript with the case graders; o
   const lost = '99999999-9999-4999-8999-999999999999';
   put(`${lostDir}/raw/started.json`, JSON.stringify({ startedAt: '2026-11-25T00:00:00.000Z', cwd }));
   put(`${lostDir}/raw/result.json`, out(lost));
-  assert.equal(settleSlim(run(lostDir), `${lostDir}/raw/result.json`, 0, meta, projects), 'failed');
+  assert.equal(settleSlim(run(lostDir), `${lostDir}/raw/result.json`, 0, meta, projects, readGraders(caseDir)), 'failed');
   assert.match(readFileSync(`${lostDir}/raw/refused.txt`, 'utf8'), new RegExp(`no transcript for session ${lost}`));
   assert.equal(existsSync(`${lostDir}/result.json`), false);
+});
+
+test('settleSlim grades with the graders it is handed, not the ones in the case folder now', () => {
+  const caseDir = `${root}/snapshot-case`;
+  put(`${caseDir}/graders/edited-later.md`, "---\ntype: regex\npattern: 'never'\n---\n");
+  const run: PlannedRun = { ...plannedRun(`${root}/snapshot-run`), caseInfo: { ...plannedRun('').caseInfo, dir: caseDir } };
+  const cwd = 'S:/snapshot';
+  put(`${projects}/${projectFolder(cwd)}/${sessionA}.jsonl`, '{"type":"user","message":{"content":"Make it pass."}}\n');
+  put(`${run.runDir}/raw/started.json`, JSON.stringify({ startedAt: '2026-11-25T00:00:00.000Z', cwd }));
+  put(`${run.runDir}/raw/result.json`, outFile(sessionA, 'Done.').replace('"cwd":"S:/cwd"', `"cwd":"${cwd}"`));
+  const snapshot = [{ name: 'said-done', type: 'regex' as const, pattern: 'Done', flags: '', tool: null, inputMatch: null, min: 1, max: null, arm: null }];
+
+  assert.equal(settleSlim(run, `${run.runDir}/raw/result.json`, 0, meta, projects, snapshot), 'done');
+  assert.deepEqual(requireRecord(requireRecord(readJson(`${run.runDir}/result.json`), 'result.json')['arms'], 'arms')['with'], [
+    { name: 'said-done', passed: true, scored: true },
+  ]);
 });
 
 test('withHeavyLock refuses a lock without LZ_EVAL_HEAVY_LOCK and never calls the lock when none is needed', async () => {
@@ -316,6 +334,29 @@ test('scaffoldScript names the case.yaml scaffold script inside the case folder,
   assert.throws(() => scaffoldScript(caseDir), /must name a file inside the case folder/);
 });
 
+test('readCaseInputs keeps the scaffold script bytes as read, so a later edit of the file changes nothing', () => {
+  const caseDir = `${root}/inputs-case`;
+  put(`${caseDir}/case.yaml`, 'name: demo\ncontext:\n  scaffold_script: checkout.sh\n');
+  put(`${caseDir}/checkout.sh`, 'echo first\n');
+  const inputs = readCaseInputs(caseDir);
+  put(`${caseDir}/checkout.sh`, 'echo edited\n');
+
+  assert.equal(String(inputs.scaffold), 'echo first\n');
+  assert.equal(readCaseInputs(`${root}/inputs-none`).scaffold, null);
+});
+
+test('runScaffold runs the script bytes it is handed from raw/scaffold.sh', () => {
+  const cwd = `${root}/bytes-cwd`;
+  const rawDir = `${root}/bytes-raw`;
+  mkdirSync(cwd, { recursive: true });
+
+  runScaffold(Buffer.from('echo snapshot > out.txt\n'), cwd, rawDir, process.env);
+  assert.deepEqual([readFileSync(`${cwd}/out.txt`, 'utf8'), readFileSync(`${rawDir}/scaffold.sh`, 'utf8')], [
+    'snapshot\n',
+    'echo snapshot > out.txt\n',
+  ]);
+});
+
 test('runScaffold runs bash in the run folder with PATH, a temp HOME and TMPDIR only, and fails on a non-zero exit', () => {
   const cwd = `${root}/scaffold-cwd`;
   const rawDir = `${root}/scaffold-raw`;
@@ -324,12 +365,12 @@ test('runScaffold runs bash in the run folder with PATH, a temp HOME and TMPDIR 
   put(script, 'printf "%s|%s|%s" "$(pwd -W 2>/dev/null || pwd)" "${LZ_SECRET-unset}" "${HOME:+home}" > env.txt\necho scaffolded\n');
   const env = { ...process.env, LZ_SECRET: 'leaked' };
 
-  runScaffold(script, cwd, rawDir, env);
+  runScaffold(readFileSync(script), cwd, rawDir, env);
   const [where, secret, home] = readFileSync(`${cwd}/env.txt`, 'utf8').split('|');
   assert.deepEqual([where?.replaceAll('\\', '/').toLowerCase(), secret, home], [cwd.toLowerCase(), 'unset', 'home']);
   assert.equal(readFileSync(`${rawDir}/scaffold.stdout.txt`, 'utf8'), 'scaffolded\n');
 
   put(script, 'echo broken >&2\nexit 3\n');
-  assert.throws(() => runScaffold(script, cwd, rawDir, env), /exited 3/);
+  assert.throws(() => runScaffold(readFileSync(script), cwd, rawDir, env), /exited 3/);
   assert.equal(readFileSync(`${rawDir}/scaffold.stderr.txt`, 'utf8'), 'broken\n');
 });

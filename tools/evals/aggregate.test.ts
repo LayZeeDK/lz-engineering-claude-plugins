@@ -311,9 +311,9 @@ test('a with-without suite and its invoke twin get with and without rows, Wilson
   const summary = aggregate(setDir, plan, { allowStub: false, record: [] });
 
   assert.deepEqual(summary.withWithout.verdicts, [
-    { suite: 'doing-x', verdict: 'discriminates' },
-    { suite: 'doing-x-invoke', verdict: 'does not discriminate' },
-    { suite: 'trigger-x', verdict: 'no without arm' },
+    { suite: 'doing-x', arm: 'head', verdict: 'discriminates' },
+    { suite: 'doing-x-invoke', arm: 'head', verdict: 'does not discriminate' },
+    { suite: 'trigger-x', arm: 'head', verdict: 'no without arm' },
   ]);
   assert.deepEqual(
     summary.withWithout.rows.map((row) => [row.suite, row.grader, row.with.passed, row.with.total, row.without.passed, row.without.total, row.overlap]),
@@ -325,11 +325,11 @@ test('a with-without suite and its invoke twin get with and without rows, Wilson
 
   const text = renderResults(summary);
   const section = text.slice(text.indexOf('## With and without'));
-  assert.match(section, /^\| doing-x \| discriminates \|$/m);
-  assert.match(section, /^\| doing-x-invoke \| does not discriminate \|$/m);
-  assert.match(section, /^\| trigger-x \| no without arm \|$/m);
-  assert.match(section, /^\| doing-x \| claude-sonnet-5-5 \| wrote-test \| 5\/5 \| 0\/5 \| 1\.00 \| \[0\.566, 1\.000\] \| \[0\.000, 0\.434\] \| no \|$/m);
-  assert.match(section, /^\| doing-x-invoke \| claude-sonnet-5-5 \| wrote-test \| 3\/5 \| 0\/5 \| 0\.60 \| \[0\.231, 0\.882\] \| \[0\.000, 0\.434\] \| yes \|$/m);
+  assert.match(section, /^\| doing-x \| head \| discriminates \|$/m);
+  assert.match(section, /^\| doing-x-invoke \| head \| does not discriminate \|$/m);
+  assert.match(section, /^\| trigger-x \| head \| no without arm \|$/m);
+  assert.match(section, /^\| doing-x \| head \| claude-sonnet-5-5 \| wrote-test \| 5\/5 \| 0\/5 \| 1\.00 \| \[0\.566, 1\.000\] \| \[0\.000, 0\.434\] \| no \|$/m);
+  assert.match(section, /^\| doing-x-invoke \| head \| claude-sonnet-5-5 \| wrote-test \| 3\/5 \| 0\/5 \| 0\.60 \| \[0\.231, 0\.882\] \| \[0\.000, 0\.434\] \| yes \|$/m);
   assert.doesNotMatch(section, /skill-fired/);
   assert.equal(text.indexOf('## With and without') > text.lastIndexOf('## Arm head'), true);
 });
@@ -362,10 +362,46 @@ test('a slim suite takes its without side from the cell without a ref', () => {
   ]);
   const summary = aggregate(setDir, plan, { allowStub: false, record: [] });
 
-  assert.deepEqual(summary.withWithout.verdicts, [{ suite: 'apply-x', verdict: 'does not discriminate' }]);
+  assert.deepEqual(summary.withWithout.verdicts, [{ suite: 'apply-x', arm: 'head', verdict: 'does not discriminate' }]);
   assert.deepEqual(
     summary.withWithout.rows.map((row) => [row.suite, row.model, row.grader, row.with.passed, row.without.passed, row.delta]),
     [['apply-x', opus, 'ran-tests', 5, 5, 0]],
+  );
+});
+
+test('two plugin arms on one suite are compared with the without side apart, never pooled', () => {
+  const apply = suiteOf('apply-y', 'slim', 'none');
+  const arm = (name: string, ref: string | null, passed: boolean): SideRun[] =>
+    times(5, () => ({ arm: name, ref, model: opus, suite: apply, caseName: 'apply-y-01', with: [['ran-tests', passed]] }));
+  const { setDir, plan } = sideRunSet('two-arms', [...arm('head', sha, true), ...arm('base', '2'.repeat(40), false), ...arm('no-plugin', null, false)]);
+  const summary = aggregate(setDir, plan, { allowStub: false, record: [] });
+
+  assert.deepEqual(summary.withWithout.verdicts, [
+    { suite: 'apply-y', arm: 'head', verdict: 'discriminates' },
+    { suite: 'apply-y', arm: 'base', verdict: 'does not discriminate' },
+  ]);
+  assert.deepEqual(
+    summary.withWithout.rows.map((row) => [row.suite, row.arm, row.grader, row.with.passed, row.with.total, row.without.passed, row.without.total]),
+    [
+      ['apply-y', 'head', 'ran-tests', 5, 5, 0, 5],
+      ['apply-y', 'base', 'ran-tests', 0, 5, 0, 5],
+    ],
+  );
+});
+
+test('a with-without suite in two plugin arms compares each arm with the without arm of its own runs', () => {
+  const doing = suiteOf('doing-z', 'plugin-eval', 'with-without');
+  const arm = (name: string, ref: string, without: boolean): SideRun[] =>
+    times(5, () => ({ arm: name, ref, model: opus, suite: doing, caseName: 'doing-z-01', with: [['wrote-test', true]], without: [['wrote-test', without]] }));
+  const { setDir, plan } = sideRunSet('two-ablated-arms', [...arm('head', sha, false), ...arm('base', '2'.repeat(40), true)]);
+  const summary = aggregate(setDir, plan, { allowStub: false, record: [] });
+
+  assert.deepEqual(
+    summary.withWithout.rows.map((row) => [row.arm, row.with.passed, row.without.passed, row.without.total, row.overlap]),
+    [
+      ['head', 5, 0, 5, false],
+      ['base', 5, 5, 5, true],
+    ],
   );
 });
 

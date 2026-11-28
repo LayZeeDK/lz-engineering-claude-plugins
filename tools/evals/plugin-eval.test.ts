@@ -7,6 +7,7 @@ import { test } from 'node:test';
 import type { Ablation, Suite } from './cases.ts';
 import { claudeCommand, copyTraces, normalizePluginEval, pluginEvalArgs, pluginEvalTarget, type Traces } from './plugin-eval.ts';
 import type { PlannedRun } from './run-set.ts';
+import { caseTarget } from './stage.ts';
 
 const sonnet = 'claude-sonnet-5-5';
 const limitText = "exit 1: You've hit your 5-hour limit resets 6:30am (Europe/Copenhagen)";
@@ -166,9 +167,11 @@ test('claudeCommand runs a .ts stand-in under this Node.js and anything else dir
   assert.match(claudeCommand({}).file, /claude-code[/\\]bin[/\\]claude\.exe$/);
 });
 
-test('pluginEvalTarget is the staged lz-tdd folder of the ref, and refuses an arm without a ref', () => {
-  assert.equal(pluginEvalTarget('W:/stage', plannedRun('none')), 'W:/stage/000000000000/lz-tdd');
-  assert.throws(() => pluginEvalTarget('W:/stage', { ...plannedRun('none'), ref: null }), /no ref/);
+test('pluginEvalTarget is the case target of the ref for the cases tree the run records, and refuses an arm without a ref', () => {
+  const run = plannedRun('none');
+  assert.equal(pluginEvalTarget('W:/stage', run, 'aaa+bbb'), caseTarget('W:/stage', run.ref ?? '', 'aaa+bbb'));
+  assert.notEqual(pluginEvalTarget('W:/stage', run, 'aaa+bbb'), pluginEvalTarget('W:/stage', run, 'aaa+ccc'));
+  assert.throws(() => pluginEvalTarget('W:/stage', { ...run, ref: null }, 'aaa+bbb'), /no ref/);
 });
 
 test('normalizePluginEval sorts every run state the CLI can leave', () => {

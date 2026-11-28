@@ -144,12 +144,12 @@ test('toolCalls pairs each tool_use with its tool_result by id and marks errors 
   ];
 
   assert.deepEqual(toolCalls(entries), [
-    { id: 't1', name: 'Read', input: { file_path: 'S:/cwd/a.ts' }, isError: true, denied: false },
-    { id: 't2', name: 'Bash', input: { command: 'npm test' }, isError: false, denied: true },
-    { id: 't3', name: 'Edit', input: {}, isError: false, denied: false },
-    { id: 't4', name: 'Write', input: { file_path: 'D:/tmp/out.txt' }, isError: true, denied: true },
-    { id: 't5', name: 'Bash', input: { command: 'grep -v x' }, isError: true, denied: true },
-    { id: 't6', name: 'Bash', input: { command: 'echo' }, isError: false, denied: false },
+    { id: 't1', name: 'Read', input: { file_path: 'S:/cwd/a.ts' }, isError: true, denied: false, exitCode: null },
+    { id: 't2', name: 'Bash', input: { command: 'npm test' }, isError: false, denied: true, exitCode: null },
+    { id: 't3', name: 'Edit', input: {}, isError: false, denied: false, exitCode: null },
+    { id: 't4', name: 'Write', input: { file_path: 'D:/tmp/out.txt' }, isError: true, denied: true, exitCode: null },
+    { id: 't5', name: 'Bash', input: { command: 'grep -v x' }, isError: true, denied: true, exitCode: null },
+    { id: 't6', name: 'Bash', input: { command: 'echo' }, isError: false, denied: false, exitCode: null },
   ]);
 });
 

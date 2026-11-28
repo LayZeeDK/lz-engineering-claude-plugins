@@ -2,9 +2,10 @@
 // every committed plugin-eval case flattened under evals/<case>/, which is where `claude plugin eval` reads cases.
 // Nothing is read from the plugin's working tree. Repository-only; nothing here ships with the plugin.
 import { spawnSync } from 'node:child_process';
-import { cpSync, existsSync, mkdirSync, mkdtempSync, readdirSync, renameSync, rmSync, writeFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+import { cpSync, existsSync, mkdirSync, mkdtempSync, readdirSync, renameSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
-import { isRecord, isStringArray, readJson } from './guards.ts';
+import { isRecord } from './guards.ts';
 import { stageDir } from './run-set.ts';
 
 export interface GitResult {
@@ -80,28 +81,6 @@ export function archiveInto(repo: string, treeish: string, dest: string, scratch
   }
 }
 
-export interface StageInfo {
-  readonly sha: string;
-  readonly pluginTree: string;
-  readonly casesTree: string;
-  readonly cases: readonly string[];
-}
-
-export function readStage(dir: string): StageInfo | null {
-  const file = `${dir}/stage.json`;
-  const value = existsSync(file) ? readJson(file) : null;
-
-  if (!isRecord(value)) {
-    return null;
-  }
-
-  const { sha, pluginTree: plugin, casesTree: cases, cases: names } = value;
-
-  return typeof sha === 'string' && typeof plugin === 'string' && typeof cases === 'string' && isStringArray(names)
-    ? { sha, pluginTree: plugin, casesTree: cases, cases: names }
-    : null;
-}
-
 function exists(repo: string, treeish: string): boolean {
   return gitIn(repo, ['rev-parse', '--verify', '--quiet', treeish]).status === 0;
 }
@@ -122,9 +101,26 @@ function committedPluginEvalSuites(repo: string): string[] {
     });
 }
 
-// Copies plugin/ and every committed plugin-eval case into lz-tdd.tmp-<pid>, then renames it into place.
-function buildCaseTarget(repo: string, dir: string): string[] {
-  const target = `${dir}/lz-tdd`;
+// Each committed cases tree gets its own case target beside plugin/, so a process running plugin-eval cases from one
+// tree never sees them replaced by another process staging a later tree.
+export function caseTarget(stageRoot: string, ref: string, cases: string): string {
+  return `${stageDir(stageRoot, ref)}/lz-tdd-${createHash('sha256').update(cases).digest('hex').slice(0, 12)}`;
+}
+
+function caseNames(target: string): string[] {
+  const evals = `${target}/evals`;
+
+  return existsSync(evals)
+    ? readdirSync(evals, { withFileTypes: true })
+        .filter((entry) => entry.isDirectory())
+        .map((entry) => entry.name)
+        .sort()
+    : [];
+}
+
+// Copies plugin/ and every committed plugin-eval case into <target>.tmp-<pid>, then renames it into place; a target
+// another process renamed into place first is kept and this copy dropped.
+function buildCaseTarget(repo: string, dir: string, target: string): void {
   const tmp = `${target}.tmp-${String(process.pid)}`;
   rmSync(tmp, { recursive: true, force: true });
   cpSync(`${dir}/plugin`, tmp, { recursive: true });
@@ -157,14 +153,28 @@ function buildCaseTarget(repo: string, dir: string): string[] {
     rmSync(scratch, { recursive: true, force: true });
   }
 
-  rmSync(target, { recursive: true, force: true });
-  renameSync(tmp, target);
+  try {
+    renameSync(tmp, target);
+  } catch (error) {
+    rmSync(tmp, { recursive: true, force: true });
 
-  return cases.sort();
+    if (!existsSync(target)) {
+      throw error;
+    }
+  }
 }
 
-// Builds plugin/ once per commit; rebuilds lz-tdd/ whenever the committed evals/ tree has changed since it was built.
-export function stageRef(repo: string, stageRoot: string, sha: string): string {
+export interface StagedRef {
+  readonly sha: string;
+  readonly pluginTree: string;
+  readonly casesTree: string;
+  readonly cases: readonly string[];
+  // The `claude plugin eval` target: plugin/ plus the committed plugin-eval cases of casesTree.
+  readonly target: string;
+}
+
+// Builds plugin/ once per commit, and the case target of HEAD's committed cases tree once per tree.
+export function stageRef(repo: string, stageRoot: string, sha: string): StagedRef {
   const dir = stageDir(stageRoot, sha);
   const plugin = pluginTree(repo, sha);
 
@@ -183,12 +193,11 @@ export function stageRef(repo: string, stageRoot: string, sha: string): string {
   }
 
   const cases = casesTree(repo);
-  const before = readStage(dir);
+  const target = caseTarget(stageRoot, sha, cases);
 
-  if (before === null || before.casesTree !== cases || before.sha !== sha || !existsSync(`${dir}/lz-tdd`)) {
-    const info: StageInfo = { sha, pluginTree: plugin, casesTree: cases, cases: buildCaseTarget(repo, dir) };
-    writeFileSync(`${dir}/stage.json`, `${JSON.stringify(info, null, 2)}\n`);
+  if (!existsSync(target)) {
+    buildCaseTarget(repo, dir, target);
   }
 
-  return dir;
+  return { sha, pluginTree: plugin, casesTree: cases, cases: caseNames(target), target };
 }

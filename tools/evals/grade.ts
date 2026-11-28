@@ -6,7 +6,8 @@ import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { basename } from 'node:path';
 import { readFrontmatter } from './cases.ts';
 import { isRecord, jsonLines, readJson } from './guards.ts';
-import { resultPath, stageDir, type GraderVerdict, type PlannedRun } from './run-set.ts';
+import { resultPath, type GraderVerdict, type PlannedRun } from './run-set.ts';
+import { caseTarget } from './stage.ts';
 import { outFiles, resultFacts, slimOutput, toolCalls, traceResult, type ToolCall } from './trace.ts';
 
 export interface GraderDef {
@@ -86,6 +87,21 @@ export function readGrader(file: string): GraderDef {
     throw fail('a tool_used grader needs a tool');
   }
 
+  if (def.max !== null && def.min > def.max) {
+    throw fail(`min ${String(def.min)} is above max ${String(def.max)}, so no run can pass`);
+  }
+
+  // Compiled here, before any session is paid for, so a bad pattern never fails a finished run.
+  const compile = (key: string, source: string | null, flags: string): void => {
+    try {
+      new RegExp(source ?? '', flags);
+    } catch (error) {
+      throw fail(`${key} is not a valid regex: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  };
+  compile('pattern', def.pattern, def.flags);
+  compile('input_match', def.inputMatch, '');
+
   return def;
 }
 
@@ -144,8 +160,15 @@ function uniqueCalls(calls: readonly ToolCall[]): ToolCall[] {
   });
 }
 
-// A slim run's evidence: the tool calls of every session its --out files name (a resume may fork a new one), with
-// their subagents, each call once; and the reply of the latest --out file.
+// A refused call, or a call whose result is an error (an Edit that found no match), changed nothing; a command that ran
+// and exited non-zero, such as a test run with a failing test, did run.
+function tookEffect(call: ToolCall): boolean {
+  return !call.denied && (!call.isError || call.exitCode !== null);
+}
+
+// A slim run's evidence: the tool calls that took effect in every session its --out files name (a resume may fork a
+// new one), with their subagents, each call once; and the reply of the latest --out file. Slim suites are graded only
+// here, so they count effects; plugin-eval traces keep the CLI's count, which crosscheck compares against.
 export function runEvidence(runDir: string, projectsDir: string): Evidence {
   const outs = outFiles(`${runDir}/raw`).map((file) => slimOutput(readJson(file)));
   const sessions = [
@@ -167,7 +190,10 @@ export function runEvidence(runDir: string, projectsDir: string): Evidence {
   });
   const latest = outs.at(-1);
 
-  return { calls: uniqueCalls(calls), lastMessage: (latest === undefined ? null : resultFacts(latest.result).resultText) ?? '' };
+  return {
+    calls: uniqueCalls(calls).filter(tookEffect),
+    lastMessage: (latest === undefined ? null : resultFacts(latest.result).resultText) ?? '',
+  };
 }
 
 // A plugin-eval trace is the session's stream-json: the same assistant and user entries, then one result entry.
@@ -247,7 +273,14 @@ export function crosscheckRunSet(plan: readonly PlannedRun[], stageRoot: string)
           throw new Error('the run has no ref, so it has no staged case');
         }
 
-        const defs = readGraders(`${stageDir(stageRoot, run.ref)}/lz-tdd/evals/${run.caseInfo.name}`);
+        const cases = isRecord(result) && typeof result['casesTree'] === 'string' ? result['casesTree'] : '';
+        const target = caseTarget(stageRoot, run.ref, cases);
+
+        if (!existsSync(target)) {
+          throw new Error(`no stage holds the cases tree ${cases} the result records; stage the run's commit with those cases`);
+        }
+
+        const defs = readGraders(`${target}/evals/${run.caseInfo.name}`);
         const unmodelled = [...cli.keys()].filter((name) => !defs.some((def) => def.name === name));
 
         if (unmodelled.length > 0) {

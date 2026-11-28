@@ -20,7 +20,7 @@ import {
   type RunOutcome,
   type Trees,
 } from './run-set.ts';
-import { gradeRun, readGraders, runEvidence } from './grade.ts';
+import { gradeRun, readGraders, runEvidence, type GraderDef } from './grade.ts';
 import { cleanEnv, copyTemplate } from './templates.ts';
 import {
   limitStopped,
@@ -244,15 +244,16 @@ export function normalizeSlim(run: PlannedRun, outs: readonly SlimOutput[], late
   };
 }
 
-// A finished session is graded from its own transcripts with the case's graders (D-13), which equal HEAD because `run`
-// refuses uncommitted cases; a session whose transcript is gone cannot be graded, so it fails.
-function graded(run: PlannedRun, normalized: Normalized, projectsDir: string): Normalized {
+// A finished session is graded from its own transcripts with the case's graders (D-13), as read when `run` found the
+// cases committed, so an edit made while runs go on never grades them; a session whose transcript is gone cannot be
+// graded, so it fails.
+function graded(run: PlannedRun, normalized: Normalized, projectsDir: string, graders: readonly GraderDef[]): Normalized {
   if (normalized.outcome !== 'done') {
     return normalized;
   }
 
   try {
-    const verdicts = gradeRun(readGraders(run.caseInfo.dir), runEvidence(run.runDir, projectsDir));
+    const verdicts = gradeRun(graders, runEvidence(run.runDir, projectsDir));
 
     return { outcome: 'done', result: { ...normalized.result, graded: true, arms: { with: verdicts, without: null } } };
   } catch (error) {
@@ -261,11 +262,18 @@ function graded(run: PlannedRun, normalized: Normalized, projectsDir: string): N
 }
 
 // Reads what the invocation that just ended wrote (outFile) and every earlier part, grades it and settles the run.
-export function settleSlim(run: PlannedRun, outFile: string, status: number | null, meta: SlimMeta, projectsDir: string): RunOutcome {
+export function settleSlim(
+  run: PlannedRun,
+  outFile: string,
+  status: number | null,
+  meta: SlimMeta,
+  projectsDir: string,
+  graders: readonly GraderDef[],
+): RunOutcome {
   const outs = outFiles(`${run.runDir}/raw`).map((file) => slimOutput(readJson(file)));
   const latest = existsSync(outFile) ? slimOutput(readJson(outFile)) : null;
 
-  return settleRun(run.runDir, graded(run, normalizeSlim(run, outs, latest, meta), projectsDir), status);
+  return settleRun(run.runDir, graded(run, normalizeSlim(run, outs, latest, meta), projectsDir, graders), status);
 }
 
 export interface SlimContext {
@@ -276,6 +284,29 @@ export interface SlimContext {
   readonly trees: (run: PlannedRun) => Trees;
   // Built template folders by template name, for suites with a target.
   readonly templates: ReadonlyMap<string, string>;
+  // What each case folder held when the uncommitted-cases check passed, by case folder.
+  readonly cases: ReadonlyMap<string, CaseInputs>;
+}
+
+export interface CaseInputs {
+  readonly graders: readonly GraderDef[];
+  readonly scaffold: Buffer | null;
+}
+
+export function readCaseInputs(caseDir: string): CaseInputs {
+  const script = scaffoldScript(caseDir);
+
+  return { graders: readGraders(caseDir), scaffold: script === null ? null : readFileSync(script) };
+}
+
+function caseInputs(run: PlannedRun, ctx: SlimContext): CaseInputs {
+  const inputs = ctx.cases.get(run.caseInfo.dir);
+
+  if (inputs === undefined) {
+    throw new Error(`the inputs of ${run.caseInfo.name} were not read before the first spawn`);
+  }
+
+  return inputs;
 }
 
 // The case's committed scaffold script, from case.yaml context.scaffold_script, or null when it has none.
@@ -374,9 +405,13 @@ export function bashOf(env: NodeJS.ProcessEnv): string {
 }
 
 // The `plugin eval` scaffold contract, kept for slim runs: bash runs the script in the run's folder for at most 120 s
-// with PATH, a temp HOME and TMPDIR only. Its output goes to raw/scaffold.*.txt.
-export function runScaffold(script: string, cwd: string, rawDir: string, env: NodeJS.ProcessEnv): void {
+// with PATH, a temp HOME and TMPDIR only. The script runs from the bytes it is handed, kept as raw/scaffold.sh, and its
+// output goes to raw/scaffold.*.txt.
+export function runScaffold(bytes: Buffer, cwd: string, rawDir: string, env: NodeJS.ProcessEnv): void {
   const home = mkdtempSync(join(tmpdir(), 'lz-eval-home-'));
+  const script = `${rawDir}/scaffold.sh`;
+  mkdirSync(rawDir, { recursive: true });
+  writeFileSync(script, bytes);
 
   try {
     const result = spawnSync(bashOf(env), [script], {
@@ -386,7 +421,6 @@ export function runScaffold(script: string, cwd: string, rawDir: string, env: No
       timeout: 120_000,
       windowsHide: true,
     });
-    mkdirSync(rawDir, { recursive: true });
     writeFileSync(`${rawDir}/scaffold.stdout.txt`, result.stdout ?? '');
     writeFileSync(`${rawDir}/scaffold.stderr.txt`, result.stderr ?? '');
 
@@ -401,7 +435,7 @@ export function runScaffold(script: string, cwd: string, rawDir: string, env: No
 export async function startSlimRun(run: PlannedRun, ctx: SlimContext): Promise<RunOutcome> {
   const input = slimInput(run, ctx);
   const args = slimArgs(input);
-  const script = scaffoldScript(run.caseInfo.dir);
+  const { scaffold } = caseInputs(run, ctx);
   freshCwd(ctx.slimRoot, input.cwd);
 
   if (run.suite.target !== null) {
@@ -421,18 +455,18 @@ export async function startSlimRun(run: PlannedRun, ctx: SlimContext): Promise<R
     `${JSON.stringify({ startedAt, cwd: input.cwd, argv: [...ctx.runSlim.prefix, ...args] }, null, 2)}\n`,
   );
 
-  if (script !== null) {
+  if (scaffold !== null) {
     try {
-      runScaffold(script, input.cwd, input.rawDir, process.env);
+      runScaffold(scaffold, input.cwd, input.rawDir, process.env);
     } catch (error) {
       return settleRun(run.runDir, { outcome: 'failed', reason: error instanceof Error ? error.message : String(error) }, null);
     }
   }
 
   writeFileSync(`${input.rawDir}/prompt.txt`, run.caseInfo.body);
-  const status = await spawnLogged(ctx.runSlim, args, input.rawDir, 'run-slim');
+  const { status } = await spawnLogged(ctx.runSlim, args, input.rawDir, 'run-slim');
 
-  return settleSlim(run, `${input.rawDir}/result.json`, status, metaOf(run, ctx), ctx.projectsDir);
+  return settleSlim(run, `${input.rawDir}/result.json`, status, metaOf(run, ctx), ctx.projectsDir, caseInputs(run, ctx).graders);
 }
 
 export async function resumeSlimRun(run: PlannedRun, ctx: SlimContext, session: string): Promise<RunOutcome> {
@@ -441,8 +475,8 @@ export async function resumeSlimRun(run: PlannedRun, ctx: SlimContext, session: 
   const out = args[args.indexOf('--out') + 1] ?? '';
   writeFileSync(`${input.rawDir}/continue.txt`, 'Continue the task from where you stopped.\n');
   rmSync(`${input.rawDir}/refused.txt`, { force: true });
-  const status = await spawnLogged(ctx.runSlim, args, input.rawDir, `run-slim-resume-${String(nextResume(input.rawDir))}`);
+  const { status } = await spawnLogged(ctx.runSlim, args, input.rawDir, `run-slim-resume-${String(nextResume(input.rawDir))}`);
 
-  return settleSlim(run, out, status, metaOf(run, ctx), ctx.projectsDir);
+  return settleSlim(run, out, status, metaOf(run, ctx), ctx.projectsDir, caseInputs(run, ctx).graders);
 }
 // Stryker restore all

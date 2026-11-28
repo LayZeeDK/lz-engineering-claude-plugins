@@ -19,7 +19,7 @@ import {
   type Trees,
 } from './run-set.ts';
 import { caseTarget } from './stage.ts';
-import { limitStopped, modelRefusal, traceModels, traceResult } from './trace.ts';
+import { limitStopped, modelRefusal, numberAt, traceModels, traceResult } from './trace.ts';
 
 export function claudeCommand(env: NodeJS.ProcessEnv): Command {
   return scriptOrBinary(
@@ -61,12 +61,6 @@ export interface RunMeta extends Trees {
 
 function failed(reason: string): Normalized {
   return { outcome: 'failed', reason };
-}
-
-function numberAt(record: Record<string, unknown>, key: string): number {
-  const value = record[key];
-
-  return typeof value === 'number' ? value : 0;
 }
 
 function verdicts(armRun: Record<string, unknown>): GraderVerdict[] | null {

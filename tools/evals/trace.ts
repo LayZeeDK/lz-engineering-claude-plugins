@@ -19,7 +19,7 @@ function lastResult(entries: readonly unknown[]): Record<string, unknown> | null
   return isRecord(found) ? found : null;
 }
 
-function numberAt(record: Record<string, unknown>, key: string): number {
+export function numberAt(record: Record<string, unknown>, key: string): number {
   const value = record[key];
 
   return typeof value === 'number' ? value : 0;

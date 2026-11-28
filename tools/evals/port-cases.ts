@@ -1,7 +1,7 @@
-// How the trigger and routing cases moved to `claude plugin eval` (D-11, D-12, D-13): this generator reads today's
-// trigger sets under .claude/skills/<skill>-workspace/evals/ and the e2e-rgr-routing corpus, and writes one suite per
-// skill (evals/lz-tdd/trigger-<skill>/) and the routing suite (evals/lz-tdd/routing/). The old JSON sets stay as
-// records (D-09) and are only read here; rerunning the generator over them reproduces the committed cases.
+// How the trigger and routing cases moved to `claude plugin eval`: this generator reads the trigger sets under
+// .claude/skills/<skill>-workspace/evals/ and the e2e-rgr-routing corpus, and writes one suite per skill
+// (evals/lz-tdd/trigger-<skill>/) and the routing suite (evals/lz-tdd/routing/). The old JSON sets stay as records
+// and are only read here; rerunning the generator over them reproduces the committed cases.
 // Repository-only; nothing here ships with the plugin.
 //
 //   node tools/evals/port-cases.ts      regenerates the four suites from the records
@@ -27,7 +27,7 @@ export interface PortedCase {
   readonly graders: readonly GraderSpec[];
 }
 
-// The current sets, in the order their queries are numbered, and the set recorded at a commit (D-12).
+// The current sets, in the order their queries are numbered, and the set recorded at a commit.
 export interface TriggerSpec {
   readonly files: readonly string[];
   // readFrom: the commit the record is read from when sha was never published.
@@ -232,8 +232,7 @@ function graderText(spec: GraderSpec): string {
 }
 
 // The run settings each case's frontmatter carries. Trigger cases get 10 turns, because at 3 a run in the empty run
-// folder was cut off mid-search, and no Agent tool, which two runs called although allowed_tools leaves it out (Lars,
-// 2026-11-26).
+// folder was cut off mid-search, and no Agent tool, which two runs called although allowed_tools leaves it out.
 export const triggerSettings = ['max_turns: 10', 'allowed_tools: [Read, Glob, Grep, Skill]', 'disallowed_tools: [Agent]'] as const;
 export const routingSettings = ['max_turns: 3', 'allowed_tools: [Read, Glob, Grep, Skill]'] as const;
 

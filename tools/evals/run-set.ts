@@ -285,7 +285,7 @@ function selected(caseInfo: CaseInfo, select: SuiteSelect): boolean {
 }
 
 // Every cell x model x selected case x k = 1..runs; a case recheck.json lists gets its recheck count when that is more
-// (D-10: a case that passes on Sonnet and fails on Opus reruns on Opus at n=5 before it counts).
+// (a case that passes on Sonnet and fails on Opus reruns on Opus at n=5 before it counts).
 export function planRuns(runSet: RunSet, roots: readonly string[]): PlannedRun[] {
   const recheck = readRecheck(runSet.dir);
   const plan = runSet.cells.flatMap((entry) =>

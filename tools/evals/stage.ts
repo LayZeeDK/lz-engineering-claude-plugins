@@ -1,4 +1,4 @@
-// Staging (D-07): a packaged copy of the plugin at one commit, from `git archive`, and beside it the same plugin with
+// Staging: a packaged copy of the plugin at one commit, from `git archive`, and beside it the same plugin with
 // every committed plugin-eval case flattened under evals/<case>/, which is where `claude plugin eval` reads cases.
 // Nothing is read from the plugin's working tree. Repository-only; nothing here ships with the plugin.
 import { spawnSync } from 'node:child_process';

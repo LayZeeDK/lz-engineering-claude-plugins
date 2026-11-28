@@ -13,7 +13,7 @@ import { randomUUID } from 'node:crypto';
 import { appendFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname } from 'node:path';
 import { parseArgs } from 'node:util';
-import { projectFolder } from './slim.ts';
+import { projectFolder } from './grade.ts';
 
 const limitText = "You've hit your 5-hour limit resets 6:30am (Europe/Copenhagen)";
 

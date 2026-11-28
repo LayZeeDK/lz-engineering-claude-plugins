@@ -20,7 +20,7 @@ import {
   type RunOutcome,
   type Trees,
 } from './run-set.ts';
-import { gradeRun, readGraders, runEvidence, type GraderDef } from './grade.ts';
+import { gradeRun, projectFolder, readGraders, runEvidence, type GraderDef } from './grade.ts';
 import { cleanEnv, copyTemplate } from './templates.ts';
 import {
   limitStopped,
@@ -91,12 +91,6 @@ export function resumeArgs(input: SlimInput, session: string): string[] {
   args[args.indexOf('--out') + 1] = `${input.rawDir}/result-resume-${String(nextResume(input.rawDir))}.json`;
 
   return [...args, '--resume', session];
-}
-
-// Claude Code names a project's transcript folder after its working directory, every character other than a letter or
-// digit turned into `-`.
-export function projectFolder(cwd: string): string {
-  return cwd.replace(/[^A-Za-z0-9]/g, '-');
 }
 
 interface Started {
@@ -244,7 +238,7 @@ export function normalizeSlim(run: PlannedRun, outs: readonly SlimOutput[], late
   };
 }
 
-// A finished session is graded from its own transcripts with the case's graders (D-13), as read when `run` found the
+// A finished session is graded from its own transcripts with the case's graders, as read when `run` found the
 // cases committed, so an edit made while runs go on never grades them; a session whose transcript is gone cannot be
 // graded, so it fails.
 function graded(run: PlannedRun, normalized: Normalized, projectsDir: string, graders: readonly GraderDef[]): Normalized {
@@ -356,7 +350,7 @@ function heavyLock(lock: string, args: readonly string[]): number {
   return spawnSync(process.execPath, [lock, ...args], { stdio: 'inherit' }).status ?? 1;
 }
 
-// `heavy`: a stub run of a suite that runs a test suite (D-04). `timing`: a paid run, whose cost and wall clock are
+// `heavy`: a stub run of a suite that runs a test suite. `timing`: a paid run, whose cost and wall clock are
 // measured, so peers hold their machine load until it ends.
 export type LockMode = 'none' | 'heavy' | 'timing';
 

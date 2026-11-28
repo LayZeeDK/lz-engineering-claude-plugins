@@ -309,7 +309,7 @@ test('the committed templates.json pins three GildedRose recipes with clone-rela
   );
   assert.deepEqual([kata('gilded-rose-ts')?.arm, kata('gilded-rose-ts-armed')?.arm?.blob], [null, '2998a7711cc40813c573dd5c89b70d1fe8d6b13e']);
   assert.deepEqual([kata('gilded-rose-ts-conjured-red')?.overlay, kata('gilded-rose-ts-conjured-red')?.red?.spec], ['overlays/conjured-red', 'test/vitest/conjured.spec.ts']);
-  // No added keys on the GildedRose recipes, so their template folder names stay what Plan 02 built.
+  // No added keys on the GildedRose recipes, so the recipe hash in their template folder names does not change.
   assert.deepEqual(
     gildedRose.map((name) => Object.keys(kata(name) ?? {})),
     Array.from({ length: 3 }, () => ['clone', 'commit', 'subdir', 'lockfile', 'arm', 'overlay', 'red']),

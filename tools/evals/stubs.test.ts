@@ -4,8 +4,8 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { after, test } from 'node:test';
 
+import { projectFolder } from './grade.ts';
 import { jsonLines, readJson, requireRecord } from './guards.ts';
-import { projectFolder } from './slim.ts';
 import { stubPluginEval, stubRunSlim } from './stubs.ts';
 import { limitStopped, slimOutput, traceModels } from './trace.ts';
 

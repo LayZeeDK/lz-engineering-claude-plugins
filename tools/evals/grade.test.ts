@@ -5,9 +5,17 @@ import { join } from 'node:path';
 import { after, test } from 'node:test';
 
 import { evalRepo, type Suite } from './cases.ts';
-import { crosscheckRunSet, gradeRun, readGrader, runEvidence, sessionTranscripts, traceEvidence, type GraderDef } from './grade.ts';
+import {
+  crosscheckRunSet,
+  gradeRun,
+  projectFolder,
+  readGrader,
+  runEvidence,
+  sessionTranscripts,
+  traceEvidence,
+  type GraderDef,
+} from './grade.ts';
 import type { PlannedRun, RunResult } from './run-set.ts';
-import { projectFolder } from './slim.ts';
 import { caseTarget } from './stage.ts';
 import { toolCalls, type ToolCall } from './trace.ts';
 

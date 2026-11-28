@@ -149,10 +149,15 @@ export function gradeRun(defs: readonly GraderDef[], evidence: Evidence): Grader
   return defs.map((def) => ({ name: def.name, passed: passes(def, evidence), scored: true }));
 }
 
-// The session's main transcript, then every forked agent's from `<session>/subagents/`. Claude Code names a project's
-// transcript folder after its working directory, every character other than a letter or digit turned into `-`.
+// Claude Code names a project's transcript folder after its working directory, every character other than a letter or
+// digit turned into `-`.
+export function projectFolder(cwd: string): string {
+  return cwd.replace(/[^A-Za-z0-9]/g, '-');
+}
+
+// The session's main transcript, then every forked agent's from `<session>/subagents/`.
 export function sessionTranscripts(projects: string, cwd: string, session: string): string[] {
-  const folder = `${projects}/${cwd.replace(/[^A-Za-z0-9]/g, '-')}`;
+  const folder = `${projects}/${projectFolder(cwd)}`;
   const subagents = `${folder}/${session}/subagents`;
   const agents = existsSync(subagents) ? readdirSync(subagents).filter((name) => name.endsWith('.jsonl')) : [];
 

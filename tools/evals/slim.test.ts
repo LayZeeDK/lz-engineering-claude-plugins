@@ -5,11 +5,10 @@ import { join } from 'node:path';
 import { after, test } from 'node:test';
 
 import type { Suite } from './cases.ts';
-import { readGraders } from './grade.ts';
+import { projectFolder, readGraders } from './grade.ts';
 import { readJson, requireRecord } from './guards.ts';
 import type { PlannedRun } from './run-set.ts';
 import {
-  projectFolder,
   readCaseInputs,
   resumeArgs,
   runScaffold,

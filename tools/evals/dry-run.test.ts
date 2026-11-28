@@ -9,9 +9,9 @@ import { after, test } from 'node:test';
 import { setTimeout as sleep } from 'node:timers/promises';
 
 import { evalsRoots } from './cases.ts';
+import { projectFolder } from './grade.ts';
 import { readJson, requireRecord } from './guards.ts';
 import { planRuns, readRunSet, resultPath, runState, type PlannedRun } from './run-set.ts';
-import { projectFolder } from './slim.ts';
 import { git } from './stage.ts';
 
 const root = mkdtempSync(join(tmpdir(), 'lz-evals-dry-run-')).replaceAll('\\', '/');

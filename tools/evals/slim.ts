@@ -20,7 +20,7 @@ import {
   type RunOutcome,
   type Trees,
 } from './run-set.ts';
-import { gradeRun, readGraders, runEvidence, type GraderDef } from './grade.ts';
+import { gradeRun, projectFolder, readGraders, runEvidence, type GraderDef } from './grade.ts';
 import { cleanEnv, copyTemplate } from './templates.ts';
 import {
   limitStopped,
@@ -91,12 +91,6 @@ export function resumeArgs(input: SlimInput, session: string): string[] {
   args[args.indexOf('--out') + 1] = `${input.rawDir}/result-resume-${String(nextResume(input.rawDir))}.json`;
 
   return [...args, '--resume', session];
-}
-
-// Claude Code names a project's transcript folder after its working directory, every character other than a letter or
-// digit turned into `-`.
-export function projectFolder(cwd: string): string {
-  return cwd.replace(/[^A-Za-z0-9]/g, '-');
 }
 
 interface Started {

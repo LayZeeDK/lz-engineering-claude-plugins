@@ -61,11 +61,17 @@ jobs:
           cache-dependency-path: tools/evals/package-lock.json
       - run: npm ci --prefix tools/evals
       # Outside the workspace, so the real-tree tests never see it.
-      - name: Install the pinned lz-node-test checkout
+      # Its packages export dist/index.js unless the @layzee/source condition is set, and Stryker's config load sets none.
+      - name: Install and build the pinned lz-node-test checkout
+        env:
+          NX_DAEMON: 'false'
+          NX_NO_CLOUD: 'true'
         run: |
           git clone --filter=blob:none https://github.com/LayZeeDK/lz-node-test.git "$RUNNER_TEMP/lz-node-test"
           git -C "$RUNNER_TEMP/lz-node-test" checkout --detach "$LZ_NODE_TEST_REF"
           npm ci --prefix "$RUNNER_TEMP/lz-node-test" --ignore-scripts
+          cd "$RUNNER_TEMP/lz-node-test"
+          npx --no nx run-many -t build
       - name: Run Stryker
         working-directory: tools/evals
         env:

@@ -1,0 +1,30 @@
+{
+  "grader": {
+    "type": "tool_used",
+    "tool": "Read",
+    "inputMatch": "references[\\\\/]+fowler-catalog[\\\\/]+move-function\\.md",
+    "arm": "with-only"
+  },
+  "pass": {
+    "toolCalls": [
+      {
+        "name": "Read",
+        "input": {
+          "file_path": "D:\\tmp\\w\\plugin\\skills\\lz-refactor\\references\\fowler-catalog\\move-function.md"
+        }
+      }
+    ],
+    "lastMessage": ""
+  },
+  "fail": {
+    "toolCalls": [
+      {
+        "name": "Read",
+        "input": {
+          "file_path": "D:\\tmp\\w\\plugin\\skills\\lz-refactor\\references\\fowler-catalog\\inline-function.md"
+        }
+      }
+    ],
+    "lastMessage": ""
+  }
+}

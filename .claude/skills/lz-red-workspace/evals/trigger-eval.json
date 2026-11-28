@@ -1,0 +1,27 @@
+[
+  {"query": "starting a new `slugify(title)` from scratch, tests-first. whats the first test i should write?", "should_trigger": true},
+  {"query": "i'm doing tdd on a `discount` function. i've got the 10%-off case green. whats the next test to drive out the behavior?", "should_trigger": true},
+  {"query": "how should i structure this unit test - is there a standard skeleton to follow?", "should_trigger": true},
+  {"query": "what should i actually assert here? the function just returns a number and i'm not sure what to check", "should_trigger": true},
+  {"query": "this `OrderService` class has a mailer collaborator it notifies on checkout. what do i assert, and do i mock it? doing tdd", "should_trigger": true},
+  {"query": "is `test('works')` a good name for this test? i'm doing tdd and want the name to say something", "should_trigger": true},
+  {"query": "keep a test list for this markdown parser feature - what belongs on it and how do i track the ones i haven't written yet?", "should_trigger": true},
+  {"query": "my brand-new test went green the very first time i ran it, before i wrote any code. is that a problem?", "should_trigger": true},
+  {"query": "how do i match the way this codebase already writes its tests before i add a new one? want to stay consistent", "should_trigger": true},
+  {"query": "legacy `PriceCalculator` has no tests and reaches into a global clock. how do i get a first test around it before i add behavior?", "should_trigger": true},
+  {"query": "is this a good test? `expect(svc.total).toBe(42)` where `total` is a private field i reach into", "should_trigger": true},
+  {"query": "what should i test here? `export function isEven(n: number) { return n % 2 === 0; }`", "should_trigger": true},
+
+  {"query": "red test `expect(of(2)).toBe(1)`, my `of` is `return n <= 1 ? n : 1;`. whats the smallest edit to get it passing? doing tdd", "should_trigger": false},
+  {"query": "my failing test wants fib(3) to be 2 but the code returns 1 for anything above 1. whats the minimal transformation to green it without writing the whole recursion yet?", "should_trigger": false},
+  {"query": "which change makes this failing test pass - is there a smaller step than writing the full algorithm?", "should_trigger": false},
+  {"query": "all tests pass, but this 60-line `processOrder()` does five different things. which named refactoring cleans it up?", "should_trigger": false},
+  {"query": "green bar. i've got the same date-formatting block copy-pasted across three services - how do i de-duplicate it?", "should_trigger": false},
+  {"query": "the tests are green but this `billing` module is messy after a few sprints - what would you refactor?", "should_trigger": false},
+  {"query": "write a debounce helper in typescript", "should_trigger": false},
+  {"query": "add pagination to the GET /users endpoint in this express app", "should_trigger": false},
+  {"query": "explain the SOLID principles with a short typescript example for each", "should_trigger": false},
+  {"query": "my CSV parse throws on empty rows and one of my tests is red - help me find the bug", "should_trigger": false},
+  {"query": "whats the time and space complexity of this recursive merge sort?", "should_trigger": false},
+  {"query": "run my whole test suite and tell me which ones fail", "should_trigger": false}
+]

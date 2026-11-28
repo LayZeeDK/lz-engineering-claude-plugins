@@ -1,15 +1,19 @@
 # Stack Research
 
-**Domain:** Claude Code plugin marketplace + agent skill authoring (file-format + toolchain "stack")
-**Researched:** 2026-07-02
+**Domain:** RED-phase (failing-unit-test) coaching skill -- TypeScript + Vitest DEMONSTRATION stack for `lz-red`
+**Researched:** 2026-07-18
 **Confidence:** HIGH
 
-> This is NOT a runtime application. The "stack" is the Claude Code plugin/skill
-> authoring toolchain and the JSON/Markdown file formats it consumes. Everything
-> below is verified against the current (dated 2026-07-01) official Claude Code
-> docs AND against real installed manifests on this machine, including the
-> official `claude-plugins-official` marketplace. Where a local `plugin-dev`
-> v0.1.0 file disagrees with the current docs, the discrepancy is flagged.
+> **Read this first -- what this stack IS and IS NOT.**
+> The `lz-red` skill itself is **Markdown-only** (SKILL.md + `references/`, progressive
+> disclosure), exactly like its siblings `lz-tpp` and `lz-refactor`. It adds **NO build
+> or runtime dependencies to this repo / plugin**. The versions and APIs below are the
+> **DEMONSTRATION stack** -- the language + test framework the skill's EXAMPLES are written
+> in and validated against (`tsc --strict`-clean). Do NOT add `vitest`, `typescript`,
+> `fast-check`, etc. to `plugins/lz-tdd`'s manifest or any shipped `package.json`. If
+> example validation is wanted in CI, that belongs in a **dev-only** validation workspace
+> (mirroring the existing eval-workspace pattern), never as a plugin dependency. Consumers
+> of the skill bring their own Vitest setup.
 
 ## Recommended Stack
 
@@ -17,255 +21,121 @@
 
 | Technology | Version | Purpose | Why Recommended |
 |------------|---------|---------|-----------------|
-| `.claude-plugin/marketplace.json` | schema at `https://anthropic.com/claude-code/marketplace.schema.json` | Root catalog: names the marketplace and lists its plugins with sources | Required for a repo to be a Claude Code marketplace. `/plugin marketplace add` reads this file. |
-| `.claude-plugin/plugin.json` (per plugin) | plugin manifest schema | Declares plugin identity/metadata; anchors auto-discovery of `skills/` | Required for Claude Code to recognize `lz-tdd` as a plugin. Only `name` is strictly required. |
-| `SKILL.md` + Agent Skills format | Agent Skills open standard (agentskills.io); Claude Code extensions | The skill itself: YAML frontmatter + Markdown body with progressive disclosure | The single required file per skill. Directory name drives the `/lz-tdd:lz-tpp` command; `description` drives auto-triggering. |
-| Claude Code plugin system | Claude Code >= 2.1.x (current line) | Runtime that installs, namespaces, and loads the plugin/skill | Target platform. Skill namespacing `/{plugin}:{skill}` and marketplace install are first-class. |
+| TypeScript | 7.0.2 (latest GA; native port) | Language for all examples; `--strict` type gate | Locked milestone decision (TS + Vitest). Examples use only stable strict-mode syntax, so they are effectively version-agnostic across the 5.x -> 6.x-beta -> 7.x line. Pin whatever the reader's repo uses; the skill states "tsc --strict-clean", not a version. |
+| Vitest | 4.1.10 | Unit test runner + assertion + doubles + type-test + watch loop, all in one dependency | The chosen runner (milestone decision). One install gives the entire RED surface: `describe/it/test`, `expect` (Jest-compatible + chai `expect`), `vi.*` doubles, `expectTypeOf`/`assertType` (bundled), and the watch-mode feedback loop. No separate assertion/mock/type-test packages needed. |
+| Node.js | ^20 \|\| ^22 \|\| >=24 | Runtime Vitest 4 executes on | Vitest 4 `engines` requires this. Not a code concern for the skill, but the demo/validation environment must satisfy it. |
 
-### Supporting Libraries / Authoring Toolchain
+### Supporting Libraries
 
-| Tool | Version | Purpose | When to Use |
-|------|---------|---------|-------------|
-| `plugin-dev` plugin (Anthropic) | 0.1.0 (installed) | Scaffolds plugin/marketplace structure; bundles the `plugin-validator` and `skill-reviewer` agents and the `/plugin-dev:create-plugin` workflow | Scaffolding the repo, validating structure, reviewing the skill. Per PROJECT.md constraint. |
-| `skill-creator` plugin (Anthropic) | installed | Draft/iterate the skill, run trigger + output evals, optimize the `description` for accurate triggering | Building and tuning `lz-tpp` (coach + reference). Per PROJECT.md constraint. |
-| `claude plugin validate .` (built-in CLI) | Claude Code >= 2.1.x | First-party validator: checks `marketplace.json` schema, duplicate names, path traversal; descends into each local-path plugin's `plugin.json`; validates skill/agent/command frontmatter | The authoritative structural gate before shipping. Also available as `/plugin validate .` in-session. |
+| Library | Version | Purpose | When to Use |
+|---------|---------|---------|-------------|
+| fast-check | 4.9.0 | Property-based testing -- state a property (invariant) that must hold across generated inputs | For the "property-based RED" idiom: when a single example under-specifies behavior and you want to assert an invariant instead of enumerating `test.each` cases. Use vanilla inside a normal Vitest `it`: `fc.assert(fc.property(...))`. No Vitest-specific binding required -- works everywhere, so it is the lazy default. |
+| @fast-check/vitest | 0.4.1 (peer: `vitest ^4.1.0`) | Ergonomic `test.prop([...])` / `it.prop([...])` bindings that fold fast-check into Vitest's test API | OPTIONAL sugar over vanilla fast-check. Show it as the "nicer syntax" alternative once the vanilla form is understood; skip it if you want one fewer moving part in an example. |
+| expect-type | 1.4.0 | The type-assertion engine behind `expectTypeOf` | **Already bundled inside Vitest -- do NOT install separately.** Listed only so nobody adds it as a redundant dep. Import `expectTypeOf` from `vitest`, not from `expect-type`. |
 
 ### Development Tools
 
 | Tool | Purpose | Notes |
 |------|---------|-------|
-| Git + GitHub (public repo) | Host the marketplace; enables `git`-based install and per-commit versioning | Repo must be named `lz-engineering-claude-plugins` for `/plugin marketplace add LayZeeDK/lz-engineering-claude-plugins`. |
-| `claude plugin marketplace add ./<dir>` | Local test install before pushing | Use a local path to test the whole add -> install -> invoke loop offline. |
-| `${CLAUDE_PLUGIN_ROOT}` / `${CLAUDE_SKILL_DIR}` | Portable path variables | `${CLAUDE_PLUGIN_ROOT}` = plugin install dir; `${CLAUDE_SKILL_DIR}` = the skill's own subdir. Needed only for hooks/scripts (not required for v1 lz-tpp). |
+| `vitest` (no args) | The RED feedback loop | Defaults to **watch mode in a dev environment** and **run mode in CI** (when `process.env.CI` is set), automatically. This IS the red-green-refactor loop: save a failing test, see red instantly, make it green. |
+| `vitest run` | One-shot, non-watch run | For CI / a single pass. The form to use when validating example files in a script. |
+| `vitest --typecheck` | Enables type-level tests | Required to make `expectTypeOf`/`assertType` failures surface. Type tests live in `*.test-d.ts` files by default (configurable via `typecheck.include`). Without `--typecheck`, type assertions are parsed but not run as tests. |
+| `tsc --noEmit --strict` | Independent strict-mode gate for every example | The authoritative "examples compile clean" check (matches how lz-tpp/lz-refactor samples were validated). LSP diagnostics are not authoritative -- run the compiler. |
 
-## Directory Layout (prescriptive, this repo)
+## RED-relevant API surface (each API -> its RED-phase concept)
 
-```
-lz-engineering-claude-plugins/          # repo root == marketplace root
-|-- .claude-plugin/
-|   '-- marketplace.json                # marketplace catalog (see below)
-|-- plugins/
-|   '-- lz-tdd/                          # plugin root (source: "./plugins/lz-tdd")
-|       |-- .claude-plugin/
-|       |   '-- plugin.json              # plugin manifest (see below)
-|       |-- skills/
-|       |   '-- lz-tpp/                  # skill dir name -> command /lz-tdd:lz-tpp
-|       |       |-- SKILL.md             # required; frontmatter + body (< 500 lines)
-|       |       '-- references/
-|       |           '-- transformations.md   # bundled full TPP list (loaded on demand)
-|       '-- README.md                    # optional, per-plugin docs
-|-- LICENSE                              # MIT
-'-- README.md                           # marketplace + install instructions
-```
+This is the load-bearing deliverable: every listed API mapped to a concrete RED use.
 
-Rules that make this layout correct (all HIGH confidence, verified against current docs):
+| API | RED-phase concept | One-line use |
+|-----|-------------------|--------------|
+| `describe` / `it` / `test` | Structure the test -- AAA / Given-When-Then; one concept per test | `describe` names the unit/context; `it`/`test` states ONE behavior. `it` and `test` are aliases -- pick one house style. |
+| `expect(x).toEqual(y)` | Assert observable VALUE/state behavior (evident data) | Deep structural equality -- the default for asserting a returned value or object shape. |
+| `expect(x).toBe(y)` | Assert identity / primitive equality | For primitives and same-reference checks; not for deep objects. |
+| `expect(fn).toThrow(...)` | RED for the error path -- error IS the specified behavior | Assert that calling `fn` throws (optionally a message/type). The failing-first form when the behavior under test is a rejection of bad input. |
+| `await expect(promise).rejects.toThrow(...)` / `.resolves.toEqual(...)` | Async RED | State the expected async outcome; `rejects`/`resolves` unwrap the promise so the assertion reads as behavior, not plumbing. Always `await`. |
+| `expect.assertions(n)` / `expect.hasAssertions()` | "Fail for the right reason" guard | Guarantees the intended assertions actually executed (critical in async/callback tests) -- stops a test that silently passes because its assertion path was skipped. |
+| `it.todo(...)` / `test.todo(...)` | Kent Beck's TEST LIST -- the RED backlog | Enumerate not-yet-written tests as todos; they report as pending, not passing. Pick the next todo to turn red. This is the direct Vitest expression of "write a list of the tests you know you'll need." |
+| `test.each([...])` / `it.each([...])` | Triangulation / parameterized cases | Add input->expected rows to force generalization (Beck's triangulation) without copy-pasting test bodies. Each row is its own RED case. |
+| `expectTypeOf(x).toEqualTypeOf<T>()` / `.parameter(0).toExtend<T>()` | Type-level RED (compile-time red) | Write a type assertion that currently produces a type error, then evolve the type until it checks. Bundled in Vitest; needs `--typecheck`. |
+| `assertType<T>(value)` + `// @ts-expect-error` | Type-level RED for the "this must NOT type-check" direction | `@ts-expect-error` itself goes red when the code STARTS compiling -- an inverted red that proves a type guard exists. |
+| `vi.fn()` / `vi.spyOn()` / `vi.mock()` | Test doubles -- with RESTRAINT | Use for collaboration/command verification (Metz command/query matrix; London-school outgoing-command tests). `vi.fn` for a stub/spy, `vi.spyOn` to wrap a real method, `vi.mock` to replace a module. See anti-patterns -- over-mocking is the failure mode. |
+| `vitest` watch mode | The RED feedback loop | Keep it running; a saved failing test shows red in milliseconds. The tight loop is what makes writing-the-test-first cheap. |
+| `beforeEach` / `afterEach` | Arrange (the "A" in AAA) shared setup | Brief -- keep setup evident; over-shared setup hides the "evident data" a RED test should make obvious. |
 
-- `marketplace.json` MUST live at `<repo>/.claude-plugin/marketplace.json`.
-- Relative `source` paths resolve against the **marketplace root** (the dir that
-  contains `.claude-plugin/`), NOT against `.claude-plugin/` itself. So
-  `"./plugins/lz-tdd"` points at `<repo>/plugins/lz-tdd`. Never use `../`.
-- Component dirs (`skills/`) live at the plugin root, NOT inside `.claude-plugin/`.
-- The skill's **directory name** (`lz-tpp`) determines the invocation command
-  `/lz-tdd:lz-tpp`. For a plugin subdirectory skill the frontmatter `name` is only
-  the display label; it does not change the command. Keep them identical to avoid confusion.
-- `skills/` is auto-discovered from the plugin root; no path config in `plugin.json` is needed.
+## Installation
 
-## Concrete Manifests (copy-ready for this repo)
-
-### `.claude-plugin/marketplace.json`
-
-```json
-{
-  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
-  "name": "lz-engineering-claude-plugins",
-  "description": "Engineering-focused plugins for Claude Code.",
-  "owner": {
-    "name": "Lars Gyrup Brink Nielsen",
-    "email": "larsbrinknielsen@gmail.com"
-  },
-  "plugins": [
-    {
-      "name": "lz-tdd",
-      "source": "./plugins/lz-tdd",
-      "description": "Test-driven development guidance for Claude Code, including Transformation Priority Premise (TPP) coaching.",
-      "category": "development"
-    }
-  ]
-}
-```
-
-Field notes:
-- Required top-level: `name` (kebab-case, public-facing), `owner` (object; `name`
-  required, `email` optional), `plugins` (array). Verified HIGH.
-- `$schema` is optional and ignored at load time, but enables editor autocomplete/validation. The official marketplace sets it.
-- The marketplace `name` is independent of the folder name. Set it to
-  `lz-engineering-claude-plugins` even while the working directory is still
-  `lz-engineering-claude-plugin` (singular). The name is NOT on Anthropic's
-  reserved-names list and does not impersonate an official marketplace, so it is allowed.
-- Per-plugin required fields inside `plugins[]`: `name` + `source`. Everything else
-  (`description`, `category`, `author`, `version`, `keywords`, ...) is optional.
-- **Deliberately omit `version` from the marketplace entry** -- see Versioning below.
-
-### `plugins/lz-tdd/.claude-plugin/plugin.json`
-
-```json
-{
-  "name": "lz-tdd",
-  "version": "0.1.0",
-  "description": "Test-driven development guidance for Claude Code. Includes the lz-tpp skill operationalizing Robert C. Martin's Transformation Priority Premise (TPP).",
-  "author": {
-    "name": "Lars Gyrup Brink Nielsen",
-    "email": "larsbrinknielsen@gmail.com"
-  },
-  "homepage": "https://github.com/LayZeeDK/lz-engineering-claude-plugins",
-  "repository": "https://github.com/LayZeeDK/lz-engineering-claude-plugins",
-  "license": "MIT",
-  "keywords": [
-    "tdd",
-    "test-driven-development",
-    "transformation-priority-premise",
-    "tpp",
-    "refactoring",
-    "typescript"
-  ]
-}
-```
-
-Field notes:
-- Only `name` (kebab-case) is strictly required; the rest is recommended metadata
-  for distribution. Verified HIGH against the official docs and the local
-  `plugin-dev` manifest-reference.
-- `name` must match `^[a-z][a-z0-9]*(-[a-z0-9]+)*$` -- `lz-tdd` passes.
-- `version` follows semver `MAJOR.MINOR.PATCH`. Start at `0.1.0`.
-- Because the plugin lives in a monorepo-style subdir, you MAY use the object form
-  of `repository` to point precisely: `{"type":"git","url":"https://github.com/LayZeeDK/lz-engineering-claude-plugins.git","directory":"plugins/lz-tdd"}`.
-  The string form above is simpler and acceptable for v1.
-- No `commands`/`agents`/`hooks`/`mcpServers` path fields -- rely on auto-discovery of `skills/`.
-
-### `plugins/lz-tdd/skills/lz-tpp/SKILL.md` (frontmatter skeleton)
-
-```yaml
----
-name: lz-tpp
-description: >-
-  Recommends the next code transformation by Transformation Priority Premise
-  (TPP) order during red-green-refactor TDD, and explains the transformations
-  and their ordering on demand. Use when writing or discussing failing tests,
-  choosing the simplest change to pass a test, refactoring, or when the user
-  mentions TPP, transformation priority, {}->nil, nil->constant, or Uncle Bob's
-  transformation list.
----
-
-# lz-tpp: Transformation Priority Premise coach
-
-[imperative-form body, < 500 lines; point to references/transformations.md for the full list]
-```
-
-Skill frontmatter decisions for `lz-tpp` (all verified against current skills doc):
-
-| Field | Value for lz-tpp | Reason |
-|-------|------------------|--------|
-| `name` | `lz-tpp` | Display label; keep equal to the directory name. |
-| `description` | coach + reference + trigger phrases | Primary triggering mechanism. Put the key use case first; the combined `description` (+ optional `when_to_use`) is truncated at 1,536 chars in the skill listing. |
-| `disable-model-invocation` | omit (default `false`) | The skill is a coach that MUST auto-trigger during TDD. Setting this true would block auto-loading. |
-| `user-invocable` | omit (default `true`) | The reference behavior needs direct `/lz-tdd:lz-tpp` invocation. |
-| `allowed-tools` | omit for v1 | Pure guidance/knowledge skill; it does not need to run tools without approval. Add later only if a bundled script appears. |
-| `version` | OMIT | Not part of the current Claude Code skill frontmatter spec (see flagged discrepancy). |
-
-Bundled reference files: link them from the body with plain relative Markdown
-links, e.g. `see [the full transformation list](references/transformations.md)`.
-`${CLAUDE_SKILL_DIR}` is only needed when a `!`-injected shell command must locate
-a bundled script regardless of cwd -- not required for v1.
-
-## Install, Namespacing, and Versioning Mechanics
-
-**Install (what the README documents):**
-```text
-/plugin marketplace add LayZeeDK/lz-engineering-claude-plugins   # GitHub owner/repo shorthand
-/plugin install lz-tdd@lz-engineering-claude-plugins             # install the plugin
-```
-- The skill then invokes as `/lz-tdd:lz-tpp` (plugin skills are namespaced
-  `{plugin}:{skill}`, so they cannot collide with personal/project skills).
-- Users refresh with `/plugin marketplace update lz-engineering-claude-plugins`.
-- Local pre-ship test: `/plugin marketplace add ./` then `/plugin install lz-tdd@lz-engineering-claude-plugins`.
-
-**Versioning / update detection (HIGH -- this is a real footgun):**
-Claude Code resolves a plugin's version from the FIRST of:
-1. `version` in the plugin's `plugin.json`
-2. `version` in the marketplace entry
-3. the git commit SHA of the plugin source
-
-Consequences and the chosen strategy:
-- If the resolved version is unchanged, `/plugin update` and auto-update SKIP the
-  plugin. So a pinned `version` that you forget to bump means users never get updates.
-- **Do NOT declare `version` in both places.** `plugin.json` silently wins, so a
-  stale marketplace-entry version is masked. The `claude plugin validate` warns on mismatch.
-- **Recommended for this public, semver-expecting plugin:** keep `version` in
-  `plugin.json` ONLY, omit it from the marketplace entry, and bump it on every
-  release. Clean, visible semver; matches the official walkthrough and most
-  first-party entries in `claude-plugins-official`.
-- Alternative (see table): omit `version` everywhere and let each commit be a new
-  version. Simpler for rapid internal iteration, but no human-readable version.
-
-**Validation (HIGH):**
 ```bash
-claude plugin validate .                 # marketplace: schema, dup names, path traversal, per-entry plugin.json
-claude plugin validate ./plugins/lz-tdd  # plugin: plugin.json + SKILL.md/agent/command/hook frontmatter
+# NOTHING is installed into the plugin -- the skill ships Markdown only.
+# The block below is the DEMO / example-validation environment ONLY
+# (a dev-only workspace, never plugins/lz-tdd dependencies).
+
+# Core demo stack
+npm install -D typescript vitest
+
+# Property-based testing (vanilla is enough; the vitest binding is optional sugar)
+npm install -D fast-check
+npm install -D @fast-check/vitest   # optional: test.prop / it.prop bindings
+
+# expect-type is ALREADY bundled in vitest -- do NOT install it.
+# tsd / standalone expect-type are only for non-Vitest projects (see Alternatives).
 ```
-- Non-blocking warnings you want to clear: "no plugins defined", "no marketplace
-  description", "plugin name not kebab-case".
-- Complementary AI review: `plugin-dev`'s `plugin-validator` agent (structure/security)
-  and `skill-reviewer` agent (description quality, progressive disclosure, writing style).
-
-## What NOT to Use / Include (v1)
-
-| Avoid | Why | Use Instead |
-|-------|-----|-------------|
-| `commands/` directory for the TPP feature | Custom commands have been MERGED into skills; a plugin subdirectory skill already produces the `/lz-tdd:lz-tpp` command. `commands/` is the legacy layout. | A single `skills/lz-tpp/SKILL.md`. |
-| `agents/`, `hooks/`, `.mcp.json` in `lz-tdd` | Out of scope per PROJECT.md; skill-first. Adds surface area and validation risk with no v1 value. | Skill-only plugin; add later if a real need appears. |
-| `npm` source for the plugin | Git-based marketplace install is sufficient for v1 and needs no publish pipeline. | Relative `source: "./plugins/lz-tdd"` in a GitHub-hosted marketplace. |
-| `version` field in `SKILL.md` frontmatter | NOT in the current Claude Code skill frontmatter spec (see below). Harmless but noise. | Version the plugin via `plugin.json`, not the skill. |
-| `version` in BOTH `plugin.json` and the marketplace entry | `plugin.json` wins silently; the other is masked and triggers a validator warning. | Declare `version` in `plugin.json` only. |
-| `disable-model-invocation: true` on `lz-tpp` | Would stop the coach from auto-loading during TDD -- kills the primary use case. | Leave defaults so both Claude and the user can invoke. |
-| Absolute or `../` paths anywhere | Rejected by the validator (path traversal) and break the cache-copy install model. | `./`-relative paths within the marketplace/plugin root. |
 
 ## Alternatives Considered
 
 | Recommended | Alternative | When to Use Alternative |
 |-------------|-------------|-------------------------|
-| Relative-path source `"./plugins/lz-tdd"` (single repo) | `github` / `git-subdir` / `url` / `npm` source objects | Use `github`/`git-subdir` if the plugin lives in a DIFFERENT repo than the marketplace, or for URL-only marketplace distribution (relative paths do NOT resolve when users add via a direct `marketplace.json` URL -- only that file is fetched). |
-| `version` in `plugin.json`, bump per release | Omit `version` everywhere (commit-SHA versioning) | Rapid internal iteration where "every push = update" is desired and human-readable semver is not needed. |
-| Skill-only plugin | Plugin bundling agents/hooks/MCP | When TDD workflows need deterministic automation (e.g., a pre-commit test hook) -- future milestones, not v1. |
-| `owner.email` = `larsbrinknielsen@gmail.com` | Omit email | Only omit if you do not want a public contact; PROJECT.md requires the public contact, so include it. Never use the work email in this public repo. |
+| Vitest built-in `expectTypeOf` / `assertType` (`--typecheck`) | `tsd` 0.33.0 | Only when the project has NO Vitest and wants a standalone `*.test-d.ts` type-assertion CLI. Redundant here -- Vitest already ships type testing, so a Vitest example using `tsd` would add a dep for nothing. |
+| Vitest built-in type testing | `expect-type` 1.4.0 standalone | Only for non-Vitest test setups; it is the same engine Vitest already bundles, so installing it alongside Vitest is pure duplication. |
+| Vanilla `fc.assert(fc.property(...))` inside `it` | `@fast-check/vitest` `test.prop` | When you want the terser property-binding syntax and are already on Vitest 4.1+. It is genuinely nicer, just one more dep and one more concept for an example to carry. |
+| Vitest as runner | Jest / node:test | Milestone decision locks Vitest. Jest would need `ts-jest`/`babel-jest` transform config and has no first-party type testing; node:test lacks the integrated `expectTypeOf`/`vi.*`/watch ergonomics. No reason to show either. |
+| `it.each` / `test.each` for triangulation | Hand-rolled `for` loop over cases | Never in examples -- a loop of `it()` calls or a single `it` looping assertions muddies which case is red. `each` keeps each case a discrete test. |
 
-## Version Compatibility / Min-Version Notes
+## What NOT to Use
 
-| Feature | Min Claude Code version | Relevance to v1 |
-|---------|-------------------------|-----------------|
-| Skills = commands merge, `/plugin` marketplace CLI, relative-path sources | Current 2.1.x line (broadly available) | Core to v1; assume any current install works. |
-| `displayName` on plugin entry | 2.1.143 | Optional polish only; not needed. |
-| `renames` map (auto-migrate renamed/removed plugins) | 2.1.193 | Not needed at launch; useful later if `lz-tdd` is ever renamed. |
-| `${CLAUDE_PROJECT_DIR}` substitution in skills | 2.1.196 | Not needed for v1 lz-tpp (no scripts). |
-| `defaultEnabled` on plugin entry | 2.1.154 | Leave default (enabled on install). |
+| Avoid | Why | Use Instead |
+|-------|-----|-------------|
+| A separate assertion library (chai, should.js, expect.js, unexpected, jest-extended) | Vitest bundles a Jest-compatible `expect` AND a chai-style `expect`; a bolt-on assertion lib adds a dependency and a second matcher dialect to an example that needs neither. | Vitest's built-in `expect`. |
+| Snapshot-everything (`toMatchSnapshot` as the default assertion) | A snapshot captures current output; it does not STATE intended behavior, so it cannot express a meaningful RED. A first snapshot "passes" by definition -- there is no red to make green. | Explicit `toEqual` / `toThrow` with evident expected data. Reserve `toMatchInlineSnapshot` for genuinely large stable structures, sparingly. |
+| Over-mocking -- `vi.mock` / `vi.fn` on everything, a double per collaborator, test-per-class | Ian Cooper's warning: mocking implementation detail couples tests to structure and makes them assert "was this method called" instead of observable behavior; the RED test then fails on refactors that preserve behavior. | Doubles ONLY at real seams (I/O, time, network, non-deterministic collaborators). Prefer testing observable behavior of the unit; verify outgoing COMMANDS, not internal queries (Metz matrix). |
+| `it.fails` / `test.fails` to represent RED | `fails` asserts a test is EXPECTED to fail and passes when it does -- it inverts red/green and is for known-broken cases, not the RED step. | A normal `it` that is currently red because the behavior is unimplemented. |
+| `ts-jest`, `babel-jest`, `@swc/jest` transforms | Jest-era transform plumbing; irrelevant on Vitest (esbuild/Vite native) and would confuse a TS + Vitest example. | Nothing -- Vitest runs TS out of the box. |
+| jsdom / happy-dom / @testing-library in examples | This is UNIT RED for logic; a DOM environment is out of scope and adds noise/deps. | Plain functions/values in the Node environment; no test DOM. |
 
-Flagged discrepancy (MEDIUM confidence on the older source, HIGH on the resolution):
-The locally-installed `plugin-dev` v0.1.0 skill files show `SKILL.md` frontmatter
-with a `version:` field and a title-case `name:` (e.g. `name: Skill Name`). The
-CURRENT official Claude Code skills reference (dated 2026-07-01) lists neither
-`version` as a recognized skill field, and states `name` defaults to the directory
-name and is only a display label for plugin subdirectory skills. Resolution: follow
-the current docs -- omit `version` from `SKILL.md`, set `name: lz-tpp` (kebab, matching
-the dir). Unknown frontmatter fields are ignored, so a stray `version` would not break
-anything, but it is unnecessary.
+## Stack Patterns by Variant
+
+**If the behavior under test is a plain value/computation (the default RED):**
+- `describe` the unit, one `it` per behavior, `expect(result).toEqual(expected)` with evident data.
+- Because this is the simplest red-for-the-right-reason and hands off cleanly to `lz-tpp` at green.
+
+**If the behavior is asynchronous:**
+- `await expect(promise).rejects.toThrow(...)` or `.resolves.toEqual(...)`, plus `expect.assertions(n)` when the assertion sits inside a callback/branch.
+- Because async tests silently pass when the assertion path is skipped -- `expect.assertions` makes "fail for the right reason" enforceable.
+
+**If a single example under-specifies behavior:**
+- Triangulate with `it.each([...])`; escalate to `fast-check` (`fc.assert(fc.property(...))`) when you want to assert an invariant over many generated inputs rather than list rows.
+- Because `each` forces generalization discretely and property tests catch the cases you would not enumerate.
+
+**If the "behavior" is a type contract:**
+- `expectTypeOf<T>()` / `assertType` + `// @ts-expect-error`, in a `*.test-d.ts` file, run with `vitest --typecheck`.
+- Because a compile-time red (a type that does not yet check, or code that must not compile) is a legitimate RED that `lz-tpp` then satisfies at the type level.
+
+## Version Compatibility
+
+| Package A | Compatible With | Notes |
+|-----------|-----------------|-------|
+| vitest@4.1.10 | node ^20 \|\| ^22 \|\| >=24 | Hard `engines` requirement for the demo/validation env. |
+| vitest@4.1.10 | vite ^6 \|\| ^7 \|\| ^8 (peer, bundled) | Vitest ships its own Vite; no separate Vite config needed for pure unit tests. |
+| @fast-check/vitest@0.4.1 | vitest ^4.1.0 | Peer satisfied by 4.1.10. Only needed if you use `test.prop`/`it.prop`. |
+| expectTypeOf (vitest) | expect-type ^1.x | Bundled -- never install `expect-type` alongside Vitest. |
+| TypeScript 5.x / 6.0-beta / 7.0.2 | all example code | Examples use only stable strict-mode syntax; they compile clean on any of these. TS 6.0 is currently `beta`, 7.0.2 is `latest` (native port), 7.1 is `next`. State "tsc --strict-clean" rather than pinning a version in the skill. |
 
 ## Sources
 
-- Official Claude Code docs, "Extend Claude with skills" (https://docs.claude.com/en/docs/claude-code/skills) -- fetched via markdown.new, page timestamp 2026-07-01 -- HIGH. Skill frontmatter table, command-name derivation, namespacing, progressive disclosure, invocation control, 1,536-char description cap, `< 500 lines` guidance, Agent Skills open standard.
-- Official Claude Code docs, "Create and distribute a plugin marketplace" (https://docs.claude.com/en/docs/claude-code/plugin-marketplaces) -- fetched via markdown.new, page timestamp 2026-07-01 -- HIGH. marketplace.json required/optional fields, plugin-entry fields, all source types, version resolution rules, `claude plugin validate`, install/update commands, reserved names.
-- Installed `claude-plugins-official/.claude-plugin/marketplace.json` (Anthropic's own marketplace, on disk) -- HIGH. Real-world confirmation of `$schema`, `owner`, `source` variants (relative `./plugins/...`, `github`, `url`, `git-subdir`), `category`, `keywords`, `strict`.
-- Installed `lz-advisor-claude-plugins/.claude-plugin/marketplace.json` (user's own prior marketplace) -- HIGH. Confirms the minimal relative-path pattern this repo should follow.
-- Local `plugin-dev` v0.1.0: `skills/plugin-structure/SKILL.md`, `references/manifest-reference.md`, `agents/plugin-validator.md`, `commands/create-plugin.md`, `skills/skill-development/SKILL.md`; and `skill-creator` `skills/skill-creator/SKILL.md` -- HIGH for authoring conventions, with the `version`/`name` frontmatter discrepancy flagged above.
+- registry.npmjs.org (dist-tags + `latest` manifests, fetched 2026-07-18) -- HIGH. Verified versions: vitest 4.1.10 (V3 tag 3.2.7, beta 5.0.0-beta), typescript 7.0.2 latest / 6.0.0-beta / 7.1.0-dev next, fast-check 4.9.0 (legacy 2.15.1), @fast-check/vitest 0.4.1 (peer vitest ^4.1.0), tsd 0.33.0, expect-type 1.4.0. Also vitest engines (node ^20/^22/>=24) and vite peer (^6/^7/^8).
+- https://vitest.dev/guide/testing-types (fetched 2026-07-18) -- HIGH. Confirmed `expectTypeOf`/`assertType` bundled in `vitest`, powered by expect-type, `*.test-d.ts` convention, `--typecheck` flag.
+- https://vitest.dev/guide/features (fetched 2026-07-18) -- HIGH. Confirmed watch-mode-by-default / run-mode-in-CI behavior, `vitest run`/`vitest watch`, and presence of `.todo`, `.each`, `toEqual`, promise matchers.
+- Prior-milestone knowledge (PROJECT.md) -- HIGH. Confirms Markdown-only skill shape and the tsc --strict-clean validation stance carried from lz-tpp/lz-refactor.
 
 ---
-*Stack research for: Claude Code plugin marketplace + agent skill authoring*
-*Researched: 2026-07-02*
+*Stack research for: lz-red RED-phase skill demonstration stack (TypeScript + Vitest)*
+*Researched: 2026-07-18*

@@ -37,10 +37,12 @@ Before, the priority is a bare string nothing validates:
 
 ```ts
 class Task {
-  constructor(
-    private readonly title: string,
-    private readonly priority: string,
-  ) {}
+  private readonly title: string;
+  private readonly priority: string;
+  constructor(title: string, priority: string) {
+    this.title = title;
+    this.priority = priority;
+  }
   isUrgent(): boolean {
     return this.priority === "high";
   }
@@ -56,10 +58,12 @@ class Priority {
 }
 
 class Task {
-  constructor(
-    private readonly title: string,
-    private readonly priority: Priority,
-  ) {}
+  private readonly title: string;
+  private readonly priority: Priority;
+  constructor(title: string, priority: Priority) {
+    this.title = title;
+    this.priority = priority;
+  }
   isUrgent(): boolean {
     return this.priority === Priority.high;
   }

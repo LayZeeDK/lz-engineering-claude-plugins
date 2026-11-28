@@ -1,0 +1,15 @@
+{
+  "grader": { "type": "tool_used", "tool": "Edit|Write", "inputMatch": "test[\\\\/]+vitest[\\\\/]+[^\"]*\\.(spec|test)\\.ts" },
+  "pass": {
+    "toolCalls": [
+      { "name": "Write", "input": { "file_path": "D:\\tmp\\w\\test\\vitest\\conjured.spec.ts", "content": "b" } }
+    ],
+    "lastMessage": ""
+  },
+  "fail": {
+    "toolCalls": [
+      { "name": "Edit", "input": { "file_path": "D:\\tmp\\w\\app\\gilded-rose.spec.ts", "old_string": "a", "new_string": "b" } }
+    ],
+    "lastMessage": ""
+  }
+}

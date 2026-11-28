@@ -27,7 +27,13 @@ Before, callers construct with `new` and a bare priority number:
 
 ```ts
 class Ticket {
-  constructor(readonly code: string, readonly priority: number) {}
+  readonly code: string;
+  readonly priority: number;
+
+  constructor(code: string, priority: number) {
+    this.code = code;
+    this.priority = priority;
+  }
 }
 
 const urgent = new Ticket("T-1", 1);
@@ -37,7 +43,13 @@ After, a named factory states intent and hides the constructor:
 
 ```ts
 class Ticket {
-  constructor(readonly code: string, readonly priority: number) {}
+  readonly code: string;
+  readonly priority: number;
+
+  constructor(code: string, priority: number) {
+    this.code = code;
+    this.priority = priority;
+  }
 }
 
 function urgentTicket(code: string): Ticket {

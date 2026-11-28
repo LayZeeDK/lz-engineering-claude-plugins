@@ -52,28 +52,40 @@ interface Expr {
 }
 
 class Level implements Expr {
-  constructor(private readonly level: string) {}
+  private readonly level: string;
+  constructor(level: string) {
+    this.level = level;
+  }
   test(entry: Entry): boolean {
     return entry.level === this.level;
   }
 }
 
 class Service implements Expr {
-  constructor(private readonly service: string) {}
+  private readonly service: string;
+  constructor(service: string) {
+    this.service = service;
+  }
   test(entry: Entry): boolean {
     return entry.service === this.service;
   }
 }
 
 class And implements Expr {
-  constructor(private readonly parts: Expr[]) {}
+  private readonly parts: Expr[];
+  constructor(parts: Expr[]) {
+    this.parts = parts;
+  }
   test(entry: Entry): boolean {
     return this.parts.every((part) => part.test(entry));
   }
 }
 
 class Or implements Expr {
-  constructor(private readonly parts: Expr[]) {}
+  private readonly parts: Expr[];
+  constructor(parts: Expr[]) {
+    this.parts = parts;
+  }
   test(entry: Entry): boolean {
     return this.parts.some((part) => part.test(entry));
   }
@@ -97,21 +109,30 @@ interface Expr {
 }
 
 class Level implements Expr {
-  constructor(private readonly level: string) {}
+  private readonly level: string;
+  constructor(level: string) {
+    this.level = level;
+  }
   test(entry: Entry): boolean {
     return entry.level === this.level;
   }
 }
 
 class Service implements Expr {
-  constructor(private readonly service: string) {}
+  private readonly service: string;
+  constructor(service: string) {
+    this.service = service;
+  }
   test(entry: Entry): boolean {
     return entry.service === this.service;
   }
 }
 
 class And implements Expr {
-  constructor(private readonly parts: Expr[]) {}
+  private readonly parts: Expr[];
+  constructor(parts: Expr[]) {
+    this.parts = parts;
+  }
   test(entry: Entry): boolean {
     return this.parts.every((part) => part.test(entry));
   }

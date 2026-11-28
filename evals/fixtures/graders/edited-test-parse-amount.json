@@ -1,0 +1,17 @@
+{
+  "grader": {
+    "type": "regex",
+    "target": "trace",
+    "pattern": "\"name\":\"(?:Edit|Write)\",\"input\":\\{[^{}]*?parse-amount\\.test\\.ts"
+  },
+  "pass": {
+    "toolCalls": [],
+    "lastMessage": "",
+    "trace": "{\"type\":\"assistant\",\"message\":{\"content\":[{\"type\":\"tool_use\",\"id\":\"toolu_fixture\",\"name\":\"Write\",\"input\":{\"file_path\":\"D:\\\\tmp\\\\w\\\\src\\\\parse-amount.test.ts\",\"content\":\"x\"}}]}}\n"
+  },
+  "fail": {
+    "toolCalls": [],
+    "lastMessage": "",
+    "trace": "{\"type\":\"assistant\",\"message\":{\"content\":[{\"type\":\"tool_use\",\"id\":\"toolu_fixture\",\"name\":\"Write\",\"input\":{\"file_path\":\"D:\\\\tmp\\\\w\\\\src\\\\other.test.ts\",\"content\":\"x\"}}]}}\n"
+  }
+}

@@ -26,11 +26,19 @@ Before, a class that barely holds anything:
 
 ```ts
 class Label {
-  constructor(public text: string) {}
+  public text: string;
+
+  constructor(text: string) {
+    this.text = text;
+  }
 }
 
 class Product {
-  constructor(public label: Label) {}
+  public label: Label;
+
+  constructor(label: Label) {
+    this.label = label;
+  }
 }
 ```
 
@@ -38,6 +46,10 @@ After, its one field folds into its only user:
 
 ```ts
 class Product {
-  constructor(public text: string) {}
+  public text: string;
+
+  constructor(text: string) {
+    this.text = text;
+  }
 }
 ```

@@ -28,7 +28,13 @@ Before: the caller passes a subtotal the object could compute:
 
 ```ts
 class Cart {
-  constructor(private units: number, private unitPrice: number) {}
+  private units: number;
+  private unitPrice: number;
+
+  constructor(units: number, unitPrice: number) {
+    this.units = units;
+    this.unitPrice = unitPrice;
+  }
 
   total(subtotal: number): number {
     return subtotal * 1.2;
@@ -44,7 +50,13 @@ After: the function queries for it, so callers cannot pass a wrong value:
 
 ```ts
 class Cart {
-  constructor(private units: number, private unitPrice: number) {}
+  private units: number;
+  private unitPrice: number;
+
+  constructor(units: number, unitPrice: number) {
+    this.units = units;
+    this.unitPrice = unitPrice;
+  }
 
   total(): number {
     return this.subtotal * 1.2;

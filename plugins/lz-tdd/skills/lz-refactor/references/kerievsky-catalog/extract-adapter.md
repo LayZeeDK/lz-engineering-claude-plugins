@@ -39,7 +39,10 @@ Before, one class branches on the API version everywhere:
 
 ```ts
 class WeatherClient {
-  constructor(private readonly version: 1 | 2) {}
+  private readonly version: 1 | 2;
+  constructor(version: 1 | 2) {
+    this.version = version;
+  }
   temperature(payload: Record<string, number>): number {
     if (this.version === 1) {
       return payload["temp"];

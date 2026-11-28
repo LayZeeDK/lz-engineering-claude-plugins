@@ -15,11 +15,11 @@ Kerievsky-unique Ch.4 smell with no Fowler equivalent.
 
 Recognize by: a name that makes you stop and work out what it refers to, or that points you the wrong way. ([leaf](smells/mysterious-name.md))
 
-### Duplicated Code [both]
+### Duplicated Code `[both]`
 
 Recognize by: the same or nearly-identical code structure appearing in more than one place. ([leaf](smells/duplicated-code.md))
 
-### Long Function [both]
+### Long Function `[both]`
 
 Recognize by: a function long enough that you have to scan it to understand what it does. ([leaf](smells/long-function.md))
 
@@ -39,7 +39,7 @@ Recognize by: data updated in place, where one update can surprise code elsewher
 
 Recognize by: one module you keep editing for several unrelated reasons. ([leaf](smells/divergent-change.md))
 
-### Shotgun Surgery [both]
+### Shotgun Surgery `[both]`
 
 Recognize by: one kind of change forcing many small edits scattered across many modules. ([leaf](smells/shotgun-surgery.md))
 
@@ -51,11 +51,11 @@ Recognize by: a function that talks to another module's data far more than to it
 
 Recognize by: the same few data items appearing together in field lists and parameter lists. ([leaf](smells/data-clumps.md))
 
-### Primitive Obsession [both]
+### Primitive Obsession `[both]`
 
 Recognize by: bare primitives standing in for concepts that deserve their own type. ([leaf](smells/primitive-obsession.md))
 
-### Repeated Switches [both]
+### Repeated Switches `[both]`
 
 Recognize by: the same switch (or if/else chain) on the same value showing up in several places. ([leaf](smells/repeated-switches.md))
 
@@ -63,7 +63,7 @@ Recognize by: the same switch (or if/else chain) on the same value showing up in
 
 Recognize by: a loop, or a reduce or accumulator that buckets items into a Map or object under a key, whose real intent (filter, map, sum, group-by) is buried in bookkeeping. ([leaf](smells/loops.md))
 
-### Lazy Element [both]
+### Lazy Element `[both]`
 
 Recognize by: a program element that does too little to justify its own existence. ([leaf](smells/lazy-element.md))
 
@@ -87,11 +87,11 @@ Recognize by: a class whose methods mostly just forward to another object. ([lea
 
 Recognize by: modules that reach into each other's private detail and trade it back and forth. ([leaf](smells/insider-trading.md))
 
-### Large Class [both]
+### Large Class `[both]`
 
 Recognize by: a class trying to do too much, with too many fields and methods. ([leaf](smells/large-class.md))
 
-### Alternative Classes with Different Interfaces [both]
+### Alternative Classes with Different Interfaces `[both]`
 
 Recognize by: classes that do interchangeable jobs but expose them through mismatched interfaces. ([leaf](smells/alternative-classes-with-different-interfaces.md))
 
@@ -113,19 +113,19 @@ These four Ch.4 smells have no Fowler Ch.3 equivalent; their candidate refactori
 Kerievsky catalog. (The other Ch.4 smells overlap Fowler's and are folded onto the Fowler leaves above,
 tagged `[both]`.)
 
-### Conditional Complexity [Kerievsky]
+### Conditional Complexity `[Kerievsky]`
 
 Recognize by: branching logic that has grown tangled over time: conditionals that select behavior, layer on optional extras, and drive state changes, all accreting in one place. ([leaf](smells/conditional-complexity.md))
 
-### Indecent Exposure [Kerievsky]
+### Indecent Exposure `[Kerievsky]`
 
 Recognize by: classes, constructors, or methods that ought to be hidden are publicly reachable, leaking implementation detail callers should never see. ([leaf](smells/indecent-exposure.md))
 
-### Combinatorial Explosion [Kerievsky]
+### Combinatorial Explosion `[Kerievsky]`
 
 Recognize by: a pile of near-identical methods or branches that each handle one combination of the same few options: an unnamed mini-language spelled out by hand. ([leaf](smells/combinatorial-explosion.md))
 
-### Oddball Solution [Kerievsky]
+### Oddball Solution `[Kerievsky]`
 
 Recognize by: one problem solved one consistent way almost everywhere, but handled differently in a few odd spots. ([leaf](smells/oddball-solution.md))
 

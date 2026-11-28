@@ -16,8 +16,6 @@ living under `.claude/skills/*-workspace/`:
    are gated behind explicit human approval.
 
 There is **no jest / vitest / mocha** for authored code and no `package.json`.
-(The vendored `.gsd-opengsd/` toolchain has its own test suite; ignore it.)
-
 ## Test Framework
 
 **Runner:**

@@ -1,0 +1,10 @@
+{
+  "cells": [
+    {
+      "arm": "head",
+      "ref": "20061f7dfd52f7d50325c5a3485ad3f2f727d128",
+      "models": { "claude-opus-5-5": 3 },
+      "suites": [{ "suite": "doing-lz-refactor", "cases": ["doing-lz-refactor-00"] }]
+    }
+  ]
+}

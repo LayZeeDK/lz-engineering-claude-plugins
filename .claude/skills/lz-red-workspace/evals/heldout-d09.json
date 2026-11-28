@@ -1,0 +1,15 @@
+[
+  {"query":"before i add a test to this repo, how do i figure out the testing conventions the team already follows?","should_trigger":true,"note":"heldout-positive: house-idiom / testing-stance"},
+  {"query":"what's the idiomatic way to write a new test in a project that already has lots of tests in a certain style?","should_trigger":true,"note":"heldout-positive: house-idiom / testing-stance"},
+  {"query":"i want my new test to look like the others here -- how do i pick up the pattern?","should_trigger":true,"note":"heldout-positive: house-idiom / testing-stance"},
+  {"query":"should my next test follow the existing test patterns in this project, and how do i tell what they are?","should_trigger":true,"note":"heldout-positive: house-idiom / testing-stance"},
+  {"query":"new to this repo and writing my first test -- how do i match how they test here?","should_trigger":true,"note":"heldout-positive: house-idiom / testing-stance"},
+  {"query":"the team has a particular way of writing tests; how do i keep my next one in the same vein?","should_trigger":true,"note":"heldout-positive: house-idiom / testing-stance"},
+  {"query":"how should i structure this unit test - is there a standard skeleton to follow?","should_trigger":true,"note":"CANARY: known-good positive for window-health only; EXCLUDED from the recall metric"},
+  {"query":"this module doesn't match our house style -- how do i clean it up so it's consistent?","should_trigger":false,"note":"heldout-negative: refactor passing code for style consistency (lz-refactor seam / over-widen trap)"},
+  {"query":"how do i configure prettier and eslint so my code matches the repo's style?","should_trigger":false,"note":"heldout-negative: generic style/tooling config, not a test (over-widen trap)"},
+  {"query":"my new test is red -- whats the smallest change to the code to make it match the expected value and pass?","should_trigger":false,"note":"heldout-negative: lz-tpp green-step seam"},
+  {"query":"how do i set up the test runner config to match this project's conventions?","should_trigger":false,"note":"heldout-negative: test tooling/config, not test-selection (over-widen trap)"},
+  {"query":"these existing tests are messy and inconsistent -- how should i refactor them into one style?","should_trigger":false,"note":"heldout-negative: refactoring existing passing tests (lz-refactor seam)"},
+  {"query":"what file-naming convention does this repo use, and how do i match it for a new file?","should_trigger":false,"note":"heldout-negative: file-naming convention, not a test (over-widen trap)"}
+]

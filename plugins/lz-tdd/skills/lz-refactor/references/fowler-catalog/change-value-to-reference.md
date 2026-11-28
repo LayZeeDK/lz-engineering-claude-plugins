@@ -33,7 +33,13 @@ Before, every book builds its own `Publisher`, so copies with the same id can di
 
 ```ts
 class Publisher {
-  constructor(readonly id: string, readonly name: string) {}
+  readonly id: string;
+  readonly name: string;
+
+  constructor(id: string, name: string) {
+    this.id = id;
+    this.name = name;
+  }
 }
 
 class Book {
@@ -49,7 +55,13 @@ After, books fetch the one shared instance from a repository keyed by id:
 
 ```ts
 class Publisher {
-  constructor(readonly id: string, readonly name: string) {}
+  readonly id: string;
+  readonly name: string;
+
+  constructor(id: string, name: string) {
+    this.id = id;
+    this.name = name;
+  }
 }
 
 const publishers = new Map<string, Publisher>();

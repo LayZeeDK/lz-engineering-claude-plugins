@@ -14,7 +14,11 @@ Before, an editor hands out and restores opaque memento objects:
 
 ```ts
 class EditorMemento {
-  constructor(readonly content: string) {}
+  readonly content: string;
+
+  constructor(content: string) {
+    this.content = content;
+  }
 }
 
 class Editor {

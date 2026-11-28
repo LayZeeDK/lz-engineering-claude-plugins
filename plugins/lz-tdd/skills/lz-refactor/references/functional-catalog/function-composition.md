@@ -24,7 +24,11 @@ class PlainFormatter implements Formatter {
 }
 
 class TrimFormatter implements Formatter {
-  constructor(private readonly inner: Formatter) {}
+  private readonly inner: Formatter;
+
+  constructor(inner: Formatter) {
+    this.inner = inner;
+  }
 
   format(input: string): string {
     return this.inner.format(input).trim();
@@ -32,7 +36,11 @@ class TrimFormatter implements Formatter {
 }
 
 class LowerFormatter implements Formatter {
-  constructor(private readonly inner: Formatter) {}
+  private readonly inner: Formatter;
+
+  constructor(inner: Formatter) {
+    this.inner = inner;
+  }
 
   format(input: string): string {
     return this.inner.format(input).toLowerCase();

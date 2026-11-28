@@ -1,0 +1,74 @@
+{
+  "purpose": "Hand-authored INPUTS for grade-routing.mjs --selfcheck. Every answer is written by hand for this file; none is captured model output, so nothing here can drift with a re-run and nothing here spends anything. The expected OUTCOMES live in the selfcheck's own named assertions rather than in this file, deliberately: a fixture that declares what the code does proves only that the two agree.",
+  "sibling_note": "This directory is a SIBLING of fixtures/, not a subtree of it. fixtures/ belongs to grade-red.mjs and carries Phase 21's canaries, whose verdict classes are frozen evidence; adding a differently-shaped fixture family there would put this phase's inputs inside that evidence set.",
+  "judge_blinding_headings": [
+    "RED vs the green step (lz-tpp) and the refactor step (lz-refactor)",
+    "Refactoring vs the red step (lz-red) and the green step (lz-tpp)",
+    "The green step vs the red step (lz-red) and the refactor step (lz-refactor)",
+    "Coach decision procedure",
+    "Two modes"
+  ],
+  "judge_blinding_headings_note": "A HERMETIC heading set for the selfcheck, so the normalization legs do not depend on the shipped tree's current wording and cannot go quietly vacuous when that wording changes. The real gate derives its set from the tracked tree instead (shippedSectionHeadings), which is what keeps it self-maintaining; these five are the per-skill narrative headings plus two shared ones as they stood when this fixture was authored, and they exist only to give the selfcheck something concrete to strip.",
+  "fixtures": [
+    {
+      "name": "single-correct",
+      "answer_file": "single-destination.md",
+      "meta": { "prompt_id": "c1", "arm": "variant_a", "run_idx": 1, "exit_code": 0, "routing_table_read": false, "routing_table_read_path": null },
+      "note": "One affirmed destination, matching the case's expected owner. The exactly-one deterministic PASS."
+    },
+    {
+      "name": "single-wrong",
+      "answer_file": "single-destination.md",
+      "meta": { "prompt_id": "c2", "arm": "variant_b", "run_idx": 1, "exit_code": 0, "routing_table_read": false, "routing_table_read_path": null },
+      "note": "The SAME answer bytes graded against a case that expects a different owner. Reusing the file is the point: it proves the comparison is against the corpus rather than against the text."
+    },
+    {
+      "name": "exclusion-clause",
+      "answer_file": "exclusion-clause.md",
+      "meta": { "prompt_id": "c2", "arm": "variant_a", "run_idx": 2, "exit_code": 0, "routing_table_read": false, "routing_table_read_path": null },
+      "note": "Names the correct destination once and mentions a sibling ONLY inside an exclusion clause. If the grader counted that mention, cardinality would read multiple and a correct answer would be sent to a judge -- the incidental-mention ceiling, reproduced inside the grader."
+    },
+    {
+      "name": "two-hop",
+      "answer_file": "two-hop.md",
+      "meta": { "prompt_id": "c4", "arm": "variant_c", "run_idx": 1, "exit_code": 0, "routing_table_read": true, "routing_table_read_path": "plugins/lz-tdd/references/rgr-routing.md" },
+      "note": "The corpus's only ordered two-hop, answered correctly. Two affirmed names, so it is unresolved BY DESIGN: a correct handoff and a hedge between alternatives look the same mechanically."
+    },
+    {
+      "name": "no-name-coaching",
+      "answer_file": "no-name-coaching.md",
+      "meta": { "prompt_id": "c2", "arm": "variant_c", "run_idx": 3, "exit_code": 0, "routing_table_read": false, "routing_table_read_path": null },
+      "note": "Substantively useful coaching that never names a skill, on a case that expects one. Zero affirmed names on a non-residual case: unresolved, not an automatic fail."
+    },
+    {
+      "name": "residual-declined",
+      "answer_file": "residual-declined.md",
+      "meta": { "prompt_id": "c9", "arm": "variant_a", "run_idx": 1, "exit_code": 0, "routing_table_read": false, "routing_table_read_path": null },
+      "note": "The declared residual, answered correctly: it claims nothing for the loop and says so. Zero affirmed names on the one case that expects NONE. It still goes to the judge: an answer that coaches the question as a refactor names no skill either, so absence of a name cannot pass it."
+    },
+    {
+      "name": "longer-name",
+      "answer_file": "longer-name.md",
+      "meta": { "prompt_id": "c1", "arm": "variant_b", "run_idx": 2, "exit_code": 0, "routing_table_read": false, "routing_table_read_path": null },
+      "note": "Contains longer tokens that merely START with a tracked name. A substring matcher would report a destination that was never named."
+    },
+    {
+      "name": "empty-answer",
+      "answer_file": "no-result-sentinel.md",
+      "meta": { "prompt_id": "c1", "arm": "variant_a", "run_idx": 4, "exit_code": 0, "routing_table_read": false, "routing_table_read_path": null },
+      "note": "run-e2e.mjs's own no-result sentinel. Must fail CLOSED: an absent answer is not a zero-destination answer, and scoring it would silently move a crashed run into the denominator."
+    },
+    {
+      "name": "tool-error",
+      "answer_file": "single-destination.md",
+      "meta": { "prompt_id": "c1", "arm": "variant_a", "run_idx": 5, "exit_code": 1, "routing_table_read": false, "routing_table_read_path": null },
+      "note": "A perfectly readable answer on a run that EXITED NON-ZERO. Reuses the good answer on purpose: the refusal must come from the run's exit state, not from the prose."
+    },
+    {
+      "name": "leaky-answer",
+      "answer_file": "leaky-answer.md",
+      "meta": { "prompt_id": "c1", "arm": "variant_b", "run_idx": 3, "exit_code": 0, "routing_table_read": true, "routing_table_read_path": "plugins/lz-tdd/references/rgr-routing.md" },
+      "note": "Carries BOTH arm-identifying leaks -- a shared-table path plus the plugin-root variable, and a recited per-skill narrative heading. The judge-blinding pass must strip both, report both, and leave the bare destination name standing."
+    }
+  ]
+}

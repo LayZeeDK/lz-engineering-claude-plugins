@@ -45,7 +45,11 @@ class LegacyBillingSystem {
 // Adapter: an object adapter that holds the adaptee and translates the target call
 // (dollars) into the adaptee's own vocabulary (cents).
 class LegacyBillingAdapter implements PaymentProcessor {
-  constructor(private readonly billing: LegacyBillingSystem) {}
+  private readonly billing: LegacyBillingSystem;
+
+  constructor(billing: LegacyBillingSystem) {
+    this.billing = billing;
+  }
 
   charge(amountInDollars: number): boolean {
     const result = this.billing.submitCharge(Math.round(amountInDollars * 100));

@@ -1,0 +1,63 @@
+{
+  "gilded-rose-ts": {
+    "clone": "emilybache/GildedRose-Refactoring-Kata",
+    "commit": "3e0085bfd0da7ca9cc2db23129eb882b9d7184fa",
+    "subdir": "TypeScript",
+    "lockfile": {
+      "path": "TypeScript/package-lock.json",
+      "sha256": "6257d845cc97452dea01bf651fdfd656cd86f389fa81f4719ec6ae16f0388f15"
+    },
+    "arm": null,
+    "overlay": null,
+    "red": null
+  },
+  "gilded-rose-ts-armed": {
+    "clone": "emilybache/GildedRose-Refactoring-Kata",
+    "commit": "3e0085bfd0da7ca9cc2db23129eb882b9d7184fa",
+    "subdir": "TypeScript",
+    "lockfile": {
+      "path": "TypeScript/package-lock.json",
+      "sha256": "6257d845cc97452dea01bf651fdfd656cd86f389fa81f4719ec6ae16f0388f15"
+    },
+    "arm": {
+      "spec": "test/vitest/approvals.spec.ts",
+      "snapshot": "test/vitest/__snapshots__/approvals.spec.ts.snap",
+      "blob": "2998a7711cc40813c573dd5c89b70d1fe8d6b13e"
+    },
+    "overlay": null,
+    "red": null
+  },
+  "gilded-rose-ts-conjured-red": {
+    "clone": "emilybache/GildedRose-Refactoring-Kata",
+    "commit": "3e0085bfd0da7ca9cc2db23129eb882b9d7184fa",
+    "subdir": "TypeScript",
+    "lockfile": {
+      "path": "TypeScript/package-lock.json",
+      "sha256": "6257d845cc97452dea01bf651fdfd656cd86f389fa81f4719ec6ae16f0388f15"
+    },
+    "arm": {
+      "spec": "test/vitest/approvals.spec.ts",
+      "snapshot": "test/vitest/__snapshots__/approvals.spec.ts.snap",
+      "blob": "2998a7711cc40813c573dd5c89b70d1fe8d6b13e"
+    },
+    "overlay": "overlays/conjured-red",
+    "red": {
+      "spec": "test/vitest/conjured.spec.ts"
+    }
+  },
+  "srvx": {
+    "clone": "h3js/srvx",
+    "commit": "55d90b39840a5bb7236e23c4e326ee4fc3842d57",
+    "subdir": null,
+    "lockfile": {
+      "path": "package-lock.json",
+      "sha256": "0085e799225cfc1a9dabf715723eee1b015d2482622f81920f84288519e0a09a",
+      "from": "lockfiles/srvx/package-lock.json"
+    },
+    "arm": null,
+    "overlay": null,
+    "red": null,
+    "build": "build",
+    "npm": true
+  }
+}

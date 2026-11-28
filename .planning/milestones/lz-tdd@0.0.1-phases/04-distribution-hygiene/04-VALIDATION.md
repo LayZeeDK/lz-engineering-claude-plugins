@@ -33,7 +33,7 @@ created: 2026-07-02
 
 - **After every task commit:** Run the scriptable guards -- ASCII gate + work-email guard:
   - `git grep -qP '[^\x00-\x7F]' -- 'plugins/' '.claude-plugin/' 'README.md' 'LICENSE'` (rc=1 = PASS/clean)
-  - `git grep -qE '@consensus\.dk'` (rc=1 = absent = PASS)
+  - work-email allowlist-inversion guard: only the approved public gmail present, empty remainder = PASS
 - **After every plan wave:** Run `claude plugin validate . --strict` (exit 0 = PASS) + both plugin-dev agents.
 - **Before `/gsd:verify-work`:** Full suite must be green; all agent findings triaged per CONTEXT D-06.
 - **Max feedback latency:** ~15 seconds for the scriptable gates.
@@ -46,7 +46,7 @@ created: 2026-07-02
 | Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
 | 04-01 (README) | 01 | 1 | DIST-01 | -- | N/A | doc-presence | `git grep -nF '/plugin marketplace add LayZeeDK/lz-engineering-claude-plugins' -- README.md` (+ install + `/lz-tdd:lz-tpp` + transformations.md pointer) | yes | [x] green |
-| 04-01 (LICENSE) | 01 | 1 | DIST-02 | T-04-01 info-disclosure | Work email absent; public gmail present | file + guard | LICENSE exists + `git grep -nE 'larsbrinknielsen@gmail\.com' -- LICENSE README.md` present + `git grep -qE '@consensus\.dk'` rc=1 (absent) | yes | [x] green |
+| 04-01 (LICENSE) | 01 | 1 | DIST-02 | T-04-01 info-disclosure | Work email absent; public gmail present | file + guard | LICENSE exists + `git grep -nE 'larsbrinknielsen@gmail\.com' -- LICENSE README.md` present + work-email allowlist-inversion guard clean (only the approved public gmail present) | yes | [x] green |
 | 04-01 (review) | 01 | 1 | DIST-03 | path-traversal / info-disclosure | Manifests structurally valid; no secrets; ASCII-only shippable surface | gate + agents | `claude plugin validate . --strict` (exit 0) + ASCII gate rc=1 + `plugin-validator` + `skill-reviewer` PASS, triaged per D-06 | yes | [x] green |
 
 *Status: [ ] pending - [x] green - [!] red - [~] flaky*
@@ -58,7 +58,7 @@ created: 2026-07-02
 
 - [x] `README.md` (root) -- covers DIST-01 (created in Task 1)
 - [x] `LICENSE` (root, verbatim MIT + `Copyright (c) 2026 Lars Gyrup Brink Nielsen`) -- covers DIST-02 (created in Task 1)
-- [x] Redact the work-email literal in `.planning/` so the DIST-02 full-tree guard passes truthfully (Pitfall 1 / Open Q1) -- DONE during planning + execution (04-CONTEXT.md, 04-DISCUSSION-LOG.md, and 04-REVIEW.md redacted; commits amended; `git grep -qE '@consensus\.dk'` rc=1)
+- [x] Redact the work-email literal in `.planning/` so the DIST-02 full-tree guard passes truthfully (Pitfall 1 / Open Q1) -- DONE during planning + execution (04-CONTEXT.md, 04-DISCUSSION-LOG.md, and 04-REVIEW.md redacted; commits amended; work-email allowlist-inversion guard clean)
 - No test-framework install needed (no runtime code).
 
 *Note: the pre-existing work-email exposure in the PUBLIC history of Phase-1 commits (`5f46fee`, `79b1db0`, `43ee129`, `009060c`, all ancestors of `origin/main`) is OUT OF SCOPE for this phase -- it requires rewriting/force-pushing public history and is a separate, user-gated decision (RESEARCH Open Q1 / VERIFICATION / SECURITY note).*

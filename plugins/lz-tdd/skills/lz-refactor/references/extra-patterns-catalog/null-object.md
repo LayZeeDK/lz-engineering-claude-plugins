@@ -55,7 +55,11 @@ class NullNotifier implements Notifier {
 // The service always holds a Notifier; a caller with none supplies the null object rather
 // than null, so register() has no absence check.
 class SignupService {
-  constructor(private readonly notifier: Notifier) {}
+  private readonly notifier: Notifier;
+
+  constructor(notifier: Notifier) {
+    this.notifier = notifier;
+  }
 
   register(user: string): void {
     this.notifier.send(`welcome ${user}`);

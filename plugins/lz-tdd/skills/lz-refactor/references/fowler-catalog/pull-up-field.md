@@ -29,14 +29,20 @@ Before, both listing subclasses hold the same seller field:
 abstract class Listing {}
 
 class AuctionListing extends Listing {
-  constructor(protected readonly sellerId: string) {
+  protected readonly sellerId: string;
+
+  constructor(sellerId: string) {
     super();
+    this.sellerId = sellerId;
   }
 }
 
 class FixedPriceListing extends Listing {
-  constructor(protected readonly sellerId: string) {
+  protected readonly sellerId: string;
+
+  constructor(sellerId: string) {
     super();
+    this.sellerId = sellerId;
   }
 }
 ```
@@ -45,7 +51,11 @@ After, the field moves to the superclass and the subclasses inherit its construc
 
 ```ts
 abstract class Listing {
-  constructor(protected readonly sellerId: string) {}
+  protected readonly sellerId: string;
+
+  constructor(sellerId: string) {
+    this.sellerId = sellerId;
+  }
 }
 
 class AuctionListing extends Listing {}

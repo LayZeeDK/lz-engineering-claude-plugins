@@ -43,11 +43,13 @@ interface Observer {
 }
 
 class Thermostat {
+  private readonly panel: Observer;
+  private readonly logger: Observer;
   private current = 0;
-  constructor(
-    private readonly panel: Observer,
-    private readonly logger: Observer,
-  ) {}
+  constructor(panel: Observer, logger: Observer) {
+    this.panel = panel;
+    this.logger = logger;
+  }
   set(temperature: number): void {
     this.current = temperature;
     this.panel.notify(temperature);

@@ -1,360 +1,399 @@
 # Pitfalls Research
 
-**Domain:** Claude Code plugin marketplace + agent skill encoding a conceptual TDD methodology (Transformation Priority Premise)
-**Researched:** 2026-07-02
-**Confidence:** HIGH for plugin/skill authoring (first-party skill-creator + plugin-dev docs, official marketplace schema); HIGH for TPP fidelity (canonical Uncle Bob source fetched verbatim)
+**Domain:** Authoring the lz-red RED-phase TDD coaching skill (Claude Code plugin skill) -- milestone lz-tdd@0.0.3
+**Researched:** 2026-07-18
+**Confidence:** HIGH
 
-This project has two failure surfaces that rarely overlap in one repo: (1) mechanical correctness of the marketplace/plugin/skill packaging, where a single bad path or wrong field means the plugin silently never loads, and (2) fidelity + usefulness of encoding a specific, opinionated, self-described-as-provisional methodology into a skill that must both coach and explain. The critical pitfalls below are split accordingly.
+Two buckets, per the brief:
+
+- **Bucket A -- RED anti-patterns to CATALOG in the skill** (each tied to a locked source). These are what the
+  skill's anti-pattern reference leaf must teach against, and what the coach must steer away from.
+- **Bucket B -- authoring pitfalls specific to building this skill in this repo.** These are risks to the
+  roadmap itself: how the skill gets built wrong.
+
+Phase names below are proposed (roadmap not yet created); they mirror the 0.0.1 / 0.0.2 phase shape
+(source distillation -> scaffold -> coach -> router -> TS+Vitest -> anti-pattern leaf -> seam -> distribution/hygiene -> evals):
+`P-SRC`, `P-SCAF`, `P-COACH`, `P-ROUTER`, `P-TS`, `P-ANTI`, `P-SEAM`, `P-DIST`, `P-EVAL`.
 
 ---
 
 ## Critical Pitfalls
 
-### Pitfall 1: Conflating transformations with refactorings (the central TPP fidelity error)
+The highest-impact items from both buckets. Bucket A anti-patterns 1-10 and Bucket B authoring pitfalls B1-B6
+are summarized in full tables further down; the detailed entries here are the ones most likely to sink the
+milestone if missed.
+
+### Pitfall 1 (A): The test that never fails -- not observed RED, or RED for the wrong reason
 
 **What goes wrong:**
-The skill blurs the line between a *transformation* (a simple operation that CHANGES behavior, applied in the RED->GREEN transition to make a failing test pass) and a *refactoring* (a simple operation that PRESERVES behavior, applied in the REFACTOR step). Examples end up recommending "extract method" or "rename" as if they were transformations, or the priority list gets mixed with a refactoring catalog.
+A test is written that passes on first run (asserts something already true), or it "fails" but for a reason
+other than missing behavior (compile error, typo in the setup, wrong import, an exception in Arrange rather than
+Act). Either way the developer never sees a legitimate RED that the next code change will turn green. The whole
+premise of RED is defeated: the test proves nothing.
 
 **Why it happens:**
-Both are "simple code operations" and both appear in the red-green-refactor loop, so they feel interchangeable. Secondary write-ups often gloss the distinction. The canonical definition is precise and easy to lose: "Refactorings are simple operations that change the structure of code without changing its behavior. Transformations are simple operations that change the behavior of code."
+The coach jumps to writing production code before confirming the test fails, or accepts a red bar without
+reading WHY it is red. Assertions on incidental state pass trivially. This is the failure RCM's First Law
+exists to prevent.
+
+**Source:** RCM Three Laws (First Law: no production code until a failing test demands it) + Beck (see it fail
+first; the RED bar must be a real, expected failure) + Osherove (a test that cannot fail is untrustworthy).
 
 **How to avoid:**
-State the behavior-changing vs behavior-preserving distinction in the first paragraph of SKILL.md and again at the top of the bundled reference. Scope the skill explicitly to the GREEN phase (choosing the minimal behavior-changing edit that passes the current failing test). Add a "what this is NOT" note: TPP does not govern the refactor step. Include at least one should-not-trigger eval where the user asks for a refactoring ("extract this into a helper") to confirm the skill does not misclassify it as a transformation.
+Make "fail for the right reason" an explicit step in the RED decision procedure: run the new test, read the
+failure message, and confirm it fails on the ASSERTION (Act/Assert) because behavior is missing -- not on a
+compile/setup error. If it passes immediately, the behavior already exists or the assertion is wrong; revise the
+test. Only then hand off to lz-tpp.
 
 **Warning signs:**
-Any example or list entry describing a structure-only change; the words "extract", "rename", "inline", "move" appearing as transformations; guidance that fires during the refactor step.
+Green on first run; a failure message pointing at Arrange, an import, or a type error rather than the assertion;
+"expected X but got undefined is a compile error" confusion.
 
-**Phase to address:** source-distillation (get the definition right), skill-authoring (state it prominently), eval-and-tune (negative eval for refactoring requests)
+**Phase to address:** P-COACH (make it a procedure step), P-ANTI (catalog it).
 
 ---
 
-### Pitfall 2: Presenting TPP as rigid law rather than a provisional heuristic
+### Pitfall 2 (A): Testing implementation details -- brittle tests, no resistance to refactoring
 
 **What goes wrong:**
-The skill states the transformation order as an authoritative, always-correct ranking and instructs Claude to follow it mechanically. Users (and Claude) treat a lower-priority-than-ideal choice as a "violation" and contort code to satisfy the list rather than to pass the test cleanly.
+Tests assert on private methods, internal call sequences, or the identity of collaborators (that a
+`TeamRepository` was used) rather than on observable behavior. The tests break the moment structure changes even
+though behavior is unchanged -- so they actively punish refactoring, which is the exact opposite of what TDD
+should enable.
 
 **Why it happens:**
-An ordered numbered list reads as canon. It is tempting to encode it as MUST-follow rules. But the premise's own author explicitly hedges: in the original post Uncle Bob writes "Are these the right transformations? (probably not)" and "Is the priority order presented in this blog correct? (not likely)". TPP is a premise/heuristic to reduce impasses, not a proven algorithm.
+The "one test per class/method" habit (see Pitfall 4) forces knowledge of internals into tests. Developers
+conflate "unit" with "class" and over-specify.
+
+**Source:** Khorikov (four pillars; "resistance to refactoring" is the pillar this violates -- coupling to
+implementation produces false positives) + Ian Cooper (the trigger for a new test is a new BEHAVIOR, not a new
+function; you cannot refactor if implementation details are baked into tests) + Metz (test the interface / the
+messages, not the internals).
 
 **How to avoid:**
-Frame the skill as heuristic guidance with rationale ("prefer the simpler transformation because it avoids premature complexity and reduces the chance a later test forces a rewrite"), not as law. Avoid all-caps MUST/NEVER around ordering (this also aligns with skill-creator's own writing-style guidance to explain the "why" instead of issuing rigid commands). Include the author's own uncertainty as a documented caveat in the reference material. Let Claude reason about ties and exceptions.
+Coach asserts on observable behavior through the smallest public/port boundary that expresses the requirement.
+Route "what is the unit / where does the test go" to a behavior boundary, not a class. State the yardstick: if a
+behavior-preserving refactoring would break this test, the test is testing the wrong thing.
 
 **Warning signs:**
-SKILL.md uses "MUST follow the order" / "NEVER skip a transformation"; the skill flags reasonable code as wrong purely for ordering; no mention that the ordering is debatable/language-specific.
+Assertions naming private members; heavy setup mirroring internal structure; tests that must change in lockstep
+with every refactor.
 
-**Phase to address:** source-distillation (capture the caveat), skill-authoring (heuristic framing)
+**Phase to address:** P-COACH, P-ANTI, P-ROUTER (Metz matrix decides what is assertable).
 
 ---
 
-### Pitfall 3: Transformation-list drift from relying on secondary sources
+### Pitfall 3 (B): Description collision with lz-tpp and lz-refactor -- the trigger-boundary problem
 
 **What goes wrong:**
-The bundled list silently diverges from Uncle Bob's canonical list -- renamed, reordered, or with entries added/dropped -- because it was transcribed from Wikipedia, blog summaries, or memory rather than the primary sources.
+lz-red, lz-tpp, and lz-refactor sit on three adjacent steps of one loop and share vocabulary (test, failing,
+red, TDD, unit). lz-tpp's shipped description already fires on "when a failing test and the current code are
+present." lz-red's whole job is the step just BEFORE that -- writing the failing test. Without sharp guards, a
+prompt like "help me with this failing test" auto-triggers the wrong skill, or two/three skills fire at once and
+the model picks arbitrarily. The RGR seam becomes noise.
 
 **Why it happens:**
-Secondary sources have already drifted. Verified during this research: Wikipedia/Grokipedia render `constant->scalar` as `constant->variable`, label `statement->recursion` as `statement->tail recursion`, and annotate `variable->assignment` as "mutating value" -- none of which match the original. Even this project's own PROJECT.md brief uses `constant->variable` and an abbreviated 7-item set. The canonical list has 12 entries.
+Description-based auto-triggering keys on surface phrases. "Failing test" is the natural phrase for both "help me
+WRITE the next failing test" (lz-red) and "what minimal code makes this failing test pass" (lz-tpp). Adjacent
+steps with a shared noun collide by default.
 
 **How to avoid:**
-Transcribe the list verbatim from the primary source and pin it in a reference file. The canonical order (highest/simplest priority first) is:
-1. `({}->nil)` no code at all -> code that employs nil
-2. `(nil->constant)`
-3. `(constant->constant+)` a simple constant to a more complex constant
-4. `(constant->scalar)` replacing a constant with a variable or an argument
-5. `(statement->statements)` adding more unconditional statements
-6. `(unconditional->if)` splitting the execution path
-7. `(scalar->array)`
-8. `(array->container)`
-9. `(statement->recursion)`
-10. `(if->while)`
-11. `(expression->function)` replacing an expression with a function or algorithm
-12. `(variable->assignment)` replacing the value of a variable
+Define one crisp boundary and encode it as reciprocal near-miss guards in all three descriptions:
 
-Cite the source URL next to the list. Cross-check the NDC 2011 talk transcript and the FibTPP post for any refinements, and note discrepancies rather than silently picking one.
+- **lz-red** = choosing and WRITING the next failing UNIT test (which test next, how to structure it, is this a
+  good test, does it fail for the right reason). Its "Do NOT use" clause must defer (a) making an existing red
+  test pass / choosing the minimal code change -> lz-tpp, and (b) improving structure of green code -> lz-refactor.
+- **lz-tpp** = a test already exists and is RED; pick the minimal transformation to make it pass. Add a reverse
+  guard: if the request is which test to write / how to write the test, that is lz-red (this closes the
+  carried-forward "reverse lz-tpp -> lz-red pointer" tech-debt noted in PROJECT.md).
+- **lz-refactor** = tests green; structure only. Its existing green/refactor seam already excludes behavior
+  change; confirm it does not swallow "write a test" prompts.
+
+Wire the lz-red -> lz-tpp handoff (Three Laws 1/2 -> Law 3) and reverse pointers. Then PROVE the boundary holds
+with cross-skill trigger evals: near-miss prompts that belong to each sibling must NOT fire lz-red, and vice
+versa (recall + specificity, as in EVAL-01 / EVL-01).
 
 **Warning signs:**
-Fewer than 12 entries; `constant->variable` instead of `constant->scalar`; "tail recursion" wording; any entry you cannot point to in the primary post.
+Two skills' descriptions both plausibly match a test-writing prompt; eval specificity drops when lz-tpp / lz-refactor
+near-miss prompts are added to the lz-red suite; the word "test" appears un-qualified in lz-red's should-be-used
+clause.
 
-**Phase to address:** source-distillation (primary-source transcription with citation)
+**Phase to address:** P-SCAF (author the three-way-guarded description), P-SEAM (wire handoff + reverse pointers),
+P-EVAL (cross-skill trigger eval is the verification gate).
 
 ---
 
-### Pitfall 4: A reference-only skill that recites the list but does not coach the next choice
+### Pitfall 4 (A): Over-mocking, mockist over-coupling, and one-test-per-class
 
 **What goes wrong:**
-The skill explains what TPP is and prints the ordered list, but when Claude is mid-TDD with a failing test and some current code, the skill offers no procedure for choosing THE next minimal transformation. The stated core value ("helps Claude choose the next code transformation by TPP priority order") is unmet even though the skill "works."
+Every collaborator is mocked; every class gets its own test in isolation. Result: a high ratio of test code to
+production code, tests that assert on interactions with implementation collaborators, and a suite that blocks
+refactoring because swapping internal classes breaks tests. This is Ian Cooper's central diagnosis of "where TDD
+went wrong."
 
 **Why it happens:**
-Explaining a concept is easier to write than encoding a decision procedure. Reference content is concrete; coaching behavior requires modeling the red-green state and the "simplest transformation that passes THIS test" judgment.
+Misreading Beck's "unit test = test that runs in isolation from other tests" as "test each unit (class) in
+isolation." Once you test every class alone, you must mock every collaborator, which means mocking implementation
+details.
+
+**Source:** Ian Cooper (direct -- do not mock internals, privates, or adapters; several classes tested by one
+test class is correct) + Khorikov (mock only unmanaged out-of-process dependencies; never in-process
+collaborators) + Metz (Magic Tricks message matrix: assert outgoing COMMAND messages with mocks; do NOT test
+outgoing query messages; do not test private methods). **GOOS is the counterpoint** (London/mockist school, mock
+roles at boundaries) -- present it as a documented alternative, not the default, and never let it license mocking
+in-process collaborators.
 
 **How to avoid:**
-Design SKILL.md around a decision procedure, not a glossary: given (a) the failing test and (b) the current implementation, identify the current position in the transformation list and recommend the smallest step up that makes the test pass, with the reasoning. Provide worked before/after snippets showing the transformation actually applied to code. Keep the full annotated list in references/ (reference behavior); keep the procedure in SKILL.md (coach behavior). Validate with evals that present an actual failing test + code, not just "explain TPP."
+Coach mocks only at true seams / unmanaged out-of-process dependencies (per the router: Feathers seams, Metz
+command messages). Default to testing behavior through a port with real in-process collaborators. Trigger for a
+new test is a new behavior, not a new class. Route mock decisions through the Metz command/query matrix.
 
 **Warning signs:**
-SKILL.md is mostly prose about TPP history; no step-by-step "which transformation next" logic; evals only check that Claude can define TPP.
+A mock for every constructor argument; assertions like "verify repository.save was called"; one spec file per
+class file; test count tracking class count.
 
-**Phase to address:** skill-authoring (procedure-first design), eval-and-tune (coach-behavior evals with real test+code inputs)
+**Phase to address:** P-COACH, P-ROUTER (Metz matrix + Feathers seams), P-ANTI (this is the flagship anti-pattern
+leaf, called out in PROJECT.md target features).
 
 ---
 
-### Pitfall 5: Over-triggering vs under-triggering -- description tuned by feel, not by evals
+### Pitfall 5 (A): The functional-core-imperative-shell brownfield trap
 
 **What goes wrong:**
-Either the skill fires on any mention of "test", "refactor", or "TypeScript" (annoying, hijacks unrelated work), or it never fires when a user is genuinely doing red-green-refactor and would benefit. The requirement explicitly asks for accurate triggering "without over-triggering," which is in direct tension with skill-creator's advice to make descriptions deliberately "pushy" to combat undertriggering.
+The coach recommends "extract a functional core and test it without mocks" (Bernhardt) as if it is always
+available. In brownfield code there is often no seam and no separable pure core; the advice is unactionable and
+the developer either can't follow it or performs a large, risky restructuring just to write one test.
 
 **Why it happens:**
-The description is the sole triggering mechanism, and it is usually written once by intuition. skill-creator warns Claude currently *under*-triggers skills, so authors overcorrect into pushiness -- which for a narrow, opinionated coaching skill produces over-triggering. There is also a structural subtlety: skill-creator notes Claude only consults skills for tasks it cannot trivially handle, so simple prompts will not trigger regardless of description.
+FCIS is a design you ACHIEVE, a precondition for cheap value-based testing -- not a property every codebase
+already has. Treating a design target as a starting assumption is the error. The adaptive router must not default
+to one school.
+
+**Source:** Bernhardt (Boundaries / functional core-imperative shell -- the ideal) counterpointed by Feathers
+(WELC -- when there is no seam, introduce one first via characterization tests) and Metz (the message matrix is
+design-agnostic and works without a pure core).
 
 **How to avoid:**
-Run skill-creator's description-optimization loop with a 20-query eval set: 8-10 should-trigger (TDD, transformation choice, "which change makes this test pass", TPP explanation requests, phrased formally and casually) and 8-10 should-not-trigger near-misses (asking for a refactoring, generic "write a function", "add a feature", non-TDD debugging, "explain what a unit test is"). Select the description by held-out test score, not train score. Scope trigger phrases to transformation-choice-during-TDD and on-demand TPP explanation, not to "TDD" or "testing" broadly.
+This is exactly what the adaptive testing-stance router is for. Detect structural control / seams first:
+FCIS-shaped code -> Bernhardt value-based tests; message-oriented OO -> Metz query/command matrix; no seam /
+legacy -> Feathers (pin behavior with a characterization test, create a seam, THEN write the driving test).
+Never prescribe FCIS where no core exists.
 
 **Warning signs:**
-No `evals/` trigger set in the repo; description contains broad nouns like "testing", "TypeScript", "refactoring" as triggers; skill fires in unrelated coding sessions during dogfooding.
+"Just extract the pure logic" with no seam in sight; a RED step that requires a multi-file restructure before the
+test can even be written; the router collapsing to one school regardless of the code.
 
-**Phase to address:** eval-and-tune (the description-optimization loop is the whole point of this phase)
+**Phase to address:** P-ROUTER (the router IS the mitigation), P-ANTI.
 
 ---
 
-### Pitfall 6: Auto-trigger vs slash-invocation confusion (`/lz-tdd:lz-tpp` namespacing)
+### Pitfall 6 (B): DST-04 near-verbatim copyright leak from books and talks
 
 **What goes wrong:**
-The skill is documented/advertised as `/lz-tdd:lz-tpp` (an explicit slash invocation) but authored purely as a description-triggered skill, or vice versa. Users type `/lz-tdd:lz-tpp` and it does not behave like a command; or the README promises auto-coaching that never materializes because the description is written for slash-only use.
+The reference leaves reproduce canonical one-liners near word-for-word: the F.I.R.S.T. acronym expansion, the
+Three Laws phrasing, Beck's definitions, Metz's matrix cells, Cooper's "Fallacy / Principle" formulations,
+North's Given-When-Then wording. Terse, memorable canon reconstructs itself almost verbatim in a blind draft --
+this trap has fired repeatedly in this repo (memory: pattern-leaf Intent near-verbatim DST-04 trap; caught by
+multiple reviewers in 0.0.1 / 0.0.2).
 
 **Why it happens:**
-Skills historically auto-trigger from their description; slash invocation of skills as `/plugin:skill` is a newer capability (plugin-dev now treats `commands/` as legacy and steers user-invoked actions into `skills/<name>/SKILL.md`). This project wants BOTH modes: coach (auto-trigger during TDD) and reference (explain on demand, naturally an explicit invocation). Supporting both requires deliberate design. Invocation is namespaced by PLUGIN name (`lz-tdd`), not the marketplace name -- another spot to get wrong.
+Canonical definitions are short and quotable; an author drafting from memory lands on the source's exact words.
+Owned books (RCM Clean Code; Metz 99 Bottles JS Ed) and transcribed talks are copyrighted.
 
 **How to avoid:**
-Decide the invocation model explicitly and support both: a strong triggering description (for coach mode) AND user-invoked-skill frontmatter (`description`, `argument-hint`, `allowed-tools`) so `/lz-tdd:lz-tpp` works for explicit reference/explanation. Write body instructions FOR Claude, not TO the user. Confirm the skill directory name is `lz-tpp` and the frontmatter `name` matches, so the namespace resolves to `/lz-tdd:lz-tpp`. Document in README that invocation uses the plugin name, and that the skill also activates automatically during TDD.
+Use the established clean-room model: owned books and transcribed talks live git-ignored under `.oracle/` and are
+read ONLY via the clean-room oracle / oracle-reviewer agents; the main context never reads book prose; only
+own-words synthesis crosses back. Paraphrase every canonical one-liner in original wording from the first draft
+(do not draft verbatim then soften). Facts, acronyms-as-facts, and API names are fine; sentence-level phrasing
+must be original. Run the oracle-reviewer verdict and the no-verbatim hygiene gate before ship. DHH is hard-banned
+as a source entirely (not just paraphrased -- excluded).
 
 **Warning signs:**
-README shows `/lz-tdd:lz-tpp` but SKILL.md has no argument-hint/allowed-tools; frontmatter `name` != directory name; docs reference the marketplace name in the invocation path.
+A leaf sentence that would match the source if grep'd; acronym glosses that read like the book's own gloss;
+reviewer flags "this is the source's phrasing."
 
-**Phase to address:** scaffold (naming/namespace), skill-authoring (dual-mode frontmatter + body)
+**Phase to address:** P-SRC (clean-room distillation), P-ANTI / P-COACH (own-words drafting), P-DIST (skill-reviewer
++ no-verbatim gate).
 
 ---
 
-### Pitfall 7: Progressive-disclosure bloat -- full annotated list + all examples inline in SKILL.md
+## Bucket A -- RED anti-patterns to catalog (all 10, source-tied)
 
-**What goes wrong:**
-The entire 12-item annotated transformation list, the history/premise essay, language caveats, and every worked TypeScript example get stuffed into SKILL.md. It balloons past the recommended size, so all of it loads into context every time the skill triggers, wasting tokens and burying the decision procedure.
+Each is a leaf the skill teaches against; symptom / why / prevention condensed, source named.
 
-**Why it happens:**
-It is the path of least resistance -- one file, everything visible. The requirement to "bundle the full transformation priority list as reference material" is easy to satisfy by pasting it inline instead of in `references/`.
+| # | Anti-pattern | Source | Symptom | Prevention (what the coach does) |
+|---|--------------|--------|---------|----------------------------------|
+| A1 | Test passes immediately / never seen RED / RED for wrong reason | RCM Three Laws; Beck; Osherove | Green on first run, or failure is a compile/setup error not an assertion | Explicit "fail for the right reason" step before handoff |
+| A2 | Testing implementation details (brittle, no resistance to refactoring) | Khorikov (four pillars); Ian Cooper; Metz | Asserts private members / call sequences; breaks on behavior-preserving refactor | Assert observable behavior through the smallest port/boundary |
+| A3 | Multiple unrelated assertions / more than one concept per test | Beck (one concept per test); Osherove; Wake (single Act) | One test asserts several independent things; unclear what broke | One behavior per test; one logical concept; assert-first to keep it focused |
+| A4 | Over-mocking / mockist over-coupling / one-test-per-class | Ian Cooper (direct); Khorikov; Metz; GOOS (counterpoint only) | Mock per collaborator; one spec per class; "verify X was called" | Mock only unmanaged out-of-process deps / true seams; test behavior through a port |
+| A5 | Starting with too large a test (violates one-step) | Beck (one-step test; starter/degenerate); RCM/TPP (start degenerate) | First test demands a big leap of production code; no small green path | Pick the smallest test that teaches something and is confidently passable; start degenerate ({} -> nil, nil -> constant); triangulate |
+| A6 | Method-shaped test names instead of behavior names | North (BDD / Given-When-Then, "should"); Osherove (scenario naming); Ian Cooper | Names like `test_getUser` / `add_returnsSum`; names track methods not behavior | Behavior-shaped names describing scenario + expected outcome |
+| A7 | Slow / order-dependent / non-isolated tests | RCM F.I.R.S.T. (Fast, Independent, Repeatable, Self-validating, Timely) | Tests share state, pass only in order, hit I/O, run slow | Independent + isolated + fast; no shared mutable state; deterministic |
+| A8 | Snapshot-everything as a substitute for deliberate assertions | Khorikov (readability + resistance to refactoring); Beck (evident/assert-first); Osherove | Giant `toMatchSnapshot` blobs auto-updated on every change; no stated expectation | Deliberate, minimal assertions on the behavior under test; snapshots only for stable serializable output, reviewed not rubber-stamped |
+| A9 | FCIS-in-brownfield trap (assuming a functional core exists) | Bernhardt (FCIS ideal); Feathers (seam-first); Metz (design-agnostic matrix) | "Extract the pure core" advice with no seam; RED needs a big restructure first | Router detects seams; no seam -> Feathers characterization + seam first; do not force FCIS |
+| A10 | Blindly mirroring a bad house style | GOOS / Beck "listen to the tests" meta-rule; Metz / Khorikov as yardstick | Propagating the codebase's existing implementation-detail tests / over-mocking because "that's the house style" | Match house IDIOM (naming, structure, doubles) but not house ANTI-PATTERNS; surface the tension when the house style is one of A1-A8 |
 
-**How to avoid:**
-Apply the three-level model deliberately. SKILL.md (target ~1,500-2,000 words, under ~500 lines): the definition, the coach decision procedure, a compact list, and pointers. `references/transformations.md`: the full annotated list, per-transformation rationale, language-specificity notes, the author's provisional caveat, and the FibTPP-style worked walkthrough. Reference the file explicitly from SKILL.md ("For the full annotated list and worked examples, read references/transformations.md"). This is exactly what skill-reviewer and skill-development flag as Mistake 2 ("too much in SKILL.md").
-
-**Warning signs:**
-SKILL.md > ~3,000 words / ~500 lines; no `references/` directory; the full list AND all examples visible in the main file; information duplicated between SKILL.md and references.
-
-**Phase to address:** skill-authoring (structure the split from the start)
-
----
-
-### Pitfall 8: Marketplace/plugin manifest errors that make the plugin silently fail to load
-
-**What goes wrong:**
-The plugin never appears after `/plugin marketplace add`, or fails validation, because of: invalid JSON (trailing comma, comment in strict JSON), a `source` path that does not resolve, a `name` that is not kebab-case, a `version` that is not full semver (`1.0` instead of `1.0.0`), a missing required field, or a plugin `source` in marketplace.json that points to the wrong relative path for an in-repo plugin.
-
-**Why it happens:**
-Two manifests with different required fields are involved -- root `.claude-plugin/marketplace.json` (requires `name`, `owner` with `owner.name`, and `plugins[]` each with `name` + `source`) and per-plugin `.claude-plugin/plugin.json` (requires `name`; recommends `version`/`description`/`author`). Paths must be relative, start with `./`, use forward slashes, and never use `../`. It is easy to hand-edit one and forget the other.
-
-**How to avoid:**
-Scaffold both manifests from known-good templates. For an in-repo plugin, set the marketplace `source` to the plugin's relative directory (e.g. `"./plugins/lz-tdd"` or `"./lz-tdd"`), or use `metadata.pluginRoot` to shorten entries. Validate with `claude plugin validate <path>` and the plugin-validator agent before pushing. Keep JSON strict (no comments/trailing commas). Use full X.Y.Z semver (default `0.1.0`). Optionally add `$schema` pointing at the SchemaStore definition (`https://json.schemastore.org/claude-code-marketplace.json`) for editor validation -- note Anthropic's own referenced schema URL does not actually resolve, so do not depend on it.
-
-**Warning signs:**
-Plugin missing from `/plugin` list after add; validator reports schema/path/version errors; `source` path does not match the on-disk plugin location; `version: "1.0"`.
-
-**Phase to address:** scaffold (manifests + validation gate)
+Note on A10 vs the locked "match house idiom ALWAYS" rule: the router matches the house TEST IDIOM (framework
+usage, naming shape, assertion style). It does not adopt house practices that are themselves A1-A8. When the two
+conflict, name it and let the developer decide -- do not silently propagate the anti-pattern.
 
 ---
 
-### Pitfall 9: Repo-rename / name-mismatch trap between folder, GitHub repo, marketplace name, and plugin name
+## Bucket B -- authoring pitfalls specific to this skill + repo (all 6)
 
-**What goes wrong:**
-The install command `/plugin marketplace add LayZeeDK/lz-engineering-claude-plugins` fails or installs the wrong thing because the GitHub repo name, the local working directory (`lz-engineering-claude-plugin`, singular), the marketplace.json `name`, and the plugin `name` are not aligned. PROJECT.md flags the rename to the plural form is still pending.
+| # | Authoring pitfall | Symptom | Why it happens | Prevention | Phase |
+|---|-------------------|---------|----------------|------------|-------|
+| B1 | Near-verbatim copyright leak (DST-04) | Leaf reproduces canonical one-liners word-for-word | Terse canon reconstructs verbatim in blind drafts | Clean-room `.oracle/`; own-words only; paraphrase every one-liner from first draft; oracle-reviewer + no-verbatim gate; DHH excluded | P-SRC, P-ANTI, P-DIST |
+| B2 | Over-scoping beyond unit RED | Skill drifts into outside-in / acceptance / double-loop / Gherkin coaching | Sources (GOOS, Cooper, North) discuss the outer loop; easy to follow them out of scope | LOCKED: unit RED only; GOOS is counterpoint only; explicit out-of-scope guard in SKILL.md + description near-miss; defer outside-in to a later milestone | P-SCAF, P-COACH |
+| B3 | Description collision with lz-tpp / lz-refactor | Wrong skill auto-triggers on "failing test" prompts; multiple fire | Adjacent RGR steps share the noun "test"; lz-tpp already fires on "a failing test is present" | Reciprocal near-miss guards in all three descriptions; sharp boundary (write-the-test vs make-it-pass vs restructure); wire lz-red -> lz-tpp + reverse pointers; cross-skill trigger eval | P-SCAF, P-SEAM, P-EVAL |
+| B4 | Vitest API drift / wrong version in examples | Examples use removed/deprecated APIs; type tests misconfigured | Vitest moves fast (4.0 current stable, 5.0 beta); training data mixes versions | Pin examples to Vitest 4.x; use APIs stable across 4.x; verify each snippet against current docs at authoring time (details below) | P-TS, P-DIST |
+| B5 | tsc --strict failures in examples | Shipped TS samples do not compile under strict | Hand-written snippets: implicit any, unused vars, missing null checks | Every TS sample compiled tsc --strict-clean before ship (established 0.0.1 / 0.0.2 gate) | P-TS, P-DIST |
+| B6 | ASCII-only + work-email hygiene | Unicode (em-dash, curly quotes, checkmarks, arrows) or maintainer work email/domain in shipped content or commit identity | AI prose favors em-dashes/Unicode; copy-paste from docs; commit identity misconfig | ASCII-only shipped content (`--`, `->`); allowlist-inversion scan (assert only `larsbrinknielsen@gmail.com`); verify git author/committer = public gmail before committing; re-run before committing agent-generated prose | P-DIST + every authoring phase (continuous) |
 
-**Why it happens:**
-Four independent identifiers, renamed at different times. `/plugin marketplace add owner/repo` resolves against the GitHub repo name; the marketplace.json `name` is a separate internal identifier; the invocation namespace uses the plugin `name` (`lz-tdd`). A mismatch in any one breaks a different step.
+### B4 detail -- concrete Vitest 4.x drift traps to avoid in examples
 
-**How to avoid:**
-Decide the final names once and make them consistent: GitHub repo `lz-engineering-claude-plugins`, marketplace.json `name: lz-engineering-claude-plugins`, plugin `name: lz-tdd`, skill dir/name `lz-tpp`. Do the physical folder + GitHub rename OUTSIDE an active session (renaming cwd mid-session breaks tooling, per PROJECT.md). Update the README install command and marketplace `source` paths together with the rename. Do not reference the singular working-directory name anywhere in committed manifests or docs.
+Verified against current Vitest docs (4.0 is the current stable major; 5.0 in beta as of mid-2026):
 
-**Warning signs:**
-README install command uses a repo name that does not exist yet; marketplace.json `name` differs from repo; any committed path referencing the singular folder name.
-
-**Phase to address:** scaffold (name decision), docs (install command), ship (rename executed outside session)
-
----
-
-### Pitfall 10: Language-specific TypeScript examples that mislead as "language-agnostic"
-
-**What goes wrong:**
-TypeScript examples imply the transformation is about types/generics (e.g., showing `scalar->array` as adding a typed array signature), so readers applying TPP in Python/Java/Go take the wrong lesson. Worse, one fixed ordering is presented as universal when the ordering is explicitly language-dependent: Uncle Bob notes that in Java one might move `if->while` and `variable->assignment` above `statement->recursion` because Java is not functional. A TS/JS skill that hard-codes recursion-preferred ordering may mismatch idiomatic TS.
-
-**Why it happens:**
-The requirement pairs "language-agnostic principles" with "concrete TypeScript examples." It is easy to let the concrete TS examples silently define the concept, and to present the canonical order as absolute despite the documented language caveat.
-
-**How to avoid:**
-Keep the principle statement language-neutral (transformations described in terms of code-structure change, not TS syntax). Mark TS examples clearly as illustrations of a general transformation, and choose examples where the transformation, not the type system, is the point. Include a short "ordering is language-specific" note citing the Java example, and state which ordering the skill assumes and why (multi-paradigm TS/JS). Avoid examples that only make sense with TS-only features.
-
-**Warning signs:**
-Examples where the "transformation" is really a type annotation change; no mention of language-specificity; ordering asserted as universal.
-
-**Phase to address:** source-distillation (capture language caveat), skill-authoring (neutral principle + labeled TS examples)
-
----
-
-### Pitfall 11: Worked examples that do not actually follow the priority order
-
-**What goes wrong:**
-An included walkthrough (e.g., a Fibonacci or word-wrap kata) jumps transformations, skips priority steps, or reaches green with a lower-priority transformation when a higher one would have sufficed -- directly contradicting the skill's own thesis. The requirement explicitly demands examples that follow the ordering.
-
-**Why it happens:**
-Worked examples are written to reach a plausible end state, not verified step-by-step against the list. Uncle Bob's own FibTPP post is a faithful demonstration; ad-hoc examples rarely are.
-
-**How to avoid:**
-For every example, annotate each step with the transformation applied and its list position, and confirm each step is the highest-priority transformation that passes the then-current test. Prefer adapting a canonical worked example (FibTPP) over inventing one. Add an eval that checks a produced walkthrough is monotonic in priority order (or documents any justified deviation).
-
-**Warning signs:**
-Example steps not tagged with transformation names; a step uses `unconditional->if` where a `constant->scalar` would have passed the test; the example's narrative contradicts the priority claim.
-
-**Phase to address:** skill-authoring (annotate + verify examples), eval-and-tune (example-fidelity check)
-
----
-
-### Pitfall 12: Dropping the "why" -- premise rationale and impasse-avoidance
-
-**What goes wrong:**
-The skill lists transformations and their order but omits WHY the order matters: simpler-first avoids premature complexity, and choosing tests/transformations in priority order prevents impasses where a single test forces rewriting an entire method (escaping local maxima). Without the rationale, the "explain the premise on demand" requirement is unmet and Claude cannot reason about edge cases.
-
-**Why it happens:**
-The list is the memorable artifact; the rationale is the harder-to-compress insight. Compression pressure (progressive disclosure) tempts authors to cut the "why" first.
-
-**How to avoid:**
-Keep a concise rationale in SKILL.md ("prefer simpler transformations to stay at the least complex code that passes the test and to avoid a later test forcing a large rewrite") and the fuller premise (the "as tests get more specific, code gets more generic" mantra, impasse avoidance) in references/. skill-creator explicitly favors explaining the why over rote rules.
-
-**Warning signs:**
-Skill can list transformations but cannot answer "why prefer the simpler one?"; no mention of impasses / local maxima / the specificity-vs-generality mantra.
-
-**Phase to address:** source-distillation (extract rationale), skill-authoring (retain concise why + reference deeper)
+- **`toMatchTypeOf` is deprecated** (since expect-type v1.2.0). Use `toExtend` (union/complex types) or
+  `toMatchObjectType` (plain objects). This directly affects the milestone's `expectTypeOf` type-level RED examples.
+- **Type-level RED requires setup**: type tests live in `*.test-d.ts`, need the `--typecheck` flag, and are
+  statically analyzed by tsc (Vitest does not run them). `expectTypeOf` / `assertType` are correct and current.
+  `test.each` / `test.for` names are NOT interpolated in type tests -- do not show dynamic names there.
+- **`vi.restoreAllMocks()` narrowed in v4**: it now only restores `vi.spyOn()` mocks, not `vi.fn()` or automocks.
+  Examples relying on the old broad reset semantics will mislead. (Aligns with the skill's "vi.* with restraint"
+  principle -- keep mock examples minimal and current.)
+- **Mock constructors in v4**: a mock called with `new` must use a `function`/`class` implementation, not an arrow
+  function (arrow -> "is not a constructor").
+- **Config renames**: `workspace` removed -> `projects` (since 3.2); `poolOptions` gone -> top-level
+  `maxWorkers` / `isolate`. Only relevant if an example shows config.
+- Prefer `it.todo` (the test list) and `test.each` (triangulation) as shown in the brief -- both stable in 4.x.
 
 ---
 
 ## Technical Debt Patterns
 
-Shortcuts that seem reasonable but create long-term problems.
+Shortcuts that seem reasonable but create long-term problems for this milestone.
 
 | Shortcut | Immediate Benefit | Long-term Cost | When Acceptable |
 |----------|-------------------|----------------|-----------------|
-| Ship the skill without running the trigger-eval loop | Faster to "done" | Untuned triggering; over/under-fires in real use; the core "accurate triggering" requirement unmet | Never for v1 -- accurate triggering is an explicit requirement |
-| Put the whole annotated list inline in SKILL.md | One file, simple | Context bloat on every trigger; buries the coach procedure; flagged by skill-reviewer | Only for a throwaway prototype, not a published skill |
-| Transcribe the transformation list from memory/Wikipedia | No source fetch needed | Silent fidelity drift (wrong names/order); undermines the skill's whole reason to exist | Never -- primary-source transcription is cheap |
-| Duplicate description/version across marketplace.json and plugin.json without a sync note | Fields visible in both places | The two drift; plugin.json is authoritative under `strict:true`, so marketplace display lies | Acceptable if a single source is treated as canonical and the other documented as derived |
-| Skip the plugin-validator / `claude plugin validate` gate before push | Ship sooner | Plugin silently fails to load for users; hard to diagnose remotely | Never before a public push |
-| Reference-only skill now, add coaching "later" | Easy first cut | Ships the wrong product (reference exists everywhere; coaching is the value) | Only if explicitly descoped -- but that contradicts Core Value |
+| Draft canon verbatim then "clean it up later" | Faster first draft | DST-04 leak survives to ship; reviewer churn; copyright exposure | Never -- draft own-words from the start |
+| Ship lz-red description without cross-skill near-miss eval | Faster scaffold | Silent trigger collisions with lz-tpp / lz-refactor; wrong skill fires in real use | Never -- the eval is the only proof the boundary holds |
+| Skip the "fail for the right reason" step to keep the procedure short | Leaner SKILL.md | Coach endorses false-RED tests; core value undermined | Never -- it is the RED equivalent of lz-tpp's classify step |
+| Default the router to one school (FCIS or mockist) | Simpler router | Wrong advice in brownfield (A9) or over-mocking (A4) | Only if scope were single-paradigm -- it is not; router is locked adaptive |
+| Copy example snippets from mixed-version Vitest docs/training data | Fast examples | API drift (B4); examples fail on Vitest 4.x | Only after verifying each against current 4.x docs |
+| Match house style wholesale including its anti-patterns | Frictionless "fits your codebase" | Propagates A1-A8; skill amplifies bad tests | Never -- match idiom, not anti-patterns (A10) |
 
-## Integration Gotchas
-
-Marketplace/install/invocation integration -- where packaging meets the Claude Code runtime.
-
-| Integration | Common Mistake | Correct Approach |
-|-------------|----------------|------------------|
-| `/plugin marketplace add owner/repo` | Repo name in README does not match the actual GitHub repo (pending rename) | Align GitHub repo == install command == marketplace.json `name`; execute rename before publishing docs |
-| marketplace.json `source` for in-repo plugin | Absolute path, missing `./`, `../`, or wrong relative dir | Relative `./...` path matching on-disk location; or `metadata.pluginRoot` shortcut; forward slashes only |
-| Skill invocation namespace | Using marketplace name in the path, or dir/frontmatter name mismatch | `/lz-tdd:lz-tpp` uses the PLUGIN name; ensure skill dir == frontmatter `name` == `lz-tpp` |
-| Manifest JSON format | Comments or trailing commas in `.json` (valid only in `.jsonc`) | Keep strict JSON in `plugin.json`/`marketplace.json`; validate before commit |
-| `${CLAUDE_PLUGIN_ROOT}` (if any script/asset path is added later) | Hardcoding install paths or `~/` | Use `${CLAUDE_PLUGIN_ROOT}` for any intra-plugin path (not needed for a skill-only v1, but relevant as the plugin grows) |
-| Schema validation | Depending on Anthropic's referenced schema URL | That URL does not resolve; use SchemaStore's `claude-code-marketplace.json` for editor validation |
-
-## Performance Traps (adapted: token / context traps)
-
-Scale here is not users -- it is context tokens loaded per skill activation and per session.
-
-| Trap | Symptoms | Prevention | When It Breaks |
-|------|----------|------------|----------------|
-| Fat SKILL.md loaded on every trigger | Skill consumes large context whenever coaching fires mid-TDD | Keep SKILL.md lean; push list/examples to references/ read on demand | Every activation once body exceeds ~500 lines |
-| Over-triggering during unrelated work | Skill body loads in sessions that are not doing TDD | Precise, eval-tuned description scoped to transformation-choice + TPP explanation | Whenever the user says "test"/"refactor" in any context |
-| Reference file with no table of contents | Claude reads the whole large reference to find one transformation | Add a TOC / grep-friendly headers for files >300 lines | As the annotated list + examples grow |
-| Metadata description overstuffed for "pushiness" | Always-in-context metadata grows; still mis-triggers | Tune description length via the optimization loop, not by piling on phrases | When pushiness is used as a substitute for evals |
-
-## Security Mistakes (adapted: public-repo + skill-content safety)
-
-| Mistake | Risk | Prevention |
-|---------|------|------------|
-| Work email committed to public repo | Personal/work contact leak; violates project constraint | Use `larsbrinknielsen@gmail.com` only; never the work email anywhere in repo/manifests |
-| Missing or wrong LICENSE | Ambiguous reuse rights for a public marketplace plugin | Include MIT LICENSE at repo root; set `license: "MIT"` in plugin.json |
-| Skill instructs Claude to run code that "just makes the test pass" without bounds | A coaching skill that encourages arbitrary edits could suggest unsafe changes | Scope guidance to minimal transformations on the code under test; do not instruct broad file/system operations |
-| Copy-pasted source text without attribution | Licensing/attribution issues quoting Clean Coder content at length | Summarize + cite source URLs; quote transformation list minimally with attribution |
-| Non-ASCII / smart punctuation in committed files | Mojibake on the author's Windows cp1252 toolchain; ugly diffs | ASCII-only in all skill/manifest/doc content (arrows as `->`, hyphens not en/em dashes) |
-
-## UX Pitfalls
-
-| Pitfall | User Impact | Better Approach |
-|---------|-------------|-----------------|
-| Skill lectures on TPP history when user just wants the next step | Coaching feels like a wall of text mid-flow | Lead with the concrete next-transformation recommendation; keep history in references/explain-on-demand |
-| No clear way to get the explanation on demand | User cannot access the "reference" behavior deliberately | Support explicit `/lz-tdd:lz-tpp` invocation for explanation, distinct from auto-coaching |
-| Ordering presented as verdict ("you violated TPP") | Feels pedantic; users disable the skill | Frame as suggestion with rationale; acknowledge ties and language/context exceptions |
-| README omits that the skill also auto-activates | Users think they must always invoke it manually | Document both modes: auto-coach during TDD + explicit invocation for explanation |
-| TypeScript-only examples for a "language-agnostic" skill | Non-TS users feel it does not apply | State principle language-neutrally; label TS as illustration; note language-specific ordering |
+---
 
 ## "Looks Done But Isn't" Checklist
 
-- [ ] **Marketplace install:** Often missing a working end-to-end test -- verify `/plugin marketplace add LayZeeDK/lz-engineering-claude-plugins` then install actually surfaces `lz-tdd` on a clean machine, not just that JSON validates.
-- [ ] **Skill triggering:** Often "works" only because the author names the skill explicitly -- verify it triggers on natural TDD phrasing AND stays quiet on refactoring/near-miss prompts via the eval set.
-- [ ] **Coach behavior:** Often only reference behavior is implemented -- verify the skill recommends a specific next transformation given a real failing test + current code, not just an explanation.
-- [ ] **Transformation list fidelity:** Often silently drifted -- verify all 12 entries match the primary source names/order (no `constant->variable`, no "tail recursion").
-- [ ] **Progressive disclosure:** Often everything inline -- verify SKILL.md is lean and the full list/examples live in references/ with a pointer.
-- [ ] **Examples follow the order:** Often not step-checked -- verify each example step is the highest-priority transformation that passes the current test.
-- [ ] **Namespace:** Often mismatched -- verify skill dir == frontmatter `name` == `lz-tpp`, invocation `/lz-tdd:lz-tpp`.
-- [ ] **Hygiene:** Often forgotten -- verify MIT LICENSE present, public email only, ASCII-only content, README install command matches final repo name.
-- [ ] **Both manifests:** Often only one edited -- verify marketplace.json AND plugin.json both valid and consistent.
+- [ ] **RED decision procedure:** Often missing the explicit "fail for the right reason" step -- verify the
+      procedure confirms the failure is on the assertion, not a compile/setup error, before lz-tpp handoff.
+- [ ] **Description boundary:** Often missing reciprocal near-miss guards -- verify all THREE descriptions
+      (lz-red, lz-tpp, lz-refactor) delimit write-the-test vs make-it-pass vs restructure, and that a cross-skill
+      trigger eval passes (near-miss prompts do not cross-fire).
+- [ ] **Adaptive router:** Often collapses to one school -- verify it routes FCIS / Metz / Feathers by detected
+      seams and does not prescribe FCIS where no core exists (A9).
+- [ ] **Anti-pattern leaf:** Often missing the source tie -- verify every catalogued anti-pattern names its
+      locked source (A1-A10) and that the Ian Cooper over-mock / test-per-class warning is present (PROJECT.md
+      target feature).
+- [ ] **TS + Vitest examples:** Often missing strict-clean / current-API check -- verify every sample compiles
+      tsc --strict and uses Vitest 4.x APIs (no `toMatchTypeOf`; `--typecheck` + `.test-d.ts` for type-level RED).
+- [ ] **Hygiene:** Often missing the final scan -- verify ASCII-only shipped content and allowlist-inversion email
+      scan (only the public gmail present); confirm git author/committer identity before committing.
+- [ ] **Seam wiring:** Often one-directional -- verify lz-red -> lz-tpp handoff AND the reverse lz-tpp -> lz-red
+      pointer (closes the carried-forward tech debt) exist.
+- [ ] **Scope:** Often creeps -- verify no outside-in / acceptance / double-loop coaching leaked in (unit RED only).
+
+---
+
+## Process Gotchas (GSD / plugin authoring, from repo memory)
+
+Not skill-content pitfalls, but they bite the roadmap; carry them forward.
+
+| Gotcha | Effect | Mitigation |
+|--------|--------|------------|
+| GSD plan-phase UI gate false-positive | "ui" in "guidance" trips the UI-SPEC gate on Markdown skill phases | Skip-UI on lz-red phases; do not auto-generate UI-SPEC (these are Markdown authoring) |
+| Skill description char cap | `description` truncates in the listing at 1536 chars; ~1000-1500 is the load-bearing trigger window | Size the trigger-critical part of lz-red's description under ~1500; keep near-miss exclusions before 1536 |
+| Committed != live | Skill/agent edits are not active in-session until reload | After a reviewed+committed skill edit, run `/reload-plugins` before relying on it |
+| Skill/agent instruction edits need agent review | Unreviewed SKILL.md changes ship regressions | Every SKILL.md / reference-leaf edit reviewed by subagent(s), incl. >=1 unbiased reviewer, before acceptance |
+
+---
 
 ## Recovery Strategies
 
 | Pitfall | Recovery Cost | Recovery Steps |
 |---------|---------------|----------------|
-| Transformation-list drift shipped | LOW | Re-transcribe from primary source, correct references/, bump patch version |
-| Over/under-triggering discovered post-ship | MEDIUM | Run description-optimization loop, replace description, bump version; add regression evals |
-| Reference-only skill shipped (no coaching) | HIGH | Redesign SKILL.md around the decision procedure; add coach evals; effectively a re-authoring |
-| Manifest error -> plugin never loads | LOW | Fix JSON/path/version, re-run `claude plugin validate`, re-push |
-| Name mismatch after rename | MEDIUM | Reconcile all four identifiers, update README + marketplace `source`, re-add marketplace |
-| SKILL.md bloat | LOW | Move list/examples to references/, add pointers, verify no duplication |
-| Work email leaked in git history | MEDIUM | Rewrite history to purge, rotate references; costlier than preventing it |
+| DST-04 verbatim leak (B1) reaches a commit | MEDIUM | Rewrite the leaked prose in own words; if pushed on a feature branch, scoped `git filter-repo --replace-text` + force-with-lease; re-run no-verbatim gate |
+| Trigger collision (B3) found after ship | MEDIUM | Tighten near-miss guards in the offending descriptions; re-run cross-skill trigger eval; `/reload-plugins` |
+| Vitest API drift (B4) in a shipped example | LOW | Patch the snippet to current 4.x API; re-run tsc --strict; bump patch version |
+| tsc --strict failure (B5) slips through | LOW | Fix the snippet; add compile-check to the hygiene gate so it cannot recur |
+| Work-email / Unicode leak (B6) committed | LOW-MEDIUM | Allowlist scan finds it; amend if unpushed, scoped filter-repo if pushed; confirm identity config |
+| Router defaults to one school (A9 shipped) | MEDIUM | Rework the router to seam-based branching; add brownfield/no-seam eval cases |
+
+---
 
 ## Pitfall-to-Phase Mapping
 
-Suggested phases: **scaffold** (marketplace + plugin manifests, names, structure), **source-distillation** (extract canonical TPP from primary sources), **skill-authoring** (write SKILL.md + references, coach + reference behavior), **eval-and-tune** (test cases + description-optimization loop), **docs** (README, LICENSE, install, hygiene).
-
 | Pitfall | Prevention Phase | Verification |
 |---------|------------------|--------------|
-| 1. Transformation vs refactoring conflation | source-distillation + skill-authoring | Definition stated up front; negative eval for refactoring requests passes |
-| 2. TPP as rigid law | source-distillation + skill-authoring | No MUST/NEVER around ordering; author's provisional caveat present |
-| 3. List drift from secondary sources | source-distillation | All 12 entries match primary source verbatim, with citation |
-| 4. Reference-only, no coaching | skill-authoring + eval-and-tune | Coach eval (failing test + code) yields a specific next transformation |
-| 5. Over/under-triggering | eval-and-tune | 20-query eval set passes on held-out split; dogfooding shows no stray fires |
-| 6. Auto-trigger vs slash-invocation confusion | scaffold + skill-authoring | `/lz-tdd:lz-tpp` works AND auto-coaching triggers; names aligned |
-| 7. SKILL.md bloat | skill-authoring | SKILL.md within size target; list/examples in references/ |
-| 8. Manifest errors | scaffold | `claude plugin validate` + plugin-validator pass; clean-machine install works |
-| 9. Name/rename mismatch | scaffold + docs + ship | All identifiers aligned; README install command resolves |
-| 10. Misleading language-specific examples | source-distillation + skill-authoring | Language caveat present; TS examples labeled as illustrations |
-| 11. Examples violate priority order | skill-authoring + eval-and-tune | Each example step tagged + verified highest-priority-that-passes |
-| 12. Dropped rationale | source-distillation + skill-authoring | Skill answers "why prefer simpler?" and explains impasse avoidance |
+| A1 never-fails / wrong-reason RED | P-COACH, P-ANTI | Procedure has a fail-for-the-right-reason step; RED-behavior eval includes a false-RED case |
+| A2 implementation-detail tests | P-COACH, P-ROUTER, P-ANTI | Coach asserts behavior through a boundary; eval rewards behavior-level assertions |
+| A3 multiple assertions / concepts | P-COACH, P-ANTI | Leaf present; coach enforces one behavior per test |
+| A4 over-mocking / test-per-class | P-COACH, P-ROUTER, P-ANTI | Ian Cooper warning leaf present; Metz matrix routes mock decisions; eval penalizes needless mocks |
+| A5 too-large first test | P-COACH, P-ANTI | Coach starts degenerate / one-step; eval checks smallest-test selection |
+| A6 method-shaped names | P-COACH, P-ANTI | Behavior-naming guidance present; eval checks names |
+| A7 slow / order-dependent tests | P-COACH, P-ANTI | F.I.R.S.T. leaf present |
+| A8 snapshot-everything | P-TS, P-ANTI | Vitest snapshot guidance present; leaf ties to Khorikov/Beck |
+| A9 FCIS-brownfield trap | P-ROUTER, P-ANTI | Router branches by seam; brownfield/no-seam eval case passes |
+| A10 mirroring bad house style | P-ROUTER, P-ANTI | Router matches idiom not anti-patterns; leaf present |
+| B1 DST-04 leak | P-SRC, P-ANTI, P-DIST | oracle-reviewer verdict + no-verbatim gate GREEN; skill-reviewer PASS |
+| B2 over-scoping | P-SCAF, P-COACH | Out-of-scope guard in SKILL.md + description; no outside-in content |
+| B3 description collision | P-SCAF, P-SEAM, P-EVAL | Cross-skill trigger eval: near-miss prompts do not cross-fire (recall + specificity) |
+| B4 Vitest API drift | P-TS, P-DIST | Every example verified against Vitest 4.x docs; no deprecated APIs |
+| B5 tsc --strict failure | P-TS, P-DIST | All samples compile tsc --strict-clean |
+| B6 ASCII / email hygiene | P-DIST + continuous | ASCII-only scan; allowlist-inversion email scan; identity check |
+
+---
 
 ## Sources
 
-- The Transformation Priority Premise -- Robert C. Martin (primary; canonical 12-item list + refactoring/transformation definitions + author's "probably not / not likely" provisional caveat), fetched verbatim: https://blog.cleancoder.com/uncle-bob/2013/05/27/TheTransformationPriorityPremise.html
-- Fib. The T-P Premise. -- Robert C. Martin (worked Fibonacci walkthrough demonstrating priority order): https://blog.cleancoder.com/uncle-bob/2013/05/27/FibTPP.html
-- Robert C. Martin -- The Transformation Priority Premise, NDC 2011 (talk; cited as authoritative source): https://youtu.be/B93QezwTQpI
-- Transformation Priority Premise -- Wikipedia (secondary; used to DEMONSTRATE drift: renames constant->scalar, "tail recursion" wording): https://en.wikipedia.org/wiki/Transformation_Priority_Premise
-- skill-creator SKILL.md (triggering mechanism, description "pushiness" vs precision, description-optimization loop, progressive disclosure, size targets) -- local first-party: `C:\Users\LarsGyrupBrinkNielse\.claude\plugins\cache\claude-plugins-official\skill-creator\unknown\skills\skill-creator\SKILL.md`
-- plugin-dev skill-development SKILL.md (description quality, third-person triggers, imperative body, SKILL.md size targets, common mistakes) -- local first-party
-- plugin-dev plugin-structure SKILL.md + manifest-reference.md (plugin.json fields, kebab-case, semver, relative `./` paths, auto-discovery, ${CLAUDE_PLUGIN_ROOT}) -- local first-party
-- plugin-dev plugin-validator.md + skill-reviewer.md (what the validators/reviewers flag) -- local first-party
-- plugin-dev create-plugin.md (skills-over-commands guidance; user-invoked skills need description/argument-hint/allowed-tools) -- local first-party
-- Create and distribute a plugin marketplace -- Claude Code Docs (marketplace.json required fields name/owner/plugins, source types, reserved names, `strict`, `metadata.pluginRoot`, `claude plugin validate`), via search summary (docs domain blocks AI fetchers): https://code.claude.com/docs/en/plugin-marketplaces
-- anthropics/claude-plugins-official marketplace.json (real-world reference for marketplace structure): https://github.com/anthropics/claude-plugins-official/blob/main/.claude-plugin/marketplace.json
-- hesreallyhim/claude-code-json-schema (unofficial JSON schemas for plugin + marketplace) and SchemaStore `claude-code-marketplace.json` (editor validation): https://github.com/hesreallyhim/claude-code-json-schema
+- Robert C. Martin -- Three Laws of TDD and F.I.R.S.T. (Fast, Independent, Repeatable, Self-validating, Timely).
+  HIGH. (A1, A7; no-oracle high-confidence core.)
+- Kent Beck, *Test Driven Development: By Example* -- one-step test, starter/degenerate case, triangulation,
+  assert-first, evident data, one concept per test, see-it-fail-first. HIGH. (A1, A3, A5.)
+- Ian Cooper, "TDD, Where Did It All Go Wrong" (NDC Oslo 2013 / DevTernity 2017; video id EZ05e7EMOLM) --
+  trigger for a new test is a new BEHAVIOR not a function; do not test each class in isolation; do not mock
+  internals/privates/adapters; test via ports. Verified via web summary 2026-07-18. HIGH. (A2, A4, A6.)
+  Sources: https://herbertograca.com/2018/08/27/distillation-of-tdd-where-did-it-all-go-wrong/ ,
+  https://robdmoore.id.au/blog/2015/01/26/review-of-ian-cooper-tdd-where-did-it-all-go-wrong
+- Vladimir Khorikov, *Unit Testing: Principles, Practices, and Patterns* -- four pillars (protection against
+  regressions, resistance to refactoring, fast feedback, maintainability); mock only unmanaged out-of-process
+  dependencies. HIGH. (A2, A4, A8.)
+- Sandi Metz + Katrina Owen, *99 Bottles of OOP* / "Magic Tricks of Testing" -- query/command message matrix;
+  test the interface not internals; do not test private methods or outgoing queries. HIGH. (A2, A4, A9, A10.)
+  (Owned: 99 Bottles JS Ed -- clean-room `.oracle/`.)
+- Gary Bernhardt, "Boundaries" -- functional core, imperative shell (a design target, not a given). HIGH. (A9.)
+- Michael Feathers, *Working Effectively with Legacy Code* -- seams; characterization tests when no seam exists.
+  HIGH. (A9, A10.)
+- Dan North -- BDD, Given-When-Then, behavior-focused naming. HIGH. (A6.)
+- Roy Osherove, *The Art of Unit Testing* -- trustworthy/readable tests, scenario-based naming, one logical
+  concept. HIGH. (A1, A3, A6, A8.)
+- Steve Freeman + Nat Pryce, *Growing Object-Oriented Software, Guided by Tests* (GOOS) -- London/mockist school;
+  used here as a documented COUNTERPOINT to A4, and its double-loop is OUT OF SCOPE. HIGH. (A4, A10; B2.)
+- fast-check -- property-based testing (advanced; triangulation alternative). MEDIUM (breadth not depth this pass).
+- Vitest official docs (testing types, expect-typeof, assert-type, vi, migration guide) -- current API for the
+  B4 drift pitfall; Vitest 4.0 current stable, 5.0 beta; `toMatchTypeOf` deprecated -> `toExtend`;
+  `vi.restoreAllMocks()` narrowed to spyOn; type tests need `--typecheck` + `.test-d.ts`. Verified 2026-07-18. HIGH.
+  https://vitest.dev/guide/testing-types , https://vitest.dev/api/expect-typeof , https://vitest.dev/api/assert-type ,
+  https://vitest.dev/guide/migration.html
+- Repo conventions -- `.planning/PROJECT.md` (lz-tdd@0.0.3 milestone, Key Decisions, Constraints);
+  `plugins/lz-tdd/skills/lz-tpp/SKILL.md` and `.../lz-refactor/SKILL.md` (sibling descriptions for the B3
+  collision analysis); `AGENTS.md` (public-repo hygiene). Read 2026-07-18. HIGH.
+- Repo memory -- DST-04 near-verbatim trap, skill description char cap, GSD UI-gate false-positive, reload-plugins
+  after skill edits, unbiased-reviewer requirement. HIGH (project-specific, proven in 0.0.1 / 0.0.2).
 
 ---
-*Pitfalls research for: Claude Code plugin marketplace + TPP-encoding agent skill*
-*Researched: 2026-07-02*
+*Pitfalls research for: lz-red RED-phase TDD coaching skill (lz-tdd@0.0.3)*
+*Researched: 2026-07-18*

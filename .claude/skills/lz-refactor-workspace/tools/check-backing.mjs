@@ -27,6 +27,13 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 // tools -> lz-refactor-workspace -> skills -> .claude -> repo root
 const repoRoot = path.resolve(here, "..", "..", "..", "..");
 const REFERENCES = path.join(repoRoot, "plugins", "lz-tdd", "skills", "lz-refactor", "references");
+// Commit 23c8ee2 (2026-07-29) promoted beck-tdd-by-example.md out of the lz-refactor skill and into
+// the PLUGIN-wide references dir, because lz-red consumes it too (lz-red/SKILL.md via
+// ${CLAUDE_PLUGIN_ROOT}, lz-refactor/references/principles.md via ../../../). Entries carry a `dir`
+// override for that split, mirroring check-red-references.mjs -- NOT an existsSync skip: a tolerated
+// absence would silence this file's six topic checks plus its tag/scaffold gates (PRIN-01) instead of
+// verifying them, which is the fail-open shape this gate exists to prevent.
+const PLUGIN_REFERENCES = path.join(repoRoot, "plugins", "lz-tdd", "references");
 
 // Per-file core topic tokens (D-08 scope; RESEARCH topic-token map). Each entry: a label + a
 // line-matching pattern (case-insensitive). beck-tidy-first also carries a topic asserting >=1
@@ -34,6 +41,7 @@ const REFERENCES = path.join(repoRoot, "plugins", "lz-tdd", "skills", "lz-refact
 const FILES = [
   {
     name: "beck-tdd-by-example.md",
+    dir: PLUGIN_REFERENCES,
     topics: [
       { label: "red-green-refactor cycle", re: /red-green-refactor/i },
       { label: "the two rules", re: /two rules/i },
@@ -85,12 +93,13 @@ const report = (ok, label, detail) => {
 
 console.log("PRIN-01/02/03 principle-backing topic + provenance check (no-oracle)");
 console.log(`  references dir: ${path.relative(repoRoot, REFERENCES)}`);
+console.log(`  plugin-wide references dir: ${path.relative(repoRoot, PLUGIN_REFERENCES)}`);
 console.log("");
 
 let filesPresent = 0;
 
 for (const spec of FILES) {
-  const filePath = path.join(REFERENCES, spec.name);
+  const filePath = path.join(spec.dir ?? REFERENCES, spec.name);
 
   if (!fs.existsSync(filePath)) {
     report(false, `${spec.name} exists`, "not found");

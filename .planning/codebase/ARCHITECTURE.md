@@ -205,9 +205,9 @@ namespaces the skills, and progressively loads their Markdown as context.
   touch it, and they return facts in their own words.
 - **Worktree provisioning:** `.oracle/` is gitignored, so `.worktreeinclude` lists
   it to copy it into new worktrees where the oracle agents run.
-- **GSD coexistence:** `.claude/settings.json` pins a local OpenGSD (`gsd-core`)
-  marketplace and disables the full GSD skill surface except the mapper flow;
-  this is workflow tooling, not part of the shipped plugin.
+- **GSD tooling:** planning runs on the user-scope GSD Core install (bare `/gsd-*`
+  commands); the repo carries no GSD settings. This is workflow tooling, not part
+  of the shipped plugin.
 
 ## Anti-Patterns
 

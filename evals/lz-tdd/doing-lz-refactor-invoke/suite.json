@@ -1,0 +1,7 @@
+{
+  "backend": "plugin-eval",
+  "ablation": "none",
+  "allowTools": ["Write", "Edit"],
+  "scaffold": true,
+  "skill": "lz-refactor"
+}

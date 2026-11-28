@@ -49,7 +49,11 @@ class CoreHandler implements RequestHandler {
 // Decorator: implements the component interface and holds a wrapped component, adding
 // behavior around the delegated call while staying transparent to clients.
 abstract class HandlerDecorator implements RequestHandler {
-  constructor(protected readonly inner: RequestHandler) {}
+  protected readonly inner: RequestHandler;
+
+  constructor(inner: RequestHandler) {
+    this.inner = inner;
+  }
 
   abstract handle(request: string): string;
 }
@@ -57,8 +61,11 @@ abstract class HandlerDecorator implements RequestHandler {
 // Concrete Decorator: adds a responsibility (tagging every response) around the delegate
 // and stays transparent to callers; the added behavior is always exercised, not conditional.
 class TracingHandler extends HandlerDecorator {
-  constructor(inner: RequestHandler, private readonly tag: string) {
+  private readonly tag: string;
+
+  constructor(inner: RequestHandler, tag: string) {
     super(inner);
+    this.tag = tag;
   }
 
   handle(request: string): string {

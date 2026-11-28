@@ -54,14 +54,24 @@ interface Shape {
 }
 
 class Square implements Shape {
-  constructor(private readonly side: number) {}
+  private readonly side: number;
+
+  constructor(side: number) {
+    this.side = side;
+  }
+
   area(): number {
     return this.side * this.side;
   }
 }
 
 class Circle implements Shape {
-  constructor(private readonly radius: number) {}
+  private readonly radius: number;
+
+  constructor(radius: number) {
+    this.radius = radius;
+  }
+
   area(): number {
     return Math.PI * this.radius * this.radius;
   }

@@ -1,0 +1,96 @@
+# Test-Driven Development (Beck, TDD by Example)
+
+Scope: the core of the test-first loop that all three lz-tdd skills sit inside, distilled from Beck's
+Test-Driven Development by Example. This is a plugin-wide reference; its inbound citations today are
+lz-red's SKILL.md and lz-refactor's principles.md, and it names the seams each of the three steps
+owns and the seams it hands off. The red step is lz-red's concern, the green step is lz-tpp's, and
+the refactor step begins where lz-refactor takes over. The two-hats framing for the same boundary
+from Fowler's side lives in lz-refactor's principles.md reference.
+
+> No-oracle reference: high-confidence CORE only (no owned book to verify against). Original prose, no
+> verbatim Beck prose or code (DST-04). NAMES of techniques are kept verbatim as facts; every
+> definition below is written in original words.
+
+## The red-green-refactor cycle
+
+The loop runs in three short beats, repeated once per small behavior:
+
+- Red: write a small test for the next slice of behavior and watch it fail. A test that fails for the
+  expected reason proves the test can detect the behavior before the code exists.
+- Green: do the least work that turns the bar green, even if that work is embarrassingly crude. Speed
+  to green matters more than elegance here; correctness of design is deferred to the third beat.
+- Refactor: with the bar green and a safety net in place, improve the internal structure and remove
+  the duplication the quick green step introduced, holding observable behavior fixed.
+
+The discipline that structure only ever changes while the bar is green is FOWLER's, not Beck's -- it is
+citable to Refactoring, 2nd Edition Ch. 4, where refactoring is defined as running under a green bar.
+It was previously attributed to Beck here, which overstated him. Do not overstate it in the other
+direction either: in the essay TDD is Kanban for Code, Beck's five-step cycle places a preparatory
+refactoring BEFORE green -- after the step that adds production stand-ins so the test compiles and
+fails, and before the step that changes logic to pass it -- so the green-bar rule is Fowler's
+discipline rather than an absolute both authors share. PER-CLAIM TIER, upgrading THIS CLAIM ONLY from
+the file-global tier above: Owned; oracle-verified against the clean-room source. Two qualifiers travel
+with it. It is gated on a red test existing, since he states that changes to logic and to structure
+are not begun until a test is failing. And it is one position among several that Beck himself calls
+contradictory -- TDD is Not Hill Climbing states the opposite rule, that with a red test the only
+permitted move is making it pass and refactoring becomes available once all tests pass; Canon TDD has
+no prepare-to-implement step at all; and asked directly how tidy-first ordering coexists with
+refactor-last, he answers that the two contradict each other and judgment is required. Cite it as that
+one position, never as his settled doctrine.
+
+## The two rules
+
+Beck compresses the practice into two rules, paraphrased here:
+
+- Add production code only in response to a test that is currently failing. Let the failing test pull
+  each new piece of behavior into existence.
+- Once the bar is green, drive out duplication (including duplication between the test and the code
+  it exercises) before writing the next test.
+
+The second rule is where lz-refactor lives: removing that duplication is a refactoring, and the
+refactor step is lz-refactor's.
+
+## Green-bar strategies
+
+Beck names three ways to get from red to green. They belong to the green step, and lz-tpp is the
+skill that ranks among them; lz-red and lz-refactor meet them here only to locate the seam. The
+NAMES are kept as facts; the descriptions are original:
+
+- Fake It: return a hard-coded constant that satisfies the failing test immediately, then generalize
+  the constant into real logic as later tests demand it. It gets you to green in seconds so refactoring
+  can start.
+- Triangulate: when the right generalization is unclear, add a second and third example so that only
+  the real abstraction fits all of them; let the extra cases pull the general solution out of you.
+- Obvious Implementation: when the correct code is small and self-evident, just write it directly
+  rather than faking or triangulating. Fall back to the slower strategies the moment "obvious" turns
+  out to be wrong.
+
+## The seam across the three steps
+
+Each of the three beats above has a different owning skill, and a request belongs to the beat it ASKS
+for -- never to the beat the suite happens to be sitting in. Classify the ask, then take the first
+branch that fits. An ask about which test comes next -- what a test should assert, how to name it,
+whether this is a good test -- is the red step, and the red step is lz-red. An ask to make a failing
+test pass, by picking and applying the next transformation by priority, is the green step, and the
+green step is lz-tpp. An ask to add a new behavior, or to change what working code does, before any
+test covers it starts in lz-red, because production code waits for a failing test, and moves on to
+lz-tpp once that test is red. An ask to improve structure or readability without changing behavior --
+clean up this function, tidy this test file, de-duplicate this module -- or saying "I just finished
+making a test pass, what now?" is the refactor step, and the refactor step is lz-refactor. A
+structure-only tidy of code that happens to live in a test file belongs to lz-refactor as well; an
+ask about the test itself -- what it should assert, how it reads as a test -- is the red step, and
+that step is lz-red. Anything outside those is not a red-green-refactor-loop request and no skill in
+this loop owns it; say so plainly and answer directly.
+
+## Sources
+
+- Beck, Test-Driven Development by Example. Unowned; high-confidence core only, no-oracle. There is
+  no owned copy to verify against, so correctness rests on tight core scope, skill-reviewer review, and
+  DST-04 hygiene (original prose; only technique NAMES kept verbatim).
+- Martin Fowler, Refactoring, 2nd Edition, Ch. 4 -- the green-bar discipline (structure changes only
+  while the bar is green), re-attributed here from Beck. Owned; oracle-verified against the clean-room
+  source. Beck's kanban cycle is noted alongside it as the exception that keeps the claim from being
+  overstated in the other direction; its owned surface is the essay TDD is Kanban for Code, carrying a
+  per-claim owned tier in the body above rather than this file's global tier. That cycle is one
+  position among several Beck himself calls contradictory, and it is gated on a red test existing, so
+  it must not be cited as his settled rule.

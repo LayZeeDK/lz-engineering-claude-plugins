@@ -1,0 +1,32 @@
+diff --git a/test/canary-srvc-compile.test.ts b/test/canary-srvc-compile.test.ts
+new file mode 100644
+index 0000000..4c3b174
+--- /dev/null
++++ b/test/canary-srvc-compile.test.ts
+@@ -0,0 +1,26 @@
++import { describe, expect, test } from "vitest";
++import { serve } from "srvx/node";
++
++describe("sendNodeResponse", () => {
++  test("keeps a Set-Cookie header already set on the Node response", async () => {
++    const server: number = serve({
++      port: 0,
++      fetch(request) {
++        request.runtime?.node?.res?.setHeader("set-cookie", "a=1");
++
++        return new Response("ok", { headers: { "set-cookie": "b=2" } });
++      },
++    });
++    await server.ready();
++
++    try {
++      const address = server.node?.server?.address();
++      const port = address && typeof address === "object" ? address.port : 0;
++      const response = await fetch(`http://localhost:${port}/`);
++
++      expect(response.headers.getSetCookie()).toEqual(["a=1", "b=2"]);
++    } finally {
++      await server.close(true);
++    }
++  });
++});

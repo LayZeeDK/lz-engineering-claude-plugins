@@ -33,8 +33,11 @@ Before, the client creates and wires every node against the Composite directly:
 
 ```ts
 class Node {
+  readonly name: string;
   readonly children: Node[] = [];
-  constructor(readonly name: string) {}
+  constructor(name: string) {
+    this.name = name;
+  }
   add(child: Node): void {
     this.children.push(child);
   }
@@ -55,8 +58,11 @@ After, a builder hides node creation and wiring; the client describes the tree:
 
 ```ts
 class Node {
+  readonly name: string;
   readonly children: Node[] = [];
-  constructor(readonly name: string) {}
+  constructor(name: string) {
+    this.name = name;
+  }
   add(child: Node): void {
     this.children.push(child);
   }

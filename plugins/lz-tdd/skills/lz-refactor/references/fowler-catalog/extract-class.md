@@ -31,11 +31,15 @@ Before, one class holds two concepts:
 
 ```ts
 class Book {
-  constructor(
-    public title: string,
-    public publisherName: string,
-    public publisherCity: string,
-  ) {}
+  public title: string;
+  public publisherName: string;
+  public publisherCity: string;
+
+  constructor(title: string, publisherName: string, publisherCity: string) {
+    this.title = title;
+    this.publisherName = publisherName;
+    this.publisherCity = publisherCity;
+  }
 }
 ```
 
@@ -43,17 +47,23 @@ After, the publisher is its own class:
 
 ```ts
 class Publisher {
-  constructor(
-    public name: string,
-    public city: string,
-  ) {}
+  public name: string;
+  public city: string;
+
+  constructor(name: string, city: string) {
+    this.name = name;
+    this.city = city;
+  }
 }
 
 class Book {
-  constructor(
-    public title: string,
-    public publisher: Publisher,
-  ) {}
+  public title: string;
+  public publisher: Publisher;
+
+  constructor(title: string, publisher: Publisher) {
+    this.title = title;
+    this.publisher = publisher;
+  }
 }
 ```
 

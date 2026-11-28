@@ -43,7 +43,10 @@ interface Query {
 }
 
 class TermQuery implements Query {
-  constructor(private readonly term: string) {}
+  private readonly term: string;
+  constructor(term: string) {
+    this.term = term;
+  }
   matches(text: string): boolean { return text.includes(this.term); }
 }
 
@@ -63,12 +66,18 @@ interface Query {
 }
 
 class TermQuery implements Query {
-  constructor(private readonly term: string) {}
+  private readonly term: string;
+  constructor(term: string) {
+    this.term = term;
+  }
   matches(text: string): boolean { return text.includes(this.term); }
 }
 
 class AllQuery implements Query {
-  constructor(private readonly parts: Query[]) {}
+  private readonly parts: Query[];
+  constructor(parts: Query[]) {
+    this.parts = parts;
+  }
   matches(text: string): boolean { return this.parts.every((part) => part.matches(text)); }
 }
 ```

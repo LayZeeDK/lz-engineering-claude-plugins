@@ -37,7 +37,11 @@ interface Vault {
 
 // Real Subject: the object the proxy stands in for.
 class RealVault implements Vault {
-  constructor(private readonly secret: string) {}
+  private readonly secret: string;
+
+  constructor(secret: string) {
+    this.secret = secret;
+  }
 
   read(): string {
     return this.secret;
@@ -47,10 +51,13 @@ class RealVault implements Vault {
 // Proxy: same interface as the subject; this protection proxy checks clearance before
 // forwarding the request to the real object.
 class VaultProxy implements Vault {
-  constructor(
-    private readonly real: RealVault,
-    private readonly caller: { readonly clearance: number },
-  ) {}
+  private readonly real: RealVault;
+  private readonly caller: { readonly clearance: number };
+
+  constructor(real: RealVault, caller: { readonly clearance: number }) {
+    this.real = real;
+    this.caller = caller;
+  }
 
   read(): string {
     if (this.caller.clearance < 5) {

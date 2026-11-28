@@ -70,7 +70,10 @@ class Plivo {
 }
 
 class PlivoAdapter implements Sms {
-  constructor(private readonly plivo: Plivo) {}
+  private readonly plivo: Plivo;
+  constructor(plivo: Plivo) {
+    this.plivo = plivo;
+  }
   send(to: string, body: string): boolean {
     return this.plivo.message(to, body);
   }

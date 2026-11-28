@@ -39,12 +39,14 @@ interface AuctionMediator {
 
 // Colleague: knows only the mediator, never the other colleagues.
 class Bidder {
+  readonly name: string;
+  private readonly mediator: AuctionMediator;
   private lastSeen = 0;
 
-  constructor(
-    readonly name: string,
-    private readonly mediator: AuctionMediator,
-  ) {}
+  constructor(name: string, mediator: AuctionMediator) {
+    this.name = name;
+    this.mediator = mediator;
+  }
 
   bid(amount: number): void {
     this.mediator.placeBid(this, amount);

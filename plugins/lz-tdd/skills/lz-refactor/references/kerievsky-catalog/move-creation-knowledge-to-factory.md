@@ -73,7 +73,11 @@ class Air implements Carrier {
 }
 
 class CarrierFactory {
-  constructor(private readonly groundOverKg: number) {}
+  private readonly groundOverKg: number;
+
+  constructor(groundOverKg: number) {
+    this.groundOverKg = groundOverKg;
+  }
 
   forWeight(weightKg: number): Carrier {
     return weightKg > this.groundOverKg ? new Ground() : new Air();

@@ -53,7 +53,10 @@ interface Parcel {
 }
 
 class Item implements Parcel {
-  constructor(private readonly grams: number) {}
+  private readonly grams: number;
+  constructor(grams: number) {
+    this.grams = grams;
+  }
   weight(): number {
     return this.grams;
   }

@@ -1,0 +1,199 @@
+---
+name: lz-red
+description: >-
+  This skill should be used during the red step of red-green-refactor TDD to choose and write the
+  next FAILING (red) unit test well: which test to write next, keeping a running test list,
+  starting from the degenerate or starter case, triangulating with another concrete example to
+  drive out the next test, structuring the test (arrange-act-assert or given-when-then), naming
+  it for the behavior it pins, asserting observable behavior rather than implementation detail,
+  and confirming it fails for the right reason. Use it whenever a developer asks what test to
+  write next, how to write or structure a unit test, whether a test is a good test, or how to
+  match the codebase's existing testing stance -- how the codebase already writes its tests and how to stay consistent with that existing test style or convention when adding the next test -- even when they only ask "what should I test
+  here?" or "is this a good test?". Also use it when the developer wants to ADD or CHANGE behavior:
+  production code waits for a failing test, so the red step starts here and lz-tpp takes over once
+  that test is red. A request carrying more than one ask belongs whole to its primary ask. Do NOT
+  use it to make an existing failing test pass or to
+  pick the minimal code change that turns the bar green -- that is the green/transformation step;
+  use lz-tpp instead. Do NOT use it to restructure, clean up, or de-duplicate working code -- that
+  is the refactor step; use lz-refactor instead.
+---
+
+# lz-red: RED-phase TDD coach
+
+This skill drives the red step of red-green-refactor TDD: it helps choose and write the next
+FAILING (red) unit test well, and explains RED-step concepts on demand. It runs in two modes and
+routes by intent. Making that failing test pass by changing behavior is the green step and its
+sibling skill lz-tpp; restructuring working code without changing behavior is the refactor step
+and its sibling skill lz-refactor.
+
+## Two modes
+
+- Coach mode: the request asks for a move on code -- most often what test comes next, which failing
+  test to write next, how to shape or name it, whether this is a good test, or an ask to add a new
+  behavior, which the red step opens first before the green step takes it. Run the coach decision
+  procedure below; step 1 classifies the ask. When step 1 settles the ask as the red step, pick and
+  structure the next failing (red) test. When it routes the ask to the green step or the refactor
+  step instead, hand the request to that sibling skill. When it finds no skill in the loop owns the
+  request, its branch (e) answers directly. This gate chooses coach versus reference only: it never
+  decides ownership and never declines a request itself.
+- Reference mode: otherwise -- the request is "explain this RED concept" (test selection,
+  triangulation, test structure, naming, the testing stance, an anti-pattern), or an explicit
+  `/lz-tdd:lz-red` invocation with nothing to coach. Answer from the reference files listed below;
+  do not restate their content here.
+
+## RED vs the green step (lz-tpp) and the refactor step (lz-refactor)
+
+The red step (choose and write the next failing test) is lz-red. Making that failing test pass by
+changing behavior is the green / transformation step (lz-tpp). Restructuring working code without
+changing what it does is the refactor step (lz-refactor). Classify the request by what the developer
+is asking for, before acting, and take the first branch that fits. An ask about which test comes
+next, what a test should assert, how to name it, or whether it is a good test is this step, and this
+step is lz-red. An ask to make a failing test pass is the green step: hand off to lz-tpp. An ask to
+add a new behavior, or to change what working code does, starts here in lz-red -- Law 1 gates
+production code behind a failing test -- and moves on to lz-tpp once that test is red. An ask to
+improve structure or readability without changing behavior -- including a tidy of code that happens
+to live in a test file, and including a target with no tests -- is the refactor step: hand off to
+lz-refactor. Anything outside those is not a red-green-refactor-loop request and no skill in this
+loop owns it; say so plainly and answer directly.
+
+## Listen to the tests
+
+RED guidance is a heuristic and a thinking aid, not a law. When a test is hard to write -- heavy
+setup, many doubles, an awkward assertion -- treat that pain as design feedback about the code
+under test, not as a cue to mock more. Explain WHY a given test is the next one to write, and
+allow a reasoned deviation. Do not frame any single test-selection or structuring rule as
+mandatory.
+
+## Coach decision procedure
+
+Run these steps in order on a coach-mode request. Each step is a move plus a pointer to the
+reference leaf that carries the detail; do not restate a leaf's content here.
+
+1. Classify the request by what the developer is asking for, never by the state of the suite. See
+   "RED vs the green step (lz-tpp) and the refactor step (lz-refactor)" above; do not restate it.
+   Take the FIRST branch that matches:
+   A developer's own report of where they are in the loop is context for the ask, not a condition
+   to route on, so classify from what they are asking for next. A request carrying more than one
+   ask is owned whole by its primary ask, and the secondary ask is named as a next step in the
+   answer rather than routed as a second hop.
+   a. Asking which test to write next -- what test comes next, what a test should assert, how to
+      name it, or whether this is a good test: that is the red step, and the red step is lz-red.
+   b. Asking to make a failing test pass -- which minimal change turns this red test green: that
+      is the green step, and the green step is lz-tpp.
+   c. Asking to add a new behavior, or to change what working code does, before any test covers
+      it: the red step starts here in lz-red, because Law 1 gates production code behind a
+      failing test; then lz-tpp ranks the transformation that turns that test green.
+   d. Asking to improve structure or readability without changing behavior -- clean up this
+      function, tidy this test file, de-duplicate this module -- or saying "I just finished making
+      a test pass, what now?": that is the refactor step, and the refactor step is lz-refactor. A
+      structure-only tidy of code that happens to live in a test file belongs there, and so does a
+      target that carries no tests (characterization tests pin its behavior first). An ask about
+      the test itself -- what it should assert, how it reads as a test -- is (a).
+   e. None of (a) through (d): this is not a red-green-refactor-loop request and no skill in this
+      loop owns it. Say so plainly, answer the question directly, and claim nothing.
+2. Hold the Three Laws spine. Law 1 gates entry: write no production code until a failing test asks
+   for it. Law 2 sizes the test: grow it only to the first failure, and a reference to a
+   not-yet-defined symbol counts as that failure. Read that clause at its own scope: it governs when to
+   stop WRITING the test, and it is not yet the bar you hand forward. Law 2 sizes the test; step 5
+   decides what you hand to the green step. Two different questions that happen to share the word
+   failure. (Law 3 is step 6.) The owned spine and the
+   test-selection moves -- running test list, one small step, the degenerate starter case, and
+   triangulation -- live in
+   [references/three-laws-and-test-selection.md](references/three-laws-and-test-selection.md); read it
+   to decide which test comes next.
+3. Detect the house test idiom, then route the stance. Match the shape of the existing tests first,
+   then route by structural control and seam availability through the route table in
+   [references/testing-stance/README.md](references/testing-stance/README.md), and open the routed leaf
+   to act. State the route you took and why. If the developer states a stance preference in plain
+   language -- for example "test this as a functional core", "use the message-matrix stance", or
+   "characterize it" -- honor that override over the auto-route and still state the route chosen. The
+   override is natural language; there is no flag.
+4. Structure the test and assert observable behavior. Shape it arrange-act-assert (or
+   given-when-then) and assert what the code does, not how it does it, per
+   [references/test-structure-and-assertions.md](references/test-structure-and-assertions.md); do not
+   restate it.
+5. Confirm it fails for the right reason. The red you hand forward must have RUN and failed, and the
+   failure must originate in the code under test -- not in module load, test collection, or setup. An
+   AssertionError on the behavior it pins is the SHARPEST form, because it names both the expected and
+   the received value. A not-implemented throw, or an error raised inside the test body at the point of
+   use, is a valid but blunter red -- a real signal about missing behavior, not a broken test. A build,
+   import, module-resolution or collection failure is a prerequisite to CLEAR, not the red you hand
+   forward. A test that passes on its first run while driving new behavior is a false green -- with one
+   carve-out: a characterization test is green by construction, because it pins existing behavior
+   rather than driving new behavior, so it is a pin and not a driver. F.I.R.S.T. is the quality
+   baseline. Explain which failure is the right one and why; do not run the suite unprompted. The
+   red-bar mechanics are in
+   [references/vitest-typescript-mechanics.md](references/vitest-typescript-mechanics.md) and the
+   F.I.R.S.T. baseline in
+   [references/test-structure-and-assertions.md](references/test-structure-and-assertions.md).
+6. Hand off forward to lz-tpp. Once the test is red for the right reason, making it pass is Law 3 --
+   the green step, and that is lz-tpp's job, not this skill's. Because a not-implemented throw now
+   counts as a valid red, lz-red no longer has to author a wrong-value production-side stub to reach
+   one, which shrinks the pressure on this seam without settling who owns that production-side stub.
+   Always qualify that contested word by side: a production-side stub is the symbol's own unwritten
+   implementation, while a collaborator-side stub stands in for something else entirely. Owned sources
+   assign the bare word to opposite sides, so when a developer uses it unqualified, establish
+   which side they mean before answering.
+
+The RED path end to end (Vitest + TypeScript). Classify (step 1): this is new behavior, so the next
+failing test is lz-red's. Pick the starter case (step 2) and shape it arrange-act-assert (step 4),
+asserting the observable result (step 4). The production symbol already compiles with a wrong body, so
+the bar is red for the right reason (step 5) -- an AssertionError on the value, not a compile error -- and
+turning it green is lz-tpp's job (step 6):
+
+```ts
+import { describe, it, expect } from 'vitest';
+
+// RED: the starter case for a new behavior. The production-side stub compiles, so the
+// bar is red for the right reason -- an AssertionError on the value, which is the
+// sharpest form of red. A not-implemented throw here would be valid too, just blunter.
+describe('applyDiscount', () => {
+  it('should take ten percent off a total', () => {
+    // Arrange
+    const total = 100;
+    // Act
+    const net = applyDiscount(total, 10);
+    // Assert
+    expect(net).toBe(90);
+  });
+});
+
+// Production-side stub: correct type signature, wrong body -- a not-a-number sentinel,
+// so it is wrong for EVERY input rather than accidentally right for a zero-percent
+// discount. Not yet implemented; lz-tpp picks the transformation that turns this green.
+function applyDiscount(total: number, percent: number): number {
+  return Number.NaN;
+}
+```
+
+Coach by default; hand off, do not drive. When the request is a QUESTION or asks for advice (what
+should I test next, is this a good test, how would you shape this), present the next failing test and
+the smallest move and let the developer write it -- do not edit their tests or run the suite unasked.
+When the request is an explicit COMMAND to write the test (write the failing test for me, add the red
+test), write the failing test and then stop; making it pass is the green step (lz-tpp), so do not
+drive it to green. Refusing to write the test when you were plainly asked to is the failure to avoid,
+not caution.
+
+## Reference material
+
+- Three Laws of TDD and choosing the next failing test (test list, degenerate/starter case,
+  triangulation): [references/three-laws-and-test-selection.md](references/three-laws-and-test-selection.md)
+- Structuring a test and asserting observable behavior (arrange-act-assert / given-when-then, the
+  four pillars): [references/test-structure-and-assertions.md](references/test-structure-and-assertions.md)
+- Naming a test for the behavior it pins: [references/naming.md](references/naming.md)
+- RED-step anti-patterns and the listen-to-the-tests meta-rule:
+  [references/anti-patterns.md](references/anti-patterns.md)
+- Vitest and TypeScript mechanics for the red step (test list, triangulation, type-level
+  assertions): [references/vitest-typescript-mechanics.md](references/vitest-typescript-mechanics.md)
+- Source-to-recommendation backing and owned/unowned access tiers:
+  [references/principle-backing.md](references/principle-backing.md)
+- The red-green-refactor loop this skill's red step opens, and who owns which rule in it (plugin-wide
+  reference, shared with lz-refactor): `${CLAUDE_PLUGIN_ROOT}/references/beck-tdd-by-example.md`
+- Adaptive testing-stance router -- navigation index (detection signals + route table); open a
+  leaf to act: [references/testing-stance/README.md](references/testing-stance/README.md)
+  - Functional core, imperative shell (Bernhardt):
+    [references/testing-stance/functional-core.md](references/testing-stance/functional-core.md)
+  - Message matrix, query vs command (Metz + Owen):
+    [references/testing-stance/message-matrix.md](references/testing-stance/message-matrix.md)
+  - Seams and legacy code (Feathers):
+    [references/testing-stance/seams-and-legacy.md](references/testing-stance/seams-and-legacy.md)

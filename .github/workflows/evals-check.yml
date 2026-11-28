@@ -1,0 +1,48 @@
+name: Evals check
+
+on:
+  push:
+    paths:
+      - 'tools/evals/**'
+      - 'evals/**'
+      - '.github/workflows/evals-check.yml'
+  pull_request:
+    paths:
+      - 'tools/evals/**'
+      - 'evals/**'
+      - '.github/workflows/evals-check.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Check (${{ matrix.os }}, Node.js ${{ matrix.node-version }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        # The majors tools/evals/package.json engines allows.
+        node-version: ['22', '24', '26']
+    steps:
+      # GitHub's Windows runners set core.autocrlf true; the byte-exact tests compare against the committed LF.
+      - run: git config --global core.autocrlf false
+      # The real-tree tests read the repository's history.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: npm
+          cache-dependency-path: tools/evals/package-lock.json
+      - run: npm ci --prefix tools/evals
+      - run: npm --prefix tools/evals run check

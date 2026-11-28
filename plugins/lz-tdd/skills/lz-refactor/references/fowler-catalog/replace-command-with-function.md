@@ -31,7 +31,13 @@ Before, a command with no state beyond its inputs:
 
 ```ts
 class RentalCharge {
-  constructor(private readonly days: number, private readonly dailyRate: number) {}
+  private readonly days: number;
+  private readonly dailyRate: number;
+
+  constructor(days: number, dailyRate: number) {
+    this.days = days;
+    this.dailyRate = dailyRate;
+  }
 
   execute(): number {
     return this.days * this.dailyRate;

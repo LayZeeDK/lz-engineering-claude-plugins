@@ -1,0 +1,49 @@
+{
+  "cells": [
+    {
+      "arm": "head",
+      "ref": "20061f7dfd52f7d50325c5a3485ad3f2f727d128",
+      "models": { "claude-sonnet-5-5": 5, "claude-opus-5-5": 3 },
+      "suites": [
+        { "suite": "routing" },
+        { "suite": "trigger-lz-tpp", "tags": ["baseline"] },
+        { "suite": "trigger-lz-red", "tags": ["baseline"] },
+        { "suite": "trigger-lz-refactor", "tags": ["baseline"] },
+        { "suite": "doing-lz-red", "cases": ["doing-lz-red-08"] },
+        { "suite": "doing-lz-red-invoke", "cases": ["doing-lz-red-invoke-08"] },
+        { "suite": "doing-lz-tpp", "cases": ["doing-lz-tpp-01"] },
+        { "suite": "doing-lz-tpp-invoke", "cases": ["doing-lz-tpp-invoke-01"] },
+        { "suite": "doing-lz-refactor", "cases": ["doing-lz-refactor-00"] },
+        { "suite": "doing-lz-refactor-invoke", "cases": ["doing-lz-refactor-invoke-00"] },
+        { "suite": "apply-lz-red", "cases": ["apply-lz-red-r1"] },
+        { "suite": "apply-lz-red-invoke", "cases": ["apply-lz-red-invoke-r1"] },
+        { "suite": "apply-lz-tpp", "cases": ["apply-lz-tpp-conjured"] },
+        { "suite": "apply-lz-tpp-invoke", "cases": ["apply-lz-tpp-invoke-conjured"] },
+        { "suite": "apply-lz-refactor", "cases": ["apply-lz-refactor-gr4"] },
+        { "suite": "apply-lz-refactor-invoke", "cases": ["apply-lz-refactor-invoke-gr4"] }
+      ]
+    },
+    {
+      "arm": "no-plugin",
+      "ref": null,
+      "models": { "claude-sonnet-5-5": 5, "claude-opus-5-5": 3 },
+      "suites": [
+        { "suite": "apply-lz-red", "cases": ["apply-lz-red-r1"] },
+        { "suite": "apply-lz-tpp", "cases": ["apply-lz-tpp-conjured"] },
+        { "suite": "apply-lz-refactor", "cases": ["apply-lz-refactor-gr4"] }
+      ]
+    },
+    {
+      "arm": "srvx",
+      "ref": "9491ad3ca298ee1764479c24895cfcefa76c3f66",
+      "models": { "claude-sonnet-5-5": 5, "claude-opus-5-5": 3 },
+      "suites": [{ "suite": "apply-lz-red-srvx" }, { "suite": "apply-lz-red-srvx-invoke" }]
+    },
+    {
+      "arm": "srvx-no-plugin",
+      "ref": null,
+      "models": { "claude-sonnet-5-5": 5, "claude-opus-5-5": 3 },
+      "suites": [{ "suite": "apply-lz-red-srvx" }]
+    }
+  ]
+}

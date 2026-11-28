@@ -30,7 +30,11 @@ Before, two report subclasses format the heading identically:
 
 ```ts
 abstract class Report {
-  constructor(protected readonly title: string) {}
+  protected readonly title: string;
+
+  constructor(title: string) {
+    this.title = title;
+  }
 }
 
 class SalesReport extends Report {
@@ -50,7 +54,11 @@ After, the method moves to the superclass and both subclasses inherit it:
 
 ```ts
 abstract class Report {
-  constructor(protected readonly title: string) {}
+  protected readonly title: string;
+
+  constructor(title: string) {
+    this.title = title;
+  }
 
   heading(): string {
     return `Report: ${this.title}`;

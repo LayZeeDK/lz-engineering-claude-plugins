@@ -55,7 +55,7 @@
 - No `.env` / `.env.*` files present. The plugin requires no environment variables or secrets.
 
 **Repo hygiene / tooling config:**
-- `.gitignore` - Excludes `node_modules/`, build output, `.oracle/`, `.gsd-opengsd/`, `.continue-here.md`, and (critically) the bulky per-run eval byproducts under `.claude/skills/*-workspace/**/` while keeping the tracked eval RECORD.
+- `.gitignore` - Excludes `node_modules/`, build output, `.oracle/`, `.continue-here.md`, and (critically) the bulky per-run eval byproducts under `.claude/skills/*-workspace/**/` while keeping the tracked eval RECORD.
 - `.worktreeinclude` - Copies the gitignored `.oracle/` clean-room source excerpts into new Claude Code worktrees.
 
 ## Platform Requirements

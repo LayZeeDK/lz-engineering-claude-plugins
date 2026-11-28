@@ -73,7 +73,7 @@ Verification performed (all PASS):
   "## Contents" TOC. Reference files are one level deep and link to no other reference file
   (verified: zero `.md` cross-links, zero `references/` link paths in the reference files).
 - **Repo hygiene:** All four files are 100% ASCII (0 non-ASCII code points; arrows are `->`,
-  no smart punctuation). No work-email literal (`consensus.dk` / `lgbn`) anywhere in the
+  no smart punctuation). No work-email literal (neither the work domain nor the local-part, in any form) anywhere in the
   skill. No contradiction of the locked `transformations.md` -- the TS/JS overlay is layered
   as a source-sanctioned heuristic on top of the caveat that `transformations.md`
   deliberately leaves out of scope.

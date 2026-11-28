@@ -238,7 +238,7 @@ no new identity string is introduced. This is the anti-drift rule from D-04.
 | Manifest/structure validation | Hand-check JSON + directory layout | `claude plugin validate . --strict` + `plugin-validator` agent | First-party validator knows the real schema; already passing today |
 | Skill quality review | Manual heuristic review | `skill-reviewer` agent | First-party agent applies the same standards used in plugin-dev's own skills |
 | Non-ASCII detection | Eyeball files / custom parser | `git grep -nP '[^\x00-\x7F]' -- <paths>` | PCRE byte-class is exact, ARM64-native, scriptable; verified working |
-| Secret/work-email leak scan | Manual review | `git grep -nE '@consensus\.dk' -- <scoped paths>` | Deterministic tripwire; the domain alone is a sufficient, low-false-positive needle |
+| Secret/work-email leak scan | Manual review | allowlist-inversion: enumerate email-shaped tokens, subtract the approved public gmail, assert empty remainder | Deterministic tripwire; never encodes the forbidden value (the needle is itself a leak) |
 
 **Key insight:** Every capability this phase needs already exists as a first-party tool or a
 sibling-repo artifact. The work is alignment + verification, not construction.
@@ -248,27 +248,27 @@ sibling-repo artifact. The work is alignment + verification, not construction.
 ### Pitfall 1: The work-email literal is ALREADY in tracked `.planning/` files (public repo leak)
 **What goes wrong:** D-04 says "verify absence with an allowlist check (grep ... across
 tracked files -> expect zero hits)" and claims "Confirmed absent at discuss time." Research
-found this is FALSE across the full tree. The work-email literal (the `consensus\.dk`
+found this is FALSE across the full tree. The work-email literal (the work
 domain) appears in two tracked files:
 - `.planning/phases/04-distribution-hygiene/04-CONTEXT.md`
 - `.planning/phases/04-distribution-hygiene/04-DISCUSSION-LOG.md`
 
 Both were written by GSD tooling while documenting the "work email must appear nowhere"
 rule. Because the GitHub repo is public, `.planning/` is public too, so the work email is
-currently exposed. A full-tree guard (`git grep -qE '@consensus\.dk'`) returns exit 0 (FOUND)
+currently exposed. A full-tree work-email allowlist-inversion guard leaves a non-empty remainder (FOUND)
 today [VERIFIED during research].
 **Why it happens:** GSD discuss-phase artifacts quote the rule verbatim, embedding the very
 literal the rule forbids. The "confirmed absent" note referred to the shippable surface, not
 the whole tree.
 **How to avoid:** The plan MUST make an explicit scope decision (see Open Questions Q1).
 Recommended: REDACT the literal in those two `.planning/` files (replace with a clearly
-non-matching form such as `<work-email-redacted>` or `lgbn[at]consensus[dot]dk`) so the
+non-matching form such as `<work-email-redacted>`) so the
 FULL-TREE guard truthfully returns zero hits -- this is the only reading that satisfies
 DIST-02's "appears nowhere in the repo" for a public repo. Editing GSD planning records to
 redact a secret is safe (GSD does not re-parse the email from them). Do NOT introduce any
 NEW occurrence: the plan/RESEARCH/SUMMARY docs must reference the work email only in a
 redacted/escaped form.
-**Warning signs:** `git grep -lE '@consensus\.dk'` returns any path; the guard "passes" only
+**Warning signs:** the work-email allowlist-inversion guard leaves a non-empty remainder; the guard "passes" only
 because it was silently scoped to exclude `.planning/`.
 
 ### Pitfall 2: `.planning/` already contains non-ASCII; a full-tree ASCII gate fails on out-of-scope content
@@ -292,9 +292,9 @@ work-email literal or the plain domain inside the guard command example becomes 
 that very guard, failing DIST-02. Likewise a doc that pastes an em-dash while describing the
 ASCII rule trips the ASCII gate.
 **Why it happens:** Documenting a "search for X" command naturally embeds X.
-**How to avoid:** Write the needle with an escaped dot (`@consensus\.dk`) -- the escaped form
-does NOT match the plain-dot regex, so a doc containing the command does not self-trip
-[VERIFIED: this file uses the escaped form and the full-tree guard does not match this file].
+**How to avoid:** Never write the forbidden value as a search needle, even escaped -- the needle
+is itself a leak. Detect by allowlist-inversion instead: assert the only email-shaped token
+present is the approved public gmail and flag everything else, so a guard doc never self-trips.
 Refer to the work email in prose only in a redacted form. When documenting the ASCII rule,
 use ASCII replacements (`->`, straight quotes) exclusively.
 **Warning signs:** The guard reports a hit whose only source is the guard's own documentation.
@@ -375,18 +375,21 @@ git grep -nP '[^\x00-\x7F]' -- 'plugins/' '.claude-plugin/' 'README.md' 'LICENSE
 
 ### Work-email guard (DIST-02)
 ```bash
-# Escaped-dot needle so this command, when committed in a doc, does not match itself.
+# Allowlist-inversion: enumerate email-shaped tokens, subtract the approved public gmail,
+# assert the remainder is empty. Never encode the forbidden value (the needle is itself a leak).
+EMAIL_RE='[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}'
+
 # Publishable-surface scope (excludes GSD planning meta-docs):
-git grep -qE '@consensus\.dk' -- ':(exclude).planning/'
-echo "email(publishable) rc=$?   # 1 = absent (PASS), 0 = FOUND (FAIL)"
+test -z "$(git grep -hoiE "$EMAIL_RE" -- ':(exclude).planning/' | sort -u | rg -iv 'larsbrinknielsen@gmail\.com')"
+echo "email(publishable) rc=$?   # 0 = only approved gmail present (PASS)"
 
 # Full-tree truth check (recommended after redacting .planning/ per Pitfall 1):
-git grep -qE '@consensus\.dk'
-echo "email(full-tree) rc=$?      # target: 1 = absent"
+test -z "$(git grep -hoiE "$EMAIL_RE" | sort -u | rg -iv 'larsbrinknielsen@gmail\.com' | rg -iv 'lz-tdd@')"
+echo "email(full-tree) rc=$?      # target: 0 = empty remainder"
 
-# List any offenders:
-git grep -lE '@consensus\.dk'
-# VERIFIED 2026-07-02: full-tree rc=0 (FOUND in 2 .planning/ files); publishable-scope rc=1 (absent).
+# List any non-approved tokens if it fails:
+git grep -hoiE "$EMAIL_RE" | sort -u | rg -iv 'larsbrinknielsen@gmail\.com' | rg -iv 'lz-tdd@'
+# VERIFIED 2026-07-02: publishable-scope empty remainder (PASS); .planning/ then still had the leak, since redacted.
 ```
 
 ### Confirm required strings ARE present (positive checks)
@@ -443,7 +446,7 @@ load-bearing and is surfaced explicitly here (full detail in Pitfall 1):
 
 | Category | Items Found | Action Required |
 |----------|-------------|-----------------|
-| Secrets/PII in tracked files | Work-email literal (`consensus\.dk` domain) present in `.planning/phases/04-distribution-hygiene/04-CONTEXT.md` and `04-DISCUSSION-LOG.md` | Redact in both files (or make an explicit guard-scope decision) so DIST-02 "appears nowhere" holds for the public repo -- see Open Questions Q1 |
+| Secrets/PII in tracked files | Work-email literal (the work domain) present in `.planning/phases/04-distribution-hygiene/04-CONTEXT.md` and `04-DISCUSSION-LOG.md` | Redact in both files (or make an explicit guard-scope decision) so DIST-02 "appears nowhere" holds for the public repo -- see Open Questions Q1 |
 | Non-ASCII in tracked files | `.planning/STATE.md` (em-dash + U+2588 progress bars), `.planning/phases/01-.../01-SECURITY.md` (em-dash) | None for DIST-03 (out of shippable scope); scope the ASCII gate to publishable surface -- Pitfall 2 |
 | Build artifacts | None -- pure JSON + Markdown, no build step | None |
 | OS-registered state | None | None |
@@ -470,7 +473,7 @@ load-bearing and is surfaced explicitly here (full detail in Pitfall 1):
 | A4 | `.planning/` is published to the public GitHub repo (so its contents count for DIST-02 "nowhere in the repo") | Pitfall 1 / Open Q1 | Medium -- if `.planning/` is stripped before/at ship, the public leak concern narrows to a git-history concern only; the redaction recommendation still holds as the safe default |
 
 **Note on this file:** written ASCII-only and deliberately avoids the plain work-email
-literal and plain work-domain (uses the escaped `@consensus\.dk` form) so it does not itself
+literal and plain work-domain (it names the check only by allowlist-inversion, never as a needle) so it does not itself
 trip the DIST-02/DIST-03 gates when committed under `.planning/`.
 
 ## Open Questions (RESOLVED)
@@ -478,10 +481,10 @@ trip the DIST-02/DIST-03 gates when committed under `.planning/`.
 1. **What is the correct scope for the DIST-02 work-email guard, given the literal already
    exists in two tracked `.planning/` files of a PUBLIC repo?** [RESOLVED: adopted the
    redact-and-full-tree-guard recommendation; the two `.planning/` files were redacted and the
-   unpushed commit `3c313a9` rewritten during planning -- full-tree `git grep -qE '@consensus\.dk'`
-   now returns rc=1. Pre-existing PUBLIC Phase-1 history exposure flagged separately as a
+   unpushed commit `3c313a9` rewritten during planning -- the full-tree work-email allowlist-inversion
+   guard now leaves only the approved public gmail. Pre-existing PUBLIC Phase-1 history exposure flagged separately as a
    user-gated, out-of-scope decision.]
-   - What we know: Full-tree `git grep -qE '@consensus\.dk'` returns FOUND today (2 hits in
+   - What we know: the full-tree work-email allowlist-inversion guard leaves a non-empty remainder today (2 hits in
      `04-CONTEXT.md`, `04-DISCUSSION-LOG.md`); publishable-scope (excluding `.planning/`)
      returns absent. D-04 wants "zero hits across tracked files"; DIST-02 wants "appears
      nowhere in the repo."
@@ -533,7 +536,7 @@ trip the DIST-02/DIST-03 gates when committed under `.planning/`.
 | Req ID | Behavior | Type | Command / Action | Exists? |
 |--------|----------|------|------------------|---------|
 | DIST-01 | README documents install + usage + invocation | doc-presence | `git grep -nF '/plugin marketplace add LayZeeDK/lz-engineering-claude-plugins' -- README.md` (and the install + `/lz-tdd:lz-tpp` strings) | Wave 0 (README not yet written) |
-| DIST-02 | MIT LICENSE present, public contact, work email nowhere | file + guard | LICENSE exists + `git grep -nE 'larsbrinknielsen@gmail\.com' -- LICENSE README.md` present + `git grep -qE '@consensus\.dk'` absent | Wave 0 (LICENSE not yet written; guard command verified) |
+| DIST-02 | MIT LICENSE present, public contact, work email nowhere | file + guard | LICENSE exists + `git grep -nE 'larsbrinknielsen@gmail\.com' -- LICENSE README.md` present + work-email allowlist-inversion guard clean (only approved gmail present) | Wave 0 (LICENSE not yet written; guard command verified) |
 | DIST-03 | Passes CLI validate + agents; ASCII-only | gate + agents | `claude plugin validate . --strict` (verified PASS) + ASCII gate (verified clean on scope) + `plugin-validator` + `skill-reviewer` reports triaged per D-06 | Partial (CLI gate green now; agents run at execute time) |
 
 ### Sampling Rate

@@ -50,10 +50,13 @@ class MailService {
 
 // Concrete Command: binds a receiver to an action and its parameters.
 class SendMailCommand implements Command {
-  constructor(
-    private readonly service: MailService,
-    private readonly recipient: string,
-  ) {}
+  private readonly service: MailService;
+  private readonly recipient: string;
+
+  constructor(service: MailService, recipient: string) {
+    this.service = service;
+    this.recipient = recipient;
+  }
 
   execute(): void {
     this.service.deliver(this.recipient);

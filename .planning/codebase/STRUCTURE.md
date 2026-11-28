@@ -32,7 +32,7 @@ lz-engineering-claude-plugins/
 |                   |-- extra-patterns-catalog/  # README + 5 non-GoF pattern leaves
 |                   '-- functional-catalog/   # README + 19 FP idiom leaves
 |-- .claude/
-|   |-- settings.json                 # OpenGSD coexistence + GSD skill toggles
+|   |-- settings.local.json           # local, untracked
 |   |-- agents/                       # oracle.md, oracle-reviewer.md (clean-room gate)
 |   '-- skills/                       # *-workspace/ eval harnesses (dev tooling)
 |-- .oracle/                          # gitignored copyrighted source excerpts
@@ -101,8 +101,7 @@ lz-engineering-claude-plugins/
 
 **Configuration:**
 - `plugins/lz-tdd/.claude-plugin/plugin.json`: plugin identity/version/keywords
-- `.claude/settings.json`: OpenGSD coexistence, GSD skill toggles, agent deny list
-- `.gitignore`: excludes `.oracle/`, `.gsd-opengsd/`, eval run byproducts
+- `.gitignore`: excludes `.oracle/`, eval run byproducts
 
 **Core Logic (knowledge content):**
 - `plugins/lz-tdd/skills/lz-refactor/references/smells.md`: smell taxonomy index
@@ -166,11 +165,6 @@ lz-engineering-claude-plugins/
 - Generated: Partly (run outputs are generated and gitignored; eval sets and
   `*-RESULTS.md` records are hand-authored and tracked)
 - Committed: Record yes, raw run byproducts no
-
-**`.gsd-opengsd/`, `.gsd-migration-backup/`:**
-- Purpose: local OpenGSD runtime and migration backup
-- Generated: Yes
-- Committed: No (`.gsd-opengsd/` gitignored)
 
 **`.planning/`:**
 - Purpose: GSD planning artifacts and this codebase map

@@ -1,380 +1,211 @@
 # Feature Research
 
-**Domain:** Claude Code agent skill (coach + reference) operationalizing Robert C. Martin's Transformation Priority Premise (TPP) for red-green-refactor TDD, shipped inside the `lz-tdd` plugin as `lz-tpp` (`/lz-tdd:lz-tpp`).
-**Researched:** 2026-07-02
-**Confidence:** HIGH
+**Domain:** Dual-mode Claude Code agent skill -- lz-red, the RED step (choose + write the next failing UNIT test well) of red-green-refactor TDD, then hand off to lz-tpp.
+**Researched:** 2026-07-18
+**Confidence:** HIGH (framings of every locked source verified against authoritative talks/books/primary posts; Vitest API and Osherove-3rd-ed naming nuance are MEDIUM -- see Source Traceability)
 
-> This file has two jobs. Part 1 is the SKILL feature landscape (what a high-quality
-> agent skill contains and what this coach+reference skill must offer). Part 2 is the
-> verbatim-faithful TPP SUBJECT MATTER (the transformation list, concepts, worked
-> examples, and coach decision procedure) that the skill's reference material and the
-> coach behavior depend on. Downstream consumers (requirements + roadmap + skill
-> content) should treat Part 2 as the canonical source-of-truth extract.
+## What RED Actually Consists Of
 
----
+RED is not "write a test." It is a disciplined micro-decision loop, and lz-red must coach each move without straying into the GREEN step (lz-tpp) or the REFACTOR step (lz-refactor):
 
-# PART 1 -- Skill Feature Landscape
+1. PICK the next failing test (from a test list, one small step at a time, degenerate-first, triangulating toward generality).
+2. STRUCTURE it (Arrange-Act-Assert / Given-When-Then, assert-first, evident data, one concept per test).
+3. ASSERT observable behavior, not implementation (Khorikov four pillars + three styles; Metz message matrix; Cooper public-API-only).
+4. NAME it after the behavior (BDD "should" / Osherove three-part).
+5. Make it FAIL for the right reason (Three Laws Law 2: write only enough to fail; watch the red bar; not-compiling counts as failing).
+6. Match the codebase's testing STANCE adaptively (house idiom always; route by structural control / seams to Bernhardt / Metz / Feathers; "listen to the tests").
+7. HAND OFF to lz-tpp for the minimal transformation that turns the bar green (Three Laws Law 3).
+
+The load-bearing boundary: lz-red owns "what test, shaped how, asserting what, named how, failing how." The moment the question becomes "what minimal code change makes it pass," that is lz-tpp. The moment it becomes "improve working code without changing behavior," that is lz-refactor. lz-red re-uses the same three-way classify-first seam that lz-refactor step 1 already establishes.
 
 ## Feature Landscape
 
 ### Table Stakes (Users Expect These)
 
-Features the skill is effectively useless without. Missing these = the skill fails to trigger, fails to help, or teaches TPP wrong.
+Every capability below is core to a credible RED coach. Missing any one leaves the skill unable to guide a full RED move. Each is traced to a locked source.
 
-| Feature | Why Expected | Complexity | Notes |
-|---------|--------------|------------|-------|
-| YAML frontmatter with `name` + `description` | Required by the skill format; the `description` is the sole triggering mechanism | LOW | `name` max 64 chars, lowercase/numbers/hyphens; `description` max 1024 chars. See Anthropic skill-authoring rules. |
-| Triggering description with both "what" AND "when" + concrete trigger terms | Claude only consults a skill when the description matches intent; TDD/TPP/transformation vocabulary must appear | MEDIUM | Third-person phrasing ("This skill should be used when..."). Slightly "pushy" to combat Claude's tendency to under-trigger. Must NOT over-trigger on generic "write code" requests. |
-| Correct, complete transformation priority list (bundled reference) | This is the entire subject matter; if the list is wrong or incomplete the skill is worse than nothing | MEDIUM | Use the revised 14-item FibTPP list as canonical (Part 2). Cite the source. This is the "if everything else fails, this must be correct" core value from PROJECT.md. |
-| Coach decision procedure: failing test + current code -> next transformation by priority | The primary Core Value: pick the simplest transformation that passes the red test | HIGH | Needs a concrete, repeatable algorithm (see Part 2, "Coach Decision Procedure"), not vibes. |
-| Reference behavior: explain the list + rationale on demand | Users ask "what is TPP / why this order / what does (constant->scalar) mean" | LOW | Straight exposition from the bundled reference; progressive-disclosure friendly. |
-| Progressive disclosure (SKILL.md lean; details in `references/`) | Format best practice; keeps triggering metadata cheap and body focused | MEDIUM | SKILL.md body under ~500 lines / ~1500-2000 words; full list + worked examples live in a reference file loaded on demand. |
-| Grounding in authoritative sources | Credibility; the premise has subtle, evolving ordering that memory gets wrong | LOW | 2 Clean Code blog posts (+ NDC 2011 talk transcript, produced later). Cite them in the reference file. |
-| Concrete worked example(s) | Skills work far better with concrete examples than abstract rules | MEDIUM | Fibonacci (from FibTPP) is the canonical worked example; Word Wrap illustrates the impasse. See Part 2. |
-| Explicit red-green-refactor framing | TPP only makes sense as a discipline layered on TDD's cycle | LOW | State the amended process (prefer high-priority transformations in green; pose tests passable by high-priority transformations in red; backtrack on impasse). |
-| Clear distinction: transformations vs refactorings | The whole premise rests on this dichotomy; conflating them corrupts the advice | LOW | Transformations change behavior (make a failing test pass); refactorings change structure only. |
+| Feature (candidate category) | Why Expected | Source (locked) | Complexity | Notes |
+|---|---|---|---|---|
+| **1. Test selection / ordering** -- keep a test list; take one small step (one-step test); start degenerate/starter (empty, zero, null); triangulate by adding a second/third example to force generality | RED begins with choosing WHICH test; picking too big a step or skipping the degenerate case is the most common RED failure | Beck, *TDD by Example* (Test List, One Step Test, Starter Test, Triangulate) | MEDIUM | Triangulation here is the RED facet only (add another example to select the next test). The GREEN facet (Fake It -> generalize, Obvious Implementation) stays in lz-tpp. Degenerate-first aligns with lz-tpp `{} -> nil` but lz-red picks the test, lz-tpp picks the transformation. |
+| **2. Test structure** -- Arrange-Act-Assert / Given-When-Then; assert-first; evident/intention-revealing data; one concept per test | A well-formed test is table stakes; shape is what makes a RED test readable and diagnostic | Bill Wake (Arrange-Act-Assert); Dan North (Given-When-Then); Beck, *TDD by Example* (Assert First, Test Data, Evident Data, Isolated Test) | LOW-MEDIUM | AAA and GWT are the same skeleton in two vocabularies -- offer both, match house idiom. Assert-first ("write the assertion, then work backward") is a Beck RED-authoring pattern, not a green move. |
+| **3. Assertion design** -- assert observable behavior not implementation; choose output- / state- / communication-based style; the four pillars as a quality lens | Deciding WHAT to assert is where RED tests are made durable or made fragile; this is the single highest-value RED skill | Khorikov, *Unit Testing* (four pillars: protection-against-regressions, resistance-to-refactoring, fast-feedback, maintainability; three styles: output/state/communication; observable-behavior-vs-implementation); Metz "Magic Tricks of Testing" (query->assert-return, incoming-command->assert-public-side-effect, self/outgoing-query->ignore, outgoing-command->expect-to-send); Cooper "TDD Where Did It All Go Wrong" (test through the module/public API) | MEDIUM-HIGH | The Metz matrix is design-agnostic and works on any public boundary; the Khorikov styles map cleanly onto the stance router (output <-> Bernhardt functional core; state/communication <-> Metz boundary; characterization <-> Feathers). |
+| **4. Test naming** -- name after the behavior (BDD "should ..."); Osherove UnitOfWork_StateUnderTest_ExpectedBehavior as a documented alternative | A behavior-shaped name is expected of any test coach and doubles as living documentation | Dan North (*Introducing BDD*: "should", ubiquitous language, GWT); Roy Osherove (*Art of Unit Testing*: three-part convention; 3rd ed JS relaxes toward readability) | LOW | Primary = behavior/BDD naming (a name that fails the "should the class do X?" sentence test signals the behavior belongs elsewhere). Osherove three-part is the alternative for teams that prefer it; the 3rd-ed (JS) readability relaxation is noted with MEDIUM confidence. |
+| **5. Fail for the right reason** -- write only enough test to fail (not-compiling is failing); watch the red bar; confirm it fails for the asserted reason, not a typo/compile error/false-green | The defining discipline of RED; without it TDD degenerates into test-after | Robert C. Martin (Three Laws of TDD, Law 2); Beck, *TDD by Example* (run it, see red before green) | LOW | This is the Three Laws spine the whole procedure hangs on. Exactly one red test at a time; Law 1 gates entry (no production code before a failing test), Law 3 is the lz-tpp handoff. |
+| **6. Adaptive testing-stance router** -- detect + match the house test idiom always; route by structural control / seam availability: controllable structure -> Bernhardt functional core-imperative shell; testable public boundary -> Metz query/command matrix; no seams (legacy) -> Feathers seams + characterization tests; meta-rule "listen to the tests" (test pain = design feedback); optional override phrase, NO flag | Brownfield code cannot assume one school; a coach that imposes a single stance is wrong half the time -- this is the milestone's crown capability | Gary Bernhardt (*Boundaries*: functional core / imperative shell; *Fast Test Slow Test*: isolate, no I/O); Sandi Metz + Katrina Owen (*Magic Tricks of Testing*; message matrix); Michael Feathers (*WELC*: seams, characterization tests); Beck (*Test Desiderata* / design-feedback); GOOS "listen to the tests" (counterpoint) | HIGH | See Differentiators -- this is the primary differentiator, listed here because a RED coach that ignores house idiom is not credible. Feathers path overlaps lz-refactor/refactoring-without-tests.md (same author, different phase: lz-red writes the first characterization/failing test when ADDING behavior to seamless legacy; lz-refactor pins behavior before RESTRUCTURING). Cross-link, do not duplicate. |
+| **7. TypeScript + Vitest mechanics mapping** -- `it.todo`/`test.todo` as the test list; `test.each`/`it.each` for triangulation; `expectTypeOf`/`assertType` (+ `--typecheck`) for type-level RED; `vi.fn`/`vi.spyOn`/`vi.mock` used with restraint; watch mode as the red-green feedback loop | The locked stack is TS + Vitest; a coach that only speaks in the abstract is not usable at the keyboard | Locked stack decision (PROJECT.md); Vitest API | MEDIUM | Language-agnostic principles stay primary; Vitest is the concrete rendering layer. Mechanics must be `tsc --strict`-clean, matching the 0.0.1/0.0.2 house rule. Mocks-with-restraint enforces Metz/Cooper/Khorikov at the API level. |
+| **8. lz-tpp seam** -- Three Laws Law 1/2 (RED) -> Law 3 (GREEN) handoff; classify-first (RED vs GREEN vs REFACTOR); reverse pointer lz-tpp -> lz-red | Without the seam the RGR loop is not closed; lz-tpp already exists and expects the handoff | Robert C. Martin (Three Laws); existing lz-tpp SKILL.md seam pattern | LOW | Mirror lz-refactor's step-1 classification and its lz-tpp seam block. PROJECT.md carries the tech-debt to add the reverse lz-tpp -> lz-red pointer on the next lz-tpp edit; lz-red ships the forward pointer. |
+| **9. Anti-pattern reference** -- a lazy-loaded leaf naming RED anti-patterns and the observable-behavior fix, including Cooper's over-mock / test-per-class warning | A reference skill is expected to explain what NOT to do, mirroring lz-refactor's de-patterning leaves | Cooper (over-mock, test-per-class, mock internals); Khorikov (testing private methods/state; communication-style overuse); Metz (ignore self/outgoing-query); Beck (*Test Desiderata*: structure-insensitive, deterministic, specific); Bernhardt / F.I.R.S.T. (slow/flaky) | MEDIUM | See Anti-Features. This is content the skill teaches, distinct from behaviors the skill refuses. |
 
 ### Differentiators (Competitive Advantage)
 
-Features that set `lz-tpp` apart from "read Uncle Bob's blog" or a generic TDD prompt. Aligned with PROJECT.md Core Value.
+Where lz-red earns its keep over an unaided model or a generic "write tests" prompt.
 
-| Feature | Value Proposition | Complexity | Notes |
-|---------|-------------------|------------|-------|
-| Language-agnostic principles + concrete TypeScript examples | Broad applicability grounded in the user's primary stack; the blogs use Java/Ruby only | MEDIUM | Translate each transformation to idiomatic TS; note the TS/functional-vs-imperative ordering nuance (recursion vs iteration). |
-| Coach that reads CURRENT code + the failing test, not just recites theory | Turns a static essay into an in-loop pairing partner during TDD | HIGH | The genuinely novel capability. Requires the decision procedure to inspect what transformation each candidate implementation would require. |
-| Impasse / local-maximum escape guidance | The premise's actual payoff: avoid rewrites by choosing the next TEST (not just the next code) wisely | MEDIUM | Coach should suggest posing a different, simpler test (or `@Ignore`/skip + backtrack) when the only path forward is a low-priority transformation. |
-| Language-specific ordering awareness (recursion vs iteration) | Uncle Bob himself says the list is language-specific; naive tools ignore this | MEDIUM | For TS/JS (no TCO in practice), prefer `(if->while)` + `(variable->assignment)` above the recursion transformations, mirroring his Java guidance. Flag as an opinionated default, not dogma. |
-| "Name the transformation" annotations | Teaches while it coaches; each recommendation cites which transformation and why it is highest-priority available | LOW | Cheap, high pedagogical value; reinforces the vocabulary. |
-| Skill-creator eval coverage (triggering + behavior) | Measurable triggering accuracy and coaching quality; matches the build tooling constraint | MEDIUM | Trigger evals (should/should-not-trigger) + behavior evals (given test+code, does it pick the right transformation). Part of authoring workflow, not shipped runtime. |
+| Feature | Value Proposition | Source (locked) | Complexity | Notes |
+|---|---|---|---|---|
+| **Adaptive testing-stance router (as a decision procedure, not a lecture)** | No mainstream tool routes test stance by structural control / seam availability and matches house idiom; this is the milestone's core bet and the thing an unaided model does inconsistently | Bernhardt / Metz / Feathers / Beck (see cat 6) | HIGH | Encode as an explicit routing step (like lz-refactor's smell-routing and APPLY/DECLINE net-cost gate): detect idiom -> assess control/seams -> pick stance -> pick assertion style. State the route chosen and why. |
+| **"Listen to the tests" as design feedback** | Turns a hard-to-write RED test into a signal ("the test is hard because the design has a seam problem") instead of a reason to over-mock -- reframes RED as a design tool | GOOS (counterpoint: "listen to your tests"); Beck (*Test Desiderata*: test difficulty as feedback) | MEDIUM | The unifying meta-rule the milestone brief names. When a test wants heavy mocking or private access, that is a routing signal toward Bernhardt (extract a functional core) or Feathers (introduce a seam), not toward more doubles. |
+| **Type-level RED** -- `expectTypeOf`/`assertType` failing tests for type contracts | TS-specific: lets RED drive type design, not just runtime behavior; unique to the locked stack | Locked stack; Vitest type-testing API | MEDIUM | An advanced leaf; requires `vitest --typecheck`. Keep behind progressive disclosure. |
+| **Property-based RED with fast-check** -- express an invariant/property as the failing test, shrink to a minimal counterexample | Advanced RED technique that finds the degenerate case for you and states behavior as a universal rather than by example | fast-check (locked as advanced technique) | MEDIUM-HIGH | A lazy-loaded advanced leaf, not a default. Frame as "when example-based triangulation is not enough." |
+| **Test Desiderata as a tradeoff lens (not dogma)** | Presents good-test properties as tradeoffs to optimize, matching lz-tpp's "heuristic not law" framing and avoiding cargo-cult rules | Beck (*Test Desiderata*: 12 properties, "no property given up without a property of greater value") | LOW | Lets the coach explain WHY a test is shaped a certain way, and permit a reasoned deviation -- consistent with the house voice. |
 
 ### Anti-Features (Commonly Requested, Often Problematic)
 
-Features that seem good but create problems. Documented to prevent scope creep and to keep the skill trustworthy.
+Behaviors the skill must refuse or steer away from. First group = capabilities out of scope for lz-red; second group = testing anti-patterns lz-red must not encourage.
 
 | Feature | Why Requested | Why Problematic | Alternative |
-|---------|---------------|-----------------|-------------|
-| Over-broad / "pushy everywhere" description | Fear of under-triggering | Triggers on every "write a function" request, becoming noise and eroding trust | Scope triggers to TDD / red-green-refactor / "next transformation" / TPP / "make the failing test pass" contexts; include near-miss should-NOT-trigger evals. |
-| Presenting TPP as rigid, mandatory law ("ALWAYS use transformation N") | Feels authoritative and simple | Contradicts the source: Uncle Bob calls the ordering "informal at best", "roughly ordered", "not likely" perfectly correct, and language-specific. Rigid dogma produces bad code and false confidence | Present as a heuristic/thinking aid; explain the WHY; allow deviation with a stated reason. Explain-the-why over MUST/NEVER. |
-| Bloated SKILL.md (full list + all examples + theory inline) | "Put everything in one place" | Wastes context on every trigger; violates progressive disclosure; harder to maintain | Lean SKILL.md (workflow + decision procedure summary + pointers); full list, rationale, and worked examples in `references/`. |
-| Auto-editing the user's code / running the tests itself | "Just make it green for me" | Removes the human from the TDD loop, the point of the discipline; risky and surprising | Recommend the next transformation and show the minimal diff; let the developer apply and run. Coach, don't drive. |
-| Auto-generating a full TPP tool (refactoring-engine style transformation application) | Uncle Bob floated "tool support for transformations" | Massive scope; language-specific ASTs; out of scope for a v1 skill and unvalidated | Ship guidance now; a mechanical transformer is a v2+ research topic at best. |
-| Deep per-language guides (Java, C#, Python, Go, Clojure...) | Broad appeal | Multiplies maintenance; unvalidated demand; dilutes focus | Agnostic principles + TS examples for v1 (explicit PROJECT.md boundary); add languages only on demonstrated demand. |
-| Bundling multiple TDD skills (naming, triangulation) into lz-tpp | "One skill to rule TDD" | Muddies triggering and the single-responsibility of the skill | Keep lz-tpp focused on TPP; future TDD skills are separate skills under `lz-tdd`. |
-| Reconstructing the list "from memory" / trusting the 12-item version as final | Simplicity | The original post's list was superseded by FibTPP (added tail-recursion + case, reordered recursion) | Use the revised 14-item list as canonical; cite; note the evolution (Part 2). |
+|---|---|---|---|
+| **Outside-in / acceptance / double-loop RED** (write a failing acceptance test that drives inner unit tests) | Natural next question once unit RED works; GOOS-style | Explicitly DEFERRED this milestone; pulls in test-double-heavy mockist style and acceptance tooling, ballooning scope | Unit RED only in 0.0.3; note the deferral and point forward to a later milestone |
+| **Write and run the implementation to make it pass** | "Just make the test green for me" | That is the GREEN step -- lz-tpp's job; duplicating it fractures the seam | Hand off to lz-tpp with the failing test; coach, do not drive |
+| **Refactor the code / clean up structure** | "While we are here, tidy this" | That is the REFACTOR step -- lz-refactor's job | Classify-first; route structure-only work to lz-refactor |
+| **Auto-edit tests and run the suite unprompted** | "Do it for me" | Unrequested edits to a developer's tests are unwelcome; breaks the coach-don't-drive contract both sibling skills honor | Mirror lz-tpp/lz-refactor QUESTION vs COMMAND routing: present the test + next step on a question; write it only on an explicit command, then stop |
+| **Impose one testing school regardless of codebase** | Simpler to teach one dogma | Wrong on brownfield / mismatched-idiom code; the whole point of the adaptive router | The stance router: match house idiom, route by control/seams |
+| **Mock everything / test-per-class / test private methods** | Feels "thorough"; mirrors misread TDD | Couples tests to implementation, makes refactoring break tests, over-specifies | Cooper: test through the public API, trigger on new behavior not new class; Metz: ignore self + outgoing-query; Khorikov: assert observable behavior; mock only true external boundaries |
+| **Coverage-percentage targets as a RED goal** | Managers/tools ask for a number | Coverage is an output, not a RED driver; chasing it produces low-value tests | Trigger a new test on a new behavior (Cooper); optimize desiderata (Beck), not a percentage |
+| **DHH "TDD is dead" / test-induced-design-damage framing** | Well-known contrarian talking point | HARD BAN by maintainer decision | Do not cite or reference it in any leaf; use Bernhardt/Metz/Feathers for the design-vs-test tension instead |
 
 ## Feature Dependencies
 
 ```
-[Correct transformation priority list (Part 2)]
-    +--requires--> [Grounding in authoritative sources]
-    +--enables---> [Reference behavior: explain list on demand]
-    +--enables---> [Coach decision procedure]
-                        +--requires--> [transformations-vs-refactorings distinction]
-                        +--requires--> [red-green-refactor framing]
-                        +--enhanced-by--> [Impasse / local-maximum escape guidance]
-                        +--enhanced-by--> [Language-specific ordering awareness]
+Robert C. Martin -- Three Laws of TDD (cat 5)         <- the spine everything hangs on
+    |
+    +--requires--> Test selection/ordering (cat 1)
+    |                   |
+    |                   +--feeds--> lz-tpp seam (cat 8)  [after fail, hand to GREEN]
+    |
+    +--requires--> Test structure (cat 2)
+    |                   ^
+    |                   |--enhances-- Test naming (cat 4)   [name = the selected behavior]
+    |
+    +--requires--> Assertion design (cat 3)
+                        |
+                        +--requires--> Adaptive stance router (cat 6)  [style depends on stance]
+                        |
+                        +--underpins--> Anti-pattern reference (cat 9)
 
-[Triggering description] --gates--> [everything] (skill never runs if it doesn't trigger)
+TypeScript + Vitest mechanics (cat 7) --renders--> cats 1-6   [concrete layer under all principles]
 
-[Progressive disclosure] --organizes--> [SKILL.md body] + [references/*.md]
-    (list + worked examples live in references/, not SKILL.md body)
-
-[Concrete TypeScript examples] --enhances--> [Coach decision procedure]
-                                             + [Reference behavior]
-
-[Skill-creator evals] --validates--> [Triggering description] + [Coach decision procedure]
-
-[Over-broad description] --conflicts--> [Triggering description] (mutually exclusive goals)
-[Auto-editing code]     --conflicts--> [Coach, don't drive] behavior
+lz-red --classify-first--> { RED = stay | GREEN = lz-tpp | REFACTOR = lz-refactor }
+    conflicts-with (scope): Outside-in / acceptance RED (deferred)
 ```
 
 ### Dependency Notes
 
-- **Coach requires the transformations-vs-refactorings distinction:** the coach must classify a proposed code change as behavior-changing (a transformation, subject to the priority list) versus structure-only (a refactoring, done in the refactor step, not priority-ranked). Getting this wrong makes every recommendation suspect.
-- **Coach requires red-green-refactor framing:** priority applies during green (which transformation makes the current red test pass) and during red (choose a test passable by a high-priority transformation). Without the cycle, "priority" has no phase to live in.
-- **Impasse guidance enhances the coach:** the highest-value move is often changing the NEXT TEST, not the code. This depends on the coach already understanding the priority ordering.
-- **Language-specific ordering awareness enhances (does not replace) the canonical list:** the default is Uncle Bob's list; the TS nuance (iteration preferred over recursion) is an opinionated overlay he explicitly sanctions.
-- **Triggering description gates everything:** a skill that does not trigger is inert regardless of body quality; this is why triggering has its own eval loop in skill-creator.
+- **cats 1-6 require the Three Laws spine (cat 5):** Law 1 gates entry (no production code before a failing test), Law 2 sizes the test (only enough to fail), Law 3 is the lz-tpp handoff. Author cat 5 first; it frames the coach decision procedure.
+- **Assertion design (cat 3) requires the stance router (cat 6):** what you assert (output vs state vs communication -- Khorikov) is chosen by the stance (Bernhardt functional core -> output; Metz boundary -> state/communication; Feathers legacy -> characterization). Do not present assertion styles without the routing that selects them.
+- **lz-tpp seam (cat 8) depends on lz-tpp existing:** it does (shipped 0.0.1). lz-red ships the forward pointer; the reverse lz-tpp -> lz-red pointer is carried tech-debt (PROJECT.md) for the next lz-tpp edit.
+- **Feathers stance (inside cat 6) overlaps lz-refactor/refactoring-without-tests.md (same author):** different phase -- lz-red writes the FIRST failing/characterization test to add behavior to seamless legacy; lz-refactor pins behavior before restructuring. Cross-link, do not copy.
+- **TS + Vitest mechanics (cat 7) render cats 1-6:** it.todo <-> test list; test.each <-> triangulation; expectTypeOf/assertType <-> type-level RED; vi.* with restraint <-> Metz/Cooper/Khorikov. Author last, on top of settled principles.
+- **Scope conflict:** outside-in / acceptance RED conflicts with the 0.0.3 boundary; keep it out and label the deferral.
 
 ## MVP Definition
 
-### Launch With (v1)
+### Launch With (v1 -- lz-tdd@0.0.3)
 
-Minimum viable product -- validates "does an in-loop TPP coach + reference help TDD in Claude Code."
+The full RED decision procedure plus the adaptive router; everything the milestone brief lists.
 
-- [ ] Valid `SKILL.md` with tuned `name` + `description` (triggers on TDD/TPP/transformation contexts, not generic coding) -- triggering is the gate.
-- [ ] Bundled reference file with the full revised 14-item transformation priority list, verbatim-faithful + cited -- the non-negotiable core.
-- [ ] Coach decision procedure documented concretely (failing test + code -> named next transformation) -- the Core Value.
-- [ ] Reference behavior: explain the list, notation, and rationale on demand.
-- [ ] transformations-vs-refactorings distinction + amended red-green-refactor process stated.
-- [ ] Language-agnostic principles with at least one concrete TypeScript worked example (Fibonacci recommended).
-- [ ] Progressive disclosure: lean SKILL.md body, details in `references/`.
-- [ ] Impasse/backtrack guidance (at least the "pose a simpler test" heuristic).
+- [ ] Dual-mode lz-red skill (auto-trigger coach + on-demand reference), lean SKILL.md + lazy references/, mirroring lz-tpp/lz-refactor -- essential structural parity
+- [ ] Coach decision procedure on the Three Laws spine covering cats 1-6 in order -- essential (this is the product)
+- [ ] Adaptive testing-stance router leaf (Bernhardt / Metz / Feathers + house-idiom detection + listen-to-the-tests + optional override phrase) -- the differentiator
+- [ ] TS + Vitest mechanics woven through SKILL.md and references, tsc --strict-clean -- essential for usability
+- [ ] lz-tpp seam block + forward pointer + classify-first -- essential to close the RGR loop
+- [ ] Anti-pattern reference leaf (incl. Cooper over-mock / test-per-class) -- essential for a reference skill
+- [ ] Behavior/BDD naming + Osherove alternative leaf -- essential
+- [ ] Skill-effectiveness evals (trigger recall/specificity + RED-behavior accuracy) -- essential, as in 0.0.1/0.0.2
 
 ### Add After Validation (v1.x)
 
-Add once the core coach is shown to help.
-
-- [ ] Second/third worked TS examples (Word Wrap impasse; Prime Factors) -- trigger: users want more than Fibonacci.
-- [ ] Explicit language-ordering overlay section (TS/JS iteration-over-recursion default) -- trigger: recursion recommendations feel wrong for JS.
-- [ ] Skill-creator trigger-accuracy optimization pass (run_loop) -- trigger: mis-triggering observed in real use.
-- [ ] Quick-reference cheat-sheet (one-line-per-transformation table) as a separate small reference -- trigger: users want fast lookup.
+- [ ] Type-level RED leaf (expectTypeOf/assertType) -- add once the core RED loop triggers cleanly; TS differentiator
+- [ ] Property-based RED with fast-check leaf -- add when example-based triangulation guidance is proven, as an advanced technique
+- [ ] Reverse lz-tpp -> lz-red pointer -- bundle with the next lz-tpp edit (carried tech-debt)
 
 ### Future Consideration (v2+)
 
-Defer until product-market fit / demonstrated demand.
-
-- [ ] Additional languages beyond TS (Python, Go, C#, Clojure ordering variants) -- defer: unvalidated demand, maintenance multiplier, explicit out-of-scope.
-- [ ] Mechanical transformation suggester / AST-aware tool -- defer: huge scope, language-specific, unvalidated (Uncle Bob's own "holy grail" caveat).
-- [ ] Additional TDD skills under `lz-tdd` (test naming, triangulation, test ordering) -- defer: separate skills, not this one.
-- [ ] Integration with test-runner output to auto-detect the current red test -- defer: couples the skill to specific runners; anti-feature risk (driving vs coaching).
+- [ ] Outside-in / acceptance / double-loop TDD RED -- deferred by decision; unit RED must land and prove out first
+- [ ] Multi-language example sets beyond TypeScript -- deferred (FUT-02), agnostic principles + TS cover this milestone
+- [ ] GOOS mockist stance as a first-class route -- GOOS stays counterpoint only unless mockist codebases become a supported target
 
 ## Feature Prioritization Matrix
 
 | Feature | User Value | Implementation Cost | Priority |
-|---------|------------|---------------------|----------|
-| Tuned triggering description | HIGH | MEDIUM | P1 |
-| Correct 14-item transformation list (cited) | HIGH | MEDIUM | P1 |
-| Coach decision procedure | HIGH | HIGH | P1 |
-| Reference/explain-on-demand behavior | HIGH | LOW | P1 |
-| transformations-vs-refactorings + RGR framing | HIGH | LOW | P1 |
-| Progressive disclosure structure | MEDIUM | MEDIUM | P1 |
-| Concrete TypeScript worked example (Fibonacci) | HIGH | MEDIUM | P1 |
-| Impasse / backtrack guidance | MEDIUM | MEDIUM | P1 |
-| Language-specific ordering overlay (TS) | MEDIUM | MEDIUM | P2 |
-| Additional worked examples (Word Wrap, Prime Factors) | MEDIUM | MEDIUM | P2 |
-| Skill-creator trigger + behavior evals | MEDIUM | MEDIUM | P2 |
-| Quick-reference cheat-sheet | LOW | LOW | P2 |
-| Additional languages | LOW | HIGH | P3 |
-| Mechanical transformation tool | LOW | HIGH | P3 |
+|---|---|---|---|
+| Coach decision procedure on Three Laws spine (cats 1,2,4,5) | HIGH | MEDIUM | P1 |
+| Assertion design (cat 3) | HIGH | HIGH | P1 |
+| Adaptive stance router (cat 6) | HIGH | HIGH | P1 |
+| lz-tpp seam + classify-first (cat 8) | HIGH | LOW | P1 |
+| TS + Vitest mechanics (cat 7) | HIGH | MEDIUM | P1 |
+| Anti-pattern reference (cat 9) | MEDIUM | MEDIUM | P1 |
+| Skill-effectiveness evals | HIGH | MEDIUM | P1 |
+| Type-level RED (expectTypeOf/assertType) | MEDIUM | MEDIUM | P2 |
+| Property-based RED (fast-check) | MEDIUM | HIGH | P2 |
+| Reverse lz-tpp -> lz-red pointer | LOW | LOW | P2 |
+| Outside-in / acceptance RED | MEDIUM | HIGH | P3 (deferred) |
 
-**Priority key:** P1 = must have for launch; P2 = should have, add when possible; P3 = future.
+**Priority key:** P1 must-have for launch; P2 should-have, add when possible; P3 future/deferred.
 
-## Competitor Feature Analysis
+## Candidate lz-red Requirement Categories (downstream mapping)
 
-There is no known dedicated Claude Code skill/plugin for TPP as of 2026-07-02 (searched; only the primary blogs, Wikipedia, and practitioner write-ups exist). "Competitors" are therefore the alternatives a developer would otherwise reach for.
+The nine table-stakes rows map 1:1 to the requirement categories the milestone expects. Suggested grouping for REQUIREMENTS.md:
 
-| Feature | Uncle Bob's blog posts | Wikipedia / secondary write-ups | Generic "do TDD" prompt | Our approach (lz-tpp) |
-|---------|------------------------|--------------------------------|-------------------------|-----------------------|
-| The transformation list | Authoritative but split across 2 posts; original list superseded mid-post | Consolidated but often shows the 12-item version and misses tail-recursion/case nuance | Absent | Single cited, canonical revised 14-item list + evolution note |
-| In-loop coaching (test+code -> next move) | None (prose only) | None | Ad hoc, no priority discipline | Concrete decision procedure invoked during red-green-refactor |
-| Language grounding | Java/Ruby examples | Java examples | Whatever the user's stack is | Agnostic principles + concrete TypeScript |
-| Impasse handling | Explained via Word Wrap essay | Summarized | Not addressed | Actionable "pose a simpler test / backtrack" heuristic |
-| Availability inside the editor loop | Manual reading | Manual reading | Always present but unprincipled | Progressive-disclosure skill that triggers automatically on TDD contexts |
-| Dogma risk | Low (Bob hedges heavily) | Medium (lists read as canon) | N/A | Explicitly heuristic, why-driven, deviation allowed |
+| # | Category | Table stakes / Differentiator | Primary locked source(s) | Depends on existing skill? |
+|---|---|---|---|---|
+| 1 | Test selection / ordering | Table stakes | Beck | -- |
+| 2 | Test structure | Table stakes | Wake, North, Beck | -- |
+| 3 | Assertion design | Table stakes | Khorikov, Metz, Cooper | -- |
+| 4 | Test naming | Table stakes | North, Osherove | -- |
+| 5 | Fail-for-the-right-reason (Three Laws spine) | Table stakes | Martin, Beck | seam to lz-tpp (Law 3) |
+| 6 | Adaptive testing-stance router | Differentiator (crown) | Bernhardt, Metz, Feathers, Beck; GOOS counterpoint | cross-link lz-refactor Feathers leaf |
+| 7 | TS + Vitest mechanics | Table stakes for stack | locked stack, Vitest | -- |
+| 8 | lz-tpp seam | Table stakes | Martin; existing lz-tpp | requires lz-tpp; reverse pointer = lz-tpp tech-debt |
+| 9 | Anti-pattern reference | Table stakes | Cooper, Khorikov, Metz, Beck | mirror lz-refactor de-patterning pattern |
 
----
+## Non-Duplication Boundary (quality gate)
 
-# PART 2 -- TPP Subject-Matter Reference (canonical extract)
+- **No transformations.** lz-red never ranks or recommends the code change that makes the test pass -- that is lz-tpp's Transformation Priority list. lz-red stops at "the test now fails for the right reason" and hands off.
+- **No refactorings.** lz-red never restructures working code -- that is lz-refactor's Fowler/Kerievsky/GoF/functional catalogs. The only structural moves lz-red touches are stance-enabling (extract a functional core per Bernhardt, introduce a seam per Feathers) and even those are presented as design feedback / handoffs, not performed as refactorings.
+- **Shared Feathers content is cross-linked, not copied:** lz-refactor already owns refactoring-without-tests.md (Feathers, pin-before-restructure). lz-red's Feathers use (characterization/first failing test when adding behavior to seamless legacy) links to it.
 
-> This part is the verbatim-faithful subject matter for the skill's bundled reference
-> material and coach logic. Where the two authoritative blog posts differ, the
-> difference is flagged. Trust the blogs over any secondary source.
+## Deferrals (explicit)
 
-## Core Concepts (from the authoritative posts)
+- Outside-in / acceptance / double-loop TDD RED -- OUT of 0.0.3 (Key Decision + Out of Scope in PROJECT.md).
+- Multi-language examples beyond TypeScript -- deferred (FUT-02).
+- GOOS mockist stance as a supported route -- counterpoint only.
+- DHH test-induced-design-damage -- hard-banned, not a deferral.
 
-- **Transformations vs refactorings.** "Refactorings are simple operations that change the structure of code without changing its behavior. Transformations are simple operations that change the behavior of code. Transformations can be used as the sole means for passing the currently failing test in the red/green/refactor cycle." (TPP post)
-- **The mantra:** "As the tests get more specific, the code gets more generic." Every behavior change moves the code from a more specific form to a more generic form (e.g., a constant is a specific case; a variable is its generalization).
-- **Every code change is either a transformation (specific -> generic, behavior-changing) or a refactoring (structure-only).** This is the classification the coach applies.
-- **Priority = complexity/risk ordering.** "The transformations at the top of the list are simpler, and less risky, than the transformations that are lower in the list." Prefer higher-priority (simpler) transformations because "the more complexity required by the test, the larger the risk you take to get that test to pass."
-- **Direction.** Every transformation has a direction: it generalizes behavior (constant -> variable, variable -> array, if -> while, sequence -> recursion, etc.).
-- **The impasse / local-maximum problem.** A poor sequence of tests/implementations can force "an impasse, where there is no way to get the next test to pass without rewriting the whole algorithm." The red/green/refactor cycle breaks down when you must change a large amount of code to get back to green.
-- **The premise.** "If you choose the tests and implementations that employ transformations that are higher on the list, you will avoid the impasse."
-- **Honest hedging (critical for the anti-dogma stance).** Uncle Bob explicitly says the transformations are "informal at best", "roughly ordered" by complexity, that the ordering is "not likely" perfectly correct, that priority "might be more complicated than a simple ordinal sequence", and that the list is "language specific" (and possibly team-specific). The skill MUST present TPP as a heuristic, not a law.
+## Source Traceability + Confidence
 
-## The Canonical Transformation Priority List
-
-There are TWO lists in the authoritative sources. The FibTPP post explicitly REVISES the original list, so the revised 14-item list is canonical; the original is retained here to document the evolution and the ordering discrepancy.
-
-### CANONICAL -- Revised 14-item list (from FibTPP, source of truth)
-
-Source: Robert C. Martin, "Fib. The T-P Premise." (dated February 2 2011; published on blog 27 May 2013). https://blog.cleancoder.com/uncle-bob/2013/05/27/FibTPP.html
-
-Verbatim (arrows normalized to ASCII `->`; descriptions as given):
-
-1. `({} -> nil)` -- no code at all -> code that employs nil
-2. `(nil -> constant)`
-3. `(constant -> constant+)` -- a simple constant to a more complex constant
-4. `(constant -> scalar)` -- replacing a constant with a variable or an argument
-5. `(statement -> statements)` -- adding more unconditional statements
-6. `(unconditional -> if)` -- splitting the execution path
-7. `(scalar -> array)`
-8. `(array -> container)`
-9. `(statement -> tail-recursion)`
-10. `(if -> while)`
-11. `(statement -> recursion)`
-12. `(expression -> function)` -- replacing an expression with a function or algorithm
-13. `(variable -> assignment)` -- replacing the value of a variable
-14. `(case)` -- adding a case (or else) to an existing switch or if
-
-Notes on the revisions FibTPP makes to the original:
-- Added `(statement -> tail-recursion)` at position 9, ABOVE `(if -> while)`: "tail recursion is preferred over arbitrary recursion."
-- Added `(case)` at the very bottom (position 14): a switch/case or `else if` "is always the last option to choose." (Added because the original list did not prevent a degenerate `switch` solution for Fibonacci.)
-- Moved plain `(statement -> recursion)` to position 11, now BELOW `(if -> while)` (in the original it was above).
-
-### ORIGINAL -- 12-item list (from the TPP post; superseded, kept for provenance)
-
-Source: Robert C. Martin, "The Transformation Priority Premise" (dated December 19 2010; published on blog 27 May 2013). https://blog.cleancoder.com/uncle-bob/2013/05/27/TheTransformationPriorityPremise.html
-
-1. `({} -> nil)` -- no code at all -> code that employs nil
-2. `(nil -> constant)`
-3. `(constant -> constant+)` -- a simple constant to a more complex constant
-4. `(constant -> scalar)` -- replacing a constant with a variable or an argument
-5. `(statement -> statements)` -- adding more unconditional statements
-6. `(unconditional -> if)` -- splitting the execution path
-7. `(scalar -> array)`
-8. `(array -> container)`
-9. `(statement -> recursion)`
-10. `(if -> while)`
-11. `(expression -> function)` -- replacing an expression with a function or algorithm
-12. `(variable -> assignment)` -- replacing the value of a variable
-
-### FLAGGED ordering discrepancy (quality-gate requirement)
-
-The two authoritative posts disagree on the recursion/iteration ordering, and this is a deliberate within-source evolution, not a transcription error:
-
-- **Original TPP post:** `(statement -> recursion)` #9 is ABOVE `(if -> while)` #10. Uncle Bob defends this in the same post: "you might question why I put (statement->recursion) above (if->while) ... Comparing the two may convince you that recursion is, in fact, simpler than iteration."
-- **Revised FibTPP list:** inserts `(statement -> tail-recursion)` above `(if -> while)`, keeps `(if -> while)`, and moves plain `(statement -> recursion)` BELOW `(if -> while)`.
-- **Language-specificity caveat (FibTPP):** "the priority list is language specific. In Java, for example, we might move (if->while) and (variable->assignment) ABOVE (statement->tail-recursion) so that iteration is always preferred above recursion, and assignment is preferred above parameter passing." Rationale: Java (and, for our purposes, TypeScript/JavaScript) is not a functional language and lacks reliable tail-call optimization, so a functional bias yields suboptimal code.
-
-**Recommendation for lz-tpp:** ship the revised 14-item list as the canonical reference, but for the TypeScript/JavaScript coaching default, apply Uncle Bob's own language-specific guidance -- prefer `(if -> while)` and `(variable -> assignment)` above the recursion transformations. Present this as an opinionated, source-sanctioned overlay, not a contradiction. Secondary sources (Wikipedia, etc.) commonly publish only the 12-item list; trust the blogs and note this.
-
-### Notation notes
-
-- `{}` = no code / empty; `nil` = null / a nothing-ish return (the posts use "nil" and "null" interchangeably).
-- `constant+` = a more complex constant than a bare `nil`/`0`/`""`.
-- `scalar` = a variable or argument (a generalization of a constant).
-- `container` = a collection/map generalizing an array.
-- `(case)` = adding a `case` to a `switch`, or an `else`/`else if` branch -- lowest priority.
-- Arrows in the source render with a special dash glyph; normalize to ASCII `->` in all skill content (ASCII-only requirement).
-
-## The Amended Red-Green-Refactor Process (verbatim intent, from TPP post)
-
-If you accept the Priority Premise, amend ordinary TDD with:
-
-- When passing a test, prefer higher-priority transformations.
-- When posing a test, choose one that can be passed with higher-priority transformations.
-- When an implementation seems to require a low-priority transformation, backtrack to see if there is a simpler test to pass.
-
-## Worked Example -- Fibonacci (from FibTPP)
-
-Test suite (Java in source; behavior is language-agnostic):
-
-```
-assertEquals(0, of(0));
-assertEquals(1, of(1));
-assertEquals(1, of(2));
-assertEquals(2, of(3));
-assertEquals(3, of(4));
-assertEquals(5, of(5));
-assertEquals(8, of(6));
-```
-
-Step-by-step (each step names the transformation applied):
-
-1. First test -> `({} -> nil)` then `(nil -> constant)`:
-   ```java
-   public static int of(int n) {
-     return 0;
-   }
-   ```
-2. Second test forces `(unconditional -> if)`, refactored with `(constant -> scalar)`. This coincidentally makes the third test pass:
-   ```java
-   public static int of(int n) {
-     if (n <= 1)
-       return n;
-     return 1;
-   }
-   ```
-3. Fourth test (maps 1->1, 2->1, 3->2). The "obvious" move is `(statement -> recursion)` since fib(n) = fib(n-1) + fib(n-2):
-   ```java
-   public static int of(int n) {
-     if (n <= 1)
-       return n;
-     return of(n - 1) + of(n - 2);
-   }
-   ```
-   This passes all tests and is beautiful -- BUT it has ~O(n^2) runtime, is not tail-recursive, and the JVM cannot optimize tail calls. (The same performance/stack concerns apply to TypeScript/JavaScript.)
-4. Prefer `(statement -> tail-recursion)` (now above `(if -> while)` in the revised list):
-   ```java
-   public class Fibonacci {
-     public static int of(int n) {
-       if (n <= 1)
-         return n;
-       return of(0, 1, n);
-     }
-     private static int of(int a, int b, int n) {
-       if (n == 0)
-         return a;
-       return of(b, a + b, n - 1);
-     }
-   }
-   ```
-   Refactor away the redundant outer `if`:
-   ```java
-   public static int of(int n) {
-     return of(0, 1, n);
-   }
-   private static int of(int a, int b, int n) {
-     if (n == 0)
-       return a;
-     return of(b, a + b, n - 1);
-   }
-   ```
-5. Since Java (and JS/TS) do not do tail-call elimination reliably, for large `n` unwind recursion into iteration via `(if -> while)` plus a few `(variable -> assignment)`:
-   ```java
-   private static int of(int a, int b, int n) {
-     while (n != 0) {
-       int s = a + b;
-       a = b;
-       b = s;
-       n--;
-     }
-     return a;
-   }
-   ```
-
-Key lesson from FibTPP: the priority list PREVENTS the degenerate `switch(n) { case 0: ... }` solution (that is why `(case)` sits at the very bottom), and the recursion-vs-iteration ordering is where language-specificity bites.
-
-## Worked Example -- Word Wrap impasse (from TPP post, condensed)
-
-Purpose: demonstrates the impasse and the backtracking rule. Following the priority premise loosely, you reach a point where the only way forward is `(expression -> function)` (a whole algorithm) -- the impasse. The escape is NOT to power through with code; it is to backtrack and pose a DIFFERENT, simpler test (e.g., "word longer than the line breaks at the limit") passable by `(unconditional -> if)`, sometimes `@Ignore`-ing the hard test temporarily. This concretely illustrates the coach's most valuable move: change the next test, not just the next line of code.
-
-## Coach Decision Procedure (concrete sketch for the skill)
-
-Given: (a) the current failing (red) test, and (b) the current production code. Recommend the NEXT transformation.
-
-1. **Confirm you are in the green phase.** If the code compiles and all prior tests pass and exactly one new test is red, you are choosing a transformation. If the request is "clean this up" with tests green, that is a refactoring (structure-only) -- do NOT priority-rank it; it belongs to the refactor step.
-2. **Enumerate candidate minimal changes** that would make the red test pass. For each candidate, classify it as a transformation and identify WHICH transformation from the canonical list it corresponds to (behavior change: specific -> generic).
-3. **Pick the highest-priority (lowest-numbered) transformation** among the candidates. Recommend that change, and name the transformation (e.g., "Use `(constant -> scalar)`: replace the literal `1` with the parameter `n`").
-4. **Apply the language overlay.** For TypeScript/JavaScript, prefer `(if -> while)` and `(variable -> assignment)` above the recursion transformations (Uncle Bob's sanctioned language-specific reordering), because JS/TS lacks reliable TCO. State this when it changes the recommendation.
-5. **Impasse check (the high-value move).** If the only way to pass the current red test is a LOW-priority transformation (e.g., `(expression -> function)` or `(case)`), do NOT recommend forcing it. Instead recommend, in order:
-   a. Pose a DIFFERENT, simpler test that advances the same behavior but is passable by a higher-priority transformation (optionally skip/`@Ignore` the hard test temporarily);
-   b. Check whether a small refactoring (structure-only) would open a higher-priority path;
-   c. Only if neither works, take the low-priority transformation, and say explicitly why it was unavoidable.
-6. **Show, don't drive.** Present the minimal diff and the named transformation; let the developer apply it and run the tests. Never edit code or run tests unless explicitly asked.
-7. **Stay non-dogmatic.** Frame every recommendation as "the simplest transformation that passes this test, per TPP" and note that the ordering is a heuristic (informal, roughly ordered, language-specific) -- deviation with a stated reason is legitimate.
-
----
+| Capability | Locked source | Framing verified | Confidence |
+|---|---|---|---|
+| Test list, one-step test, starter/degenerate, triangulate, assert-first, evident data | Beck, *TDD by Example* (TDD Patterns / Red Bar / Green Bar chapters) | Yes (established); triangulate has RED facet [select next example] vs GREEN facet [fake-it->generalize, stays in lz-tpp] | HIGH |
+| Three Laws of TDD; F.I.R.S.T. (Fast, Isolated/Independent, Repeatable, Self-Validating, Timely) | Robert C. Martin, *Clean Code* | Yes | HIGH |
+| Four pillars; observable behavior vs implementation; output/state/communication styles | Khorikov, *Unit Testing: Principles, Practices, and Patterns* | Yes | HIGH |
+| Query/command x incoming/self/outgoing message matrix (assert return; assert public side effect; ignore self + outgoing-query; expect-to-send outgoing-command) | Metz + Owen, "Magic Tricks of Testing" | Yes | HIGH |
+| Trigger on new behavior not new class; SUT = module/public API; do not mock internals; isolation for shared/slow/fragile, not defect-localization | Ian Cooper, "TDD, Where Did It All Go Wrong" | Yes | HIGH |
+| Given-When-Then; "should" naming; ubiquitous language | Dan North, *Introducing BDD* | Yes | HIGH |
+| Arrange-Act-Assert | Bill Wake | Yes | HIGH |
+| Functional core / imperative shell; isolate, no I/O (fast vs slow tests) | Gary Bernhardt, *Boundaries* + *Fast Test Slow Test* | Yes | HIGH |
+| Seams; characterization tests; "legacy code = code without tests" | Michael Feathers, *WELC* | Yes | HIGH |
+| Test Desiderata (12 properties as tradeoffs; behavioral, structure-insensitive, deterministic, specific, isolated, composable, fast ...) | Kent Beck, Test Desiderata | Yes | HIGH |
+| Osherove UnitOfWork_StateUnderTest_ExpectedBehavior | Osherove, *Art of Unit Testing* (blog + book) | Classic convention verified | HIGH |
+| Osherove 3rd-ed (JS) relaxation toward readability | Osherove + Khorikov, *Art of Unit Testing* 3rd ed | Direction confirmed; exact updated wording not pinned | MEDIUM |
+| "Listen to the tests" (test pain = design feedback) | GOOS (counterpoint) + Beck | Yes | HIGH |
+| Vitest: it.todo, test.each, expectTypeOf/assertType (--typecheck), vi.* doubles, watch mode | Vitest API | Well-known API; not re-fetched this session | MEDIUM-HIGH (pin exact API in STACK research) |
+| Property-based RED, shrinking | fast-check | Established (advanced technique) | HIGH |
 
 ## Sources
 
-Authoritative (primary), fetched in full 2026-07-02:
-- Robert C. Martin, "The Transformation Priority Premise", Clean Coder Blog (post dated Dec 19 2010; published May 27 2013) -- https://blog.cleancoder.com/uncle-bob/2013/05/27/TheTransformationPriorityPremise.html (original 12-item list; mantra; transformations-vs-refactorings; Word Wrap impasse; amended RGR process). HIGH confidence.
-- Robert C. Martin, "Fib. The T-P Premise.", Clean Coder Blog (post dated Feb 2 2011; published May 27 2013) -- https://blog.cleancoder.com/uncle-bob/2013/05/27/FibTPP.html (canonical revised 14-item list; tail-recursion + case additions; language-specificity; Fibonacci worked example). HIGH confidence.
-- Robert C. Martin, "The Transformation Priority Premise", NDC 2011 talk -- https://youtu.be/B93QezwTQpI (video id B93QezwTQpI). Authoritative; full transcript produced in a later execution phase, NOT transcribed for this research per instructions.
-
-Skill-authoring (primary for Part 1):
-- Anthropic, "Skill authoring best practices", Claude Platform/Docs -- https://docs.claude.com/en/docs/agents-and-tools/agent-skills/best-practices (description = what + when, third-person, concrete trigger terms, name <=64 chars, description <=1024 chars, SKILL.md body <500 lines, progressive disclosure, scripts for deterministic ops, pre-publish checklist). HIGH confidence.
-- Anthropic, "Agent Skills overview" -- https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview (three-level progressive disclosure; bundled files free until used). HIGH confidence.
-- Anthropic, "Equipping agents for the real world with Agent Skills" (engineering blog) -- https://www.anthropic.com/engineering/equipping-agents-for-the-real-world-with-agent-skills. HIGH confidence.
-- skill-creator SKILL.md (local, read directly) -- description-as-triggering, "pushy to combat under-triggering", progressive disclosure levels, imperative writing, explain-the-why over MUSTs, trigger-accuracy eval loop. HIGH confidence.
-
-Secondary (corroborating; used only to cross-check, blogs take precedence):
-- Transformation Priority Premise -- Wikipedia -- https://en.wikipedia.org/wiki/Transformation_Priority_Premise (confirms list + language-specificity note; commonly shows the 12-item version -- flagged). MEDIUM confidence.
-- ASOS Coding Style handbook, TPP section -- https://asos.gitbook.io/coding-style/module-1-classic-tdd/transformation-priority-premise-1. LOW/MEDIUM confidence.
-- David Halewood, "TDD with the Transformation Priority Premise" -- https://davidhalewood.com/tdd-with-the-transformation-priority-premise/. LOW confidence.
+- Sandi Metz + Katrina Owen, "The Magic Tricks of Testing" (RailsConf 2013): https://www.rubyevents.org/talks/the-magic-tricks-of-testing ; slides https://speakerdeck.com/skmetz/magic-tricks-of-testing-railsconf -- HIGH
+- Vladimir Khorikov, *Unit Testing: Principles, Practices, and Patterns* (Manning): https://www.oreilly.com/library/view/unit-testing-principles/9781617296277/ ; four-pillars summary https://www.sammancoaching.org/learning_hours/test_design/four_pillars_khorikov.html -- HIGH
+- Kent Beck, "Test Desiderata": https://medium.com/@kentbeck_7670/test-desiderata-94150638a4b3 ; https://testdesiderata.com/ -- HIGH
+- Ian Cooper, "TDD, Where Did It All Go Wrong" (NDC 2014): notes https://www.philhack.com/notes-from-tdd-where-did-it-all-go-wrong/ ; review https://robdmoore.id.au/blog/2015/01/26/review-of-ian-cooper-tdd-where-did-it-all-go-wrong -- HIGH
+- Gary Bernhardt, "Boundaries" (functional core / imperative shell): https://www.destroyallsoftware.com/talks/boundaries -- HIGH
+- Roy Osherove, "Naming standards for unit tests": https://osherove.com/blog/2005/4/3/naming-standards-for-unit-tests.html ; *Art of Unit Testing* 3rd ed (JS, w/ Khorikov): https://www.manning.com/books/the-art-of-unit-testing-third-edition -- HIGH (convention) / MEDIUM (3rd-ed nuance)
+- Robert C. Martin, Three Laws of TDD + F.I.R.S.T. (*Clean Code*): https://agileinaflash.blogspot.com/2009/02/first.html -- HIGH
+- Dan North, "Introducing BDD": https://dannorth.net/introducing-bdd/ -- HIGH
+- Bill Wake, "Arrange-Act-Assert": https://xp123.com/articles/3a-arrange-act-assert/ -- HIGH (framing well-established)
+- Kent Beck, *TDD by Example* (Test List, One Step Test, Starter Test, Assert First, Evident Data, Triangulate) -- primary book; framings cross-checked against community summaries -- HIGH
+- Michael Feathers, *Working Effectively with Legacy Code* (seams, characterization tests) -- primary book -- HIGH
+- fast-check (property-based testing for TS/JS): https://fast-check.dev/ -- HIGH
 
 ---
-*Feature research for: lz-tpp (TPP coach + reference skill under the lz-tdd plugin)*
-*Researched: 2026-07-02*
+*Feature research for: lz-red RED-phase TDD coach + reference (lz-tdd@0.0.3)*
+*Researched: 2026-07-18*

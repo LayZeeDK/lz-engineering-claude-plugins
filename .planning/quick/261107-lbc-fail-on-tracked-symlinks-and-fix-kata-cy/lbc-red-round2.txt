@@ -1,0 +1,79 @@
+package-links self-test (relative-link gate core)
+
+  [PASS] floor: in-package link to a tracked file -> fine
+  [PASS] floor: file-plus-fragment link to a tracked file -> fine
+  [PASS] floor: in-package `..` link to a tracked file -> fine
+  [PASS] floor: target neither on disk nor tracked -> one dead problem
+  [PASS] floor: `../../README.md` escapes the package -> LEAVES PACKAGE
+  [PASS] floor: `..\..\README.md` escapes the package -> LEAVES PACKAGE
+  [PASS] F1: target on disk but not in the tracked set -> one dead problem
+  [PASS] F4: target differing only in letter case from a tracked file -> one dead problem
+  [PASS] F2: UNC target -> LEAVES PACKAGE with zero fs calls
+  [PASS] F2: relative escape -> LEAVES PACKAGE with zero fs calls
+  [PASS] F2: root-absolute target -> LEAVES PACKAGE with zero fs calls
+  [PASS] F3: drive-letter target `C:/Windows/win.ini` classifies absolute
+  [PASS] F3: drive-letter target `C:/Windows/win.ini` -> LEAVES PACKAGE with zero fs calls
+  [PASS] F3: drive-letter target `C:\x.md` classifies absolute
+  [PASS] F3: drive-letter target `C:\x.md` -> LEAVES PACKAGE with zero fs calls
+  [PASS] F3: drive-letter target `c:..\..\README.md` classifies absolute
+  [PASS] F3: drive-letter target `c:..\..\README.md` -> LEAVES PACKAGE with zero fs calls
+  [PASS] H1: `../lz-tdd/...` re-enters through the plugin folder name -> LEAVES PACKAGE
+  [PASS] H1: `../../plugins/lz-tdd/README.md` re-enters from the repo root -> LEAVES PACKAGE
+  [PASS] H1: `../../../lz-tdd/README.md` from a nested file re-enters -> LEAVES PACKAGE
+  [PASS] M1: backslash-separated in-package target -> one backslash problem
+  [PASS] M3: directory link with a trailing slash -> fine
+  [PASS] M3: directory link without a trailing slash -> fine
+  [PASS] M3: `.` names the plugin root -> fine
+  [PASS] M3: directory that holds no tracked file -> one dead problem
+  [PASS] M3: a name that is only a prefix of a tracked directory -> one dead problem
+  [PASS] K1: trailing slash after a tracked file -> one dead problem
+  [PASS] K2: trailing slash after a nested tracked file -> one dead problem
+  [PASS] K3: `..` out of a missing directory -> one dead problem
+  [PASS] K4: a path through a missing directory -> one dead problem
+  [PASS] K5: a path through a file used as a directory -> one dead problem
+  [PASS] K6: `..` out of a tracked directory -> fine
+  [PASS] U1: reference-style definition -> reported
+  [PASS] U2: angle-bracket destination -> reported
+  [PASS] U3: single-quoted link title -> reported
+  [PASS] U4: HTML href attribute -> reported
+  [PASS] U5: HTML src attribute -> reported
+  [PASS] U6: every unsupported form inside a backtick fence and a tilde fence -> nothing reported
+  [PASS] U7: double-quoted title, scheme and anchor links -> nothing reported
+  [PASS] U8: a form on line 2 -> reported at line 2
+  [PASS] X1: a link after a 4-backtick fence holding a 3-backtick line -> extracted
+  [PASS] X2: a link after the inner 3-backtick line, inside the 4-backtick fence -> not extracted
+  [PASS] X3: a tab-indented backtick run is not a fence -> the link after it is extracted
+  [PASS] X4: nested brackets in link text -> unparsed link
+  [PASS] X5: escaped bracket in link text -> unparsed link
+  [PASS] X6: parenthesised link title -> unparsed link
+  [PASS] X7: link text broken across lines -> unparsed link on the second line
+  [PASS] X12: a closing run with trailing text does not close the fence
+  [PASS] Y1: a fence opened on a list-marker line -> unterminated fence at the indented closer
+  [PASS] Y2: a fence opened on an ordered-list line -> unterminated fence at the indented closer
+  [PASS] Y3: a fence inside a list item left open -> unterminated fence at its opener
+  [PASS] Y4: backtick info string holding a backtick -> the link after it is extracted
+  [PASS] Y5: backtick info string holding a backtick, then a fence line -> the link between is extracted
+  [PASS] X9: reference definition indented three spaces -> reported
+  [PASS] X10: uppercase HREF attribute -> reported
+  [PASS] L2: `file:///C:/x.md` classifies absolute
+  [PASS] L2: `file:///C:/x.md` -> LEAVES PACKAGE with zero fs calls
+  [PASS] L2: `file:../../README.md` classifies absolute
+  [PASS] L2: `file:../../README.md` -> LEAVES PACKAGE with zero fs calls
+  [PASS] L1: the fs recorder records a call made through a named import
+  [PASS] W1: packageLinkGate reads only the tracked .md files and reports a dead link and an unsupported form
+  [PASS] W3: an unreadable tracked file is one hit and the gate continues
+  [PASS] X8: tracked `.MD` and `.markdown` files are read and their dead links reported
+  [PASS] X11: a Markdown file directly under plugins/ -> one hit naming the file
+  [FAIL] T1: nonFileEntries returns the one mode-120000 entry among regular files -- expected [{"mode":"120000","path":"plugins/p/link.md"}], got "threw: packageLinks.nonFileEntries is not a function": Expected values to be strictly deep-equal:
+  [FAIL] T2: nonFileEntries over regular and executable files -> none -- expected [], got "threw: packageLinks.nonFileEntries is not a function": Expected values to be strictly deep-equal:
+  [FAIL] T3: a symlink path with a space and a non-ASCII name comes back verbatim -- expected [{"mode":"120000","path":"plugins/p/spaced ø.md"}], got "threw: packageLinks.nonFileEntries is not a function": Expected values to be strictly deep-equal:
+  [FAIL] T4: an empty listing -> none -- expected [], got "threw: packageLinks.nonFileEntries is not a function": Expected values to be strictly deep-equal:
+  [FAIL] T5: a record with no tab -> throws malformed -- expected true, got false: Expected values to be strictly deep-equal:
+  [FAIL] T8: a mode-160000 gitlink -> reported -- expected [{"mode":"160000","path":"plugins/p/sub"}], got "threw: packageLinks.nonFileEntries is not a function": Expected values to be strictly deep-equal:
+  [FAIL] T9: a record with an empty path -> throws malformed -- expected true, got false: Expected values to be strictly deep-equal:
+  [PASS] M2: trackedFiles lists only the git-tracked files under plugins/, non-ASCII names unquoted
+  [PASS] W2: packageLinkGate over trackedFiles reads a tracked symlink and skips untracked and ignored files
+  [FAIL] T6: trackedNonFiles finds the staged mode-120000 entry in a real repo -- expected [{"mode":"120000","path":"plugins/p/linked.md"}], got "threw: packageLinks.trackedNonFiles is not a function": Expected values to be strictly deep-equal:
+  [FAIL] T7: trackedNonFiles throws when git fails, so the caller fails closed -- expected true, got false: Expected values to be strictly deep-equal:
+
+SUMMARY: package-links self-test RED -- 9 of 75 assertion(s) FAILED

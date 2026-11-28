@@ -1,0 +1,9 @@
+{
+  "prompt_id": "r1",
+  "target": "GRC",
+  "arm": "canary",
+  "run_idx": 0,
+  "changed_files": [
+    "TypeScript/test/mocha/canary-nocollect.spec.ts"
+  ]
+}

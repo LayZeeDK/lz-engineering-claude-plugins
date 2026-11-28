@@ -60,7 +60,11 @@ class ExpressShipping implements ShippingStrategy {
 
 // Context: configured with a strategy and delegates the varying work to it.
 class Checkout {
-  constructor(private strategy: ShippingStrategy) {}
+  private strategy: ShippingStrategy;
+
+  constructor(strategy: ShippingStrategy) {
+    this.strategy = strategy;
+  }
 
   setStrategy(strategy: ShippingStrategy): void {
     this.strategy = strategy;

@@ -33,11 +33,21 @@ Before, the price lives on `Subscription`, though it is really a property of the
 
 ```ts
 class Plan {
-  constructor(readonly name: string) {}
+  readonly name: string;
+
+  constructor(name: string) {
+    this.name = name;
+  }
 }
 
 class Subscription {
-  constructor(readonly plan: Plan, private monthlyPrice: number) {}
+  readonly plan: Plan;
+  private monthlyPrice: number;
+
+  constructor(plan: Plan, monthlyPrice: number) {
+    this.plan = plan;
+    this.monthlyPrice = monthlyPrice;
+  }
 
   get price(): number {
     return this.monthlyPrice;
@@ -49,7 +59,13 @@ After, the field moves to `Plan`; the `Subscription` accessor now delegates:
 
 ```ts
 class Plan {
-  constructor(readonly name: string, private monthlyPrice: number) {}
+  readonly name: string;
+  private monthlyPrice: number;
+
+  constructor(name: string, monthlyPrice: number) {
+    this.name = name;
+    this.monthlyPrice = monthlyPrice;
+  }
 
   get price(): number {
     return this.monthlyPrice;
@@ -57,7 +73,11 @@ class Plan {
 }
 
 class Subscription {
-  constructor(readonly plan: Plan) {}
+  readonly plan: Plan;
+
+  constructor(plan: Plan) {
+    this.plan = plan;
+  }
 
   get price(): number {
     return this.plan.price;

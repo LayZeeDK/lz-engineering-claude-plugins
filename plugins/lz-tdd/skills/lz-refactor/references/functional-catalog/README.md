@@ -172,9 +172,9 @@ Light functional notes (a one-line data adjustment, no dedicated idiom):
 
 ## Sources
 
-- `.planning/research/functional-depatterning-ts.md` Sections 10-13: the LOCKED design source of
-  record for this catalog (the pattern -> FP-idiom -> TS-feature disappearance map, the full-corpus
-  Stays-OO analysis, the board-ratified leaf template, and the N:1 map). This phase has no owned book
-  oracle (D-06); the committed research artifact plus `check-functional` plus `tsc --strict` are the
-  correctness anchor. Idioms, examples, and prose are original words with original TypeScript: no
-  verbatim book or artifact prose or code (DST-04).
+- [Functional de-patterning research, Sections 10-13](https://github.com/LayZeeDK/lz-engineering-claude-plugins/blob/aa8eacd6e15d12a3c344e543b49f3d547f07fb6c/.planning/research/functional-depatterning-ts.md):
+  the design source of record for this catalog. It holds the pattern -> FP-idiom -> TS-feature
+  disappearance map, the full-corpus Stays-OO analysis, the leaf template, and the N:1 map. No single
+  book backs this catalog; that research, the `check-functional` checker, and `tsc --strict` anchor
+  its correctness. Idioms, examples, and prose are original, with original TypeScript; no book or
+  research prose or code is copied verbatim.

@@ -14,7 +14,11 @@ Before, the caller reaches into a boxed value, transforms it, and rebuilds the b
 
 ```ts
 class Box<T> {
-  constructor(readonly value: T) {}
+  readonly value: T;
+
+  constructor(value: T) {
+    this.value = value;
+  }
 }
 
 function priceWithTax(box: Box<number>): Box<number> {
@@ -29,7 +33,11 @@ After, the box carries `map` (and `flatMap`), so the same two steps read as a ch
 
 ```ts
 class Box<T> {
-  constructor(readonly value: T) {}
+  readonly value: T;
+
+  constructor(value: T) {
+    this.value = value;
+  }
 
   map<U>(fn: (value: T) => U): Box<U> {
     return new Box(fn(this.value));

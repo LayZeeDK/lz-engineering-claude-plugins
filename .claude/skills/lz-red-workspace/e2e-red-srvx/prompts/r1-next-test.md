@@ -1,0 +1,1 @@
+A middleware sets a cookie on the Node `res`, then we send a web `Response`, and the cookie is gone from what the client receives. What's the next failing test you'd write for `src/adapters/_node/send.ts`? Go ahead and add it under `test/`.

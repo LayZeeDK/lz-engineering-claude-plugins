@@ -1,0 +1,19 @@
+{
+  "name": "red-radix-ng",
+  "repo": "D:/projects/github/radix-ng/primitives-pin",
+  "applyBase": "4a7390a2b058457aa47c6f3e0e03b69b70dee025",
+  "repo_path_note": "Taken VERBATIM from `git --git-dir=<repo>/.git --work-tree=<repo> rev-parse --show-toplevel`. resolveArmCwd() refuses a path-form mismatch between this field and the git toplevel before it creates anything (T-63f-05 / T-wpu-02), so the value must be git's own string rather than a hand-written one. --work-tree is MANDATORY in that command: with --git-dir alone git resolves the work tree from the CURRENT directory and returns whatever repo the caller happens to be standing in, which was a reproduced blocker on the previous wiring task.",
+  "applyBase_note": "The pin is 4a7390a2b058457aa47c6f3e0e03b69b70dee025 (2026-07-12), checked out DETACHED. The EVAL SOURCE is the PRISTINE clone named in `repo` -- deliberately NOT the maintainer's own radix-ng/primitives checkout, which carries uncommitted changes whose lockfile diff shifts the dependency graph six ways, including the peer set of the toolchain that COMPILES THE SPECS under vitest. The harness copies the target's node_modules into every grading worktree, so grading against that checkout would propagate a duplicated nx, a shifted peer set and a dependency on an out-of-repo tarball into every grade. No arming is needed here and there is nothing to choose at the gate, so this suite deliberately does NOT set requireExplicitApplyBase.",
+  "protectedBranches": ["main", "master"],
+  "skillCommand": "/lz-tdd:lz-red",
+  "trackSkills": ["lz-red", "lz-tpp"],
+  "preambles": {
+    "apply": "You are pair-programming with me. Read what I point you at and make the change in small steps. After editing, typecheck the touched file(s) and run the affected tests, then tell me what you see. Leave your edits in the working tree; do not commit. Here is my question:\n\n"
+  },
+  "preamble_note": "BYTE-IDENTICAL to every other RED suite's apply preamble, and selfcheck-red crux 2 asserts that across suites. The shared lz-refactor default ends '...run the affected tests to confirm nothing broke', which argues against the behavior a RED eval measures -- the produced test is REQUIRED to fail.",
+  "prompts": [
+    { "id": "r1", "file": "r1-focus-state.md", "target": "RXF", "code": true },
+    { "id": "r2", "file": "r2-global-locale.md", "target": "RXL", "code": true }
+  ],
+  "prompts_note": "One prompt per candidate, each disambiguating exactly ONE gap (owner-LOCKED 2026-07-26). A single file-path prompt admitting two answers makes the judge dimension 'is this the right next test?' unanswerable and destroys per-candidate attribution, even though the mechanical D-06 gate would happily pass either."
+}

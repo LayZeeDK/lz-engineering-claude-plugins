@@ -43,11 +43,15 @@ After, a command holds the inputs as fields, and the steps become methods that s
 
 ```ts
 class RentalCharge {
-  constructor(
-    private readonly days: number,
-    private readonly dailyRate: number,
-    private readonly memberDiscount: number,
-  ) {}
+  private readonly days: number;
+  private readonly dailyRate: number;
+  private readonly memberDiscount: number;
+
+  constructor(days: number, dailyRate: number, memberDiscount: number) {
+    this.days = days;
+    this.dailyRate = dailyRate;
+    this.memberDiscount = memberDiscount;
+  }
 
   execute(): number {
     const net = this.base() - this.discount();

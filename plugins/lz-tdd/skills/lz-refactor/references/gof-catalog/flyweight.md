@@ -32,10 +32,13 @@ Reach for it only when all of the following hold: the application uses a great m
 ```ts
 // Flyweight: holds the intrinsic (shared) state; one instance is shared by many contexts.
 class TreeType {
-  constructor(
-    readonly species: string,
-    readonly texture: string,
-  ) {}
+  readonly species: string;
+  readonly texture: string;
+
+  constructor(species: string, texture: string) {
+    this.species = species;
+    this.texture = texture;
+  }
 
   render(x: number, y: number): string {
     return `${this.species}@${x},${y}`;
@@ -61,11 +64,15 @@ class TreeTypeFactory {
 
 // Context objects store only extrinsic state (position) and borrow a shared flyweight.
 class Tree {
-  constructor(
-    private readonly x: number,
-    private readonly y: number,
-    private readonly type: TreeType,
-  ) {}
+  private readonly x: number;
+  private readonly y: number;
+  private readonly type: TreeType;
+
+  constructor(x: number, y: number, type: TreeType) {
+    this.x = x;
+    this.y = y;
+    this.type = type;
+  }
 
   draw(): string {
     return this.type.render(this.x, this.y);

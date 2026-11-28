@@ -36,11 +36,15 @@ Before, optional charges live as flags inside the quote:
 
 ```ts
 class Quote {
-  constructor(
-    private readonly base: number,
-    private readonly insured: boolean,
-    private readonly expedited: boolean,
-  ) {}
+  private readonly base: number;
+  private readonly insured: boolean;
+  private readonly expedited: boolean;
+
+  constructor(base: number, insured: boolean, expedited: boolean) {
+    this.base = base;
+    this.insured = insured;
+    this.expedited = expedited;
+  }
 
   total(): number {
     let amount = this.base;
@@ -63,21 +67,30 @@ interface Quote {
 }
 
 class BaseQuote implements Quote {
-  constructor(private readonly base: number) {}
+  private readonly base: number;
+  constructor(base: number) {
+    this.base = base;
+  }
   total(): number {
     return this.base;
   }
 }
 
 class Insured implements Quote {
-  constructor(private readonly inner: Quote) {}
+  private readonly inner: Quote;
+  constructor(inner: Quote) {
+    this.inner = inner;
+  }
   total(): number {
     return this.inner.total() + 5;
   }
 }
 
 class Expedited implements Quote {
-  constructor(private readonly inner: Quote) {}
+  private readonly inner: Quote;
+  constructor(inner: Quote) {
+    this.inner = inner;
+  }
   total(): number {
     return this.inner.total() * 1.1;
   }

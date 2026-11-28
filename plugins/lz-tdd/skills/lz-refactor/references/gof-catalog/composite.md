@@ -40,7 +40,11 @@ interface BomComponent {
 
 // Leaf: a part with no children.
 class Part implements BomComponent {
-  constructor(private readonly price: number) {}
+  private readonly price: number;
+
+  constructor(price: number) {
+    this.price = price;
+  }
 
   cost(): number {
     return this.price;

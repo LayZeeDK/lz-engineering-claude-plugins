@@ -30,7 +30,11 @@ Before, a sponsored subclass overrides the ranking:
 
 ```ts
 class SearchResult {
-  constructor(protected readonly baseScore: number) {}
+  protected readonly baseScore: number;
+
+  constructor(baseScore: number) {
+    this.baseScore = baseScore;
+  }
 
   rank(): number {
     return this.baseScore;
@@ -58,10 +62,13 @@ class SponsoredPolicy implements RankingPolicy {
 }
 
 class SearchResult {
-  constructor(
-    protected readonly baseScore: number,
-    private readonly policy?: RankingPolicy,
-  ) {}
+  protected readonly baseScore: number;
+  private readonly policy?: RankingPolicy;
+
+  constructor(baseScore: number, policy?: RankingPolicy) {
+    this.baseScore = baseScore;
+    this.policy = policy;
+  }
 
   rank(): number {
     return this.policy ? this.policy.rank(this.baseScore) : this.baseScore;

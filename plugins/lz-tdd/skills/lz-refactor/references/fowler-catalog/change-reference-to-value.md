@@ -28,11 +28,21 @@ Before, the position is shared by reference and mutated field by field:
 
 ```ts
 class Position {
-  constructor(public x: number, public y: number) {}
+  public x: number;
+  public y: number;
+
+  constructor(x: number, y: number) {
+    this.x = x;
+    this.y = y;
+  }
 }
 
 class Marker {
-  constructor(public position: Position) {}
+  public position: Position;
+
+  constructor(position: Position) {
+    this.position = position;
+  }
 
   moveX(x: number): void {
     this.position.x = x;
@@ -44,7 +54,13 @@ After, the position is an immutable value; a change replaces it whole and compar
 
 ```ts
 class Position {
-  constructor(readonly x: number, readonly y: number) {}
+  readonly x: number;
+  readonly y: number;
+
+  constructor(x: number, y: number) {
+    this.x = x;
+    this.y = y;
+  }
 
   equals(other: Position): boolean {
     return this.x === other.x && this.y === other.y;
@@ -52,7 +68,11 @@ class Position {
 }
 
 class Marker {
-  constructor(public position: Position) {}
+  public position: Position;
+
+  constructor(position: Position) {
+    this.position = position;
+  }
 
   moveX(x: number): void {
     this.position = new Position(x, this.position.y);

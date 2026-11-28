@@ -4,6 +4,7 @@
 
 - [SHIPPED] **lz-tdd@0.0.1 First Release** -- Phases 1-5 (shipped 2026-07-04)
 - [SHIPPED] **lz-tdd@0.0.2 lz-refactor Skill (Fowler + Kerievsky)** -- Phases 6-14 (shipped 2026-07-17)
+- [IN PROGRESS] **lz-tdd@0.0.3 lz-red Skill (RED phase)** -- Phases 15-22 (8 of 9 complete; Phases 15-21 done 2026-08-03, Phase 22 added 2026-08-03 to close the three-way classifier before the milestone ships. PR #3 open and held for it.)
 
 ## Phases
 
@@ -49,7 +50,251 @@ Full phase detail archived at `.planning/milestones/lz-tdd@0.0.2-ROADMAP.md`
 
 </details>
 
+### [IN PROGRESS] lz-tdd@0.0.3 lz-red Skill (RED phase) (Phases 15-22)
+
+**Milestone Goal:** Add a third dual-mode agent skill, `/lz-tdd:lz-red`, that coaches the
+RED step of red-green-refactor -- choosing and writing the next failing unit test well,
+adaptively matching the codebase's testing stance -- completing the RGR loop and handing
+off to `lz-tpp` at the green step. Markdown-only; mirrors lz-tpp's lean grain; example
+validation deps live only in a dev-only eval workspace.
+
+- [x] **Phase 15: lz-red Skill Scaffold & Description Boundary** - Invocable dual-mode skill skeleton with the three-way-guarded triggering description (completed 2026-07-18)
+- [x] **Phase 16: Source Distillation & Core RED References** - Clean-room own-words facts + test selection, structure, and naming references (completed 2026-07-19)
+- [x] **Phase 17: Assertion Design, Stance Router & TS/Vitest Mechanics** - The differentiator: assert-behavior, the adaptive testing-stance router, Vitest mechanics, anti-patterns (completed 2026-07-19)
+- [x] **Phase 18: Coach Procedure & lz-tpp Seam Wiring** - Inline RED decision procedure on the Three Laws spine + the lz-red <-> lz-tpp seam (completed 2026-07-20)
+- [x] **Phase 19: Distribution & Hygiene** - Three-skill 0.0.3 ship: version bump, docs, validators, copyright/ASCII/email hygiene (completed 2026-07-20)
+- [x] **Phase 20: Skill-Effectiveness Evals** - Trigger eval (incl. the cross-skill boundary) + RED-behavior eval vs baseline (completed 2026-07-21)
+- [x] **Phase 21: Applied RED Eval in Real OSS Repos (multi-dimensional, 3-arm)** - APPLY the next failing test in real OSS TypeScript repos with short human prompts; no_skill / with_skill / invoke_skill arms (+ optional mattpocock tdd competitor); grade on many lift dimensions -- mirrors the lz-refactor Phase 13/14 apply evals (INSERTED 2026-07-22) (completed 2026-07-23)
+- [x] **Phase 22: Three-way classifier correctness (lz-refactor + lz-red)** - Make the three skills' request classifiers exhaustive, mutually exclusive, and keyed on one axis, so no request in the red-green-refactor loop falls through or is claimed by two skills (ADDED 2026-08-03) (completed 2026-08-03)
+- [ ] **Phase 22.1: Eval harness on claude plugin eval and slim claude -p, plus a baseline on today's skill text** (INSERTED 2026-11-24, moved from Phase 24)
+- [ ] **Phase 23: Agent-as-developer conversion of lz-red, lz-tpp and lz-refactor, plus the new lz-tdd-coach skill**
+- [ ] **Phase 23.1: Source-name sweep of lz-tdd** (INSERTED 2026-11-24)
+- [ ] **Phase 23.2: TDDux identity** (INSERTED 2026-11-26)
+
+## Phase Details
+
+### Phase 15: lz-red Skill Scaffold & Description Boundary
+
+**Goal**: The `lz-red` skill exists as an invocable dual-mode skill whose description reliably triggers on RED-phase intent without colliding with `lz-tpp` or `lz-refactor`.
+**Depends on**: Nothing (first phase of milestone; builds on the shipped `lz-tdd` plugin)
+**Requirements**: SKL-01, SKL-02, SKL-03
+**Success Criteria** (what must be TRUE):
+
+  1. `/lz-tdd:lz-red` is invocable and the skill loads from `plugins/lz-tdd/skills/lz-red/SKILL.md` with dual-mode-by-omission frontmatter (name + description only; `name` equals the directory).
+  2. `SKILL.md` is a lean router (< 500 lines, near lz-tpp's size) using progressive disclosure -- reference stubs each carry a per-doc content contract; heavy content is deferred to lazy `references/` (flat docs plus one `testing-stance/` subdir).
+  3. The `description` auto-triggers on "choose / write the next failing test" intent and carries reciprocal near-miss guards against lz-tpp (make the failing test pass) and lz-refactor (restructure working code), within the description char cap.
+  4. `claude plugin validate .` exits 0.
+
+**Plans**: 1/1 plans complete
+
+- [x] 15-01-PLAN.md -- Scaffold lz-red: SKILL.md dual-mode router + v1 three-way-guarded description + 10 reference stubs (progressive disclosure)
+
+### Phase 16: Source Distillation & Core RED References
+
+**Goal**: RED-phase source facts are distilled clean-room into own words, and the core test-shaping references (selection, structure, naming) are authored with tsc-strict-clean examples.
+**Depends on**: Phase 15
+**Requirements**: SEL-01, SEL-02, STR-01, STR-02, NAME-01
+**Success Criteria** (what must be TRUE):
+
+  1. Owned books (RCM *Clean Code*, Metz *99 Bottles of OOP* JS Ed) and any transcribed talks live git-ignored in `.oracle/`; an oracle-access checkpoint (mirroring 0.0.2's D-09) is cleared and RED-phase facts are distilled own-words via the clean-room oracle / oracle-reviewer agents (main context never reads book prose).
+  2. Guidance exists to keep a test list, take one small (one-step) step, and start from the degenerate / starter case (empty, zero, null); triangulation-for-selection is present and explicitly bounded against lz-tpp's fake-it / generalize (the GREEN facet).
+  3. Arrange-Act-Assert and Given-When-Then are presented as one skeleton in two vocabularies (match the house idiom), plus assert-first, evident / intention-revealing test data, and one-concept-per-test guidance.
+  4. Behavior / BDD "should ..." naming is documented as primary, with Osherove's three-part `UnitOfWork_StateUnderTest_ExpectedBehavior` convention as the documented alternative.
+  5. Every TypeScript sample in these references is tsc --strict clean and contains no verbatim book prose (oracle-reviewer + no-verbatim scan pass).
+
+**Plans**: 3/3 plans complete
+**Wave 1**
+
+- [x] 16-01-PLAN.md -- Instrument-first lz-red-workspace (repointed tsc extractor + check-red-references RED baseline + hygiene extension) with the package-legitimacy checkpoint
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [x] 16-02-PLAN.md -- Fill the SEL / STR / NAME slices own-words with tsc-strict Vitest examples (oracle-reviewer-gated owned surfaces + no-verbatim scan)
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
+- [x] 16-03-PLAN.md -- Finalize gate: full battery GREEN + skill-reviewer PASS + claude plugin validate . exit 0
+
+### Phase 17: Assertion Design, Stance Router & TS/Vitest Mechanics
+
+**Goal**: The differentiator content exists -- assertion design tied to the adaptive testing-stance router, plus the TypeScript + Vitest mechanics and the anti-pattern / Test Desiderata references.
+**Depends on**: Phase 16 (reuses the distilled own-words facts)
+**Requirements**: ASRT-01, ASRT-02, ASRT-03, RTR-01, RTR-03, VIT-01, VIT-02, ANTI-01, ANTI-02
+**Success Criteria** (what must be TRUE):
+
+  1. Guidance exists to assert observable behavior, not implementation (Khorikov's four pillars, resistance-to-refactoring load-bearing), with output- / state- / communication-based assertion-style selection tied to the stance (output <-> functional core; state / communication <-> Metz boundary; characterization <-> Feathers legacy).
+  2. A `references/testing-stance/` subdir provides a navigation README (detection signals + route table) plus three leaves -- Bernhardt (functional core-imperative shell), Metz (message matrix), Feathers (seams + characterization) -- with the Feathers leaf cross-linked to lz-refactor's `refactoring-without-tests.md`, not copied.
+  3. The Metz query / command message matrix is captured as the design-agnostic rule for what to assert vs mock, and "listen to the tests" is framed as design feedback (test pain routes toward a functional core or a seam, not more doubles; GOOS as counterpoint only).
+  4. Vitest 4.x mechanics are mapped to RED concepts (`it.todo` = test list, `test.each` = triangulation, `vi.*` doubles with restraint, watch mode = feedback loop); TS + Vitest examples appear throughout the references and are tsc --strict clean.
+  5. An anti-pattern leaf names RED anti-patterns and the observable-behavior fix (incl. Ian Cooper's over-mock / test-per-class warning, testing private methods, multiple unrelated assertions, pass-immediately, snapshot-as-thinking, slow / order-dependent tests), and a Test Desiderata tradeoff lens matches the "heuristic not law" voice.
+
+**Plans**: 6/6 plans complete
+
+**Wave 1** (instrument-first RED baseline)
+
+- [x] 17-01-PLAN.md -- Extend check-red-references.mjs to the Phase-17 RED baseline (six new file entries + flipped assertions slice + per-file requireFence + seams cross-link guard + co-edit Phase-18 deferral guards)
+
+**Wave 2** (content -- parallel, disjoint files) *(blocked on Wave 1)*
+
+- [x] 17-02-PLAN.md -- Assertion design slice (four pillars, resistance-to-refactoring load-bearing, F.I.R.S.T., output/state/communication selection) + principle-backing map [owned: F.I.R.S.T.]
+- [x] 17-03-PLAN.md -- Testing-stance router: nav index + functional-core (Bernhardt) + seams-and-legacy (Feathers, cross-linked to lz-refactor) [no-oracle]
+- [x] 17-04-PLAN.md -- Message matrix (Metz query/command, owned) + Vitest 4.x mechanics + brief ADV-01/02 forward-pointers [owned: Metz]
+- [x] 17-05-PLAN.md -- Anti-patterns (Cooper owned) + listen-to-the-tests (GOOS counterpoint) + Test Desiderata [owned: Cooper]
+
+**Wave 3** (finalize gate) *(blocked on Wave 2)*
+
+- [x] 17-06-PLAN.md -- Finalize gate: full battery GREEN + orchestrator oracle-reviewer (3 owned surfaces) + skill-reviewer + claude plugin validate . exit 0
+
+### Phase 17.1: Perform Phase 16 Beck follow up (INSERTED)
+
+**Goal:** The lz-red skill's Kent-Beck-backed RED selection/structure surfaces that a free full-text essay actually backs are honestly re-tiered from no-oracle to `Owned; oracle-verified` across all four provenance surfaces (per-doc intro blockquote + `## Sources` block; `principle-backing.md` map row + Sources paragraph); recommendation CONTENT is unchanged, book-only-backed rows stay no-oracle, and the deterministic battery stays GREEN.
+**Requirements**: SEL-01, SEL-02, STR-02 (already Complete in Phase 16 -- this phase is a provenance-tier upgrade to their source backing, NOT new coverage; their status stays Complete). It also upholds, but does NOT complete, the Phase-19 ship-hygiene and clean-room constraints (own-words / no-verbatim, ASCII-only, email-allowlist), which stay Pending and remain owned by Phase 19.
+**Depends on:** Phase 17
+**Plans:** 1/1 plans complete
+**Wave 1** (single blind executor; orchestrator oracle-reviewer gate runs post-execution)
+
+Plans:
+
+- [x] 17.1-01-PLAN.md -- Blind owned-source tier upgrade of the Beck RED selection/structure surfaces (four consistency surfaces + Phase-16 note; battery GREEN), then orchestrator-driven oracle-reviewer gate per upgraded surface
+
+### Phase 18: Coach Procedure & lz-tpp Seam Wiring
+
+**Goal**: The inline RED decision procedure ties the references together on the Three Laws spine, routes the stance, fails for the right reason, and wires the lz-red <-> lz-tpp seam (closing the carried reverse-pointer tech-debt).
+**Depends on**: Phase 17 (all reference links must resolve before the procedure links into them)
+**Requirements**: LAW-01, LAW-02, RTR-02, SEAM-01, SEAM-02
+**Success Criteria** (what must be TRUE):
+
+  1. `SKILL.md` carries a numbered coach procedure on the Three Laws spine (Law 1 gates entry -- no production code before a failing test; Law 2 sizes the test -- only enough to fail, not-compiling counts; Law 3 is the lz-tpp handoff) that classifies RED vs GREEN vs REFACTOR first.
+  2. The procedure includes a routing step that detects and matches the house test idiom always, routes by structural control / seam availability to the right stance, states the route chosen and why, and honors an optional override phrase (no CLI flag).
+  3. A fail-for-the-right-reason step (watch the red bar, confirm the test fails on the asserted behavior not a compile / setup error or false green, F.I.R.S.T. baseline) precedes the forward lz-red -> lz-tpp handoff; the coach questions rather than drives (no auto-editing / running the suite unprompted).
+  4. A reverse `lz-tpp -> lz-red` pointer (plus the deferred `lz-tpp -> lz-refactor` pointer, in the same edit) is added to the shipped lz-tpp `SKILL.md`, subagent-reviewed (incl. >= 1 unbiased from-scratch reviewer) before acceptance.
+
+**Plans**: 6/6 plans complete
+
+**Wave 1** (instrument-first RED baseline)
+
+- [x] 18-01-PLAN.md -- Extend check-red-references.mjs + extract-samples.mjs to the Phase-18 RED baseline (flip the 4 deferral guards to positive topics + a NET-NEW `absent` guard, add SKILL.md coach-procedure coverage + a non-ignore ts-fence guard, add the SEAM-02 lz-tpp block, cover the SKILL.md fence), asserted RED
+
+**Wave 2** (content -- parallel, disjoint files) *(blocked on Wave 1)*
+
+- [x] 18-02-PLAN.md -- Fill the owned Three Laws spine + classify-first in three-laws-and-test-selection.md (blind, oracle-gated) + the LAW/SEAM backing rows in principle-backing.md [LAW-01, SEAM-01]
+- [x] 18-03-PLAN.md -- Fill the two no-oracle LAW-02 procedure markers: F.I.R.S.T.-as-a-red-step-baseline (test-structure-and-assertions.md) + fail-for-the-right-reason (vitest-typescript-mechanics.md) [LAW-02]
+- [x] 18-04-PLAN.md -- Add the reverse `lz-tpp -> lz-red` + deferred `lz-tpp -> lz-refactor` pointers to the shipped lz-tpp/SKILL.md in one edit (blind; orchestrator unbiased-review-gated) [SEAM-02]
+
+**Wave 3** (SKILL.md coach procedure) *(blocked on Wave 2)*
+
+- [x] 18-05-PLAN.md -- Replace the SKILL.md placeholder with the inline 6-step coach procedure on the Three Laws spine + the one tsc-strict VIT-02 worked example [LAW-01, LAW-02, RTR-02, SEAM-01, VIT-02]
+
+**Wave 4** (finalize gate) *(blocked on Wave 3)*
+
+- [x] 18-06-PLAN.md -- Finalize: full deterministic battery GREEN + the three orchestrator gates (oracle-reviewer on the owned Three-Laws surface; >= 1 unbiased review of the lz-tpp edit; >= 1 unbiased review of the lz-red SKILL.md coach procedure) + claude plugin validate . exit 0
+
+### Phase 19: Distribution & Hygiene
+
+**Goal**: The three-skill 0.0.3 is shippable -- version bumped, docs truthful, first-party validators pass, and copyright / ASCII / email hygiene is clean.
+**Depends on**: Phase 18
+**Requirements**: DST-01, DST-02, DST-03
+**Success Criteria** (what must be TRUE):
+
+  1. `plugin.json` is bumped to 0.0.3; README + CHANGELOG document lz-red as the RED step completing the three-skill red-green-refactor loop; the marketplace listing names all three skills.
+  2. `claude plugin validate . --strict` exits 0 and the plugin-validator + skill-reviewer agents both PASS on lz-red.
+  3. The shipped tree is ASCII-only with no verbatim book prose or talk transcripts (own-words, DST-04 clean-room via git-ignored `.oracle/`), every TypeScript sample is tsc --strict clean, and the maintainer work-email is absent (allowlist-inversion scan passes; author / committer = public gmail).
+
+**Plans**: 2/3 plans executed
+
+**Wave 1** (content edits + GA-7 hygiene forward-fix -- parallel, disjoint files)
+
+- [x] 19-01-PLAN.md -- Three-skill 0.0.3 content: bump plugin.json to 0.0.3 + three-skill description/keywords, marketplace listing names all three skills, README lz-red RED-step section + three-skill loop lead, CHANGELOG [lz-tdd@0.0.3] entry (DST-01, DST-03)
+- [x] 19-02-PLAN.md -- GA-7 work-domain anti-pattern forward-fix: rewrite the archived 06-SECURITY.md encoded needle to a non-encoding allowlist-inversion form + sweep tracked planning docs; no main history rewrite (DST-03)
+
+**Wave 2** (finalize gate -- blocked on Wave 1)
+
+- [x] 19-03-PLAN.md -- Finalize: deterministic battery + validate --strict GREEN + full-tree email allowlist-inversion + DST-04 attestation; orchestrator gates (plugin-validator + skill-reviewer on lz-red + targeted DST-04 clean-room re-sweep) run post-execution (DST-02, DST-03)
+
+### Phase 20: Skill-Effectiveness Evals
+
+**Goal**: The shipped lz-red skill is empirically validated -- it triggers on RED intent (including the three-way cross-skill boundary) and coaches the right RED move versus an unaided baseline.
+**Depends on**: Phase 19
+**Requirements**: EVL-01, EVL-02
+**Success Criteria** (what must be TRUE):
+
+  1. A trigger eval shows lz-red fires on RED-phase prompts and stays quiet on near-misses, INCLUDING a cross-skill trigger eval that proves the three-way boundary (lz-red vs lz-tpp vs lz-refactor) holds -- targeting the 0.0.1 / 0.0.2 bar (100% recall / 100% specificity).
+  2. A RED-behavior eval shows the coach recommends the correct next-test / assertion move (right selection, structure, and assertion target; fails for the right reason; hands off to lz-tpp; coaches rather than drives) versus an unaided baseline.
+  3. The vendored eval harness lives in a dev-only `lz-red-workspace` (per-run byproducts git-ignored, no build deps in `plugins/lz-tdd`); the `description` is tuned only if specificity drops, and the tuned skill is re-validated.
+
+**Plans**: 3/3 plans complete
+
+**Wave 1** (parallel -- disjoint files; instrument-first RED baseline then data GREEN)
+
+- [x] 20-01-PLAN.md -- EVL-01: copy the vendored native-fixed harness + generic scripts + light-edited runners, adapt check-evals to the three-way boundary (both seams + reciprocal dual-write + email-allowlist), author trigger-eval / reciprocal-red / negatives, add the lz-red gitignore lines
+- [x] 20-02-PLAN.md -- EVL-02: rewrite grade-run.mjs into the D-05-RUBRIC per-dimension hybrid grader (phrase-set matchers + borrowed negation-aware occursAffirmed + 2-dimension judge + alignment selfcheck), author the leaf-grounded RED-situation scenarios
+
+**Wave 2** (finalize -- blocked on Wave 1)
+
+- [x] 20-03-PLAN.md -- Scaffold EVAL-RESULTS.md, prove the full deterministic battery GREEN on the merged tree, present the ready-to-run gated commands (EVL-01 forward + reciprocal + EVL-02) and HALT before any metered run (D-11)
+
+Post-execution: EVL-01 + D-09 widen RAN 2026-07-21; EVL-02 coaching-prose behavior benchmark RAN
+2026-07-22 (substance-only Pass@1 with_skill 0.97 vs baseline 0.87; full-run vocabulary-inflated per the
+unbiased review). Recorded in `.claude/skills/lz-red-workspace/EVAL-RESULTS.md`. This coaching-prose EVL-02
+is a first-pass validation record; the user requested a stronger applied eval (Phase 21) before close.
+
+### Phase 21: Applied RED Eval in Real OSS Repos (multi-dimensional, 3-arm) (INSERTED)
+
+**Goal**: `lz-red` is validated on REAL applied work -- driving the next failing (red) test in real OSS
+TypeScript repos with short, basic, human-style prompts -- across three arms and graded on many lift
+dimensions, mirroring the lz-refactor Phase 13/14 apply evals (not coaching prose over synthetic
+snippets).
+**Depends on**: Phase 20 (reuses the eval workspace) and the lz-refactor apply harness at
+`.claude/skills/lz-refactor-workspace/` (`run-e2e.mjs`, `tabulate-mechanical.mjs`, oracle-reviewer).
+**Requirements**: EVL-03 (new; formalized in REQUIREMENTS.md at plan time).
+**Success Criteria** (what must be TRUE):
+
+  1. Short human-style APPLY prompts ("what should I test next here?", "add the next test") drive the
+     next failing test in >= 1 real OSS TypeScript repo (Vitest/Jest); byte-identical across arms except
+     the target path; real applied output (test file / diff) is captured and graded, not coaching prose.
+
+  2. FIRST rounds run three OWN-skill arms: `no_skill` (baseline), `with_skill` (skill present + natural
+     prompt -- tests whether the description AUTO-TRIGGERS and then helps), and `invoke_skill` (prompt
+     force-starts with `/lz-tdd:lz-red ...` -- isolates content value); `with_skill` vs `invoke_skill`
+     surfaces any trigger gap. The `mattpocock-skills:tdd` competitor arm is a LATER, CONTINGENT round
+     -- run only after our own lift is measured, and only because the standalone check passed (confirmed
+     2026-07-22: no hard sibling dep). Note the scope mismatch in the writeup: mattpocock tdd is a full
+     red->green loop with an interactive seam-confirmation step, vs lz-red's RED-step-only coach.
+
+  3. Produced tests are graded + compared on many lift dimensions: wall-clock time, tool usage, token
+     usage (mechanical from stream-json meta); correctness (tsc --strict clean AND genuinely red for the
+     right reason on current code); output quality; book/source authenticity vs the owned `.oracle/` RED
+     sources via oracle-reviewer (DST-04); follows idioms; follows house style; follows TDD RED practices
+     (right next test, fail-for-right-reason, assert observable behavior, classify-first, handoff).
+
+  4. Harness reuses the lz-refactor apply pattern (synthetic base, stream-json meta, per-arm tool
+     profiles); per-run byproducts git-ignored; no build deps in `plugins/lz-tdd`; the metered run is
+     user-gated (D-11 / [[eval-run-approval-gate]]).
+
+  5. Results recorded with Pass@k / Pass^k + >= 1 unbiased from-scratch reviewer; where any vocabulary
+     proxy is used, the substance-only comparison is the headline (lesson carried from Phase 20 EVL-02).
+
+**Plans**: 4/4 plans complete
+
+**Wave 1**
+
+- [x] 21-01-PLAN.md -- Parameterize run-e2e.mjs tracked skill names off suite.json + author the Gilded Rose `Conjured` RED apply suite (non-leading, byte-identical-across-arms, D-06 target shape) + git-ignore its run tree + formalize EVL-03 in REQUIREMENTS.md
+
+**Wave 2** *(blocked on Wave 1)*
+
+- [x] 21-02-PLAN.md -- grade-red.mjs: the D-06 correctness classifier (differential tsc --strict + the target's own runner JSON -> genuinely_red / false_green / drove_to_green / compile_error / collection_error / no_tests / wrong_reason) + fixtures/ + `--selfcheck`
+
+**Wave 3** *(blocked on Wave 2)*
+
+- [x] 21-03-PLAN.md -- tabulate-mechanical-red.mjs (mechanical dims + auto-trigger gap + Pass@k/Pass^k on the correctness gate) + selfcheck-red.mjs (composition/prompt-parity/worktree base/parse/classifier/lz-refactor regression) + EVAL-RESULTS.md scaffold
+
+**Wave 4** *(blocked on Wave 3)*
+
+- [x] 21-04-PLAN.md -- Phase gate (full battery GREEN + repos pristine + plugins/lz-tdd untouched) + RUN-GATE.md + the blocking-human HALT before the metered 3-arm run (eval-run-approval-gate)
+
 ## Progress
+
+**Execution Order:** Phases execute in numeric order: 15 -> 16 -> 17 -> 18 -> 19 -> 20 -> 21.
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 | ----- | --------- | -------------- | ------ | --------- |
@@ -69,6 +314,371 @@ Full phase detail archived at `.planning/milestones/lz-tdd@0.0.2-ROADMAP.md`
 | 12. Autonomous multi-round refactoring for whole-package sweeps | lz-tdd@0.0.2 | 3/3 | Complete | 2026-07-14 |
 | 13. lz-refactor vs base Opus eval: book authenticity & correctness | lz-tdd@0.0.2 | 5/5 | Complete | 2026-07-15 |
 | 14. Compare lz-refactor to mattpocock-skills code-review skill | lz-tdd@0.0.2 | 5/5 | Complete | 2026-07-15 |
+| 15. lz-red Skill Scaffold & Description Boundary | lz-tdd@0.0.3 | 1/1 | Complete    | 2026-07-18 |
+| 16. Source Distillation & Core RED References | lz-tdd@0.0.3 | 3/3 | Complete    | 2026-07-19 |
+| 17. Assertion Design, Stance Router & TS/Vitest Mechanics | lz-tdd@0.0.3 | 6/6 | Complete   | 2026-07-19 |
+| 18. Coach Procedure & lz-tpp Seam Wiring | lz-tdd@0.0.3 | 6/6 | Complete    | 2026-07-20 |
+| 19. Distribution & Hygiene | lz-tdd@0.0.3 | 3/3 | Complete    | 2026-07-20 |
+| 20. Skill-Effectiveness Evals | lz-tdd@0.0.3 | 3/3 | Complete    | 2026-07-21 |
+| 21. Applied RED Eval in Real OSS Repos (multi-dimensional, 3-arm) | lz-tdd@0.0.3 | 4/4 | Complete    | 2026-07-23 |
+
+### Phase 22: Three-way classifier correctness (lz-refactor + lz-red)
+
+**Goal**: Every request in the red-green-refactor loop lands with exactly one skill. The three
+sibling classifiers are exhaustive (nothing falls through), mutually exclusive (no two skills
+claim the same request), and keyed on a single axis (what the developer is asking for), so the
+loop the milestone claims to complete actually closes.
+
+**Depends on**: Phase 18 (authored the lz-red coach procedure and the lz-tpp seam), quick task
+260803-53q (closed TD-02 and surfaced this)
+
+**Requirements**: CLS-01, CLS-02, CLS-03, CLS-04, CLS-05 (all to be added to REQUIREMENTS.md during
+planning; CLS-05 is SC8's placement A/B)
+
+**Origin**: Raised by the unprimed acceptance reviewer on quick task 260803-53q, 2026-08-03. Full
+finding list and the orchestrator's pre-existing-vs-regression adjudication in
+`.planning/quick/260803-53q-close-td-02-widen-the-lz-refactor-seam-s/260803-53q-REVIEW.md`. The
+defect is NOT introduced by 0.0.3 -- it has been public since lz-refactor shipped in lz-tdd@0.0.2.
+The available two-line patch was deliberately declined in favour of fixing the classifier as a
+unit.
+
+**Success Criteria** (what must be TRUE):
+
+  1. **Exhaustive.** Every one of the reviewer's eight traced requests lands with exactly one
+     skill, including the two that currently fail: "I just finished making a test pass. What now?"
+     (fires no lz-refactor branch today, so lz-red's catch-all takes it and the refactor step is
+     skipped at the moment it exists for) and "I want to add a new behavior to this module" with
+     nothing failing yet (routes nowhere; the destination the lz-refactor description names is
+     lz-tpp, which declines it by its own description).
+
+  2. **Mutually exclusive across skills.** At most one of the three step-1 procedures claims any
+     given request. Today lz-refactor is the only sibling whose "otherwise" is a positive
+     condition rather than a catch-all, so it is the only one that can lose a request it owns --
+     while lz-red and lz-tpp both end with an "otherwise ... is this skill" catch-all, which is
+     the collision half of the same defect.
+
+  3. **Single axis.** No routing branch keys on test state; all key on the ask. Includes the two
+     surviving test-state conditions left out of scope by 260803-53q: `lz-refactor/SKILL.md:30`
+     (`## Two modes` coach gate, which also contradicts step 5's own untested-code branch) and any
+     equivalent in lz-red or lz-tpp.
+
+  4. **Test code has a named owner.** "Is this a good test?" routes to lz-red, not to lz-refactor's
+     Extract Function advice. Today lz-red claims it by description while lz-refactor's branch (c)
+     captures it, because branch (b) hands off only the *next failing* test.
+
+  5. **Body and description agree, per skill.** lz-refactor's body currently drops the
+     description's "or otherwise ADD or CHANGE behavior" clause, and `SKILL.md:139` cites a step-1
+     rule that step 1 does not contain. Every in-body handoff matches its own frontmatter.
+
+  6. **Guarded.** A checker gate holds the routing semantics, not merely token presence -- the
+     TD-02 guard's measured ceiling (a renamed heading alone satisfies a bare `/lz-red/` needle)
+     is closed for the new gates. Mutation-tested in both directions.
+
+  7. All shipped skills touched pass a fresh acceptance review with at least one from-scratch
+     unprimed reviewer, and the full battery plus `claude plugin validate .` stay GREEN.
+
+  8. **Placement decided empirically** (ADDED 2026-08-03 by owner decision at discuss time). The
+     routing content is authored in three placement variants -- (A) inline only, (B) shared
+     plugin-wide table plus inline classify-first rationale, (C) shared table replacing the three
+     per-skill narrative sections -- and A/B'd on routing correctness over the reviewer's eight
+     traced requests before one is shipped. A trigger eval cannot discriminate the arms (identical
+     `description` frontmatter by construction), so the instrument is an EVL-02-style body/behavior
+     eval with the arms toggled via `--plugin-dir`. Pre-registered null tiebreak: variant C. Metered
+     runs stay HALT-gated on explicit owner approval.
+
+**Also in scope** (cheap, same files, found by the same review): step 6's reference router omits
+`refactoring-without-tests.md` and `beck-tidy-first.md`; `lz-refactor/SKILL.md:81` names a section
+that does not exist.
+
+**Scope amendments (2026-08-03, from `/gsd-core:discuss-phase 22`)**: the phase title names two
+skills but all THREE are edited -- SC2 and SC3 name `lz-tpp` explicitly and its catch-all is the
+collision half of the BLOCKER, so its classifier surfaces change too (minimally, classifier-only).
+`description` frontmatter is IN scope by owner decision, which makes the trigger-eval round
+mandatory rather than conditional. Folding SC8's A/B into this phase extends the deliberate PR #3
+hold by the full author-variants -> gated-run -> writeup cycle; the owner accepted that in exchange
+for editing the shipped bodies once, on measured grounds. Full rationale and the alternatives
+declined: `.planning/phases/22-three-way-classifier-correctness-lz-refactor-lz-red/22-CONTEXT.md`
+and `22-DISCUSSION-LOG.md`.
+
+**Risk**: This edits three SHIPPED skills and changes triggering-adjacent prose, including the
+`description` frontmatter. The EVL-01 reciprocal trigger round is therefore REQUIRED, not optional,
+as the regression check, and `/reload-plugins` must follow -- committed is not live.
+
+**Plans:** 8/8 plans complete
+
+- [x] 22-08-PLAN.md
+
+**Wave 1** (instrument-first; the routing gate is ASSERTED RED against today's tree)
+
+- [x] 22-01-PLAN.md -- The semantic routing gate: `routing-parse.mjs` + the 9-case corpus + `check-rgr-routing.mjs` (asserted RED) + an 8-mutation both-directions selftest, wired into the lz-red battery [CLS-01..CLS-04]
+- [x] 22-02-PLAN.md -- Close the two measured instrument holes: widen `check-hygiene.mjs` to the plugin-wide references dir + README with an AUTHORED non-vacuity floor, widen `check-evals.mjs` clause 8 to the new suite, gitignore lines, and author CLS-01..CLS-05 in REQUIREMENTS.md [CLS-01..CLS-05]
+
+**Wave 2** *(parallel, disjoint files; blocked on Wave 1)*
+
+- [x] 22-03-PLAN.md -- The three shipped `SKILL.md` classifiers: description, `## Two modes` gate, sibling-seam narrative and coach step 1 for each of lz-refactor / lz-red / lz-tpp, plus lz-refactor's three D-07 mechanical fixes [CLS-01, CLS-02, CLS-03]
+- [x] 22-05-PLAN.md -- A/B harness plumbing (content-independent): `run-e2e.mjs` placement arm + two read-only variant consts + retrieval instrumentation, `tabulate-mechanical-red.mjs --grade-file`, the `e2e-rgr-routing` suite derived from the corpus, and `grade-routing.mjs` + fixtures + `--selfcheck` [CLS-05]
+
+**Wave 3** *(blocked on Wave 2)*
+
+- [x] 22-04-PLAN.md -- The two reference-tier classifier surfaces (D-20): the three-laws leaf's replicated classify-first block, and `plugins/lz-tdd/references/beck-tdd-by-example.md`'s seam section made three-way, plugin-neutral and ask-keyed; the routing gate goes GREEN [CLS-01, CLS-02, CLS-03]
+
+**Wave 4** *(blocked on Wave 3)*
+
+- [x] 22-06-PLAN.md -- Variant staging: the shared routing table as a workspace SOURCE artifact, `build-variants.mjs` with fail-closed transforms, and `selfcheck-routing.mjs` proving three-arm composition, nine-prompt parity and byte-identical descriptions across all three trees [CLS-05]
+
+**Wave 5** *(phase gate; blocked on Wave 4)*
+
+- [x] 22-07-PLAN.md -- Phase gate: full battery GREEN with both widens proven non-vacuous by risen counts, `RUN-GATE.md` with TWO separately-approvable metered HALTs, the `ROUTING-AB-RESULTS.md` scaffold carrying the D-24 success framing, and the blocking-human HALT [CLS-01..CLS-05]
+
+**Closing note (D-24):** the phase completes with the classifier FIXED and the placement question
+BUILT-and-HALTED. Closing Phase 22 does not by itself unblock PR #3 -- the owner-approved A/B run does.
+"No variant shipped" is the designed outcome, not an incomplete phase: the tracked tree is variant A,
+which is itself a legitimate variant. The D-18/SC7 acceptance review, the D-26 unprimed review and both
+metered rounds are ORCHESTRATOR steps after the executors return.
+
+### Phase 22.1: Eval harness on claude plugin eval and slim claude -p, plus a baseline on today's skill text (INSERTED)
+
+**Goal:** Every lz-tdd eval suite runs on `claude plugin eval` (trigger, answer and apply-without-shell cases;
+`tool_used` Skill and leaf-read graders, built-in baseline arm) or on slim `claude -p` where `plugin eval` cannot
+express the run (cases that run tests, which need a shell sandbox native Windows lacks; packaged-variant A/B arms);
+each ported suite reproduces one recorded result, and the skill-creator-derived harnesses under
+`.claude/skills/*-workspace/` are retired. The new graders score the doing behaviour Phase 23 ships (each step makes
+its change, runs the tests and ends with its report line). A baseline run on today's skill text, as a packaged copy of
+this phase's last commit, is the "before" arm for Phase 23 and Phase 23.1. Phase 22's two owed metered rounds run on
+this harness after Phase 23. Every script the port adds meets the user-scope script bar (erasable TypeScript with
+`.test.ts`, type-checked, reviewed, security-reviewed; Lars 2026-11-24: "Make later scripts meet the bar by default:
+OK").
+**Rulings:** Lars 2026-11-24: "I want you to adopt `claude plugin eval` and/or slim `claude -p` and replace our
+current skill-creator plugin-inspired eval setup."; "4: OK" (Phase 22 rounds wait for the new harness); "Move the
+harness before the text changes. OK" (moved from Phase 24 to here). Paid runs are pre-approved once the harness is
+resumable (Lars 2026-11-24, verbatim: "Pre-approve paid eval runs but first you must make the eval run sets and the
+individual runs resumable where possible, similar to lz-gardening or lz-oop (I'm not sure which). Do this in the
+relevant Phase."): this phase makes a run set resume where it stopped (finished runs are kept and not paid for again)
+and makes each run resume where its tool allows, modelled on lz-gardener's or lz-oop's eval harness (the planning
+research reads both and picks the closer fit). Until resumability is built and shown working on a dry run, no paid
+run starts; after that, the baseline and the later rounds run without a separate go-ahead. Every suite runs on both
+officially supported models, Opus 5.5 and Sonnet 5.5 (Lars 2026-11-24, verbatim: "Which models the skills support:
+Official support (covered by evals) only for Opus 5.5 and Sonnet 5.5"), with the model checked from the CLI's own
+system/init and modelUsage output, not a harness field. Runs per case to start from (Claude's recommendation, Lars
+2026-11-24: "OK"): Sonnet 5.5 n=5 and Opus 5.5 n=3, for trigger/routing and apply suites alike, because a skill that
+holds on Sonnet usually holds on Opus (Lars: "If skills work for Sonnet 5.5, they usually work for Opus 5.5"). A case
+that passes on Sonnet but fails on Opus reruns on Opus at n=5 before it counts. Recheck the n against the per-run cost
+from this phase's dry run; if a suite is too expensive, cut cases before cutting Sonnet's n.
+**Requirements**: EVH-01, EVH-02, EVH-03, EVH-04, EVH-05, EVH-06, EVH-07, EVH-08, EVH-09, EVH-10, EVH-11, EVH-12
+**Depends on:** Phase 22
+**Plans:** 7/8 plans executed
+
+Plans:
+**Wave 1**
+- [x] 22.1-01-PLAN.md -- resumable run-set core, both backends, and the free stub dry run (the gate before any paid run)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+- [x] 22.1-02-PLAN.md -- staging from git archive, slim templates from pinned kata commits, the grader model and crosscheck
+
+**Wave 3** *(blocked on Wave 2 completion)*
+- [x] 22.1-03-PLAN.md -- case lint, generated trigger and routing suites (10 trigger cases per skill tagged for the baseline), and the pilot's hand-written cases
+
+**Wave 4** *(blocked on Wave 3 completion)*
+- [x] 22.1-04-PLAN.md -- pilot run set on both models, interrupted and resumed; findings that decide the rest, including how many trigger cases fit the 100 USD baseline cap (paid)
+
+**Wave 5** *(blocked on Wave 4 completion)*
+- [x] 22.1-05-PLAN.md -- the remaining doing suites and the lz-tpp, lz-refactor and srvx lz-red slim apply suites (srvx on a pinned pnpm template), with invoke twins
+
+**Wave 6** *(blocked on Wave 5 completion)*
+- [x] 22.1-06-PLAN.md -- reproductions of one recorded result per carried-over suite (trigger recall, two apply cells) on their recorded models and commits, with committed verdicts (paid)
+
+**Wave 7** *(blocked on Wave 6 completion)*
+- [x] 22.1-07-PLAN.md -- retirement of the skill-creator-derived runners, per workspace only where its reproduction landed inside, plus grade-red, arm-anchor and selfcheck-red (Lars 2026-11-25)
+
+**Wave 8** *(blocked on Wave 7 completion)*
+- [ ] 22.1-08-PLAN.md -- with-without section and Stryker config, then the baseline in stages under the 100 USD cap, srvx last after the analysis (paid)
+
+**Wave 9** *(blocked on Wave 8 completion)*
+- [ ] 22.1-09-PLAN.md -- gap closure for the verifier's third pass: ran-tests counts a test-runner invocation (free re-grade of the 96 saved slim runs, Notes corrected), no cast besides as const in tools/evals, and a recorded state for each Info finding IN-01 to IN-14 (no paid run)
+
+### Phase 23: Agent-as-developer conversion of lz-red, lz-tpp and lz-refactor, plus the new lz-tdd-coach skill
+
+**Goal:** When an agent is doing the work, lz-red writes the failing test and runs it, lz-tpp makes the green change and
+runs the suite, and lz-refactor applies the refactoring and runs the suite: coach mode and reference mode are removed
+from all three, the cycle keeps going until the goal is met, and each step names the transformation or refactoring it
+applied (field-triage themes A1, A2, reported independently by all four projects whose lz-tdd usage ledgers were
+triaged on 2026-11-24). Explaining and guiding move to a new `lz-tdd-coach` skill in this phase (Lars 2026-11-24,
+recorded in 23-CONTEXT.md D-14). Measured before and after on the Phase 22.1 harness.
+**Rulings:** Lars 2026-11-24: "Agent-as-developer clause and command naming line (themes A1 and A2): Ship in 0.0.3";
+converting lz-tdd to an agent-as-developer plugin, with `/lz-tdd:lz-tdd-audit` and `/lz-tdd:lz-tdd-review` skills in
+place of coach mode. Placing the conversion of the three existing skills here and the two new skills in 0.0.4 is
+Claude's reading, stated to Lars.
+**Requirements**: AGD-01, AGD-02, AGD-03, AGD-04, AGD-05, AGD-06, AGD-07, AGD-08, AGD-09, AGD-10, AGD-11, AGD-12
+**Depends on:** Phase 22.1
+**Plans:** 8 plans
+
+Plans:
+**Wave 1**
+- [ ] 23-01-PLAN.md -- (wave 1) skill-contract check `tools/evals/check-skills.ts`, RED at HEAD; shared heading renames
+
+**Wave 2** *(blocked on Wave 1 completion)*
+- [ ] 23-02-PLAN.md -- (wave 2) lz-red writes and runs the failing test by default, the phase tracer
+- [ ] 23-03-PLAN.md -- (wave 2) new lz-tdd-coach skill: explains and guides, edits nothing
+
+**Wave 3** *(blocked on Wave 2 completion)*
+- [ ] 23-04-PLAN.md -- (wave 3) lz-tpp applies the transformation and runs the tests by default
+
+**Wave 4** *(blocked on Wave 3 completion)*
+- [ ] 23-05-PLAN.md -- (wave 4) lz-refactor performs the refactoring by default; gate selectors and check script follow
+
+**Wave 5** *(blocked on Wave 4 completion)*
+- [ ] 23-06-PLAN.md -- (wave 5) variant trees rebuilt; staleness and single-axis checks (CR-01, WR-06)
+- [ ] 23-07-PLAN.md -- (wave 5) docs and planning records follow the change; folded reachability todo closed
+
+**Wave 6** *(blocked on Wave 5 completion)*
+- [ ] 23-08-PLAN.md -- (wave 6) paid after run on the 22.1 harness, behind Lars's cost checkpoint
+
+### Phase 23.1: Source-name sweep of lz-tdd (INSERTED)
+
+**Goal:** Shipped lz-tdd skills and references name no people, conferences, talks, books, articles or podcasts;
+named patterns and techniques stay. A shipped `plugins/lz-tdd/ATTRIBUTION.md` names the sources, and a check
+(modelled on lz-oop's `tools/citations.ts`, written to the user-scope script bar) fails the build on a title,
+chapter citation or stand-in outside it. Every checker that mirrors the swept text moves with it. Lars 2026-11-24:
+"Similar to lz-oop, the lz-tdd plugins' skills and references shouldn't mention or link to people, conferences,
+talks, books, articles, podcasts, or similar by name." and "Where the no-names sweep goes: Before Phase 24's eval
+port and the Phase 22 metered rounds" (the eval port has since moved to Phase 22.1, before this phase; Lars
+2026-11-24: "Move the harness before the text changes. OK"; the sweep still precedes the Phase 22 rounds). Person names go too (Lars 2026-11-24: "Whether person names go too: OK.
+Remove all agreed names."), except where a person's name is the usual name of a concept. Measured, not assumed
+(Lars 2026-11-24: "Yes, we need at least some evals before and after to compare the effect. If no names vs. current
+names show decent/similar/better performance, don't bother A/B testing the removal of only certain groups of names.
+Yes, use the Phase 24 harness instead of the current eval harness."): two arms, the commit before this phase
+(current names) and the commit after it (no names), each a packaged copy run on the Phase 22.1 harness; per-group arms only if no-names does worse. The run is metered and waits for Lars's yes at run time.
+Budget (Lars 2026-11-25: "Names test budget for Phase 23.1: One new arm, with srvx at about $51."): Phase 23's
+after-measurement serves as the names arm when nothing in the shipped text changes between it and this phase's
+start (the plan checks this before spending); only the no-names arm is new, srvx cells included, about 51 USD at
+pilot costs. Lars on why it is still needed after lz-oop's null result (2026-11-25): "Names related to TDD might
+differ from names related to OOP in how they affect models". When the
+result record exists, send its path to the lz-oop session (asked 2026-11-24; its person-names item is open).
+**Requirements**: TBD
+**Depends on:** Phase 23
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd-plan-phase 23.1 to break down)
+
+### Phase 23.2: TDDux identity (INSERTED)
+
+**Goal:** The plugin, its marketplace and its skills carry the TDDux identity, tagline "If it quacks like a bug...",
+and no `lz-tdd` remains in the repository, so the GitHub repo can move to a public `tddux/tddux` repo. Lars
+2026-11-26, verbatim: "When it's a good time between/during/after other planned changes, adopt the new "TDDux"
+identity with tagline "If it quacks like a bug...". When all planned work has completed, the GitHub repo will be
+transferred to a public `tddux/tddux` repo. No `lz-tdd` must remain. Skill names, for example: `/tddux-red` (fully
+qualified name when invoked `/tddux:tddux-red`), `/tddux-review`, and `/tddux-audit`." and "Do it during/right after
+the current milestone".
+**Why last in the milestone (Claude's reading, 2026-11-26):** Phases 23 and 23.1 each compare a before and an after
+arm on the 22.1 harness, and Lars expects names to change how models behave ("Names related to TDD might differ from
+names related to OOP in how they affect models"). Renaming before or between them would mix a name change into both
+comparisons, so the rename runs after 23.1 and carries one trigger check of its own.
+**Proposed mapping (Claude's default; public vocabulary is Lars's call):** plugin `lz-tdd` -> `tddux`; skills
+`lz-red` -> `tddux-red`, `lz-tpp` -> `tddux-tpp`, `lz-refactor` -> `tddux-refactor`, `lz-tdd-coach` (Phase 23) ->
+`tddux-coach`; marketplace `lz-engineering-claude-plugins` -> `tddux`; the 0.0.4 backlog's `lz-tdd-audit` and
+`lz-tdd-review` -> `tddux-audit` and `tddux-review`. Covers tracked file content and names (workspaces under
+`.claude/skills/`, eval suites and graders, checkers, planning records). The repo transfer itself is Lars's action.
+**Rulings (Lars 2026-11-26):** "1-2: OK" (the mapping above; keep the published `lz-tdd@0.0.1`/`lz-tdd@0.0.2` tags and
+git history) and "3: Allow a `renames` entry mentioning `lz-tdd` if that's a thing but since the marketplace (repo)
+name will also change, I'm not sure how to handle this." Facts (Claude Code docs, host-marketplace and
+marketplace-reference, read 2026-11-26): `renames` is a top-level map in marketplace.json from a former plugin name
+to its current one, so `"renames": {"lz-tdd": "tddux"}` is supported and moves `enabledPlugins` keys; a git-added
+marketplace then needs one `/plugin install tddux@<marketplace>`. The docs do not say what happens when a registered
+marketplace's own `name` changes, or when its GitHub repo is transferred (GitHub redirects the old URL). The phase
+settles that with a free local spike (`claude plugin marketplace add` of a local copy at the old names, then the new
+names with the renames entry, `claude plugin list`/`update`), and writes the migration steps for existing users
+(re-add `tddux/tddux` and reinstall, if the spike shows the old registration does not follow) into the README.
+**Requirements**: TBD
+**Depends on:** Phase 23.1
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd-plan-phase 23.2 to break down)
+
+## Backlog
+
+Captured 2026-11-24 from `.planning/research/lz-tdd-field-triage-2026-11-24.md`; each item is a future milestone, not
+sequenced. Standing ruling for any of them (Lars 2026-11-24): mutation testing of `node:test`-covered code uses a pinned
+version of lz-node-test's StrykerJS `node:test` runner, never Stryker's command runner.
+
+### Phase 999.1: lz-tdd@0.0.4 -- lz-tdd-audit, lz-tdd-review and explain-on-demand; agent-loop cost and speed (BACKLOG)
+
+**Goal:** Add `/lz-tdd:lz-tdd-audit` and `/lz-tdd:lz-tdd-review` skills on the lz-oop pattern (read-only, route-only
+SKILL.md plus auditor/reviewer agents used when the session wrote the code), carry explain-on-demand either inside them
+or in a separate `lz-tdd-coach` skill (Claude recommends the separate skill; decide at discuss), and cut agent-loop cost
+and wall-clock time (triage theme A beyond A1/A2).
+**Prior art to check (Lars 2026-11-25: "For the audit and review skills, consider whether any of the points in
+https://github.com/LayZeeDK/thermos-claude-plugin/pull/1#pullrequestreview-5554687472 apply"; Claude's reading of
+which apply, to confirm at discuss):**
+- `disable-model-invocation: true` makes the Skill tool refuse the skill for the main agent and for subagents, so an
+  agent that loads its rubric through Skill silently reviews without it. Preload the rubric into the auditor and
+  reviewer agents with `skills:` (plugin-qualified name), and decide per skill whether Claude may invoke it on its own.
+- `subagent_type` takes the plugin-qualified agent name; the bare name fails with "Agent type ... not found".
+- A `tools` allowlist does not make an agent read-only (Bash still writes, commits and posts), and callers' briefs ask
+  reviewers to write findings files and scratch scripts, so a list without Write breaks those uses.
+- No fixed findings format in the agent body: it overrides a caller's own format (a review playbook's severity
+  scale, a workflow `schema`); `ReportFindings` is missing in background subagents and has no severity field.
+- Name the tool `Agent`, not `Task`; collect parallel results without `TaskOutput` (removed in Claude Code 2.1.277).
+- PR lookup says "`gh` or `glab`" with no `origin` host check (Enterprise, self-hosted and fork setups).
+- Let reviewers run `git diff` themselves; diff compression (such as `rtk`) is a user's own setup, not skill text.
+- Prove behaviour with `claude -p --plugin-dir` probes on each supported model before claiming it.
+**Requirements:** TBD
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (promote with /gsd:review-backlog when ready)
+
+### Phase 999.2: Bulk-step mode for red, green and refactor (BACKLOG)
+
+**Goal:** Let one red, green or refactor step cover several similar changes across files (for example several failing
+tests in one red step), alongside single-change steps. Prior art: Charted Coding (`marmicode/skills` `charted-*`
+skills and `marmicode/charted-coding-workshop`). Motivation, Lars 2026-11-24: sessions take far more wall-clock time
+since lz-tdd was adopted; bulk mode is the first proposal to sample, so the milestone measures wall-clock time against
+single-step mode before shipping.
+**Requirements:** TBD
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (promote with /gsd:review-backlog when ready)
+
+### Phase 999.3: lz-red depth (BACKLOG)
+
+**Goal:** Name the kinds of red and test shapes lz-red does not cover yet (triage theme B): test-after and mutant-kill
+guard tests, `node:test` mechanics, table-driven tests, reds that hang or crash, environment-derived expected values,
+wrong-reason reds from fixtures, old tests a new requirement contradicts, slow or gated reds, boundary examples, and the
+hand-off to lz-refactor when a seam is needed first.
+**Requirements:** TBD
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (promote with /gsd:review-backlog when ready)
+
+### Phase 999.4: lz-refactor for test code (BACKLOG)
+
+**Goal:** Extend lz-refactor beyond production code (triage theme C): test-code smells and test refactorings, the
+missing leaves (Replace Magic Literal, type assertions, Replace Loop with Recursion), a step-4 cost count that weighs
+mutation cost and churn, a loop audit that respects house rules, survey and preparatory-refactoring routes, and not
+trusting a green suite whose conditions are unpinned.
+**Requirements:** TBD
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (promote with /gsd:review-backlog when ready)
+
+### Phase 999.5: lz-green skill (BACKLOG)
+
+**Goal:** A dedicated green-phase skill covering the greens TPP has no step for (triage theme D): error paths, editing
+an existing condition, introducing a collaborator or seam, mechanism and timing changes, data and config greens, a first
+green that must be whole, bounding I/O loops, tie-breaks, and test-after guards; a scope statement plus a few named
+green kinds, not new TPP steps. Lars 2026-11-24: "All
+ledger entries about the `lz-tpp` skill not being sufficient for the green phase goes into a separate `lz-green` skill
+milestone".
+**Requirements:** TBD
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (promote with /gsd:review-backlog when ready)
 
 ---
-*Roadmap created: 2026-07-02 | lz-tdd@0.0.1 shipped: 2026-07-04 | lz-tdd@0.0.2 shipped: 2026-07-17. Per-milestone phase detail lives in `.planning/milestones/`.*
+*Roadmap created: 2026-07-02 | lz-tdd@0.0.1 shipped: 2026-07-04 | lz-tdd@0.0.2 shipped: 2026-07-17 | lz-tdd@0.0.3 roadmap added: 2026-07-18 (Phases 15-20); Phase 21 (applied eval) inserted 2026-07-22. Per-milestone phase detail lives in `.planning/milestones/`.*

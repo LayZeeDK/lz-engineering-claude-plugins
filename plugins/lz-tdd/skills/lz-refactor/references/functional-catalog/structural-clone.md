@@ -18,10 +18,13 @@ interface Prototype {
 }
 
 class Circle implements Prototype {
-  constructor(
-    public radius: number,
-    public color: string,
-  ) {}
+  public radius: number;
+  public color: string;
+
+  constructor(radius: number, color: string) {
+    this.radius = radius;
+    this.color = color;
+  }
 
   clone(): Circle {
     return new Circle(this.radius, this.color);

@@ -1,0 +1,26 @@
+diff --git a/packages/primitives/calendar/__tests__/canary-rdxf-compile.spec.ts b/packages/primitives/calendar/__tests__/canary-rdxf-compile.spec.ts
+new file mode 100644
+--- /dev/null
++++ b/packages/primitives/calendar/__tests__/canary-rdxf-compile.spec.ts
+@@ -0,0 +1,21 @@
++import { ComponentFixture, TestBed } from '@angular/core/testing';
++import { CalendarDate } from '@internationalized/date';
++import { describe, expect, it } from 'vitest';
++import { CalendarDefault } from '../stories/calendar-default';
++
++describe('RdxCalendarCellTriggerDirective', () => {
++    it('marks the focused day with the documented focus attribute', async () => {
++        await TestBed.configureTestingModule({
++            imports: [CalendarDefault]
++        }).compileComponents();
++
++        const fixture: ComponentFixture<CalendarDefault> = TestBed.createComponent(CalendarDefault);
++        fixture.componentInstance.date = new CalendarDate(1980, 1, 20);
++        fixture.detectChanges();
++
++        const hostEl: HTMLElement = fixture.nativeElement;
++        const focusedCell: number = hostEl.querySelector<HTMLElement>('[data-rdx-calendar-cell-trigger][data-focused]');
++
++        expect(focusedCell).toBe('20');
++    });
++});

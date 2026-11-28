@@ -1,0 +1,14 @@
+{
+  "grader": {
+    "type": "regex",
+    "pattern": "REFACTOR: ([^\\n]+ -- tests green|none -- [^\\n]+)\\s*$"
+  },
+  "pass": {
+    "toolCalls": [],
+    "lastMessage": "I made the change.\n\nREFACTOR: Extract Function -- tests green\n"
+  },
+  "fail": {
+    "toolCalls": [],
+    "lastMessage": "I made the change.\n\nREFACTOR: Extract Function -- tests green\n\nWant me to go on?"
+  }
+}

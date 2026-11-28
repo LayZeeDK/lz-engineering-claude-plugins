@@ -46,7 +46,11 @@ class SmsSender implements MessageSender {
 // Abstraction: holds a reference to an implementor and delegates the primitive work,
 // so the two hierarchies vary independently.
 abstract class Notification {
-  constructor(protected readonly sender: MessageSender) {}
+  protected readonly sender: MessageSender;
+
+  constructor(sender: MessageSender) {
+    this.sender = sender;
+  }
 
   abstract notify(subject: string, detail: string): void;
 }

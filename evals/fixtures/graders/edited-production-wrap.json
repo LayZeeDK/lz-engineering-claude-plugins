@@ -1,0 +1,17 @@
+{
+  "grader": {
+    "type": "regex",
+    "target": "trace",
+    "pattern": "\"name\":\"(?:Edit|Write)\",\"input\":\\{[^{}]*?wrap\\.ts\""
+  },
+  "pass": {
+    "toolCalls": [],
+    "lastMessage": "",
+    "trace": "{\"type\":\"assistant\",\"message\":{\"content\":[{\"type\":\"tool_use\",\"id\":\"toolu_fixture\",\"name\":\"Write\",\"input\":{\"file_path\":\"D:\\\\tmp\\\\w\\\\src\\\\wrap.ts\",\"content\":\"x\"}}]}}\n"
+  },
+  "fail": {
+    "toolCalls": [],
+    "lastMessage": "",
+    "trace": "{\"type\":\"assistant\",\"message\":{\"content\":[{\"type\":\"tool_use\",\"id\":\"toolu_fixture\",\"name\":\"Write\",\"input\":{\"file_path\":\"D:\\\\tmp\\\\w\\\\src\\\\wrap.test.ts\",\"content\":\"x\"}}]}}\n"
+  }
+}

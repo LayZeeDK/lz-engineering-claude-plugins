@@ -30,11 +30,15 @@ Reach for it when a class has several constructors that differ only by parameter
 // Each Creation Method is an intention-revealing named builder that returns an instance,
 // used in place of a bare or overloaded constructor.
 class Color {
-  private constructor(
-    readonly red: number,
-    readonly green: number,
-    readonly blue: number,
-  ) {}
+  readonly red: number;
+  readonly green: number;
+  readonly blue: number;
+
+  private constructor(red: number, green: number, blue: number) {
+    this.red = red;
+    this.green = green;
+    this.blue = blue;
+  }
 
   static fromRgb(red: number, green: number, blue: number): Color {
     return new Color(red, green, blue);

@@ -31,18 +31,24 @@ abstract class Character {
 }
 
 class Warrior extends Character {
-  constructor(name: string, readonly shield: number) {
+  readonly shield: number;
+
+  constructor(name: string, shield: number) {
     super();
     this.name = name;
     this.health = 100;
+    this.shield = shield;
   }
 }
 
 class Mage extends Character {
-  constructor(name: string, readonly mana: number) {
+  readonly mana: number;
+
+  constructor(name: string, mana: number) {
     super();
     this.name = name;
     this.health = 100;
+    this.mana = mana;
   }
 }
 ```
@@ -61,14 +67,20 @@ abstract class Character {
 }
 
 class Warrior extends Character {
-  constructor(name: string, readonly shield: number) {
+  readonly shield: number;
+
+  constructor(name: string, shield: number) {
     super(name);
+    this.shield = shield;
   }
 }
 
 class Mage extends Character {
-  constructor(name: string, readonly mana: number) {
+  readonly mana: number;
+
+  constructor(name: string, mana: number) {
     super(name);
+    this.mana = mana;
   }
 }
 ```

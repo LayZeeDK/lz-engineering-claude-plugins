@@ -1,0 +1,90 @@
+name: Evals mutation
+
+on:
+  push:
+    paths:
+      - 'tools/evals/**'
+      - '.github/workflows/evals-mutation.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # The lz-node-test commit whose node:test runner and mutators tools/evals/stryker.config.ts loads; Stryker 10.1.1
+  # and its TypeScript checker come from that checkout's lockfile.
+  LZ_NODE_TEST_REF: a78a56c819b78edd21ba935523074512d99c4307
+
+jobs:
+  mutation:
+    name: Mutation testing (shard ${{ matrix.shard }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    strategy:
+      fail-fast: false
+      matrix:
+        # Each shard mutates the files its `mutate` names; the last shard takes the rest, so a new file lands in it.
+        include:
+          - shard: a
+            mutate: run-set.ts
+          - shard: b
+            mutate: aggregate.ts
+          - shard: c
+            mutate: slim.ts
+          - shard: d
+            mutate: check-cases.ts
+          - shard: e
+            mutate: templates.ts
+          - shard: f
+            mutate: eval.ts,guards.ts
+          - shard: g
+            mutate: grade.ts,cases.ts
+          - shard: h
+            mutate: plugin-eval.ts,port-cases.ts
+          - shard: i
+            mutate: "*.ts,!*.test.ts,!stubs.ts,!stryker.config.ts,!run-set.ts,!aggregate.ts,!slim.ts,!check-cases.ts,\
+              !templates.ts,!eval.ts,!guards.ts,!grade.ts,!cases.ts,!plugin-eval.ts,!port-cases.ts"
+    steps:
+      # The real-tree tests read the repository's history.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: tools/evals/package-lock.json
+      - run: npm ci --prefix tools/evals
+      # Outside the workspace, so the real-tree tests never see it.
+      # Its packages export dist/index.js unless the @layzee/source condition is set, and Stryker's config load sets none.
+      - name: Install and build the pinned lz-node-test checkout
+        env:
+          NX_DAEMON: 'false'
+          NX_NO_CLOUD: 'true'
+        run: |
+          git clone --filter=blob:none https://github.com/LayZeeDK/lz-node-test.git "$RUNNER_TEMP/lz-node-test"
+          git -C "$RUNNER_TEMP/lz-node-test" checkout --detach "$LZ_NODE_TEST_REF"
+          npm ci --prefix "$RUNNER_TEMP/lz-node-test" --ignore-scripts
+          cd "$RUNNER_TEMP/lz-node-test"
+          npx --no nx run-many -t build
+      - name: Run Stryker
+        working-directory: tools/evals
+        env:
+          MUTATE: ${{ matrix.mutate }}
+        run: >-
+          LZ_NODE_TEST_RUNNER="$RUNNER_TEMP/lz-node-test/packages/stryker-node-test-runner/src/index.ts"
+          node "$RUNNER_TEMP/lz-node-test/node_modules/@stryker-mutator/core/bin/stryker.js" run stryker.config.ts
+          --mutate "$MUTATE" --reporters clear-text,progress,html,json --dryRunTimeoutMinutes 20
+      # Also after a failure or a timeout: the report shows each surviving mutant.
+      - if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: mutation-report-${{ matrix.shard }}
+          path: |
+            tools/evals/reports/mutation/mutation.html
+            tools/evals/reports/mutation/mutation.json

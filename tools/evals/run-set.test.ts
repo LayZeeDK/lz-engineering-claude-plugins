@@ -1,0 +1,567 @@
+import assert from 'node:assert/strict';
+import { spawnSync } from 'node:child_process';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { after, test } from 'node:test';
+
+import { readJson, requireRecord } from './guards.ts';
+import {
+  acquireRunSetLock,
+  defaultLockMinutes,
+  diedRuns,
+  newRuns,
+  planRuns,
+  readRunSet,
+  resultPath,
+  runAll,
+  runState,
+  setAside,
+  spawnLogged,
+  writeResult,
+  type PlannedRun,
+  type RunOutcome,
+  type RunResult,
+} from './run-set.ts';
+import { git } from './stage.ts';
+
+const root = mkdtempSync(join(tmpdir(), 'lz-evals-run-set-')).replaceAll('\\', '/');
+
+after(() => rmSync(root, { recursive: true, force: true }));
+
+const zeros = '0'.repeat(40);
+const sonnet = 'claude-sonnet-5-5';
+const opus = 'claude-opus-5-5';
+
+function put(path: string, text: string): void {
+  mkdirSync(join(path, '..'), { recursive: true });
+  writeFileSync(path, text);
+}
+
+// A repository whose one commit holds a minimal plugin and the demo suite; the cell tests that commit.
+function scenario(name: string, models: Record<string, number>): { repo: string; ref: string; setDir: string; env: NodeJS.ProcessEnv } {
+  const base = `${root}/${name}`;
+  const repo = `${base}/repo`;
+  mkdirSync(repo, { recursive: true });
+  git(repo, ['init', '-q']);
+  put(`${repo}/plugins/lz-tdd/.claude-plugin/plugin.json`, '{"name":"lz-tdd"}\n');
+  put(`${repo}/evals/lz-tdd/demo/suite.json`, '{"backend":"plugin-eval"}');
+  put(`${repo}/evals/lz-tdd/demo/demo-01/prompt.md`, '---\ntags: [a]\n---\nOne.\n');
+  put(`${repo}/evals/lz-tdd/demo/demo-02/prompt.md`, '---\ntags: [a, b]\n---\nTwo.\n');
+  git(repo, ['add', '-A']);
+  git(repo, ['-c', 'user.name=lz-tdd-eval', '-c', 'user.email=larsbrinknielsen@gmail.com', 'commit', '-q', '-m', 'demo']);
+  const ref = git(repo, ['rev-parse', 'HEAD']);
+  const setDir = `${base}/set`;
+  writeRunSet(setDir, ref, models);
+
+  return {
+    repo,
+    ref,
+    setDir,
+    env: {
+      LZ_EVAL_REPO: repo,
+      LZ_EVAL_STAGE_ROOT: `${base}/stage`,
+      LZ_EVAL_CLAUDE: join(import.meta.dirname, 'stubs.ts'),
+      LZ_EVAL_STUB_DIR: `${base}/stub`,
+    },
+  };
+}
+
+function writeRunSet(setDir: string, ref: string, models: Record<string, number>): void {
+  put(`${setDir}/run-set.json`, JSON.stringify({ cells: [{ arm: 'head', ref, models, suites: [{ suite: 'demo' }] }] }));
+}
+
+function plan(repo: string, setDir: string): PlannedRun[] {
+  return planRuns(readRunSet(setDir), [`${repo}/evals/lz-tdd`, `${repo}/evals/lz-tdd-apply`]);
+}
+
+function evalCli(args: readonly string[], env: NodeJS.ProcessEnv): { status: number | null; output: string } {
+  const result = spawnSync(process.execPath, [join(import.meta.dirname, 'eval.ts'), ...args], {
+    encoding: 'utf8',
+    env: { ...process.env, ...env },
+  });
+
+  return { status: result.status, output: `${result.stdout}${result.stderr}` };
+}
+
+function stubCalls(env: NodeJS.ProcessEnv): number {
+  const file = `${env['LZ_EVAL_STUB_DIR'] ?? ''}/argv.jsonl`;
+
+  return existsSync(file) ? readFileSync(file, 'utf8').split('\n').filter((line) => line !== '').length : 0;
+}
+
+function fakeResult(runDir: string): void {
+  put(resultPath(runDir), '{"schemaVersion":1}\n');
+}
+
+test('runState is done with result.json, died with raw/ and no result, new with neither', () => {
+  put(`${root}/state/done/result.json`, '{}');
+  mkdirSync(`${root}/state/done/raw`, { recursive: true });
+  mkdirSync(`${root}/state/died/raw`, { recursive: true });
+  mkdirSync(`${root}/state/new`, { recursive: true });
+
+  assert.deepEqual(
+    ['done', 'died', 'new', 'missing'].map((name) => runState(`${root}/state/${name}`)),
+    ['done', 'died', 'new', 'new'],
+  );
+});
+
+test('planRuns expands cell x model x selected case x run into run folders, filtering by tags and names', () => {
+  const { repo, setDir } = scenario('plan', { [sonnet]: 2, [opus]: 1 });
+  const all = plan(repo, setDir).map((run) => run.runDir.slice(setDir.length + 1));
+
+  assert.deepEqual(all, [
+    `head/${sonnet}/demo-01/run-1`,
+    `head/${sonnet}/demo-01/run-2`,
+    `head/${sonnet}/demo-02/run-1`,
+    `head/${sonnet}/demo-02/run-2`,
+    `head/${opus}/demo-01/run-1`,
+    `head/${opus}/demo-02/run-1`,
+  ]);
+
+  put(
+    `${setDir}/run-set.json`,
+    JSON.stringify({ cells: [{ arm: 'head', ref: zeros, models: { [opus]: 1 }, suites: [{ suite: 'demo', tags: ['b'] }] }] }),
+  );
+  assert.deepEqual(
+    plan(repo, setDir).map((run) => run.caseInfo.name),
+    ['demo-02'],
+  );
+  put(
+    `${setDir}/run-set.json`,
+    JSON.stringify({ cells: [{ arm: 'head', ref: zeros, models: { [opus]: 1 }, suites: [{ suite: 'demo', cases: ['demo-01'] }] }] }),
+  );
+  assert.deepEqual(
+    plan(repo, setDir).map((run) => run.caseInfo.name),
+    ['demo-01'],
+  );
+});
+
+test('planRuns refuses a selection that names a case the suite does not have', () => {
+  const { repo, setDir, ref } = scenario('unknown-case', { [opus]: 1 });
+  put(
+    `${setDir}/run-set.json`,
+    JSON.stringify({ cells: [{ arm: 'head', ref, models: { [opus]: 1 }, suites: [{ suite: 'demo', cases: ['demo-01', 'demo-03'] }] }] }),
+  );
+
+  assert.throws(() => plan(repo, setDir), /suite demo has no case demo-03/);
+});
+
+test('planRuns refuses a selection that matches no case, such as a misspelt tag', () => {
+  const { repo, setDir, ref } = scenario('no-match', { [opus]: 1 });
+  put(`${setDir}/run-set.json`, JSON.stringify({ cells: [{ arm: 'head', ref, models: { [opus]: 1 }, suites: [{ suite: 'demo', tags: ['bb'] }] }] }));
+
+  assert.throws(() => plan(repo, setDir), /suite demo: the selection matches no case/);
+});
+
+test('defaultLockMinutes books plugin-eval runs by their concurrency and slim runs one after another', () => {
+  const { repo, setDir } = scenario('lock-minutes', { [opus]: 1 });
+  const pluginRuns = plan(repo, setDir);
+  const [first] = pluginRuns;
+  assert.ok(first !== undefined);
+  const slimRun: PlannedRun = { ...first, suite: { ...first.suite, backend: 'slim', timeoutMinutes: 20 } };
+
+  assert.deepEqual(
+    [defaultLockMinutes([...pluginRuns, slimRun], 3), defaultLockMinutes([...pluginRuns, slimRun], 1), defaultLockMinutes(pluginRuns, 3)],
+    [12 + 22, 34 + 22, 12],
+  );
+});
+
+test('rerun refuses a default booking above 1440 minutes before it sets a run aside or calls the lock', () => {
+  const { repo, setDir, env } = scenario('lock-cap', { [opus]: 1 });
+  put(`${repo}/evals/lz-tdd/demo/suite.json`, '{"backend":"plugin-eval","timeoutMinutes":1500}');
+  git(repo, ['-c', 'user.name=lz-tdd-eval', '-c', 'user.email=larsbrinknielsen@gmail.com', 'commit', '-q', '-am', 'long timeout']);
+  const runDir = `${setDir}/head/${opus}/demo-01/run-1`;
+  mkdirSync(`${runDir}/raw`, { recursive: true });
+  const lockLog = `${root}/lock-cap/lock.log`;
+  const lock = `${root}/lock-cap/fake-lock.ts`;
+  put(lock, `import { appendFileSync } from 'node:fs';\nappendFileSync(${JSON.stringify(lockLog)}, process.argv.slice(2).join(' ') + '\\n');\n`);
+  const paid = { ...env, LZ_EVAL_CLAUDE: `${root}/lock-cap/claude.ts`, LZ_EVAL_HEAVY_LOCK: lock, LZ_EVAL_LOCK_OWNER: 'owner' };
+
+  const refused = evalCli(['rerun', setDir, runDir, '--concurrency', '1'], paid);
+  assert.equal(refused.status, 1, refused.output);
+  assert.match(refused.output, /1502 minutes.*above 1440.*--lock-minutes/);
+  assert.deepEqual([existsSync(`${setDir}/set-aside-1`), existsSync(`${runDir}/raw`), existsSync(lockLog)], [false, true, false]);
+});
+
+test('rerun sets its runs aside only once the lock is held, so a refused acquire leaves the run set as it was', () => {
+  const { setDir, env } = scenario('lock-refused', { [opus]: 1 });
+  const runDir = `${setDir}/head/${opus}/demo-01/run-1`;
+  mkdirSync(`${runDir}/raw`, { recursive: true });
+  const lock = `${root}/lock-refused/fake-lock.ts`;
+  put(lock, "process.exitCode = process.argv[2] === 'acquire' ? 1 : 0;\n");
+  const paid = { ...env, LZ_EVAL_CLAUDE: `${root}/lock-refused/claude.ts`, LZ_EVAL_HEAVY_LOCK: lock, LZ_EVAL_LOCK_OWNER: 'owner' };
+
+  const refused = evalCli(['rerun', setDir, runDir], paid);
+  assert.equal(refused.status, 1, refused.output);
+  assert.match(refused.output, /heavy-lock acquire exited 1/);
+  assert.deepEqual([existsSync(`${setDir}/set-aside-1`), existsSync(`${runDir}/raw`)], [false, true]);
+});
+
+test('spawnLogged stops a child that outlives its timeout and reports that it timed out', async () => {
+  const started = Date.now();
+  const spawned = await spawnLogged({ file: process.execPath, prefix: ['-e', 'setTimeout(() => {}, 20000)'] }, [], `${root}/spawn-timeout`, 'hang', 500);
+
+  assert.deepEqual([spawned.timedOut, Date.now() - started < 15_000], [true, true]);
+});
+
+test('spawnLogged stops the timed-out child together with the processes it started', async () => {
+  const marker = `${root}/spawn-tree/grandchild-ran`;
+  const grandchild = `setTimeout(() => require('node:fs').writeFileSync(${JSON.stringify(marker)}, 'x'), 3000)`;
+  // Detached on Windows, where Node.js would otherwise end it with its parent; claude.exe's own children need not be.
+  const detached = process.platform === 'win32';
+  const child = `require('node:child_process').spawn(process.execPath, ['-e', ${JSON.stringify(grandchild)}], { stdio: 'ignore', detached: ${String(detached)} }); setTimeout(() => {}, 20000);`;
+
+  await spawnLogged({ file: process.execPath, prefix: ['-e', child] }, [], `${root}/spawn-tree`, 'tree', 1000);
+  await new Promise((wait) => setTimeout(wait, 4500));
+
+  assert.equal(existsSync(marker), false);
+});
+
+test('a plugin-eval run still going at twice its suite timeout is stopped and counted as failed, never done', () => {
+  const { repo, setDir, env } = scenario('pe-timeout', { [opus]: 1 });
+  put(`${repo}/evals/lz-tdd/demo/suite.json`, '{"backend":"plugin-eval","timeoutMinutes":0.02}');
+  git(repo, ['-c', 'user.name=lz-tdd-eval', '-c', 'user.email=larsbrinknielsen@gmail.com', 'commit', '-q', '-am', 'short timeout']);
+  put(`${setDir}/run-set.json`, JSON.stringify({ cells: [{ arm: 'head', ref: git(repo, ['rev-parse', 'HEAD']), models: { [opus]: 1 }, suites: [{ suite: 'demo', cases: ['demo-01'] }] }] }));
+  const runDir = `${setDir}/head/${opus}/demo-01/run-1`;
+
+  const result = spawnSync(process.execPath, [join(import.meta.dirname, 'eval.ts'), 'run', setDir], {
+    encoding: 'utf8',
+    env: { ...process.env, ...env, LZ_EVAL_STUB_HANG_AFTER: '0' },
+    timeout: 60_000,
+  });
+  assert.equal(result.status, 1, `${result.stdout}${result.stderr}`);
+  assert.equal(runState(runDir), 'died');
+  assert.match(readFileSync(`${runDir}/raw/refused.txt`, 'utf8'), /timed out after 0\.04 min/);
+});
+
+test('planRuns refuses a plan in which two entries resolve to one run folder, naming the folder and both suites', () => {
+  const { repo, setDir, ref } = scenario('dup', { [opus]: 1 });
+  put(
+    `${setDir}/run-set.json`,
+    JSON.stringify({
+      cells: [{ arm: 'head', ref, models: { [opus]: 1 }, suites: [{ suite: 'demo', tags: ['a'] }, { suite: 'demo', tags: ['b'] }] }],
+    }),
+  );
+
+  assert.throws(() => plan(repo, setDir), (error: Error) => /head\/claude-opus-5-5\/demo-02\/run-1/.test(error.message) && /demo.*demo/.test(error.message));
+});
+
+function deadPid(): number {
+  return spawnSync(process.execPath, ['-e', '']).pid;
+}
+
+function lockPid(dir: string): unknown {
+  return requireRecord(readJson(`${dir}/.lock`), 'the run set lock file')['pid'];
+}
+
+test('acquireRunSetLock refuses while a live process holds the lock and releases it for the next', () => {
+  const dir = `${root}/lock-live`;
+  mkdirSync(dir, { recursive: true });
+  const release = acquireRunSetLock(dir);
+
+  assert.equal(lockPid(dir), process.pid);
+  assert.throws(() => acquireRunSetLock(dir), new RegExp(`pid ${String(process.pid)}`));
+
+  release();
+
+  assert.equal(existsSync(`${dir}/.lock`), false);
+  acquireRunSetLock(dir)();
+});
+
+test('acquireRunSetLock reports a lock whose process is dead and takes it over', () => {
+  const dir = `${root}/lock-stale`;
+  const dead = deadPid();
+  put(`${dir}/.lock`, JSON.stringify({ pid: dead, startedAt: '2026-11-25T00:00:00.000Z' }));
+  const release = acquireRunSetLock(dir);
+
+  assert.equal(lockPid(dir), process.pid);
+
+  release();
+});
+
+test('run, resume and rerun refuse while a live process holds the run set lock, and release it afterwards', () => {
+  const { repo, setDir, env } = scenario('lock-cli', { [opus]: 1 });
+  const runDir = `${setDir}/head/${opus}/demo-01/run-1`;
+  put(`${setDir}/.lock`, JSON.stringify({ pid: process.pid, startedAt: '2026-11-25T00:00:00.000Z' }));
+
+  const results = [
+    evalCli(['run', setDir], env),
+    evalCli(['rerun', setDir, runDir], env),
+    evalCli(['resume', setDir, runDir], env),
+  ];
+
+  for (const refused of results) {
+    assert.equal(refused.status, 1, refused.output);
+    assert.match(refused.output, new RegExp(`pid ${String(process.pid)}`));
+  }
+
+  assert.equal(stubCalls(env), 0);
+  rmSync(`${setDir}/.lock`);
+
+  const ok = evalCli(['run', setDir], env);
+
+  assert.equal(ok.status, 0, ok.output);
+  assert.equal(existsSync(`${setDir}/.lock`), false);
+  assert.equal(plan(repo, setDir).every((run) => runState(run.runDir) === 'done'), true);
+});
+
+test('readRunSet refuses bad names, refs, run counts, keys and records, naming the file', () => {
+  const bad = [
+    { cells: [{ arm: '../x', ref: zeros, models: { [sonnet]: 1 }, suites: [{ suite: 'demo' }] }] },
+    { cells: [{ arm: 'head', ref: 'abc', models: { [sonnet]: 1 }, suites: [{ suite: 'demo' }] }] },
+    { cells: [{ arm: 'head', ref: zeros, models: { [sonnet]: 0 }, suites: [{ suite: 'demo' }] }] },
+    { cells: [{ arm: 'head', ref: zeros, models: { [sonnet]: 1.5 }, suites: [{ suite: 'demo' }] }] },
+    { cells: [{ arm: 'head', ref: zeros, models: { Sonnet: 1 }, suites: [{ suite: 'demo' }] }] },
+    { cells: [{ arm: 'head', ref: zeros, models: { [sonnet]: 1 }, suites: [] }] },
+    { cells: [{ arm: 'head', ref: zeros, models: { [sonnet]: 1 }, suites: [{ suite: 'demo' }], extra: 1 }] },
+    { cells: [], other: 1 },
+    { cells: [{ arm: 'head', ref: zeros, models: { [sonnet]: 1 }, suites: [{ suite: 'demo' }] }], record: [{ label: 'x' }] },
+    {
+      cells: [
+        { arm: 'head', ref: zeros, models: { [sonnet]: 1 }, suites: [{ suite: 'demo' }] },
+        { arm: 'head', ref: null, models: { [sonnet]: 1 }, suites: [{ suite: 'demo' }] },
+      ],
+    },
+  ];
+
+  assert.deepEqual(
+    bad.map((value, index) => {
+      const dir = `${root}/bad-${String(index)}`;
+      put(`${dir}/run-set.json`, JSON.stringify(value));
+
+      try {
+        readRunSet(dir);
+
+        return 'read';
+      } catch (error) {
+        return error instanceof Error && error.message.includes('run-set.json') ? 'refused' : 'other';
+      }
+    }),
+    bad.map(() => 'refused'),
+  );
+});
+
+test('readRunSet takes a dotted run set folder name such as pilot-22.1, and refuses one that starts with a dot', () => {
+  const value = { cells: [{ arm: 'head', ref: zeros, models: { [sonnet]: 1 }, suites: [{ suite: 'demo' }] }] };
+  put(`${root}/pilot-22.1/run-set.json`, JSON.stringify(value));
+  put(`${root}/.hidden/run-set.json`, JSON.stringify(value));
+
+  assert.equal(readRunSet(`${root}/pilot-22.1`).name, 'pilot-22.1');
+  assert.throws(() => readRunSet(`${root}/.hidden`), /run set name ".hidden" must match/);
+});
+
+test('readRunSet reads recorded cells for the reproduction table', () => {
+  const dir = `${root}/recorded`;
+  const record = {
+    label: 'lz-tpp recall 2026-07',
+    cell: 'old',
+    model: 'claude-opus-4-8',
+    suite: 'trigger-lz-tpp',
+    tags: ['forward'],
+    grader: 'skill-fired',
+    unit: 'case-fired',
+    passed: 13,
+    total: 13,
+  };
+  put(
+    `${dir}/run-set.json`,
+    JSON.stringify({ cells: [{ arm: 'old', ref: null, models: { 'claude-opus-4-8': 3 }, suites: [{ suite: 'demo' }] }], record: [record] }),
+  );
+
+  assert.deepEqual(readRunSet(dir).record, [record]);
+});
+
+test('writeResult renames a finished temp file into result.json', () => {
+  const runDir = `${root}/write/run-1`;
+  mkdirSync(runDir, { recursive: true });
+  const result: RunResult = {
+    schemaVersion: 1,
+    backend: 'slim',
+    runSet: 'set',
+    arm: 'head',
+    ref: null,
+    pluginTree: null,
+    casesTree: null,
+    suite: 'demo',
+    case: 'demo-01',
+    k: 1,
+    requestedModel: sonnet,
+    initModel: sonnet,
+    modelsUsed: [sonnet],
+    claudeCodeVersion: null,
+    binary: 'W:/bin/run-slim.ts',
+    startedAt: '2026-11-25T00:00:00.000Z',
+    seconds: 1,
+    turns: 1,
+    costUsd: 0,
+    judgeCostUsd: 0,
+    tokens: { input: 0, output: 0, cacheRead: 0, cacheCreation: 0 },
+    maxTurns: false,
+    graded: false,
+    arms: { with: [], without: null },
+  };
+  writeResult(runDir, result);
+
+  assert.deepEqual([existsSync(`${runDir}/result.json`), existsSync(`${runDir}/result.json.tmp`)], [true, false]);
+  assert.deepEqual(JSON.parse(readFileSync(`${runDir}/result.json`, 'utf8')), result);
+
+  assert.throws(() => writeResult(runDir, { ...result, costUsd: 9 }), /already has a result/);
+  assert.deepEqual(JSON.parse(readFileSync(`${runDir}/result.json`, 'utf8')), result);
+});
+
+test('setAside moves each path into the first free set-aside-<n>, keeping its place below the root', () => {
+  const setDir = `${root}/aside`;
+  put(`${setDir}/head/m/c/run-1/raw/x.txt`, 'first');
+  put(`${setDir}/head/m/c/run-2/raw/x.txt`, 'second');
+  setAside(setDir, [`${setDir}/head/m/c/run-1`, `${setDir}/missing`]);
+  setAside(setDir, [`${setDir}/head/m/c/run-2`]);
+
+  assert.deepEqual(
+    [
+      readFileSync(`${setDir}/set-aside-1/head/m/c/run-1/raw/x.txt`, 'utf8'),
+      readFileSync(`${setDir}/set-aside-2/head/m/c/run-2/raw/x.txt`, 'utf8'),
+      existsSync(`${setDir}/head/m/c/run-1`),
+      existsSync(`${setDir}/head/m/c/run-2`),
+    ],
+    ['first', 'second', false, false],
+  );
+});
+
+const plannedStub: PlannedRun = {
+  runDir: '',
+  runSetName: 'set',
+  arm: 'head',
+  ref: null,
+  model: sonnet,
+  suite: {
+    name: 'demo',
+    dir: 'W:/repo/evals/lz-tdd/demo',
+    backend: 'plugin-eval',
+    ablation: 'none',
+    allowTools: [],
+    scaffold: false,
+    heavy: false,
+    allow: null,
+    timeoutMinutes: 15,
+    invokeTwin: null,
+    target: null,
+    skill: null,
+  },
+  caseInfo: { name: 'demo-01', dir: 'W:/repo/evals/lz-tdd/demo/demo-01', tags: [], body: '' },
+  k: 1,
+};
+
+test('runAll stops taking new runs after a usage-limit outcome', async () => {
+  const answers: Record<string, RunOutcome> = { a: 'done', b: 'limit', c: 'done', d: 'done' };
+  const started: string[] = [];
+  const outcomes = await runAll(
+    ['a', 'b', 'c', 'd'].map((runDir) => ({ ...plannedStub, runDir })),
+    1,
+    async (run) => {
+      started.push(run.runDir);
+
+      return answers[run.runDir] ?? 'failed';
+    },
+  );
+
+  assert.deepEqual(started, ['a', 'b']);
+  assert.deepEqual(
+    outcomes.map(({ run, outcome }) => [run.runDir, outcome]),
+    [
+      ['a', 'done'],
+      ['b', 'limit'],
+    ],
+  );
+});
+
+test('runAll counts a start that throws as failed and goes on', async () => {
+  const outcomes = await runAll(
+    ['a', 'b'].map((runDir) => ({ ...plannedStub, runDir })),
+    2,
+    async (run) => {
+      if (run.runDir === 'a') {
+        throw new Error('spawn went wrong');
+      }
+
+      return 'done';
+    },
+  );
+
+  assert.deepEqual(outcomes.map(({ outcome }) => outcome).sort(), ['done', 'failed']);
+});
+
+test('planRuns plans up to the recheck count for a case listed in recheck.json', () => {
+  const { repo, setDir } = scenario('recheck', { [sonnet]: 2, [opus]: 3 });
+  put(`${setDir}/recheck.json`, JSON.stringify({ [`head/${opus}/demo-02`]: 5 }));
+  const opusRuns = plan(repo, setDir).filter((run) => run.model === opus);
+
+  assert.deepEqual(
+    opusRuns.map((run) => `${run.caseInfo.name}/${String(run.k)}`),
+    ['demo-01/1', 'demo-01/2', 'demo-01/3', 'demo-02/1', 'demo-02/2', 'demo-02/3', 'demo-02/4', 'demo-02/5'],
+  );
+});
+
+test('run starts only new runs, leaves a died run alone and names it with rerun; rerun sets runs aside; raising n keeps old results', () => {
+  const { repo, ref, setDir, env } = scenario('cli', { [sonnet]: 2, [opus]: 2 });
+  const all = plan(repo, setDir);
+  const at = (model: string, caseName: string, k: number): string => `${setDir}/head/${model}/${caseName}/run-${String(k)}`;
+  fakeResult(at(sonnet, 'demo-01', 1));
+  fakeResult(at(sonnet, 'demo-02', 1));
+  fakeResult(at(opus, 'demo-01', 1));
+  const died = at(opus, 'demo-02', 2);
+  put(`${died}/raw/started.json`, '{"startedAt":"2026-11-25T00:00:00.000Z"}');
+
+  assert.deepEqual(
+    [newRuns(all).length, diedRuns(all).map((run) => run.runDir)],
+    [4, [died]],
+  );
+
+  const first = evalCli(['run', setDir, '--concurrency', '2'], env);
+  assert.equal(first.status, 1, first.output);
+  assert.equal(stubCalls(env), 4);
+  assert.deepEqual([runState(died), readFileSync(`${died}/raw/started.json`, 'utf8')], ['died', '{"startedAt":"2026-11-25T00:00:00.000Z"}']);
+  assert.match(first.output, new RegExp(`rerun .*head/${opus}/demo-02/run-2`));
+  assert.equal(diedRuns(all).length, 1);
+  assert.equal(all.filter((run) => runState(run.runDir) === 'done').length, 7);
+
+  const refused = evalCli(['rerun', setDir, `head/${sonnet}/demo-01/run-1`], env);
+  assert.equal(refused.status, 1, refused.output);
+  assert.match(refused.output, /has a result/);
+  assert.equal(stubCalls(env), 4);
+
+  const unknown = evalCli(['rerun', setDir, `head/${sonnet}/demo-09/run-1`], env);
+  assert.equal(unknown.status, 1, unknown.output);
+  assert.match(unknown.output, /not planned runs/);
+
+  const rerun = evalCli(['rerun', setDir, `head/${opus}/demo-02/run-2`], env);
+  assert.equal(rerun.status, 0, rerun.output);
+  assert.deepEqual(
+    [existsSync(`${setDir}/set-aside-1/head/${opus}/demo-02/run-2/raw/started.json`), runState(died)],
+    [true, 'done'],
+  );
+
+  rmSync(resultPath(at(sonnet, 'demo-02', 2)));
+  const second = evalCli(['rerun', setDir, at(sonnet, 'demo-02', 2)], env);
+  assert.equal(second.status, 0, second.output);
+  assert.equal(existsSync(`${setDir}/set-aside-2/head/${sonnet}/demo-02/run-2/raw`), true);
+
+  const before = all.map((run) => statSync(resultPath(run.runDir)).mtimeMs);
+  writeRunSet(setDir, ref, { [sonnet]: 3, [opus]: 2 });
+  const raised = plan(repo, setDir);
+  assert.deepEqual(
+    newRuns(raised).map((run) => run.runDir),
+    [at(sonnet, 'demo-01', 3), at(sonnet, 'demo-02', 3)],
+  );
+  const third = evalCli(['run', setDir], env);
+  assert.equal(third.status, 0, third.output);
+  assert.deepEqual(
+    all.map((run) => statSync(resultPath(run.runDir)).mtimeMs),
+    before,
+  );
+  assert.equal(raised.filter((run) => runState(run.runDir) === 'done').length, 10);
+
+  const nothing = evalCli(['run', setDir], env);
+  assert.equal(nothing.status, 0, nothing.output);
+  assert.match(nothing.output, /every run of set has a result/);
+});

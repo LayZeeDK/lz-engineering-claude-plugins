@@ -372,6 +372,7 @@ export function buildTemplate(
   try {
     archiveInto(clone, subdir === null ? template.commit : `${template.commit}:${subdir}`, tmp, tmp);
     const lockfile = `${tmp}/${subdir === null ? template.lockfile.path : template.lockfile.path.slice(subdir.length + 1)}`;
+
     if (committedText === null) {
       copyFileSync(`${clone}/${template.lockfile.path}`, lockfile);
     } else {

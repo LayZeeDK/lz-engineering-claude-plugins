@@ -32,6 +32,8 @@ jobs:
         # The majors tools/evals/package.json engines allows.
         node-version: ['22', '24', '26']
     steps:
+      # GitHub's Windows runners set core.autocrlf true; the byte-exact tests compare against the committed LF.
+      - run: git config --global core.autocrlf false
       # The real-tree tests read the repository's history.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:

@@ -200,6 +200,7 @@ const ranTestsRows: readonly (readonly [command: string, runsTests: boolean])[] 
   ['cd x && CI=1 NODE_ENV=test npm test 2>&1 | tail -30', true],
   ['git status\nnpm test', true],
   ['npm run vitest -- run test/x.test.ts', true],
+  ['NODE_OPTIONS="--a --b" npx vitest run', true],
   ['ls test/jest', false],
   ['cat package.json | head -30 && ls test/jest', false],
   ['cat test/vitest/approvals.spec.ts', false],
@@ -210,6 +211,11 @@ const ranTestsRows: readonly (readonly [command: string, runsTests: boolean])[] 
   ['npx tsc --noEmit', false],
   ['npm run dev', false],
   ['CI=1', false],
+  ['grep -E "foo|npx vitest" README.md', false],
+  ['grep -n "npm test\\|npx vitest" README.md', false],
+  ['grep -rn "a; npm test" .', false],
+  ["grep -rn 'x && npm run test' .", false],
+  ['npm testx', false],
 ];
 
 test('the committed ran-tests grader passes a test-runner invocation and fails a mention of the runner', () => {
@@ -230,6 +236,15 @@ test('the committed ran-tests grader passes a test-runner invocation and fails a
   }
 
   assert.deepEqual(wrong, []);
+});
+
+test('the committed ran-tests grader grades a 160k-character command with no whitespace in well under a second', () => {
+  const ranTests = readGrader(`${evalRepo(process.env)}/evals/lz-tdd-apply/apply-lz-red/apply-lz-red-r1/graders/ran-tests.md`);
+  const started = performance.now();
+  const [verdict] = gradeRun([ranTests], { calls: [call('Bash', { command: ';a='.repeat(53_334) })], lastMessage: '' });
+
+  assert.equal(verdict?.passed, false);
+  assert.ok(performance.now() - started < 500, `took ${String(performance.now() - started)} ms`);
 });
 
 test('sessionTranscripts lists the main transcript and every subagent transcript of the session', () => {

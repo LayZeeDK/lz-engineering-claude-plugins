@@ -61,8 +61,8 @@ the task's own Wave 0 step creates the file.
 | 23-07-T1 | 07 | 5 | AGD-12 | T-23-20, T-23-21 | approved-gmail allowlist over docs and manifests | gate | `claude plugin validate . --strict`; refactor workspace check (check-hygiene) | yes | pending |
 | 23-07-T2 | 07 | 5 | AGD-09, AGD-12 | T-23-20 | none beyond hygiene | grep gates | `git ls-files .planning/todos/completed/...`; `rg` gates in the plan | yes | pending |
 | 23-07-T3 | 07 | 5 | AGD-09, AGD-11 | T-23-22 | original wording only | gate | refactor workspace check (check-smells, check-crossrefs); per-leaf `rg -l` gates | yes | pending |
-| 23-08-T1 | 08 | 6 | AGD-10 | T-23-26 | stub dry run only, no paid call | dry run | `node tools/evals/eval.ts stage evals/results/after-23`; `npm --prefix tools/evals run check` | W0 | pending |
-| 23-08-T2 | 08 | 6 | AGD-10 | T-23-23 | blocking human cost approval | checkpoint | manual (Lars's own message) | n/a | pending |
+| 23-08-T1 | 08 | 6 | AGD-10 | T-23-26 | stub dry run only, no paid call | dry run | `node tools/evals/eval.ts stage "$(git log -1 --format=%H -- plugins/lz-tdd)"`; `npm --prefix tools/evals run check` | W0 | pending |
+| 23-08-T2 | 08 | 6 | AGD-10 | T-23-23 | blocking human cost approval | checkpoint | manual: Lars's recorded pre-approval (AFK log rows 2026-11-27T22:35Z and 2026-11-28T08:58Z) with every Task 2 condition checked and written down, else Lars's own message | n/a | pending |
 | 23-08-T3 | 08 | 6 | AGD-10 | T-23-24, T-23-25, T-23-27 | budget check per stage; results scanned; heavy lock | paid eval | `node tools/evals/eval.ts crosscheck evals/results/after-23`; `node tools/evals/check-cases.ts` | W0 | pending |
 
 *Status: pending / green / red / flaky*

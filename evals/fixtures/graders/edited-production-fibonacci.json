@@ -1,33 +1,17 @@
 {
   "grader": {
-    "type": "tool_used",
-    "tool": "Edit",
-    "inputMatch": "fibonacci\\.ts\""
+    "type": "regex",
+    "target": "trace",
+    "pattern": "\"name\":\"(?:Edit|Write)\",\"input\":\\{[^{}]*?fibonacci\\.ts\""
   },
   "pass": {
-    "toolCalls": [
-      {
-        "name": "Edit",
-        "input": {
-          "file_path": "D:\\tmp\\w\\src\\fibonacci.ts",
-          "old_string": "a",
-          "new_string": "b"
-        }
-      }
-    ],
-    "lastMessage": ""
+    "toolCalls": [],
+    "lastMessage": "",
+    "trace": "{\"type\":\"assistant\",\"message\":{\"content\":[{\"type\":\"tool_use\",\"id\":\"toolu_fixture\",\"name\":\"Write\",\"input\":{\"file_path\":\"D:\\\\tmp\\\\w\\\\src\\\\fibonacci.ts\",\"content\":\"x\"}}]}}\n"
   },
   "fail": {
-    "toolCalls": [
-      {
-        "name": "Edit",
-        "input": {
-          "file_path": "D:\\tmp\\w\\src\\fibonacci.test.ts",
-          "old_string": "a",
-          "new_string": "b"
-        }
-      }
-    ],
-    "lastMessage": ""
+    "toolCalls": [],
+    "lastMessage": "",
+    "trace": "{\"type\":\"assistant\",\"message\":{\"content\":[{\"type\":\"tool_use\",\"id\":\"toolu_fixture\",\"name\":\"Write\",\"input\":{\"file_path\":\"D:\\\\tmp\\\\w\\\\src\\\\fibonacci.test.ts\",\"content\":\"x\"}}]}}\n"
   }
 }

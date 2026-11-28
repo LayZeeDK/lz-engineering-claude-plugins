@@ -286,7 +286,7 @@ test('settleSlim grades with the graders it is handed, not the ones in the case 
   put(`${projects}/${projectFolder(cwd)}/${sessionA}.jsonl`, '{"type":"user","message":{"content":"Make it pass."}}\n');
   put(`${run.runDir}/raw/started.json`, JSON.stringify({ startedAt: '2026-11-25T00:00:00.000Z', cwd }));
   put(`${run.runDir}/raw/result.json`, outFile(sessionA, 'Done.').replace('"cwd":"S:/cwd"', `"cwd":"${cwd}"`));
-  const snapshot = [{ name: 'said-done', type: 'regex' as const, pattern: 'Done', flags: '', tool: null, inputMatch: null, min: 1, max: null, arm: null }];
+  const snapshot = [{ name: 'said-done', type: 'regex' as const, pattern: 'Done', flags: '', tool: null, inputMatch: null, min: 1, max: null, arm: null, target: 'last_message' as const }];
 
   assert.equal(settleSlim(run, `${run.runDir}/raw/result.json`, 0, meta, projects, snapshot), 'done');
   assert.deepEqual(requireRecord(requireRecord(readJson(`${run.runDir}/result.json`), 'result.json')['arms'], 'arms')['with'], [

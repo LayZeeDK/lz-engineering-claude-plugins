@@ -261,7 +261,7 @@ function checkTwins(repo: string, suites: readonly Suite[], cases: readonly Lint
   }
 }
 
-const fixtureFields = new Set(['type', 'pattern', 'flags', 'tool', 'inputMatch', 'min', 'max', 'arm']);
+const fixtureFields = new Set(['type', 'pattern', 'flags', 'tool', 'inputMatch', 'min', 'max', 'arm', 'target']);
 
 // A fixture's grader is a GraderDef without its name; fields left out take readGrader's defaults.
 function fixtureGrader(value: unknown): GraderDef {
@@ -275,7 +275,17 @@ function fixtureGrader(value: unknown): GraderDef {
     throw new Error(`unknown grader fields ${unknown.join(', ')}`);
   }
 
-  const { type, pattern = null, flags = '', tool = null, inputMatch = null, min = 1, max = null, arm = null } = value;
+  const {
+    type,
+    pattern = null,
+    flags = '',
+    tool = null,
+    inputMatch = null,
+    min = 1,
+    max = null,
+    arm = null,
+    target = 'last_message',
+  } = value;
   const text = (field: unknown): field is string | null => field === null || typeof field === 'string';
   const whole = (field: unknown): field is number => typeof field === 'number' && Number.isInteger(field) && field >= 0;
 
@@ -287,17 +297,20 @@ function fixtureGrader(value: unknown): GraderDef {
     !text(inputMatch) ||
     !whole(min) ||
     !(max === null || whole(max)) ||
-    !text(arm)
+    !text(arm) ||
+    (target !== 'last_message' && target !== 'trace')
   ) {
     throw new Error('grader fields have the wrong type');
   }
 
-  return { name: 'fixture', type, pattern, flags, tool, inputMatch, min, max, arm };
+  return { name: 'fixture', type, pattern, flags, tool, inputMatch, min, max, arm, target };
 }
 
 function fixtureEvidence(value: unknown, what: string): Evidence {
-  if (!isRecord(value) || !Array.isArray(value['toolCalls']) || typeof value['lastMessage'] !== 'string') {
-    throw new Error(`${what} evidence must be {"toolCalls": [...], "lastMessage": "..."}`);
+  const { trace = '' } = isRecord(value) ? value : {};
+
+  if (!isRecord(value) || !Array.isArray(value['toolCalls']) || typeof value['lastMessage'] !== 'string' || typeof trace !== 'string') {
+    throw new Error(`${what} evidence must be {"toolCalls": [...], "lastMessage": "...", "trace": "..." (optional)}`);
   }
 
   const calls = value['toolCalls'].map((call: unknown, index) => {
@@ -308,7 +321,7 @@ function fixtureEvidence(value: unknown, what: string): Evidence {
     return { id: `fixture-${String(index)}`, name: call['name'], input: call['input'] ?? null, isError: false, denied: false, exitCode: null };
   });
 
-  return { calls, lastMessage: value['lastMessage'] };
+  return { calls, lastMessage: value['lastMessage'], trace };
 }
 
 // Grades each fixture's pass and fail evidence and gives back the grader keys the fixtures cover.
@@ -389,6 +402,12 @@ export function lintCases(repo: string): LintReport {
       if (lintCase.suite.backend !== 'slim' && def.tool?.includes('|') === true) {
         problems.push(
           `${shown(repo, lintCase.path)}: grader ${def.name} names tools ${def.tool}, which only a slim suite can grade`,
+        );
+      }
+
+      if (lintCase.suite.backend !== 'plugin-eval' && def.target === 'trace') {
+        problems.push(
+          `${shown(repo, lintCase.path)}: grader ${def.name} targets the trace, which only a plugin-eval suite can grade`,
         );
       }
 

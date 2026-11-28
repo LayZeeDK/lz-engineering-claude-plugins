@@ -1,7 +1,7 @@
 ---
-type: tool_used
-tool: Edit
-input_match: 'shipment\.ts"'
+type: regex
+target: trace
+pattern: '"name":"(?:Edit|Write)","input":\{[^{}]*?shipment\.ts"'
 ---
 
-The step edited the production file.
+The step edited or wrote the production file.

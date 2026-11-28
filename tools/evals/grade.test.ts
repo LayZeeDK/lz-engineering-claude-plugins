@@ -58,6 +58,7 @@ test('readGrader reads tool_used and regex graders with their defaults, named af
     min: 1,
     max: null,
     arm: null,
+    target: 'last_message',
   });
   assert.deepEqual(grader('quiet', ['type: tool_used', 'tool: Skill', 'min: 0', 'max: 0', 'arm: both']), {
     name: 'quiet',
@@ -69,6 +70,7 @@ test('readGrader reads tool_used and regex graders with their defaults, named af
     min: 0,
     max: 0,
     arm: 'both',
+    target: 'last_message',
   });
   assert.deepEqual(grader('red-line', ['type: regex', "pattern: 'RED: [^\\n]+ -- fails: [^\\n]+\\s*$'", 'flags: i']), {
     name: 'red-line',
@@ -80,14 +82,20 @@ test('readGrader reads tool_used and regex graders with their defaults, named af
     min: 1,
     max: null,
     arm: null,
+    target: 'last_message',
   });
+});
+
+test('readGrader reads a regex grader with target: trace', () => {
+  assert.equal(grader('wrote', ['type: regex', "pattern: 'x'", 'target: trace']).target, 'trace');
 });
 
 test('readGrader refuses a type or key the model does not hold, naming the file', () => {
   assert.throws(() => grader('judge', ['type: llm']), /judge\.md.*type llm/);
   assert.throws(() => grader('made', ['type: file_exists', 'path: x.ts']), /made\.md.*type file_exists/);
   assert.throws(() => grader('weighted', ['type: regex', 'pattern: x', 'weight: 2']), /weighted\.md.*weight/);
-  assert.throws(() => grader('target', ['type: regex', 'pattern: x', 'target: trace']), /target\.md.*target/);
+  assert.throws(() => grader('target', ['type: regex', 'pattern: x', 'target: files']), /target\.md.*target/);
+  assert.throws(() => grader('used-trace', ['type: tool_used', 'tool: Edit', 'target: trace']), /used-trace\.md.*target/);
   assert.throws(() => grader('no-tool', ['type: tool_used']), /no-tool\.md.*tool/);
   assert.throws(() => grader('no-pattern', ['type: regex']), /no-pattern\.md.*pattern/);
   assert.throws(() => grader('bad-min', ['type: tool_used', 'tool: Read', 'min: -1']), /bad-min\.md.*min/);
@@ -157,6 +165,14 @@ test('regex tests the last message only, so a report line followed by another pa
   assert.equal(passes('RED: next -- fails: x\n\nAnything else?'), false);
   assert.equal(passes('red: next -- fails: x'), false);
   assert.equal(gradeRun([grader('red-i', ['type: regex', 'pattern: red', 'flags: i'])], { calls: [], lastMessage: 'RED' })[0]?.passed, true);
+});
+
+test('a regex grader with target: trace tests the trace text, not the last message', () => {
+  const wrote = grader('wrote-trace', ['type: regex', "pattern: '\"name\":\"(?:Edit|Write)\"'", 'target: trace']);
+  const passes = (trace: string, lastMessage: string): boolean => gradeRun([wrote], { calls: [], lastMessage, trace })[0]?.passed ?? false;
+
+  assert.equal(passes('{"type":"tool_use","name":"Write","input":{}}\n', 'done'), true);
+  assert.equal(passes('{"type":"tool_use","name":"Read","input":{}}\n', '"name":"Write"'), false);
 });
 
 test('a Bash call that ran the tests is a tool_used grader over the transcript', () => {
@@ -266,7 +282,16 @@ test('traceEvidence keeps every plugin-eval call, failed or refused, as the CLI 
     ...failedUse('w1', 'Write', { file_path: 'b.ts' }, 'Permission to use Write has been denied.'),
   ];
 
-  assert.deepEqual(traceEvidence(entries).calls.map(({ id }) => id), ['e1', 'w1']);
+  assert.deepEqual(traceEvidence(lines(entries)).calls.map(({ id }) => id), ['e1', 'w1']);
+});
+
+test('traceEvidence reads a saved trace file text and keeps that text as the trace', () => {
+  const text = trace(toolUse('w1', 'Write', { file_path: 'src/a.ts', content: 'x' }), 'done');
+  const evidence = traceEvidence(text);
+
+  assert.equal(evidence.trace, text);
+  assert.deepEqual(evidence.calls.map(({ id }) => id), ['w1']);
+  assert.equal(evidence.lastMessage, 'done');
 });
 
 function plannedRun(runDir: string, caseName: string): PlannedRun {
@@ -370,6 +395,18 @@ test('crosscheckRunSet agrees with the CLI on its own traces, lists a flipped ve
   assert.match(report.unchecked[0]?.reason ?? '', /trace-with\.jsonl/);
 
   assert.deepEqual(crosscheckRunSet([agree], stageRoot), { agree: 4, disagree: [], unchecked: [] });
+});
+
+test('crosscheckRunSet grades a target: trace regex grader over the copied trace file text', () => {
+  const stageRoot = `${root}/stage-trace`;
+  const run = plannedRun(`${root}/set-trace/head/m/trigger-red-01/run-1`, 'trigger-red-01');
+  const wrote = ['type: regex', "pattern: '\"name\":\"(?:Edit|Write)\",\"input\":\\{[^{}]*?a\\.ts\"'", 'target: trace'];
+  put(`${caseTarget(stageRoot, 'a'.repeat(40), staged)}/evals/trigger-red-01/graders/wrote.md`, ['---', ...wrote, '---', ''].join('\n'));
+  put(`${run.runDir}/raw/trace-with.jsonl`, trace(toolUse('w1', 'Write', { file_path: 'src/a.ts', content: 'x' }), 'done'));
+  put(`${run.runDir}/raw/trace-without.jsonl`, trace(toolUse('w2', 'Write', { file_path: 'src/b.ts', content: 'x' }), 'done'));
+  put(`${run.runDir}/result.json`, JSON.stringify(pluginResult(run, { wrote: true }, { wrote: false })));
+
+  assert.deepEqual(crosscheckRunSet([run], stageRoot), { agree: 2, disagree: [], unchecked: [] });
 });
 
 test('crosscheckRunSet leaves a run unchecked when no stage holds the cases tree its result records', () => {

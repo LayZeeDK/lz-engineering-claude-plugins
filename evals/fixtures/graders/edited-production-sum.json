@@ -1,33 +1,17 @@
 {
   "grader": {
-    "type": "tool_used",
-    "tool": "Edit",
-    "inputMatch": "sum\\.ts\""
+    "type": "regex",
+    "target": "trace",
+    "pattern": "\"name\":\"(?:Edit|Write)\",\"input\":\\{[^{}]*?sum\\.ts\""
   },
   "pass": {
-    "toolCalls": [
-      {
-        "name": "Edit",
-        "input": {
-          "file_path": "D:\\tmp\\w\\src\\sum.ts",
-          "old_string": "a",
-          "new_string": "b"
-        }
-      }
-    ],
-    "lastMessage": ""
+    "toolCalls": [],
+    "lastMessage": "",
+    "trace": "{\"type\":\"assistant\",\"message\":{\"content\":[{\"type\":\"tool_use\",\"id\":\"toolu_fixture\",\"name\":\"Write\",\"input\":{\"file_path\":\"D:\\\\tmp\\\\w\\\\src\\\\sum.ts\",\"content\":\"x\"}}]}}\n"
   },
   "fail": {
-    "toolCalls": [
-      {
-        "name": "Edit",
-        "input": {
-          "file_path": "D:\\tmp\\w\\src\\sum.test.ts",
-          "old_string": "a",
-          "new_string": "b"
-        }
-      }
-    ],
-    "lastMessage": ""
+    "toolCalls": [],
+    "lastMessage": "",
+    "trace": "{\"type\":\"assistant\",\"message\":{\"content\":[{\"type\":\"tool_use\",\"id\":\"toolu_fixture\",\"name\":\"Write\",\"input\":{\"file_path\":\"D:\\\\tmp\\\\w\\\\src\\\\sum.test.ts\",\"content\":\"x\"}}]}}\n"
   }
 }

@@ -1,7 +1,7 @@
 ---
-type: tool_used
-tool: Edit
-input_match: 'process-order\.ts"'
+type: regex
+target: trace
+pattern: '"name":"(?:Edit|Write)","input":\{[^{}]*?process-order\.ts"'
 ---
 
-The step edited the production file.
+The step edited or wrote the production file.

@@ -30,7 +30,8 @@ export interface PortedCase {
 // The current sets, in the order their queries are numbered, and the set recorded at a commit (D-12).
 export interface TriggerSpec {
   readonly files: readonly string[];
-  readonly record: { readonly sha: string; readonly path: string };
+  // readFrom: the commit the record is read from when sha was never published.
+  readonly record: { readonly sha: string; readonly readFrom?: string; readonly path: string };
 }
 
 interface Entry {
@@ -60,7 +61,11 @@ export function triggerSpec(repo: string, skill: string): TriggerSpec {
       .filter((file) => file.endsWith('.json'))
       .sort();
 
-    return { files: [`${ws}/trigger-eval.json`, ...chunks], record: { sha: '5f586da', path: `${ws}/trigger-eval.json` } };
+    return {
+      files: [`${ws}/trigger-eval.json`, ...chunks],
+      // 5f586da was never published; d85ffeb holds the identical file.
+      record: { sha: '5f586da', readFrom: 'd85ffeb', path: `${ws}/trigger-eval.json` },
+    };
   }
 
   if (skill === 'lz-refactor') {
@@ -132,7 +137,7 @@ export function triggerCases(repo: string, skill: string, spec: TriggerSpec = tr
   }
 
   const recorded = new Set(
-    parseEntries(JSON.parse(git(repo, ['show', `${spec.record.sha}:${spec.record.path}`])), spec.record.path, false)
+    parseEntries(JSON.parse(git(repo, ['show', `${spec.record.readFrom ?? spec.record.sha}:${spec.record.path}`])), spec.record.path, false)
       .filter((entry) => !entry.canary)
       .map((entry) => entry.query),
   );

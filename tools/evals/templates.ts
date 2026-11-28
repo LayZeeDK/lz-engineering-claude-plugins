@@ -5,7 +5,7 @@ import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { copyFileSync, cpSync, existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { dirname, join } from 'node:path';
+import { dirname, join, posix, win32 } from 'node:path';
 import { assertName, isRecord, readJson } from './guards.ts';
 import { forwardSlashes } from './run-set.ts';
 import { archiveInto, git, gitIn } from './stage.ts';
@@ -205,9 +205,17 @@ export function withLocalBin(dir: string, env: NodeJS.ProcessEnv): NodeJS.Proces
   return { ...env, [key]: env[key] === undefined || env[key] === '' ? bin : `${bin}${separator}${env[key]}` };
 }
 
+export function npmCliPath(execPath: string, platform: NodeJS.Platform): string {
+  if (platform === 'win32') {
+    return win32.join(win32.dirname(execPath), 'node_modules', 'npm', 'bin', 'npm-cli.js');
+  }
+
+  return posix.join(posix.dirname(posix.dirname(execPath)), 'lib', 'node_modules', 'npm', 'bin', 'npm-cli.js');
+}
+
 // Stryker disable all: spawns npm and vitest, which the unit tests replace
 // A .cmd shim cannot be spawned without a shell, so npm runs as its own script under this Node.js.
-const npmCli = join(dirname(process.execPath), 'node_modules/npm/bin/npm-cli.js');
+const npmCli = npmCliPath(process.execPath, process.platform);
 
 export const kataToolchain: Toolchain = {
   install: (dir) => {

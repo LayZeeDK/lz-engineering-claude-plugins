@@ -153,9 +153,27 @@ test('copyTraces copies each arm trace into raw/ and then removes the kept claud
       cases: [{ arms: { with: [{ tracePath: `${sandbox}/out/trace.jsonl` }], without: [{ tracePath: `${other}/out/trace.jsonl` }] } }],
     };
 
-    assert.deepEqual(copyTraces(json, rawDir), { with: [{ type: 'system' }], without: [{ type: 'result' }] });
+    assert.deepEqual(copyTraces(json, rawDir, root), { with: [{ type: 'system' }], without: [{ type: 'result' }] });
     assert.equal(readFileSync(`${rawDir}/trace-with.jsonl`, 'utf8'), '{"type":"system"}\n');
     assert.deepEqual([existsSync(sandbox), existsSync(`${other}/out/trace.jsonl`)], [false, true]);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('copyTraces keeps a claude-eval folder that is not directly inside the temp folder', () => {
+  const root = mkdtempSync(join(tmpdir(), 'lz-evals-traces-')).replaceAll('\\', '/');
+
+  try {
+    const outside = `${root}/project/claude-eval-AbC123`;
+    const rawDir = `${root}/raw`;
+    mkdirSync(`${outside}/out`, { recursive: true });
+    mkdirSync(rawDir);
+    writeFileSync(`${outside}/out/trace.jsonl`, '{"type":"system"}\n');
+    const json = { cases: [{ arms: { with: [{ tracePath: `${outside}/out/trace.jsonl` }] } }] };
+
+    assert.deepEqual(copyTraces(json, rawDir, root), { with: [{ type: 'system' }], without: null });
+    assert.equal(existsSync(`${outside}/out/trace.jsonl`), true);
   } finally {
     rmSync(root, { recursive: true, force: true });
   }

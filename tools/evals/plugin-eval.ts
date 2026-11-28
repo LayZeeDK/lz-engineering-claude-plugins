@@ -2,8 +2,8 @@
 // CLI's JSON goes to raw/plugin-eval.json and its traces are copied into raw/ at once (they live in temp folders that
 // are not kept); the harness writes result.json only after its own checks. Repository-only; nothing here ships with
 // the plugin.
-import { copyFileSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
-import { homedir } from 'node:os';
+import { copyFileSync, existsSync, mkdirSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
+import { homedir, tmpdir } from 'node:os';
 import { basename, dirname, join } from 'node:path';
 import type { Ablation } from './cases.ts';
 import { isRecord, jsonLines, readJson } from './guards.ts';
@@ -215,8 +215,10 @@ function tracePathOf(json: unknown, side: 'with' | 'without'): string | null {
 }
 
 // Copies each arm's trace into raw/ before anything else reads it, and gives back the copies' entries. The sandbox
-// --keep-temp kept (<sandbox>/out/trace.jsonl, named claude-eval-<id>) goes once both traces are copied.
-export function copyTraces(json: unknown, rawDir: string): Traces {
+// --keep-temp kept (<sandbox>/out/trace.jsonl, named claude-eval-<id>, directly inside the temp folder) goes once both
+// traces are copied. The path comes from the CLI's output, so a folder anywhere else is left alone.
+export function copyTraces(json: unknown, rawDir: string, tempRoot: string = tmpdir()): Traces {
+  const realTempRoot = realpathSync.native(tempRoot);
   const sandboxes = new Set<string>();
   const copy = (side: 'with' | 'without'): unknown[] | null => {
     const source = tracePathOf(json, side);
@@ -228,8 +230,14 @@ export function copyTraces(json: unknown, rawDir: string): Traces {
     const target = `${rawDir}/trace-${side}.jsonl`;
     copyFileSync(source, target);
 
-    if (basename(dirname(source)) === 'out' && /^claude-eval-[A-Za-z0-9]+$/.test(basename(dirname(dirname(source))))) {
-      sandboxes.add(dirname(dirname(source)));
+    const sandbox = dirname(dirname(source));
+
+    if (
+      basename(dirname(source)) === 'out' &&
+      /^claude-eval-[A-Za-z0-9]+$/.test(basename(sandbox)) &&
+      realpathSync.native(dirname(sandbox)) === realTempRoot
+    ) {
+      sandboxes.add(sandbox);
     }
 
     return jsonLines(readFileSync(target, 'utf8'));

@@ -18,7 +18,7 @@
 // `crosscheck` re-grades every finished plugin-eval run from its copied traces with the harness's grader model and
 // exits 1 on any verdict that differs from the CLI's, or on a run it could not grade.
 // `run`, `rerun` and `resume` refuse while evals/lz-tdd or evals/lz-tdd-apply has uncommitted changes, then stage
-// every ref their runs need (dist/eval/<sha12>/plugin from `git archive`, and lz-tdd/ = plugin/ plus the committed
+// every ref their runs need (dist/eval/<sha12>/plugin from `git archive`, and lz-tdd-<cases key>/ = plugin/ plus the committed
 // plugin-eval cases), so a run never tests the working tree.
 // <run set dir>/run-set.json names the cells: {"cells": [{"arm", "ref", "models": {"<model>": <runs>}, "suites":
 // [{"suite", "tags"?, "cases"?}]}], "record"?: [...]}. A run is done when its result.json exists, and `run` never
@@ -69,7 +69,7 @@ import {
   type LockMode,
   type SlimContext,
 } from './slim.ts';
-import { casesTree, git, readStage, resolveCommit, stageRef } from './stage.ts';
+import { casesTree, git, resolveCommit, stageRef } from './stage.ts';
 import { buildTemplate } from './templates.ts';
 
 const usage =
@@ -96,17 +96,7 @@ function refuseUncommittedCases(repo: string): void {
 // the trees each run's result.json records.
 function stageRuns(repo: string, runs: readonly PlannedRun[], stageRoot: string): (run: PlannedRun) => Trees {
   const refs = [...new Set(runs.flatMap((run) => (run.ref === null ? [] : [run.ref])))];
-  const stages = new Map(
-    refs.map((ref) => {
-      const info = readStage(stageRef(repo, stageRoot, resolveCommit(repo, ref)));
-
-      if (info === null) {
-        throw new Error(`staging ${ref} wrote no readable stage.json`);
-      }
-
-      return [ref, info];
-    }),
-  );
+  const stages = new Map(refs.map((ref) => [ref, stageRef(repo, stageRoot, resolveCommit(repo, ref))]));
   const missing = runs.filter(
     (run) => !isSlim(run) && run.ref !== null && !(stages.get(run.ref)?.cases ?? []).includes(run.caseInfo.name),
   );
@@ -255,7 +245,7 @@ if (import.meta.main) {
   }
 
   if (command === 'stage') {
-    console.log(stageRef(repo, stageRoot, resolveCommit(repo, runSetDir)));
+    console.log(stageRef(repo, stageRoot, resolveCommit(repo, runSetDir)).target);
   } else if (command === 'template') {
     console.log(buildTemplate(repo, slimRoot, clonesRoot, assertName('template', runSetDir)));
   } else if (command === 'crosscheck') {

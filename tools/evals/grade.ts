@@ -6,7 +6,8 @@ import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { basename } from 'node:path';
 import { readFrontmatter } from './cases.ts';
 import { isRecord, jsonLines, readJson } from './guards.ts';
-import { resultPath, stageDir, type GraderVerdict, type PlannedRun } from './run-set.ts';
+import { resultPath, type GraderVerdict, type PlannedRun } from './run-set.ts';
+import { caseTarget } from './stage.ts';
 import { outFiles, resultFacts, slimOutput, toolCalls, traceResult, type ToolCall } from './trace.ts';
 
 export interface GraderDef {
@@ -272,7 +273,14 @@ export function crosscheckRunSet(plan: readonly PlannedRun[], stageRoot: string)
           throw new Error('the run has no ref, so it has no staged case');
         }
 
-        const defs = readGraders(`${stageDir(stageRoot, run.ref)}/lz-tdd/evals/${run.caseInfo.name}`);
+        const cases = isRecord(result) && typeof result['casesTree'] === 'string' ? result['casesTree'] : '';
+        const target = caseTarget(stageRoot, run.ref, cases);
+
+        if (!existsSync(target)) {
+          throw new Error(`no stage holds the cases tree ${cases} the result records; stage the run's commit with those cases`);
+        }
+
+        const defs = readGraders(`${target}/evals/${run.caseInfo.name}`);
         const unmodelled = [...cli.keys()].filter((name) => !defs.some((def) => def.name === name));
 
         if (unmodelled.length > 0) {

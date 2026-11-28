@@ -7,7 +7,7 @@ import { join } from 'node:path';
 import { after, test } from 'node:test';
 
 import { requireRecord, readJson } from './guards.ts';
-import { casesTree, git, pluginTree } from './stage.ts';
+import { caseTarget, casesTree, git, pluginTree } from './stage.ts';
 
 const root = mkdtempSync(join(tmpdir(), 'lz-evals-cli-')).replaceAll('\\', '/');
 
@@ -74,8 +74,8 @@ test('one plugin-eval run goes from run-set.json to result.json and RESULTS.md, 
   assert.deepEqual([result['pluginTree'], result['casesTree']], [pluginTree(repo, sha), casesTree(repo)]);
   assert.ok(existsSync(`${setDir}/head/claude-sonnet-5-5/demo-01/run-1/raw/trace-with.jsonl`));
   const target = readFileSync(`${stubDir}/argv.jsonl`, 'utf8');
-  assert.ok(target.includes(`${stageRoot}/${sha.slice(0, 12)}/lz-tdd`), target);
-  assert.ok(existsSync(`${stageRoot}/${sha.slice(0, 12)}/lz-tdd/evals/demo-01/prompt.md`));
+  assert.ok(target.includes(caseTarget(stageRoot, sha, casesTree(repo))), target);
+  assert.ok(existsSync(`${caseTarget(stageRoot, sha, casesTree(repo))}/evals/demo-01/prompt.md`));
 
   const second = evalCli(['run', setDir], env);
   assert.equal(second.status, 0, second.output);
@@ -224,7 +224,7 @@ test('a paid run books the timing-sensitive lock for a plugin-eval suite, and re
   assert.match(Array.isArray(acquired) ? String(acquired[acquired.indexOf('--task') + 1]) : '', /^lz-tdd eval .*\(part 1 of 3\)$/);
 });
 
-test('stage prints the stage folder of a ref, and a ref that is no commit fails', () => {
+test('stage prints the case target of a ref for the committed cases, and a ref that is no commit fails', () => {
   const repo = `${root}/stage-cli`;
   const stageRoot = `${root}/stage-cli-out`;
   const sha = demoRepo(repo);
@@ -232,8 +232,8 @@ test('stage prints the stage folder of a ref, and a ref that is no commit fails'
 
   const staged = evalCli(['stage', 'HEAD'], env);
   assert.equal(staged.status, 0, staged.output);
-  assert.equal(staged.output.trim(), `${stageRoot}/${sha.slice(0, 12)}`);
-  assert.equal(requireRecord(readJson(`${stageRoot}/${sha.slice(0, 12)}/stage.json`), 'stage.json')['pluginTree'], pluginTree(repo, sha));
+  assert.equal(staged.output.trim(), caseTarget(stageRoot, sha, casesTree(repo)));
+  assert.ok(existsSync(`${staged.output.trim()}/evals/demo-01/prompt.md`));
 
   const missing = evalCli(['stage', 'no-such-ref'], env);
   assert.equal(missing.status, 1, missing.output);

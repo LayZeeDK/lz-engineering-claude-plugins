@@ -8,6 +8,7 @@ import type { Suite } from './cases.ts';
 import { crosscheckRunSet, gradeRun, readGrader, runEvidence, sessionTranscripts, traceEvidence, type GraderDef } from './grade.ts';
 import type { PlannedRun, RunResult } from './run-set.ts';
 import { projectFolder } from './slim.ts';
+import { caseTarget } from './stage.ts';
 import { toolCalls, type ToolCall } from './trace.ts';
 
 const root = mkdtempSync(join(tmpdir(), 'lz-evals-grade-')).replaceAll('\\', '/');
@@ -304,6 +305,8 @@ function trace(entries: readonly unknown[], text: string): string {
   ]);
 }
 
+const staged = 'cases-a+cases-b';
+
 function pluginResult(run: PlannedRun, withVerdicts: Record<string, boolean>, withoutVerdicts: Record<string, boolean>): RunResult {
   const verdicts = (map: Record<string, boolean>): RunResult['arms']['with'] =>
     Object.entries(map).map(([name, passed]) => ({ name, passed, scored: true }));
@@ -315,7 +318,7 @@ function pluginResult(run: PlannedRun, withVerdicts: Record<string, boolean>, wi
     arm: run.arm,
     ref: run.ref,
     pluginTree: null,
-    casesTree: null,
+    casesTree: staged,
     suite: run.suite.name,
     case: run.caseInfo.name,
     k: run.k,
@@ -338,7 +341,7 @@ function pluginResult(run: PlannedRun, withVerdicts: Record<string, boolean>, wi
 
 test('crosscheckRunSet agrees with the CLI on its own traces, lists a flipped verdict, and counts a run without a trace', () => {
   const stageRoot = `${root}/stage`;
-  const caseDir = (name: string): string => `${stageRoot}/${'a'.repeat(12)}/lz-tdd/evals/${name}`;
+  const caseDir = (name: string): string => `${caseTarget(stageRoot, 'a'.repeat(40), staged)}/evals/${name}`;
   const runs = ['trigger-red-01', 'trigger-red-02', 'trigger-red-03'].map((name) => plannedRun(`${root}/set/head/m/${name}/run-1`, name));
 
   for (const run of runs) {
@@ -367,4 +370,16 @@ test('crosscheckRunSet agrees with the CLI on its own traces, lists a flipped ve
   assert.match(report.unchecked[0]?.reason ?? '', /trace-with\.jsonl/);
 
   assert.deepEqual(crosscheckRunSet([agree], stageRoot), { agree: 4, disagree: [], unchecked: [] });
+});
+
+test('crosscheckRunSet leaves a run unchecked when no stage holds the cases tree its result records', () => {
+  const stageRoot = `${root}/stage-other-tree`;
+  const run = plannedRun(`${root}/set-other/head/m/trigger-red-01/run-1`, 'trigger-red-01');
+  put(`${caseTarget(stageRoot, 'a'.repeat(40), 'later+tree')}/evals/trigger-red-01/graders/fired.md`, ['---', ...skillFired, '---', ''].join('\n'));
+  put(`${run.runDir}/raw/trace-with.jsonl`, trace(toolUse('s1', 'Skill', { skill: 'lz-tdd:lz-red' }), 'x'));
+  put(`${run.runDir}/result.json`, JSON.stringify(pluginResult(run, { fired: true }, {})));
+
+  const report = crosscheckRunSet([run], stageRoot);
+  assert.deepEqual([report.agree, report.unchecked.length], [0, 1]);
+  assert.match(report.unchecked[0]?.reason ?? '', /no stage holds the cases tree cases-a\+cases-b/);
 });

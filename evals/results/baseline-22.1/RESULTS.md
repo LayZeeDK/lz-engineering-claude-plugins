@@ -507,8 +507,42 @@ tell with and without apart in this run set. None was changed here.
 - `red-line`, `green-line` and `refactor-line`: 0 in every run of every suite, on both sides and both models.
 - `leaf-read`: 0 in every apply run. In the doing suites it is a with-side-only signal (Sonnet 0/5 to 3/5, Opus 0/3
   to 3/3).
-- `edited-production` on apply-lz-refactor-gr4: the skill often declines the refactor (as in the recorded result
-  at 877aef3), so the grader scores that behaviour as a failure; with 1/5 vs without 4/5 on Sonnet.
+- `edited-production` on apply-lz-refactor-gr4 counted only Edit calls when these runs were graded, and most
+  sessions rewrote `app/gilded-rose.ts` with Write. An earlier version of this note said the skill often declines
+  the refactor; the transcripts do not support that. See the slim re-grade below.
+- Slim re-grade (2026-11-28, no run cost). The `edited-production` and `edited-test` graders of the six gilded-rose
+  apply suites now count Edit or Write (`tool: 'Edit|Write'`), and a slim `tool_used` grader now counts only calls
+  that took effect (not refused by permissions; a command that ran and exited non-zero still counts). All 96 saved
+  slim apply runs were graded again from their transcripts. Cells that changed, original -> re-graded; every other
+  slim cell is unchanged, and the tables above and the result.json files keep the original grading:
+
+  | Arm | Suite | Model | Grader | Original | Re-graded |
+  |---|---|---|---|---|---|
+  | head | apply-lz-red | claude-sonnet-5-5 | edited-test | 4/5 | 5/5 |
+  | head | apply-lz-red | claude-opus-5-5 | edited-test | 2/3 | 3/3 |
+  | head | apply-lz-red-invoke | claude-sonnet-5-5 | edited-test | 4/5 | 5/5 |
+  | no-plugin | apply-lz-red | claude-sonnet-5-5 | edited-test | 4/5 | 5/5 |
+  | head | apply-lz-refactor | claude-sonnet-5-5 | edited-production | 1/5 | 5/5 |
+  | head | apply-lz-refactor | claude-opus-5-5 | edited-production | 2/3 | 3/3 |
+  | head | apply-lz-refactor-invoke | claude-sonnet-5-5 | edited-production | 2/5 | 4/5 |
+  | head | apply-lz-refactor-invoke | claude-opus-5-5 | edited-production | 1/3 | 2/3 |
+  | no-plugin | apply-lz-refactor | claude-sonnet-5-5 | edited-production | 4/5 | 5/5 |
+  | no-plugin | apply-lz-refactor | claude-opus-5-5 | edited-production | 1/3 | 3/3 |
+  | head | apply-lz-refactor | claude-sonnet-5-5 | ran-tests | 5/5 | 2/5 |
+  | head | apply-lz-refactor-invoke | claude-sonnet-5-5 | ran-tests | 5/5 | 2/5 |
+  | head | apply-lz-refactor-invoke | claude-opus-5-5 | ran-tests | 3/3 | 2/3 |
+  | no-plugin | apply-lz-refactor | claude-sonnet-5-5 | ran-tests | 4/5 | 1/5 |
+  | no-plugin | apply-lz-refactor | claude-opus-5-5 | ran-tests | 3/3 | 0/3 |
+
+  The six srvx `edited-test` cells are in the srvx note below (all 24 of 24). The `ran-tests` drops are refused
+  calls: the kata has a Jest and a Vitest setup, the suite's allow list permits `npx vitest`, `npm test` and
+  `npm run`, and the sessions in those runs asked for `npx jest`, which was refused (read in one transcript,
+  no-plugin Opus run 1; inferred for the others from the changed count). With the corrected graders
+  `edited-production` reads 5/5 with against 5/5 without on Sonnet and 3/3 against 3/3 on Opus for
+  apply-lz-refactor, so the earlier -0.60 and +0.33 differences came from the grader.
+- The doing suites on `claude plugin eval` (doing-lz-red, doing-lz-tpp, doing-lz-refactor and their twins, 40
+  grader definitions) still count only Edit calls; their `edited-production` and `edited-test` rows above undercount
+  sessions that wrote the file with Write. Not corrected yet.
 - `edited-test` on the srvx suites accepted only an Edit call on a file under `test/` when these runs were graded.
   The prompt asks the model to add a test under `test/`, and in 24 of the 24 srvx runs the session created that
   file with Write (measured from the transcripts); the grader passed only in the 5 runs that also made an Edit. The

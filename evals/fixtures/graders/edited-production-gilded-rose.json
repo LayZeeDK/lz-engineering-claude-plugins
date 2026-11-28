@@ -1,17 +1,16 @@
 {
   "grader": {
     "type": "tool_used",
-    "tool": "Edit",
+    "tool": "Edit|Write",
     "inputMatch": "app[\\\\/]+gilded-rose\\.ts"
   },
   "pass": {
     "toolCalls": [
       {
-        "name": "Edit",
+        "name": "Write",
         "input": {
           "file_path": "D:\\tmp\\w\\app\\gilded-rose.ts",
-          "old_string": "a",
-          "new_string": "b"
+          "content": "b"
         }
       }
     ],

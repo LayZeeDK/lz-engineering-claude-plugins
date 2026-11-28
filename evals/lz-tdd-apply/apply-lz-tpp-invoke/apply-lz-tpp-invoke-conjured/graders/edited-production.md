@@ -1,6 +1,6 @@
 ---
 type: tool_used
-tool: Edit
+tool: 'Edit|Write'
 input_match: 'app[\\/]+gilded-rose\.ts'
 ---
 

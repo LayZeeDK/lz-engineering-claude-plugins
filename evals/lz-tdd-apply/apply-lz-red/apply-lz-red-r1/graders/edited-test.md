@@ -1,6 +1,6 @@
 ---
 type: tool_used
-tool: Edit
+tool: 'Edit|Write'
 input_match: 'test[\\/]+vitest[\\/]+[^"]*\.(spec|test)\.ts'
 ---
 

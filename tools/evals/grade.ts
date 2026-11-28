@@ -1,5 +1,5 @@
 // The grader model (D-13, D-14): the two `claude plugin eval` grader types the cases use, `regex` on the last message
-// and `tool_used` over the tool calls, as the CLI documents them. Slim runs are graded with it from their own
+// or the trace and `tool_used` over the tool calls, as the CLI documents them. Slim runs are graded with it from their own
 // transcripts, and `crosscheck` grades every plugin-eval run from its copied trace to catch a gap between this model
 // and the CLI. Repository-only; nothing here ships with the plugin.
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
@@ -21,10 +21,11 @@ export interface GraderDef {
   readonly max: number | null;
   // with-only, both or unset; the CLI applies it when it scores, so the model only carries it.
   readonly arm: string | null;
+  readonly target: 'last_message' | 'trace';
 }
 
 const keysOf: Record<GraderDef['type'], ReadonlySet<string>> = {
-  regex: new Set(['type', 'pattern', 'flags', 'arm']),
+  regex: new Set(['type', 'pattern', 'flags', 'arm', 'target']),
   tool_used: new Set(['type', 'tool', 'input_match', 'min', 'max', 'arm']),
 };
 
@@ -67,6 +68,12 @@ export function readGrader(file: string): GraderDef {
 
     return value ?? null;
   };
+  const target = text('target') ?? 'last_message';
+
+  if (target !== 'last_message' && target !== 'trace') {
+    throw fail(`target ${target} is not one the harness models (last_message, trace)`);
+  }
+
   const def: GraderDef = {
     name: basename(file, '.md'),
     type,
@@ -77,6 +84,7 @@ export function readGrader(file: string): GraderDef {
     min: count('min') ?? 1,
     max: count('max'),
     arm: text('arm'),
+    target,
   };
 
   if (type === 'regex' && def.pattern === null) {
@@ -119,11 +127,13 @@ export function readGraders(caseDir: string): GraderDef[] {
 export interface Evidence {
   readonly calls: readonly ToolCall[];
   readonly lastMessage: string;
+  // The saved trace file's text, one message per line; a slim run has none.
+  readonly trace?: string;
 }
 
 function passes(def: GraderDef, evidence: Evidence): boolean {
   if (def.type === 'regex') {
-    return new RegExp(def.pattern ?? '', def.flags).test(evidence.lastMessage);
+    return new RegExp(def.pattern ?? '', def.flags).test(def.target === 'trace' ? (evidence.trace ?? '') : evidence.lastMessage);
   }
 
   const inputMatch = def.inputMatch === null ? null : new RegExp(def.inputMatch);
@@ -196,9 +206,12 @@ export function runEvidence(runDir: string, projectsDir: string): Evidence {
   };
 }
 
-// A plugin-eval trace is the session's stream-json: the same assistant and user entries, then one result entry.
-export function traceEvidence(entries: readonly unknown[]): Evidence {
-  return { calls: uniqueCalls(toolCalls(entries)), lastMessage: traceResult(entries)?.resultText ?? '' };
+// A plugin-eval trace is the session's stream-json: the same assistant and user entries, then one result entry. Its
+// text is what the CLI gives a regex grader with target: trace.
+export function traceEvidence(text: string): Evidence {
+  const entries = jsonLines(text);
+
+  return { calls: uniqueCalls(toolCalls(entries)), lastMessage: traceResult(entries)?.resultText ?? '', trace: text };
 }
 
 export interface Disagreement {
@@ -287,7 +300,7 @@ export function crosscheckRunSet(plan: readonly PlannedRun[], stageRoot: string)
           throw new Error(`the staged case has no modelled grader ${unmodelled.join(', ')}`);
         }
 
-        const model = gradeRun(defs, traceEvidence(jsonLines(readFileSync(trace, 'utf8'))));
+        const model = gradeRun(defs, traceEvidence(readFileSync(trace, 'utf8')));
 
         for (const verdict of model.filter(({ name }) => cli.has(name))) {
           if (cli.get(verdict.name) === verdict.passed) {

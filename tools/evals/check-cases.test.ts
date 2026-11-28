@@ -104,12 +104,13 @@ test('graderKey ignores the grader name and orders the fields', () => {
     min: 1,
     max: null,
     arm: null,
+    target: 'last_message',
   };
 
   assert.equal(graderKey(def), graderKey({ ...def, name: 'b' }));
   assert.equal(
     graderKey(def),
-    '{"arm":null,"flags":"","inputMatch":null,"max":null,"min":1,"pattern":"x","tool":null,"type":"regex"}',
+    '{"arm":null,"flags":"","inputMatch":null,"max":null,"min":1,"pattern":"x","target":"last_message","tool":null,"type":"regex"}',
   );
 });
 
@@ -190,6 +191,21 @@ test('a grader with no fixture, or a fixture whose pass fails or whose fail pass
   expectProblem(failPasses, /wrote-a-test\.json: .*fail evidence passes/);
 });
 
+test('a fixture for a target: trace regex grader is graded on the trace text of its evidence', () => {
+  const repo = cleanRepo();
+  const traced = (path: string): unknown => ({
+    toolCalls: [],
+    lastMessage: '',
+    trace: `${JSON.stringify({ type: 'tool_use', name: 'Write', input: { file_path: path, content: 'x' } })}\n`,
+  });
+  const grader = { type: 'regex', pattern: '"name":"(?:Edit|Write)","input":\\{[^{}]*?a\\.ts"', target: 'trace' };
+  fixture(`${repo}/evals/fixtures/graders/wrote-a-trace.json`, grader, traced('D:\\tmp\\w\\a.ts'), traced('D:\\tmp\\w\\b.ts'));
+  assert.deepEqual(problems(repo), []);
+
+  fixture(`${repo}/evals/fixtures/graders/wrote-a-trace.json`, grader, traced('D:\\tmp\\w\\b.ts'), traced('D:\\tmp\\w\\b.ts'));
+  expectProblem(repo, /wrote-a-trace\.json: the pass evidence fails/);
+});
+
 test('a natural case without its twin, a twin prompt that is not the invoke plus the body, or wrong twin graders, are problems', () => {
   const noTwin = cleanRepo();
   rmSync(`${noTwin}/evals/lz-tdd/doing-x-invoke/doing-x-invoke-01`, { recursive: true });
@@ -223,6 +239,12 @@ test('a grader naming two tools is a problem in a plugin-eval suite, where the C
   const either = ['type: tool_used', "tool: 'Edit|Write'", "input_match: 'a\\.test\\.ts'"];
   graderFile(`${repo}/evals/lz-tdd/doing-x/doing-x-01/graders/wrote.md`, either);
   expectProblem(repo, /doing-x-01: grader wrote names tools Edit\|Write, which only a slim suite can grade/);
+});
+
+test('a target: trace grader is a problem in a slim suite, which has no plugin-eval trace', () => {
+  const repo = cleanRepo();
+  graderFile(`${repo}/evals/lz-tdd-apply/apply-x/apply-x-01/graders/wrote.md`, ['type: regex', "pattern: 'a\\.test\\.ts'", 'target: trace']);
+  expectProblem(repo, /apply-x-01: grader wrote targets the trace, which only a plugin-eval suite can grade/);
 });
 
 test('an unreadable suite.json or grader is a problem, not a crash', () => {

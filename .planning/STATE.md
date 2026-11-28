@@ -365,6 +365,10 @@ Recent decisions affecting current work:
 - 2026-11-24: link the seven unreachable lz-refactor leaves, add a Fowler Sources section, fix the stale GoF line in
   PROJECT.md (`.planning/todos/pending/2026-11-24-lz-refactor-reachability-fowler-sources-gof-line.md`; field-triage
   C8, C9, E1; planned for lz-tdd@0.0.3).
+- 2026-11-28: before milestone lz-tdd@0.0.3 completes, bring tools/evals (and any other code the milestone
+  mutates) to a 100% mutation score, measured by the `Evals mutation` CI workflow, never by local heavy runs.
+  Lars, verbatim: "1: The end result of milestone must have a 100% mutation test score. Heavy mutation test runs
+  should be delegated to CI." First score 77.40 (CI run 46141636201 on 0533f88: 629 Survived, 177 NoCoverage).
 
 Package-link gate follow-ups from quick 261107-jfm, triaged 2026-11-07. Lars, verbatim: "1-2: Approve recommendations."
 (fix the three silent-pass items in one quick task, decline the inline-code one, and record all four here). The

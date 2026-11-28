@@ -1,5 +1,11 @@
 {
-  "grader": { "type": "tool_used", "tool": "Bash", "inputMatch": "vitest|jest|npm (run )?test" },
+  "grader": { "type": "tool_used", "tool": "Bash", "inputMatch": "\"command\":\"(?:(?:[^\"\\\\]|\\\\.)*?(?:&&|\\|\\||[;|(]|\\\\n))?\\s*(?:\\w+=(?:[^\\s\"\\\\]|\\\\.)*\\s+)*(?:npx\\s+(?:vitest|jest)\\b|npm\\s+(?:test|run\\s+(?:test|vitest)))" },
   "pass": { "toolCalls": [{ "name": "Bash", "input": { "command": "npx vitest run test/vitest/x.spec.ts" } }], "lastMessage": "" },
-  "fail": { "toolCalls": [{ "name": "Bash", "input": { "command": "git status" } }], "lastMessage": "" }
+  "fail": {
+    "toolCalls": [
+      { "name": "Bash", "input": { "command": "ls test/jest" } },
+      { "name": "Bash", "input": { "command": "cat package.json | head -30 && ls test/jest" } }
+    ],
+    "lastMessage": ""
+  }
 }

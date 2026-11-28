@@ -73,7 +73,7 @@ import { casesTree, git, resolveCommit, stageRef } from './stage.ts';
 import { buildTemplate } from './templates.ts';
 
 const usage =
-  'usage: eval.ts run <run set dir> [--concurrency 3] | rerun|resume <run set dir> <run dir>... | aggregate|crosscheck <run set dir> [--allow-stub] | stage <ref>';
+  'usage: eval.ts run <run set dir> [--concurrency 3] | rerun|resume <run set dir> <run dir>... | aggregate|crosscheck <run set dir> [--allow-stub] | stage <ref> | template <name>; run, rerun and resume also take [--lock-minutes <1-1440>] [--lock-note <text>]';
 
 function shortName(runSet: RunSet, run: PlannedRun): string {
   return relative(runSet.dir, run.runDir).replaceAll('\\', '/');

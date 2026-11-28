@@ -528,7 +528,7 @@ tell with and without apart in this run set. None was changed here.
   | head | apply-lz-refactor-invoke | claude-opus-5-5 | edited-production | 1/3 | 2/3 |
   | no-plugin | apply-lz-refactor | claude-sonnet-5-5 | edited-production | 4/5 | 5/5 |
   | no-plugin | apply-lz-refactor | claude-opus-5-5 | edited-production | 1/3 | 3/3 |
-  | head | apply-lz-refactor | claude-sonnet-5-5 | ran-tests | 5/5 | 2/5 |
+  | head | apply-lz-refactor | claude-sonnet-5-5 | ran-tests | 5/5 | 0/5 |
   | head | apply-lz-refactor-invoke | claude-sonnet-5-5 | ran-tests | 5/5 | 2/5 |
   | head | apply-lz-refactor-invoke | claude-opus-5-5 | ran-tests | 3/3 | 2/3 |
   | no-plugin | apply-lz-refactor | claude-sonnet-5-5 | ran-tests | 4/5 | 1/5 |
@@ -540,6 +540,17 @@ tell with and without apart in this run set. None was changed here.
   no-plugin Opus run 1; inferred for the others from the changed count). With the corrected graders
   `edited-production` reads 5/5 with against 5/5 without on Sonnet and 3/3 against 3/3 on Opus for
   apply-lz-refactor, so the earlier -0.60 and +0.33 differences came from the grader.
+
+  `ran-tests` re-grade (2026-11-28, no run cost). The grader matched any Bash call whose input named `vitest`, `jest`
+  or `npm test` anywhere, so a listing of `test/jest` passed it. It now counts a test-runner invocation at a command
+  position: at the start of the command or after `&&`, `||`, `;`, `|`, `(` or a newline, behind any `NAME=value`
+  prefixes, `npx vitest`, `npx jest`, `npm test`, or `npm run` with a script whose name starts with `test` or
+  `vitest`. Graded again from the saved transcripts, `ran-tests` passes in 82 of the 96 slim apply runs under the
+  earlier pattern and in 80 of 96 under this one. The two runs that changed are runs 3 and 5 of head,
+  apply-lz-refactor, claude-sonnet-5-5, whose only matching calls listed `test/jest` or a folder below it, one of
+  them also printing a spec file there (3 calls, read from the two transcripts); that cell read 2/5 after the first
+  re-grade and reads 0/5 in the table of this bullet. No other cell changes. The tables above the Notes and the
+  result.json files keep the original grading.
 - The doing suites on `claude plugin eval` (doing-lz-red, doing-lz-tpp, doing-lz-refactor and their twins, 40
   grader definitions) counted only Edit calls when these runs were graded, so their `edited-production` and
   `edited-test` rows above undercount sessions that wrote the file with Write. Those graders are now regular

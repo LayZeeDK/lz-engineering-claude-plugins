@@ -8,7 +8,7 @@ import { after, test } from 'node:test';
 
 import { evalRepo } from './cases.ts';
 import { git } from './stage.ts';
-import { buildTemplate, cleanEnv, copyTemplate, readTemplates, templateDir, withLocalBin, type Recipe, type Toolchain } from './templates.ts';
+import { buildTemplate, cleanEnv, copyTemplate, npmCliPath, readTemplates, templateDir, withLocalBin, type Recipe, type Toolchain } from './templates.ts';
 
 const root = mkdtempSync(join(tmpdir(), 'lz-evals-templates-')).replaceAll('\\', '/');
 
@@ -286,6 +286,14 @@ test('withLocalBin puts the template node_modules/.bin first on PATH under the n
   assert.deepEqual(withLocalBin('W:/kata', { Path: 'A', OTHER: 'x' }), { Path: `${bin}${separator}A`, OTHER: 'x' });
   assert.deepEqual(withLocalBin('W:/kata', { PATH: 'A' }), { PATH: `${bin}${separator}A` });
   assert.deepEqual(withLocalBin('W:/kata', {}), { PATH: bin });
+});
+
+test('npmCliPath finds npm-cli.js in node_modules beside node.exe on Windows', () => {
+  assert.equal(npmCliPath('C:\\nodejs\\node.exe', 'win32'), 'C:\\nodejs\\node_modules\\npm\\bin\\npm-cli.js');
+});
+
+test('npmCliPath finds npm-cli.js in <prefix>/lib/node_modules when node is in <prefix>/bin elsewhere', () => {
+  assert.equal(npmCliPath('/opt/hostedtoolcache/node/24.22.3/x64/bin/node', 'linux'), '/opt/hostedtoolcache/node/24.22.3/x64/lib/node_modules/npm/bin/npm-cli.js');
 });
 
 test('the committed templates.json pins three GildedRose recipes with clone-relative paths and the srvx recipe with its committed npm lockfile', () => {

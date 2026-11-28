@@ -5,6 +5,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { after, test } from 'node:test';
 
+import { readJson, requireRecord } from './guards.ts';
 import {
   acquireRunSetLock,
   defaultLockMinutes,
@@ -251,12 +252,16 @@ function deadPid(): number {
   return spawnSync(process.execPath, ['-e', '']).pid;
 }
 
+function lockPid(dir: string): unknown {
+  return requireRecord(readJson(`${dir}/.lock`), 'the run set lock file')['pid'];
+}
+
 test('acquireRunSetLock refuses while a live process holds the lock and releases it for the next', () => {
   const dir = `${root}/lock-live`;
   mkdirSync(dir, { recursive: true });
   const release = acquireRunSetLock(dir);
 
-  assert.equal((JSON.parse(readFileSync(`${dir}/.lock`, 'utf8')) as { pid: number }).pid, process.pid);
+  assert.equal(lockPid(dir), process.pid);
   assert.throws(() => acquireRunSetLock(dir), new RegExp(`pid ${String(process.pid)}`));
 
   release();
@@ -271,7 +276,7 @@ test('acquireRunSetLock reports a lock whose process is dead and takes it over',
   put(`${dir}/.lock`, JSON.stringify({ pid: dead, startedAt: '2026-11-25T00:00:00.000Z' }));
   const release = acquireRunSetLock(dir);
 
-  assert.equal((JSON.parse(readFileSync(`${dir}/.lock`, 'utf8')) as { pid: number }).pid, process.pid);
+  assert.equal(lockPid(dir), process.pid);
 
   release();
 });
